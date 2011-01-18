@@ -1,0 +1,106 @@
+# $Id$
+# Makefile.build
+
+ifeq ($(TYPE),LIB)
+  LIBDIRS=
+  LIBS=
+  ADDLIBDIRS=
+  ADDLIBS=
+endif
+
+ifeq ($(TYPE),SO)
+#  LIBDIRS=
+#  LIBS=
+#  ADDLIBDIRS=
+#  ADDLIBS=
+endif
+
+ifeq ($(INCPATH),)
+  INCPATH_USED=$(APPNAME)
+else
+  INCPATH_USED=$(INCPATH)
+endif
+
+
+## COMPILE RULES
+## % expands with the file name
+
+
+
+all: install-dirs install-headers $(TARGET)
+ifeq ($(TYPE),BIN)
+	cp ${TARGET} $(DISTDIR)/$(NAME)
+else
+	cp ${TARGET} $(DISTDIR)/lib/$(NAME)
+endif
+
+install-dirs:
+ifneq ($(TYPE),BIN)
+	@echo "installing directories.."
+	@for i in $(SUBDIRS) $(DISTDIR)/lib $(DISTDIR)/include ; \
+	    do \
+	    echo "Checking directory $$i"; \
+	    if [ ! -d $$i ] ; then \
+		echo "Making directory $$i"; \
+		mkdir -p $$i; \
+		else true; \
+		fi; \
+	    done;
+else
+	@mkdir -p $(DISTDIR)
+endif
+
+BASEDIR ?= ..
+install-headers:
+ifneq ($(TYPE),BIN)
+	@echo "Cleaning old headers..."
+	@rm -rf $(DISTDIR)/include/$(INCPATH_USED)
+	@echo "Installing headers to $(DISTDIR)/include/$(INCPATH_USED)"
+	@BUILDDIR=`pwd` ; cd $(BASEDIR) ; find . \( -name '*.h' -o -name '*.inl' \) -print | cpio -pdum $$BUILDDIR/$(DISTDIR)/include/$(INCPATH_USED) 2> /dev/null
+endif
+
+clean:
+	@printf "Cleaning $(SYSTEM)/$(VISTA_HWARCH) $(MODE) build, deleting $(OBJDIR). "	
+	@rm -rf $(OBJDIR)
+	@printf "done.\n"
+
+INSTALL_PREFIX ?= /usr/local
+install: all
+	mkdir -p $(INSTALL_PREFIX)/include/$(INCPATH_USED)
+	cp -u -r $(DISTDIR)/include/$(INCPATH_USED)/* $(INSTALL_PREFIX)/include/$(INCPATH_USED)/
+	mkdir -p $(INSTALL_PREFIX)/lib
+	cp -u $(DISTDIR)/lib/$(NAME) $(INSTALL_PREFIX)/lib/
+
+
+# for dependency generation
+DEPS = $(OBJS:.o=.d)
+ifeq ($(strip $(filter clean%, $(MAKECMDGOALS))),)
+  include $(DEPS)
+endif
+
+
+VPATH = $(SRCDIRS)
+$(OBJDIR)/%.d: %.cpp
+	@printf "Generating dependencies for $<... "
+	@mkdir -p $(OBJDIR)
+	@$(COMPILER) $(DEPFLAG) $(CFLAGS) $(INCLUDES) $(ADDINCLUDES) $< > $@.dep
+	@sed 's,\($*\)\.o[ :]*,$(OBJDIR)/\1.o $@ : ,g' < $@.dep > $@
+	@rm -f $@.dep
+	@printf "done.\n"
+
+$(OBJDIR)/%.o: %.c
+	${COMPILER} ${CFLAGS} $(INCLUDES) $(ADDINCLUDES) -o $@ -c $<
+
+$(OBJDIR)/%.d: %.c
+	@printf "Generating dependencies for $<... "
+	@mkdir -p $(OBJDIR)
+	@$(COMPILER) $(DEPFLAG) $(CFLAGS) $(INCLUDES) $(ADDINCLUDES) $< > $@.dep
+	@sed 's,\($*\)\.o[ :]*,$(OBJDIR)/\1.o $@ : ,g' < $@.dep > $@
+	@rm -f $@.dep
+	@printf "done.\n"
+
+$(OBJDIR)/%.o: %.cpp
+	${COMPILER} ${CFLAGS} $(INCLUDES) $(ADDINCLUDES) -o $@ -c $<
+
+$(TARGET): install-dirs $(OBJS)
+	$(LINKER) $(LFLAGS) $(TARGET) $(OBJS) $(LIBDIRS) $(ADDLIBDIRS) $(LIBS) $(ADDLIBS)

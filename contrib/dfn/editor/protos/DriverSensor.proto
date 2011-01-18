@@ -1,0 +1,18 @@
+<prototype>
+	<name value="DriverSensor"/>
+	<type value="DriverSensor"/>
+	<origin value="## built-in"/>
+	<params>
+	   <param name="sensor" value=""/>
+	   <param name="type"   value=""/>
+	   <param name="driver" value=""/>
+	</params>
+	<instances/>
+	<portstyle value="STATIC_PORTS"/>
+	<ports>
+		<inports/>
+		<outports>
+			<port name="history" type="history"/>
+		</outports>
+	</ports>
+</prototype>

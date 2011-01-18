@@ -1,0 +1,47 @@
+# $Id$
+## VistaTemplate Makefile for SUNOS
+
+SYSTEM	 	= SUNOS
+BASEDIRECTORY	= ${VRSOFTWARE}
+
+LIBDIRS  =
+LIBS     =
+INCLUDES =
+
+#=======================
+#== PLATFORM SPECIFIC ==
+#=======================
+
+## ADDITIONAL PLATFORM SPECIFIC OBJECT FILES
+# add object filenames for this specific platform here
+# prefixed with $(OBJDIR)/
+# .o files common for all platforms go into Makefile.objects! (same format)
+ADDOBJS =
+
+## LINK ADDITIONAL LIBS
+ADDLIBDIRS  = 
+ADDLIBS     = 
+ADDINCLUDES = -I..
+
+## COMPILER/LINKER FLAGS
+COMPILER 	= CC
+LINKER 	 	= CC
+
+CFLAGS_DEBUG   = -g -O0    -mt -library=stlport4 -D$(SYSTEM) -DDEBUG -D_REENTRANT
+CFLAGS_RELEASE =    -O3 -w -mt -library=stlport4 -D$(SYSTEM)         -D_REENTRANT
+
+LFLAGS_DEBUG   = -xar -mt -library=stlport4 -o
+LFLAGS_RELEASE = -xar -mt -library=stlport4 -o
+
+## ARCHITECTURE SPECIFIC COMPILER/LINKER FLAGS
+# Add the correct parameters for the compiler you have chosen
+# for those architectures which are relevant to your project
+ARCHFLAGS_IA32 = -fast -xarch=sse2
+ARCHFLAGS_IA64 = -xarch=amd64
+ARCHFLAGS_SPARC32 = -xtarget=native -`fpversion -foption`
+ARCHFLAGS_SPARC64 = -xtarget=native64
+ARCHFLAGS_MIPS32  =
+ARCHFLAGS_MIPS64  =
+
+## COMPILER FLAG FOR DEPENDENCY GENERATION
+DEPFLAG = -xM1

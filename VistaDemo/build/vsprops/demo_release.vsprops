@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="demo_release"
+	OutputDirectory="../.."
+	IntermediateDirectory="..\built\$(ConfigurationName).$(PlatformName)"
+	InheritedPropertySheets=".\demo_pathes.vsprops"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="$(VISTA_ROOT)\include"
+		PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS"
+		RuntimeLibrary="2"
+		DisableSpecificWarnings="4251;4275;4503"
+	/>
+	<Tool
+		Name="VCCustomBuildTool"
+		Description="Installing executables..."
+		CommandLine="if not exist &quot;..\..\..\bin&quot; mkdir &quot;..\..\..\bin&quot;&#x0D;&#x0A;xcopy /D /Y &quot;$(VISTA_ROOT)\lib\*.dll&quot; &quot;..\..\..\bin&quot;&#x0D;&#x0A;xcopy /D /Y &quot;$(OPENSG_ROOT)\lib\*.dll&quot; &quot;..\..\..\bin&quot;&#x0D;&#x0A;copy &quot;$(TargetPath)&quot; &quot;..\..\..\bin\$(TargetFileName)&quot;&#x0D;&#x0A;"
+		Outputs="&quot;..\..\..\bin\$(TargetFileName)&quot;"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		AdditionalDependencies="VistaKernel$(NamePostfix).lib VistaAspects$(NamePostfix).lib VistaBase$(NamePostfix).lib VistaMath$(NamePostfix).lib VistaDataFlowNet$(NamePostfix).lib VistaTools$(NamePostfix).lib VistaInterProcComm$(NamePostfix).lib"
+		OutputFile="$(OutDir)\$(ProjectName)$(NamePostfix).exe"
+		AdditionalLibraryDirectories="$(VISTA_ROOT)\lib"
+		GenerateManifest="true"
+	/>
+	<UserMacro
+		Name="NamePostfix"
+		Value=""
+	/>
+</VisualStudioPropertySheet>

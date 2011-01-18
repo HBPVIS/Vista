@@ -1,0 +1,14 @@
+<prototype>
+	<name value="Logger"/>
+	<type value="Logger"/>
+	<origin value="## built-in"/>
+	<params/>
+	<instances/>
+	<portstyle value="OUTPORTS_SAME_AS_INPORTS_MIXIN"/>
+	<ports>
+		<inports>
+			<port name="__filename" type="string"/>
+		</inports>		
+		<outports/>
+	</ports>
+</prototype>

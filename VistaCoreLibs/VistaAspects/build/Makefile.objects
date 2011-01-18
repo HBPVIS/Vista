@@ -1,0 +1,31 @@
+# $Id$
+## OBJECT FILES LIST
+# add your object filenames here
+# prefixed with $(OBJDIR)/
+
+		
+OBJS   	=      ${OBJDIR}/VistaAspectsOut.o \
+               ${OBJDIR}/VistaNameable.o \
+               ${OBJDIR}/VistaAspectsUtils.o \
+               ${OBJDIR}/VistaObserveable.o \
+               ${OBJDIR}/VistaObserver.o \
+               ${OBJDIR}/VistaProperty.o \
+			   ${OBJDIR}/VistaPropertyList.o \
+			   ${OBJDIR}/VistaPropertyAwareable.o \
+               ${OBJDIR}/VistaObjectRegistry.o \
+               ${OBJDIR}/VistaReferenceCountable.o \
+               ${OBJDIR}/VistaPropertyFunctor.o \
+               ${OBJDIR}/VistaPropertyFunctorRegistry.o \
+               ${OBJDIR}/VistaReflectionable.o \
+               ${OBJDIR}/VistaSerializer.o \
+               ${OBJDIR}/VistaSerializable.o \
+               ${OBJDIR}/VistaSerializingToolset.o \
+               ${OBJDIR}/VistaDeSerializer.o \
+               ${OBJDIR}/VistaExplicitCallbackInterface.o \
+               ${OBJDIR}/VistaTransformable.o \
+			   $(OBJDIR)/VistaLocatable.o
+
+# list here objects which are only needed when
+# building with a particular scenegraph toolkit
+OBJS_WTK =	
+OBJS_OPENSG =	

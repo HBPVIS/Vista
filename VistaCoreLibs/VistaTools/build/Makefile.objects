@@ -1,0 +1,37 @@
+# $Id$
+## OBJECT FILES LIST
+# add your object filenames here
+# prefixed with $(OBJDIR)/
+OBJS   	=	${OBJDIR}/VistaToolsOut.o \
+			\
+			${OBJDIR}/VistaProfiler.o \
+			${OBJDIR}/VistaTimer.o \
+			${OBJDIR}/CommTimer.o \
+			${OBJDIR}/VistaCRC32.o \
+			${OBJDIR}/VistaOctree.o \
+			${OBJDIR}/VistaFileDataSet.o \
+			${OBJDIR}/VistaFileSystemDirectory.o \
+			${OBJDIR}/VistaFileSystemFile.o \
+			${OBJDIR}/VistaFileSystemNode.o \
+			${OBJDIR}/VistaProgressBar.o \
+			${OBJDIR}/VistaProtocol.o \
+			${OBJDIR}/VistaEnvironment.o \
+			${OBJDIR}/VistaRandomNumberGenerator.o \
+			${OBJDIR}/VistaHalfedgeAdaptor.o \
+			${OBJDIR}/VistaFastMeshAdaptor.o \
+			${OBJDIR}/VistaDLL.o \
+			${OBJDIR}/VistaColoredConsoleMessage.o \
+			${OBJDIR}/VistaCPUInfo.o \
+			${OBJDIR}/VistaMemoryInfo.o \
+			${OBJDIR}/VistaBasicProfiler.o \
+			${OBJDIR}/VistaStackWalker.o \
+			\
+			${OBJDIR}/tinystr.o \
+			${OBJDIR}/tinyxml.o \
+			${OBJDIR}/tinyxmlerror.o \
+			${OBJDIR}/tinyxmlparser.o
+
+# list here objects which are only needed when
+# building with a particular scenegraph toolkit
+OBJS_WTK =	
+OBJS_OPENSG =	

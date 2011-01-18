@@ -1,0 +1,76 @@
+# Values in the form @VAR@ are prototype variables
+# They will be replaced by CMake 
+
+# Create cache variables
+if(RESET_CACHE)
+    set(VISTA_INC_DIR @VISTA_INSTALL_INC_DIR@ CACHE FILEPATH "Path where ViSTA includes are installed, relative to VISTA_INSTALL_PREFIX" FORCE)
+    set(VISTA_LIB_DIR @VISTA_INSTALL_LIB_DIR@ CACHE FILEPATH "Path where ViSTA libraries are installed, relative to VISTA_INSTALL_PREFIX" FORCE)
+    set(VISTA_INSTALL_PREFIX @CMAKE_INSTALL_PREFIX@ CACHE FILEPATH "Root path of your ViSTA installation" FORCE)
+else()
+    set(VISTA_INC_DIR @VISTA_INSTALL_INC_DIR@ CACHE FILEPATH "Path where ViSTA includes are installed, relative to VISTA_INSTALL_PREFIX")
+    set(VISTA_LIB_DIR @VISTA_INSTALL_LIB_DIR@ CACHE FILEPATH "Path where ViSTA libraries are installed, relative to VISTA_INSTALL_PREFIX")
+    set(VISTA_INSTALL_PREFIX @CMAKE_INSTALL_PREFIX@ CACHE FILEPATH "Root path of your ViSTA installation")
+endif(RESET_CACHE)
+
+# Add the includes and libraries to the compiler/linker
+# search directories
+include_directories(${VISTA_INSTALL_PREFIX}/${VISTA_INC_DIR})
+link_directories(${VISTA_INSTALL_PREFIX}/${VISTA_LIB_DIR}) 
+
+# Add platform defines
+if(UNIX)
+    add_definitions(-DLINUX)
+elseif(WIN32)
+    add_definitions(-DWIN32)
+endif(UNIX)
+
+# Add library name variables
+set(VistaBase
+    optimized VistaBase
+    debug VistaBaseD
+)
+set(VistaAspects
+    optimized VistaAspects
+    debug VistaAspectsD
+)
+set(VistaDataFlowNet
+    optimized VistaDataFlowNet
+    debug VistaDataFlowNetD
+)
+set(VistaDeviceDriversBase
+    optimized VistaDeviceDriversBase
+    debug VistaDeviceDriversBaseD
+)
+set(VistaInterProcComm
+    optimized VistaInterProcComm
+    debug VistaInterProcCommD
+)
+set(VistaKernel
+    optimized VistaKernel
+    debug VistaKernelD
+)
+set(VistaKernelOpenSGExt
+    optimized VistaKernelOpenSGExt
+    debug VistaKernelOpenSGExtD
+)
+set(VistaMath
+    optimized VistaMath
+    debug VistaMathD
+)
+set(VistaTools
+    optimized VistaTools
+    debug VistaToolsD
+)
+
+
+set(Vista3DCSpaceNavigatorPlugin
+    optimized Vista3DCSpaceNavigatorPlugin
+    debug Vista3DCSpaceNavigatorPluginD
+)
+
+
+# Set OpenSG paths for usage in other projects
+set(OPENSG_INC_DIR @OPENSG_INC_DIR@)
+set(OPENSG_LIB_DIR @OPENSG_LIB_DIR@)
+# Set OpenSG as link path
+link_directories(${OPENSG_LIB_DIR}) 

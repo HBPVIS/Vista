@@ -1,0 +1,60 @@
+# $Id$:
+## PLATFORM SPECIFIC SETTINGS
+include Makefile.$(R_OSTYPE)
+
+#======================
+#== PROJECT SPECIFIC ==
+#======================
+
+## APPLICATION'S NAME
+APPNAME=VRPN_SpaceNavServer
+
+## APPLICATION TYPE
+# possible values are 
+# LIB: library 
+# BIN: binary/executable
+# determines the naming scheme of the produced output file
+# example: APPNAME=VistaKernel 
+# LIB: libVistaKernel[D][.OSG].a
+# BIN:    VistaKernel[D][.OSG].LINUX
+TYPE=BIN
+
+## OUTPUT DIRECTORY
+# the directory where the final lib/binary is copied to
+# this is optional, defaults to '..'
+OUTDIR=..
+
+## BUILT DIRECTORY
+# the directory (tree) where the temporary .o files are placed during the build
+BUILTDIR=./built
+
+## OUTPUT DIRECTORIES
+# the list of directories which are to be created before the build
+SUBDIRS =   ${BUILTDIR} \
+            $(OUTDIR)
+
+## SOURCE DIRECTORY LIST
+# add your directories containing source-files here
+SRCDIRS = ..
+
+## SUB-SYSTEMS
+# Add a line for each required subsystem here.
+# Makefile.COMMON always has to be included
+# e.g. to make use of wtk:
+# include $(BASEDIRECTORY)/build/Makefile.WTK
+
+# ORDER IS HIGHLY IMPORTANT HERE!!
+# if one module depends on another, it has to be named
+# BEFORE the one on which it depends!
+
+# to use a different version than the system-wide,
+# you can set the particular ROOT directory:
+# e.g. to use your local Vista-version: 
+# VISTA_ROOT=/home/xxx/work/Vista
+
+VISTA_ROOT ?= $(BASEDIRECTORY)/Vista
+
+include $(VISTA_ROOT)/VistaMakefiles/Makefile.COMMON
+include $(VISTA_ROOT)/VistaMakefiles/Makefile.VISTANOKERNEL
+include $(VISTA_ROOT)/VistaMakefiles/Makefile.VRPN
+include	$(VISTA_ROOT)/VistaMakefiles/Makefile.build

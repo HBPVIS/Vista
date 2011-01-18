@@ -1,0 +1,100 @@
+<module>
+ <nodespace/>
+ <graph>
+  <node name="source" type="Sensor">
+   <param name="sensor" value="0"/>
+   <param name="type" value="WIIMOTE"/>
+   <param name="driver" value="WIIMOTE"/>
+  </node>
+ 
+  <node name="wiimote" type="HistoryProject">
+   <param name="project">BTN_A, BTN_B, ACCELERATION</param>
+  </node>
+  
+  <node name="cdt_0" type="ChangeDetect[bool]"/>
+  
+  <node name="d2s" type="Convert[bool,string]"/>
+  
+  <node name="p_btn0" type="print"/>
+  
+  <node name="cdt_q" type="ChangeDetect[bool]"/>
+  <node name="quitter" type="quitter"/>
+  
+  <node name="a2s" type="Convert[VistaVector3D,string]"/>
+  <node name="a_print" type="print"/>
+  
+   <node name="state-source" type="Sensor">
+	   <param name="sensor" value="0"/>
+	   <param name="type" value="STATUS"/>
+	   <param name="driver" value="WIIMOTE"/>
+   </node>
+   
+   <node name="status" type="HistoryProject">
+    <param name="project">EXPANSIONSTATE,BATTERY</param>  
+   </node>
+   
+   <node name="s2s" type="Convert[int,string]"/>
+   <node name="st_print" type="print"/>
+	 
+    <node name="bt2s" type="Convert[float,string]"/>
+	<node name="bt_print" type="print"/>
+   
+	<node name="nunchuk-source" type="Sensor">
+		<param name="sensor" value="0"/>
+		<param name="type" value="NUNCHUK"/>
+		<param name="driver" value="WIIMOTE"/>
+	</node>
+	 
+	<node name="nunchuk" type="HistoryProject">
+		<param name="project">PADDLE, ORIENTATION, BTN_Z</param>
+	</node>
+	
+	<node name="cdt_paddle" type="ChangeDetect[VistaVector3D]"/>
+  
+	<node name="p2s" type="Convert[VistaVector3D,string]"/>
+	<node name="pd_print" type="print"/>
+
+	 
+	<node name="o2s" type="Convert[VistaQuaternion,string]"/>
+	<node name="o_print" type="print"/>
+	 
+	<node name="b2s" type="Convert[bool,string]"/>
+	<node name="b_print" type="print"/>
+	 
+ </graph>
+ <edges>
+  <edge fromnode="source" tonode="wiimote" fromport="history" toport="history"/>
+  
+  <edge fromnode="wiimote" tonode="cdt_0" fromport="BTN_A" toport="val_in"/>
+  <edge fromnode="cdt_0" tonode="d2s" fromport="out" toport="in"/>  
+  <edge fromnode="d2s" tonode="p_btn0" fromport="out" toport="in"/>
+  
+  <edge fromnode="wiimote" tonode="cdt_q" fromport="BTN_B" toport="val_in"/>
+  <edge fromnode="cdt_q" tonode="quitter" fromport="val_out" toport="in"/>
+  
+  
+  <edge fromnode="wiimote" tonode="a2s" fromport="ACCELERATION" toport="in"/>
+  <!--<edge fromnode="a2s" tonode="a_print" fromport="out" toport="in"/> -->
+  
+  <edge fromnode="state-source" tonode="status" fromport="history" toport="history"/>
+  <edge fromnode="status" tonode="s2s" fromport="EXPANSIONSTATE" toport="in"/>
+  <edge fromnode="s2s" tonode="st_print" fromport="out" toport="in"/>
+  <edge fromnode="status" tonode="bt2s" fromport="BATTERY" toport="in"/>
+  <edge fromnode="bt2s" tonode="bt_print" fromport="out" toport="in"/>
+	 
+  <edge fromnode="nunchuk-source" tonode="nunchuk" fromport="history" toport="history"/>
+  <edge fromnode="nunchuk" tonode="cdt_paddle" fromport="PADDLE" toport="val_in"/>
+  <edge fromnode="cdt_paddle" tonode="p2s" fromport="val_out" toport="in"/>
+  <egde fromnode="p2s" tonode="pd_print" fromport="out" toport="in"/>
+	 
+  <edge fromnode="nunchuk" tonode="o2s" fromport="ORIENTATION" toport="in"/>
+  <!--<edge fromnode="o2s" tonode="o_print" fromport="out" toport="in"/>-->
+	 
+  <edge fromnode="nunchuk" tonode="b2s" fromport="BTN_Z" toport="in"/>
+  <!--<edge fromnode="b2s" tonode="b_print" fromport="out" toport="in"/>-->
+	 
+		 
+  	 
+ </edges>
+</module>
+

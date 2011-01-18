@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="opensg"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="&quot;$(OPENSG_ROOT)\include&quot;;&quot;$(GLUT_ROOT)\include&quot;"
+		PreprocessorDefinitions="OSG_WITH_GLUT;OSG_WITH_GIF;OSG_WITH_TIF;OSG_WITH_JPG;OSG_BUILD_DLL;_OSG_HAVE_CONFIGURED_H_"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		AdditionalDependencies="OSGBase$(DebugInfix).lib OSGSystem$(DebugInfix).lib OSGWindowGLUT$(DebugInfix).lib"
+		AdditionalLibraryDirectories="$(OPENSG_ROOT)\lib; $(GLUT_ROOT)\lib"
+	/>
+</VisualStudioPropertySheet>

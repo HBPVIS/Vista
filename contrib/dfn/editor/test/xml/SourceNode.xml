@@ -1,0 +1,12 @@
+<module>
+ <nodespace/>
+ <graph>
+  <node name="wiimote" type="HistoryProject">
+   <param name="project">BTN_A, BTN_B, ACCELERATION</param>
+  </node>
+ 
+	 
+ </graph>
+ <edges/>
+</module>
+

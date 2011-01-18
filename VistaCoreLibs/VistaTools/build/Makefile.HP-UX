@@ -1,0 +1,44 @@
+## VistaTools Makefile for HP-UX
+# $Id$
+
+SYSTEM   = HP-UX
+
+LIBDIRS  =
+LIBS     =
+INCLUDES =
+
+#=======================
+#== PLATFORM SPECIFIC ==
+#=======================
+
+## ADDITIONAL PLATFORM SPECIFIC OBJECT FILES
+# add object filenames for this specific platform here
+# prefixed with $(OBJDIR)/
+# .o files common for all platforms go into Makefile.objects! (same format)
+ADDOBJS =
+
+## LINK ADDITIONAL LIBS
+ADDLIBS_DEBUG       = 
+ADDLIBS_RELEASE     = 
+ADDLIBDIRS_DEBUG    = 
+ADDLIBDIRS_RELEASE  = 
+ADDINCLUDES_DEBUG   = 
+ADDINCLUDES_RELEASE = 
+
+## COMPILER/LINKER FLAGS
+COMPILER 	= CC
+LINKER 	 	= ar
+
+CFLAGS_DEBUG   = -g -AA +DA1.1 +DS2.0 -DRWSTD_MULTI_THREAD -D_REENTRANT -D$(SYSTEM) -DDEBUG
+CFLAGS_RELEASE = +O3 -AA +DA1.1 +DS2.0 -w -DRWSTD_MULTI_THREAD -D_REENTRANT -D$(SYSTEM)       
+
+LFLAGS_DEBUG   = -ruv
+LFLAGS_RELEASE = -ru
+
+## ARCHITECTURE SPECIFIC COMPILER/LINKER FLAGS
+# Add the correct parameters for the compiler you have chosen
+# for those architectures which are relevant to your project
+ARCHFLAGS_X86_64 = 
+
+## COMPILER FLAG FOR DEPENDENCY GENERATION
+DEPFLAG = -P

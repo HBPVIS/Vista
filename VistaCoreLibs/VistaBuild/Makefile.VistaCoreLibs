@@ -1,0 +1,15 @@
+SUB_DIRS =	../VistaBase \
+		../VistaAspects \
+		../VistaMath \
+		../VistaInterProcComm \
+		../VistaTools \
+		../VistaDeviceDriversBase \
+		../VistaDataFlowNet \
+		../VistaKernel \
+		../VistaKernelOpenSGExt
+
+%:	
+	for i in $(SUB_DIRS) ; \
+	do \
+	( WD=`pwd` && cd $$i/build && $(MAKE) $@ ) || exit ; \
+	done ;

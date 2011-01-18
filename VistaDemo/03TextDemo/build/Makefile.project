@@ -1,0 +1,61 @@
+# $Id$:
+
+## AUTO DETECTION OF PLATFORM AND ARCHITECTURE
+VISTA_OSTYPE ?= $(shell uname | tr '[:lower:]' '[:upper:]')
+VISTA_HWARCH ?= $(shell uname -m | tr '[:lower:]' '[:upper:]')
+VISTA_ROOT ?= ../../../VistaCoreLibs/dist/$(VISTA_OSTYPE).$(VISTA_HWARCH)
+
+## PLATFORM SPECIFIC SETTINGS
+include Makefile.$(VISTA_OSTYPE)
+
+#======================
+#== PROJECT SPECIFIC ==
+#======================
+
+## APPLICATION'S NAME
+APPNAME=03TextDemo
+
+## APPLICATION TYPE
+# possible values are 
+# LIB: library 
+# BIN: binary/executable
+# determines the naming scheme of the produced output file
+# example: APPNAME=VistaKernel 
+# LIB: libVistaKernel[D][.OSG].a
+# BIN:    VistaKernel[D][.OSG].LINUX
+TYPE?=BIN
+
+## OUTPUT DIRECTORY
+# the directory where the final lib/binary is copied to
+# this is optional, defaults to '..'
+DISTDIR=../../bin
+
+## BUILT DIRECTORY
+# the directory (tree) where the temporary .o files are placed during the build
+BUILTDIR=./built
+
+## OUTPUT DIRECTORIES
+# the list of directories which are to be created before the build
+SUBDIRS =   ${BUILTDIR} \
+            $(DISTDIR)
+
+## SOURCE DIRECTORY LIST
+# add your directories containing source-files here
+SRCDIRS = ..
+
+## LINK LIBRARIES
+# add the libs, library and include directories for those libs which are
+# shared on all platforms. platform-specific stuff goes to ADD* in
+# Makefile.$(VISTA_OSTYPE)
+
+LIBS_DEBUG      = -lVistaKernelD -lVistaAspectsD -lglut
+LIBS_RELEASE    = -lVistaKernel  -lVistaAspects -lglut
+
+LIBDIRS_DEBUG   = -L$(VISTA_ROOT)/lib -L$(OPENSG_ROOT)/lib/debug -L$(GLUT_ROOT)/lib
+LIBDIRS_RELEASE = -L$(VISTA_ROOT)/lib -L$(OPENSG_ROOT)/lib/opt -L$(GLUT_ROOT)/lib
+
+INCLUDES_DEBUG   = -I.. -I$(VISTA_ROOT)/include
+INCLUDES_RELEASE = -I.. -I$(VISTA_ROOT)/include
+
+include ../../../VistaCoreLibs/VistaBuild/Makefile.COMMON
+include	../../../VistaCoreLibs/VistaBuild/Makefile.build

@@ -1,0 +1,48 @@
+<!-- $Id: worldpointer_by_mouse.xml,v 1.7 2009/05/28 08:21:57 dr165799 Exp $ -->
+<module>
+	<nodespace>
+	</nodespace>
+	<graph>
+		<!-- data source... a mouse -->
+		<node name="mouse_source" type="DriverSensor">
+			<param name="sensor" value="0"/>
+			<param name="driver" value="MOUSE"/>
+		</node>
+		<node name="mouse" type="HistoryProject">
+			<param name="project">X_POS, Y_POS, LEFT_BUTTON, MIDDLE_BUTTON, RIGHT_BUTTON</param>
+		</node>
+		<!-- DONE -->
+		<node name="3dmouse" type="3DMouseTransform">
+			<param name="display_system" value="MONO"/>
+			<param name="viewport" value="MONO_VIEWPORT"/>
+			<param name="in_world_coordinates" value="true"/>
+		</node>
+		
+		<node name="bt-aggregate" type="btmask"/>
+		
+		<node name="cg-button" type="ChangeDetect[int]"/>
+		
+		<node name="worldpointer" type="Action">
+			<param name="object" value="userpointer"/>
+		</node>
+
+	</graph>
+	<edges>
+		<!-- connect mouse -|
+		             mode   -> project -->
+		<edge fromnode="mouse_source" tonode="mouse" fromport="history" toport="history"/>		
+		<edge fromnode="mouse" tonode="3dmouse" fromport="X_POS" toport="x_pos"/>
+		<edge fromnode="mouse" tonode="3dmouse" fromport="Y_POS" toport="y_pos"/>   
+		
+		<!-- route 3d mouse to worldpointer -->
+		<edge fromnode="3dmouse" tonode="worldpointer" fromport="orientation" toport="ORIENTATION"/>
+		<edge fromnode="3dmouse" tonode="worldpointer" fromport="position" toport="POSITION"/>
+		
+		<edge fromnode="mouse" tonode="bt-aggregate" fromport="LEFT_BUTTON" toport="1_btL"/>
+		<edge fromnode="mouse" tonode="bt-aggregate" fromport="MIDDLE_BUTTON" toport="4_btM"/>
+		<edge fromnode="mouse" tonode="bt-aggregate" fromport="RIGHT_BUTTON" toport="2_btR"/>
+		
+		<edge fromnode="bt-aggregate" tonode="cg-button" fromport="out" toport="val_in"/>
+		<edge fromnode="cg-button" tonode="worldpointer" fromport="val_out" toport="ACTION"/>
+	</edges>
+</module>

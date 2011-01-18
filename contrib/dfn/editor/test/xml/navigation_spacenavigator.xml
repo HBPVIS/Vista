@@ -1,0 +1,83 @@
+<module>
+  <nodespace>
+  </nodespace>
+  <graph>
+  	<!-- data source... a space navigator -->
+	<node name="spacenavigator" type="Sensor">
+	  <param name="sensor" value="0" />
+	  <param name="driver" value="SPACENAVIGATOR" />
+	</node>
+	
+	<!-- project the necessary information from the spacenav history -->
+	<node name="project_spacenav" type="HistoryProject">
+	  <param name="project">POSITION, ORIENTATION</param>
+	</node>
+	
+	
+ 	<!-- this will give the sampling mode to the history project
+             node, a value of "0" means "LAZY" while a value of "1"
+             means "HOT". There is no other sampling value currently -->
+	<node name="sampling_mode" type="Constant[int]">
+	  <param name="value" value="0" />
+	</node>
+
+	<!-- currently not used in the navigation node -->
+	<node name="navigation_mode" type="Constant[int]">
+	  <param name="value" value="1" />
+	</node>
+
+	<node name="null_vector" type="Constant[VistaVector3D]">
+	  <param name="value">
+		0, 0, 0, 0
+	  </param>
+	</node>
+
+	<node name="scale_measure" type="MultScalar" />
+
+	<node name="scale_factor" type="Constant[float]">
+	  <param name="value" value="0.0025" />
+	</node>
+
+	<!-- get original transform of vis controller transformable adapter -->
+	<node name="cam_trans" type="GetTransform">
+	  <param name="object" value="viscontroller_transformable" />
+	</node>
+
+	<!-- apply transform node for new transform of vis controller transformable adapter -->
+	<node name="apply_transform" type="ApplyTransform">
+	  <param name="object" value="viscontroller_transformable" />
+	</node>
+
+	<!-- timer node -->
+	<node name="timer" type="TimerNode">
+		<param name="reset_on_activate" value="true" />
+	</node>
+
+	<!-- navigation node -->
+	<node name="navigation" type="navigation" />
+
+  </graph>
+  <edges>
+	<edge fromnode="spacenavigator" tonode="project_spacenav" fromport="history" toport="history" />
+	<edge fromnode="sampling_mode" tonode="project_spacenav" fromport="value" toport="sampling_mode" />
+
+	<edge fromnode="project_spacenav" tonode="scale_measure" fromport="POSITION" toport="vec_in" />
+	<edge fromnode="scale_factor" tonode="scale_measure" fromport="value" toport="scalar_in" />
+
+
+	<!-- now, put all into navigation node -->
+	<edge fromnode="scale_measure" tonode="navigation" fromport="vec_out" toport="translation" />
+
+	<edge fromnode="project_spacenav" tonode="navigation" fromport="ORIENTATION" toport="rotation" />
+	
+	<edge fromnode="navigation_mode" tonode="navigation" fromport="value" toport="navigation_mode" />
+
+	<edge fromnode="cam_trans" tonode="navigation" fromport="transform" toport="transform"/>
+
+	<edge fromnode="timer" tonode="navigation" fromport="dt" toport="dt"/>
+
+	<!-- finally, apply transformation to target node -->
+	<edge fromnode="navigation" tonode="apply_transform" fromport="transform" toport="transform" />
+
+  </edges>
+</module>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="common_release"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		Optimization="2"
+		EnableIntrinsicFunctions="true"
+		FavorSizeOrSpeed="1"
+		WholeProgramOptimization="true"
+		PreprocessorDefinitions="NDEBUG"
+		RuntimeLibrary="2"
+		BufferSecurityCheck="false"
+		WarningLevel="3"
+		DisableSpecificWarnings="4251;4275;4503"
+	/>
+	<UserMacro
+		Name="DebugInfix"
+		Value=""
+	/>
+</VisualStudioPropertySheet>

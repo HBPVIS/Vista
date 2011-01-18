@@ -1,0 +1,16 @@
+## OBJECT FILES LIST
+# add your object filenames here
+# prefixed with $(OBJDIR)/
+OBJS   	=	$(OBJDIR)/GreedyObserver.o \
+		$(OBJDIR)/DemoEvent.o \
+		$(OBJDIR)/EventDemoAppl.o \
+		$(OBJDIR)/TimeObserver.o \
+		$(OBJDIR)/DemoHandler.o \
+		$(OBJDIR)/ObserverRegisterCallback.o \
+		$(OBJDIR)/ProcessCallback.o \
+		$(OBJDIR)/main.o
+
+
+# list here objects which are only needed when
+# building with a particular scenegraph toolkit
+OBJS_OPENSG =	

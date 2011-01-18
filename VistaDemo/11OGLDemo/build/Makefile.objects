@@ -1,0 +1,11 @@
+## OBJECT FILES LIST
+# add your object filenames here
+# prefixed with $(OBJDIR)/
+OBJS   	=		$(OBJDIR)/OglDrawObject.o \
+						$(OBJDIR)/OglDemoAppl.o \
+						$(OBJDIR)/main.o
+
+
+# list here objects which are only needed when
+# building with a particular scenegraph toolkit
+OBJS_OPENSG =	

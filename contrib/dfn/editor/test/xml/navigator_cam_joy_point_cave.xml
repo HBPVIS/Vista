@@ -1,0 +1,161 @@
+<module>
+	<nodespace>
+	</nodespace>
+	<graph>
+    <node name="joystick_source" type="DriverSensor">
+      <param name="sensor" value="0"/>
+      <param name="driver" value="JOYSTICK"/>
+    </node>
+    <node name="joystick" type="HistoryProject">
+      <param name="project">AXIS_1, AXIS_2, AXIS_3</param>
+    </node>
+		
+
+	<!-- ################################################################### -->
+	<!-- configuration for the tracking body that determines the
+              orientation of the translation vector later on -->
+     <node name="user_pointdirection_source" type="DriverSensor">
+	<param name="sensor_id" value="PADSENSOR"/>
+	<param name="type" value="BODY"/>
+	<param name="driver" value="DTRACK"/>
+
+     </node>
+
+     <node name="user_pointdirection" type="HistoryProject">
+
+	<param name="project">ORIENTATION</param>
+
+     </node>
+     
+<!--     <node name="debug_joy" type="devicedebug">
+     	<param name="green" value="1.0"/>
+     	<param name="showlist" value="POSITION, ORIENTATION"/>
+     </node>
+     -->
+
+	<!-- ################################################################### -->
+
+    <!-- the sink node -->
+    <node name="cam" type="Action">
+      <param name="object" value="camera"/>
+    </node>
+
+		
+	<!-- forward backward for axis 1/2 -->
+
+	<node name="128-norm" type="ConstantValue[VistaVector3D]">
+		<param name="value" value="-128,-128,0"/>
+	</node>
+	
+	<node name="pre-move-add-move" type="Add[VistaVector3D]"/>
+	<node name="scale-normalize" type="ConstantValue[float]">
+		<param name="value" value="-0.0078125"/>
+	</node>	
+
+	<node name="normalize-move" type="Multiply[float,VistaVector3D]"/>
+	<node name="cubedamp-axis-1" type="cubicdamp"/>
+	
+    
+    <node name="velocity" type="ConstantValue[float]">
+    	<param name="value" value="2.0"/>
+    </node>
+    
+    
+    <node name="step" type="ConstantValue[double]">
+      <param name="value" value="0.01"/>
+    </node>
+
+    <node name="ticker" type="TickTimer"/>
+    <node name="tick_to_float" type="TypeConvert[double,float]"/>
+    
+  	
+  	<node name="mult-delta" type="Multiply[float]"/>
+  	
+  	<node name="move-direction" type="ConstantValue[VistaVector3D]">
+  		<param name="value" value="0,0,-1"/>
+  	</node>
+  	
+  	<node name="timescaled-forward" type="Multiply[float,VistaVector3D]"/>
+  	
+  	<node name="project-forward-axis" type="ProjectVector">
+  		<param name="component" value="y"/>
+  	</node>
+  	
+	<node name="scale-forward" type="Multiply[float,VistaVector3D]"/>  
+    
+           
+    
+    <!-- ###################################################### -->
+    <!-- ############# VIEW ALIGNMENT ######################### -->
+    <!-- ###################################################### -->
+    <node name="view-align-transform" type="transoriget">
+    	<param name="object" value="platform"/>
+    </node>
+
+    <node name="revert-platform" type="Multiply[VistaQuaternion]"/>
+
+    <node name="newori" type="ChangeDetect[VistaQuaternion]"/>
+    <node name="trans-to-pointer" type="quat_rotate"/>
+    
+  </graph>
+	<edges>
+
+	<!--  ############## SOURCES ################# -->
+     <edge fromnode="user_pointdirection_source" tonode="user_pointdirection" fromport="history" toport="history"/>
+     <edge fromnode="joystick_source" tonode="joystick" fromport="history" toport="history"/>
+	      
+     <!-- normalize-move step -->
+      <!-- first add homogenous value (128) -->
+      <edge fromnode="128-norm" tonode="pre-move-add-move" fromport="value" toport="first"/>
+      <edge fromnode="joystick" tonode="pre-move-add-move" fromport="AXIS_1" toport="second"/>
+      <edge fromnode="pre-move-add-move" tonode="normalize-move" fromport="out" toport="second"/>
+      <edge fromnode="scale-normalize" tonode="normalize-move" fromport="value" toport="first"/>
+    
+    
+      <!-- calculate velocity for the movement, based on a constant time sampling -->
+      <edge fromnode="velocity" tonode="mult-delta" fromport="value" toport="first"/>
+	  <!-- ticker -->
+      <edge fromnode="step" tonode="ticker" fromport="value" toport="step"/>
+      <edge fromnode="ticker" tonode="tick_to_float" fromport="ticktime" toport="in"/>
+      <edge fromnode="tick_to_float" tonode="mult-delta" fromport="out" toport="second"/>
+
+	  <!-- create forward-direction vector -->
+      <edge fromnode="mult-delta" tonode="timescaled-forward" fromport="out" toport="first"/>
+      <edge fromnode="move-direction" tonode="timescaled-forward" fromport="value" toport="second"/>
+      <!--<edge fromnode="normalize-move" tonode="project-forward-axis" fromport="out" toport="vec"/>-->
+      <edge fromnode="normalize-move" tonode="cubedamp-axis-1" fromport="out" toport="in"/>
+      <edge fromnode="cubedamp-axis-1" tonode="project-forward-axis" fromport="out" toport="vec"/>
+            
+      
+      <!-- create left-right-direction vector -->
+            
+      <!-- create direction vector -->
+      <edge fromnode="project-forward-axis" tonode="scale-forward" fromport="out" toport="first"/>
+      <edge fromnode="timescaled-forward" tonode="scale-forward" fromport="out" toport="second"/>
+      
+      
+      <!-- superimpose that -->
+      <edge fromnode="scale-forward" tonode="trans-to-pointer" fromport="out" toport="vec_in"/>
+    
+     
+      
+      <!-- #################################### -->
+      <!-- ######  VIEW ALIGNMENT ############# -->
+      <!-- #################################### -->
+      <!--<edge fromnode="superimpose-up-down"  tonode="trans-to-pointer" fromport="out" toport="vec_in"/>-->
+      <!--<edge fromnode="user_pointdirection" tonode="newori" fromport="ORIENTATION" toport="val_in"/>-->
+      <edge fromnode="newori" tonode="trans-to-pointer" fromport="val_out" toport="quat_in"/>
+	       <edge fromnode="trans-to-pointer" tonode="cam" fromport="out" toport="TRANSLATION"/>
+
+
+	<edge fromnode="view-align-transform" tonode="revert-platform" fromport="rotation" toport="second"/>
+<!--	<edge fromnode="invert-platform" tonode="revert-platform" fromport="out" toport="second"/>-->
+<!--	<edge fromnode="user_pointdirection" tonode="revert-platform" fromport="ORIENTATION" toport="first"/>-->
+	<edge fromnode="user_pointdirection" tonode="revert-platform" fromport="ORIENTATION" toport="first"/>
+	<!--<edge fromnode="point-in-xz-plane" tonode="revert-platform" fromport="out" toport="first"/>-->
+-	<edge fromnode="revert-platform" tonode="newori" fromport="out" toport="val_in"/>
+
+<!--	<edge fromnode="newori" tonode="dbg_newori" fromport="val_out" toport="value"/>-->
+
+    </edges>
+</module>

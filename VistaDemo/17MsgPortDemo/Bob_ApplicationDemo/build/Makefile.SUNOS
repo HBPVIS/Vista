@@ -1,0 +1,50 @@
+## VistaTemplate Makefile for SUNOS
+
+SYSTEM	 	= SUNOS
+BASEDIRECTORY	= ${VRSOFTWARE}
+
+LIBDIRS  =
+LIBS     =
+CFLAGS   =
+LFLAGS   =
+INCLUDES =
+
+#=======================
+#== PLATFORM SPECIFIC ==
+#=======================
+
+## ADDITIONAL PLATFORM SPECIFIC OBJECT FILES
+# add object filenames for this specific platform here
+# prefixed with $(OBJDIR)/
+# .o files common for all platforms go into Makefile.objects! (same format)
+ADDOBJS =
+
+## LINK ADDITIONAL LIBS
+ADDLIBDIRS  = -L/usr/local/glut-3.7/lib/glut
+ADDLIBS     = -lc -lGL -lXmu -lglut -lGLU -lGLw -lrt -lXi -lXm -lXt -lX11 -lnsl -lsocket -ldl -lm
+ADDINCLUDES = -I..
+
+## COMPILER/LINKER FLAGS
+COMPILER 	= CC
+LINKER 	 	= CC
+
+CFLAGS_DEBUG   = -g -O0 -w -mt -library=stlport4 -D$(SYSTEM) -DDEBUG
+CFLAGS_RELEASE =    -O3 -w -mt -library=stlport4 -D$(SYSTEM)        
+
+LFLAGS_DEBUG   = -mt -g -library=stlport4 -o 
+LFLAGS_RELEASE = -w -mt -library=stlport4 -o
+
+## ARCHITECTURE SPECIFIC COMPILER/LINKER FLAGS
+# Add the correct parameters for the compiler you have chosen
+# for those architectures which are relevant to your project
+ARCHFLAGS_IA32 = 
+ARCHFLAGS_IA64 = 
+ARCHFLAGS_OP32 = 
+ARCHFLAGS_OP64 = 
+ARCHFLAGS_SPARC32 = -xtarget=native
+ARCHFLAGS_SPARC64 = -xtarget=native64
+ARCHFLAGS_MIPS32  =
+ARCHFLAGS_MIPS64  =
+
+## COMPILER FLAG FOR DEPENDENCY GENERATION
+DEPFLAG = -xM1

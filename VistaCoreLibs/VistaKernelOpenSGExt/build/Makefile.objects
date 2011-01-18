@@ -1,0 +1,23 @@
+## OBJECT FILES LIST
+# add your object filenames here
+# prefixed with $(OBJDIR)/
+
+		
+OBJS   	=		${OBJDIR}/VistaKernelOpenSGExtOut.o \
+				\
+				${OBJDIR}/VistaOpenSGShadow.o \
+				${OBJDIR}/VistaOpenSGSkybox.o \
+				${OBJDIR}/VistaOpenSGParticles.o \
+				${OBJDIR}/VistaOpenSGParticleManager.o \
+				${OBJDIR}/VistaOpenSGParticleManagerParticleChanger.o \
+				${OBJDIR}/VistaOpenSGGeometryTools.o \
+				${OBJDIR}/VistaOpenSGNormalMapMaterial.o \
+				${OBJDIR}/VistaOpenSGNormalMapMaterialShaders.o \
+				${OBJDIR}/VistaOpenSGPerMaterialShader.o \
+				${OBJDIR}/VistaOpenSGPhongShader.o \
+				${OBJDIR}/VistaOpenSGToonShader.o
+
+# list here objects which are only needed when
+# building with a particular scenegraph toolkit
+OBJS_WTK =	
+OBJS_OPENSG =	

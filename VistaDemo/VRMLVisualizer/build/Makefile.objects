@@ -1,0 +1,16 @@
+# $Id:
+## OBJECT FILES LIST
+# add your object filenames here
+# prefixed with $(OBJDIR)/
+OBJS   	=	${OBJDIR}/main.o \
+			${OBJDIR}/VrmlVisualizer.o \
+			${OBJDIR}/EnDisableCallback.o \
+			${OBJDIR}/VrmlEventHandler.o \
+			${OBJDIR}/ToggleAnimationCallback.o \
+			${OBJDIR}/IncreaseCallback.o \
+			${OBJDIR}/DecreaseCallback.o \
+			${OBJDIR}/ResetCallback.o
+
+# list here objects which are only needed when
+# building with a particular scenegraph toolkit
+OBJS_OPENSG =	

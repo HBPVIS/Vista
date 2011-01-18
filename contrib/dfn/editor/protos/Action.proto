@@ -1,0 +1,15 @@
+<prototype>
+	<name value="Action"/>
+	<type value="Action"/>
+	<origin value="## built-in"/>
+	<params>
+	 <param name="object" value=""/>
+	</params>
+	<instances/>
+	<portstyle value="ALLPORTS_DEPEND_ON_STATE"/>
+	<ports>
+		<inports/>
+		<outports/>
+	</ports>		
+</prototype>
+ 

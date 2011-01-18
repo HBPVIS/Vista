@@ -1,0 +1,15 @@
+<prototype>
+	<name value="Timer"/>
+	<type value="Timer"/>
+	<origin value="## built-in"/>
+	<params/>
+	<instances/>
+	<portstyle value="STATIC_PORTS"/>
+	<ports>
+		<inports/>
+		<outports>
+			<port name="dt" type="double"/>
+			<port name="timer" type="double"/>
+		</outports>
+	</ports>
+</prototype>

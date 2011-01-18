@@ -1,0 +1,21 @@
+<prototype>
+	<name value="Navigation"/>
+	<type value="Navigation"/>
+	<origin value="## built-in"/>
+	<params/>
+	<instances/>
+	<portstyle value="STATIC_PORTS"/>
+	<ports>
+		<inports>
+			<port name="translation" type="VistaVector3D"/>
+			<port name="linear_velocity" type="float"/>
+			<port name="rotation" type="VistaQuaternion"/>
+			<port name="angular_velocity" type="float"/>
+			<port name="dt" type="double"/>
+			<port name="transform" type="VistaTransformMatrix"/>
+		</inports>	
+		<outports>
+			<port name="transform" type="VistaTransformMatrix"/>
+		</outports>
+	</ports>
+</prototype>

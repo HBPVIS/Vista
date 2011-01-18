@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="common_debug"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		Optimization="0"
+		EnableIntrinsicFunctions="true"
+		PreprocessorDefinitions="DEBUG;_DEBUG"
+		MinimalRebuild="true"
+		BasicRuntimeChecks="3"
+		SmallerTypeCheck="true"
+		RuntimeLibrary="3"
+		BufferSecurityCheck="true"
+		EnableFunctionLevelLinking="true"
+		FloatingPointExceptions="true"
+		WarningLevel="3"
+		DebugInformationFormat="4"
+		DisableSpecificWarnings="4251;4275;4503"
+	/>
+	<UserMacro
+		Name="DebugInfix"
+		Value="D"
+	/>
+</VisualStudioPropertySheet>

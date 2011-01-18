@@ -1,0 +1,16 @@
+<prototype>
+	<name value="ValueToTrigger"/>
+	<origin value="## built-in"/>
+	<params>
+	</params>
+	<instances>
+		unsigned int
+	</instances>
+	<portstyle value="OUTPORTS_DEPEND_ON_INPORT"/>
+	<ports>
+		<inports>
+			<port name="value" type="@0"/>
+		</inports>
+		<outports/>
+	</ports>
+</prototype>

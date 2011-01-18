@@ -1,0 +1,158 @@
+/*============================================================================*/
+/*                              ViSTA VR toolkit                              */
+/*               Copyright (c) 1997-2010 RWTH Aachen University               */
+/*============================================================================*/
+/*                                  License                                   */
+/*                                                                            */
+/*  This program is free software: you can redistribute it and/or modify      */
+/*  it under the terms of the GNU Lesser General Public License as published  */
+/*  by the Free Software Foundation, either version 3 of the License, or      */
+/*  (at your option) any later version.                                       */
+/*                                                                            */
+/*  This program is distributed in the hope that it will be useful,           */
+/*  but WITHOUT ANY WARRANTY; without even the implied warranty of            */
+/*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             */
+/*  GNU Lesser General Public License for more details.                       */
+/*                                                                            */
+/*  You should have received a copy of the GNU Lesser General Public License  */
+/*  along with this program.  If not, see <http://www.gnu.org/licenses/>.     */
+/*============================================================================*/
+/*                                Contributors                                */
+/*                                                                            */
+/*============================================================================*/
+// $Id$
+
+#include "VdfnSerializer.h" 
+
+
+/*============================================================================*/
+/* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
+/*============================================================================*/
+
+/*============================================================================*/
+/* CONSTRUCTORS / DESTRUCTOR                                                  */
+/*============================================================================*/
+
+/*============================================================================*/
+/* IMPLEMENTATION                                                             */
+/*============================================================================*/
+
+IVistaDeSerializer &operator>>( IVistaDeSerializer &oSer, VistaVector<float,4> &v3 )
+{
+	oSer.ReadFloat32( v3[0] );
+	oSer.ReadFloat32( v3[1] );
+	oSer.ReadFloat32( v3[2] );
+	oSer.ReadFloat32( v3[3] );
+
+	bool bTransposed = false;
+	oSer.ReadBool( bTransposed );
+	if( bTransposed )
+		v3.Transpose();
+
+	return oSer;
+}
+
+
+IVistaSerializer &operator<<( IVistaSerializer &oSer, const VistaVector<float,4> &v3 )
+{
+	oSer.WriteFloat32( v3[0] );
+	oSer.WriteFloat32( v3[1] );
+	oSer.WriteFloat32( v3[2] );
+	oSer.WriteFloat32( v3[3] );
+	oSer.WriteBool( v3.IsTransposed() );
+
+	return oSer;
+}
+
+IVistaSerializer &operator<<( IVistaSerializer &oSer, const VistaVector3D &v3 )
+{
+	oSer.WriteFloat32( v3[0] );
+	oSer.WriteFloat32( v3[1] );
+	oSer.WriteFloat32( v3[2] );
+	oSer.WriteFloat32( v3[3] );
+
+	return oSer;
+}
+
+IVistaDeSerializer &operator>>( IVistaDeSerializer &oSer, VistaVector3D &v3 )
+{
+	oSer.ReadFloat32( v3[0] );
+	oSer.ReadFloat32( v3[1] );
+	oSer.ReadFloat32( v3[2] );
+	oSer.ReadFloat32( v3[3] );
+
+	return oSer;
+}
+
+IVistaSerializer &operator<<( IVistaSerializer &oSer, const VistaQuaternion &v3 )
+{
+	oSer.WriteFloat32( v3[0] );
+	oSer.WriteFloat32( v3[1] );
+	oSer.WriteFloat32( v3[2] );
+	oSer.WriteFloat32( v3[3] );
+
+	return oSer;
+}
+
+IVistaDeSerializer &operator>>( IVistaDeSerializer &oSer, VistaQuaternion &v3 )
+{
+	oSer.ReadFloat32( v3[0] );
+	oSer.ReadFloat32( v3[1] );
+	oSer.ReadFloat32( v3[2] );
+	oSer.ReadFloat32( v3[3] );
+
+	return oSer;
+}
+
+IVistaDeSerializer &operator>>( IVistaDeSerializer &oSer, VistaTransformMatrix &v3 )
+{
+	for(int r=0; r < 4; ++r)
+		for(int c=0; c < 4; ++c)
+			oSer.ReadFloat32( v3[r][c] );
+
+	return oSer;
+}
+
+IVistaSerializer &operator<<( IVistaSerializer &oSer, const VistaTransformMatrix &v3 )
+{
+	for(int r=0; r < 4; ++r)
+		for(int c=0; c < 4; ++c)
+			oSer.WriteFloat32( v3[r][c] );
+	return oSer;
+}
+
+IVistaSerializer &operator<<( IVistaSerializer &oSer, const VistaAxisAndAngle &v3 )
+{
+	oSer << v3.m_v3Axis
+		<< v3.m_fAngle;
+	return oSer;
+}
+
+
+IVistaDeSerializer &operator>>( IVistaDeSerializer &oSer, VistaAxisAndAngle &v3 )
+{
+	oSer >> v3.m_v3Axis
+		>> v3.m_fAngle;
+	return oSer;
+}
+
+IVistaSerializer &operator<<( IVistaSerializer &oSer, const VistaBoundingBox &bb )
+{
+	oSer << bb.m_min[0] << bb.m_min[1] << bb.m_min[2] 
+		 << bb.m_max[0] << bb.m_max[1] << bb.m_max[2];
+	return oSer;
+}
+
+
+IVistaDeSerializer &operator>>( IVistaDeSerializer &oSer, VistaBoundingBox &bb )
+{
+	oSer >> bb.m_min[0] >> bb.m_min[1] >> bb.m_min[2] 
+		 >> bb.m_max[0] >> bb.m_max[1] >> bb.m_max[2];
+
+	return oSer;
+}
+/*============================================================================*/
+/* LOCAL VARS AND FUNCS                                                       */
+/*============================================================================*/
+
+

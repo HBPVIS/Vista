@@ -1,0 +1,48 @@
+# $Id:
+
+SYSTEM	 	= DARWIN
+
+LIBDIRS  =
+LIBS     =
+INCLUDES =
+
+#=======================
+#== PLATFORM SPECIFIC ==
+#=======================
+
+## ADDITIONAL PLATFORM SPECIFIC OBJECT FILES
+# add object filenames for this specific platform here
+# prefixed with $(OBJDIR)/
+# .o files common for all platforms go into Makefile.objects! (same format)
+ADDOBJS =
+
+## LINK ADDITIONAL LIBS
+ADDLIBDIRS_DEBUG	= -L/usr/X11/lib
+ADDLIBDIRS_RELEASE	= -L/usr/X11/lib
+ADDLIBS_DEBUG		=
+ADDLIBS_RELEASE		=
+ADDINCLUDES_DEBUG	= -I/usr/X11/include
+ADDINCLUDES_RELEASE	= -I/usr/X11/include
+
+## COMPILER/LINKER FLAGS
+COMPILER 	= ${CXX}
+LINKER 	 	= ${CXX}
+
+CFLAGS_DEBUG   = -g -O0 -D$(SYSTEM) -DDEBUG
+CFLAGS_RELEASE =    -O3 -D$(SYSTEM)        
+
+LFLAGS_DEBUG   = -g -o
+LFLAGS_RELEASE = -o
+
+## ARCHITECTURE SPECIFIC COMPILER/LINKER FLAGS
+# Add the correct parameters for the compiler you have chosen
+# for those architectures which are relevant to your project
+ARCHFLAGS_X86_64 =
+ARCHFLAGS_I386 =
+ARCHFLAGS_I486 =
+ARCHFLAGS_I586 =
+ARCHFLAGS_I686 =
+ARCHFLAGS_I786 =
+
+## COMPILER FLAG FOR DEPENDENCY GENERATION
+DEPFLAG = -MM

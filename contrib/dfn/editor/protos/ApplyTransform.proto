@@ -1,0 +1,14 @@
+<prototype>
+	<name value="ApplyTransform"/>
+	<type value="ApplyTransform"/>
+	<origin value="## built-in"/>
+	<params/>
+	<instances/>
+	<portstyle value="STATIC_PORTS"/>
+	<ports>
+		<inports>
+			<port name="transform" type="VistaTransformMatrix"/>
+		</inports>
+		<outports/>
+	</ports>
+</prototype>

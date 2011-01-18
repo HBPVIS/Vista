@@ -1,0 +1,16 @@
+<prototype>
+	<name value="ClusterInfoNode"/>
+	<type value="ClusterInfoNode"/>
+	<origin value="VistaKernel/Stuff"/>
+	<params/>
+	<instances/>
+	<portstyle value="STATIC_PORTS"/>
+	<ports>
+		<inports/>
+		<outports>
+			<port name="node_name" type="string"/>
+			<port name="node_mode" type="int"/>
+			<port name="node_clock" type="double"/>
+		</outports>
+	</ports>
+</prototype>

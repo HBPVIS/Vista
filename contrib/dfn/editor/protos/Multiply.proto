@@ -1,0 +1,25 @@
+<prototype>
+	<name value="Multiply"/>
+	<origin value="## built-in"/>
+	<params/>
+	<instances>
+		float:
+		double:
+		VistaVector3D:
+		VistaQuaternion:
+		VistaTransformMatrix:
+		float,VistaVector3D:
+		VistaTransformMatrix,VistaVector3D
+	</instances>
+	<portstyle value="STATIC_PORTS"/>
+	<ports>
+		<inports>
+			<port name="first" type="@0"/>
+			<port name="second" type="@1"/>
+		</inports>
+		<outports>
+			<port name="out" type="@2"/>
+		</outports>
+	</ports>		
+</prototype>
+ 

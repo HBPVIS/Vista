@@ -1,0 +1,13 @@
+# $Id$
+#==========================
+#== WIIMOTEDRIVER SETTINGS ==
+#==========================
+WIIMOTEDRIVER_ROOT       ?= $(VISTA_ROOT)
+WIIMOTEDRIVERINCLUDE		= $(WIIMOTEDRIVER_ROOT)
+WIIMOTEDRIVERLIBDIR       = -L${WIIMOTEDRIVER_ROOT}/lib/$(SYSTEM)
+WIIMOTEDRIVERLIBS_DEBUG   = -lVistaWiimoteDriverD.$(VISTA_HWARCH)
+WIIMOTEDRIVERLIBS_RELEASE = -lVistaWiimoteDriver.$(VISTA_HWARCH)
+
+# we seem to need those for the plugin mechanism
+ADDLIBDIRS  += $(WIIMOTEDRIVERLIBDIR)
+ADDLIBS     += $(WIIMOTEDRIVERLIBS_$(MODE))

@@ -1,0 +1,66 @@
+<module>
+  <nodespace>
+  </nodespace>
+  <graph>
+  	<!-- data source... a dtrack fly stick -->
+	<node name="stick_source" type="Sensor">
+		<param name="sensor" value="0"/>
+		<param name="type" value="STICK"/>
+		<param name="driver" value="DTRACK"/>
+	</node>
+	
+	<!-- project the necessary information from the stick history -->
+	<node name="stick" type="HistoryProject">
+	  <param name="project">POSITION, ORIENTATION, DSCALAR</param>
+	</node>
+	
+ 	<!-- this will give the sampling mode to the history project
+             node, a value of "0" means "LAZY" while a value of "1"
+             means "HOT". There is no other sampling value currently -->	
+	<node name="sampling_mode" type="Constant[int]">
+	  <param name="mode" value="0" />
+	</node>
+	
+	<!-- convert button state to bool -->
+	<node name="convert_button" type="Convert[double,bool]" />
+ 
+	<!-- tracker conversion -->
+	<node name="1_to_1000" type="Constant[float]">
+		<param name="value" value="0.001"/>
+	</node>
+	
+	<node name="scale_pos" type="multiply[VistaVector3D,float]" />
+	<node name="translate_pos" type="add[VistaVector3D,VistaVector3D]" />
+	
+	<node name="to_dtrack_origin" type="Constant[VistaVector3D]">
+		<param name="value" value="0,-1095,1093"/>
+	</node>
+	
+	<!-- this is an IndirectXForm node, which works on the transformable adapter of a VisController   -->
+    	<node name="navigate" type="indirectxnode">
+	    <param name="object" value="viscontroller_transformable"/>
+    	</node>		
+
+
+  </graph>
+  <edges>
+	<!-- connect stick -|
+		             mode   -> project -->
+  	
+	<edge fromnode="stick_source"  tonode="stick" fromport="history" toport="history" />
+	<edge fromnode="sampling_mode" tonode="stick" fromport="value" toport="sampling_mode" />
+
+	<!-- transform button to bool -->
+	<edge fromnode="stick" tonode="convert_button" fromport="DSCALAR_0" toport="in" />
+	
+	<!-- transform stick scale and origin -->
+	<edge fromnode="stick"          tonode="scale_pos" fromport="POSITION" toport="l_value" />
+	<edge fromnode="1_to_1000"     tonode="scale_pos" fromport="value" toport="r_value" />
+	
+	<!-- now, put all into navigation node -->
+	<edge fromnode="scale_pos"    tonode="navigate" fromport="value" toport="position" />
+	<edge fromnode="stick"    tonode="navigate" fromport="ORIENTATION" toport="orientation" />
+	<edge fromnode="convert_button"    tonode="navigate" fromport="out" toport="grab" />
+
+  </edges>
+</module>

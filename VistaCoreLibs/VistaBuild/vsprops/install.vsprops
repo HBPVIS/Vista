@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="install"
+	>
+	<Tool
+		Name="VCCustomBuildTool"
+		Description="Installing library headers for $(ProjectName)..."
+		CommandLine="xcopy /DYSI ..\..\*.h $(install_prefix)\include\$(install_include_infix)$(ProjectName)&#x0D;&#x0A;"
+		Outputs="$(install_prefix)\include\$(install_include_infix)$(ProjectName)"
+	/>
+	<UserMacro
+		Name="install_prefix"
+		Value="$(out_prefix)\dist\$(PlatformName).$(PlatformToolset)"
+	/>
+</VisualStudioPropertySheet>

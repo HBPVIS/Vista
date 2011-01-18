@@ -1,0 +1,6 @@
+add_subdirectory(Base)
+add_subdirectory(Common)
+add_subdirectory(Construct)
+set(dirFiles_DataLaVista_Base      ${dirFiles_DataLaVista_Base}      PARENT_SCOPE)
+set(dirFiles_DataLaVista_Common    ${dirFiles_DataLaVista_Common}    PARENT_SCOPE)
+set(dirFiles_DataLaVista_Construct ${dirFiles_DataLaVista_Construct} PARENT_SCOPE)

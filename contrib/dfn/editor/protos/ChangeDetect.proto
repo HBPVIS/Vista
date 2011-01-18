@@ -1,0 +1,22 @@
+<prototype>
+	<name value="ChangeDetect"/>
+	<origin value="## built-in"/>
+	<params/>
+	<instances>
+		bool:
+		VistaVector3D:
+		VistaQuaternion:
+		int:
+		unsigned int
+	</instances>
+	<portstyle value="STATIC_PORTS"/>
+	<ports>
+		<inports>
+			<port name="val_in" type="@0"/>
+		</inports>
+		<outports>
+			<port name="val_out" type="@0"/>
+		</outports>
+	</ports>		
+</prototype>
+ 

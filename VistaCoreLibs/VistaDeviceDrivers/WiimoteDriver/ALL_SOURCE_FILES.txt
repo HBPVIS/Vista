@@ -1,0 +1,5 @@
+VistaWiimoteDriver.cpp
+VistaWiimoteDriverPlugin.cpp
+VistaWiimoteDriverConfig.h
+VistaWiimoteDriver.h
+VistaWiimoteDriverPlugin.h

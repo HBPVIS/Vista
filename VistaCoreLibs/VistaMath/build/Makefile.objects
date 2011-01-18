@@ -1,0 +1,19 @@
+# $Id$
+## OBJECT FILES LIST
+# add your object filenames here
+# prefixed with $(OBJDIR)/
+OBJS   	=	${OBJDIR}/VistaMathOut.o \
+			\
+			${OBJDIR}/VistaGeometries.o \
+			${OBJDIR}/VistaBoundingBox.o \
+			${OBJDIR}/VistaBoundingSphere.o \
+			${OBJDIR}/VistaPolynomial.o \
+			${OBJDIR}/VistaIndirectXform.o \
+			${OBJDIR}/VistaLeastSquaresPlane.o \
+			${OBJDIR}/VistaMatrixDeComposer.o
+
+
+# list here objects which are only needed when
+# building with a particular scenegraph toolkit
+OBJS_WTK =	
+OBJS_OPENSG =	

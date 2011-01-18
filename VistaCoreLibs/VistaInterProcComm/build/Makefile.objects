@@ -1,0 +1,134 @@
+# $Id$
+## OBJECT FILES LIST
+# add your object filenames here
+# prefixed with $(OBJDIR)/
+OBJS   	=		${OBJDIR}/VistaInterProcCommOut.o \
+				\
+				${OBJDIR}/VistaFork.o \
+				${OBJDIR}/VistaThread.o \
+		        ${OBJDIR}/VistaThreadTask.o \
+				${OBJDIR}/VistaProcess.o \
+				${OBJDIR}/VistaThreadLoop.o \
+				${OBJDIR}/VistaThreadFunction.o \
+				${OBJDIR}/VistaReaderWriterLock.o \
+				${OBJDIR}/VistaThreadPool.o \
+				${OBJDIR}/VistaPriority.o \
+				\
+				${OBJDIR}/VistaThreadEvent.o \
+				${OBJDIR}/VistaMutex.o \
+				${OBJDIR}/VistaBarrier.o \
+				${OBJDIR}/VistaTicker.o \
+				${OBJDIR}/VistaThreadCondition.o \
+				${OBJDIR}/VistaSemaphore.o \
+				${OBJDIR}/VistaSemaphoreImp.o \
+				${OBJDIR}/VistaDefSemaphoreImp.o \
+				\
+				${OBJDIR}/VistaMutexImp.o \
+				${OBJDIR}/VistaProcessImp.o \
+				${OBJDIR}/VistaPriorityImp.o \
+				${OBJDIR}/VistaThreadImp.o \
+				${OBJDIR}/VistaThreadEventImp.o \
+				${OBJDIR}/VistaThreadConditionImp.o \
+				${OBJDIR}/VistaReaderWriterLockImp.o \
+				${OBJDIR}/VistaSharedMem.o \
+				\
+				${OBJDIR}/VistaSPROCMutexImp.o \
+				${OBJDIR}/VistaSPROCPriorityImp.o \
+				${OBJDIR}/VistaSPROCThreadImp.o \
+				\
+				${OBJDIR}/VistaPosixProcessImp.o \
+				${OBJDIR}/VistaPosixSemaphoreImp.o \
+				${OBJDIR}/VistaPthreadsThreadImp.o \
+				${OBJDIR}/VistaPthreadsMutexImp.o \
+				${OBJDIR}/VistaPthreadsPriorityImp.o \
+				${OBJDIR}/VistaPosixThreadEventImp.o \
+				${OBJDIR}/VistaPthreadThreadEventImp.o \
+				${OBJDIR}/VistaPthreadsThreadConditionImp.o \
+				${OBJDIR}/VistaPthreadReaderWriterLockImp.o \
+				\
+				${OBJDIR}/VistaConnection.o \
+				${OBJDIR}/VistaConnectionFile.o \
+				${OBJDIR}/VistaConnectionFileTimed.o \
+				${OBJDIR}/VistaConnectionPipe.o \
+				${OBJDIR}/VistaConnectionUSB.o \
+				${OBJDIR}/VistaByteBufferSerializer.o \
+				${OBJDIR}/VistaByteBufferDeSerializer.o \
+				${OBJDIR}/VistaCSVSerializer.o \
+				${OBJDIR}/VistaCSVDeSerializer.o \
+				${OBJDIR}/VistaConnectionSerial.o \
+				${OBJDIR}/VistaConnectionIP.o \
+				${OBJDIR}/VistaNetworkSync.o \
+				${OBJDIR}/VistaMasterNetworkSync.o \
+				${OBJDIR}/VistaSlaveNetworkSync.o \
+				${OBJDIR}/VistaMsg.o \
+				${OBJDIR}/VistaMsgChannel.o \
+				${OBJDIR}/VistaProgressMessage.o \
+				\
+				${OBJDIR}/VistaSerialPort.o \
+				${OBJDIR}/VistaSerialPortImp.o \
+				${OBJDIR}/VistaPosixSerialPortImp.o \
+				\
+				${OBJDIR}/VistaIPAddress.o \
+				${OBJDIR}/VistaMcastSocket.o \
+				${OBJDIR}/VistaMcastIPAddress.o \
+				${OBJDIR}/VistaMcastSocketAddress.o \
+				${OBJDIR}/VistaSocketAddress.o \
+				${OBJDIR}/VistaSocket.o \
+				${OBJDIR}/VistaIPComm.o \
+				${OBJDIR}/VistaUDPSocket.o \
+				${OBJDIR}/VistaServiceIndicator.o \
+				${OBJDIR}/VistaTCPSocket.o \
+				${OBJDIR}/VistaTCPServerSocket.o \
+				${OBJDIR}/VistaTCPClientSocket.o \
+				${OBJDIR}/VistaTCPServer.o \
+				${OBJDIR}/VistaAcceptor.o \
+				\
+				${OBJDIR}/VistaActiveDataConsumer.o \
+				${OBJDIR}/VistaActiveDataProducer.o \
+				${OBJDIR}/VistaActiveFilter.o \
+				${OBJDIR}/VistaDataSink.o \
+				${OBJDIR}/VistaDataSource.o \
+				${OBJDIR}/VistaDemux.o \
+				${OBJDIR}/VistaPacketQueue.o \
+				${OBJDIR}/VistaTimeStamp.o \
+				${OBJDIR}/VistaActiveComponent.o \
+				${OBJDIR}/VistaDataConsumer.o \
+				${OBJDIR}/VistaDataProducer.o \
+				${OBJDIR}/VistaDataPacket.o \
+				${OBJDIR}/VistaFilter.o \
+				${OBJDIR}/VistaPipe.o \
+				${OBJDIR}/VistaPipeComponent.o \
+				${OBJDIR}/VistaInPlaceFilter.o \
+				${OBJDIR}/VistaTeeFilter.o \
+				${OBJDIR}/VistaTransformFilter.o \
+				${OBJDIR}/VistaRegistration.o \
+				${OBJDIR}/VistaByteBufferPacket.o \
+				${OBJDIR}/VistaFileWriter.o \
+				${OBJDIR}/VistaProfilingFilter.o \
+				${OBJDIR}/VistaRamQueuePipe.o \
+				${OBJDIR}/VistaSlotPipe.o \
+				${OBJDIR}/VistaFileRegistration.o \
+				${OBJDIR}/VistaRoutingPipe.o \
+				${OBJDIR}/VistaRTC.o \
+				${OBJDIR}/VistaPentiumBasedRTC.o \
+				${OBJDIR}/VistaHRTimerRTC.o \
+				${OBJDIR}/VistaNetDataCollector.o \
+				${OBJDIR}/VistaNetDataDispatcher.o \
+				${OBJDIR}/VistaPacketPump.o \
+				${OBJDIR}/VistaSerialTeeFilter.o \
+				${OBJDIR}/VistaCheckError.o \
+				${OBJDIR}/VistaNullError.o \
+				${OBJDIR}/VistaPipeChecker.o \
+				${OBJDIR}/VistaPipeConstructionKit.o \
+				\
+				${OBJDIR}/VistaIOMultiplexer.o \
+				${OBJDIR}/VistaIOMultiplexerIP.o \
+				${OBJDIR}/VistaIORequest.o \
+				${OBJDIR}/VistaIOScheduler.o \
+				${OBJDIR}/VistaIOHandleBasedMultiplexer.o \
+				${OBJDIR}/VistaAsyncEventObserver.o
+
+# list here objects which are only needed when
+# building with a particular scenegraph toolkit
+OBJS_WTK =	
+OBJS_OPENSG =	

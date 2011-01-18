@@ -1,0 +1,18 @@
+<prototype>
+	<name value="ConditionalRoute"/>
+	<type value="ConditionalRoute"/>
+	<origin value="## built-in"/>
+	<params>
+	</params>
+	<instances/>
+	<portstyle value="STATIC_PORTS"/>
+	<ports>
+		<inports>
+			<port name="trigger" type="bool"/>
+			<port name="value" type="int"/>
+		</inports>
+		<outports>
+			<port name="value" type="int" />
+		</outports>
+	</ports>
+</prototype>

@@ -1,0 +1,30 @@
+<prototype>
+	<name value="TypeConvert"/>
+	<origin value="## built-in"/>
+	<params/>
+	<instances>
+		int,string:
+		float,string:
+		bool,string:
+		double,float:
+		VistaVector3D,string:
+		VistaQuaternion,string:
+		VistaQuaternion,VistaTransformMatrix:
+		double,bool:
+		double,string:
+		unsigned int,double:
+		unsigned int,string:
+		microtime,string:
+		vector{double},string
+	</instances>
+	<portstyle value="STATIC_PORTS"/>
+	<ports>
+		<inports>
+			<port name="in" type="@0"/>
+		</inports>
+		<outports>
+			<port name="out" type="@1"/>
+		</outports>
+	</ports>
+		
+</prototype>

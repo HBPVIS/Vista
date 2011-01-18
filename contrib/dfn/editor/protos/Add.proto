@@ -1,0 +1,24 @@
+<prototype>
+	<name value="Add"/>
+	<origin value="## built-in"/>
+	<params/>
+	<instances>
+		float:
+		double:
+		VistaVector3D:
+		VistaQuaternion:
+		VistaTransformMatrix:
+		string
+	</instances>
+	<portstyle value="STATIC_PORTS"/>
+	<ports>
+		<inports>
+			<port name="first" type="@0"/>
+			<port name="second" type="@0"/>
+		</inports>
+		<outports>
+			<port name="out" type="@0"/>
+		</outports>
+	</ports>		
+</prototype>
+ 

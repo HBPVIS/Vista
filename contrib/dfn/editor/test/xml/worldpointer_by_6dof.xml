@@ -1,0 +1,95 @@
+<!-- $Id: worldpointer_by_6dof.xml,v 1.6 2009/05/28 08:21:57 dr165799 Exp $ -->
+<module>
+	<nodespace>
+	</nodespace>
+	<graph>
+		<!-- data source... a mouse -->
+		<node name="dtrack_body" type="DriverSensor">
+			<param name="sensor_id" value="PADSENSOR"/>
+			<param name="type" value="BODY"/>
+			<param name="driver" value="DTRACK"/>
+		</node>
+		<node name="padsensor" type="HistoryProject">
+			<param name="project">POSITION,ORIENTATION</param>
+		</node>
+		
+			<!-- tracker conversion -->
+		<node name="1_to_1000" type="ConstantValue[float]">
+			<param name="value" value="0.001"/>
+		</node>
+		
+		<node name="scale_pos" type="Multiply[float,VistaVector3D]"/>
+		<node name="translate_pos" type="Add[VistaVector3D]"/>
+	
+		<node name="to_dtrack_origin" type="ConstantValue[VistaVector3D]">
+			<param name="value" value="0,-143,-100"/>
+		</node>	
+			
+		<node name="from-platform" type="ref-frame">
+			<param name="object" value="platform"/>
+			<param name="mode" value="fromframe"/>
+		</node>
+		
+		<node name="rotate-around-y" type="Multiply[VistaQuaternion]"/>
+		<node name="rotate-y" type="ConstantValue[VistaQuaternion]">
+			<param name="value" value="0,1,0,0"/>
+		</node>
+		
+		<node name="worldpointer" type="Action">
+			<param name="object" value="userpointer"/>
+		</node>
+
+		<!-- LINK ACTION STATE -->
+		<node name="button_source" type="DriverSensor">
+			<param name="sensor" value="0"/>
+			<param name="driver" value="JOYSTICK"/>
+		</node>
+		
+		<node name="button" type="HistoryProject">
+			<param name="project">BUTTON</param>
+		</node>
+		
+		<node name="select-double-to-bool" type="TypeConvert[double,bool]"/>
+		<node name="grab-double-to-bool" type="TypeConvert[double,bool]"/>
+		<node name="drag-double-to-bool" type="TypeConvert[double,bool]"/>
+		
+				
+		<node name="bt-aggregate" type="btmask"/>
+		
+		<node name="cg-button" type="ChangeDetect[int]"/>
+	</graph>
+	<edges>
+		<edge fromnode="dtrack_body" tonode="padsensor" fromport="history" toport="history"/>
+		<edge fromnode="padsensor" tonode="translate_pos" fromport="POSITION" toport="first"/>
+		<edge fromnode="to_dtrack_origin" tonode="translate_pos" fromport="value" toport="second"/>
+		
+		<edge fromnode="translate_pos" tonode="scale_pos" fromport="out" toport="second"/>
+		<edge fromnode="1_to_1000" tonode="scale_pos" fromport="value" toport="first"/>
+		
+		<edge fromnode="scale_pos" tonode="from-platform" fromport="out" toport="vec_in"/>
+		<edge fromnode="padsensor" tonode="from-platform" fromport="ORIENTATION" toport="quat_in"/>
+		
+		<edge fromnode="from-platform" tonode="worldpointer" fromport="vec_out" toport="POSITION"/>
+		
+		
+		<edge fromnode="from-platform" tonode="rotate-around-y" fromport="quat_out" toport="first"/>
+		<edge fromnode="rotate-y" tonode="rotate-around-y" fromport="value" toport="second"/>
+		
+		<edge fromnode="rotate-around-y" tonode="worldpointer" fromport="out" toport="ORIENTATION"/>
+				
+				
+		<!-- link action state button -->
+		<edge fromnode="button_source" tonode="button" fromport="history" toport="history"/>
+		
+		<edge fromnode="button" tonode="select-double-to-bool" fromport="BUTTON_7" toport="in"/>
+		<edge fromnode="button" tonode="grab-double-to-bool" fromport="BUTTON_1" toport="in"/>
+		<edge fromnode="button" tonode="drag-double-to-bool" fromport="BUTTON_6" toport="in"/>
+		 
+		<edge fromnode="select-double-to-bool" tonode="bt-aggregate" fromport="out" toport="1_btL"/>
+		<edge fromnode="grab-double-to-bool" tonode="bt-aggregate" fromport="out" toport="4_btM"/>
+		<edge fromnode="drag-double-to-bool" tonode="bt-aggregate" fromport="out" toport="2_btR"/>
+		
+		<edge fromnode="bt-aggregate" tonode="cg-button" fromport="out" toport="val_in"/>
+		<edge fromnode="cg-button" tonode="worldpointer" fromport="val_out" toport="ACTION"/>
+	</edges>
+</module>

@@ -1,0 +1,257 @@
+<module>
+	<nodespace>
+	</nodespace>
+	<graph>
+    <!-- data source... a mouse -->
+    <node name="joystick_source" type="DriverSensor">
+      <param name="sensor" value="0"/>
+      <param name="driver" value="JOYSTICK"/>
+    </node>
+    <!-- project the necessary information from the mouse history -->
+    <!-- in this demo, we are not interested in the mouse history,
+             but only in the last value (LAZYSAMPLING), but for demonstration
+             purposes, we simply extract every attribute we can get from
+             the mouse driver -->
+    <node name="joystick" type="HistoryProject">
+      <param name="project">AXIS_1, AXIS_2, AXIS_3</param>
+    </node>
+		
+    <!-- the sink node -->
+    <node name="cam" type="Action">
+      <param name="object" value="camera"/>
+    </node>
+
+		
+	<!-- forward backward for axis 1/2 -->
+
+	<node name="128-norm" type="ConstantValue[VistaVector3D]">
+		<param name="value" value="-128,-128,0"/>
+	</node>
+	
+	<node name="pre-move-add-move" type="Add[VistaVector3D]"/>
+	<node name="scale-normalize" type="ConstantValue[float]">
+		<param name="value" value="0.0078125"/>
+	</node>	
+
+	<node name="normalize-move" type="Multiply[float,VistaVector3D]"/>
+	<node name="cubedamp-axis-1" type="cubicdamp"/>
+	<node name="cubedamp-axis-2" type="cubicdamp"/>
+	
+    
+    <node name="velocity" type="ConstantValue[float]">
+    	<param name="value" value="10.0"/>
+    </node>
+    
+    
+    <node name="step" type="ConstantValue[double]">
+      <param name="value" value="0.01"/>
+    </node>
+
+    <node name="ticker" type="TickTimer"/>
+    <node name="tick_to_float" type="TypeConvert[double,float]"/>
+    
+  	
+  	<node name="mult-delta" type="Multiply[float]"/>
+  	
+  	<node name="move-direction" type="ConstantValue[VistaVector3D]">
+  		<param name="value" value="0,0,1"/>
+  	</node>
+  	
+  	<node name="timescaled-forward" type="Multiply[float,VistaVector3D]"/>
+  	
+  	<node name="project-forward-axis" type="ProjectVector">
+  		<param name="component" value="y"/>
+  	</node>
+  	
+  	<node name="scale-forward" type="MultScalar"/>  
+    
+    <!-- setup the strafing  LEFT/RIGHT -->
+    <node name="strafe-direction" type="ConstantValue[VistaVector3D]">
+    	<param name="value" value="1,0,0"/>
+    </node>
+    
+    <node name="project-strafe-axis" type="ProjectVector">
+    	<param name="component" value="x"/>
+    </node>
+    <node name="timescaled-strafe" type="MultScalar"/>
+    <node name="scale-strafe" type="MultScalar"/>
+    
+    
+    <!-- setup the superposition of strafe and forward -->
+    <node name="superimpose-strafe-forward" type="add[VistaVector3D]"/>
+    
+    
+    <!-- ##################################################### -->
+    <!-- ############## LEFT-RIGHT-ROTATE #################### -->
+    <node name="pre-rotate" type="add[VistaVector3D]"/>
+    <node name="normalize-rotate" type="MultScalar"/>
+    <node name="project-rotate-left-right-axis" type="ProjectVector">
+    	<param name="component" value="x"/>
+    </node>
+    <node name="angular-velocity" type="ConstantValue[float]">
+		<!-- 120 deg per sec -> 3 sec for a complete turn -->
+		<!-- given in radians -->
+    	<param name="value" value="2.0943951023932"/>
+    </node>
+	
+	<node name="flip-sign" type="ConstantValue[float]">
+		<param name="value" value="-1.0"/>
+	</node>	
+	
+    <node name="scale-rotate-left-right" type="mult[float]"/>
+    <node name="timescaled-rotate-left-right" type="mult[float]"/>
+    <node name="rotate-left-right-axis" type="ConstantValue[VistaVector3D]">
+    	<param name="value" value="0,1,0"/>
+    </node>
+    <node name="axis-rotate-left-right" type="axisrotate"/>
+    
+    
+    <!-- #################################################### -->
+    <!-- ############## UP-DOWN-MOVE ######################## -->
+    <node name="up-direction" type="ConstantValue[VistaVector3D]">
+    	<param name="value" value="0,1,0"/>
+    </node>
+    <node name="timescaled-up-down" type="MultScalar"/>
+    
+    <node name="project-up-down-axis" type="ProjectVector">
+    	<param name="component" value="y"/>
+    </node>
+
+	<node name="scale-up-down" type="MultScalar"/>
+	
+	<node name="superimpose-up-down" type="add[VistaVector3D]"/>
+	    
+    
+    <node name="flip-up-down-sign" type="mult[float]"/>
+    <node name="flip-left-right-sign" type="mult[float]"/>
+    
+    <node name="threshold-up-down" type="threshold">
+    	<param name="threshold" value="0.001"/>
+    </node>
+    
+    
+    <!-- ###################################################### -->
+    <!-- ############# VIEW ALIGNMENT ######################### -->
+    <!-- ###################################################### -->
+    <node name="view-align-transform" type="transoriget">
+    	<param name="object" value="platform"/>
+    </node>
+    <node name="newori" type="ChangeDetect[VistaQuaternion]"/>
+    
+    <node name="trans-to-viewer" type="quat_rotate"/>
+    
+  </graph>
+	<edges>
+     <edge fromnode="joystick_source" tonode="joystick" fromport="history" toport="history"/>
+	      
+     <!-- normalize-move step -->
+      <!-- first add homogenous value (128) -->
+      <edge fromnode="128-norm" tonode="pre-move-add-move" fromport="value" toport="first"/>
+      <edge fromnode="joystick" tonode="pre-move-add-move" fromport="AXIS_2" toport="second"/>
+      <edge fromnode="pre-move-add-move" tonode="normalize-move" fromport="out" toport="second"/>
+      <edge fromnode="scale-normalize" tonode="normalize-move" fromport="value" toport="first"/>
+    
+    
+      <!-- calculate velocity for the movement, based on a constant time sampling -->
+      <edge fromnode="velocity" tonode="mult-delta" fromport="value" toport="first"/>
+	  <!-- ticker -->
+      <edge fromnode="step" tonode="ticker" fromport="value" toport="step"/>
+      <edge fromnode="ticker" tonode="tick_to_float" fromport="ticktime" toport="in"/>
+      <edge fromnode="tick_to_float" tonode="mult-delta" fromport="out" toport="second"/>
+
+	  <!-- create forward-direction vector -->
+      <edge fromnode="mult-delta" tonode="timescaled-forward" fromport="out" toport="scalar_in"/>
+      <edge fromnode="move-direction" tonode="timescaled-forward" fromport="value" toport="vec_in"/>
+      <!--<edge fromnode="normalize-move" tonode="project-forward-axis" fromport="vec_out" toport="vec"/>-->
+      <edge fromnode="normalize-move" tonode="cubedamp-axis-1" fromport="out" toport="in"/>
+      <edge fromnode="cubedamp-axis-1" tonode="project-forward-axis" fromport="out" toport="vec"/>
+            
+      
+      <!-- create left-right-direction vector -->
+      <!--<edge fromnode="normalize-move" tonode="project-rotate-left-right-axis" fromport="vec_out" toport="vec"/>-->
+      <edge fromnode="cubedamp-axis-1" tonode="project-rotate-left-right-axis" fromport="out" toport="vec"/>
+      
+      <edge fromnode="mult-delta" tonode="timescaled-strafe" fromport="out" toport="scalar_in"/>
+      <edge fromnode="strafe-direction" tonode="timescaled-strafe" fromport="value" toport="vec_in"/>
+      <edge fromnode="timescaled-strafe" tonode="scale-strafe" fromport="vec_out" toport="vec_in"/>
+      <edge fromnode="project-strafe-axis" tonode="scale-strafe" fromport="out" toport="scalar_in"/>
+      
+      
+      <!-- create direction vector -->
+      <edge fromnode="project-forward-axis" tonode="scale-forward" fromport="out" toport="scalar_in"/>
+      <edge fromnode="timescaled-forward" tonode="scale-forward" fromport="vec_out" toport="vec_in"/>
+      
+      
+      <!-- superimpose that -->
+      <edge fromnode="scale-forward" tonode="superimpose-strafe-forward" fromport="vec_out" toport="second"/>
+      <edge fromnode="scale-strafe" tonode="superimpose-strafe-forward" fromport="vec_out" toport="first"/>
+      
+     
+      <!-- link to cam -->
+      <edge fromnode="superimpose-strafe-forward" tonode="superimpose-up-down" fromport="out" toport="second"/> 
+      
+          
+      <!-- #################################### -->
+      <!-- ########## ROTATE-LEFT-RIGHT ####### -->
+      <!-- #################################### -->
+      <edge fromnode="joystick" tonode="pre-rotate" fromport="AXIS_1" toport="first"/>
+      <edge fromnode="128-norm" tonode="pre-rotate" fromport="value" toport="second"/>
+      <edge fromnode="pre-rotate" tonode="normalize-rotate" fromport="out" toport="vec_in"/>
+      <edge fromnode="scale-normalize" tonode="normalize-rotate" fromport="value" toport="scalar_in"/>
+            
+      
+      <!-- project the desired axis -->
+      <!--<edge fromnode="normalize-rotate" tonode="project-strafe-axis" fromport="vec_out" toport="vec"/>-->
+      <edge fromnode="normalize-rotate" tonode="cubedamp-axis-2" fromport="vec_out" toport="in"/>
+      <edge fromnode="cubedamp-axis-2" tonode="project-strafe-axis" fromport="out" toport="vec"/>
+       
+      
+      <!-- scale axis with angular velocity -->
+      <edge fromnode="angular-velocity" tonode="scale-rotate-left-right" fromport="value" toport="first"/>
+      
+      <edge fromnode="project-rotate-left-right-axis" tonode="flip-left-right-sign" fromport="out" toport="first"/>
+      <edge fromnode="flip-sign" tonode="flip-left-right-sign" fromport="value" toport="second"/>
+      <edge fromnode="flip-left-right-sign" tonode="scale-rotate-left-right" fromport="out" toport="second"/>
+      
+      
+      <!-- timescale rotational vector -->
+      <edge fromnode="tick_to_float" tonode="timescaled-rotate-left-right" fromport="out" toport="first"/>
+      <edge fromnode="scale-rotate-left-right" tonode="timescaled-rotate-left-right" fromport="out" toport="second"/>
+      
+      <!-- axis rotate -->
+      <edge fromnode="rotate-left-right-axis" tonode="axis-rotate-left-right" fromport="value" toport="axis"/>
+      <edge fromnode="timescaled-rotate-left-right" tonode="axis-rotate-left-right" fromport="out" toport="angle"/>
+      
+      <!-- link to cam -->
+      <edge fromnode="axis-rotate-left-right" tonode="cam" fromport="out" toport="ROTATION"/>
+      
+      
+      
+      <!-- ################################### -->
+      <!-- ########## UP-DOWN ################ -->
+      <edge fromnode="mult-delta" tonode="timescaled-up-down" fromport="out" toport="scalar_in"/>
+      <edge fromnode="up-direction" tonode="timescaled-up-down" fromport="value" toport="vec_in"/>
+      <edge fromnode="timescaled-up-down" tonode="scale-up-down" fromport="vec_out" toport="vec_in"/>
+      
+      <!--<edge fromnode="project-up-down-axis" tonode="flip-up-down-sign" fromport="out" toport="first"/>-->
+      <edge fromnode="project-up-down-axis" tonode="threshold-up-down" fromport="out" toport="in"/>
+      <edge fromnode="threshold-up-down" tonode="flip-up-down-sign" fromport="out" toport="first"/>
+      
+      <edge fromnode="flip-sign" tonode="flip-up-down-sign" fromport="value" toport="second"/>
+      <edge fromnode="flip-up-down-sign" tonode="scale-up-down" fromport="out" toport="scalar_in"/>
+      
+      <!--<edge fromnode="normalize-rotate" tonode="project-up-down-axis" fromport="vec_out" toport="vec"/>-->
+      <edge fromnode="cubedamp-axis-2" tonode="project-up-down-axis" fromport="out" toport="vec"/>
+      
+      <edge fromnode="scale-up-down" tonode="superimpose-up-down" fromport="vec_out" toport="first"/>      
+      <!--<edge fromnode="superimpose-up-down" tonode="cam" fromport="out" toport="TRANSLATION"/>-->
+      <edge fromnode="trans-to-viewer" tonode="cam" fromport="out" toport="TRANSLATION"/>
+      
+      <!-- #################################### -->
+      <!-- ######  VIEW ALIGNMENT ############# -->
+      <!-- #################################### -->
+      <edge fromnode="superimpose-up-down"  tonode="trans-to-viewer" fromport="out" toport="vec_in"/>
+      <edge fromnode="view-align-transform" tonode="newori" fromport="rotation" toport="val_in"/>
+      <edge fromnode="newori" tonode="trans-to-viewer" fromport="val_out" toport="quat_in"/>
+    </edges>
+</module>

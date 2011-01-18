@@ -1,0 +1,23 @@
+<prototype>
+	<name value="ConstantValue"/>
+	<origin value="## built-in"/>
+	<params>
+		<param name="value" value=""/>
+	</params>
+	<instances>
+		VistaVector3D:
+		VistaQuaternion:
+		VistaTransformMatrix:
+		float:
+		double:
+		string:
+		int
+	</instances>
+	<portstyle value="STATIC_PORTS"/>
+	<ports>
+		<inports/>
+		<outports>
+			<port name="value" type="@0"/>
+		</outports>
+	</ports>
+</prototype>
