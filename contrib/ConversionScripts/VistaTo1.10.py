@@ -43,7 +43,7 @@ xmlreplaces = [
 ( re.compile( r'fromport="val_out"', re.MULTILINE ), r'fromport="out"' ),
 ( re.compile( r'fromport="val_in"', re.MULTILINE ), r'fromport="in"' ),
 ( re.compile( r'type="Compose"', re.MULTILINE ), r'type="MatrixCompose"' ),
-( re.compile( r'type="CVista"', re.MULTILINE ), r'type="Vista"' ),
+( re.compile( r'CVista', re.MULTILINE ), r'Vista' ),
 ]
 
 vcprojreplaces = [
