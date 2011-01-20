@@ -257,14 +257,15 @@ bool VistaOpenSGParticleManager::ReloadParticles()
 
 void VistaOpenSGParticleManager::PrepareParticleAtOrigin(int iParticleIndex)
 {
-	CalculationParticle.m_a3fPosition = &m_afParticlePos[3*iParticleIndex];
-	CalculationParticle.m_a3fSecondPosition = &m_afParticleSecPos[3*iParticleIndex];
-	CalculationParticle.m_a3fVelocity = &m_vecVelocities[iParticleIndex][0];
-	CalculationParticle.m_a3fSize = &m_afParticleSize[3*iParticleIndex];
-	CalculationParticle.m_a4fColor = &m_afParticleColor[4*iParticleIndex];
-	CalculationParticle.m_pRemainingLifeTime = &m_vecLifeTime[iParticleIndex];
+	m_oCalculationParticle.m_a3fPosition = &m_afParticlePos[3*iParticleIndex];
+	m_oCalculationParticle.m_a3fSecondPosition = &m_afParticleSecPos[3*iParticleIndex];
+	m_oCalculationParticle.m_a3fVelocity = &m_vecVelocities[iParticleIndex][0];
+	m_oCalculationParticle.m_a3fSize = &m_afParticleSize[3*iParticleIndex];
+	m_oCalculationParticle.m_a4fColor = &m_afParticleColor[4*iParticleIndex];
+	m_oCalculationParticle.m_pRemainingLifeTime = &m_vecLifeTime[iParticleIndex];
+	m_oCalculationParticle.m_iParticleID = iParticleIndex;
 
-	m_pOriginObject->ChangeParticle(CalculationParticle, 0.0, 0.0);
+	m_pOriginObject->ChangeParticle(m_oCalculationParticle, 0.0, 0.0);
 }
 
 void VistaOpenSGParticleManager::UpdateParticles( microtime dCurrentTime, microtime dDeltaT )
@@ -349,14 +350,15 @@ void VistaOpenSGParticleManager::UpdateParticles( microtime dCurrentTime, microt
 			i_ChangeParticle=m_iLastParticle % m_iMaxNumberOfParticles;
 	
 			PrepareParticleAtOrigin(i_ChangeParticle);
-			CalculationParticle.m_a3fPosition = &m_afParticlePos[3*i_ChangeParticle];
-			CalculationParticle.m_a3fSecondPosition = &m_afParticleSecPos[3*i_ChangeParticle];
-			CalculationParticle.m_a3fVelocity = &m_vecVelocities[i_ChangeParticle][0];
-			CalculationParticle.m_a3fSize = &m_afParticleSize[3*i_ChangeParticle];
-			CalculationParticle.m_a4fColor = &m_afParticleColor[4*i_ChangeParticle];
-			CalculationParticle.m_pRemainingLifeTime = &m_vecLifeTime[i_ChangeParticle];
+			m_oCalculationParticle.m_a3fPosition = &m_afParticlePos[3*i_ChangeParticle];
+			m_oCalculationParticle.m_a3fSecondPosition = &m_afParticleSecPos[3*i_ChangeParticle];
+			m_oCalculationParticle.m_a3fVelocity = &m_vecVelocities[i_ChangeParticle][0];
+			m_oCalculationParticle.m_a3fSize = &m_afParticleSize[3*i_ChangeParticle];
+			m_oCalculationParticle.m_a4fColor = &m_afParticleColor[4*i_ChangeParticle];
+			m_oCalculationParticle.m_pRemainingLifeTime = &m_vecLifeTime[i_ChangeParticle];
+			m_oCalculationParticle.m_iParticleID = i_ChangeParticle;
 
-			m_pChangeObject->ChangeParticle(CalculationParticle,m_dCurrentTimeStamp,m_dRemainingSeedTime);
+			m_pChangeObject->ChangeParticle(m_oCalculationParticle,m_dCurrentTimeStamp,m_dRemainingSeedTime);
 			m_dRemainingSeedTime-=(1.0f/m_fParticlesPerSecond);
 		}
 
@@ -414,14 +416,15 @@ void VistaOpenSGParticleManager::CalculateParticle(int iParticleIndex)
 		return;
 	}
 
-	CalculationParticle.m_a3fPosition = &m_afParticlePos[3*iParticleIndex];
-	CalculationParticle.m_a3fSecondPosition = &m_afParticleSecPos[3*iParticleIndex];
-	CalculationParticle.m_a3fVelocity = &m_vecVelocities[iParticleIndex][0];
-	CalculationParticle.m_a3fSize = &m_afParticleSize[3*iParticleIndex];
-	CalculationParticle.m_a4fColor = &m_afParticleColor[4*iParticleIndex];
-	CalculationParticle.m_pRemainingLifeTime = &m_vecLifeTime[iParticleIndex];
+	m_oCalculationParticle.m_a3fPosition = &m_afParticlePos[3*iParticleIndex];
+	m_oCalculationParticle.m_a3fSecondPosition = &m_afParticleSecPos[3*iParticleIndex];
+	m_oCalculationParticle.m_a3fVelocity = &m_vecVelocities[iParticleIndex][0];
+	m_oCalculationParticle.m_a3fSize = &m_afParticleSize[3*iParticleIndex];
+	m_oCalculationParticle.m_a4fColor = &m_afParticleColor[4*iParticleIndex];
+	m_oCalculationParticle.m_pRemainingLifeTime = &m_vecLifeTime[iParticleIndex];
+	m_oCalculationParticle.m_iParticleID = iParticleIndex;
 
-	m_pChangeObject->ChangeParticle(CalculationParticle, m_dCurrentTimeStamp, m_dCurrentDeltaT);
+	m_pChangeObject->ChangeParticle(m_oCalculationParticle, m_dCurrentTimeStamp, m_dCurrentDeltaT);
 }
 
 void VistaOpenSGParticleManager::StartParticleManager()

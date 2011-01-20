@@ -69,6 +69,7 @@ public:
 			float*	m_a4fColor;
 			float*	m_a3fSize;
 			float*	m_pRemainingLifeTime;
+			int		m_iParticleID;
 		};
 
 		IParticleChanger();
@@ -161,7 +162,7 @@ private:
 	IParticleChanger *m_pOriginObject;
 	IParticleChanger *m_pChangeObject;
 
-	IParticleChanger::SParticle CalculationParticle;
+	IParticleChanger::SParticle m_oCalculationParticle;
 };
 
 /*============================================================================*/
