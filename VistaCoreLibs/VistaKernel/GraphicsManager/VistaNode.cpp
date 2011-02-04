@@ -274,7 +274,7 @@ bool VistaNode::GetScale( VistaVector3D& v3Scale ) const
 	VistaVector3D v3Translation;
 	VistaQuaternion qRot;
 	// this will fail if the matrix contains a shearing component!
-	if( matTransform.Decompose( v3Translation, qRot, v3Scale ) )
+	if( matTransform.Decompose( v3Translation, qRot, v3Scale ) == false )
 	{
 		std::cerr << "[VistaNode::GetScale]: Trying to retrieve non-uniform, sheared scale!" << std::endl;
 		return false;
@@ -290,7 +290,7 @@ bool VistaNode::GetWorldScale( VistaVector3D& v3Scale ) const
 	VistaVector3D v3Translation;
 	VistaQuaternion qRot;
 	// this will fail if the matrix contains a shearing component!
-	if( matTransform.Decompose( v3Translation, qRot, v3Scale ) )
+	if( matTransform.Decompose( v3Translation, qRot, v3Scale ) == false )
 	{
 		std::cerr << "[VistaNode::GetWorldScale]: Trying to retrieve non-uniform, sheared scale!" << std::endl;
 		return false;

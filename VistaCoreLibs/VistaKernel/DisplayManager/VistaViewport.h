@@ -88,7 +88,8 @@ public:
 	{
 	public:
 
-		enum {
+		enum 
+		{
 			MSG_POSITION_CHANGE = IVistaDisplayEntityProperties::MSG_LAST,
 			MSG_SIZE_CHANGE,
 			MSG_LAST
