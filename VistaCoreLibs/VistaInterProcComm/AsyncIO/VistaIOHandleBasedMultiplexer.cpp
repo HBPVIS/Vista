@@ -34,6 +34,7 @@
 
 #if !defined(WIN32)
 #include <unistd.h>
+#include <errno.h>
 #else
 #include <Windows.h>
 #endif
@@ -112,8 +113,8 @@ void VistaIOHandleBasedIOMultiplexer::PrintHandlemap() const
 
 int VistaIOHandleBasedIOMultiplexer::Demultiplex(unsigned int nTimeout)
 {
-	//cout << "VistaIOHandleBasedIOMultiplexer::Demultiplex()\n";
-
+	// cout << "VistaIOHandleBasedIOMultiplexer::Demultiplex()\n";
+	
 	bool bDone = false;
 	while(!bDone)
 	{
@@ -148,11 +149,7 @@ int VistaIOHandleBasedIOMultiplexer::Demultiplex(unsigned int nTimeout)
 		HANDLE hanMax = 0;
 		for(HANDLEMAP::const_iterator cit = m_mpHandleMap.begin();
 			cit != m_mpHandleMap.end(); ++cit)
-		{
-			/*	    cout << "Adding ["
-			<< (*cit).first
-			<< "] to select map.\n";
-			*/
+		{			
 			if((*cit).second.second & MP_IOIN)
 			{
 				FD_SET((*cit).first, &myRdSocks);
@@ -169,7 +166,7 @@ int VistaIOHandleBasedIOMultiplexer::Demultiplex(unsigned int nTimeout)
 			hanMax = hanMax < (*cit).first ? hanMax = (*cit).first : hanMax = hanMax;
 		}
 
-		//		printf("VistaIOMultiplexerIP::Demultiplex() -- before select, hanMax = %d\n", hanMax);
+		// printf("VistaIOMultiplexerIP::Demultiplex() -- before select, hanMax = %d\n", hanMax);
 		struct timeval tv;
 		struct timeval *etv = &tv;
 		if(nTimeout != ~0)
@@ -184,14 +181,42 @@ int VistaIOHandleBasedIOMultiplexer::Demultiplex(unsigned int nTimeout)
 			etv = NULL;
 		}
 
+		int iRet = 0;
+		int iReattemptCount = 0;
+		do
+ 		{
+			iRet = select(hanMax+1, &myRdSocks, &myWrSocks, &myExSocks, etv);
+		} while( iRet == -1 && errno == EINTR && ++iReattemptCount < 1000 );
 
-		int iRet = select(hanMax+1, &myRdSocks, &myWrSocks, &myExSocks, etv);
 		bFail = (iRet == -1 ? true : false);
 		if(iRet == 0)
 		{
 			SetState(MP_IDLE);
 			(*m_pDoneMutex).Unlock();
 			return 0;
+		}
+		else if( iRet == -1 )
+		{
+			perror( "select" );
+			vipcerr << "Call to select failed: ";
+			switch( errno )
+			{
+				case EBADF:
+					vipcerr << "Invalid File Descriptor occured" << std::endl;
+					break;
+				case EINVAL:
+					vipcerr << "Invalid file number or timeout" << std::endl;
+					break;
+				case EINTR:
+					vipcerr << "System interrupt call" << std::endl;
+					break;
+				case ENOMEM:
+					vipcerr << "Could not allocate internatl memory" << std::endl;
+					break;
+				default:
+					vipcerr << "Unknown error" << std::endl;
+					break;
+			}			
 		}
 		//		printf ("VistaIOMultiplexerIP::Demultiplex() -- nRet = %d \n", iRet);
 		//		perror("VistaIOMultiplexerIP::Demultiplex() -- ");
@@ -202,7 +227,7 @@ int VistaIOHandleBasedIOMultiplexer::Demultiplex(unsigned int nTimeout)
 		if(bFail)
 		{
 			// failed
-			vipcout<<  ("[VistaIOHandleBasedIOMultiplexer] WAIT FAILED , leave loop\n");
+			vipcerr <<  "[VistaIOHandleBasedIOMultiplexer] WAIT FAILED , leave loop" << std::endl;			
 			bDone = true; // leave loop
 			PrintHandlemap();
 		}
