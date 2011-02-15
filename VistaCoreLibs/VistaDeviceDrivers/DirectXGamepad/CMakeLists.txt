@@ -49,18 +49,18 @@ if(WIN32)
 endif(WIN32)
 
 install(TARGETS VistaDirectXGamepad
-         LIBRARY DESTINATION ${VISTA_INSTALL_LIB_DIR}
-         ARCHIVE DESTINATION ${VISTA_INSTALL_LIB_DIR}
-         RUNTIME DESTINATION ${VISTA_INSTALL_LIB_DIR})
+         LIBRARY DESTINATION lib
+         ARCHIVE DESTINATION lib
+         RUNTIME DESTINATION lib)
 install(TARGETS VistaDirectXGamepadPlugin
-         LIBRARY DESTINATION ${VISTA_INSTALL_LIB_DIR}
-         ARCHIVE DESTINATION ${VISTA_INSTALL_LIB_DIR}
-         RUNTIME DESTINATION ${VISTA_INSTALL_LIB_DIR})
+         LIBRARY DESTINATION lib
+         ARCHIVE DESTINATION lib
+         RUNTIME DESTINATION lib)
 		 
 		 
 		 
 install(DIRECTORY .
-         DESTINATION ${VISTA_INSTALL_INC_DIR}/VistaDeviceDrivers/VistaDirectXGamepad
+         DESTINATION include/VistaDeviceDrivers/VistaDirectXGamepad
          FILES_MATCHING PATTERN "*.h"
          PATTERN "build" EXCLUDE
          PATTERN ".svn" EXCLUDE

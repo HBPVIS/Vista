@@ -38,11 +38,11 @@ target_link_libraries(VistaMath
 )
 
 install(TARGETS VistaMath
-         LIBRARY DESTINATION ${VISTA_INSTALL_LIB_DIR}
-         ARCHIVE DESTINATION ${VISTA_INSTALL_LIB_DIR}
-         RUNTIME DESTINATION ${VISTA_INSTALL_LIB_DIR})
+         LIBRARY DESTINATION lib
+         ARCHIVE DESTINATION lib
+         RUNTIME DESTINATION lib)
 install(DIRECTORY .
-         DESTINATION ${VISTA_INSTALL_INC_DIR}/VistaMath
+         DESTINATION include/VistaMath
          FILES_MATCHING PATTERN "*.h"
          PATTERN "build" EXCLUDE
          PATTERN ".svn" EXCLUDE

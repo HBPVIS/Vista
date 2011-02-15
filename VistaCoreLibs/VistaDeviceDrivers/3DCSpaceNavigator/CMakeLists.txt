@@ -15,9 +15,9 @@ target_link_libraries(Vista3DCSpaceNavigator
     VistaDeviceDriversBase
 )
 install(TARGETS Vista3DCSpaceNavigator
-         LIBRARY DESTINATION ${VISTA_INSTALL_LIB_DIR}
-         ARCHIVE DESTINATION ${VISTA_INSTALL_LIB_DIR}
-         RUNTIME DESTINATION ${VISTA_INSTALL_LIB_DIR})
+         LIBRARY DESTINATION lib
+         ARCHIVE DESTINATION lib
+         RUNTIME DESTINATION lib)
 
 set(dirFiles_plugin
     Vista3DCSpaceNavigatorPlugin.cpp
@@ -41,12 +41,12 @@ endif(WIN32)
 
 
 install(TARGETS Vista3DCSpaceNavigatorPlugin
-         LIBRARY DESTINATION ${VISTA_INSTALL_LIB_DIR}
-         ARCHIVE DESTINATION ${VISTA_INSTALL_LIB_DIR}
-         RUNTIME DESTINATION ${VISTA_INSTALL_LIB_DIR})		 
+         LIBRARY DESTINATION lib
+         ARCHIVE DESTINATION lib
+         RUNTIME DESTINATION lib)		 
 		 
 install(DIRECTORY .
-         DESTINATION ${VISTA_INSTALL_INC_DIR}/VistaDeviceDrivers/3DCSpaceNavigator
+         DESTINATION include/VistaDeviceDrivers/3DCSpaceNavigator
          FILES_MATCHING PATTERN "*.h"
          PATTERN "build" EXCLUDE
          PATTERN ".svn" EXCLUDE

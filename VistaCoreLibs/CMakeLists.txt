@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 project(VISTA)
 
-# INSTALL directories
-set(VISTA_INSTALL_INC_DIR "include" CACHE STRING "The folder where ViSTA header files will be installed, relative to CMAKE_INSTALL_PREFIX")
-set(VISTA_INSTALL_LIB_DIR "lib"     CACHE STRING "The folder where ViSTA libraries will be installed, relative to CMAKE_INSTALL_PREFIX")
-
 # Search for precompiled OpenSG path
 set(OPENSG_ROOT $ENV{OPENSG_ROOT} CACHE PATH "Base directory for OpenSG")
 message(STATUS "Found OpenSG in ${OPENSG_ROOT}")
@@ -21,6 +17,12 @@ add_definitions(-DVISTA_SYS_OPENSG)
 set( CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG" )
 
 
+
+
+##############
+## Start to commons
+#############
+
 # Use a postfix for debug libraries
 set(CMAKE_DEBUG_POSTFIX "D")
 
@@ -34,7 +36,6 @@ elseif( WIN32 )
         add_definitions(/D_CRT_SECURE_NO_WARNINGS /wd4251 /wd4275 /wd4503)
 		#Enable string pooling
 		add_definitions(-GF)
-		add_definitions(/D_CRT_SECURE_NO_WARNINGS /wd4251 /wd4275 /wd4503)
 		# Parallel build for Visual Studio?
 		set(VISTA_USE_PARALLEL_BUILD ON CACHE BOOL "Add /MP flag for parallel build on Visual Studio")
 		if(VISTA_USE_PARALLEL_BUILD)
@@ -51,6 +52,18 @@ elseif( WIN32 )
         endif(VISTA_USE_SSE_OPTIMIZATION)
     endif(MSVC)
 endif( UNIX )
+
+# Should we use rpath?
+# This enables us to use OpenSG etc. within the Vista* libraries without having
+# to set a LIBRARY_PATH while linking against these libraries
+set(VISTA_USE_RPATH ON CACHE BOOL "Use rpath")
+mark_as_advanced(VISTA_USE_RPATH)
+
+##############
+## End to commons
+#############
+
+
 
 # Let the user decide whether to build static or shared libs
 set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries if ON, static libraries if OFF")
@@ -91,16 +104,6 @@ if( UNIX )
 endif( UNIX )
 
 
-# Do we install as root?
-if(UNIX)
-    set(VISTA_INSTALL_AS_ROOT ON CACHE BOOL "Set to OFF for non-root installations")
-endif(UNIX)
-
-# Should we use rpath?
-# This enables us to use OpenSG etc. within the Vista* libraries without having
-# to set a LIBRARY_PATH while linking against these libraries
-set(VISTA_USE_RPATH ON CACHE BOOL "Use rpath")
-mark_as_advanced(VISTA_USE_RPATH)
 
 # Build libraries
 if(VISTA_BUILD_BASE)
@@ -164,36 +167,13 @@ configure_file(
 )
 # Eventually install the file
 if(UNIX)
-    # Create a shellscript prototype
-    # Rewriting the variable @APPCODE@ is necessary because it would
-    # be replaced by the empty string otherwise
-    set(APPCODE "@APPCODE@")
-    configure_file(
-        VistaBuild/CMake/vista_set_paths.sh_proto
-        ${CMAKE_CURRENT_BINARY_DIR}/cmake/vista_set_paths.sh_proto
-        @ONLY
-    )
-    if(VISTA_INSTALL_AS_ROOT)
-        install(FILES
-            ${CMAKE_CURRENT_BINARY_DIR}/cmake/VISTAConfig.cmake
-            VistaBuild/CMake/VISTAShellScripts.cmake
-            ${CMAKE_CURRENT_BINARY_DIR}/cmake/vista_set_paths.sh_proto
-            DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/VISTA"
-        )
-    else()
-        install(FILES
-            ${CMAKE_CURRENT_BINARY_DIR}/cmake/VISTAConfig.cmake
-            VistaBuild/CMake/VISTAShellScripts.cmake
-            ${CMAKE_CURRENT_BINARY_DIR}/cmake/vista_set_paths.sh_proto
-            DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
-        )
-    endif(VISTA_INSTALL_AS_ROOT)
+	install(FILES
+		${CMAKE_CURRENT_BINARY_DIR}/cmake/VISTAConfig.cmake
+		DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/VISTA"
+	)
 elseif(WIN32)
-# TODO Add shell script support for Windows
     install(FILES
         ${CMAKE_CURRENT_BINARY_DIR}/cmake/VISTAConfig.cmake
-#            VistaBuild/CMake/VISTAShellScripts.cmake
-#            ${CMAKE_CURRENT_BINARY_DIR}/cmake/vista_set_paths.bat_proto
         DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
     )
 endif(UNIX)

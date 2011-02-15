@@ -111,25 +111,12 @@ target_link_libraries(VistaKernel
     ${LIBRARIES}
 )
 
-# Include link paths for OpenSG so they will be found when linking against the kernel
-if(VISTA_USE_RPATH)
-    if(UNIX)
-        set_target_properties(VistaKernel PROPERTIES
-            INSTALL_RPATH "${OPENSG_ROOT}/lib/opt"
-        )
-    elseif(WIN32)
-        set_target_properties(VistaKernel PROPERTIES
-            INSTALL_RPATH "${OPENSG_ROOT}/lib"
-        )
-    endif(UNIX)
-endif(VISTA_USE_RPATH)
-
 install(TARGETS VistaKernel
-         LIBRARY DESTINATION ${VISTA_INSTALL_LIB_DIR}
-         ARCHIVE DESTINATION ${VISTA_INSTALL_LIB_DIR}
-         RUNTIME DESTINATION ${VISTA_INSTALL_LIB_DIR})
+         LIBRARY DESTINATION lib
+         ARCHIVE DESTINATION lib
+         RUNTIME DESTINATION lib)
 install(DIRECTORY .
-         DESTINATION ${VISTA_INSTALL_INC_DIR}/VistaKernel
+         DESTINATION include/VistaKernel
          FILES_MATCHING PATTERN "*.h"
          PATTERN "build" EXCLUDE
          PATTERN ".svn" EXCLUDE

@@ -3,21 +3,18 @@
 
 # Create cache variables
 if(RESET_CACHE)
-    set(VISTA_INC_DIR @VISTA_INSTALL_INC_DIR@ CACHE FILEPATH "Path where ViSTA includes are installed, relative to VISTA_INSTALL_PREFIX" FORCE)
-    set(VISTA_LIB_DIR @VISTA_INSTALL_LIB_DIR@ CACHE FILEPATH "Path where ViSTA libraries are installed, relative to VISTA_INSTALL_PREFIX" FORCE)
     set(VISTA_INSTALL_PREFIX @CMAKE_INSTALL_PREFIX@ CACHE FILEPATH "Root path of your ViSTA installation" FORCE)
 else()
-    set(VISTA_INC_DIR @VISTA_INSTALL_INC_DIR@ CACHE FILEPATH "Path where ViSTA includes are installed, relative to VISTA_INSTALL_PREFIX")
-    set(VISTA_LIB_DIR @VISTA_INSTALL_LIB_DIR@ CACHE FILEPATH "Path where ViSTA libraries are installed, relative to VISTA_INSTALL_PREFIX")
     set(VISTA_INSTALL_PREFIX @CMAKE_INSTALL_PREFIX@ CACHE FILEPATH "Root path of your ViSTA installation")
 endif(RESET_CACHE)
 
 # Add the includes and libraries to the compiler/linker
 # search directories
-include_directories(${VISTA_INSTALL_PREFIX}/${VISTA_INC_DIR})
-link_directories(${VISTA_INSTALL_PREFIX}/${VISTA_LIB_DIR}) 
+include_directories(${VISTA_INSTALL_PREFIX}/include)
+link_directories(${VISTA_INSTALL_PREFIX}/lib) 
 
 # Add platform defines
+# TODO: remove when using commons file
 if(UNIX)
     add_definitions(-DLINUX)
 elseif(WIN32)
@@ -27,45 +24,39 @@ endif(UNIX)
 # Add library name variables
 set(VistaBase
     optimized VistaBase
-    debug VistaBaseD
+    debug VistaBase${CMAKE_DEBUG_POSTFIX}
 )
 set(VistaAspects
     optimized VistaAspects
-    debug VistaAspectsD
+    debug VistaAspects${CMAKE_DEBUG_POSTFIX}
 )
 set(VistaDataFlowNet
     optimized VistaDataFlowNet
-    debug VistaDataFlowNetD
+    debug VistaDataFlowNet${CMAKE_DEBUG_POSTFIX}
 )
 set(VistaDeviceDriversBase
     optimized VistaDeviceDriversBase
-    debug VistaDeviceDriversBaseD
+    debug VistaDeviceDriversBase${CMAKE_DEBUG_POSTFIX}
 )
 set(VistaInterProcComm
     optimized VistaInterProcComm
-    debug VistaInterProcCommD
+    debug VistaInterProcComm${CMAKE_DEBUG_POSTFIX}
 )
 set(VistaKernel
     optimized VistaKernel
-    debug VistaKernelD
+    debug VistaKernel${CMAKE_DEBUG_POSTFIX}
 )
 set(VistaKernelOpenSGExt
     optimized VistaKernelOpenSGExt
-    debug VistaKernelOpenSGExtD
+    debug VistaKernelOpenSGExt${CMAKE_DEBUG_POSTFIX}
 )
 set(VistaMath
     optimized VistaMath
-    debug VistaMathD
+    debug VistaMath${CMAKE_DEBUG_POSTFIX}
 )
 set(VistaTools
     optimized VistaTools
-    debug VistaToolsD
-)
-
-
-set(Vista3DCSpaceNavigatorPlugin
-    optimized Vista3DCSpaceNavigatorPlugin
-    debug Vista3DCSpaceNavigatorPluginD
+    debug VistaTools${CMAKE_DEBUG_POSTFIX}
 )
 
 

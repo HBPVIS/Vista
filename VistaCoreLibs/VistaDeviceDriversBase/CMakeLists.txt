@@ -73,11 +73,11 @@ target_link_libraries(VistaDeviceDriversBase
 )
 
 install(TARGETS VistaDeviceDriversBase
-         LIBRARY DESTINATION ${VISTA_INSTALL_LIB_DIR}
-         ARCHIVE DESTINATION ${VISTA_INSTALL_LIB_DIR}
-         RUNTIME DESTINATION ${VISTA_INSTALL_LIB_DIR})
+         LIBRARY DESTINATION lib
+         ARCHIVE DESTINATION lib
+         RUNTIME DESTINATION lib)
 install(DIRECTORY .
-         DESTINATION ${VISTA_INSTALL_INC_DIR}/VistaDeviceDriversBase
+         DESTINATION include/VistaDeviceDriversBase
          FILES_MATCHING PATTERN "*.h"
          PATTERN "build" EXCLUDE
          PATTERN ".svn" EXCLUDE
