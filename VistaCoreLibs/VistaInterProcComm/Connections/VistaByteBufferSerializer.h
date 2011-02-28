@@ -88,7 +88,7 @@ public:
 	 * network or file operations that work on byte buffers.
 	 * @return a pointer to the internal buffer of this serializer. Consider it read only.
 	 */
-	unsigned char *GetBuffer() const;
+	char *GetBuffer() const;
 
 	/**
 	 * Returns the size of the _serialized_ buffer, not the total size of the buffer that
@@ -181,20 +181,20 @@ public:
 	 * @param iBufferSize size to use while deserializing
 	 * @param iWriteHead can be used to pass an offset in the external buffer, where the serializing shall start
 	 */
-	void SetBuffer(unsigned char *pvBuffer,
+	void SetBuffer(char *pvBuffer,
 				   int iBufferSize,
 				   int iWriteHead = 0);
 
 private:
-	std::vector<unsigned char> m_vecBuffer;
+	std::vector<char> m_vecBuffer;
 	int            m_iWriteHead;
-	unsigned char *m_pHead;
+	char *m_pHead;
 	unsigned int   m_uiCapacity;
 	bool           m_bDoSwap,
 				   m_bRetrimSize;
 
 	// does it all
-	int WriteValue(unsigned char *pcValue, int iLength);
+	int WriteValue(char *pcValue, int iLength);
 };
 
 

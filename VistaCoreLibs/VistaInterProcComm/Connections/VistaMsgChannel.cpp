@@ -129,7 +129,7 @@ bool VistaMsgChannel::WriteMsg(int iMethodToken, const VistaPropertyList &rList,
 	msg.SetMsgType(-3);
 
 	msg.GetThisMsgRef().resize(4096);
-	m_rSer.SetBuffer((unsigned char*)&msg.GetThisMsgRef()[0], 4096);
+	m_rSer.SetBuffer((char*)&msg.GetThisMsgRef()[0], 4096);
 
 	m_rSer.WriteInt32(iMethodToken);
 	m_rSer.WriteInt32(0);

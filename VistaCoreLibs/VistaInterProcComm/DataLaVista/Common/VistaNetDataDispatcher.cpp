@@ -63,7 +63,7 @@ bool DLVistaNetDataDispatcher::ConsumePacket(IDLVistaDataPacket* p)
 	{
 		VistaByteBufferSerializer oSer(p->GetDataSize());
 		oSer.WriteSerializable(*p);
-		unsigned char *pBuffer = oSer.GetBuffer();
+		char *pBuffer = oSer.GetBuffer();
 		const int iSize = oSer.GetBufferSize();
 #ifdef DEBUG
 		vipcout << "*** Dispatching packet" << endl;

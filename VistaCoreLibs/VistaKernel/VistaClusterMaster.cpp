@@ -411,7 +411,7 @@ public:
 
 					// this call 'adopts' the buffer and positions the write head
 					// at index 0
-					m_oSer.SetBuffer( reinterpret_cast<unsigned char*>((*pBuffer).GetBuffer()),
+					m_oSer.SetBuffer( reinterpret_cast<char*>((*pBuffer).GetBuffer()),
 									  (*pBuffer).GetBufferSize(), 0 );
 
 					// this effectively overwrites the first int32
