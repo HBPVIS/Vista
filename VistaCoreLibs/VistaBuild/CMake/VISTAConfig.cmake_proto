@@ -21,6 +21,8 @@ elseif(WIN32)
     add_definitions(-DWIN32)
 endif(UNIX)
 
+set(CMAKE_DEBUG_POSTFIX "D")
+
 # Add library name variables
 set(VistaBase
     optimized VistaBase
