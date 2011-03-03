@@ -760,7 +760,7 @@ COLS_IN_ALPHA_INDEX = 3
 # The IGNORE_PREFIX tag can be used to specify one or more prefixes that 
 # should be ignored while generating the index headers.
 
-IGNORE_PREFIX = CVista IVista IDLVista CDLVista TVista TVdfn IVdfn CVdfn TiXML UCVista CVistaDfn
+IGNORE_PREFIX = Vista IVista DLVista IDLVista TVista TVdfn IVdfn Vdfn TiXML UCVista VistaDfn
 
 #---------------------------------------------------------------------------
 # configuration options related to the HTML output

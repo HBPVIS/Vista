@@ -1,68 +1,24 @@
-if(WIN32)
-    add_definitions(-DVISTAINTERPROCCOMM_EXPORTS -D_USE_WIN32_MUTEX -D_USE_IPC_EXCEPTIONS)
-    set(LIBRARIES winmm ws2_32)
-endif(WIN32)
+if( WIN32 )
+	add_definitions( -DVISTAINTERPROCCOMM_EXPORTS -D_USE_WIN32_MUTEX )
+	set( LIBRARIES winmm ws2_32 )
+endif( WIN32 )
 
-set(dirFiles
-    VistaInterProcCommOut.cpp
-    VistaInterProcCommConfig.h
-    VistaInterProcCommOut.h
-)
-source_group("Source Files" FILES ${dirFiles})
+set( VISTA_INTERPROCCOMM_USE_EXCEPTIONS OFF CACHE BOOL "Specifies wether or nor the IPC throws exceptions when errors occur" )
+mark_as_advanced( VISTA_INTERPROCCOMM_USE_EXCEPTIONS )
+if( VISTA_INTERPROCCOMM_USE_EXCEPTIONS )
+	add_definitions( -DUSE_IPC_EXCEPTIONS )
+endif( VISTA_INTERPROCCOMM_USE_EXCEPTIONS )
 
-add_subdirectory(AsyncIO)
-source_group("Source Files\\AsyncIO" FILES ${dirFiles_AsyncIO})
+include( "./_SourceFiles.cmake" )
 
-add_subdirectory(Concurrency)
-source_group("Source Files\\Concurrency" FILES ${dirFiles_Concurrency})
-source_group("Source Files\\Concurrency\\Imp" FILES ${dirFiles_Concurrency_Imp})
-
-add_subdirectory(Connections)
-source_group("Source Files\\Connections" FILES ${dirFiles_Connections})
-
-add_subdirectory(DataLaVista)
-source_group("Source Files\\DataLaVista\\Base" FILES ${dirFiles_DataLaVista_Base})
-source_group("Source Files\\DataLaVista\\Common" FILES ${dirFiles_DataLaVista_Common})
-source_group("Source Files\\DataLaVista\\Construct" FILES ${dirFiles_DataLaVista_Construct})
-
-add_subdirectory(Hardware)
-source_group("Source Files\\Hardware" FILES ${dirFiles_Hardware})
-source_group("Source Files\\Hardware\\Imp" FILES ${dirFiles_Hardware_Imp})
-
-add_subdirectory(IPNet)
-source_group("Source Files\\IPNet" FILES ${dirFiles_IPNet})
-
-add_subdirectory(SharedMemory)
-source_group("Source Files\\SharedMemory" FILES ${dirFiles_SharedMemory})
-
-add_library(VistaInterProcComm
-    ${dirFiles}
-    ${dirFiles_AsyncIO}
-    ${dirFiles_Concurrency}
-    ${dirFiles_Concurrency_Imp}
-    ${dirFiles_Connections}
-    ${dirFiles_DataLaVista_Base}
-    ${dirFiles_DataLaVista_Common}
-    ${dirFiles_DataLaVista_Construct}
-    ${dirFiles_Hardware}
-    ${dirFiles_Hardware_Imp}
-    ${dirFiles_IPNet}
-    ${dirFiles_SharedMemory}
-) 
-
-target_link_libraries(VistaInterProcComm
-	VistaBase
+add_library( VistaInterProcComm ${ProjectSources} )
+target_link_libraries( VistaInterProcComm
     VistaAspects
-    ${LIBRARIES}
+    VistaInterProcComm
+    VistaTools
+    VistaMath
+	${LIBRARIES}
 )
 
-install(TARGETS VistaInterProcComm
-         LIBRARY DESTINATION lib
-         ARCHIVE DESTINATION lib
-         RUNTIME DESTINATION lib)
-install(DIRECTORY .
-         DESTINATION include/VistaInterProcComm
-         FILES_MATCHING PATTERN "*.h"
-         PATTERN "build" EXCLUDE
-         PATTERN ".svn" EXCLUDE
-         PATTERN "CMakeFiles" EXCLUDE)
+vista_install( VistaInterProcComm VistaInterProcComm )
+

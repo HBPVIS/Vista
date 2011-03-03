@@ -1,70 +1,16 @@
-if(WIN32)
-    add_definitions(-DVISTAASPECTS_EXPORTS)
-elseif(UNIX)
-    set(LIBRARIES rt)
-endif(WIN32)
+if( WIN32 )
+	add_definitions( -DVISTAASPECTS_EXPORTS )
+else( WIN32 )
+	set( LIBRARIES rt )
+endif( WIN32 )
 
-set(dirFiles
-    VistaAspectsOut.cpp
-    VistaAspectsUtils.cpp
-    VistaDeSerializer.cpp
-    VistaExplicitCallbackInterface.cpp
-    VistaNameable.cpp
-    VistaObjectRegistry.cpp
-    VistaObserveable.cpp
-    VistaObserver.cpp
-	VistaLocatable.cpp
-    VistaPropertyAwareable.cpp
-    VistaPropertyFunctor.cpp
-    VistaPropertyFunctorRegistry.cpp
-    VistaReferenceCountable.cpp
-    VistaReflectionable.cpp
-    VistaSerializable.cpp
-    VistaSerializer.cpp
-    VistaSerializingToolset.cpp
-    VistaTransformable.cpp
-    VistaAspectsConfig.h
-    VistaAspectsOut.h
-    VistaAspectsUtils.h
-    VistaDeSerializer.h
-    VistaExplicitCallbackInterface.h
-    VistaNameable.h
-    VistaObjectRegistry.h
-    VistaObserveable.h
-    VistaObserver.h
-	VistaLocatable.h
-    VistaPropertyAwareable.h
-    VistaPropertyFunctor.h
-    VistaPropertyFunctorRegistry.h
-    VistaReferenceCountable.h
-    VistaReflectionable.h
-    VistaSerializable.h
-    VistaSerializer.h
-    VistaSerializingToolset.h
-    VistaTransformable.h
-	VistaPropertyList.h
-	VistaPropertyList.cpp
-	VistaProperty.h
-	VistaProperty.cpp
-)
-source_group("Source Files" FILES ${dirFiles})
+include( "./_SourceFiles.cmake" )
 
-add_library(VistaAspects
-    ${dirFiles}
-) 
-
-target_link_libraries(VistaAspects
+add_library( VistaAspects ${ProjectSources} )
+target_link_libraries( VistaAspects
 	VistaBase
-    ${LIBRARIES}
+	${LIBRARIES}
 )
 
-install(TARGETS VistaAspects
-         LIBRARY DESTINATION lib
-         ARCHIVE DESTINATION lib
-         RUNTIME DESTINATION lib)
-install(DIRECTORY .
-         DESTINATION include/VistaAspects
-         FILES_MATCHING PATTERN "*.h"
-         PATTERN "build" EXCLUDE
-         PATTERN ".svn" EXCLUDE
-         PATTERN "CMakeFiles" EXCLUDE)
+vista_install( VistaAspects VistaAspects )
+

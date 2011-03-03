@@ -46,30 +46,52 @@ VistaSerializingToolset::~VistaSerializingToolset()
 /*============================================================================*/
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
-void VistaSerializingToolset::Swap4(void *p)
+void VistaSerializingToolset::Swap4( void* pBuffer )
 {
-  register unsigned char t;
+  register unsigned char cTmp;
+  register unsigned char* pCharBuffer = (unsigned char*)pBuffer;
 
-  t=((unsigned char*)p)[0]; ((unsigned char*)p)[0]=((unsigned char*)p)[3]; ((unsigned char*)p)[3]=t;
-  t=((unsigned char*)p)[1]; ((unsigned char*)p)[1]=((unsigned char*)p)[2]; ((unsigned char*)p)[2]=t;
+  cTmp = pCharBuffer[0]; 
+  pCharBuffer[0] = pCharBuffer[3];
+  pCharBuffer[3] = cTmp;
+
+  cTmp = pCharBuffer[1];
+  pCharBuffer[1] = pCharBuffer[2];
+  pCharBuffer[2] = cTmp;
 }
 ;
 
-void VistaSerializingToolset::Swap2(void *p)
+void VistaSerializingToolset::Swap2( void* pBuffer )
 {
-  register unsigned char t;
-  t=((unsigned char*)p)[0]; ((unsigned char*)p)[0]=((unsigned char*)p)[1]; ((unsigned char*)p)[1]=t;
+  register unsigned char cTmp;
+  register unsigned char* pCharBuffer = (unsigned char*)pBuffer;
+
+  cTmp = pCharBuffer[0];
+  pCharBuffer[0] = pCharBuffer[1];
+  pCharBuffer[1] = cTmp;
 
 }
 
-void VistaSerializingToolset::Swap8(void *p)
+void VistaSerializingToolset::Swap8( void* pBuffer )
 {
-  register unsigned char t;
+  register unsigned char cTmp;
+  register unsigned char* pCharBuffer = (unsigned char*)pBuffer;
 
-  t=((unsigned char*)p)[0]; ((unsigned char*)p)[0]=((unsigned char*)p)[7]; ((unsigned char*)p)[7]=t;
-  t=((unsigned char*)p)[1]; ((unsigned char*)p)[1]=((unsigned char*)p)[6]; ((unsigned char*)p)[6]=t;
-  t=((unsigned char*)p)[2]; ((unsigned char*)p)[2]=((unsigned char*)p)[5]; ((unsigned char*)p)[5]=t;
-  t=((unsigned char*)p)[3]; ((unsigned char*)p)[3]=((unsigned char*)p)[4]; ((unsigned char*)p)[4]=t;
+  cTmp  =pCharBuffer[0];
+  pCharBuffer[0] = pCharBuffer[7];
+  pCharBuffer[7] = cTmp;
+
+  cTmp = pCharBuffer[1];
+  pCharBuffer[1] = pCharBuffer[6];
+  pCharBuffer[6] = cTmp;
+
+  cTmp = pCharBuffer[2];
+  pCharBuffer[2] = pCharBuffer[5];
+  pCharBuffer[5]  =cTmp;
+
+  cTmp = pCharBuffer[3];
+  pCharBuffer[3] = pCharBuffer[4];
+  pCharBuffer[4] = cTmp;
 }
 
 VistaSerializingToolset::eEndianess VistaSerializingToolset::GetPlatformEndianess()
@@ -101,39 +123,39 @@ VistaSerializingToolset::eEndianess VistaSerializingToolset::GetPlatformEndianes
 	return thisMachine;
 }
 
-void VistaSerializingToolset::Swap(void *p, int iLength)
+void VistaSerializingToolset::Swap( void* pBuffer, int iLength )
 {
-	switch(iLength)
+	switch( iLength )
 	{
 	case 2:
-		Swap2(p);
+		Swap2( pBuffer );
 		break;
 	case 4:
-		Swap4(p);
+		Swap4( pBuffer );
 		break;
 	case 8:
-		Swap8(p);
+		Swap8( pBuffer );
 		break;
 	default:
 		{
-			if((iLength % 8) == 0)
+			if( ( iLength % 8) == 0 )
 			{
-				Swap(p, 8, iLength/8);
+				Swap( pBuffer, 8, iLength/8 );
 			}
-			else if((iLength%4) == 0)
+			else if( (iLength % 4) == 0 )
 			{
-				Swap(p, 4, iLength/4);
+				Swap( pBuffer, 4, iLength/4 );
 			}
-			else if((iLength%2) == 0)
+			else if( (iLength % 2) == 0 )
 			{
-				Swap(p,2, iLength/2);
+				Swap( pBuffer, 2, iLength/2 );
 			}
 		break;
 		}
 	}
 }
 
-void VistaSerializingToolset::Swap(void *p, int iLength, int iCount)
+void VistaSerializingToolset::Swap( void* pBuffer, int iLength, int iCount )
 {
 #if 1
 	void (*pSwapFunc)(void *);
@@ -152,14 +174,14 @@ void VistaSerializingToolset::Swap(void *p, int iLength, int iCount)
 		return;
 	}
 
-	unsigned char *pc = (unsigned char*) p;
-	for (int j=0; j<iCount; ++j)
+	unsigned char *pc = (unsigned char*) pBuffer;
+	for( int j = 0; j < iCount; ++j )
 	{
 		pSwapFunc(pc);
 		pc += iLength;
 	}
 #else
-	unsigned char *pc = (unsigned char*)p;
+	unsigned char *pc = (unsigned char*)pBuffer;
 	for(int j=0; j < iCount; ++j)
 	{
 		Swap(pc, iLength);
