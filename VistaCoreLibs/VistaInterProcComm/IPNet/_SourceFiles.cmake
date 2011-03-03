@@ -16,8 +16,6 @@ set( DirFiles
 	VistaMcastSocketAddress.h
 	VistaNetworkInfo.cpp
 	VistaNetworkInfo.h
-	VistaPGMSocket.cpp
-	VistaPGMSocket.h
 	VistaServiceIndicator.cpp
 	VistaServiceIndicator.h
 	VistaSocket.cpp

@@ -3,7 +3,7 @@ if( WIN32 )
 	set( LIBRARIES winmm ws2_32 )
 endif( WIN32 )
 
-set( VISTA_INTERPROCCOMM_USE_EXCEPTIONS OFF CACHE BOOL "Specifies wether or nor the IPC throws exceptions when errors occur" )
+set( VISTA_INTERPROCCOMM_USE_EXCEPTIONS ON CACHE BOOL "Specifies wether or nor the IPC throws exceptions when errors occur" )
 mark_as_advanced( VISTA_INTERPROCCOMM_USE_EXCEPTIONS )
 if( VISTA_INTERPROCCOMM_USE_EXCEPTIONS )
 	add_definitions( -DUSE_IPC_EXCEPTIONS )
