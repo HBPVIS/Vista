@@ -11,8 +11,8 @@ list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
 
 include( VistaLibCommon )
 
-find_Package( VGLUT REQUIRED )
-find_Package( VOpenSG REQUIRED )
+find_Package( VGLUT )
+find_Package( VOpenSG )
 
 
 

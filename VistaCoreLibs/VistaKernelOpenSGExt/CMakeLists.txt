@@ -1,3 +1,6 @@
+find_Package( VGLUT REQUIRED )
+find_Package( VOpenSG REQUIRED )
+
 vista_use_GLUT()
 vista_use_OpenSG()
 
