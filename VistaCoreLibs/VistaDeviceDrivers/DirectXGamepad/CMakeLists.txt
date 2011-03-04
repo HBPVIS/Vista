@@ -1,3 +1,5 @@
+vista_use_OpenSG()
+
 set(DIRECTX_ROOT $ENV{DIRECTX_ROOT} CACHE PATH "Base directory of the DirectX SDK")
 
 set(dirFiles_driver

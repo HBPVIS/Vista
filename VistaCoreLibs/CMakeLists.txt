@@ -14,6 +14,19 @@ include( VistaLibCommon )
 find_Package( VGLUT )
 find_Package( VOpenSG )
 
+# the version type can be either HEAD, RELASE, BRANCH, or TAG
+set( VISTACORELIBS_VERSION_TYPE	RELEASE )
+
+# the version head is a string representation of the CoreLibs version, and should be 
+# either HEAD, the name of the RELASE, or the BRANCH/TAG name
+# The version
+set( VISTACORELIBS_VERSION_NAME	HEAD )	
+# the version numbers should always represent the last RELASE 
+# For the HEAD, these should be the same as for the last release
+# For BRANCHes and TAGs, it is not necessary to specify them at all, but they can still be used
+set( VISTACORELIBS_VERSION_MAJOR 	1 )
+set( VISTACORELIBS_VERSION_MINOR 	10 )
+set( VISTACORELIBS_VERSION_REVISION	1 )
 
 
 # Let the user decide which libraries to build
@@ -34,22 +47,26 @@ add_subdirectory( VistaDeviceDrivers )
 #         variables. I.e. @VISTA_INSTALL_INC_DIR@ is replaced by the content
 #         of the variable VISTA_INSTALL_INC_DIR
 configure_file(
-    VistaBuild/CMake/VISTAConfig.cmake_proto
-    ${CMAKE_CURRENT_BINARY_DIR}/cmake/VISTAConfig.cmake
+    VistaBuild/CMake/VistaCoreLibsConfig.cmake_proto
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/VistaCoreLibsConfig.cmake
     @ONLY
 )
+
 # Eventually install the file
-if(UNIX)
-	install(FILES
-		${CMAKE_CURRENT_BINARY_DIR}/cmake/VISTAConfig.cmake
-		DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/VISTA"
+if( UNIX )
+	install( FILES
+		${CMAKE_CURRENT_BINARY_DIR}/cmake/VistaCoreLibsConfig.cmake
+		DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/VistaCoreLibs"
 	)
-elseif(WIN32)
-    install(FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/cmake/VISTAConfig.cmake
+elseif( WIN32 )
+    install( FILES
+		${CMAKE_CURRENT_BINARY_DIR}/cmake/VistaCoreLibsConfig.cmake
         DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
     )
-endif(UNIX)
+endif( UNIX )
+
+# use a generic version file configure/install macro
+configure_and_install_package_version( VistaCoreLibs )
 
 # Experimental uninstall tag. Use with care!
 configure_file(

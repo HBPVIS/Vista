@@ -1,0 +1,85 @@
+# Values in the form @VAR@ are prototype variables
+# They will be replaced by CMake 
+
+# Create cache variables
+if(RESET_CACHE)
+    set(VISTA_INSTALL_PREFIX @CMAKE_INSTALL_PREFIX@ CACHE FILEPATH "Root path of your ViSTA installation" FORCE)
+else()
+    set(VISTA_INSTALL_PREFIX @CMAKE_INSTALL_PREFIX@ CACHE FILEPATH "Root path of your ViSTA installation")
+endif(RESET_CACHE)
+
+# Add platform defines
+# TODO: remove when using commons file
+if(UNIX)
+    set( VISTACORELIBS_DEFINITIONS -DLINUX )
+elseif(WIN32)
+    set( VISTACORELIBS_DEFINITIONS -DWIN32 )
+endif(UNIX)
+
+# Add library name variables
+set( VistaBase
+    optimized VistaBase
+    debug VistaBase@CMAKE_DEBUG_POSTFIX@
+)
+set( VistaAspects
+    optimized VistaAspects
+    debug VistaAspects@CMAKE_DEBUG_POSTFIX@
+)
+set( VistaDataFlowNet
+    optimized VistaDataFlowNet
+    debug VistaDataFlowNet@CMAKE_DEBUG_POSTFIX@
+)
+set( VistaDeviceDriversBase
+    optimized VistaDeviceDriversBase
+    debug VistaDeviceDriversBase@CMAKE_DEBUG_POSTFIX@
+)
+set( VistaInterProcComm
+    optimized VistaInterProcComm
+    debug VistaInterProcComm@CMAKE_DEBUG_POSTFIX@
+)
+set( VistaKernel
+    optimized VistaKernel
+    debug VistaKernel@CMAKE_DEBUG_POSTFIX@
+)
+set( VistaKernelOpenSGExt
+    optimized VistaKernelOpenSGExt
+    debug VistaKernelOpenSGExt@CMAKE_DEBUG_POSTFIX@
+)
+set( VistaMath
+    optimized VistaMath
+    debug VistaMath@CMAKE_DEBUG_POSTFIX@
+)
+set( VistaTools
+    optimized VistaTools
+    debug VistaTools@CMAKE_DEBUG_POSTFIX@
+)
+
+set( VISTACORELIBS_INC_DIR ${VISTA_INSTALL_PREFIX}/include )
+set( VISTACORELIBS_LIB_DIR ${VISTA_INSTALL_PREFIX}/lib )
+set( VISTACORELIBS_LIBRARIES
+	${VistaBase}
+	${VistaAspects}
+	${VistaDataFlowNet}
+	${VistaDeviceDriversBase}
+	${VistaInterProcComm}
+	${VistaMath}
+	${VistaTools}
+	${VistaKernel}
+	${VistaKernelOpenSGExt} )
+	
+set( VISTACORELIBS_NOKERNEL_LIBRARIES
+	${VistaBase}
+	${VistaAspects}
+	${VistaDataFlowNet}
+	${VistaDeviceDriversBase}
+	${VistaInterProcComm}
+	${VistaMath}
+	${VistaTools} )
+
+# Add the includes and libraries to the compiler/linker
+# search directories
+macro( vista_use_CoreLibs )
+	include_directories( ${VISTACORELIBS_INC_DIR} )
+	link_directories( ${VISTACORELIBS_LIB_DIR} )
+	add_definitions( ${VISTACORELIBS_DEFINITIONS} )
+endmacro( vista_use_CoreLibs )
