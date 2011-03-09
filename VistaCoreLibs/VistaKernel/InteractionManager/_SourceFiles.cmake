@@ -1,5 +1,5 @@
 set( RelativeDir "./InteractionManager" )
-set( LocalSourceGroup "Source Files\\InteractionManager" )
+set( RelativeSourceGroup "Source Files\\InteractionManager" )
 set( SubDirs DfnNodes )
 
 set( DirFiles
@@ -22,13 +22,14 @@ set( DirFiles
 	VistaVirtualPlatformAdapter.cpp
 	VistaVirtualPlatformAdapter.h
 )
+set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 
 set( LocalSourceGroupFiles  )
 foreach( File ${DirFiles} )
 	list( APPEND LocalSourceGroupFiles "${RelativeDir}/${File}" )
 	list( APPEND ProjectSources "${RelativeDir}/${File}" )
 endforeach()
-source_group( "${LocalSourceGroup}" FILES ${LocalSourceGroupFiles} )
+source_group( ${DirFiles_SourceGroup} FILES ${LocalSourceGroupFiles} )
 
 set( SubDirFiles "" )
 foreach( Dir ${SubDirs} )

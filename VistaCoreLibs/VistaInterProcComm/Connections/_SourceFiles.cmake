@@ -1,5 +1,5 @@
 set( RelativeDir "./Connections" )
-set( LocalSourceGroup "Source Files\\Connections" )
+set( RelativeSourceGroup "Source Files\\Connections" )
 
 set( DirFiles
 	VistaByteBufferDeSerializer.cpp
@@ -37,11 +37,12 @@ set( DirFiles
 	VistaSlaveNetworkSync.cpp
 	VistaSlaveNetworkSync.h
 )
+set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 
 set( LocalSourceGroupFiles  )
 foreach( File ${DirFiles} )
 	list( APPEND LocalSourceGroupFiles "${RelativeDir}/${File}" )
 	list( APPEND ProjectSources "${RelativeDir}/${File}" )
 endforeach()
-source_group( "${LocalSourceGroup}" FILES ${LocalSourceGroupFiles} )
+source_group( ${DirFiles_SourceGroup} FILES ${LocalSourceGroupFiles} )
 

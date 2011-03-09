@@ -1,5 +1,5 @@
 set( RelativeDir "./WindowingToolkit" )
-set( LocalSourceGroup "Source Files\\WindowingToolkit" )
+set( RelativeSourceGroup "Source Files\\WindowingToolkit" )
 set( SubDirs glut )
 
 set( DirFiles
@@ -12,13 +12,14 @@ set( DirFiles
 	VistaWindowingToolkit.cpp
 	VistaWindowingToolkit.h
 )
+set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 
 set( LocalSourceGroupFiles  )
 foreach( File ${DirFiles} )
 	list( APPEND LocalSourceGroupFiles "${RelativeDir}/${File}" )
 	list( APPEND ProjectSources "${RelativeDir}/${File}" )
 endforeach()
-source_group( "${LocalSourceGroup}" FILES ${LocalSourceGroupFiles} )
+source_group( ${DirFiles_SourceGroup} FILES ${LocalSourceGroupFiles} )
 
 set( SubDirFiles "" )
 foreach( Dir ${SubDirs} )

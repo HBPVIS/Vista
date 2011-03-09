@@ -1,5 +1,5 @@
 set( RelativeDir "./Hardware/Imp" )
-set( LocalSourceGroup "Source Files\\Hardware\\Imp" )
+set( RelativeSourceGroup "Source Files\\Hardware\\Imp" )
 
 set( DirFiles
 	VistaPosixSerialPortImp.cpp
@@ -9,11 +9,12 @@ set( DirFiles
 	VistaWin32SerialPortImp.cpp
 	VistaWin32SerialPortImp.h
 )
+set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 
 set( LocalSourceGroupFiles  )
 foreach( File ${DirFiles} )
 	list( APPEND LocalSourceGroupFiles "${RelativeDir}/${File}" )
 	list( APPEND ProjectSources "${RelativeDir}/${File}" )
 endforeach()
-source_group( "${LocalSourceGroup}" FILES ${LocalSourceGroupFiles} )
+source_group( ${DirFiles_SourceGroup} FILES ${LocalSourceGroupFiles} )
 

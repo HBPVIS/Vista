@@ -1,5 +1,5 @@
 set( RelativeDir "./DisplayManager" )
-set( LocalSourceGroup "Source Files\\DisplayManager" )
+set( RelativeSourceGroup "Source Files\\DisplayManager" )
 
 set( DirFiles
 	Vista2DDrawingObjects.cpp
@@ -25,11 +25,12 @@ set( DirFiles
 	VistaWindow.cpp
 	VistaWindow.h
 )
+set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 
 set( LocalSourceGroupFiles  )
 foreach( File ${DirFiles} )
 	list( APPEND LocalSourceGroupFiles "${RelativeDir}/${File}" )
 	list( APPEND ProjectSources "${RelativeDir}/${File}" )
 endforeach()
-source_group( "${LocalSourceGroup}" FILES ${LocalSourceGroupFiles} )
+source_group( ${DirFiles_SourceGroup} FILES ${LocalSourceGroupFiles} )
 

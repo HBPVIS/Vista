@@ -1,5 +1,5 @@
 set( RelativeDir "./Half" )
-set( LocalSourceGroup "Source Files\\Half" )
+set( RelativeSourceGroup "Source Files\\Half" )
 
 set( DirFiles
 	VistaHalf.cpp
@@ -9,11 +9,12 @@ set( DirFiles
 	eLut.h
 	toFloat.h
 )
+set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 
 set( LocalSourceGroupFiles  )
 foreach( File ${DirFiles} )
 	list( APPEND LocalSourceGroupFiles "${RelativeDir}/${File}" )
 	list( APPEND ProjectSources "${RelativeDir}/${File}" )
 endforeach()
-source_group( "${LocalSourceGroup}" FILES ${LocalSourceGroupFiles} )
+source_group( ${DirFiles_SourceGroup} FILES ${LocalSourceGroupFiles} )
 

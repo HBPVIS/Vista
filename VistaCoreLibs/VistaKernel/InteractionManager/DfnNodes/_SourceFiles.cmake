@@ -1,5 +1,5 @@
 set( RelativeDir "./InteractionManager/DfnNodes" )
-set( LocalSourceGroup "Source Files\\InteractionManager\\DfnNodes" )
+set( RelativeSourceGroup "Source Files\\InteractionManager\\DfnNodes" )
 
 set( DirFiles
 	VistaDfn3DMouseTransformNode.cpp
@@ -41,11 +41,12 @@ set( DirFiles
 	VistaKernelDfnNodeCreators.cpp
 	VistaKernelDfnNodeCreators.h
 )
+set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 
 set( LocalSourceGroupFiles  )
 foreach( File ${DirFiles} )
 	list( APPEND LocalSourceGroupFiles "${RelativeDir}/${File}" )
 	list( APPEND ProjectSources "${RelativeDir}/${File}" )
 endforeach()
-source_group( "${LocalSourceGroup}" FILES ${LocalSourceGroupFiles} )
+source_group( ${DirFiles_SourceGroup} FILES ${LocalSourceGroupFiles} )
 

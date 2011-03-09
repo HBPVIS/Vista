@@ -1,5 +1,5 @@
 set( RelativeDir "./WindowingToolkit/glut" )
-set( LocalSourceGroup "Source Files\\WindowingToolkit\\glut" )
+set( RelativeSourceGroup "Source Files\\WindowingToolkit\\glut" )
 
 set( DirFiles
 	VistaGlut3DTextOverlay.cpp
@@ -15,11 +15,12 @@ set( DirFiles
 	VistaGlutWindowingToolkit.cpp
 	VistaGlutWindowingToolkit.h
 )
+set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 
 set( LocalSourceGroupFiles  )
 foreach( File ${DirFiles} )
 	list( APPEND LocalSourceGroupFiles "${RelativeDir}/${File}" )
 	list( APPEND ProjectSources "${RelativeDir}/${File}" )
 endforeach()
-source_group( "${LocalSourceGroup}" FILES ${LocalSourceGroupFiles} )
+source_group( ${DirFiles_SourceGroup} FILES ${LocalSourceGroupFiles} )
 

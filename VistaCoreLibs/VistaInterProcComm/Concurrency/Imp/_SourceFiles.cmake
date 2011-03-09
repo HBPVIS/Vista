@@ -1,5 +1,5 @@
 set( RelativeDir "./Concurrency/Imp" )
-set( LocalSourceGroup "Source Files\\Concurrency\\Imp" )
+set( RelativeSourceGroup "Source Files\\Concurrency\\Imp" )
 
 set( DirFiles
 	VistaMutexImp.cpp
@@ -57,11 +57,12 @@ set( DirFiles
 	VistaWin32ThreadImp.cpp
 	VistaWin32ThreadImp.h
 )
+set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 
 set( LocalSourceGroupFiles  )
 foreach( File ${DirFiles} )
 	list( APPEND LocalSourceGroupFiles "${RelativeDir}/${File}" )
 	list( APPEND ProjectSources "${RelativeDir}/${File}" )
 endforeach()
-source_group( "${LocalSourceGroup}" FILES ${LocalSourceGroupFiles} )
+source_group( ${DirFiles_SourceGroup} FILES ${LocalSourceGroupFiles} )
 

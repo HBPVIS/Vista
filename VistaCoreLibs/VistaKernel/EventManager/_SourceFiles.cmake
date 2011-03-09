@@ -1,5 +1,5 @@
 set( RelativeDir "./EventManager" )
-set( LocalSourceGroup "Source Files\\EventManager" )
+set( RelativeSourceGroup "Source Files\\EventManager" )
 
 set( DirFiles
 	VistaCentralEventHandler.cpp
@@ -32,11 +32,12 @@ set( DirFiles
 	VistaTimeoutRouter.cpp
 	VistaTimeoutRouter.h
 )
+set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 
 set( LocalSourceGroupFiles  )
 foreach( File ${DirFiles} )
 	list( APPEND LocalSourceGroupFiles "${RelativeDir}/${File}" )
 	list( APPEND ProjectSources "${RelativeDir}/${File}" )
 endforeach()
-source_group( "${LocalSourceGroup}" FILES ${LocalSourceGroupFiles} )
+source_group( ${DirFiles_SourceGroup} FILES ${LocalSourceGroupFiles} )
 

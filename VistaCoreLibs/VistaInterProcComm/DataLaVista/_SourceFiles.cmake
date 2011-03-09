@@ -1,5 +1,5 @@
 set( RelativeDir "./DataLaVista" )
-set( LocalSourceGroup "Source Files\\DataLaVista" )
+set( RelativeSourceGroup "Source Files\\DataLaVista" )
 set( SubDirs Base Common Construct )
 
 set( SubDirFiles "" )

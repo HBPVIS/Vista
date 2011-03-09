@@ -1,5 +1,5 @@
 set( RelativeDir "./AsyncIO" )
-set( LocalSourceGroup "Source Files\\AsyncIO" )
+set( RelativeSourceGroup "Source Files\\AsyncIO" )
 
 set( DirFiles
 	VistaAsyncEventObserver.cpp
@@ -15,11 +15,12 @@ set( DirFiles
 	VistaIOScheduler.cpp
 	VistaIOScheduler.h
 )
+set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 
 set( LocalSourceGroupFiles  )
 foreach( File ${DirFiles} )
 	list( APPEND LocalSourceGroupFiles "${RelativeDir}/${File}" )
 	list( APPEND ProjectSources "${RelativeDir}/${File}" )
 endforeach()
-source_group( "${LocalSourceGroup}" FILES ${LocalSourceGroupFiles} )
+source_group( ${DirFiles_SourceGroup} FILES ${LocalSourceGroupFiles} )
 

@@ -1,5 +1,5 @@
 set( RelativeDir "./Hardware" )
-set( LocalSourceGroup "Source Files\\Hardware" )
+set( RelativeSourceGroup "Source Files\\Hardware" )
 set( SubDirs Imp )
 
 set( DirFiles
@@ -7,13 +7,14 @@ set( DirFiles
 	VistaSerialPort.h
 	VistaSerialPortStateDesc.h
 )
+set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 
 set( LocalSourceGroupFiles  )
 foreach( File ${DirFiles} )
 	list( APPEND LocalSourceGroupFiles "${RelativeDir}/${File}" )
 	list( APPEND ProjectSources "${RelativeDir}/${File}" )
 endforeach()
-source_group( "${LocalSourceGroup}" FILES ${LocalSourceGroupFiles} )
+source_group( ${DirFiles_SourceGroup} FILES ${LocalSourceGroupFiles} )
 
 set( SubDirFiles "" )
 foreach( Dir ${SubDirs} )

@@ -1,5 +1,5 @@
 set( RelativeDir "./DataLaVista/Construct" )
-set( LocalSourceGroup "Source Files\\DataLaVista\\Construct" )
+set( RelativeSourceGroup "Source Files\\DataLaVista\\Construct" )
 
 set( DirFiles
 	VistaCheckError.cpp
@@ -11,11 +11,12 @@ set( DirFiles
 	VistaPipeConstructionKit.cpp
 	VistaPipeConstructionKit.h
 )
+set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 
 set( LocalSourceGroupFiles  )
 foreach( File ${DirFiles} )
 	list( APPEND LocalSourceGroupFiles "${RelativeDir}/${File}" )
 	list( APPEND ProjectSources "${RelativeDir}/${File}" )
 endforeach()
-source_group( "${LocalSourceGroup}" FILES ${LocalSourceGroupFiles} )
+source_group( ${DirFiles_SourceGroup} FILES ${LocalSourceGroupFiles} )
 
