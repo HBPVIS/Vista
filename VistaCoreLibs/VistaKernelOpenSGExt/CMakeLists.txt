@@ -12,7 +12,11 @@ if( WIN32 )
 endif( WIN32 )
 
 if( WIN32 )
-	add_definitions( -DVISTAKERNELOPENSGEXT_EXPORTS )
+	if( BUILD_SHARED_LIBS )
+		add_definitions( -DVISTAKERNELOPENSGEXT_EXPORTS )
+	else( BUILD_SHARED_LIBS )
+		add_definitions( -DVISTAKERNELOPENSGEXT_STATIC )
+	endif( BUILD_SHARED_LIBS )
 endif( WIN32 )
 
 include( "./_SourceFiles.cmake" )

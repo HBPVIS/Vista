@@ -1,5 +1,10 @@
 if( WIN32 )
-	add_definitions( -DVISTAINTERPROCCOMM_EXPORTS -D_USE_WIN32_MUTEX )
+	if( BUILD_SHARED_LIBS )
+		add_definitions( -DVISTAINTERPROCCOMM_EXPORTS )
+	else( BUILD_SHARED_LIBS )
+		add_definitions( -DVISTAINTERPROCCOMM_STATIC )
+	endif( BUILD_SHARED_LIBS )
+	add_definitions( -D_USE_WIN32_MUTEX )
 	set( LIBRARIES winmm ws2_32 )
 endif( WIN32 )
 

@@ -1,5 +1,9 @@
 if( WIN32 )
-	add_definitions( -DVISTATOOLS_EXPORTS )
+	if( BUILD_SHARED_LIBS )
+		add_definitions( -DVISTATOOLS_EXPORTS )
+	else( BUILD_SHARED_LIBS )
+		add_definitions( -DVISTATOOLS_STATIC )
+	endif( BUILD_SHARED_LIBS )
 	set( LIBRARIES PowrProf dbghelp Psapi )
 endif( WIN32 )
 

@@ -1,5 +1,9 @@
 if( WIN32 )
-	add_definitions( -DVISTADEVICEDRIVERS_EXPORTS )
+	if( BUILD_SHARED_LIBS )
+		add_definitions( -DVISTADEVICEDRIVERS_EXPORTS )
+	else( BUILD_SHARED_LIBS )
+		add_definitions( -DVISTADEVICEDRIVERS_STATIC )
+	endif( BUILD_SHARED_LIBS )
 	set( LIBRARIES setupapi )
 endif( WIN32 )
 

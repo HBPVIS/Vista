@@ -2,7 +2,11 @@ vista_use_GLUT()
 vista_use_OpenSG()
 
 if( WIN32 )
-	add_definitions( -DVISTAKERNEL_EXPORTS )
+	if( BUILD_SHARED_LIBS )
+		add_definitions( -DVISTAKERNEL_EXPORTS )
+	else( BUILD_SHARED_LIBS )
+		add_definitions( -DVISTAKERNEL_STATIC )
+	endif( BUILD_SHARED_LIBS )
 endif( WIN32 )
 
 add_definitions( -DVISTA_SYS_OPENSG -DVISTAKERNEL_USE_PROFILING )
