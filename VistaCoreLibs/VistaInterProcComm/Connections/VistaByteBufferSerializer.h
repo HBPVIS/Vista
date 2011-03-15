@@ -186,7 +186,7 @@ public:
 				   int iWriteHead = 0);
 
 protected:
-	std::vector<char> *m_vecBuffer;
+	std::vector<char> m_vecBuffer;
 	int            m_iWriteHead;
 	char *m_pHead;
 	unsigned int   m_uiCapacity;

@@ -46,10 +46,10 @@ VistaByteBufferSerializer::VistaByteBufferSerializer(unsigned int uiInitialBuffe
   //m_uiCapacity(0),
   m_bRetrimSize(true)
 {
-	m_vecBuffer = new vector<char>(uiInitialBufferSize);
-	m_uiCapacity = (unsigned int)m_vecBuffer->capacity();
+	m_vecBuffer.reserve(uiInitialBufferSize);
+	m_uiCapacity = (unsigned int)m_vecBuffer.capacity();
 	if( uiInitialBufferSize > 0 )
-		m_pHead = &((*m_vecBuffer)[0]);
+		m_pHead = &(m_vecBuffer[0]);
 	else
 		m_pHead = NULL;
 	m_bDoSwap = (VistaSerializingToolset::GetPlatformEndianess() == VistaSerializingToolset::VST_LITTLEENDIAN);
@@ -57,7 +57,6 @@ VistaByteBufferSerializer::VistaByteBufferSerializer(unsigned int uiInitialBuffe
 
 VistaByteBufferSerializer::~VistaByteBufferSerializer()
 {
-  delete m_vecBuffer;
 }
 
 /*============================================================================*/
@@ -81,14 +80,14 @@ int VistaByteBufferSerializer::WriteValue(char *pcValue, int iLength)
 		{
 			// resize, make some space
 			// 2*oldCapacity+oldSpace+newNeed (iSum)
-			m_vecBuffer->resize((2*m_uiCapacity)+iSum);
+			m_vecBuffer.resize((2*m_uiCapacity)+iSum);
 
 			// cache capacity
-			m_uiCapacity = (unsigned int)m_vecBuffer->capacity();
+			m_uiCapacity = (unsigned int)m_vecBuffer.capacity();
 
 			// STL vectors might copy memory to
 			// a new region if necessary, se recache the head pointer
-			m_pHead = &((*m_vecBuffer)[0]);
+			m_pHead = &(m_vecBuffer[0]);
 		}
 	}
 	register char *p = pcValue;
@@ -288,9 +287,9 @@ void VistaByteBufferSerializer::SetBufferCapacity(int iNewSize)
 {
 	if(m_bRetrimSize)
 	{
-		m_vecBuffer->resize(iNewSize);
-		m_uiCapacity = (unsigned int)m_vecBuffer->capacity();
-		m_pHead = &((*m_vecBuffer)[0]);
+		m_vecBuffer.resize(iNewSize);
+		m_uiCapacity = (unsigned int)m_vecBuffer.capacity();
+		m_pHead = &(m_vecBuffer[0]);
 	}
 }
 
@@ -308,9 +307,9 @@ void VistaByteBufferSerializer::SetBuffer(char *pvBuffer,
 	if(pvBuffer == NULL)
 	{
 		// relink to internal buffer
-		m_vecBuffer->resize(iBufferSize);
-		m_pHead = &((*m_vecBuffer)[0]);
-		m_uiCapacity = (int)m_vecBuffer->capacity();
+		m_vecBuffer.resize(iBufferSize);
+		m_pHead = &(m_vecBuffer[0]);
+		m_uiCapacity = (int)m_vecBuffer.capacity();
 		m_iWriteHead = 0;
 		m_bRetrimSize = true;
 	}
@@ -327,11 +326,11 @@ void VistaByteBufferSerializer::SetBuffer(char *pvBuffer,
 void VistaByteBufferSerializer::DumpCurrentBuffer() const
 {
 	printf("VistaByteBufferSerializer::DumpCurrentBuffer() -- size = %d\n",
-			int(m_vecBuffer->size()));
+			int(m_vecBuffer.size()));
 
    for(int i=0; i < m_iWriteHead; ++i)
 	{
-		printf("%02x ", (*m_vecBuffer)[i]);
+		printf("%02x ", m_vecBuffer[i]);
 		if(i && (i%16==0))
 			printf("\n");
 	}
