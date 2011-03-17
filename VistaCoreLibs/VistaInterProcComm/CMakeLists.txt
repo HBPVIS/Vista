@@ -26,4 +26,5 @@ target_link_libraries( VistaInterProcComm
 )
 
 vista_install( VistaInterProcComm VistaInterProcComm )
-
+vista_install_package_config( VistaInterProcComm )
+vista_install_package_version( VistaInterProcComm VistaCoreLibs )

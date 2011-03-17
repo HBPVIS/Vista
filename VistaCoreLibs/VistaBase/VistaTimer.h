@@ -188,7 +188,7 @@ public:
 
 protected:
 	std::vector<microtime>	m_vecRecords;
-	std::vector<microtime>::iterator m_itCurrentSlot;
+	int						m_iCurrentSlot;
 };
 
 

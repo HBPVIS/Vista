@@ -7,16 +7,11 @@ include( VistaLibCommon )
 # Self include
 include_directories( ${VistaCoreLibs_SOURCE_DIR} )
 
-list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
-
-include( VistaLibCommon )
-
 find_Package( VGLUT )
 find_Package( VOpenSG )
 
 # the version type can be either HEAD, RELASE, BRANCH, or TAG
 set( VISTACORELIBS_VERSION_TYPE	RELEASE )
-
 # the version head is a string representation of the CoreLibs version, and should be 
 # either HEAD, the name of the RELASE, or the BRANCH/TAG name
 # The version
@@ -46,27 +41,10 @@ add_subdirectory( VistaDeviceDrivers )
 # Step 2: Configure the file. Words written in @@ are replaced by corresponding
 #         variables. I.e. @VISTA_INSTALL_INC_DIR@ is replaced by the content
 #         of the variable VISTA_INSTALL_INC_DIR
-configure_file(
-    VistaBuild/CMake/VistaCoreLibsConfig.cmake_proto
-    ${CMAKE_CURRENT_BINARY_DIR}/cmake/VistaCoreLibsConfig.cmake
-    @ONLY
-)
-
-# Eventually install the file
-if( UNIX )
-	install( FILES
-		${CMAKE_CURRENT_BINARY_DIR}/cmake/VistaCoreLibsConfig.cmake
-		DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cmake/VistaCoreLibs"
-	)
-elseif( WIN32 )
-    install( FILES
-		${CMAKE_CURRENT_BINARY_DIR}/cmake/VistaCoreLibsConfig.cmake
-        DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
-    )
-endif( UNIX )
+vista_install_package_config( VistaCoreLibs VistaBuild/CMake/VistaCoreLibsConfig.cmake_proto )
 
 # use a generic version file configure/install macro
-configure_and_install_package_version( VistaCoreLibs )
+vista_install_package_version( VistaCoreLibs )
 
 # Experimental uninstall tag. Use with care!
 configure_file(

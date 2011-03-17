@@ -235,8 +235,8 @@ VistaWindowAverageTimer::VistaWindowAverageTimer( const int iWindowSize,
 													IVistaTimerImp *pImp )
 : VistaAverageTimer( pImp )
 , m_vecRecords( (size_t)iWindowSize, 0.0 )
-{
-	m_itCurrentSlot = m_vecRecords.begin();
+, m_iCurrentSlot( 0 )
+{	
 }
 VistaWindowAverageTimer::~VistaWindowAverageTimer()
 {
@@ -247,16 +247,16 @@ void VistaWindowAverageTimer::RecordTime()
 	microtime nCurrentTime = GetMicroTime();
 	microtime nDelta = nCurrentTime - m_nRecordStartTime;
 
-	m_iCount++;
-	m_iCount = std::min( m_iCount, (int)m_vecRecords.size() );
-	
+	if( m_iCount < (int)m_vecRecords.size() )
+		m_iCount++;
+		
 	m_nAccumulatedTime += nDelta;
-	m_nAccumulatedTime -= (*m_itCurrentSlot);
-	(*m_itCurrentSlot) = nDelta;
+	m_nAccumulatedTime -= m_vecRecords[m_iCurrentSlot];
+	m_vecRecords[m_iCurrentSlot] = nDelta;
 
-	++m_itCurrentSlot;
-	if( m_itCurrentSlot == m_vecRecords.end() )
-		m_itCurrentSlot = m_vecRecords.begin();
+	++m_iCurrentSlot;
+	if( m_iCurrentSlot == (int)m_vecRecords.size() )
+		m_iCurrentSlot = 0;
 	
 	m_nRecordStartTime = nCurrentTime;
 	m_nAverage = m_nAccumulatedTime / m_iCount;
@@ -268,7 +268,7 @@ void VistaWindowAverageTimer::ResetAveraging()
 	m_iCount = 0;
 	m_nAccumulatedTime = 0.0;
 	m_vecRecords.assign( m_vecRecords.size(), 0.0 );
-	m_itCurrentSlot = m_vecRecords.begin();
+	m_iCurrentSlot = 0;
 }
 
 int VistaWindowAverageTimer::GetWindowSize() const

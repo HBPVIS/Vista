@@ -3,9 +3,9 @@
 
 # Create cache variables
 if(RESET_CACHE)
-    set(VISTA_INSTALL_PREFIX @CMAKE_INSTALL_PREFIX@ CACHE FILEPATH "Root path of your ViSTA installation" FORCE)
+    set( VISTACORELIBS_ROOT_DIR @CMAKE_INSTALL_PREFIX@ CACHE FILEPATH "Root path of your ViSTA installation" FORCE)
 else()
-    set(VISTA_INSTALL_PREFIX @CMAKE_INSTALL_PREFIX@ CACHE FILEPATH "Root path of your ViSTA installation")
+    set( VISTACORELIBS_ROOT_DIR @CMAKE_INSTALL_PREFIX@ CACHE FILEPATH "Root path of your ViSTA installation")
 endif(RESET_CACHE)
 
 # Add platform defines
@@ -54,8 +54,8 @@ set( VistaTools
     debug VistaTools@CMAKE_DEBUG_POSTFIX@
 )
 
-set( VISTACORELIBS_INC_DIR ${VISTA_INSTALL_PREFIX}/include )
-set( VISTACORELIBS_LIB_DIR ${VISTA_INSTALL_PREFIX}/lib )
+set( VISTACORELIBS_INCLUDE_DIRS ${VISTACORELIBS_ROOT_DIR}/include )
+set( VISTACORELIBS_LIBRARY_DIRS ${VISTACORELIBS_ROOT_DIR}/lib )
 set( VISTACORELIBS_LIBRARIES
 	${VistaBase}
 	${VistaAspects}
@@ -78,8 +78,8 @@ set( VISTACORELIBS_NOKERNEL_LIBRARIES
 
 # Add the includes and libraries to the compiler/linker
 # search directories
-macro( vista_use_CoreLibs )
-	include_directories( ${VISTACORELIBS_INC_DIR} )
-	link_directories( ${VISTACORELIBS_LIB_DIR} )
+macro( vista_use_VistaCoreLibs )
+	include_directories( ${VISTACORELIBS_INCLUDE_DIRS} )
+	link_directories( ${VISTACORELIBS_LIBRARY_DIRS} )
 	add_definitions( ${VISTACORELIBS_DEFINITIONS} )
 endmacro( vista_use_CoreLibs )

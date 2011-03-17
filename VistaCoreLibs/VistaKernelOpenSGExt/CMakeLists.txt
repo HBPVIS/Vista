@@ -37,4 +37,5 @@ target_link_libraries( VistaKernelOpenSGExt
 )
 
 vista_install( VistaKernelOpenSGExt VistaKernelOpenSGExt )
-
+vista_install_package_config( VistaKernelOpenSGExt )
+vista_install_package_version( VistaKernelOpenSGExt VistaCoreLibs )

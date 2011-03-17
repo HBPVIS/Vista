@@ -17,4 +17,5 @@ target_link_libraries( VistaAspects
 )
 
 vista_install( VistaAspects VistaAspects )
-
+vista_install_package_config( VistaAspects )
+vista_install_package_version( VistaAspects VistaCoreLibs )

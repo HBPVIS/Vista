@@ -19,4 +19,5 @@ target_link_libraries( VistaDeviceDriversBase
 )
 
 vista_install( VistaDeviceDriversBase VistaDeviceDriversBase )
-
+vista_install_package_config( VistaDeviceDriversBase )
+vista_install_package_version( VistaDeviceDriversBase VistaCoreLibs )

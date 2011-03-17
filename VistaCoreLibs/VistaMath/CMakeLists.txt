@@ -14,4 +14,5 @@ target_link_libraries( VistaMath
 )
 
 vista_install( VistaMath VistaMath )
-
+vista_install_package_config( VistaMath )
+vista_install_package_version( VistaMath VistaCoreLibs )

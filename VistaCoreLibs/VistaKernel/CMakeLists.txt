@@ -27,4 +27,5 @@ target_link_libraries( VistaKernel
 )
 
 vista_install( VistaKernel VistaKernel )
-
+vista_install_package_config( VistaKernel )
+vista_install_package_version( VistaKernel VistaCoreLibs )

@@ -16,4 +16,5 @@ target_link_libraries( VistaTools
 )
 
 vista_install( VistaTools VistaTools )
-
+vista_install_package_config( VistaTools )
+vista_install_package_version( VistaTools VistaCoreLibs )

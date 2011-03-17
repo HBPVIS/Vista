@@ -19,4 +19,6 @@ target_link_libraries( VistaDataFlowNet
 )
 
 vista_install( VistaDataFlowNet VistaDataFlowNet )
+vista_install_package_config( VistaDataFlowNet )
+vista_install_package_version( VistaDataFlowNet VistaCoreLibs )
 

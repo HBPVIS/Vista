@@ -17,4 +17,5 @@ target_link_libraries( VistaBase
 )
 
 vista_install( VistaBase VistaBase )
-
+vista_install_package_config( VistaBase )
+vista_install_package_version( VistaBase VistaCoreLibs )
