@@ -1,26 +1,27 @@
-cmake_minimum_required(VERSION 2.6)
-project(VISTADEMO_Keyboard)
+cmake_minimum_required( VERSION 2.6 )
+if( NOT VISTADEMO_COMMON_BUILD )
+	project( 01KeyboardDemo )
 
-set(EXEC_NAME VistaKeyboardDemo)
+	list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
+	include( VistaLibCommon )
+ENDif( NOT VISTADEMO_COMMON_BUILD )
 
-find_package(VISTA REQUIRED)
+find_package_versioned( VistaCoreLibs "HEAD" REQUIRED )
+vista_use_VistaCoreLibs()
 
-set(files
-    main.cpp
+if( WIN32 )
+	list( APPEND LIBRARIES opengl32 glu32 )
+endif( WIN32 )
+
+include( "./_SourceFiles.cmake" )
+
+add_executable( 01KeyboardDemo ${ProjectSources} )
+target_link_libraries( 01KeyboardDemo
+	${VISTACORELIBS_LIBRARIES}
+	${LIBRARIES}
 )
-source_group("Source Files" FILES ${files})
 
-add_executable(${EXEC_NAME}
-    ${files}
-)
+vista_configure_app( 01KeyboardDemo )
+vista_set_app_outdir( 01KeyboardDemo ${CMAKE_CURRENT_SOURCE_DIR} )
+vista_install( 01KeyboardDemo )
 
-target_link_libraries(${EXEC_NAME}
-    ${VistaAspects}
-    ${VistaKernel}
-    ${VistaMath}
-)
-
-if(UNIX)
-    include(${VISTA_DIR}/VISTAShellScripts.cmake)
-    CREATE_SHELLSCRIPT (${CMAKE_CURRENT_BINARY_DIR}/start.sh "cd ${CMAKE_CURRENT_SOURCE_DIR}\n${CMAKE_CURRENT_BINARY_DIR}/${EXEC_NAME} $1 $2 $3 $4 $5 $6 $7 $8 $9")
-endif(UNIX)

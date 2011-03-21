@@ -1,2 +1,2 @@
-add_subdirectory(ParticlesDemo)
-add_subdirectory(ShadowDemo)
+add_subdirectory( ParticlesDemo )
+add_subdirectory( ShadowDemo )

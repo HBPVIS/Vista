@@ -1,32 +1,27 @@
-cmake_minimum_required(VERSION 2.6)
-project(VISTADEMO_Text)
+cmake_minimum_required( VERSION 2.6 )
+if( NOT VISTADEMO_COMMON_BUILD )
+	project( 03TextDemo )
 
-set(EXEC_NAME VistaTextDemo)
+	list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
+	include( VistaLibCommon )
+ENDif( NOT VISTADEMO_COMMON_BUILD )
 
-find_package(VISTA REQUIRED)
-find_package(GLUT REQUIRED)
+find_package_versioned( VistaCoreLibs "HEAD" REQUIRED )
+vista_use_VistaCoreLibs()
 
-include_directories(${GLUT_INCLUDE_DIR})
-link_directories(${GLUT_glut_LIBRARY})
+if( WIN32 )
+	list( APPEND LIBRARIES opengl32 glu32 )
+endif( WIN32 )
 
-set(files
-    main.cpp
-    TextDemoAppl.cpp
-    TextDemoAppl.h
-)
-source_group("Source Files" FILES ${files})
+include( "./_SourceFiles.cmake" )
 
-add_executable(${EXEC_NAME}
-    ${files}
-)
-
-target_link_libraries(${EXEC_NAME}
-    ${VistaAspects}
-    ${VistaKernel}
-    ${VistaMath}
+add_executable( 03TextDemo ${ProjectSources} )
+target_link_libraries( 03TextDemo
+	${VISTACORELIBS_LIBRARIES}
+	${LIBRARIES}
 )
 
-if(UNIX)
-    include(${VISTA_DIR}/VISTAShellScripts.cmake)
-    CREATE_SHELLSCRIPT (${CMAKE_CURRENT_BINARY_DIR}/start.sh "cd ${CMAKE_CURRENT_SOURCE_DIR}\n${CMAKE_CURRENT_BINARY_DIR}/${EXEC_NAME} $1 $2 $3 $4 $5 $6 $7 $8 $9")
-endif(UNIX)
+vista_configure_app( 03TextDemo )
+vista_set_app_outdir( 03TextDemo ${CMAKE_CURRENT_SOURCE_DIR} )
+vista_install( 03TextDemo )
+

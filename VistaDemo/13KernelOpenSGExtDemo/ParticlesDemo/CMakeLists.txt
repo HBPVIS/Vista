@@ -1,30 +1,27 @@
-cmake_minimum_required(VERSION 2.6)
-project(VISTADEMO_Particles)
+cmake_minimum_required( VERSION 2.6 )
+if( NOT VISTADEMO_COMMON_BUILD )
+	project( 13OpenSGExtParticlesDemo )
 
-set(EXEC_NAME VistaParticlesDemo)
+	list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
+	include( VistaLibCommon )
+ENDif( NOT VISTADEMO_COMMON_BUILD )
 
-find_package(VISTA REQUIRED)
+find_package_versioned( VistaCoreLibs "HEAD" REQUIRED )
+vista_use_VistaCoreLibs()
 
-set(files
-    VistaParticlesDemo.cpp
-    RollingBalls.h
-    Smoke.h
-)
-source_group("Source Files" FILES ${files})
+if( WIN32 )
+	list( APPEND LIBRARIES opengl32 glu32 )
+endif( WIN32 )
 
-add_executable(${EXEC_NAME}
-    ${files}
-)
+include( "./_SourceFiles.cmake" )
 
-target_link_libraries(${EXEC_NAME}
-    ${VistaAspects}
-    ${VistaKernel}
-    ${VistaBase}
-    ${VistaMath}
-    ${VistaKernelOpenSGExt}
+add_executable( 13OpenSGExtParticlesDemo ${ProjectSources} )
+target_link_libraries( 13OpenSGExtParticlesDemo
+	${VISTACORELIBS_LIBRARIES}
+	${LIBRARIES}
 )
 
-if(UNIX)
-    include(${VISTA_DIR}/VISTAShellScripts.cmake)
-    CREATE_SHELLSCRIPT (${CMAKE_CURRENT_BINARY_DIR}/start.sh "cd ${CMAKE_CURRENT_SOURCE_DIR}\n${CMAKE_CURRENT_BINARY_DIR}/${EXEC_NAME} $1 $2 $3 $4 $5 $6 $7 $8 $9")
-endif(UNIX)
+vista_configure_app( 13OpenSGExtParticlesDemo )
+vista_set_app_outdir( 13OpenSGExtParticlesDemo ${CMAKE_CURRENT_SOURCE_DIR} )
+vista_install( 13OpenSGExtParticlesDemo )
+

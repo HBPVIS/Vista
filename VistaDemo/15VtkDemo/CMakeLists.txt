@@ -1,36 +1,27 @@
-cmake_minimum_required(VERSION 2.6)
-project(VISTADEMO_VTK)
+cmake_minimum_required( VERSION 2.6 )
+if( NOT VISTADEMO_COMMON_BUILD )
+	project( 15VtkDemo )
 
-set(EXEC_NAME VistaVtkDemo)
+	list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
+	include( VistaLibCommon )
+ENDif( NOT VISTADEMO_COMMON_BUILD )
 
-find_package(VISTA REQUIRED)
-find_package(VTK REQUIRED)
-include(${VTK_USE_FILE})
+find_package_versioned( VistaCoreLibs "HEAD" REQUIRED )
+vista_use_VistaCoreLibs()
 
-set(files
-    main.cpp
-    VtkDemoAppl.cpp
-    VtkDrawObject.cpp
-    VtkDemoAppl.h
-    VtkDrawObject.h
-)
-source_group("Source Files" FILES ${files})
+if( WIN32 )
+	list( APPEND LIBRARIES opengl32 glu32 )
+endif( WIN32 )
 
-add_executable(${EXEC_NAME}
-    ${files}
-)
+include( "./_SourceFiles.cmake" )
 
-target_link_libraries(${EXEC_NAME}
-    ${VistaAspects}
-    ${VistaKernel}
-    vtkCommon
-    vtkRendering
-    vtkGraphics
-    vtkFiltering
-    vtksys
+add_executable( 15VtkDemo ${ProjectSources} )
+target_link_libraries( 15VtkDemo
+	${VISTACORELIBS_LIBRARIES}
+	${LIBRARIES}
 )
 
-if(UNIX)
-    include(${VISTA_DIR}/VISTAShellScripts.cmake)
-    CREATE_SHELLSCRIPT (${CMAKE_CURRENT_BINARY_DIR}/start.sh "cd ${CMAKE_CURRENT_SOURCE_DIR}\n${CMAKE_CURRENT_BINARY_DIR}/${EXEC_NAME} $1 $2 $3 $4 $5 $6 $7 $8 $9")
-endif(UNIX)
+vista_configure_app( 15VtkDemo )
+vista_set_app_outdir( 15VtkDemo ${CMAKE_CURRENT_SOURCE_DIR} )
+vista_install( 15VtkDemo )
+

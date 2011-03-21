@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 2.6 )
 if( NOT VISTADEMO_COMMON_BUILD )
-	project( 02GeometryDemo )
+	project( 05InteractionDemoSender )
 
 	list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
 	include( VistaLibCommon )
@@ -15,13 +15,13 @@ endif( WIN32 )
 
 include( "./_SourceFiles.cmake" )
 
-add_executable( 02GeometryDemo ${ProjectSources} )
-target_link_libraries( 02GeometryDemo
+add_executable( 05InteractionDemoSender ${ProjectSources} )
+target_link_libraries( 05InteractionDemoSender
 	${VISTACORELIBS_LIBRARIES}
 	${LIBRARIES}
 )
 
-vista_configure_app( 02GeometryDemo )
-vista_set_app_outdir( 02GeometryDemo ${CMAKE_CURRENT_SOURCE_DIR} )
-vista_install( 02GeometryDemo )
+vista_configure_app( 05InteractionDemoSender )
+vista_set_app_outdir( 05InteractionDemoSender ${CMAKE_CURRENT_SOURCE_DIR} )
+vista_install( 05InteractionDemoSender )
 

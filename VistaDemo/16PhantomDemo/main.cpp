@@ -124,6 +124,7 @@ int main( int argc, char ** argv )
 	catch ( VistaExceptionBase &e )
 	{
 		e.PrintException();
+		ret = -1;
 	}
 
 	// clean up

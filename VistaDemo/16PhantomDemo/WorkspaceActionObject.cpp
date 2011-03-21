@@ -135,7 +135,7 @@ bool WorkspaceActionObject::SetHandleOrientationPort( const VistaQuaternion &q )
 {
 	float v[4];
 	q.GetValues(v);
-	m_pHandle-SetRotation(v);
+	m_pHandle->SetRotation(v);
 	return true;
 }
 

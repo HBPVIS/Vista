@@ -46,9 +46,12 @@ int	main (int argc, char *argv[])
 {
 	try
 	{
-		GeometryDemoAppl oDemoAppl( argc, argv );
-		// start universe as an endless loop
-		oDemoAppl.Run ();
+		GeometryDemoAppl oDemoAppl;
+		if( oDemoAppl.Init( argc, argv ) == true )
+		{
+			// start universe as an endless loop
+			oDemoAppl.Run ();
+		}
 	}
 	catch ( VistaExceptionBase& e )
 	{

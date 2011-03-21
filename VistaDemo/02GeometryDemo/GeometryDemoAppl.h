@@ -48,7 +48,7 @@
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
 class VistaSystem;
-
+class VistaGeometry;
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
@@ -56,13 +56,16 @@ class VistaSystem;
 class GeometryDemoAppl
 {
 public:
-	GeometryDemoAppl( int argc, char* argv[] );
+	GeometryDemoAppl();	
 	virtual ~GeometryDemoAppl();
 
+	bool Init( int argc, char* argv[] );
 	void Run();
 
 private:
-	VistaSystem* m_pVistaSystem;
+	VistaSystem*	m_pVistaSystem;
+	VistaGeometry*	m_pSphere;
+	VistaGeometry*	m_pBox;
 };
 
 /*============================================================================*/

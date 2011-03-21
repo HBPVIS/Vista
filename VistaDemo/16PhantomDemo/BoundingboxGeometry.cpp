@@ -59,7 +59,7 @@ BoundingboxGeometry::BoundingboxGeometry( VistaSG * vistaSG, VistaBoundingBox &b
 	// i := min
 	// x := max
 	VistaGeometryFactory gf(vistaSG);
-	VistaGeometry *ball = gf.CreateSphere(0.02);
+	VistaGeometry *ball = gf.CreateSphere(0.02f);
 
 	VistaTransformNode *iii = vistaSG->NewTransformNode(pNode);
 	iii->SetTranslation(min);
@@ -115,7 +115,7 @@ VistaTransformNode* BoundingboxGeometry::createLine( VistaSG * vistaSG, const Vi
 	float length = direction.GetLength();
 	VistaQuaternion q(VistaVector3D(0,1,0),direction);
 	VistaGeometryFactory gf(vistaSG);
-	VistaGeometry *line = gf.CreateCone(0.01,0.01,length);
+	VistaGeometry *line = gf.CreateCone(0.01f,0.01f,length);
 	vistaSG->NewGeomNode(trans,line);
 
 	// move up to avoid rotate around the center

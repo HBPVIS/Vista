@@ -1,33 +1,27 @@
-cmake_minimum_required(VERSION 2.6)
-project(VISTADEMO_Overlay)
+cmake_minimum_required( VERSION 2.6 )
+if( NOT VISTADEMO_COMMON_BUILD )
+	project( 07OverlayDemo )
 
-find_package(VISTA REQUIRED)
+	list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
+	include( VistaLibCommon )
+ENDif( NOT VISTADEMO_COMMON_BUILD )
 
-set(EXEC_NAME VistaOverlayDemo)
+find_package_versioned( VistaCoreLibs "HEAD" REQUIRED )
+vista_use_VistaCoreLibs()
 
-if(WIN32)
-    set(LIBRARIES
-        ${VistaAspects}
-        ${VistaMath}
-        opengl32
-    )
-endif(WIN32)
+if( WIN32 )
+	list( APPEND LIBRARIES opengl32 glu32 )
+endif( WIN32 )
 
-set(files
-    main.cpp
-)
-source_group("Source Files" FILES ${files})
+include( "./_SourceFiles.cmake" )
 
-add_executable(${EXEC_NAME}
-    ${files}
-)
-
-target_link_libraries(${EXEC_NAME}
-    ${VistaKernel}
-    ${LIBRARIES}
+add_executable( 07OverlayDemo ${ProjectSources} )
+target_link_libraries( 07OverlayDemo
+	${VISTACORELIBS_LIBRARIES}
+	${LIBRARIES}
 )
 
-if(UNIX)
-    include(${VISTA_DIR}/VISTAShellScripts.cmake)
-    CREATE_SHELLSCRIPT (${CMAKE_CURRENT_BINARY_DIR}/start.sh "cd ${CMAKE_CURRENT_SOURCE_DIR}\n${CMAKE_CURRENT_BINARY_DIR}/${EXEC_NAME} $1 $2 $3 $4 $5 $6 $7 $8 $9")
-endif(UNIX)
+vista_configure_app( 07OverlayDemo )
+vista_set_app_outdir( 07OverlayDemo ${CMAKE_CURRENT_SOURCE_DIR} )
+vista_install( 07OverlayDemo )
+

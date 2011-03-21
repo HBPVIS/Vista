@@ -30,70 +30,6 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				Description=""
-				CommandLine=""
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			ConfigurationType="1"
-			InheritedPropertySheets="..\..\..\build\vsprops\demo_release.vsprops"
-			UseOfATL="0"
-			CharacterSet="0"
-			ManagedExtensions="0"
-			WholeProgramOptimization="0"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-				Description=""
 				CommandLine=""
 			/>
 			<Tool
@@ -156,7 +92,6 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				Description=""
 				CommandLine=""
 			/>
 			<Tool
@@ -210,6 +145,68 @@
 			/>
 		</Configuration>
 		<Configuration
+			Name="Release|Win32"
+			ConfigurationType="1"
+			InheritedPropertySheets="..\..\..\build\vsprops\demo_release.vsprops"
+			UseOfATL="0"
+			CharacterSet="0"
+			ManagedExtensions="0"
+			WholeProgramOptimization="0"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine=""
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
 			Name="Release|x64"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\..\..\build\vsprops\demo_release.vsprops"
@@ -220,7 +217,6 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				Description=""
 				CommandLine=""
 			/>
 			<Tool
@@ -277,6 +273,58 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="My Inspector Results"
+			>
+			<File
+				RelativePath=".\My Inspector Results\r000mi1\r000mi1.insp"
+				>
+			</File>
+			<File
+				RelativePath=".\My Inspector Results\r001mi1\r001mi1.insp"
+				>
+			</File>
+			<File
+				RelativePath=".\My Inspector Results\r002mi1\r002mi1.insp"
+				>
+			</File>
+			<File
+				RelativePath=".\My Inspector Results\r003mi1\r003mi1.insp"
+				>
+			</File>
+			<File
+				RelativePath=".\My Inspector Results\r004mi1\r004mi1.insp"
+				>
+			</File>
+			<File
+				RelativePath=".\My Inspector Results\r005mi1\r005mi1.insp"
+				>
+			</File>
+			<File
+				RelativePath=".\My Inspector Results\r006mi1\r006mi1.insp"
+				>
+			</File>
+			<File
+				RelativePath=".\My Inspector Results\r007mi1\r007mi1.insp"
+				>
+			</File>
+			<File
+				RelativePath=".\My Inspector Results\r008mi1\r008mi1.insp"
+				>
+			</File>
+			<File
+				RelativePath=".\My Inspector Results\r009mi1\r009mi1.insp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="My Amplifier Results"
+			>
+			<File
+				RelativePath=".\My Amplifier Results\r000hs\r000hs.ampl"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="..\..\GeometryDemoAppl.cpp"
 			>

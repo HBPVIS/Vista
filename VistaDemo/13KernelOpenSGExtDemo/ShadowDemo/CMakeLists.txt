@@ -1,33 +1,27 @@
-cmake_minimum_required(VERSION 2.6)
-project(VISTADEMO_Shadow)
+cmake_minimum_required( VERSION 2.6 )
+if( NOT VISTADEMO_COMMON_BUILD )
+	project( 13OpenSGExtShadowDemo )
 
-set(EXEC_NAME VistaShadowDemo)
+	list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
+	include( VistaLibCommon )
+ENDif( NOT VISTADEMO_COMMON_BUILD )
 
-find_package(VISTA REQUIRED)
+find_package_versioned( VistaCoreLibs "HEAD" REQUIRED )
+vista_use_VistaCoreLibs()
 
-set(files
-    main.cpp
-    ShadowDemo.cpp
-    SwitchShadowCallback.cpp
-    ToggleShadowCallback.cpp
-    ShadowDemo.h
-    SwitchShadowCallback.h
-    ToggleShadowCallback.h
-)
-source_group("Source Files" FILES ${files})
+if( WIN32 )
+	list( APPEND LIBRARIES opengl32 glu32 )
+endif( WIN32 )
 
-add_executable(${EXEC_NAME}
-    ${files}
-)
+include( "./_SourceFiles.cmake" )
 
-target_link_libraries(${EXEC_NAME}
-    ${VistaAspects}
-    ${VistaKernel}
-    ${VistaMath}
-    ${VistaKernelOpenSGExt}
+add_executable( 13OpenSGExtShadowDemo ${ProjectSources} )
+target_link_libraries( 13OpenSGExtShadowDemo
+	${VISTACORELIBS_LIBRARIES}
+	${LIBRARIES}
 )
 
-if(UNIX)
-    include(${VISTA_DIR}/VISTAShellScripts.cmake)
-    CREATE_SHELLSCRIPT (${CMAKE_CURRENT_BINARY_DIR}/start.sh "cd ${CMAKE_CURRENT_SOURCE_DIR}\n${CMAKE_CURRENT_BINARY_DIR}/${EXEC_NAME} $1 $2 $3 $4 $5 $6 $7 $8 $9")
-endif(UNIX)
+vista_configure_app( 13OpenSGExtShadowDemo )
+vista_set_app_outdir( 13OpenSGExtShadowDemo ${CMAKE_CURRENT_SOURCE_DIR} )
+vista_install( 13OpenSGExtShadowDemo )
+
