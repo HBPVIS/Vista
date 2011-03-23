@@ -29,7 +29,7 @@
 #include "VistaSocketAddress.h"
 #include "VistaIPAddress.h"
 
-#if defined(_USE_IPC_EXCEPTIONS)
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
 #include <VistaBase/VistaExceptionBase.h>
 #endif
 
@@ -159,7 +159,7 @@ bool VistaServiceIndicator::Ping(const string &sPeerName, int iPeerPort, bool bQ
 
 	int iRet =0;
 
-#if defined(_USE_IPC_EXCEPTIONS)
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
 	try
 	{
 #endif
@@ -220,7 +220,7 @@ bool VistaServiceIndicator::Ping(const string &sPeerName, int iPeerPort, bool bQ
 			return false;
 		}
 		return false;
-#if defined(_USE_IPC_EXCEPTIONS)
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
 	}
 	catch(VistaExceptionBase &x)
 	{

@@ -35,7 +35,7 @@
 using namespace std;
 
 
-#if defined(_USE_IPC_EXCEPTIONS)
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
 #include <VistaBase/VistaExceptionBase.h>
 #endif
 
@@ -79,7 +79,7 @@ DLVistaProducerLoop::~DLVistaProducerLoop()
 bool DLVistaProducerLoop::LoopBody()
 {
 	// pull packet
-#if defined(_USE_IPC_EXCEPTIONS)
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
 	try
 	{
 #endif
@@ -100,7 +100,7 @@ bool DLVistaProducerLoop::LoopBody()
 			//VistaTimer::Sleep(5);
 			//printf("DLVistaProducerLoop::LoopBody()\n");
 		}
-#if defined(_USE_IPC_EXCEPTIONS)
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
 	}
 	catch(VistaExceptionBase &x)
 	{

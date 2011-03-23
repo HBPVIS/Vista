@@ -30,9 +30,9 @@
 
 #include "VistaDeviceDriversOut.h"
 
-//#define _USE_ATOMICS
+//#define VISTA_USE_ATOMICS
 
-#if !defined(_USE_ATOMICS) || defined(SUNOS)
+#if !defined(VISTA_USE_ATOMICS) || defined(SUNOS)
 #include <VistaInterProcComm/Concurrency/VistaSemaphore.h>
 #else
 	#if defined(WIN32)
@@ -42,7 +42,7 @@
     // up-coming unix kernels have atomics in user-land, so we might switch one day
 	// note: the assembler only works for 32bit
 	#endif
-#endif // _USE_ATOMICS || SUNOS
+#endif // VISTA_USE_ATOMICS || SUNOS
 
 /**
  * @todo move atomics to IPC (IAR: would not move this code! go and copy/modify)
@@ -62,7 +62,7 @@ public:
 	 */
 	uint32 AtomicSwap(SWAPADDRESS v1, uint32 v2)
 	{
-#if !defined(_USE_ATOMICS)
+#if !defined(VISTA_USE_ATOMICS)
 		VistaSemaphoreLock l(m_lock);
 		uint32 vOld = *((uint32*)v1); // assign old value
 		*((uint32*)v1) = v2; // store new one, we assume that this works using
@@ -79,7 +79,7 @@ public:
 			*((uint32*)v1) = v2;
 			return *((uint32*)v1);
 	#endif
-#endif // _USE_ATOMICS
+#endif // VISTA_USE_ATOMICS
 	}
 
 	/**
@@ -87,7 +87,7 @@ public:
 	 */
 	uint32 AtomicCompareAndSwap(SWAPADDRESS v1, SWAPADDRESS v2, uint32 cmpval)
 	{
-#if !defined(_USE_ATOMICS)
+#if !defined(VISTA_USE_ATOMICS)
 		VistaSemaphoreLock l(m_lock);
 		if( *((uint32*)v1) != cmpval )
 		{
@@ -141,20 +141,20 @@ public:
 
 	inline uint32 AtomicRead(const uint32 &ref)
 	{
-#if !defined(_USE_ATOMICS) || defined(SUNOS)
+#if !defined(VISTA_USE_ATOMICS) || defined(SUNOS)
 		VistaSemaphoreLock l(m_lock);
 		return ref;
 #else
 		return ref;
 #endif
 	}
-#if !defined(_USE_ATOMICS) || defined(SUNOS)
+#if !defined(VISTA_USE_ATOMICS) || defined(SUNOS)
 	VistaSemaphore m_lock;
 #endif
 
 
 	VistaAtomics()
-#if !defined(_USE_ATOMICS) || defined(SUNOS)
+#if !defined(VISTA_USE_ATOMICS) || defined(SUNOS)
 	: m_lock(1, VistaSemaphore::SEM_TYPE_FASTEST)
 #endif
 	{
@@ -163,8 +163,8 @@ public:
 
 	static std::string GetAtomicState()
 	{
-#if defined(_USE_ATOMICS)
-		return "_USE_ATOMICS SET!";
+#if defined(VISTA_USE_ATOMICS)
+		return "VISTA_USE_ATOMICS SET!";
 #else
 		return "SEMAPHORE LOCKED ACCESS";
 #endif

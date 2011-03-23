@@ -35,7 +35,7 @@
 using namespace std;
 
 
-#if defined(_USE_IPC_EXCEPTIONS)
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
 #include <VistaBase/VistaExceptionBase.h>
 #endif
 
@@ -62,14 +62,14 @@ public:
 
 bool DLVistaActiveConsumerLoop::LoopBody()
 {
-#if defined(_USE_IPC_EXCEPTIONS)
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
 	try
 	{
 #endif
 		if(!m_pConsumer->PullPacket(true))
 		{
 		}
-#if defined(_USE_IPC_EXCEPTIONS)
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
 	}
 	// we will not catch any exception, only those we know
 	catch(VistaExceptionBase &x)

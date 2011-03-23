@@ -11,7 +11,7 @@ endif( WIN32 )
 set( VISTA_INTERPROCCOMM_USE_EXCEPTIONS ON CACHE BOOL "Specifies wether or nor the IPC throws exceptions when errors occur" )
 mark_as_advanced( VISTA_INTERPROCCOMM_USE_EXCEPTIONS )
 if( VISTA_INTERPROCCOMM_USE_EXCEPTIONS )
-	add_definitions( -DUSE_IPC_EXCEPTIONS )
+	add_definitions( -DVISTA_IPC_USE_EXCEPTIONS )
 endif( VISTA_INTERPROCCOMM_USE_EXCEPTIONS )
 
 include( "./_SourceFiles.cmake" )

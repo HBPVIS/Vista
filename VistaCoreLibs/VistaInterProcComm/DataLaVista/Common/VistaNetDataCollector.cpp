@@ -87,7 +87,7 @@ IDLVistaDataPacket* DLVistaNetDataCollector::CreatePacket()
 void DLVistaNetDataCollector::FillPacket(IDLVistaDataPacket* p)
 {
 	p->SetIsValid(false);
-	if(m_pMasterConnection->GetIsOpen())
+	if( m_pMasterConnection->GetIsOpen() == false )
 	{
 #ifdef DEBUG
 		printf("[DLVistaNetDataCollector::FillPacket] -- master socket is closed \n");
@@ -100,7 +100,7 @@ void DLVistaNetDataCollector::FillPacket(IDLVistaDataPacket* p)
 	*/
 	bool bReadOK = (m_pMasterConnection->GetIsBlocking() ? 
 						true : m_pMasterConnection->HasPendingData());
-#if defined(_USE_IPC_EXCEPTIONS)
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
 	//there could be an exception during the read operation
 	try
 	{
@@ -116,7 +116,7 @@ void DLVistaNetDataCollector::FillPacket(IDLVistaDataPacket* p)
 			printf("[DLVistaNetDataCollector::FillPacket] -- failed to read packet \n");
 #endif
 		}
-#if defined(_USE_IPC_EXCEPTIONS)
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
 	}
 	catch(VistaExceptionBase &oE)
 	{

@@ -71,7 +71,7 @@ using namespace std;
 #include "VistaIPAddress.h"
 #include "VistaSocketAddress.h"
 #include <VistaInterProcComm/Concurrency/VistaThreadEvent.h>
-#if defined(_USE_IPC_EXCEPTIONS)
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
 #include <VistaBase/VistaExceptionBase.h>
 #endif
 /*============================================================================*/
@@ -874,7 +874,7 @@ unsigned long IVistaSocket::WaitForIncomingData(int iTimeout)
 	{
 	case WAIT_ABANDONED:
 		{
-		#if defined(_USE_IPC_EXCEPTIONS)
+		#if defined(VISTA_IPC_USE_EXCEPTIONS)
 			VISTA_THROW("WaitForIncomingData -- Exception", 0x00000104)
 		#endif
 			break;
@@ -890,7 +890,7 @@ unsigned long IVistaSocket::WaitForIncomingData(int iTimeout)
 		}
 	case WAIT_FAILED:
 		{
-		#if defined(_USE_IPC_EXCEPTIONS)
+		#if defined(VISTA_IPC_USE_EXCEPTIONS)
 			VISTA_THROW("IVistaSocket::WaitForIncomingData -- Exception", 0x00000105)
 		#endif
 			break;
@@ -931,7 +931,7 @@ unsigned long IVistaSocket::WaitForIncomingData(int iTimeout)
 	{
 		printf("-- WARNING -- socket-select returned -1 (exception) during WaitForIncomingData(%d, %d).\n",
 				m_iSocketID, iTimeout);
-#if defined(_USE_IPC_EXCEPTIONS)
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
 		VISTA_THROW("IVistaSocket::WaitForIncomingData -- Exception", 0x00000104)
 #endif
 	}
@@ -940,7 +940,7 @@ unsigned long IVistaSocket::WaitForIncomingData(int iTimeout)
 	{
 		// whoah!
 		printf("-- WARNING -- socket is in exception array.\n");
-#if defined(_USE_IPC_EXCEPTIONS)
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
 		VISTA_THROW("IVistaSocket::WaitForIncomingData -- Exception", 0x00000104)
 #endif
 	}
@@ -989,7 +989,7 @@ unsigned long IVistaSocket::WaitForSendFinish(int iTimeout)
 	{
 		// whoah!
 		printf("-- WARNING -- socket is in exception array.\n");
-#if defined(_USE_IPC_EXCEPTIONS)
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
 		VISTA_THROW("IVistaSocket::WaitForSendFinish -- Exception", 0x00000103)
 #endif
 		return 0;
@@ -1022,7 +1022,7 @@ int  IVistaSocket::SendRaw(const void *pvBuffer, const int iLength, int iFlags)
 			SetErrorState(true);
 			CloseSocket();
 			// idicate network failure with an exception.
-			#if defined(_USE_IPC_EXCEPTIONS)
+			#if defined(VISTA_IPC_USE_EXCEPTIONS)
 			VISTA_THROW("IVistaSocket::SendRaw -- Exception\n", 0x00000101)
 			#endif
 		}
@@ -1081,7 +1081,7 @@ int  IVistaSocket::ReceiveRaw(void *pvBuffer, const int iLength, int iTimeout, i
 				// we have a real error on a tcp socket
 				SetErrorState(true);
 				CloseSocket();
-				#if defined(_USE_IPC_EXCEPTIONS)
+				#if defined(VISTA_IPC_USE_EXCEPTIONS)
 				VISTA_THROW("IVistaSocket::ReceiveRaw -- Exception", 0x00000102)
 				#endif
 			}

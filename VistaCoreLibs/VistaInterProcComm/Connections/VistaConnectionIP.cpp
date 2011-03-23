@@ -40,7 +40,7 @@
 
 #include <VistaInterProcComm/Concurrency/VistaThreadEvent.h>
 
-#if defined(_USE_IPC_EXCEPTIONS)
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
 #include <VistaBase/VistaExceptionBase.h>
 #endif
 #include <VistaAspects/VistaSerializingToolset.h>
@@ -358,7 +358,7 @@ bool VistaConnectionIP::Connect(const string &sHost, const int iPort, bool bBloc
 				{
 					// something went wrong!!
 					Close();
-#if defined(_USE_IPC_EXCEPTIONS)
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
 				   VISTA_THROW("VistaConnectionIP::Connect() -- error state != 0", 0x00000203)
 #endif
 				}
@@ -478,7 +478,7 @@ int VistaConnectionIP::Receive (void *buffer, const int length, int iTimeout  )
 	{
 		// disregard blocking state and protocol, try to read as many bytes
 		// as possible, given the timeout
-#if defined(_USE_IPC_EXCEPTIONS)
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
 		if(!m_pSocket)
 			VISTA_THROW("VistaConnectionIP::Receive() -- no valid socket id", 0x00000201)
 		try
@@ -502,18 +502,18 @@ int VistaConnectionIP::Receive (void *buffer, const int length, int iTimeout  )
 int VistaConnectionIP::Send    (const void *buffer, const int length)
 {
 	if(!m_pSocket)
-#if defined(_USE_IPC_EXCEPTIONS)
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
 		VISTA_THROW("VistaConnectionIP::Send() -- no valid socket id", 0x00000202)
 #else
 		return -1;
 #endif
 
-#if defined(_USE_IPC_EXCEPTIONS)
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
 	try
 	{
 #endif
 	return m_pSocket->SendRaw(buffer, length);
-#if defined(_USE_IPC_EXCEPTIONS)
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
 	}
 	catch(VistaExceptionBase &x)
 	{
