@@ -1392,8 +1392,7 @@ bool VistaDriverParameterConfigurator::Configure(IVistaDeviceDriver *pDriver,
 
 bool VistaDriverParameterConfigurator::GeneratePropertyListFromInifile(const std::string &strFile,
                                  const std::string &sRootSection,
-                                 VistaPropertyList& oProps,
-                                 const std::list<std::string> &liSearchpath )
+                                 VistaPropertyList& oProps )
 {
     VistaProfiler profile;
 

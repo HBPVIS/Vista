@@ -28,7 +28,7 @@
 #include <VistaDeviceDriversBase/VistaDriverForceFeedbackAspect.h>
 #include <VistaDeviceDriversBase/VistaDeviceSensor.h>
 #include <VistaDeviceDriversBase/VistaDriverUtils.h>
-#include <VistaDeviceDriversBase/VistaDriverThreadedAspecs.h>
+#include <VistaDeviceDriversBase/VistaDriverThreadAspect.h>
 
 #include <VistaAspects/VistaAspectsUtils.h>
 #include <VistaInterProcComm/Concurrency/VistaMutex.h>
@@ -367,7 +367,7 @@ public:
 		{
 			// joystick is "straight up"
 			// interaction code should expect a NULL vector!
-			v3.SetNull();
+			v3.SetToZeroVector();
 			return true;
 		}
 
@@ -470,9 +470,8 @@ public:
 
 		const nunchuk_t *m = reinterpret_cast<const nunchuk_t*>(&(*pMeasure).m_vecMeasures[0]);
 
-		VistaTransformMatrix mt;
-		mt.Rotation( m->orient.yaw, m->orient.roll, m->orient.pitch );
-		q = VistaQuaternion(mt);
+		VistaEulerAngles oAngles( m->orient.yaw, m->orient.roll, m->orient.pitch );
+		q = VistaQuaternion( oAngles );
 
 		return true;
 	}
@@ -629,7 +628,7 @@ public:
 		{
 			// joystick is "straight up"
 			// interaction code should expect a NULL vector!
-			v3.SetNull();
+			v3.SetToZeroVector();
 			return true;
 		}
 
@@ -883,7 +882,7 @@ public:
 		{
 			// joystick is "straight up"
 			// interaction code should expect a NULL vector!
-			v3.SetNull();
+			v3.SetToZeroVector();
 			return true;
 		}
 
@@ -1232,7 +1231,7 @@ REFL_IMPLEMENT(VistaWiimoteDriver::CWiiMoteParameters,
 VistaWiimoteDriver::CWiiMoteParameters::CWiiMoteParameters( VistaWiimoteDriver* pDriver )
 : VistaDriverGenericParameterAspect::IParameterContainer(),
   m_pDriver( pDriver ),
-  m_bDoesAcc(false),
+  m_bDoesAcc(true),
   m_bDoesIR(false),
   m_nSmoothAlpha(0.0f),
   m_nAccelThreshold(0),
@@ -1253,7 +1252,7 @@ bool VistaWiimoteDriver::CWiiMoteParameters::GetDoesAccelerationReports() const
 
 bool VistaWiimoteDriver::CWiiMoteParameters::SetDoesAccelerationReports( bool bDoesIt )
 {
-	VistaMutexLock( *m_pLock );
+	VistaMutexLock oLock( *m_pLock );
 	if( bDoesIt != m_bDoesAcc )
 	{
 		m_bDoesAcc = bDoesIt;
@@ -1261,6 +1260,7 @@ bool VistaWiimoteDriver::CWiiMoteParameters::SetDoesAccelerationReports( bool bD
 		Notify( MSG_ACCELREPORT_CHG );
 		return true;
 	}
+	return true;
 }
 
 bool VistaWiimoteDriver::CWiiMoteParameters::GetDoesIRReports() const
@@ -1270,7 +1270,7 @@ bool VistaWiimoteDriver::CWiiMoteParameters::GetDoesIRReports() const
 
 bool VistaWiimoteDriver::CWiiMoteParameters::SetDoesIRReports( bool bDoesIt )
 {
-	VistaMutexLock( *m_pLock );
+	VistaMutexLock oLock( *m_pLock );
 	if( bDoesIt != m_bDoesIR )
 	{
 		m_bDoesIR = bDoesIt;
@@ -1278,11 +1278,12 @@ bool VistaWiimoteDriver::CWiiMoteParameters::SetDoesIRReports( bool bDoesIt )
 		Notify( MSG_IRREPORT_CHG );
 		return true;
 	}
+	return true;
 }
 
 bool VistaWiimoteDriver::CWiiMoteParameters::SetWiiMoteId( const std::string &strWiiMoteId )
 {
-	VistaMutexLock( *m_pLock );
+	VistaMutexLock oLock( *m_pLock );
 	if( m_pDriver->GetIsConnected() )
 	{
 		std::cout << "[WiiMoteParameters::SetWiiMoteId]: Already connected, can't set ID anymore" << std::endl;
@@ -1298,7 +1299,7 @@ float VistaWiimoteDriver::CWiiMoteParameters::GetSmoothAlpha() const
 
 bool  VistaWiimoteDriver::CWiiMoteParameters::SetSmoothAlpha( float nAlpha )
 {
-	VistaMutexLock( *m_pLock );
+	VistaMutexLock oLock( *m_pLock );
 	if( nAlpha != m_nSmoothAlpha )
 	{
 		m_nSmoothAlpha = nAlpha;
@@ -1316,7 +1317,7 @@ int VistaWiimoteDriver::CWiiMoteParameters::GetAccelerationThreshold() const
 
 bool VistaWiimoteDriver::CWiiMoteParameters::SetAccelerationThreshold( int nThreshold )
 {
-	VistaMutexLock( *m_pLock );
+	VistaMutexLock oLock( *m_pLock );
 	if( nThreshold != m_nAccelThreshold )
 	{
 		m_nAccelThreshold = nThreshold;
@@ -1334,7 +1335,7 @@ int VistaWiimoteDriver::CWiiMoteParameters::GetWaitTimeout() const
 
 bool VistaWiimoteDriver::CWiiMoteParameters::SetWaitTimeout( int nTimeoutInSecs )
 {
-	VistaMutexLock( *m_pLock );
+	VistaMutexLock oLock( *m_pLock );
 	if( m_pDriver->GetIsConnected() )
 	{
 		std::cout << "[WiiMoteParameters::SetWiiMoteId]: Already connected, can't set wait timeout anymore" << std::endl;
@@ -1772,12 +1773,8 @@ bool VistaWiimoteDriver::DoSensorUpdate(microtime nTs)
 	{
 		VistaVector3D crPos((float)m_pMote[0]->ir.x, (float)m_pMote[0]->ir.y, (float)m_pMote[0]->ir.z);
 		VistaVector3D crVel = crPos + VistaVector3D( m_pMote[0]->accel.x, m_pMote[0]->accel.y, m_pMote[0]->accel.z );
-		VistaTransformMatrix m;
-		m.Rotation(m_pMote[0]->orient.yaw,
-				   m_pMote[1]->orient.roll,
-                   m_pMote[0]->orient.pitch);
-
-		VistaQuaternion q(m);
+		VistaEulerAngles oAngles( m_pMote[0]->orient.roll, m_pMote[0]->orient.pitch, m_pMote[0]->orient.yaw );
+		VistaQuaternion q( oAngles );
 
 		VistaVector3D rV3;
 		VistaQuaternion rQ;
@@ -1911,6 +1908,7 @@ bool VistaWiimoteDriver::EnableSensorTyped( const std::string &strType,
 								  VistaWiimoteDriver::GetDriverFactoryMethod(),
 			                     strType, nMaxSlotsToRead, (int)nMaxHistoryAccessTimeInMsec );
 	 m_pMappingAspect->SetSensorId( nSensorType, 0, nId );
+	 return true;
 }
 
 VistaWiimoteDriver::CWiiMoteParameters *VistaWiimoteDriver::GetParameters() const

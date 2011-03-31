@@ -326,8 +326,7 @@ public:
 
 	virtual bool GeneratePropertyListFromInifile(const std::string &strFile,
 		const std::string &sRootSection,
-		VistaPropertyList &,
-		const std::list<std::string> &liSearchpath = std::list<std::string>());
+		VistaPropertyList &);
 	// #########################################################################
 	// IVistaReflectionable API
 	// #########################################################################
