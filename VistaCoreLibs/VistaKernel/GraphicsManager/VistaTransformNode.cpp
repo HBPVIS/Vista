@@ -115,7 +115,7 @@ bool VistaTransformNode::Scale( const VistaVector3D& v3Scale )
 		return false;
 	for( register int i = 0; i < 3; ++i )
 	{
-		for( register int j = 0; i < 4; ++i )
+		for( register int j = 0; j < 4; ++j )
 		{
 			matTransform[i][j] *= v3Scale[i];
 		}
