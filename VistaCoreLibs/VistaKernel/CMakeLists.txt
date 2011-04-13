@@ -1,5 +1,6 @@
 vista_adopt_version( VistaKernel VistaCoreLibs )
 
+vista_use_package( OpenGL )
 vista_use_package( GLUT )
 vista_use_package( OpenSG )
 

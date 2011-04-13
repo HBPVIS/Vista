@@ -1,11 +1,8 @@
 vista_adopt_version( VistaKernelOpenSGExt VistaCoreLibs )
 
+vista_use_package( OpenGL )
 vista_use_package( GLUT )
 vista_use_package( OpenSG )
-
-if( WIN32 )
-    set( LIBRARIES glu32 opengl32 )
-endif( WIN32 )
 
 include( "./_SourceFiles.cmake" )
 
