@@ -40,12 +40,13 @@ The following sections will give a brief layout of the depicted folder's content
 The \code{build} directory contains all files which are needed for the project to build.
 In case a special build directory needs local files to be created during a compilation run, use a separate folder.
 For Win32 Microsoft Visual C++ environments, e.g., we differentiate between \code{msvc8} and \code{msvc9} folders at the moment, which contain workspaces, solutions and projects for the respective version of Microsoft compilers.
-For Un*x environments, the folder contains the \code{Makefiles} that are needed for the project to build, see section~\ref{ssec:unix}.
+For Un*x environments, the folder contains the \code{Makefiles} that are needed for the project to build.
 The \code{build} directory should also contain a folder that holds all temporarily created data during a compiler run, e.g., object files. 
 This folder is typically named \code{built}.
 All build environments should create a subfolder below \code{built} and put temporary data which is special to a certain platform and architecture in there.
 The idea is to have a single directory which needs to be cleaned in order to remove intermediate files and make a project \emph{distclean}, e.g., before you try to copy it over a slow network share.
-
+Please note that we are currently developing a new \code{cmake}-based build system.
+Instructions on how to use it can soon be found in the \code{Documentation} directory going with the ViSTA sourcetree.
 
 \subsubsection{The \code{configfiles} directory}
 This directory should hold all initialization files that are needed to run the application or associated tools.
@@ -54,7 +55,7 @@ However, it is possible that many files are needed for a proper configuration of
 The \code{vista.ini} is a popular example to store in this directory.
 
 \subsubsection{The \code{resources} directory}
-The \code{resources} folder is used to store additional resources that can not really be classified.
+The \code{resources} folder is used to store additional resources that can't really be classified.
 As an example, think of bitmap graphics or model files that are not directly needed in the application but are used as sources for application used resources.
 It is most useful to collect resource files during the development, as they allow to rebuild some structures in case they are lost.
 In addition to this, this folder can hold auxiliary files such as code templates.
@@ -80,8 +81,8 @@ The reason for this is that it is easier to read inside a window, and in order t
 All files \emph{must} end with a single endline, as some compilers complain or bail out if it is missing.
 
 All sourefiles in the repository must care for a proper endline encoding.
-That means that when checking in on un*x platforms, all code has un*x endline encoding, whereas code checked in on win32 has windows/DOS endline encoding.
-Please try to avoid code copied between un*x and windows platforms in any case, or convert the endline encodings properly before checking in to the repository.
+That means that when checking in on Un*x platforms, all code has Un*x endline encoding, whereas code checked in on Win32 has Windows/DOS endline encoding.
+Please try to avoid code copied between Un*x and Windows platforms in any case, or convert the endline encodings properly before checking in to the repository.
 
 
 For the indentation of source lines, TAB-stops should be used.
@@ -272,7 +273,8 @@ namespace
 static const float mypi = 3.14f;
 };
 
-// class variables go here, too - note that they of course mustn't go into the anonymous namespace!
+// class variables go here, too - note that they of course
+// mustn't go into the anonymous namespace!
 int CMyClass::m_SMyStaticVar = 0;
 
 // </better code>
@@ -306,7 +308,7 @@ public:
 	virtual ~C();
 };
 \end{verbatim}
-This declaration leads to the following sequence in the module file.
+This declaration leads to the following sequence in the module file:
 \begin{verbatim}
 #include "A.h"
 
@@ -367,9 +369,9 @@ We do not give prefixes for all possible types, but for the mostly used types.
 \begin{tabular}{|l|l|p{10cm}|}
 \multicolumn{3}{c}{\textbf{Primitive types}}\\\hline
 \textbf{Prefix} & \textbf{Target} & \textbf{Purpose} \\\hline
-a   & C/C++ array types & use for signed or unsigned arrays or other types.\\\hline
+a   & C/C++ array types & Use for signed or unsigned arrays or other types.\\\hline
 b   & bool               & C++ boolean types\\\hline
-c   & chars & basic char types\\\hline
+c   & chars & Basic char types\\\hline
 d   & double & Applicable to double primitive types.\\\hline
 f   & floats & Applicable to float types.\\\hline
 i   & integer & Applicable to integer types. \\\hline
@@ -378,10 +380,10 @@ n   & basic number types & We consider the n prefix for all types of numbers.
                           integers.\\\hline
 o   & referenced instances & Applicable to references to other objects
                            and aggregates.\\\hline
-p   & Pointer types & Apply this prefix to pointer types.\\\hline
+p   & pointer types & Apply this prefix to pointer types.\\\hline
 \end{tabular}
 
-Types are nice, but usually the are associated with attributes, e.g., static or singed/unsigned qualifiers.
+Types are nice, but usually they are associated with attributes, e.g., static or singed/unsigned qualifiers.
 
 \begin{tabular}{|l|l|p{10cm}|}
 \multicolumn{3}{c}{\textbf{type attributes}}\\\hline
@@ -390,7 +392,7 @@ e   & enums & Enums are integers, basically, but try to identify them
               by using the enum prefix.\\\hline
 S   & static variables & You can use this for static variables and infix for
                        static members or module variables.\\\hline
-u   & unsigned type & optional, but can be used for unsigned types.\\\hline
+u   & unsigned type & Optional, but can be used for unsigned types.\\\hline
 \end{tabular}
 
 As STL containers are used throughout the interfaces, we define prefixes for the most commonly used STL types.
@@ -402,7 +404,7 @@ li  & lists & STL list types\\\hline
 map  & maps  & STL maps\\\hline
 str   & string types & STL strings \\\hline
 vec  & vector & Vectors from the STL\\\hline
-qu   & queue & queues and dequeues from the STL\\\hline
+qu   & queue & Queues and dequeues from the STL\\\hline
 \end{tabular}
 
 
@@ -511,8 +513,8 @@ class C
 Classes and structures must be named in order to identify their functionality.
 Try to be as verbose as possible.
 \begin{enumerate}
-\item identify interface functionality with a property postfix, e.g., \code{IVistaNameable} uses the postfix "able" to state the subclasses fulfill a specific functionality.
-\item identify high level functionality that is congruent to other classes, e.g., \code{Vista\-Trackball\-Behavior} states that the class realizes a concept of a behavior, although there is no abstract interface or explicit concept "behavior" anywhere in \code{ViSTA}.
+\item Identify interface functionality with a property postfix, e.g., \code{IVistaNameable} uses the postfix "able" to state the subclasses fulfill a specific functionality.
+\item Identify high level functionality that is congruent to other classes, e.g., \code{Vista\-Trackball\-Behavior} states that the class realizes a concept of a behavior, although there is no abstract interface or explicit concept "behavior" anywhere in \code{ViSTA}.
 The same accounts to all \code{Manager} classes in \code{ViSTA}, as there is no base class in \code{ViSTA} for "management" classes.
 Another example can be seen in \emph{implementation} classes, that are postfixed with \code{Imp}.
 \item Use project specific prefixes after the type prefix.
@@ -889,7 +891,7 @@ protected:
   C &operator=(const C &other); // protected assignment
 };
 \end{verbatim}
-\item Provide \emph{special public constructors} if you can not initialize an instance properly with a default constructor.
+\item Provide \emph{special public constructors} if you can't initialize an instance properly with a default constructor.
 \begin{verbatim}
 class C
 {
@@ -1244,12 +1246,12 @@ However, it is good practice to give some navigation hints with commentary to ot
 Someone said: ''Warnings can be ignored''.
 Although true to some extent, warnings always give rise to insepct some issue with a code a little deeper.
 The general advice is thereby: ViSTA code compiles without warnings.
-There is three basic ways of dealing with warnings.
+There is three basic ways of dealing with warnings:
 \begin{itemize}
+\item Remove the source of the warning, even if it avoids compile time flags, e.g., compiler selected code.
 \item Switch warning off, by using a compiler pragma or similiar.
 	Note that this measure is only appropriate when you know that the warning is not of interest, or is only produced by a weak compiler.
 \item Comment the source code location to reflect that the warning was noticed and is there on purpose.
-\item Remove the source of the warning, even if it avoids compile time flags, e.g., compiler selected code.
 \end{itemize}
 
 \minisec{Warning idioms}
@@ -1311,7 +1313,7 @@ This can help to establish their relation, so that for example a transform node 
 When a node has only one in- and outport, those should be called \texttt{in} and \texttt{out}.
 In other cases, if a single outport exists together with multiple or no inports, it helps calling it \texttt{value}.
 
-\minisec{Parameter} Parameter-names should be formated like port names.
+\minisec{Parameter} Parameter names should be formated like port names.
 
 \subsubsection{Specialized Doxygen Comments}
 For DfnNodes, there are special doxygen tags that allow to define the available ports.
