@@ -1,12 +1,8 @@
-if( WIN32 )
-	if( BUILD_SHARED_LIBS )
-		add_definitions( -DVISTAASPECTS_EXPORTS )
-	else( BUILD_SHARED_LIBS )
-		add_definitions( -DVISTAASPECTS_STATIC )
-	endif( BUILD_SHARED_LIBS )
-else( WIN32 )
+vista_adopt_version( VistaAspects VistaCoreLibs )
+
+if( UNIX )
 	set( LIBRARIES rt )
-endif( WIN32 )
+endif( UNIX )
 
 include( "./_SourceFiles.cmake" )
 
@@ -16,6 +12,8 @@ target_link_libraries( VistaAspects
 	${LIBRARIES}
 )
 
+vista_configure_lib( VistaAspects )
 vista_install( VistaAspects VistaAspects )
-vista_install_package_config( VistaAspects )
-vista_install_package_version( VistaAspects VistaCoreLibs )
+if( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )
+	vista_create_cmake_configs( VistaAspects )
+endif( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )

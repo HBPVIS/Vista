@@ -1,9 +1,6 @@
+vista_adopt_version( VistaInterProcComm VistaCoreLibs )
+
 if( WIN32 )
-	if( BUILD_SHARED_LIBS )
-		add_definitions( -DVISTAINTERPROCCOMM_EXPORTS )
-	else( BUILD_SHARED_LIBS )
-		add_definitions( -DVISTAINTERPROCCOMM_STATIC )
-	endif( BUILD_SHARED_LIBS )
 	add_definitions( -D_USE_WIN32_MUTEX )
 	set( LIBRARIES winmm ws2_32 )
 endif( WIN32 )
@@ -19,12 +16,12 @@ include( "./_SourceFiles.cmake" )
 add_library( VistaInterProcComm ${ProjectSources} )
 target_link_libraries( VistaInterProcComm
     VistaAspects
-    VistaInterProcComm
     VistaTools
-    VistaMath
 	${LIBRARIES}
 )
 
+vista_configure_lib( VistaInterProcComm )
 vista_install( VistaInterProcComm VistaInterProcComm )
-vista_install_package_config( VistaInterProcComm )
-vista_install_package_version( VistaInterProcComm VistaCoreLibs )
+if( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )
+	vista_create_cmake_configs( VistaInterProcComm )
+endif( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )

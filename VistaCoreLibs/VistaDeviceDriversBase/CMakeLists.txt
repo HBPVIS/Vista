@@ -1,9 +1,6 @@
+vista_adopt_version( VistaDeviceDriversBase VistaCoreLibs )
+
 if( WIN32 )
-	if( BUILD_SHARED_LIBS )
-		add_definitions( -DVISTADEVICEDRIVERS_EXPORTS )
-	else( BUILD_SHARED_LIBS )
-		add_definitions( -DVISTADEVICEDRIVERS_STATIC )
-	endif( BUILD_SHARED_LIBS )
 	set( LIBRARIES setupapi )
 endif( WIN32 )
 
@@ -22,12 +19,14 @@ endif( VISTA_DRIVERS_USE_ATOMICS )
 add_library( VistaDeviceDriversBase ${ProjectSources} )
 target_link_libraries( VistaDeviceDriversBase
     VistaAspects
+	VistaMath
     VistaInterProcComm
     VistaTools
-    VistaMath
 	${LIBRARIES}
 )
 
+vista_configure_lib( VistaDeviceDriversBase )
 vista_install( VistaDeviceDriversBase VistaDeviceDriversBase )
-vista_install_package_config( VistaDeviceDriversBase )
-vista_install_package_version( VistaDeviceDriversBase VistaCoreLibs )
+if( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )
+	vista_create_cmake_configs( VistaDeviceDriversBase )
+endif( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )

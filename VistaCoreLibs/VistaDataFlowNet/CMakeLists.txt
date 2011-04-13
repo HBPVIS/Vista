@@ -1,10 +1,4 @@
-if( WIN32 )
-	if( BUILD_SHARED_LIBS )
-		add_definitions( -DVISTADFN_EXPORTS )
-	else( BUILD_SHARED_LIBS )
-		add_definitions( -DVISTADFN_STATIC )
-	endif( BUILD_SHARED_LIBS )
-endif( WIN32 )
+vista_adopt_version( VistaDataFlowNet VistaCoreLibs )
 
 include( "./_SourceFiles.cmake" )
 
@@ -13,12 +7,13 @@ target_link_libraries( VistaDataFlowNet
 	VistaBase
 	VistaAspects
 	VistaTools
-	VistaMath
 	VistaInterProcComm
     VistaDeviceDriversBase
 )
 
+vista_configure_lib( VistaDataFlowNet )
 vista_install( VistaDataFlowNet VistaDataFlowNet )
-vista_install_package_config( VistaDataFlowNet )
-vista_install_package_version( VistaDataFlowNet VistaCoreLibs )
+if( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )
+	vista_create_cmake_configs( VistaDataFlowNet )
+endif( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )
 

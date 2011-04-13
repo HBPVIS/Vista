@@ -1,3 +1,5 @@
+vista_adopt_version( VistaTools VistaCoreLibs )
+
 if( WIN32 )
 	if( BUILD_SHARED_LIBS )
 		add_definitions( -DVISTATOOLS_EXPORTS )
@@ -15,6 +17,8 @@ target_link_libraries( VistaTools
 	${LIBRARIES}
 )
 
+vista_configure_lib( VistaTools )
 vista_install( VistaTools VistaTools )
-vista_install_package_config( VistaTools )
-vista_install_package_version( VistaTools VistaCoreLibs )
+if( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )
+	vista_create_cmake_configs( VistaTools )
+endif( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )

@@ -1,13 +1,8 @@
-if( WIN32 )
-	if( BUILD_SHARED_LIBS )
-		add_definitions( -DVISTABASE_EXPORTS )
-	else( BUILD_SHARED_LIBS )
-		add_definitions( -DVISTABASE_STATIC )
-	endif( BUILD_SHARED_LIBS )
-else( WIN32 )
-	set( LIBRARIES rt )
-endif( WIN32 )
+vista_adopt_version( VistaBase VistaCoreLibs )
 
+if( UNIX )
+	set( LIBRARIES rt )
+endif( UNIX )
 
 include( "./_SourceFiles.cmake" )
 
@@ -16,6 +11,8 @@ target_link_libraries( VistaBase
 	${LIBRARIES}
 )
 
+vista_configure_lib( VistaBase )
 vista_install( VistaBase VistaBase )
-vista_install_package_config( VistaBase )
-vista_install_package_version( VistaBase VistaCoreLibs )
+if( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )
+	vista_create_cmake_configs( VistaBase )
+endif( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )

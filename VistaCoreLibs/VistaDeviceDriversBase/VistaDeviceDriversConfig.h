@@ -27,8 +27,8 @@
 
 
 // Windows DLL build
-#if defined(WIN32) && !defined(VISTADEVICEDRIVERS_STATIC) 
-	#ifdef VISTADEVICEDRIVERS_EXPORTS
+#if defined(WIN32) && !defined(VISTADEVICEDRIVERSBASE_STATIC) 
+	#ifdef VISTADEVICEDRIVERSBASE_EXPORTS
 		#define VISTADEVICEDRIVERSAPI __declspec(dllexport)
 	#else
 		#define VISTADEVICEDRIVERSAPI __declspec(dllimport)

@@ -1,13 +1,7 @@
-vista_use_GLUT()
-vista_use_OpenSG()
+vista_adopt_version( VistaKernel VistaCoreLibs )
 
-if( WIN32 )
-	if( BUILD_SHARED_LIBS )
-		add_definitions( -DVISTAKERNEL_EXPORTS )
-	else( BUILD_SHARED_LIBS )
-		add_definitions( -DVISTAKERNEL_STATIC )
-	endif( BUILD_SHARED_LIBS )
-endif( WIN32 )
+vista_use_package( GLUT )
+vista_use_package( OpenSG )
 
 add_definitions( -DVISTA_SYS_OPENSG -DVISTAKERNEL_USE_PROFILING )
 
@@ -18,7 +12,6 @@ target_link_libraries( VistaKernel
 	VistaBase
 	VistaAspects
 	VistaTools
-    VistaMath
 	VistaInterProcComm
 	VistaDeviceDriversBase
     VistaDataFlowNet
@@ -26,6 +19,8 @@ target_link_libraries( VistaKernel
 	${OPENSG_LIBRARIES}
 )
 
+vista_configure_lib( VistaKernel )
 vista_install( VistaKernel VistaKernel )
-vista_install_package_config( VistaKernel )
-vista_install_package_version( VistaKernel VistaCoreLibs )
+if( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )
+	vista_create_cmake_configs( VistaKernel )
+endif( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )

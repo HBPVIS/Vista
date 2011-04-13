@@ -1,3 +1,5 @@
+vista_adopt_version( VistaMath VistaCoreLibs )
+
 if( WIN32 )
 	if( BUILD_SHARED_LIBS )
 		add_definitions( -DVISTAMATH_EXPORTS )
@@ -13,6 +15,8 @@ target_link_libraries( VistaMath
 	VistaBase
 )
 
+vista_configure_lib( VistaMath )
 vista_install( VistaMath VistaMath )
-vista_install_package_config( VistaMath )
-vista_install_package_version( VistaMath VistaCoreLibs )
+if( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )
+	vista_create_cmake_configs( VistaMath )
+endif( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )

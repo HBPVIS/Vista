@@ -1,22 +1,10 @@
-find_Package( VGLUT REQUIRED )
-find_Package( VOpenSG REQUIRED )
+vista_adopt_version( VistaKernelOpenSGExt VistaCoreLibs )
 
-vista_use_GLUT()
-vista_use_OpenSG()
-
-if( WIN32 )
-    set( LIBRARIES
-		glu32
-		opengl32
-    )
-endif( WIN32 )
+vista_use_package( GLUT )
+vista_use_package( OpenSG )
 
 if( WIN32 )
-	if( BUILD_SHARED_LIBS )
-		add_definitions( -DVISTAKERNELOPENSGEXT_EXPORTS )
-	else( BUILD_SHARED_LIBS )
-		add_definitions( -DVISTAKERNELOPENSGEXT_STATIC )
-	endif( BUILD_SHARED_LIBS )
+    set( LIBRARIES glu32 opengl32 )
 endif( WIN32 )
 
 include( "./_SourceFiles.cmake" )
@@ -26,7 +14,6 @@ target_link_libraries( VistaKernelOpenSGExt
 	VistaBase
 	VistaAspects
 	VistaTools
-    VistaMath
 	VistaInterProcComm
 	VistaDeviceDriversBase
     VistaDataFlowNet
@@ -36,6 +23,9 @@ target_link_libraries( VistaKernelOpenSGExt
 	${LIBRARIES}
 )
 
+vista_configure_lib( VistaKernelOpenSGExt )
 vista_install( VistaKernelOpenSGExt VistaKernelOpenSGExt )
-vista_install_package_config( VistaKernelOpenSGExt )
-vista_install_package_version( VistaKernelOpenSGExt VistaCoreLibs )
+if( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )
+	vista_create_cmake_configs( VistaKernelOpenSGExt )
+endif( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )
+
