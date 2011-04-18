@@ -70,19 +70,19 @@ bool VistaConnectionFile::Open()
 	switch(m_iMode)
 	{
 	case READ:
-		mode = "r";
+		mode = "rb";
 		break ;
 
 	case WRITE:
-		mode = "w" ;
+		mode = "wb" ;
 		break ;
 
 	case READWRITE:
-		mode = "w+" ;
+		mode = "w+b" ;
 		break ;
 
 	case APPEND:
-		mode = "a+" ;
+		mode = "a+b" ;
 		break ;
 	default:
 		return false;

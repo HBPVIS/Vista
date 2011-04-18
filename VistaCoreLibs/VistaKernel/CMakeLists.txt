@@ -1,8 +1,8 @@
 vista_adopt_version( VistaKernel VistaCoreLibs )
 
-vista_use_package( OpenGL )
-vista_use_package( GLUT )
-vista_use_package( OpenSG )
+vista_use_package( OpenGL REQUIRED )
+vista_use_package( GLUT REQUIRED )
+vista_use_package( OpenSG 1.8 REQUIRED )
 
 add_definitions( -DVISTA_SYS_OPENSG -DVISTAKERNEL_USE_PROFILING )
 
@@ -16,8 +16,7 @@ target_link_libraries( VistaKernel
 	VistaInterProcComm
 	VistaDeviceDriversBase
     VistaDataFlowNet
-	${GLUT_LIBRARIES}
-	${OPENSG_LIBRARIES}
+	${VISTA_USE_PACKAGE_LIBRARIES}
 )
 
 vista_configure_lib( VistaKernel )

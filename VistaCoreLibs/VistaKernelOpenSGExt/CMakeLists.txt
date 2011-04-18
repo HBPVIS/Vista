@@ -1,8 +1,8 @@
 vista_adopt_version( VistaKernelOpenSGExt VistaCoreLibs )
 
-vista_use_package( OpenGL )
-vista_use_package( GLUT )
-vista_use_package( OpenSG )
+vista_use_package( OpenGL REQUIRED )
+vista_use_package( GLUT REQUIRED )
+vista_use_package( OpenSG 1.8 REQUIRED )
 
 include( "./_SourceFiles.cmake" )
 
@@ -15,9 +15,7 @@ target_link_libraries( VistaKernelOpenSGExt
 	VistaDeviceDriversBase
     VistaDataFlowNet
 	VistaKernel
-	${GLUT_LIBRARIES}
-	${OPENSG_LIBRARIES}
-	${LIBRARIES}
+	${VISTA_USE_PACKAGE_LIBRARIES}
 )
 
 vista_configure_lib( VistaKernelOpenSGExt )

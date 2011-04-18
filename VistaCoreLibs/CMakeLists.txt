@@ -7,9 +7,6 @@ include( VistaCommon )
 # Self include
 include_directories( ${VistaCoreLibs_SOURCE_DIR} )
 
-find_Package( VGLUT )
-find_Package( VOpenSG )
-
 # the version type can be either HEAD, RELASE, BRANCH, or TAG
 vista_set_version( VistaCoreLibs RELEASE HEAD 1 10 1 svn_rev )
 
