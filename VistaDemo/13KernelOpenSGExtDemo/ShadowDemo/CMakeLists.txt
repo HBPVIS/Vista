@@ -1,27 +1,21 @@
 cmake_minimum_required( VERSION 2.6 )
 if( NOT VISTADEMO_COMMON_BUILD )
-	project( 13OpenSGExtShadowDemo )
+	project( 13KernelOpenSGExtShadowDemo )
 
 	list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
-	include( VistaLibCommon )
-ENDif( NOT VISTADEMO_COMMON_BUILD )
+	include( VistaCommon )
+endif( NOT VISTADEMO_COMMON_BUILD )
 
-find_package_versioned( VistaCoreLibs "HEAD" REQUIRED )
-vista_use_VistaCoreLibs()
+vista_use_package( VistaCoreLibs "HEAD" REQUIRED VistaKernelOpenSGExt FIND_DEPENDENCIES )
 
-if( WIN32 )
-	list( APPEND LIBRARIES opengl32 glu32 )
-endif( WIN32 )
 
+# Including the source files of all source subfolders recursively
 include( "./_SourceFiles.cmake" )
 
-add_executable( 13OpenSGExtShadowDemo ${ProjectSources} )
-target_link_libraries( 13OpenSGExtShadowDemo
-	${VISTACORELIBS_LIBRARIES}
-	${LIBRARIES}
+add_executable( 13KernelOpenSGExtShadowDemo ${ProjectSources} )
+target_link_libraries( 13KernelOpenSGExtShadowDemo
+	${VISTA_USE_PACKAGE_LIBRARIES} # contains all libraries from vista_use_package() calls
 )
 
-vista_configure_app( 13OpenSGExtShadowDemo )
-vista_set_app_outdir( 13OpenSGExtShadowDemo ${CMAKE_CURRENT_SOURCE_DIR} )
-vista_install( 13OpenSGExtShadowDemo )
+vista_configure_app( 13KernelOpenSGExtShadowDemo )
 

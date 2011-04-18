@@ -3,25 +3,19 @@ if( NOT VISTADEMO_COMMON_BUILD )
 	project( 17MsgPortAlice )
 
 	list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
-	include( VistaLibCommon )
-ENDif( NOT VISTADEMO_COMMON_BUILD )
+	include( VistaCommon )
+endif( NOT VISTADEMO_COMMON_BUILD )
 
-find_package_versioned( VistaCoreLibs "HEAD" REQUIRED )
-vista_use_VistaCoreLibs()
+vista_use_package( VistaCoreLibs "HEAD" REQUIRED FIND_DEPENDENCIES )
 
-if( WIN32 )
-	list( APPEND LIBRARIES opengl32 glu32 )
-endif( WIN32 )
 
+# Including the source files of all source subfolders recursively
 include( "./_SourceFiles.cmake" )
 
 add_executable( 17MsgPortAlice ${ProjectSources} )
 target_link_libraries( 17MsgPortAlice
-	${VISTACORELIBS_LIBRARIES}
-	${LIBRARIES}
+	${VISTA_USE_PACKAGE_LIBRARIES} # contains all libraries from vista_use_package() calls
 )
 
 vista_configure_app( 17MsgPortAlice )
-vista_set_app_outdir( 17MsgPortAlice ${CMAKE_CURRENT_SOURCE_DIR} )
-vista_install( 17MsgPortAlice )
 

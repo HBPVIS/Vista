@@ -1,27 +1,21 @@
 cmake_minimum_required( VERSION 2.6 )
 if( NOT VISTADEMO_COMMON_BUILD )
-	project( 13OpenSGExtParticlesDemo )
+	project( 13KernelOpenSGExtParticlesDemo )
 
 	list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
-	include( VistaLibCommon )
-ENDif( NOT VISTADEMO_COMMON_BUILD )
+	include( VistaCommon )
+endif( NOT VISTADEMO_COMMON_BUILD )
 
-find_package_versioned( VistaCoreLibs "HEAD" REQUIRED )
-vista_use_VistaCoreLibs()
+vista_use_package( VistaCoreLibs "HEAD" REQUIRED VistaKernelOpenSGExt FIND_DEPENDENCIES )
 
-if( WIN32 )
-	list( APPEND LIBRARIES opengl32 glu32 )
-endif( WIN32 )
 
+# Including the source files of all source subfolders recursively
 include( "./_SourceFiles.cmake" )
 
-add_executable( 13OpenSGExtParticlesDemo ${ProjectSources} )
-target_link_libraries( 13OpenSGExtParticlesDemo
-	${VISTACORELIBS_LIBRARIES}
-	${LIBRARIES}
+add_executable( 13KernelOpenSGExtParticlesDemo ${ProjectSources} )
+target_link_libraries( 13KernelOpenSGExtParticlesDemo
+	${VISTA_USE_PACKAGE_LIBRARIES} # contains all libraries from vista_use_package() calls
 )
 
-vista_configure_app( 13OpenSGExtParticlesDemo )
-vista_set_app_outdir( 13OpenSGExtParticlesDemo ${CMAKE_CURRENT_SOURCE_DIR} )
-vista_install( 13OpenSGExtParticlesDemo )
+vista_configure_app( 13KernelOpenSGExtParticlesDemo )
 

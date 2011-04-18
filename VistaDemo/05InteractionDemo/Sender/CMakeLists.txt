@@ -1,27 +1,23 @@
 cmake_minimum_required( VERSION 2.6 )
+cmake_minimum_required( VERSION 2.6 )
 if( NOT VISTADEMO_COMMON_BUILD )
 	project( 05InteractionDemoSender )
 
 	list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
-	include( VistaLibCommon )
-ENDif( NOT VISTADEMO_COMMON_BUILD )
+	include( VistaCommon )
+endif( NOT VISTADEMO_COMMON_BUILD )
 
-find_package_versioned( VistaCoreLibs "HEAD" REQUIRED )
-vista_use_VistaCoreLibs()
+vista_use_package( VistaCoreLibs "HEAD" REQUIRED FIND_DEPENDENCIES )
 
-if( WIN32 )
-	list( APPEND LIBRARIES opengl32 glu32 )
-endif( WIN32 )
 
+# Including the source files of all source subfolders recursively
 include( "./_SourceFiles.cmake" )
 
 add_executable( 05InteractionDemoSender ${ProjectSources} )
 target_link_libraries( 05InteractionDemoSender
-	${VISTACORELIBS_LIBRARIES}
-	${LIBRARIES}
+	${VISTA_USE_PACKAGE_LIBRARIES} # contains all libraries from vista_use_package() calls
 )
 
 vista_configure_app( 05InteractionDemoSender )
-vista_set_app_outdir( 05InteractionDemoSender ${CMAKE_CURRENT_SOURCE_DIR} )
-vista_install( 05InteractionDemoSender )
+
 
