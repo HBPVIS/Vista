@@ -8,7 +8,7 @@ include( VistaCommon )
 include_directories( ${VistaCoreLibs_SOURCE_DIR} )
 
 # the version type can be either HEAD, RELASE, BRANCH, or TAG
-vista_set_version( VistaCoreLibs RELEASE HEAD 1 10 1 svn_rev )
+vista_set_version( VistaCoreLibs HEAD HEAD 1 10 1 svn_rev )
 
 set( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY OFF CACHE BOOL "If set to true, a <Package>Config.cmake file will be created and installed for each library, not just one for the CoreLibs" )
 mark_as_advanced( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )
