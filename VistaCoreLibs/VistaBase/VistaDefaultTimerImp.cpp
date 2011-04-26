@@ -40,6 +40,8 @@
   #include <time.h>
 #endif
 
+#include <cstdio>
+
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
@@ -161,13 +163,13 @@ microstamp VistaDefaultTimerImp::GetMicroStamp()  const
   return mach_absolute_time();
 #else // unix-like os
 
-  #if defined(__GNUC__) && defined(LINUX)
-  	__asm __volatile ( "rdtsc\n" );
-  #else
+//  #if defined(__GNUC__) && defined(LINUX)
+//  	__asm __volatile ( "rdtsc\n" );
+//  #else
 	struct timespec ts;
 	clock_gettime(CLOCK_REALTIME,&ts);
-	return (ts.tv_sec * 100000000) + (long long)ts.tv_nsec;
-  #endif
+	return (ts.tv_sec * 1000000) + (long long)ts.tv_nsec/1000;
+//  #endif
 
 #endif
 }
