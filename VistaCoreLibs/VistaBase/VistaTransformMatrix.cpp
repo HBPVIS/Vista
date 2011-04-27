@@ -658,8 +658,9 @@ bool VistaTransformMatrix::Decompose( VistaVector3D& v3Translation,
 	if( parts.u.w < 0.99 )
 	{
 		// a non-unit rotation is valid only if the scale is uniform!
-		if( fabs( parts.k.x - parts.k.y ) > Vista::Epsilon
-			|| fabs( parts.k.x - parts.k.z ) > Vista::Epsilon )
+		float fDiff = 0.00001f * ( parts.k.x + parts.k.y + parts.k.z );
+		if( fabs( parts.k.x - parts.k.y ) > fDiff
+			|| fabs( parts.k.x - parts.k.z ) > fDiff )
 		{
 			// shearing component, Decomposition fails
 			return false;
