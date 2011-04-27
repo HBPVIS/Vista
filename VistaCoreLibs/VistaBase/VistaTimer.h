@@ -88,6 +88,10 @@ public:
 protected:
 	IVistaTimerImp* m_pImp;
 	microtime       m_nBirthTime;
+private:
+	// make uncopyable
+	VistaTimer( const VistaTimer& oCpoy );
+	VistaTimer& operator=( const VistaTimer& oCopy );
 };
 
 
