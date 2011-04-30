@@ -37,6 +37,7 @@
 #include "../../VistaSystem.h"
 
 #include <VistaBase/VistaExceptionBase.h>
+#include <VistaKernel/VistaKernelOut.h>
 
 #if defined(DARWIN) // we use the mac os GLUT framework on darwin
   #include <GLUT/glut.h>
@@ -55,12 +56,14 @@
 #ifdef WIN32
 #include <windows.h>
 #include <GL/gl.h>
-typedef int (APIENTRY* WGLSWAPINTERVALEXT) (int);
-WGLSWAPINTERVALEXT SwapIntervalFunction = NULL;
+typedef bool (APIENTRY* PFNWGLSWAPINTERVALEXT) (int);
+typedef int (APIENTRY* PFNWGLGETSWAPINTERVALEXT) (void);
+PFNWGLSWAPINTERVALEXT		SetSwapIntervalFunction = NULL;
+PFNWGLGETSWAPINTERVALEXT    GetSwapIntervalFunction = NULL;
 #elif UNIX
 #include <GL/gl.h>
 typedef int (* PFNGLXSWAPINTERVALSGIPROC) (int interval);
-PFNGLXSWAPINTERVALSGIPROC SwapIntervalFunction = NULL;
+PFNGLXSWAPINTERVALSGIPROC SetSwapIntervalFunction = NULL;
 #endif
 
 /*============================================================================*/
@@ -287,14 +290,64 @@ bool VistaGlutWindowingToolkit::SetVSyncEnabled( bool bEnabled )
 		return false;
 
 	int iInterval = bEnabled ? 1 : 0;
-	if( SwapIntervalFunction( iInterval ) != 0 )
+#ifdef WIN32
+	if( SetSwapIntervalFunction( iInterval ) )
 	{
-		m_iVSyncMode = iInterval;
+		if( GetSwapIntervalFunction )
+		{
+			int iGetValue = GetSwapIntervalFunction();
+			if( iGetValue == iInterval )
+				m_iVSyncMode = iInterval;
+			else
+			{
+				vkernerr << "VistaGlutWindowingToolkit::SetVSyncEnabled -"
+						<< "Setting VSync failed - does driver config enforce on/off?"
+						<< std::endl;
+				m_iVSyncMode = VSYNC_STATE_UNAVAILABLE;
+				return false;
+			}
+		}
+		else
+			m_iVSyncMode = iInterval;
 	}
 	else
-		m_iVSyncMode = VSYNC_STATE_UNKNOWN;
-
+	{
+		vkernerr << "VistaGlutWindowingToolkit::SetVSyncEnabled -"
+				<< "Setting VSync failed" << std::endl;
+		m_iVSyncMode = VSYNC_STATE_UNAVAILABLE;
+		return false;
+	}
 	return true;
+#elif defined UNIX
+	if( SetSwapIntervalFunction( iInterval ) == 0 )
+	{
+		if( GetSwapIntervalFunction )
+		{
+			int iGetValue = GetSwapIntervalFunction();
+			if( iGetValue == iInterval )
+				m_iVSyncMode = iInterval;
+			else
+			{
+				vkernerr << "VistaGlutWindowingToolkit::SetVSyncEnabled -"
+					<< "Setting VSync failed - does driver config enforce on/off?"
+					<< std::endl;
+				m_iVSyncMode = VSYNC_STATE_UNAVAILABLE;
+				return false;
+			}
+		}
+		else
+			m_iVSyncMode = iInterval;
+	}
+	else
+	{
+		vkernerr << "VistaGlutWindowingToolkit::SetVSyncEnabled -"
+			<< "Setting VSync failed - does driver config enforce on/off?"
+			<< std::endl;
+		m_iVSyncMode = VSYNC_STATE_UNAVAILABLE;
+	}
+#endif
+
+	return false;
 }
 
 bool VistaGlutWindowingToolkit::CheckVSyncAvailability()
@@ -310,11 +363,22 @@ bool VistaGlutWindowingToolkit::CheckVSyncAvailability()
 	}
 	else
 	{
-		SwapIntervalFunction = (WGLSWAPINTERVALEXT)wglGetProcAddress( "wglSwapIntervalEXT" );
-		if( SwapIntervalFunction )
+		SetSwapIntervalFunction = (PFNWGLSWAPINTERVALEXT)wglGetProcAddress( "wglSwapIntervalEXT" );
+		GetSwapIntervalFunction = (PFNWGLGETSWAPINTERVALEXT)wglGetProcAddress("wglGetSwapIntervalEXT");
+		if( SetSwapIntervalFunction )
 			m_iVSyncMode = VSYNC_STATE_UNKNOWN;
 		else
-			m_iVSyncMode = VSYNC_STATE_UNAVAILABLE;
+			m_iVSyncMode = VSYNC_STATE_UNAVAILABLE;	
+		if( GetSwapIntervalFunction )
+		{
+			int iInterval = GetSwapIntervalFunction();
+			if( iInterval == 0 )
+				m_iVSyncMode = VSYNC_DISABLED;
+			else if( iInterval == 1 )
+				m_iVSyncMode = VSYNC_ENABLED;
+
+
+		}
 	}
 #elif defined LINUX
 	const char* sGLExtension = (const char*)glGetString( GL_EXTENSIONS );
@@ -324,8 +388,8 @@ bool VistaGlutWindowingToolkit::CheckVSyncAvailability()
 	}
 	else
 	{
-		SwapIntervalFunction = (PFNGLXSWAPINTERVALSGIPROC)glXGetProcAddressARB( "GLX_SGI_swap_control" );
-		if( SwapIntervalFunction )
+		SetSwapIntervalFunction = (PFNGLXSWAPINTERVALSGIPROC)glXGetProcAddressARB( "GLX_SGI_swap_control" );
+		if( SetSwapIntervalFunction )
 			m_iVSyncMode = VSYNC_STATE_UNKNOWN;
 		else
 			m_iVSyncMode = VSYNC_STATE_UNAVAILABLE;
