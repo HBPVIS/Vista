@@ -40,7 +40,7 @@
 
 #if defined(DARWIN) // we use the mac os GLUT framework on darwin
   #include <GLUT/glut.h>
-#else
+#else  
   #if defined(USE_NATIVE_GLUT)
     #include <GL/glut.h>
   #else
@@ -51,6 +51,17 @@
 
 #include <string>
 #include <cassert>
+
+#ifdef WIN32
+#include <windows.h>
+#include <GL/gl.h>
+typedef int (APIENTRY* WGLSWAPINTERVALEXT) (int);
+WGLSWAPINTERVALEXT SwapIntervalFunction = NULL;
+#elif UNIX
+#include <GL/gl.h>
+typedef int (* PFNGLXSWAPINTERVALSGIPROC) (int interval);
+PFNGLXSWAPINTERVALSGIPROC SwapIntervalFunction = NULL;
+#endif
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
@@ -76,6 +87,7 @@ VistaGlutWindowingToolkit::VistaGlutWindowingToolkit(
 		VistaSystem* pVistaSystem, int argc, char** argv)
 : m_pVistaSystem(pVistaSystem)
 , m_bQuitLoop( false )
+, m_iVSyncMode( ~0 )
 {
 
 	RGB		= GLUT_RGB;
@@ -256,5 +268,72 @@ void VistaGlutWindowingToolkit::SetTitle( std::string title )
 void VistaGlutWindowingToolkit::SetCursor( int cursor )
 {
 	glutSetCursor(cursor);
+}
+
+bool VistaGlutWindowingToolkit::GetVSyncCanBeModified()
+{
+	return CheckVSyncAvailability();
+}
+
+int VistaGlutWindowingToolkit::GetVSyncMode()
+{
+	CheckVSyncAvailability();
+	return m_iVSyncMode;
+}
+
+bool VistaGlutWindowingToolkit::SetVSyncEnabled( bool bEnabled )
+{
+	if( CheckVSyncAvailability() == false )
+		return false;
+
+	int iInterval = bEnabled ? 1 : 0;
+	if( SwapIntervalFunction( iInterval ) != 0 )
+	{
+		m_iVSyncMode = iInterval;
+	}
+	else
+		m_iVSyncMode = VSYNC_STATE_UNKNOWN;
+
+	return true;
+}
+
+bool VistaGlutWindowingToolkit::CheckVSyncAvailability()
+{
+	if( m_iVSyncMode != ~0 )
+		return ( m_iVSyncMode != VSYNC_STATE_UNAVAILABLE );
+
+#ifdef WIN32
+	const char* sGLExtension = (const char*)glGetString( GL_EXTENSIONS );
+	if( strstr( sGLExtension, "WGL_EXT_swap_control" ) == 0 )
+	{
+		m_iVSyncMode = VSYNC_STATE_UNAVAILABLE;
+	}
+	else
+	{
+		SwapIntervalFunction = (WGLSWAPINTERVALEXT)wglGetProcAddress( "wglSwapIntervalEXT" );
+		if( SwapIntervalFunction )
+			m_iVSyncMode = VSYNC_STATE_UNKNOWN;
+		else
+			m_iVSyncMode = VSYNC_STATE_UNAVAILABLE;
+	}
+#elif defined LINUX
+	const char* sGLExtension = (const char*)glGetString( GL_EXTENSIONS );
+	if( strstr( sGLExtension, "GLX_SGI_swap_control" ) == 0 )
+	{
+		m_iVSyncMode = VSYNC_STATE_UNAVAILABLE;
+	}
+	else
+	{
+		SwapIntervalFunction = (PFNGLXSWAPINTERVALSGIPROC)glXGetProcAddressARB( "GLX_SGI_swap_control" );
+		if( SwapIntervalFunction )
+			m_iVSyncMode = VSYNC_STATE_UNKNOWN;
+		else
+			m_iVSyncMode = VSYNC_STATE_UNAVAILABLE;
+	}
+#else
+	m_iVSyncMode = VSYNC_STATE_UNAVAILABLE;
+#endif
+
+	return ( m_iVSyncMode != VSYNC_STATE_UNAVAILABLE );
 }
 

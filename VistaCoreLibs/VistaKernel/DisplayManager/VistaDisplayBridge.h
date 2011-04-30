@@ -156,6 +156,8 @@ public:
 										 VistaWindow *pTarget) = 0;
 	virtual void GetWindowSize          (int &w, int &h,
 										 const VistaWindow *pTarget) = 0;
+	virtual bool SetWindowVSync( bool bEnabled, VistaWindow *pTarget ) = 0;
+	virtual int GetWindowVSync( const VistaWindow *pTarget ) = 0;
 	virtual void SetFullScreen          (bool bFullScreen,
 										 VistaWindow *pTarget) = 0;
 	virtual bool GetFullScreen          (const VistaWindow *pTarget) = 0;

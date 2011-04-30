@@ -451,6 +451,22 @@ VistaWindow::VistaWindowProperties::VistaWindowProperties(
 {
 }
 
+bool VistaWindow::VistaWindowProperties::SetVSyncEnabled( bool bVSync )
+{
+	if( GetDisplayBridge()->SetWindowVSync( bVSync, static_cast<VistaWindow*>(GetParent()) ) )
+	{
+		Notify( MSG_VSYNC_CHANGE );
+		return true;
+	}
+	return false;
+}
+
+int VistaWindow::VistaWindowProperties::GetVSyncEnabled() const
+{
+	VistaWindow *pW = static_cast<VistaWindow*>(GetParent());
+	return GetDisplayBridge()->GetWindowVSync( pW );
+}
+
 
 
 

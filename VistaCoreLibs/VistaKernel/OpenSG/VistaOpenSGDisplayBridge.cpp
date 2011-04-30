@@ -1611,6 +1611,27 @@ void VistaOpenSGDisplayBridge::GetWindowSize
 	h = size[1];
 }
 
+bool VistaOpenSGDisplayBridge::SetWindowVSync( bool bEnabled, VistaWindow *pTarget )
+{
+	IVistaWindowingToolkit *wta = GetVistaSystem()->GetWindowingToolkit();
+	int win = wta->GetWindow();
+	wta->SetWindow(((WindowData *)pTarget->GetData())->m_iWindowId);
+	bool bReturn = wta->SetVSyncEnabled( bEnabled );
+	wta->SetWindow(win);
+
+	return bReturn;
+}
+int VistaOpenSGDisplayBridge::GetWindowVSync( const VistaWindow *pTarget )
+{
+	IVistaWindowingToolkit *wta = GetVistaSystem()->GetWindowingToolkit();
+	int win = wta->GetWindow();
+	wta->SetWindow(((WindowData *)pTarget->GetData())->m_iWindowId);
+	int nReturn = wta->GetVSyncMode();
+	wta->SetWindow(win);
+
+	return nReturn;
+}
+
 void VistaOpenSGDisplayBridge::SetFullScreen
 ( bool bFullScreen, VistaWindow * pTarget )
 {

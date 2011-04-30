@@ -217,6 +217,17 @@ public:
 	 */
 	virtual void SetCursor( int type ) = 0;
 
+	enum
+	{
+		VSYNC_STATE_UNAVAILABLE = -2,
+		VSYNC_STATE_UNKNOWN = -1,
+		VSYNC_DISABLED = 0,
+		VSYNC_ENABLED = 1
+	};
+	virtual bool GetVSyncCanBeModified() = 0;
+	virtual int GetVSyncMode() = 0;
+	virtual bool SetVSyncEnabled( bool bEnabled ) = 0;
+
 	/**
 	 * Common bit mask parameters with concret values
 	 * in the concret implementations of this interface

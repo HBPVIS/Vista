@@ -148,6 +148,8 @@ public:
 	void GetWindowPosition( int & x, int & y, const VistaWindow * pTarget );
 	void SetWindowSize( int w, int h, VistaWindow * pTarget );
 	void GetWindowSize( int & w, int & h, const VistaWindow * pTarget );
+	bool SetWindowVSync( bool bEnabled, VistaWindow *pTarget );
+	int GetWindowVSync( const VistaWindow *pTarget );
 
 	// testing
 	void SetFullScreen( bool bFullScreen, VistaWindow * pTarget );

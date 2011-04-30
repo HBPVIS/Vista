@@ -98,10 +98,24 @@ public:
 	void SetTitle( std::string title );
 	void SetCursor( int );
 
+	enum
+	{
+		VSYNC_STATE_UNAVAILABLE = -2,
+		VSYNC_STATE_UNKNOWN = -1,
+		VSYNC_DISABLED = 0,
+		VSYNC_ENABLED = 1
+	};
+	virtual bool GetVSyncCanBeModified();
+	virtual int GetVSyncMode();
+	virtual bool SetVSyncEnabled( bool bEnabled );
+
 private:
+	bool CheckVSyncAvailability();
 
 	VistaSystem*						m_pVistaSystem;
 	bool								m_bQuitLoop;
+
+	int									m_iVSyncMode;
 };
 
 /*============================================================================*/

@@ -83,6 +83,7 @@ public:
 	 * SIZE                 -   [list of ints - 2 items]
 	 * DRAW_BORDER          -   [bool]
 	 * FULLSCREEN           -   [bool]
+	 * VSYNC                -   [set: bool] [get: int (-2: unavailable, -1: unknown, 0: disabled, 1: enabled)]
 	 * TITLE                -   [string]
 	 * DISPLAY_NAME         -   [string][read only]
 	 * NUMBER_OF_VIEWPORTS  -   [int][read only]
@@ -100,6 +101,7 @@ public:
 			MSG_SIZE_CHANGE,
 			MSG_FULLSCREEN_CHANGE,
 			MSG_TITLE_CHANGE,
+			MSG_VSYNC_CHANGE,
 			MSG_LAST
 		};
 
@@ -116,6 +118,9 @@ public:
 
 		bool SetFullScreen(bool bFullScreen);
 		bool GetFullScreen() const;
+
+		bool SetVSyncEnabled(bool bVSync);
+		int GetVSyncEnabled() const;
 
 		std::string GetTitle() const;
 		bool SetTitle(const std::string& strTitle);

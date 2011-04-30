@@ -1576,7 +1576,11 @@ std::string VistaProfiler::UseEnviromentVariables( std::string sInput )
 	{
 		int end = (int)sInput.find("}");
 		std::string var = sInput.substr(start+2,end-start-2);
-		sInput = sInput.replace(start,end-start+1,getenv(var.c_str()));
+		char* sEnv = getenv(var.c_str());
+		if( sEnv )
+			sInput = sInput.replace(start,end-start+1,sEnv);
+		else
+			sInput = sInput.replace(start,end-start+1,"");
 		start = (int)sInput.find("${");
 	}
 	return sInput;
