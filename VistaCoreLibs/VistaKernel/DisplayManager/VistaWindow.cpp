@@ -215,64 +215,67 @@ namespace {
 	
 	IVistaPropertyGetFunctor *aCgFunctors[] =
 	{
-		new TVistaPropertyGet<bool, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_BOOL>
-		("STEREO", sSReflectionType,
-		 &VistaWindow::VistaWindowProperties::GetStereo),
-		new TVistaProperty2RefGet<int, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_INT>
-		("POSITION", sSReflectionType,
-		 &VistaWindow::VistaWindowProperties::GetPosition),	
-		new TVistaProperty2RefGet<int, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_INT>
-		("SIZE", sSReflectionType,
-		 &VistaWindow::VistaWindowProperties::GetSize),
-		new TVistaPropertyGet<bool, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_BOOL>
-		("FULL_SCREEN", sSReflectionType,
-		 &VistaWindow::VistaWindowProperties::GetFullScreen),
-		new TVistaPropertyGet<std::string, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_STRING>
-		("TITLE", sSReflectionType,
-		 &VistaWindow::VistaWindowProperties::GetTitle),
-		new TVistaDisplayEntityParentPropertyGet<std::string, VistaWindow, VistaProperty::PROPT_STRING>
-		("DISPLAY_NAME", sSReflectionType,
-		 &VistaWindow::GetDisplayName),
-		new TVistaDisplayEntityParentPropertyGet<unsigned int, VistaWindow, VistaProperty::PROPT_DOUBLE>
-		("NUMBER_OF_VIEWPORTS", sSReflectionType,
-		 &VistaWindow::GetNumberOfViewports),	
-		new TVistaDisplayEntityParentPropertyGet<std::list<std::string>, VistaWindow, VistaProperty::PROPT_LIST>
-		("VIEWPORT_NAMES", sSReflectionType,
-		 &VistaWindow::GetViewportNames),
+		new TVistaPropertyGet<bool, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_BOOL>(
+							"STEREO", sSReflectionType,
+							 &VistaWindow::VistaWindowProperties::GetStereo),
+		new TVistaProperty2RefGet<int, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_INT>(
+							"POSITION", sSReflectionType,
+							&VistaWindow::VistaWindowProperties::GetPosition),	
+		new TVistaProperty2RefGet<int, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_INT>(
+							"SIZE", sSReflectionType,
+							&VistaWindow::VistaWindowProperties::GetSize),
+		new TVistaPropertyGet<bool, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_BOOL>(
+							"FULL_SCREEN", sSReflectionType,
+							&VistaWindow::VistaWindowProperties::GetFullScreen),
+		new TVistaPropertyGet<std::string, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_STRING>(
+							"TITLE", sSReflectionType,
+							&VistaWindow::VistaWindowProperties::GetTitle),
+		new TVistaPropertyGet<int, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_INT>(
+							"VSYNC", sSReflectionType,
+							&VistaWindow::VistaWindowProperties::GetVSyncEnabled),
+		new TVistaDisplayEntityParentPropertyGet<std::string, VistaWindow, VistaProperty::PROPT_STRING>(
+							"DISPLAY_NAME", sSReflectionType,
+							&VistaWindow::GetDisplayName),
+		new TVistaDisplayEntityParentPropertyGet<unsigned int, VistaWindow, VistaProperty::PROPT_DOUBLE>(
+							"NUMBER_OF_VIEWPORTS", sSReflectionType,
+							&VistaWindow::GetNumberOfViewports),	
+		new TVistaDisplayEntityParentPropertyGet<std::list<std::string>, VistaWindow, VistaProperty::PROPT_LIST>(
+							"VIEWPORT_NAMES", sSReflectionType,
+							&VistaWindow::GetViewportNames),
 		NULL
 
 	};
 
 	IVistaPropertySetFunctor *aCsFunctors[] =
 	{
-		new TVistaPropertySet<bool, bool,
-		VistaWindow::VistaWindowProperties>
-		("STEREO", sSReflectionType,
-		 &VistaWindow::VistaWindowProperties::SetStereo,
-		 &VistaAspectsConversionStuff::ConvertToBool),
-		new TVistaProperty2ValSet<int, VistaWindow::VistaWindowProperties>
-		("POSITION", sSReflectionType,
-		 &VistaWindow::VistaWindowProperties::SetPosition,
-		 &VistaAspectsConversionStuff::ConvertStringTo2Int),
-		new TVistaProperty2ValSet<int, VistaWindow::VistaWindowProperties>
-		("SIZE", sSReflectionType,
-		 &VistaWindow::VistaWindowProperties::SetSize,
-		 &VistaAspectsConversionStuff::ConvertStringTo2Int),
-		new TVistaPropertySet<bool, bool,
-		VistaWindow::VistaWindowProperties>
-		("FULL_SCREEN", sSReflectionType,
-		 &VistaWindow::VistaWindowProperties::SetFullScreen,
-		 &VistaAspectsConversionStuff::ConvertToBool),
-		new TVistaPropertySet<const std::string &, std::string,
-		VistaWindow::VistaWindowProperties>
-		("TITLE", sSReflectionType,
-		 &VistaWindow::VistaWindowProperties::SetTitle,
-		 &VistaAspectsConversionStuff::ConvertToString),
-		new TVistaPropertySet<const string &, string,VistaWindow::VistaWindowProperties>
-		("NAME", sSReflectionType,
-		 &VistaWindow::VistaWindowProperties::SetName,
-		 &VistaAspectsConversionStuff::ConvertToString),
-
+		new TVistaPropertySet<bool, bool, VistaWindow::VistaWindowProperties>(
+							"STEREO", sSReflectionType,
+							&VistaWindow::VistaWindowProperties::SetStereo,
+							&VistaAspectsConversionStuff::ConvertToBool),
+		new TVistaProperty2ValSet<int, VistaWindow::VistaWindowProperties>(
+							"POSITION", sSReflectionType,
+							&VistaWindow::VistaWindowProperties::SetPosition,
+							&VistaAspectsConversionStuff::ConvertStringTo2Int),
+		new TVistaProperty2ValSet<int, VistaWindow::VistaWindowProperties>(
+							"SIZE", sSReflectionType,
+							&VistaWindow::VistaWindowProperties::SetSize,
+							&VistaAspectsConversionStuff::ConvertStringTo2Int),
+		new TVistaPropertySet<bool, bool, VistaWindow::VistaWindowProperties>(
+							"FULL_SCREEN", sSReflectionType,
+							&VistaWindow::VistaWindowProperties::SetFullScreen,
+							&VistaAspectsConversionStuff::ConvertToBool),
+		new TVistaPropertySet<const std::string &, std::string, VistaWindow::VistaWindowProperties>(
+							"TITLE", sSReflectionType,
+							&VistaWindow::VistaWindowProperties::SetTitle,
+							&VistaAspectsConversionStuff::ConvertToString),
+		new TVistaPropertySet<bool, bool, VistaWindow::VistaWindowProperties>(
+							"VSYNC", sSReflectionType,
+							&VistaWindow::VistaWindowProperties::SetVSyncEnabled,
+							&VistaAspectsConversionStuff::ConvertToBool),
+		new TVistaPropertySet<const string &, string,VistaWindow::VistaWindowProperties>(
+							"NAME", sSReflectionType,
+							&VistaWindow::VistaWindowProperties::SetName,
+							&VistaAspectsConversionStuff::ConvertToString),
 		NULL
 	};
 }
