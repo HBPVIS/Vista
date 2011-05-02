@@ -185,6 +185,15 @@ private:
 	VistaDisplayManager*	m_pDisplayManager;
 };
 
+class VISTAKERNELAPI VistaToggleVSyncCommand : public IVistaExplicitCallbackInterface
+{
+public:
+	VistaToggleVSyncCommand( VistaDisplayManager* pDisplayManager );
+	virtual bool Do();
+private:
+	VistaDisplayManager*	m_pDisplayManager;
+};
+
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/

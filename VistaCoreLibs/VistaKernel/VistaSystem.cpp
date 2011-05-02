@@ -1519,11 +1519,13 @@ bool VistaSystem::SetupBasicInteraction()
 								 new VistaPrintProfilerOutputCommand,
 								 "Print Profiling Information");
 	m_pSystemControl->BindAction( VISTA_KEY_DOWNARROW, VISTA_KEYMOD_CTRL,
-								 new VistaChangeEyeDistanceCommand( -0.001f,	GetDisplayManager() ),
+								 new VistaChangeEyeDistanceCommand( -0.001f, GetDisplayManager() ),
 								 "Decrease x eye offset by 0.001" );
 	m_pSystemControl->BindAction( VISTA_KEY_UPARROW, VISTA_KEYMOD_CTRL,
 								 new VistaChangeEyeDistanceCommand( 0.001f,	GetDisplayManager() ),
 								 "Increase x eye offset by 0.001" );
+	m_pSystemControl->BindAction( 'V', new VistaToggleVSyncCommand( GetDisplayManager() ),
+									 "Toggle VSync on/off" );
 
 	// in master OR slave mode: construct debug printout
 	if(GetVistaClusterMaster())

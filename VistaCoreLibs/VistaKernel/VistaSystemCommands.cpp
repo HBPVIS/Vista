@@ -28,6 +28,7 @@
 #include "DisplayManager/VistaDisplayManager.h"
 #include "DisplayManager/VistaDisplaySystem.h"
 #include "DisplayManager/VistaDisplayBridge.h"
+#include "DisplayManager/VistaWindow.h"
 #include "GraphicsManager/VistaGraphicsManager.h"
 #include "EventManager/VistaEventManager.h"
 #include "EventManager/VistaSystemEvent.h"
@@ -246,6 +247,43 @@ bool VistaChangeEyeDistanceCommand::Do()
 				<< "] to [" << v3LeftEyeOffset[0] << ", "
 				<< v3RightEyeOffset[0] << "]" << std::endl;
 		vkernout.precision( iOldPrecision );		
+	}
+	return true;
+}
+
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+VistaToggleVSyncCommand::VistaToggleVSyncCommand( VistaDisplayManager* pDisplayManager )
+: IVistaExplicitCallbackInterface()
+, m_pDisplayManager( pDisplayManager )
+{
+}
+
+bool VistaToggleVSyncCommand::Do()
+{
+	const std::map<std::string, VistaWindow*>& m_mapWindows = m_pDisplayManager->GetWindowsConstRef();
+	bool bMode = false;
+	bool bModeSet = false;
+	for( std::map<std::string, VistaWindow*>::const_iterator itWin = m_mapWindows.begin();
+				itWin != m_mapWindows.end(); ++itWin )
+	{
+		if( !bModeSet )
+		{
+			int iWinMode = (*itWin).second->GetWindowProperties()->GetVSyncEnabled();
+			bMode = ( iWinMode == 1 );
+			bModeSet = true;
+		}
+		if( (*itWin).second->GetWindowProperties()->SetVSyncEnabled( bMode ) )
+		{
+			std::cout << "VSync [" << ( bMode ? "Enabled" : "Disabled" )
+						<< "] for Window [" << (*itWin).second->GetNameForNameable()
+						<< "]" << std::endl;
+		}
+		else
+		{
+			std::cout << "***WARNING*** Setting VSync FAILED for Window ["
+					<< (*itWin).second->GetNameForNameable() << "]" << std::endl;
+		}
 	}
 	return true;
 }
