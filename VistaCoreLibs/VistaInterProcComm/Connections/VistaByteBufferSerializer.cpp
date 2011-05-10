@@ -46,7 +46,7 @@ VistaByteBufferSerializer::VistaByteBufferSerializer(unsigned int uiInitialBuffe
   //m_uiCapacity(0),
   m_bRetrimSize(true)
 {
-	m_vecBuffer.reserve(uiInitialBufferSize);
+	m_vecBuffer.resize(uiInitialBufferSize);
 	m_uiCapacity = (unsigned int)m_vecBuffer.capacity();
 	if( uiInitialBufferSize > 0 )
 		m_pHead = &(m_vecBuffer[0]);
