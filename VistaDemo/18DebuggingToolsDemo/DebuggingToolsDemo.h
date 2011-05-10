@@ -57,8 +57,8 @@ public:
 private:
 	VistaSystem *m_pVistaSystem;
 
-	class KeyCallback;
-	KeyCallback* m_pStackWalkerCallback;
+	class StackWalkerKeyCallback;
+	StackWalkerKeyCallback* m_pStackWalkerCallback;
 };
 
 

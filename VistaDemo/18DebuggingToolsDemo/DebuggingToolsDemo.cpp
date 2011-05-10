@@ -24,13 +24,14 @@
  * $Id: StackWalkerGeomDemo.cpp$
  */
 
-/*
-Description:
-
-This is the StackWalkerGeomDemo. It will show you how to use the VistaStackWalker. Additionally it'll
-show you how to use the StackWalker to visualize the CallStack using Text3D.
-
-*/
+/**
+ * Description:
+ * This is the DebuggingToolsDemo.
+ * It will show you how to use the VistaStackWalker using a random function call
+ * hierarchy, as well as the use of streams (color- and split-streams plus
+ * VistaStreamUtils) to highlight or redirect output, and the usage of the
+ * VistaBasicProfiler to perform simple per-frame subroutine runtime measurements
+ */
 
 #include "DebuggingToolsDemo.h"
 
@@ -130,11 +131,11 @@ namespace
 	}
 }
 
-class DebuggingToolsDemoAppl::KeyCallback : public IVistaExplicitCallbackInterface
+class DebuggingToolsDemoAppl::StackWalkerKeyCallback : public IVistaExplicitCallbackInterface
 {
 public:
-	KeyCallback() {}
-	~KeyCallback() {}
+	StackWalkerKeyCallback() {}
+	~StackWalkerKeyCallback() {}
 
 	virtual bool Do()
 	{
@@ -150,7 +151,6 @@ public:
 DebuggingToolsDemoAppl::DebuggingToolsDemoAppl( int argc, char  *argv[] )
 : VistaEventHandler()
 , m_pVistaSystem( new VistaSystem )
-, m_pStackWalkerCallback( new KeyCallback )
 {
 	std::list<std::string> liSearchPaths;
 
@@ -158,6 +158,9 @@ DebuggingToolsDemoAppl::DebuggingToolsDemoAppl( int argc, char  *argv[] )
 	liSearchPaths.push_back("../configfiles/");
 	m_pVistaSystem->SetIniSearchPaths(liSearchPaths);
 
+	////////////////////////////////////////////
+	/////    COLOR STREAM  USAGE           /////
+	////////////////////////////////////////////
 	// During an application run, there is plenty of output onto the console.
 	// Especially during initialization, it is easy to miss error messages etc.
 	// Thus, it is useful to color the outputs differently. For this, Vista provides
@@ -196,14 +199,25 @@ DebuggingToolsDemoAppl::DebuggingToolsDemoAppl( int argc, char  *argv[] )
 														VistaSystemEvent::GetTypeId(),
 														VistaEventManager::NVET_ALL );
 
+	////////////////////////////////////////////
+	/////       STACKWALKER USAGE          /////
+	////////////////////////////////////////////
 	// In some occasions, especially if an exception occurs or if anything else happens, the
 	// current stacktrace may be of interest, showing the current functions to the source path
 	// the VistaStackWalker is called from. To show this, we register a key callback that
 	// generates a random sequence of function calls, and then prints the stack to out
 	// default stream, i.e. the split stream
-	// when pressing 's', a quite random stacktrace shall be printed
+	// To demonstrate this, we create a new Callback that is triggered by pressing 's'.
+	// The Callback than randomly calls some functions, and finally calls 
+	// VistaStackWalker::PrintCallStack( vstr::Stream() );
+	// which prints the current callstack to the passed stream
+	m_pStackWalkerCallback = new StackWalkerKeyCallback;
 	m_pVistaSystem->GetKeyboardSystemControl()->BindAction( 's', m_pStackWalkerCallback, "Print StackTrace" );
 
+
+	//////////////////////////////////////////////
+	/////  COLOR-, LOG-, SPLITSTREAM USAGE   /////
+	//////////////////////////////////////////////
 	// For our own output, we first create a new colorstream
 	VistaColorOutstream* pGreenStream = new VistaColorOutstream( vstr::CC_GREEN, vstr::CC_DEFAULT );
 	// we now register the red and green streams with the StreamManager. It gains access to all streams
@@ -264,6 +278,9 @@ void DebuggingToolsDemoAppl::Run()
 
 void DebuggingToolsDemoAppl::HandleEvent( VistaEvent* pEvent )
 {
+	////////////////////////////////////////////
+	/////         PROFILER USAGE           /////
+	////////////////////////////////////////////
 	// It is often desirable to benchmark certain parts of the code.
 	// While for extensive profiling external tools are the best choice, there is some simple
 	// profiling built into Vista. It can be displayed during runtime by pressing 'I' (shift+i).

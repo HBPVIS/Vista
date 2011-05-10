@@ -24,6 +24,14 @@
  * $Id: main.cpp$
  */
 
+/**
+ * Description:
+ * This is the DebuggingToolsDemo, showing the usage of VistaStackWalker,
+ * VistaStreams+VistaStreamUtils, and VistaBasicProfiler
+ * All the interesting stuff is in DebuggingToolsDemo.cpp
+ */
+
+
 #include "DebuggingToolsDemo.h"
 
 #include <VistaBase/VistaExceptionBase.h>
