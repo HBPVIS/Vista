@@ -27,7 +27,8 @@ vista_conditional_add_subdirectory( VISTA_BUILD_KERNELOPENSGEXT		VistaKernelOpen
 
 add_subdirectory( VistaDeviceDrivers )
 
-# Step 2: Configure the Package Config.cmake files
-set( VISTACORELIBS_LIBRARY_OUTDIR "${CMAKE_BINARY_DIR}/lib" )
-vista_create_cmake_configs( VistaCoreLibs VistaBuild/CMake/VistaCoreLibsConfig.cmake_proto )
+set( VISTACORELIBS_LIBRARY_OUTDIR "${CMAKE_BINARY_DIR}/lib" "${CMAKE_BINARY_DIR}/lib/DriverPlugins" )
+vista_create_cmake_configs( VistaCoreLibs 
+						"${CMAKE_CURRENT_SOURCE_DIR}/VistaBuild/CMake/VistaCoreLibsConfig-build.cmake_proto"
+						"${CMAKE_CURRENT_SOURCE_DIR}/VistaBuild/CMake/VistaCoreLibsConfig-install.cmake_proto" )
 
