@@ -1,6 +1,5 @@
 # we're getting installed to ROOT_DIR/cmake, so to get our root dir, we have to take the current dir minus filename minus one path
-get_filename_component( VISTACORELIBS_CMAKE_DIR "${VistaCoreLibs_DIR}" PATH )
-get_filename_component( VISTACORELIBS_ROOT_DIR "${VISTACORELIBS_CMAKE_DIR}" PATH )
+get_filename_component( VISTACORELIBS_ROOT_DIR "${VistaCoreLibs_DIR}" PATH )
 
 set( VISTACORELIBS_RELATIVE_INCLUDE_DIRS @_PACKAGE_RELATIVE_INCLUDE_DIRS@ )
 set( VISTACORELIBS_RELATIVE_LIBRARY_DIRS @_PACKAGE_RELATIVE_LIBRARY_DIRS@ )
