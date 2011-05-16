@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPropertyAwareable.cpp 5616 2010-11-16 10:04:47Z dominikrausch $
+// $Id$
 
 #include "VistaPropertyList.h"
 
