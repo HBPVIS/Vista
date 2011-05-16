@@ -1,7 +1,27 @@
 cmake_minimum_required( VERSION 2.8 )
 project( VistaCoreLibs )
 
-list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
+# For the CoreLibs, we verify that the VistaCMakeCommon really exist
+if( EXISTS "$ENV{VISTA_CMAKE_COMMON}" )
+	list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
+elseif( EXISTS "${VistaCoreLibs_SOURCE_DIR}/VistaCMakeCommon" )
+	list( APPEND CMAKE_MODULE_PATH "${VistaCoreLibs_SOURCE_DIR}/VistaCMakeCommon" )
+else()
+	find_file( VISTA_CMAKE_COMMON_TEST_FILE "VistaCommon.cmake" 
+				PATH ${CMAKE_MODULE_PATH} $ENV{CMAKE_MODULE_PATH}
+				[NO_DEFAULT_PATH] )
+	set( VISTA_CMAKE_COMMON_TEST_FILE ${VISTA_CMAKE_COMMON_TEST_FILE} CACHE INTERNAL "" FORCE )
+	if( NOT VISTA_CMAKE_COMMON_TEST_FILE )
+		message( FATAL_ERROR 
+			"ERROR: Folder VistaCMakeCommon not found, but is required for successfull build. "
+			"Please make the VistaCMakeCommon folder available using one ofthe following methods:\n"
+			"\t- define VISTA_CMAKE_COMMON environment var pointing to the folder\n"
+			"\t- add folder to environment variables CMAKE_MODULE_PATH and CMAKE_PREFIX_PATH\n"
+			"\t- set folder as subdirectory of VistaCoreLibs"
+		)
+	endif( NOT VISTA_CMAKE_COMMON_TEST_FILE )
+endif( EXISTS "$ENV{VISTA_CMAKE_COMMON}" )
+
 include( VistaCommon )
 
 # Self include
