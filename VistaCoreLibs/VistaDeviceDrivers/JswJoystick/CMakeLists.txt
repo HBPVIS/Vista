@@ -3,7 +3,6 @@ vista_use_package( jsw REQUIRED )
 set(dirFiles_driver
     VistaJswJoystickDriver.h
     VistaJswJoystickDriver.cpp
-    VistaJswJoystickDriverConfig.h
 )
 set(dirFiles_plugin
 	VistaJswJoystickDriverPlugin.cpp
