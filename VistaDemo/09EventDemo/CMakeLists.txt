@@ -6,7 +6,7 @@ if( NOT VISTADEMO_COMMON_BUILD )
 	include( VistaCommon )
 endif( NOT VISTADEMO_COMMON_BUILD )
 
-vista_use_package( VistaCoreLibs "HEAD" REQUIRED FIND_DEPENDENCIES )
+vista_use_package( VistaCoreLibs "HEAD" REQUIRED VistaKernel FIND_DEPENDENCIES )
 
 
 # Including the source files of all source subfolders recursively
