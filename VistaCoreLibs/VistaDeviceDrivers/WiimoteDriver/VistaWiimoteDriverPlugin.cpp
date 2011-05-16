@@ -52,22 +52,22 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
 #endif //__VISTAVISTASPACENAVIGATORCONFIG_H
 
-extern "C" VISTAWIIMOTEPLUGINAPI IVistaDeviceDriver *CreateDevice(unsigned int)
+extern "C" WIIMOTEPLUGINAPI IVistaDeviceDriver *CreateDevice(unsigned int)
 {
 	return new VistaWiimoteDriver;
 }
 
-extern "C" VISTAWIIMOTEPLUGINAPI IVistaDriverCreationMethod *GetCreationMethod()
+extern "C" WIIMOTEPLUGINAPI IVistaDriverCreationMethod *GetCreationMethod()
 {
 	return VistaWiimoteDriver::GetDriverFactoryMethod();
 }
 
-extern "C" VISTAWIIMOTEPLUGINAPI const char *GetDeviceClassName()
+extern "C" WIIMOTEPLUGINAPI const char *GetDeviceClassName()
 {
 	return "WIIMOTE";
 }
 
-extern "C" VISTAWIIMOTEPLUGINAPI void Unload(IVistaDriverCreationMethod *pMt)
+extern "C" WIIMOTEPLUGINAPI void Unload(IVistaDriverCreationMethod *pMt)
 {
 	pMt->OnUnload();
 }

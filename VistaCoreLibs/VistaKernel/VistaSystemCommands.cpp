@@ -270,7 +270,7 @@ bool VistaToggleVSyncCommand::Do()
 		if( !bModeSet )
 		{
 			int iWinMode = (*itWin).second->GetWindowProperties()->GetVSyncEnabled();
-			bMode = ( iWinMode == 1 );
+			bMode = ( iWinMode != 1 );
 			bModeSet = true;
 		}
 		if( (*itWin).second->GetWindowProperties()->SetVSyncEnabled( bMode ) )

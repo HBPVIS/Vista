@@ -25,46 +25,17 @@
 #ifndef __VISTAWIIMOTEDRIVERCONFIG_H
 #define __VISTAWIIMOTEDRIVERCONFIG_H
 
-/*============================================================================*/
-/* INCLUDES                                                                   */
-/*============================================================================*/
-
-#if defined(WIN32)
-#pragma warning (disable: 4786)
+// Windows DLL build
+#if defined(WIN32) && !defined(VISTAWIIMOTEDRIVER_STATIC) 
+	#ifdef VISTAWIIMOTEDRIVER_EXPORTS
+		#define VISTAWIIMOTEDRIVERAPI __declspec(dllexport)
+	#else
+		#define VISTAWIIMOTEDRIVERAPI __declspec(dllimport)
+	#endif
+#else // no Windows or static build
+	#define VISTAWIIMOTEDRIVERAPI
 #endif
 
-
-/*============================================================================*/
-/* MACROS AND DEFINES                                                         */
-/*============================================================================*/
-
-// Shared library support
-#ifdef WIN32
-#define VISTAWIIMOTEDRIVEREXPORT __declspec(dllexport)
-#define VISTAWIIMOTEDRIVERIMPORT __declspec(dllimport)
-#else
-#define VISTAWIIMOTEDRIVEREXPORT
-#define VISTAWIIMOTEDRIVERIMPORT
-#endif
-
-// Define VISTAWIIMOTEDRIVERAPI for DLL builds
-#ifdef VISTAWIIMOTEDRIVERDLL
-#ifdef VISTAWIIMOTEDRIVERDLL_EXPORT
-#define VISTAWIIMOTEDRIVERAPI VISTAWIIMOTEDRIVEREXPORT
-#else
-#define VISTAWIIMOTEDRIVERAPI VISTAWIIMOTEDRIVERIMPORT
-#endif
-#else
-#define VISTAWIIMOTEDRIVERAPI
-#endif
-
-/*============================================================================*/
-/* LOCAL VARS AND FUNCS                                                       */
-/*============================================================================*/
-
-/*============================================================================*/
-/* END OF FILE                                                                */
-/*============================================================================*/
 #endif //__VISTAWIIMOTEDRIVERCONFIG_H
 
 

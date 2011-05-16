@@ -29,32 +29,15 @@
 /* INCLUDES                                                                   */
 /*============================================================================*/
 
-#if defined(WIN32)
-#pragma warning (disable: 4786)
-
-#define VISTAWIIMOTEPLUGINEXPORT __declspec(dllexport)
-#define VISTAWIIMOTEPLUGINIMPORT __declspec(dllimport)
-
-#define VISTAWIIMOTEPLUGIN_EXPLICIT_TEMPLATE_EXPORT
-#define VISTAWIIMOTEPLUGIN_EXPLICIT_TEMPLATE_IMPORT
-#else
-#define VISTAWIIMOTEPLUGINEXPORT
-#define VISTAWIIMOTEPLUGINIMPORT
+#if defined(WIN32) && !defined(VISTAWIIMOTEDRIVERPLUGIN_STATIC) 
+	#ifdef VISTAWIIMOTEDRIVERPLUGIN_EXPORTS
+		#define WIIMOTEPLUGINAPI __declspec(dllexport)
+	#else
+		#define WIIMOTEPLUGINAPI __declspec(dllimport)
+	#endif
+#else // no Windows or static build
+	#define WIIMOTEPLUGINAPI
 #endif
-
-// Define VISTAWIIMOTEPLUGINAPI for DLL builds
-#ifdef VISTAWIIMOTEPLUGINDLL
-#ifdef VISTAWIIMOTEPLUGINDLL_EXPORTS
-#define VISTAWIIMOTEPLUGINAPI VISTAWIIMOTEPLUGINEXPORT
-#define VISTAWIIMOTEPLUGIN_EXPLICIT_TEMPLATE
-#else
-#define VISTAWIIMOTEPLUGINAPI VISTAWIIMOTEPLUGINIMPORT
-#define VISTAWIIMOTEPLUGIN_EXPLICIT_TEMPLATE extern
-#endif
-#else
-#define VISTAWIIMOTEPLUGINAPI
-#endif
-
 
 
 /*============================================================================*/
@@ -65,9 +48,9 @@ class IVistaDeviceDriver;
 class IVistaDriverCreationMethod;
 
 
-extern "C" VISTAWIIMOTEPLUGINAPI IVistaDeviceDriver *CreateDevice(unsigned int);
-extern "C" VISTAWIIMOTEPLUGINAPI IVistaDriverCreationMethod *GetCreationMethod();
-extern "C" VISTAWIIMOTEPLUGINAPI const char *GetDeviceClassName();
+extern "C" WIIMOTEPLUGINAPI IVistaDeviceDriver *CreateDevice(unsigned int);
+extern "C" WIIMOTEPLUGINAPI IVistaDriverCreationMethod *GetCreationMethod();
+extern "C" WIIMOTEPLUGINAPI const char *GetDeviceClassName();
 
 /**
  * the wiimote explicitly unloads the getter/setter reflectionables
@@ -75,7 +58,7 @@ extern "C" VISTAWIIMOTEPLUGINAPI const char *GetDeviceClassName();
  * - using the wiimote as a plugin
  * - unloading the device during run-time
  */
-extern "C" VISTAWIIMOTEPLUGINAPI void Unload(IVistaDriverCreationMethod *);
+extern "C" WIIMOTEPLUGINAPI void Unload(IVistaDriverCreationMethod *);
 
 
 /*============================================================================*/

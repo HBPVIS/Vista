@@ -29,8 +29,8 @@
 /* INCLUDES                                                                   */
 /*============================================================================*/
 
-#if defined(WIN32) && !defined(VISTADIRECTXGAMEPADPLUGIN_STATIC) 
-	#ifdef VISTADIRECTXGAMEPADPLUGIN_EXPORTS
+#if defined(WIN32) && !defined(VISTADIRECTXGAMEPADDRIVERPLUGIN_STATIC) 
+	#ifdef VISTADIRECTXGAMEPADDRIVERPLUGIN_EXPORTS
 		#define VISTADIRECTXGAMEPADPLUGINAPI __declspec(dllexport)
 	#else
 		#define VISTADIRECTXGAMEPADPLUGINAPI __declspec(dllimport)

@@ -29,8 +29,8 @@
 /* INCLUDES                                                                   */
 /*============================================================================*/
 
-#if defined(WIN32) && !defined(VISTA3DCSPACENAVIGATORPLUGIN_STATIC) 
-	#ifdef VISTA3DCSPACENAVIGATORPLUGIN_EXPORTS
+#if defined(WIN32) && !defined(VISTA3DCSPACENAVIGATORDRIVERPLUGIN_STATIC) 
+	#ifdef VISTA3DCSPACENAVIGATORDRIVERPLUGIN_EXPORTS
 		#define VISTA3DCSPACENAVIGATORPLUGINAPI __declspec(dllexport)
 	#else
 		#define VISTA3DCSPACENAVIGATORPLUGINAPI __declspec(dllimport)

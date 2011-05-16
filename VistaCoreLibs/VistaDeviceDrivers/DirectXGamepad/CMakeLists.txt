@@ -1,6 +1,6 @@
-vista_use_OpenSG()
-
-set(DIRECTX_ROOT $ENV{DIRECTX_ROOT} CACHE PATH "Base directory of the DirectX SDK")
+vista_use_package( GLUT REQUIRED )
+vista_use_package( OpenSG REQUIRED )
+vista_use_package( DirectX REQUIRED )
 
 set(dirFiles_driver
     VistaDirectXGamepad.h
@@ -14,56 +14,32 @@ set(dirFiles_plugin
 source_group("Source Files" FILES ${dirFiles_driver})
 source_group("Source Files" FILES ${dirFiles_plugin})
 
-if(CMAKE_CL_64)
-	link_directories( "${DIRECTX_ROOT}/Lib/x64" )
-else()
-	link_directories( "${DIRECTX_ROOT}/Lib/x86" )
-endif()
-
-link_directories( "${OPENSG_ROOT}/lib" )
-include_directories( "${DIRECTX_ROOT}/Include" )
-
-add_library(VistaDirectXGamepad
+add_library(VistaDirectXGamepadDriver
     ${dirFiles_driver}
 )
-add_library(VistaDirectXGamepadPlugin
+add_library(VistaDirectXGamepadDriverPlugin
     ${dirFiles_plugin}
-) 
+)
 
-target_link_libraries(VistaDirectXGamepad
+target_link_libraries(VistaDirectXGamepadDriver
 	VistaBase
 	VistaAspects
     VistaInterProcComm
     VistaDeviceDriversBase
-	dxguid
-	dxerr
-	dinput8
+	${VISTA_USE_PACKAGE_LIBRARIES}
 )
-target_link_libraries(VistaDirectXGamepadPlugin
-	VistaDirectXGamepad
+target_link_libraries(VistaDirectXGamepadDriverPlugin
+	VistaDirectXGamepadDriver
 	VistaDeviceDriversBase
 	VistaKernel
+	${VISTA_USE_PACKAGE_LIBRARIES}
 )
 
-if(WIN32)
-	set_target_properties( VistaDirectXGamepad PROPERTIES COMPILE_DEFINITIONS "VISTADIRECTXGAMEPAD_EXPORTS" )
-	set_target_properties( VistaDirectXGamepadPlugin PROPERTIES COMPILE_DEFINITIONS "VISTADIRECTXGAMEPADPLUGIN_EXPORTS" )
-endif(WIN32)
+vista_configure_lib( VistaDirectXGamepadDriver )
+vista_install( VistaDirectXGamepadDriver )
+set_target_properties( VistaDirectXGamepadDriver PROPERTIES FOLDER "Drivers" )
 
-install(TARGETS VistaDirectXGamepad
-         LIBRARY DESTINATION lib
-         ARCHIVE DESTINATION lib
-         RUNTIME DESTINATION lib)
-install(TARGETS VistaDirectXGamepadPlugin
-         LIBRARY DESTINATION lib
-         ARCHIVE DESTINATION lib
-         RUNTIME DESTINATION lib)
-		 
-		 
-		 
-install(DIRECTORY .
-         DESTINATION include/VistaDeviceDrivers/VistaDirectXGamepad
-         FILES_MATCHING PATTERN "*.h"
-         PATTERN "build" EXCLUDE
-         PATTERN ".svn" EXCLUDE
-         PATTERN "CMakeFiles" EXCLUDE)
+vista_configure_lib( VistaDirectXGamepadDriverPlugin )
+vista_install( VistaDirectXGamepadDriverPlugin )
+set_target_properties( VistaDirectXGamepadDriverPlugin PROPERTIES FOLDER "Drivers" )
+

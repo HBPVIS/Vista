@@ -39,8 +39,8 @@
 /*============================================================================*/
 
 // Windows DLL build
-#if defined(WIN32) && !defined(VRPNDRIVER_STATIC) 
-#ifdef VRPNDRIVER_EXPORTS
+#if defined(WIN32) && !defined(VISTAVRPNDRIVER_STATIC) 
+#ifdef VISTAVRPNDRIVER_EXPORTS
 #define VRPNDRIVERAPI __declspec(dllexport)
 #else
 #define VRPNDRIVERAPI __declspec(dllimport)

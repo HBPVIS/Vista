@@ -26,8 +26,8 @@
 #define _VISTADIRECTXGAMEPADCONFIG_H
 
 // Windows DLL build
-#if defined(WIN32) && !defined(VISTADIRECTXGAMEPAD_STATIC) 
-	#ifdef VISTADIRECTXGAMEPAD_EXPORTS
+#if defined(WIN32) && !defined(VISTADIRECTXGAMEPADDRIVER_STATIC) 
+	#ifdef VISTADIRECTXGAMEPADDRIVER_EXPORTS
 		#define VISTADIRECTXGAMEPADAPI __declspec(dllexport)
 	#else
 		#define VISTADIRECTXGAMEPADAPI __declspec(dllimport)

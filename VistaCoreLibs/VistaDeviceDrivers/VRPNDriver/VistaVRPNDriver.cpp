@@ -33,6 +33,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <algorithm>
 
 #include <time.h>
 #include <vrpn_Analog.h>
@@ -139,7 +140,7 @@ public:
 			                     double &dValue, unsigned int nIdx ) const
 	{
 		vrpn_ANALOGCB *cb = (vrpn_ANALOGCB*)&(*pMeasure).m_vecMeasures[0];
-		if(cb->num_channel < nIdx)
+		if(cb->num_channel < (int)nIdx)
 			return false; // not my channel, channel request out of bounds
 
 		if(nIdx > vrpn_CHANNEL_MAX)
@@ -357,10 +358,10 @@ public:
 		vrpn_TRACKERCB *cb = (vrpn_TRACKERCB*)&(*pMeasure).m_vecMeasures[0];
 
 		// vrpn stores q = (x,y,z,w) (like in vista)
-		q[Vista::X] = cb->quat[0];
-		q[Vista::Y] = cb->quat[1];
-		q[Vista::Z] = cb->quat[2];
-		q[Vista::W] = cb->quat[3];
+		q[Vista::X] = (float)cb->quat[0];
+		q[Vista::Y] = (float)cb->quat[1];
+		q[Vista::Z] = (float)cb->quat[2];
+		q[Vista::W] = (float)cb->quat[3];
 
 		return true;
 	}
