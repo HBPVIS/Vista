@@ -45,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\.."
-				PreprocessorDefinitions="VISTADFN_EXPORTS"
+				PreprocessorDefinitions="VISTADATAFLOWNET_EXPORTS"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -110,7 +110,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\.."
-				PreprocessorDefinitions="VISTADFN_EXPORTS"
+				PreprocessorDefinitions="VISTADATAFLOWNET_EXPORTS"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -173,7 +173,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\.."
-				PreprocessorDefinitions="VISTADFN_EXPORTS"
+				PreprocessorDefinitions="VISTADATAFLOWNET_EXPORTS"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -237,7 +237,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\.."
-				PreprocessorDefinitions="VISTADFN_EXPORTS"
+				PreprocessorDefinitions="VISTADATAFLOWNET_EXPORTS"
 				DebugInformationFormat="3"
 			/>
 			<Tool

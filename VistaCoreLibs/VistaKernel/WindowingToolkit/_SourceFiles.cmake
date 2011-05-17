@@ -1,3 +1,5 @@
+# $Id$
+
 set( RelativeDir "./WindowingToolkit" )
 set( RelativeSourceGroup "Source Files\\WindowingToolkit" )
 set( SubDirs glut )

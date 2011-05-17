@@ -1,3 +1,5 @@
+# $Id$
+
 set( RelativeDir "./PickManager" )
 set( RelativeSourceGroup "Source Files\\PickManager" )
 

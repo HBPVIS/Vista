@@ -1,3 +1,5 @@
+# $Id$
+
 cmake_minimum_required( VERSION 2.8 )
 project( VistaCoreLibs )
 
@@ -42,8 +44,8 @@ vista_conditional_add_subdirectory( VISTA_BUILD_INTERPROCCOMM		VistaInterProcCom
 vista_conditional_add_subdirectory( VISTA_BUILD_TOOLS				VistaTools				ON ADVANCED   ADD_TO_LIST VISTACORELIBS_COMPONENTS )
 vista_conditional_add_subdirectory( VISTA_BUILD_DEVICEDRIVERSBASE	VistaDeviceDriversBase	ON ADVANCED   ADD_TO_LIST VISTACORELIBS_COMPONENTS )
 vista_conditional_add_subdirectory( VISTA_BUILD_DATAFLOWNET			VistaDataFlowNet		ON ADVANCED   ADD_TO_LIST VISTACORELIBS_COMPONENTS )
-vista_conditional_add_subdirectory( VISTA_BUILD_KERNEL				VistaKernel				ON ADVANCED   ADD_TO_LIST VISTACORELIBS_COMPONENTS )
-vista_conditional_add_subdirectory( VISTA_BUILD_KERNELOPENSGEXT		VistaKernelOpenSGExt	ON ADVANCED   ADD_TO_LIST VISTACORELIBS_COMPONENTS )
+vista_conditional_add_subdirectory( VISTA_BUILD_KERNEL				VistaKernel				ON            ADD_TO_LIST VISTACORELIBS_COMPONENTS )
+vista_conditional_add_subdirectory( VISTA_BUILD_KERNELOPENSGEXT		VistaKernelOpenSGExt	ON            ADD_TO_LIST VISTACORELIBS_COMPONENTS )
 
 add_subdirectory( VistaDeviceDrivers )
 

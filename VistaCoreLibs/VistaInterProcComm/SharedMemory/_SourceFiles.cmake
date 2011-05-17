@@ -1,3 +1,5 @@
+# $Id$
+
 set( RelativeDir "./SharedMemory" )
 set( RelativeSourceGroup "Source Files\\SharedMemory" )
 

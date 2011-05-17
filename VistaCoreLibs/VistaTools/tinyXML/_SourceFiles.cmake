@@ -1,3 +1,5 @@
+# $Id$
+
 set( RelativeDir "./tinyXML" )
 set( RelativeSourceGroup "Source Files\\tinyXML" )
 

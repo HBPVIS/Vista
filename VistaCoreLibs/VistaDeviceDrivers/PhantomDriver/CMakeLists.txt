@@ -1,3 +1,5 @@
+# $Id$
+
 vista_use_package( OpenHaptics REQUIRED )
 
 set(dirFiles_driver

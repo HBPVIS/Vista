@@ -1,3 +1,5 @@
+# $Id$
+
 vista_use_package( GLUT REQUIRED )
 vista_use_package( OpenSG REQUIRED )
 vista_use_package( DirectX REQUIRED )

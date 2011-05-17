@@ -1,3 +1,5 @@
+# $Id$
+
 set( RelativeDir "./Hardware" )
 set( RelativeSourceGroup "Source Files\\Hardware" )
 set( SubDirs Imp )

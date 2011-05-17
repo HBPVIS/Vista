@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\..\..;&quot;$(DIRECTX_ROOT)\Include&quot;"
-				PreprocessorDefinitions="VISTADIRECTXGAMEPADPLUGIN_EXPORTS"
+				PreprocessorDefinitions="VISTADIRECTXGAMEPADDRIVERPLUGIN_EXPORTS"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -108,7 +108,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\..\..;&quot;$(DIRECTX_ROOT)\Include&quot;"
-				PreprocessorDefinitions="VISTADIRECTXGAMEPADPLUGIN_EXPORTS"
+				PreprocessorDefinitions="VISTADIRECTXGAMEPADDRIVERPLUGIN_EXPORTS"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -173,7 +173,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\..\..;&quot;$(DIRECTX_ROOT)\Include&quot;"
-				PreprocessorDefinitions="VISTADIRECTXGAMEPADPLUGIN_EXPORTS"
+				PreprocessorDefinitions="VISTADIRECTXGAMEPADDRIVERPLUGIN_EXPORTS"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -238,7 +238,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\..\..;&quot;$(DIRECTX_ROOT)\Include&quot;"
-				PreprocessorDefinitions="VISTADIRECTXGAMEPADPLUGIN_EXPORTS"
+				PreprocessorDefinitions="VISTADIRECTXGAMEPADDRIVERPLUGIN_EXPORTS"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"

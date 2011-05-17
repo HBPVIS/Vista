@@ -1,3 +1,5 @@
+# $Id$
+
 set( RelativeDir "./DataLaVista/Base" )
 set( RelativeSourceGroup "Source Files\\DataLaVista\\Base" )
 

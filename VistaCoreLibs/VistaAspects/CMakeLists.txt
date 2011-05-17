@@ -1,3 +1,5 @@
+# $Id$
+
 vista_adopt_version( VistaAspects VistaCoreLibs )
 
 if( UNIX )

@@ -1,3 +1,5 @@
+# $Id$
+
 set( RelativeDir "." )
 set( RelativeSourceGroup "Source Files" )
 set( SubDirs AsyncIO Concurrency Connections DataLaVista Hardware IPNet SharedMemory )

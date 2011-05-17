@@ -1,3 +1,5 @@
+# $Id$
+
 set( RelativeDir "./Half" )
 set( RelativeSourceGroup "Source Files\\Half" )
 

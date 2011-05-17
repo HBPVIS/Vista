@@ -1,3 +1,4 @@
+# $Id$
 
 vista_conditional_add_subdirectory( VISTA_DRIVERS_BUILD_SPACENAVIGATOR	3DCSpaceNavigator		OFF )
 vista_conditional_add_subdirectory( VISTA_DRIVERS_BUILD_PHANTOM			PhantomDriver			OFF )

@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\.."
-				PreprocessorDefinitions="VISTADEVICEDRIVERS_EXPORTS"
+				PreprocessorDefinitions="VISTADEVICEDRIVERSBASE_EXPORTS"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -109,7 +109,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\.."
-				PreprocessorDefinitions="VISTADEVICEDRIVERS_EXPORTS"
+				PreprocessorDefinitions="VISTADEVICEDRIVERSBASE_EXPORTS"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -175,7 +175,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\.."
-				PreprocessorDefinitions="VISTADEVICEDRIVERS_EXPORTS"
+				PreprocessorDefinitions="VISTADEVICEDRIVERSBASE_EXPORTS"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -241,7 +241,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\.."
-				PreprocessorDefinitions="VISTADEVICEDRIVERS_EXPORTS"
+				PreprocessorDefinitions="VISTADEVICEDRIVERSBASE_EXPORTS"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"

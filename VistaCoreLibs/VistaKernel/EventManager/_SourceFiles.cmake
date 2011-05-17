@@ -1,3 +1,5 @@
+# $Id$
+
 set( RelativeDir "./EventManager" )
 set( RelativeSourceGroup "Source Files\\EventManager" )
 

@@ -1,3 +1,5 @@
+# $Id$
+
 set( RelativeDir "./InteractionManager" )
 set( RelativeSourceGroup "Source Files\\InteractionManager" )
 set( SubDirs DfnNodes )

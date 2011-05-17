@@ -1,3 +1,5 @@
+# $Id$
+
 set( RelativeDir "./Concurrency" )
 set( RelativeSourceGroup "Source Files\\Concurrency" )
 set( SubDirs Imp )

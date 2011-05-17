@@ -1,3 +1,5 @@
+# $Id$
+
 vista_adopt_version( VistaDeviceDriversBase VistaCoreLibs )
 
 if( WIN32 )

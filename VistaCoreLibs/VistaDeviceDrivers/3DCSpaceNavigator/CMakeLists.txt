@@ -1,3 +1,4 @@
+# $Id$
 
 set(dirFiles_driver
     Vista3DCSpaceNavigatorDriver.h

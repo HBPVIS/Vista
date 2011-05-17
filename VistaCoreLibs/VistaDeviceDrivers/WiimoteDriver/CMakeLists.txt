@@ -1,3 +1,5 @@
+# $Id$
+
 vista_use_package( wiiuse REQUIRED )
 
 set(dirFiles_driver

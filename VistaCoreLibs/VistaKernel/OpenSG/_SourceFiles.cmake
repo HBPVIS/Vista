@@ -1,3 +1,5 @@
+# $Id$
+
 set( RelativeDir "./OpenSG" )
 set( RelativeSourceGroup "Source Files\\OpenSG" )
 

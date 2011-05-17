@@ -1,3 +1,5 @@
+# $Id$
+
 vista_adopt_version( VistaMath VistaCoreLibs )
 
 if( WIN32 )

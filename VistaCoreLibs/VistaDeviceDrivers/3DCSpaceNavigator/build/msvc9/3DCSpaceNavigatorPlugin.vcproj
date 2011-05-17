@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\..\.."
-				PreprocessorDefinitions="VISTA3DCSPACENAVIGATORPLUGIN_EXPORTS"
+				PreprocessorDefinitions="VISTA3DCSPACENAVIGATORDRIVERPLUGIN_EXPORTS"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -108,7 +108,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\..\.."
-				PreprocessorDefinitions="VISTA3DCSPACENAVIGATORPLUGIN_EXPORTS"
+				PreprocessorDefinitions="VISTA3DCSPACENAVIGATORDRIVERPLUGIN_EXPORTS"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -173,7 +173,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\..\.."
-				PreprocessorDefinitions="VISTA3DCSPACENAVIGATORPLUGIN_EXPORTS"
+				PreprocessorDefinitions="VISTA3DCSPACENAVIGATORDRIVERPLUGIN_EXPORTS"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -238,7 +238,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\..\.."
-				PreprocessorDefinitions="VISTA3DCSPACENAVIGATORPLUGIN_EXPORTS"
+				PreprocessorDefinitions="VISTA3DCSPACENAVIGATORDRIVERPLUGIN_EXPORTS"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"

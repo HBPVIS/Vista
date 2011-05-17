@@ -1,3 +1,5 @@
+# $Id$
+
 set( RelativeDir "./Connections" )
 set( RelativeSourceGroup "Source Files\\Connections" )
 

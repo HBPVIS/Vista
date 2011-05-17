@@ -1,3 +1,5 @@
+# $Id$
+
 set( RelativeDir "./GraphicsManager" )
 set( RelativeSourceGroup "Source Files\\GraphicsManager" )
 

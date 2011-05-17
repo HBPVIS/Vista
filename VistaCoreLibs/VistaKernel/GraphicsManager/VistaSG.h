@@ -244,7 +244,9 @@ public:
 							eOptFlags eOpts = OPT_NONE,
 							 float fScale = 1.0f);
 
-	/** load a subtree from a hierarchically structured file; in contrast to LoadSubTree, the resulting node is not casted; use this method if you do not know what type of geometry structure is inside your file
+	/** load a subtree from a hierarchically structured file; in contrast to LoadSubTree,
+	  * the resulting node is not casted; use this method if you do not know what type
+	  * of geometry structure is inside your file
 	  * @param string sFileName : name of file to be loaded
 	  * @return VistaGeomNode* : pointer to a ViSTA-node with the read geometry
 	*/

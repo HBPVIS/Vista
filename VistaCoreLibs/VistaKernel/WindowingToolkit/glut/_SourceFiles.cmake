@@ -1,3 +1,5 @@
+# $Id$
+
 set( RelativeDir "./WindowingToolkit/glut" )
 set( RelativeSourceGroup "Source Files\\WindowingToolkit\\glut" )
 
