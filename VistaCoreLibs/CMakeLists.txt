@@ -33,7 +33,6 @@ include_directories( ${VistaCoreLibs_SOURCE_DIR} )
 vista_set_version( VistaCoreLibs HEAD HEAD 1 10 1 svn_rev )
 
 set( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY OFF CACHE BOOL "If set to true, a <Package>Config.cmake file will be created and installed for each library, not just one for the CoreLibs" )
-mark_as_advanced( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )
 
 # Let the user decide which libraries to build
 # Default is to build all libraries
