@@ -20,4 +20,5 @@ target_link_libraries( 17MsgPortAlice
 )
 
 vista_configure_app( 17MsgPortAlice )
+vista_create_default_info_file( 17MsgPortAlice )
 

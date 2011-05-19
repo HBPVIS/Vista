@@ -23,4 +23,5 @@ target_link_libraries( 05InteractionDemo
 )
 
 vista_configure_app( 05InteractionDemo )
+vista_create_default_info_file( 05InteractionDemo )
 

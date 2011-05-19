@@ -20,4 +20,4 @@ target_link_libraries( 03TextDemo
 )
 
 vista_configure_app( 03TextDemo )
-
+vista_create_default_info_file( 03TextDemo )

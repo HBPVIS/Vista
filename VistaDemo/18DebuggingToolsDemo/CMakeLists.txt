@@ -20,4 +20,5 @@ target_link_libraries( 18DebuggingToolsDemo
 )
 
 vista_configure_app( 18DebuggingToolsDemo )
+vista_create_default_info_file( 18DebuggingToolsDemo )
 

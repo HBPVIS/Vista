@@ -20,4 +20,5 @@ target_link_libraries( 13KernelOpenSGExtShadowDemo
 )
 
 vista_configure_app( 13KernelOpenSGExtShadowDemo )
+vista_create_default_info_file( 13KernelOpenSGExtShadowDemo )
 

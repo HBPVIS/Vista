@@ -20,4 +20,5 @@ target_link_libraries( 12IntentionSelectDemo
 )
 
 vista_configure_app( 12IntentionSelectDemo )
+vista_create_default_info_file( 12IntentionSelectDemo )
 

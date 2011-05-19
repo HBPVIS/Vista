@@ -21,5 +21,6 @@ target_link_libraries( 05InteractionDemoSender
 )
 
 vista_configure_app( 05InteractionDemoSender )
+vista_create_default_info_file( 05InteractionDemoSender )
 
 

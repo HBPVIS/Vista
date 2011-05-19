@@ -20,4 +20,5 @@ target_link_libraries( 17MsgPortBob
 )
 
 vista_configure_app( 17MsgPortBob )
+vista_create_default_info_file( 17MsgPortBob )
 

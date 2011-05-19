@@ -20,4 +20,5 @@ target_link_libraries( 16PhantomDemo
 )
 
 vista_configure_app( 16PhantomDemo )
+vista_create_default_info_file( 16PhantomDemo )
 

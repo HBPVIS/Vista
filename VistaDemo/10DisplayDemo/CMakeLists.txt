@@ -20,4 +20,5 @@ target_link_libraries( 10DisplayDemo
 )
 
 vista_configure_app( 10DisplayDemo )
+vista_create_default_info_file( 10DisplayDemo )
 

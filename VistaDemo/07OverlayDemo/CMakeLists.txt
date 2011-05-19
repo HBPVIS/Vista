@@ -20,4 +20,5 @@ target_link_libraries( 07OverlayDemo
 )
 
 vista_configure_app( 07OverlayDemo )
+vista_create_default_info_file( 07OverlayDemo )
 

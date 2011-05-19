@@ -20,4 +20,5 @@ target_link_libraries( 11OGLDemo
 )
 
 vista_configure_app( 11OGLDemo )
+vista_create_default_info_file( 11OGLDemo )
 

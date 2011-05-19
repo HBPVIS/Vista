@@ -20,4 +20,5 @@ target_link_libraries( 13KernelOpenSGExtParticlesDemo
 )
 
 vista_configure_app( 13KernelOpenSGExtParticlesDemo )
+vista_create_default_info_file( 13KernelOpenSGExtParticlesDemo )
 

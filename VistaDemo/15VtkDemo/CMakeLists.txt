@@ -21,4 +21,5 @@ target_link_libraries( 15VtkDemo
 )
 
 vista_configure_app( 15VtkDemo )
+vista_create_default_info_file( 15VtkDemo )
 
