@@ -40,8 +40,9 @@ target_link_libraries(VistaDirectXGamepadDriverPlugin
 vista_configure_lib( VistaDirectXGamepadDriver )
 vista_install( VistaDirectXGamepadDriver )
 set_target_properties( VistaDirectXGamepadDriver PROPERTIES FOLDER "Drivers" )
+vista_create_default_info_file( VistaDirectXGamepadDriver )
 
 vista_configure_lib( VistaDirectXGamepadDriverPlugin )
 vista_install( VistaDirectXGamepadDriverPlugin )
 set_target_properties( VistaDirectXGamepadDriverPlugin PROPERTIES FOLDER "Drivers" )
-
+vista_create_default_info_file( VistaDirectXGamepadDriverPlugin )

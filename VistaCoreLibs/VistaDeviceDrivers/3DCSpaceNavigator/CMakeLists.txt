@@ -18,6 +18,7 @@ target_link_libraries(Vista3DCSpaceNavigatorDriver
 vista_configure_lib( Vista3DCSpaceNavigatorDriver )
 vista_install( Vista3DCSpaceNavigatorDriver )
 set_target_properties( Vista3DCSpaceNavigatorDriver PROPERTIES FOLDER "Drivers" )
+vista_create_default_info_file( Vista3DCSpaceNavigatorDriver )
 
 set(dirFiles_plugin
     Vista3DCSpaceNavigatorPlugin.cpp
@@ -34,3 +35,4 @@ target_link_libraries(Vista3DCSpaceNavigatorDriverPlugin
 vista_configure_lib( Vista3DCSpaceNavigatorDriverPlugin )
 vista_install( Vista3DCSpaceNavigatorDriverPlugin )
 set_target_properties( Vista3DCSpaceNavigatorDriverPlugin PROPERTIES FOLDER "Drivers" )
+vista_create_default_info_file( Vista3DCSpaceNavigatorDriverPlugin )

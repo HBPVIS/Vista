@@ -37,7 +37,9 @@ target_link_libraries(VistaPhantomDriverPlugin
 vista_configure_lib( VistaPhantomDriver )
 vista_install( VistaPhantomDriver )
 set_target_properties( VistaPhantomDriver PROPERTIES FOLDER "Drivers" )
+vista_create_default_info_file( VistaPhantomDriver )
 
 vista_configure_lib( VistaPhantomDriverPlugin )
 vista_install( VistaPhantomDriverPlugin )
 set_target_properties( VistaPhantomDriverPlugin PROPERTIES FOLDER "Drivers" )
+vista_create_default_info_file( VistaPhantomDriverPlugin )

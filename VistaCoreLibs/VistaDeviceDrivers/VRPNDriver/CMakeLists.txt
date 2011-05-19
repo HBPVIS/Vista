@@ -37,7 +37,9 @@ target_link_libraries(VistaVRPNDriverPlugin
 vista_configure_lib( VistaVRPNDriver )
 vista_install( VistaVRPNDriver )
 set_target_properties( VistaVRPNDriver PROPERTIES FOLDER "Drivers" )
+vista_create_default_info_file( VistaVRPNDriver )
 
 vista_configure_lib( VistaVRPNDriverPlugin )
 vista_install( VistaVRPNDriverPlugin )
 set_target_properties( VistaVRPNDriverPlugin PROPERTIES FOLDER "Drivers" )
+vista_create_default_info_file( VistaVRPNDriverPlugin )

@@ -32,7 +32,7 @@ include_directories( ${VistaCoreLibs_SOURCE_DIR} )
 # the version type can be either HEAD, RELASE, BRANCH, or TAG
 vista_set_version( VistaCoreLibs HEAD HEAD 1 10 1 svn_rev )
 
-set( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY OFF CACHE BOOL "If set to true, a <Package>Config.cmake file will be created and installed for each library, not just one for the CoreLibs" )
+set( VISTAS_CREATE_CONFIGS_FOR_EACH_LIBRARY OFF CACHE BOOL "If set to true, a <Package>Config.cmake file will be created and installed for each library, not just one for the CoreLibs" )
 
 # Let the user decide which libraries to build
 # Default is to build all libraries
@@ -52,4 +52,10 @@ set( VISTACORELIBS_LIBRARY_OUTDIR "${CMAKE_BINARY_DIR}/lib" "${CMAKE_BINARY_DIR}
 vista_create_cmake_configs( VistaCoreLibs 
 						"${CMAKE_CURRENT_SOURCE_DIR}/VistaBuild/CMake/VistaCoreLibsConfig-build.cmake_proto"
 						"${CMAKE_CURRENT_SOURCE_DIR}/VistaBuild/CMake/VistaCoreLibsConfig-install.cmake_proto" )
+						
+vista_create_doxygen_target( "${CMAKE_CURRENT_SOURCE_DIR}/Documentation/Doxyfile" "Doc" )
+
+# install license files
+install( FILES "${CMAKE_CURRENT_SOURCE_DIR}/VistaBase/LICENSE" "${CMAKE_CURRENT_SOURCE_DIR}/VistaBase/LICENSE.LESSER" DESTINATION "share/VistaCoreLibs" )
+
 

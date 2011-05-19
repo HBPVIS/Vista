@@ -15,6 +15,7 @@ target_link_libraries( VistaBase
 
 vista_configure_lib( VistaBase )
 vista_install( VistaBase VistaBase )
-if( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )
+if( VISTAS_CREATE_CONFIGS_FOR_EACH_LIBRARY )
 	vista_create_cmake_configs( VistaBase )
-endif( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )
+endif( VISTAS_CREATE_CONFIGS_FOR_EACH_LIBRARY )
+vista_create_default_info_file( VistaBase )

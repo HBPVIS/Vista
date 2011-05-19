@@ -36,7 +36,9 @@ target_link_libraries(VistaJswJoystickDriverPlugin
 vista_configure_lib( VistaJswJoystickDriver )
 vista_install( VistaJswJoystickDriver )
 set_target_properties( VistaJswJoystickDriver PROPERTIES FOLDER "Drivers" )
+vista_create_default_info_file( VistaJswJoystickDriver )
 
 vista_configure_lib( VistaJswJoystickDriverPlugin )
 vista_install( VistaJswJoystickDriverPlugin )
 set_target_properties( VistaJswJoystickDriverPlugin PROPERTIES FOLDER "Drivers" )
+vista_create_default_info_file( VistaJswJoystickDriverPlugin )

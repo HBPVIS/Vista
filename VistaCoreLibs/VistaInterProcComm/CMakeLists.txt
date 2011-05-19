@@ -23,6 +23,7 @@ target_link_libraries( VistaInterProcComm
 
 vista_configure_lib( VistaInterProcComm )
 vista_install( VistaInterProcComm VistaInterProcComm )
-if( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )
+if( VISTAS_CREATE_CONFIGS_FOR_EACH_LIBRARY )
 	vista_create_cmake_configs( VistaInterProcComm )
-endif( VISTA_CREATE_CMAKE_CONFIGS_FOR_LIBRARY )
+endif( VISTAS_CREATE_CONFIGS_FOR_EACH_LIBRARY )
+vista_create_default_info_file( VistaInterProcComm )

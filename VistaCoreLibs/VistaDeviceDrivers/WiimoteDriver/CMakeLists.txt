@@ -37,7 +37,9 @@ target_link_libraries(VistaWiimoteDriverPlugin
 vista_configure_lib( VistaWiimoteDriver )
 vista_install( VistaWiimoteDriver )
 set_target_properties( VistaWiimoteDriver PROPERTIES FOLDER "Drivers" )
+vista_create_default_info_file( VistaWiimoteDriver )
 
 vista_configure_lib( VistaWiimoteDriverPlugin )
 vista_install( VistaWiimoteDriverPlugin )
 set_target_properties( VistaWiimoteDriverPlugin PROPERTIES FOLDER "Drivers" )
+vista_create_default_info_file( VistaWiimoteDriverPlugin )
