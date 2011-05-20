@@ -107,6 +107,7 @@ bool VistaKeyboardSystemControl::InjectKeys( const std::vector<int> &vecKeyCodeL
 
 	if( m_bCheckForKeyRepeat )
 	{
+#ifdef WIN32
 		for(; itKey != vecKeyCodeList.end(); ++itKey, ++itMods )
 		{
 			// check for key repeat
@@ -131,6 +132,34 @@ bool VistaKeyboardSystemControl::InjectKeys( const std::vector<int> &vecKeyCodeL
 			}
 		}
 		m_vecLastFrameKeys = vecKeyCodeList;
+#else // LINUX
+		for(; itKey != vecKeyCodeList.end(); ++itKey, ++itMods )
+		{
+			// check for key repeat
+			bool bWasPressed = false;
+			if( (*itKey) < 0 )
+			{
+				std::vector<int>::const_iterator itNextKey = itKey;
+				if( ++itNextKey != vecKeyCodeList.end() )
+				{
+					std::vector<int>::const_iterator itNextMods = itMods;
+					++itNextMods;
+					if( (*itKey) == -(*itNextKey) && (*itMods) == (*itNextMods) )
+					{
+						++itKey;
+						++itMods;
+						bWasPressed = true;
+					}
+				}
+			}
+			if(InjectKey( (*itKey), (*itMods), bWasPressed ) == false ) // unswallowed?
+			{
+				vecUnswallowedKeys.push_back(*itKey);
+				vecUnswallowedMods.push_back(*itMods);
+			}
+		}
+		m_vecLastFrameKeys = vecKeyCodeList;
+#endif
 	}
 	else
 	{
