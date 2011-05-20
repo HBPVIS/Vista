@@ -35,6 +35,12 @@ class IVistaTimerImp;
 class VISTABASEAPI VistaTimer
 {
 public:
+	/**
+	 * Creates a timer using the passed Implementation.
+	 * If no implementation is given, the timerimp singleton
+	 * will be used
+	 * @see IVistaTimerImp::SetSingleton
+	 */
 	VistaTimer( IVistaTimerImp *pImp = NULL );
 	virtual ~VistaTimer();
 
@@ -81,8 +87,6 @@ public:
 	 * @return The standard timer singleton, for easy time access.
 	 *         If no timer instance is available yet, a new one will
 	 *         be created using the current TimerImp singleton.
-	 *         NOTE: If no default timer imp is set, an invalid
-	 *         Timer will be created!
 	 */
 	static const VistaTimer& GetStandardTimer();
 protected:

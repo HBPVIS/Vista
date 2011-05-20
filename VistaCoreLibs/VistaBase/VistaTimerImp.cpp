@@ -25,6 +25,7 @@
 #include "VistaTimerImp.h"
 
 #include "VistaTimer.h"
+#include "VistaDefaultTimerImp.h"
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
@@ -66,8 +67,8 @@ IVistaTimerImp::~IVistaTimerImp()
 
 IVistaTimerImp *IVistaTimerImp::GetSingleton()
 {
-	// note that we DO NOT construct it here...
-	// the singleton has to be set properly beforehand.
+	if( STimerImp == NULL )
+		STimerImp = new VistaDefaultTimerImp;
 	return STimerImp;
 }
 
