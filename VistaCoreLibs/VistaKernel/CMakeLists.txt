@@ -23,7 +23,7 @@ target_link_libraries( VistaKernel
 
 vista_configure_lib( VistaKernel )
 vista_install( VistaKernel VistaKernel )
-if( VISTAS_CREATE_CONFIGS_FOR_EACH_LIBRARY )
+if( VISTACORELIBS_CREATE_CONFIG_PER_LIBRARY )
 	vista_create_cmake_configs( VistaKernel )
-endif( VISTAS_CREATE_CONFIGS_FOR_EACH_LIBRARY )
+endif( VISTACORELIBS_CREATE_CONFIG_PER_LIBRARY )
 vista_create_default_info_file( VistaKernel )

@@ -21,7 +21,7 @@ target_link_libraries( VistaTools
 
 vista_configure_lib( VistaTools )
 vista_install( VistaTools VistaTools )
-if( VISTAS_CREATE_CONFIGS_FOR_EACH_LIBRARY )
+if( VISTACORELIBS_CREATE_CONFIG_PER_LIBRARY )
 	vista_create_cmake_configs( VistaTools )
-endif( VISTAS_CREATE_CONFIGS_FOR_EACH_LIBRARY )
+endif( VISTACORELIBS_CREATE_CONFIG_PER_LIBRARY )
 vista_create_default_info_file( VistaTools )

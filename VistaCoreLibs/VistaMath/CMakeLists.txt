@@ -19,7 +19,7 @@ target_link_libraries( VistaMath
 
 vista_configure_lib( VistaMath )
 vista_install( VistaMath VistaMath )
-if( VISTAS_CREATE_CONFIGS_FOR_EACH_LIBRARY )
+if( VISTACORELIBS_CREATE_CONFIG_PER_LIBRARY )
 	vista_create_cmake_configs( VistaMath )
-endif( VISTAS_CREATE_CONFIGS_FOR_EACH_LIBRARY )
+endif( VISTACORELIBS_CREATE_CONFIG_PER_LIBRARY )
 vista_create_default_info_file( VistaMath )

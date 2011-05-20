@@ -15,7 +15,7 @@ target_link_libraries( VistaDataFlowNet
 
 vista_configure_lib( VistaDataFlowNet )
 vista_install( VistaDataFlowNet VistaDataFlowNet )
-if( VISTAS_CREATE_CONFIGS_FOR_EACH_LIBRARY )
+if( VISTACORELIBS_CREATE_CONFIG_PER_LIBRARY )
 	vista_create_cmake_configs( VistaDataFlowNet )
-endif( VISTAS_CREATE_CONFIGS_FOR_EACH_LIBRARY )
+endif( VISTACORELIBS_CREATE_CONFIG_PER_LIBRARY )
 vista_create_default_info_file( VistaDataFlowNet )

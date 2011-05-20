@@ -22,8 +22,8 @@ target_link_libraries( VistaKernelOpenSGExt
 
 vista_configure_lib( VistaKernelOpenSGExt )
 vista_install( VistaKernelOpenSGExt VistaKernelOpenSGExt )
-if( VISTAS_CREATE_CONFIGS_FOR_EACH_LIBRARY )
+if( VISTACORELIBS_CREATE_CONFIG_PER_LIBRARY )
 	vista_create_cmake_configs( VistaKernelOpenSGExt )
-endif( VISTAS_CREATE_CONFIGS_FOR_EACH_LIBRARY )
+endif( VISTACORELIBS_CREATE_CONFIG_PER_LIBRARY )
 vista_create_default_info_file( VistaKernelOpenSGExt )
 
