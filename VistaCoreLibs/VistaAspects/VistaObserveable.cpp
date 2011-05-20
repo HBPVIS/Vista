@@ -155,16 +155,17 @@ void IVistaObserveable::Notify(int msg)
 		return;
 
 
-	// the idea is to catch subsequent non-notified
-	// messages to give the observers a chance to
-	// realize what happened.
-	// so we insert the msg to the set, regardless
-	// of whether we really call VistaObserver::ObserverUpdate()
-	// or not.
-	m_sChangedSet.insert(msg);
-
 	if(!m_bNotificationFlag)
+	{
+		// the idea is to catch subsequent non-notified
+		// messages to give the observers a chance to
+		// realize what happened.
+		// so we insert the msg to the set, regardless
+		// of whether we really call VistaObserver::ObserverUpdate()
+		// or not.
+		m_sChangedSet.insert(msg);
 		return; // NO NOTIFICATION (disabled on user request)!!
+	}
 
 	list<OBSERVER_INFO>::const_iterator it;
 	for(it = m_lIVistaObservers.begin(); it != m_lIVistaObservers.end(); ++it)
@@ -172,9 +173,12 @@ void IVistaObserveable::Notify(int msg)
 		(*it).m_pObserver->UpdateRequest(this, msg, (*it).m_eTicket);
 	}
 
-	// ok, we passed through this, so we consider the model to be
-	// "unchanged"! we can clear the set now.
-	m_sChangedSet.clear();
+	if(!m_bNotificationFlag)
+	{
+		// ok, we passed through this, so we consider the model to be
+		// "unchanged"! we can clear the set now.
+		m_sChangedSet.clear();
+	}
 }
 
 void IVistaObserveable::SetNotificationFlag(bool bNotifyEnabled)
