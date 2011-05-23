@@ -173,7 +173,7 @@ void IVistaObserveable::Notify(int msg)
 		(*it).m_pObserver->UpdateRequest(this, msg, (*it).m_eTicket);
 	}
 
-	if(!m_bNotificationFlag)
+	if(!m_sChangedSet.empty())
 	{
 		// ok, we passed through this, so we consider the model to be
 		// "unchanged"! we can clear the set now.
