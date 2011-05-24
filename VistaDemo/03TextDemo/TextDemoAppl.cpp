@@ -65,11 +65,11 @@ TextDemoAppl::TextDemoAppl( int argc, char  *argv[] )
 	if(!m_pVistaSystem->Init(argc, argv))
 		VISTA_THROW("ViSTA System init failed.",1);
 	
+	VistaSG* pSceneGraph = m_pVistaSystem->GetGraphicsManager()->GetSceneGraph();
 	// Add node to scenegraph
-	VistaTextNode *pTextNode3D = m_pVistaSystem->GetGraphicsManager()->GetSceneGraph()->NewTextNode(
-								m_pVistaSystem->GetGraphicsManager()->GetSceneGraph()->GetRoot(),
-								"SANS"
-								);
+	VistaTransformNode* pTransform = pSceneGraph->NewTransformNode( pSceneGraph->GetRoot() );
+	pTransform->SetTranslation( -1, 0, -2 );
+	VistaTextNode *pTextNode3D = pSceneGraph->NewTextNode( pTransform, "SANS" );
 
 	// Fill with text
 	if ( pTextNode3D )

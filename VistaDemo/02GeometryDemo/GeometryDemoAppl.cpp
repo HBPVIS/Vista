@@ -107,7 +107,7 @@ bool GeometryDemoAppl::Init( int argc, char  *argv[] )
 	// we will first create two TransformNodes: One that moves the whole scenery, and
 	// one that moves the Sphere relative to the box
 	VistaTransformNode* pSceneryTrans = pSceneGraph->NewTransformNode( pSceneGraph->GetRoot() );
-	pSceneryTrans->Translate( 0, 0, -2 );
+	pSceneryTrans->Translate( 0, 0, -2.5 );
 	// notice that we now add the SpherreTrans as childnode of the SceneryTrans. Thus, in the end,
 	// the sphere will be affected by both transformnodes, and is thus moved by (1,1,-3)
 	VistaTransformNode* pSphereTrans = pSceneGraph->NewTransformNode( pSceneryTrans );

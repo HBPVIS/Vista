@@ -229,7 +229,7 @@ int main( int argc, char **argv )
 			VistaTransformNode *pCbNode = pSceneGraph->NewTransformNode( pRoot );
 
 			// move it a bit away
-			pCbNode->SetTranslation( VistaVector3D( 0,0,-1) );
+			pCbNode->SetTranslation( VistaVector3D( -0.5f,0,-1) );
 
 			// we use this node for a simple state control, it will switch
 			// between the 'callback-enabled' and 'direct-input-no-callback' mode 
