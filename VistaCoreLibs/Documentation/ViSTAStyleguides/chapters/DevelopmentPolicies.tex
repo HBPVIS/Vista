@@ -32,8 +32,10 @@ It is important to define some basic vocabulary in order to know what this docum
   	A collection of often to use tools and algorithms, e.g., file handling, octree data structures and protocols.
   \item \code{VistaMath}.
   	Comfortable, but maybe slow, interfaces and mathematical algorithms.
+  \item \code{VistaDeviceDriversBase}.
+  	Low-Latency framework for input device handling and generic drivers for VR interaction devices
   \item \code{VistaDeviceDrivers}.
-  	Low-Latency framework for input device handling. Drivers and driver plugins for VR interaction devices (trackers, gamepads, HID devices, MIDI, WiiMote...)
+    Additional Device Driver for dynamic loading.
   \item \code{DataFlowNet}.
   	Dataflow-based framework for input data transformation and processing.
   \item \code{VistaKernel}.
@@ -83,7 +85,7 @@ Overall development of the \code{ViSTA} core libraries should be done according 
 In addition, regulations regarding coding style can be found in chapter \ref{coding_styles}.
 
 \subsubsection{Subversion Repository policies}
-At the moment, the \code{ViSTA} source code is hosted in a subversion repository SourceForge.net.
+At the moment, the \code{ViSTA} source code is hosted in a closed subversion repository  at https://svn.rwth-aachen.de/repos/vrgroup-svn/projects/Vista.
 The repository is organized on the topmost level like most SVN repos, containing the top-level directories
 \begin{itemize}
 \item\code{branches/}
@@ -116,7 +118,7 @@ Merging the changes back to the \code{trunk} is the responsibility of the develo
 
 \minisec{Commit logs}
 Commit messages must be in english.
-We consider the usage of the following hints to what has been done to a module as given in the following table.
+We encourage the usage of the following hints to what has been done to a module as given in the following table.
 
 \begin{tabular}{|l|p{12cm}|}\hline
 APIADD   & added some methods or other public symbols (typedefs, nested types, ...) to the signature of a class.\\\hline
@@ -128,7 +130,7 @@ CHG      & changed something that was already there.
 REM      & removed something, (e.g.\ complete modules, resources or functionality).\\\hline
 FIX      & fixed an implementation in a code file.
            Try to roughly describe what was fixed.\\\hline
-STYLE    & issues dealing with changes due to style guides or personal preference without implact in the functional behavior or the syntax.\\\hline
+STYLE    & issues dealing with changes due to style guides or personal preference without impact in the functional behavior or the syntax.\\\hline
 \end{tabular}
 
 Try to point out a reference to each line in the commit log where your change was applied to.
@@ -199,9 +201,9 @@ For each release, the following points have to be taken care of:
 \begin{itemize}
 \item check that the trunk compiles on all supported platforms. %% TODO: reference section
 \item check that all code follows the syntactical rules for code layout, file naming and directory structure as stated in this guide.
-\item update version information in \code{VistaVersion.h} and documentation.
-\item (only for major/minor releases) create a new branch directory corresponding to the release branch (i.e. \code{VISTA\_X\_Y}).
-\item take a snapshot in the tags directory corresponding to the release (i.e. \code{VISTA\_X\_Y\_Z}), whose content will \textbf{never be touched again}.
+\item update version information in \code{VistaVersion.h}, CMakeLists and documentation.
+\item (only for major/minor releases) create a new branch directory corresponding to the release branch (i.e. \code{X.Y}).
+\item take a snapshot in the tags directory corresponding to the release (i.e. \code{X.Y.Z}), whose content will \textbf{never be touched again}.
 \item create the binary release archives for all platforms (see section \ref{packaging} for details) and upload it to SourceForge.net.
 \end{itemize}
 
