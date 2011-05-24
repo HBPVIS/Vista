@@ -9,6 +9,8 @@ if( WIN32 )
 		add_definitions( -DVISTATOOLS_STATIC )
 	endif( BUILD_SHARED_LIBS )
 	set( LIBRARIES PowrProf dbghelp Psapi )
+else()
+	set( LIBRARIES dl )
 endif( WIN32 )
 
 include( "./_SourceFiles.cmake" )
