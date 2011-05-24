@@ -37,6 +37,7 @@ set( DirFiles
 	VistaVectorMath.h
 	VistaVersion.cpp
 	VistaVersion.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

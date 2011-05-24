@@ -58,6 +58,7 @@ set( DirFiles
 	VistaWin32ThreadEventImp.h
 	VistaWin32ThreadImp.cpp
 	VistaWin32ThreadImp.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

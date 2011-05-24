@@ -38,6 +38,7 @@ set( DirFiles
 	VistaThreadTask.h
 	VistaTicker.cpp
 	VistaTicker.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

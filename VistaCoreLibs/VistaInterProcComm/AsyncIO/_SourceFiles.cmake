@@ -16,6 +16,7 @@ set( DirFiles
 	VistaIORequest.h
 	VistaIOScheduler.cpp
 	VistaIOScheduler.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

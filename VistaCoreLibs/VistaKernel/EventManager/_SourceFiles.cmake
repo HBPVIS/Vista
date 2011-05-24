@@ -33,6 +33,7 @@ set( DirFiles
 	VistaTimeoutHandler.h
 	VistaTimeoutRouter.cpp
 	VistaTimeoutRouter.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

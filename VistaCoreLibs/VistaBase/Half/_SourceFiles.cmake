@@ -10,6 +10,7 @@ set( DirFiles
 	VistaHalfLimits.h
 	eLut.h
 	toFloat.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

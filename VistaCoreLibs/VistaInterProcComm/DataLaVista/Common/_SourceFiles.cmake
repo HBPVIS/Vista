@@ -29,6 +29,7 @@ set( DirFiles
 	VistaSerialTeeFilter.h
 	VistaSlotPipe.cpp
 	VistaSlotPipe.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

@@ -16,6 +16,7 @@ set( DirFiles
 	VistaGlutTextEntity.h
 	VistaGlutWindowingToolkit.cpp
 	VistaGlutWindowingToolkit.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

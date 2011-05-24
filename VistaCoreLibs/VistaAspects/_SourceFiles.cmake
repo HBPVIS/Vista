@@ -45,6 +45,7 @@ set( DirFiles
 	VistaSerializingToolset.h
 	VistaTransformable.cpp
 	VistaTransformable.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

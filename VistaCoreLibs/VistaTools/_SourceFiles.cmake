@@ -55,6 +55,7 @@ set( DirFiles
 	VistaToolsStd.h
 	VistaTopologyGraph.h
 	VistaVoxelOctree.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

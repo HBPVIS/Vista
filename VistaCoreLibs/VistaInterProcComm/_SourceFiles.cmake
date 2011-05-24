@@ -8,6 +8,7 @@ set( DirFiles
 	VistaInterProcCommConfig.h
 	VistaInterProcCommOut.cpp
 	VistaInterProcCommOut.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

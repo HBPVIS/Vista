@@ -28,6 +28,7 @@ set( DirFiles
 	VistaOpenSGSkybox.h
 	VistaOpenSGToonShader.cpp
 	VistaOpenSGToonShader.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

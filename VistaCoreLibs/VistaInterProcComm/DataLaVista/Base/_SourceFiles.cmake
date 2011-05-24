@@ -47,6 +47,7 @@ set( DirFiles
 	VistaTimeStamp.h
 	VistaTransformFilter.cpp
 	VistaTransformFilter.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

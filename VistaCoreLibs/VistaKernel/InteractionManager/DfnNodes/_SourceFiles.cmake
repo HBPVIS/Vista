@@ -42,6 +42,7 @@ set( DirFiles
 	VistaDfnWindowSourceNode.h
 	VistaKernelDfnNodeCreators.cpp
 	VistaKernelDfnNodeCreators.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

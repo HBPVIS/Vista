@@ -49,6 +49,7 @@ set( DirFiles
 	VistaTextNode.h
 	VistaTransformNode.cpp
 	VistaTransformNode.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

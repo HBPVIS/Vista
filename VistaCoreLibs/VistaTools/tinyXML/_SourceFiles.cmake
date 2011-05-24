@@ -10,6 +10,7 @@ set( DirFiles
 	tinyxml.h
 	tinyxmlerror.cpp
 	tinyxmlparser.cpp
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

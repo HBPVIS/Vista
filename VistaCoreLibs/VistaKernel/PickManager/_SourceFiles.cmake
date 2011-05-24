@@ -9,6 +9,7 @@ set( DirFiles
 	VistaPickManager.cpp
 	VistaPickManager.h
 	VistaPickable.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

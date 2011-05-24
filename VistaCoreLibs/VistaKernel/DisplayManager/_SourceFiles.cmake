@@ -26,6 +26,7 @@ set( DirFiles
 	VistaVirtualPlatform.h
 	VistaWindow.cpp
 	VistaWindow.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

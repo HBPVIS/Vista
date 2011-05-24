@@ -34,6 +34,7 @@ set( DirFiles
 	VistaTCPSocket.h
 	VistaUDPSocket.cpp
 	VistaUDPSocket.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

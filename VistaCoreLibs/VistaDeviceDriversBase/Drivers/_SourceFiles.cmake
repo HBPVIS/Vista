@@ -22,6 +22,7 @@ set( DirFiles
 	VistaPhantomServerDriver.h
 	VistaSpaceMouseDriver.cpp
 	VistaSpaceMouseDriver.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

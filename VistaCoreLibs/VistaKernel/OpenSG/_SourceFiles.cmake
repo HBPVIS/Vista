@@ -31,6 +31,7 @@ set( DirFiles
 	VistaOpenSGTextForegroundFields.h
 	VistaOpenSGThreadImp.cpp
 	VistaOpenSGThreadImp.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

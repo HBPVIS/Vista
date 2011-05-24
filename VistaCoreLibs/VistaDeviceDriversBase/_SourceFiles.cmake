@@ -53,6 +53,7 @@ set( DirFiles
 	VistaMouseDriver.h
 	VistaShallowDriver.cpp
 	VistaShallowDriver.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

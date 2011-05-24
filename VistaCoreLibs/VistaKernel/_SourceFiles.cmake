@@ -41,6 +41,7 @@ set( DirFiles
 	VistaSystemCommands.h
 	VistaSystemConfigurators.cpp
 	VistaSystemConfigurators.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

@@ -26,6 +26,7 @@ set( DirFiles
 	VistaPolynomial.h
 	VistaSquareMatrix.h
 	VistaVector.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

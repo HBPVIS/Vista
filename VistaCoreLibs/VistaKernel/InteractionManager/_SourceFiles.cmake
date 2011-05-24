@@ -23,6 +23,7 @@ set( DirFiles
 	VistaUserPlatform.h
 	VistaVirtualPlatformAdapter.cpp
 	VistaVirtualPlatformAdapter.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

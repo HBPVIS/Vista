@@ -10,6 +10,7 @@ set( DirFiles
 	VistaSerialPortImp.h
 	VistaWin32SerialPortImp.cpp
 	VistaWin32SerialPortImp.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

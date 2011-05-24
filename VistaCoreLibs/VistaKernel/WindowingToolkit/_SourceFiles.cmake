@@ -13,6 +13,7 @@ set( DirFiles
 	VistaTextEntity.h
 	VistaWindowingToolkit.cpp
 	VistaWindowingToolkit.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

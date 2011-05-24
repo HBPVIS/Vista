@@ -13,6 +13,7 @@ set( DirFiles
 	VistaStreamManagerExt.h
 	VistaVirtualConsole.cpp
 	VistaVirtualConsole.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

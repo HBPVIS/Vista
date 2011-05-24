@@ -12,6 +12,7 @@ set( DirFiles
 	VistaPipeChecker.h
 	VistaPipeConstructionKit.cpp
 	VistaPipeConstructionKit.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

@@ -6,6 +6,7 @@ set( RelativeSourceGroup "Source Files\\SharedMemory" )
 set( DirFiles
 	VistaSharedMem.cpp
 	VistaSharedMem.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

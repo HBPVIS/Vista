@@ -38,6 +38,7 @@ set( DirFiles
 	VistaProgressMessage.h
 	VistaSlaveNetworkSync.cpp
 	VistaSlaveNetworkSync.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 

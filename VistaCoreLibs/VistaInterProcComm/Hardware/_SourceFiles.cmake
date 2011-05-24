@@ -8,6 +8,7 @@ set( DirFiles
 	VistaSerialPort.cpp
 	VistaSerialPort.h
 	VistaSerialPortStateDesc.h
+	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 
