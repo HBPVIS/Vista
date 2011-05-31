@@ -31,6 +31,8 @@
  * hierarchy, as well as the use of streams (color- and split-streams plus
  * VistaStreamUtils) to highlight or redirect output, and the usage of the
  * VistaBasicProfiler to perform simple per-frame subroutine runtime measurements
+ * Keys: s to print StackWalker outpur for random hierarchy
+ *       c to print all color combinations for the outstream
  */
 
 #include "DebuggingToolsDemo.h"
@@ -140,6 +142,39 @@ public:
 	virtual bool Do()
 	{
 		RandomFunctionOne();
+		return true;
+	}
+};
+
+class DebuggingToolsDemoAppl::PrintColorStreamPairsKeyCallback : public IVistaExplicitCallbackInterface
+{
+public:
+	PrintColorStreamPairsKeyCallback() {}
+	~PrintColorStreamPairsKeyCallback() {}
+
+	virtual bool Do()
+	{
+		// Here, we iterate over all pairs of colors, set the
+		// outstream colors to them (text+background), and print the
+		// names of the colors
+		VistaColorOutstream oStream;
+		for( vstr::CONSOLE_COLOR nBackground = vstr::CC_FIRST_COLOR; 
+			nBackground <vstr:: CC_NUM_COLORS; )
+		{
+			oStream.SetBackgroundColor( nBackground );
+			for( vstr::CONSOLE_COLOR nText = vstr::CC_FIRST_COLOR; 
+				nText < vstr::CC_NUM_COLORS; )
+			{
+				oStream.SetTextColor( nText );
+				oStream << std::setw(13) << vstr::GetConsoleColorName( nText ) 
+						<< "  on " << std::setw(13) << vstr::GetConsoleColorName( nBackground )
+						<< std::endl;
+				// increment
+				nText = (vstr::CONSOLE_COLOR)( (int)nText + 1 );
+			}
+			oStream << std::endl;
+			nBackground = (vstr::CONSOLE_COLOR)( (int)nBackground + 1 );
+		}
 		return true;
 	}
 };
@@ -258,6 +293,13 @@ DebuggingToolsDemoAppl::DebuggingToolsDemoAppl( int argc, char  *argv[] )
 	VistaSystemEventLogger* pLogger = new VistaSystemEventLogger( m_pVistaSystem->GetEventManager() );
 	pLogger->SetStreamEventMask( vstr::Stream( "log" ), VistaSystemEvent::VSE_POSTGRAPHICS 
 												| VistaSystemEvent::VSE_UPDATE_INTERACTION );
+
+	// we also register a keycallback, so that upon pressing 'c', all combinations of fore and
+	// background are printed  - to see what is possible, and what combinations provide
+	// good choices
+	m_pColorCallback = new PrintColorStreamPairsKeyCallback;
+	m_pVistaSystem->GetKeyboardSystemControl()->BindAction( 'c',
+								m_pColorCallback, "Print Color Stream Combinations" );
 
 }
 

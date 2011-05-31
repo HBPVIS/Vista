@@ -58,7 +58,9 @@ private:
 	VistaSystem *m_pVistaSystem;
 
 	class StackWalkerKeyCallback;
+	class PrintColorStreamPairsKeyCallback;
 	StackWalkerKeyCallback* m_pStackWalkerCallback;
+	PrintColorStreamPairsKeyCallback* m_pColorCallback;
 };
 
 
