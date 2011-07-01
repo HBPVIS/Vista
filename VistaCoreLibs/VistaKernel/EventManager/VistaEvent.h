@@ -88,7 +88,7 @@ public:
 	 *
 	 * @RETURN  double    event creation time
 	 */
-	microtime	GetTime() const;
+	VistaType::microtime	GetTime() const;
 
 	/**
 	 * Returns the type of the event
@@ -169,7 +169,7 @@ protected:
 	void SetType(int iType);
 
 	bool	m_bHandled;	// already handled?
-	microtime	m_dTime;	// creation time of event (gets set by CEventManager)
+	VistaType::microtime	m_dTime;	// creation time of event (gets set by CEventManager)
 
 private:
 	static int  m_nEventId;
@@ -188,7 +188,7 @@ inline VistaEvent::VistaEvent()
 {
 }
 
-inline microtime VistaEvent::GetTime() const
+inline VistaType::microtime VistaEvent::GetTime() const
 {
 	return m_dTime;
 }

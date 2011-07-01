@@ -91,8 +91,8 @@ public:
 
 	virtual void Debug ( std::ostream & out ) const;
 
-	microtime GetAvgUpdateTime() const;
-	microtime GetAvgSwapTime() const;
+	VistaType::microtime GetAvgUpdateTime() const;
+	VistaType::microtime GetAvgSwapTime() const;
 protected:
 private:
 	std::string         m_strSlaveName,

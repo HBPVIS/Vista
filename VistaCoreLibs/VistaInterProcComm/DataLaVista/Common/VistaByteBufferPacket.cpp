@@ -128,7 +128,7 @@ int DLVistaByteBufferPacket::GetDataSize() const
 
 int DLVistaByteBufferPacket::Serialize(IVistaSerializer &rSerializer) const {
 	//write signature for id purposes
-	int iNumBytes = rSerializer.WriteInt32(uint32(this->GetSignature().length()));
+	int iNumBytes = rSerializer.WriteInt32(VistaType::uint32(this->GetSignature().length()));
 	iNumBytes += rSerializer.WriteString(this->GetSignature());
 	//write content itself
 	iNumBytes += rSerializer.WriteInt32(this->GetDataSize());

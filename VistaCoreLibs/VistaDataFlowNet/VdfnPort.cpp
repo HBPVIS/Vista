@@ -105,7 +105,7 @@ int VdfnPortSerializeAdapter::Serialize(IVistaSerializer &oSer) const
 		return 0;
 
 	oSer << (*m_pPort).m_nLastUpdate
-					<< (sint32)(*m_pPort).m_nUpdateCounter;
+					<< (VistaType::sint32)(*m_pPort).m_nUpdateCounter;
 	return sizeof(double)+sizeof(unsigned int);
 }
 
@@ -114,7 +114,7 @@ int VdfnPortSerializeAdapter::DeSerialize(IVistaDeSerializer &oDeSer)
 	if(m_pPort == NULL)
 		return 0;
 
-	sint32 updCnt=0;
+	VistaType::sint32 updCnt=0;
 	oDeSer >> (*m_pPort).m_nLastUpdate
 		>> updCnt;
 

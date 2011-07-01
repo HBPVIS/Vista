@@ -26,7 +26,7 @@
 
 #include <VistaDeviceDriversBase/VistaDriverMap.h>
 #include <VistaDeviceDriversBase/VistaDeviceDriver.h>
-#include <VistaDeviceDriversBase/VistaDriverWorkspaceAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverWorkspaceAspect.h>
 #include <VistaAspects/VistaPropertyAwareable.h>
 #include <VistaBase/VistaExceptionBase.h>
 

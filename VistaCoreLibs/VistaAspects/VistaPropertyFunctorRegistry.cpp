@@ -81,7 +81,9 @@ VistaPropertyFunctorRegistry *VistaPropertyFunctorRegistry::m_pSingleton
 VistaPropertyFunctorRegistry *VistaPropertyFunctorRegistry::GetSingleton()
 {
 	if(!m_pSingleton)
+	{
 		m_pSingleton = new VistaPropertyFunctorRegistry();
+	}
 	return m_pSingleton;
 }
 
@@ -212,12 +214,12 @@ bool VistaPropertyFunctorRegistry::UnregisterGetter(
 		{
 			(*cmp).second.erase(sit);
 		}
-#if defined(DEBUG)
-		//std::cout << "VistaPropertyFunctorRegistry::UnregisterGetter("
-		//          << sPropName << ", "
-		//          << sClassType << ")"
-		//          << std::endl;
-#endif
+
+		if( m_bTalkative )
+			vaspout << "VistaPropertyFunctorRegistry::UnregisterGetter("
+					  << sPropName << ", "
+					  << sClassType << ")"
+					  << std::endl;
 
 		m_mpGetterCache.clear(); // clear cache map
 		return true;
@@ -558,6 +560,58 @@ bool VistaPropertyFunctorRegistry::GetTalkativeFlag() const
 void VistaPropertyFunctorRegistry::SetTalkativeFlag(bool bTalkative)
 {
 	m_bTalkative = bTalkative;
+}
+
+typedef std::set<std::string> STRINGSET;
+typedef std::multimap<std::string, STRINGSET> STRINGMAP;
+
+template<class T>
+class _printElement //: public std::unary_function<std::map<std::pair<std::string, std::string>, typename T*>::value_type, void>
+{
+public:
+	_printElement( VistaAspectsOut &out )
+	: m_out(out) {}
+
+	VistaAspectsOut &m_out;
+
+	typedef std::pair<std::string, std::string> STRINGPAIR;
+	typedef std::map<STRINGPAIR, T*> MAPTYPE;
+	void operator()( const typename MAPTYPE::value_type &value )
+	{
+		m_out.out() << "[" << value.first.first << " ; " << value.first.second << "] -- "
+				    << (value.second ? value.second->GetNameForNameable() : "<NONE>?")
+				    << std::endl;
+	}
+
+
+	void operator()( const typename STRINGMAP::value_type &value )
+	{
+		m_out.out() << "[" << value.first <<  "] -- " << std::endl;
+
+		const STRINGSET &v = value.second;
+		std::for_each( v.begin(), v.end(), _printElement<std::string>( m_out ) );
+	}
+
+	void operator() ( const std::string &element )
+	{
+		m_out.out() << "\t" << element << std::endl;
+	}
+
+};
+
+void VistaPropertyFunctorRegistry::Show(VistaAspectsOut &out) const
+{
+	out.out() << "[GETTERS]" << std::endl;
+	std::for_each( m_mpGetters.begin(), m_mpGetters.end(), _printElement<IVistaPropertyGetFunctor>(out) );
+
+	out.out() << "[SETTERS]" << std::endl;
+	std::for_each( m_mpSetters.begin(), m_mpSetters.end(), _printElement<IVistaPropertySetFunctor>(out) );
+
+	out.out() << "[GetPMaps]" << std::endl;
+	std::for_each( m_mpGProps.begin(), m_mpGProps.end(), _printElement<STRINGMAP>( out ) );
+
+	out.out() << "[GetSMaps]" << std::endl;
+	std::for_each( m_mpSProps.begin(), m_mpSProps.end(), _printElement<STRINGMAP>( out ) );
 }
 
 /*============================================================================*/

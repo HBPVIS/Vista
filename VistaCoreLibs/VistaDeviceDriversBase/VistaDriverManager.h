@@ -22,10 +22,11 @@
 /*============================================================================*/
 // $Id$
 
-#if !defined(__VISTADRIVERMANAGER_H)
-#define      __VISTADRIVERMANAGER_H
+#ifndef __VISTADRIVERMANAGER_H
+#define __VISTADRIVERMANAGER_H
 
 
+#include <VistaDeviceDriversBase/VistaDeviceDriversConfig.h>
 #include <VistaDeviceDriversBase/VistaDriverUtils.h>
 #include <VistaDeviceDriversBase/VistaDriverMap.h>
 
@@ -51,7 +52,7 @@ class VistaConnectionUpdater;
  * - keeping a driver map to work with
  * - Update all active devices correctly
  */
-class VistaDriverManager
+class VISTADEVICEDRIVERSAPI VistaDriverManager
 {
 public:
 	/**
@@ -73,23 +74,39 @@ public:
 
 	IVistaDriverCreationMethod *GetCreationMethodForClass( const std::string &strDriverClassName ) const;
 
+	void RegisterDriver( const std::string &strDriverName, IVistaDeviceDriver *pDriver );
+	void RegisterDriverPlugin( const VddUtil::VistaDriverPlugin & oPlugin );
+
 	void UnregisterDriver( IVistaDeviceDriver * );
 
+	void SetEnableStateOnAllDrivers( bool bState );
+
+	typedef std::vector<int> IDVEC;
+	typedef std::pair< IVistaDeviceDriver*, IDVEC > DPAIR;
+	typedef std::map< std::string, DPAIR > DMAP;
 
 	///@name runtime-API
-	bool Update();
+	bool Update( DMAP & );
 
 	VistaDriverMap &GetDriverMap();
 	const VistaDriverMap &GetDriverMap() const;
+
+	bool StartAsyncDriverDispatch();
+	bool StopAsyncDriverDispatch();
 private:
 	int InitPlugins();
 	int DisposePlugins();
 
-	std::vector<VddUtil::VistaDriverPlugin> m_plugs;
 
-	VistaDriverMap m_drivers;
+	void StopThreadedDevices();
+
+	std::vector<VddUtil::VistaDriverPlugin> m_vecDriverPlugins;
+
+	VistaDriverMap m_pDrivers;
 
 	VistaConnectionUpdater *m_pConnUpdater;
+
+	bool m_AsyncDispatchRunning;
 };
 
 
@@ -102,4 +119,3 @@ private:
 /* END OF FILE                                                                */
 /*============================================================================*/
 #endif // __VISTADRIVERMANAGER_H
-

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaTimer.h 21410 2011-05-20 14:27:43Z dr165799 $
 
 #ifndef _VISTATIMER_H
 #define _VISTATIMER_H
@@ -50,34 +50,34 @@ public:
 	 *         should be strictly monotonic rising most of the time
 	 *         (changes every 1microsec (LINUX) or 0.1microsec(WIN32))
 	 */
-	microtime  GetMicroTime() const;
+	VistaType::microtime  GetMicroTime() const;
 
 	/**
 	 * @return Unspecified strictly monotonic rising Timestamp
 	 */
-	microstamp GetMicroStamp() const;
+	VistaType::microstamp GetMicroStamp() const;
 
 	/**
 	 * @return time since 01.01.1970,
 	 *         medium precision (10^-5s / 10 microsecond)
 	 *         (not necessaryly strictly) monotonic rising
 	 */
-	systemtime GetSystemTime() const;
+	VistaType::systemtime GetSystemTime() const;
 
 	/**
-	 * @param  microtime value, as received from GetMicrotime(), i.e. unaltered.
-	 *         NOTE: The microtime has to be retrieved from the same
+	 * @param  VistaType::microtime value, as received from GetMicrotime(), i.e. unaltered.
+	 *         NOTE: The VistaType::microtime has to be retrieved from the same
 	 *         timer implementation, so take care that it doesnt change inbetween
 	 * @return a monotonic increasing time value
 	 *         representing system time (i.e. secs.msecs since 1970)
 	 */
-	systemtime ConvertToSystemTime( const microtime mtTime ) const;
+	VistaType::systemtime ConvertToSystemTime( const VistaType::microtime mtTime ) const;
 
 	/**
 	 * @return Life time of the Timer, i.e. time since 
 	 *         creation or last call to ResetLifeTimer()
 	 */
-	microtime GetLifeTime() const;
+	VistaType::microtime GetLifeTime() const;
 	/**
 	 * resets Timer's life time to zero
 	 */
@@ -91,7 +91,7 @@ public:
 	static const VistaTimer& GetStandardTimer();
 protected:
 	IVistaTimerImp* m_pImp;
-	microtime       m_nBirthTime;
+	VistaType::microtime       m_nBirthTime;
 private:
 	// make uncopyable
 	VistaTimer( const VistaTimer& oCpoy );
@@ -120,18 +120,18 @@ public:
 	/**
 	 * @return time since record started (or since last record, or timer creation/reset)
 	 */
-	microtime GetCurrentRecordingTime() const;
+	VistaType::microtime GetCurrentRecordingTime() const;
 	
-	virtual microtime GetAccumulatedTime() const;
+	virtual VistaType::microtime GetAccumulatedTime() const;
 	virtual int GetRecordCount() const;
-	virtual microtime GetAverageTime() const;				
+	virtual VistaType::microtime GetAverageTime() const;				
 
 	virtual void ResetAveraging();
 
 protected:
-	microtime	m_nRecordStartTime;
-	microtime	m_nAccumulatedTime;
-	microtime	m_nAverage;
+	VistaType::microtime	m_nRecordStartTime;
+	VistaType::microtime	m_nAccumulatedTime;
+	VistaType::microtime	m_nAverage;
 	int			m_iCount;
 };
 
@@ -195,7 +195,7 @@ public:
 	virtual void ResetAveraging();
 
 protected:
-	std::vector<microtime>	m_vecRecords;
+	std::vector<VistaType::microtime>	m_vecRecords;
 	int						m_iCurrentSlot;
 };
 
@@ -204,7 +204,7 @@ protected:
 //class VISTABASEAPI VistaTickStop : public VistaTimer
 //{
 //public:
-//	typedef std::vector<microtime>::size_type index_type;
+//	typedef std::vector<VistaType::microtime>::size_type index_type;
 
 //	VistaTickStop( index_type nWindowLength = 10,
 //					IVistaTimerImp *pImp = NULL );
@@ -214,16 +214,16 @@ protected:
 
 //	double    GetFrequency() const;
 //	double    GetWindowFrequency() const;
-//	microtime GetAverageDelta() const;
-//	microtime GetAgeFromLast() const;
+//	VistaType::microtime GetAverageDelta() const;
+//	VistaType::microtime GetAgeFromLast() const;
 
 //	void ResetTickStop();
 
 //private:
-//	std::vector<microtime> m_vTicks;
+//	std::vector<VistaType::microtime> m_vTicks;
 //	index_type m_nTickIdx;
-//	uint64 m_nTickCount;
-//	microtime m_nAccumMt, m_nLastMt;
+//	VistaType::uint64 m_nTickCount;
+//	VistaType::microtime m_nAccumMt, m_nLastMt;
 //};
 
 ////@todo make this a timer, maybe fix the result 
@@ -233,7 +233,7 @@ protected:
 //public:
 //	VistaWeightedAverageTimer();
 
-//	inline void NewDt( microtime dt )
+//	inline void NewDt( VistaType::microtime dt )
 //	{
 //		if(m_nAvgTime == 0)
 //			m_nAvgTime = dt;
@@ -244,9 +244,9 @@ protected:
 //	}
 
 
-//	microtime GetAverage() const;
+//	VistaType::microtime GetAverage() const;
 //private:
-//	microtime m_nAvgTime;
+//	VistaType::microtime m_nAvgTime;
 //};
 
 #endif /* _VISTATIMER_H */

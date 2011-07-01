@@ -65,13 +65,14 @@ using namespace std;
 /*============================================================================*/
 
 VistaFileSystemNode::VistaFileSystemNode(const string &node_name) 
-: m_sName(node_name)
 {
+	SetName( node_name );
 }
 
 
-VistaFileSystemNode::~VistaFileSystemNode(){}
-
+VistaFileSystemNode::~VistaFileSystemNode()
+{
+}
 
 /*============================================================================*/
 /*  IMPLEMENTATION                                                            */
@@ -82,9 +83,21 @@ string VistaFileSystemNode::GetName() const
 	return m_sName;
 }
 
+string VistaFileSystemNode::GetLocalName() const
+{
+	return m_sLocalName;
+}
+
 void VistaFileSystemNode::SetName(const string &strName)
 {
 	m_sName = strName;
+	int iPos = m_sName.rfind( "/" );
+#ifdef WIN32
+	int iPos2 = m_sName.rfind( "\\" );
+	if( iPos2 > iPos )
+		iPos = iPos2;
+#endif
+	m_sLocalName = m_sName.substr( iPos + 1 );
 }
 
 

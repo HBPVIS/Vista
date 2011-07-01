@@ -30,20 +30,22 @@
 #include <VistaKernel/DisplayManager/VistaDisplayManager.h>
 #include <VistaKernel/DisplayManager/VistaDisplaySystem.h>
 #include <VistaKernel/DisplayManager/VistaVirtualPlatform.h>
+#include <VistaKernel/DisplayManager/VistaWindow.h>
 
 #include <VistaAspects/VistaPropertyFunctorRegistry.h>
 #include <VistaKernel/InteractionManager/VistaDriverWindowAspect.h>
-#include <VistaDeviceDriversBase/VistaDriverSensorMappingAspect.h>
-#include <VistaDeviceDriversBase/VistaDriverMeasureHistoryAspect.h>
-#include <VistaDeviceDriversBase/VistaDriverLoggingAspect.h>
-#include <VistaDeviceDriversBase/VistaDriverConnectionAspect.h>
-#include <VistaDeviceDriversBase/VistaDriverProtocolAspect.h>
-#include <VistaDeviceDriversBase/VistaDeviceIdentificationAspect.h>
-#include <VistaDeviceDriversBase/VistaDriverReferenceFrameAspect.h>
-#include <VistaDeviceDriversBase/VistaDriverGenericParameterAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverSensorMappingAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverMeasureHistoryAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverLoggingAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverConnectionAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverProtocolAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDeviceIdentificationAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverReferenceFrameAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverGenericParameterAspect.h>
 #include <VistaDeviceDriversBase/VistaDeviceDriver.h>
 #include <VistaDeviceDriversBase/VistaDeviceSensor.h>
-#include <VistaDeviceDriversBase/Drivers/VistaDTrackDriver.h>
+
+//#include <VistaDeviceDriversBase/Drivers/VistaDTrackDriver.h>
 
 //#include <VistaKernel/InteractionManager/VistaSensorFrameTransform.h>
 //#include <VistaKernel/InteractionManager/VistaDisjunctTransform.h>
@@ -447,17 +449,17 @@ bool VistaWindowConfigurator::SetWindowsByNameList(const std::list<VistaWindow*>
 {
 	// set means: remove all old, set the incoming as new
 
-	if(!m_pDriver)
+	if( m_pDriver == NULL )
 		return false;
 
-	VistaDriverWindowAspect *pAsp =
-		dynamic_cast<VistaDriverWindowAspect*>(m_pDriver->GetAspectById(VistaDriverWindowAspect::GetAspectId()));
-	if(!pAsp)
+	VistaDriverAbstractWindowAspect *pAsp 
+				= dynamic_cast<VistaDriverAbstractWindowAspect*>(
+						m_pDriver->GetAspectById(VistaDriverWindowAspect::GetAspectId() ) );
+	if( pAsp == NULL )
 		return false;
 
-	std::list<VistaWindow*> liWindows;
-	pAsp->GetWindowList(liWindows);
-	for(std::list<VistaWindow*>::const_iterator cit = liWindows.begin();
+	std::list<VistaDriverAbstractWindowAspect::WindowHandle*> liWindows = pAsp->GetWindowList();
+	for(std::list<VistaDriverAbstractWindowAspect::WindowHandle*>::const_iterator cit = liWindows.begin();
 		cit != liWindows.end(); ++cit)
 	{
 		pAsp->DetachFromWindow( *cit );
@@ -467,8 +469,51 @@ bool VistaWindowConfigurator::SetWindowsByNameList(const std::list<VistaWindow*>
 	for(std::list<VistaWindow*>::const_iterator atWin = liAttachWindows.begin();
 		atWin != liAttachWindows.end(); ++atWin)
 	{
-		pAsp->AttachToWindow( *atWin );
+#if defined(WIN32)
+		// unfortunately, there seems to be now way to
+		// retrieve the window id in a reliable way from ViSTA
+		// as GLUT, for example, does not allow to give out
+		// the window handle "as-raw" handle.
+		// so we have to lookup the "global-active-top-level" window
+		// from windows itself.
+		HWND oOSHandle = FindWindow( NULL, (*atWin)->GetWindowProperties()->GetTitle().c_str() );
+		VistaDriverAbstractWindowAspect::WindowHandle* pHandle 
+			//= new std::pair<VistaWindow*, VistaDriverAbstractWindowAspect::WindowHandle*>( (*atWin)->GetWindowId(), oOSHandle );
+			//= new std::pair<const int, VistaDriverAbstractWindowAspect::WindowHandle::OSHANDLE>( (*atWin)->GetWindowId(), oOSHandle );
+			= new VistaDriverAbstractWindowAspect::WindowHandle((*atWin)->GetWindowId(), oOSHandle ) ;
+#else
+		VistaDriverAbstractWindowAspect::WindowHandle* pHandle
+					= new VistaDriverAbstractWindowAspect::WindowHandle( (*atWin)->GetWindowId(),
+																		(void*)((long)(*atWin)->GetWindowId()) );
+#endif
+		/** DRIVERTODO memoryleak - the handle is not deleted in the aspect */
+		pAsp->AttachToWindow( pHandle );
 	}
+
+
+	/** DRIVERTODO check if we need kernel-window-aspect */
+
+	//VistaDriverWindowAspect *pAsp =	dynamic_cast<VistaDriverWindowAspect*>(
+	//			m_pDriver->GetAspectById(VistaDriverWindowAspect::GetAspectId() ) );
+	//if(!pAsp)
+	//	return false;
+
+	//std::list<VistaWindow*> liWindows;
+	//pAsp->GetWindowList(liWindows);
+	//for(std::list<VistaWindow*>::const_iterator cit = liWindows.begin();
+	//	cit != liWindows.end(); ++cit)
+	//{
+	//	pAsp->DetachFromWindow( *cit );
+	//}
+
+
+	//for(std::list<VistaWindow*>::const_iterator atWin = liAttachWindows.begin();
+	//	atWin != liAttachWindows.end(); ++atWin)
+	//{
+	//	pAsp->AttachToWindow( *atWin );
+	//}
+
+
 	return true;
 }
 
@@ -608,8 +653,10 @@ bool VistaSensorMappingConfigurator::Configure(IVistaDeviceDriver *pDriver,
 
 			if(pSensorAsp) // driver has sensor mapping, so use this to set up the sensors...
 			{
-				unsigned int nSensorType = pSensorAsp->GetTypeId(sType);
-				if(nSensorType == ~0)
+				IVistaDriverCreationMethod *pFactory = pDriver->GetFactory();
+
+				unsigned int nSensorType = pFactory->GetTypeFor(sType);
+				if(nSensorType == IVistaDriverCreationMethod::INVALID_TYPE)
 					continue;
 
 				int nRawId = oSensor.GetIntValue("RAWID");
@@ -622,37 +669,19 @@ bool VistaSensorMappingConfigurator::Configure(IVistaDeviceDriver *pDriver,
 				unsigned int nDriverSensorId = pDriver->AddDeviceSensor(pSensor);
 				if(nDriverSensorId != ~0)
 				{
-					pSensorAsp->SetSensorId(nSensorType, nRawId, nDriverSensorId);
-					VistaDriverMeasureHistoryAspect *pHist =
-						dynamic_cast<VistaDriverMeasureHistoryAspect*>(pDriver->GetAspectById(VistaDriverMeasureHistoryAspect::GetAspectId()));
-					if(pHist)
-					{
-						// should already have happened during AddDeviceSensor()
-						//pHist->RegisterSensor(pSensor);
+					unsigned int nMappingType = pSensorAsp->GetTypeId(sType);
 
-						// calculation:
-						// the update estimator gives the refresh rate in Hz (best-case)
-						// so, for a 15 frame min update, we need:
-						// rt: 1000/estimator -> msecs per sample
-						// mr: 1000/15 -> msecs per frame (max. read-time) -> 66msecs (including rendering, but hey...)
-						// mr/rt = # additional packets we need in order not to create
-						// an overrun during write
-						int nNum = int(ceilf(66.6f/float(1000.0f/float(pSensorAsp->GetUpdateRateEstimatorForType(nSensorType)))));
-						// be conservative: add 2-times the required space
-						pHist->SetHistorySize(pSensor,
-											  nHistorySize, (2*nNum),
-											  pSensorAsp->GetMeasureSizeForType(nSensorType));
-					}
+					pSensorAsp->SetSensorId(nMappingType, nRawId, nDriverSensorId);
+
+					pDriver->SetupSensorHistory( pSensor, nHistorySize, 66.6 );
 
 					// create transcoder for sensor
-					IVistaMeasureTranscoderFactory *pFac = pSensorAsp->GetTranscoderFactoryForType(nSensorType);
+					IVistaMeasureTranscoderFactory *pFac = pFactory->GetTranscoderFactoryForSensor(nSensorType);
 					if(pFac)
-					{
 						pSensor->SetMeasureTranscode( (*pFac).CreateTranscoder() );
-					}
 				}
-			} // no sensor mapping...
-			else
+			} 
+			else // no sensor mapping...
 			{
 				// try to claim sensor by id.
 				int nRawId = oSensor.GetIntValue("RAWID");
@@ -664,37 +693,8 @@ bool VistaSensorMappingConfigurator::Configure(IVistaDeviceDriver *pDriver,
 					// ok, this, at least worked..
 					pSensor->SetSensorName(strName);
 					// while here... we setup the history properly
-					VistaDriverMeasureHistoryAspect *pHist =
-						dynamic_cast<VistaDriverMeasureHistoryAspect*>(pDriver->GetAspectById(VistaDriverMeasureHistoryAspect::GetAspectId()));
-					if(pHist)
-					{
-						int nCurSize = pSensor->GetMeasures().m_nClientReadSize;
-						int nHistorySize = std::max<int>(nCurSize, oSensor.GetIntValue("HISTORY"));
-
-						if(nHistorySize != nCurSize)
-						{
-							// calculation:
-							// the update estimator gives the refresh rate in Hz (best-case)
-							// so, for a 15 frame min update, we need:
-							// rt: 1000/estimator -> msecs per sample
-							// mr: 1000/15 -> msecs per frame (max. read-time) -> 66msecs (including rendering, but hey...)
-							// mr/rt = # additional packets we need in order not to create
-							// an overrun during write
-
-							/** @todo someone should clean up the API for where to get the update estimate from */
-							// is it the sensor? the driver? the factory? the history aspect?
-							// not hard to decide, but should be done.
-							unsigned int nUpdateEstimate = 100; //pMd->GetUpdateEstimatorFor(pSensor->GetTypeHint());
-							if(nUpdateEstimate > 0)
-							{
-								int nNum = int(ceilf(66.6f/float(1000.0f/float(nUpdateEstimate))));
-								// be conservative: add 2-times the required space
-								pHist->SetHistorySize(pSensor,
-													  nHistorySize, (2*nNum),
-													  pSensor->GetMeasureHistorySize());
-							}
-						}
-					}
+					int nHistorySize = std::max<int>( 2, oSensor.GetIntValue( "HISTORY" ) );
+					pDriver->SetupSensorHistory( pSensor, nHistorySize, 66.6 );
 				}
 			}
 		}
@@ -788,12 +788,13 @@ bool VistaGenericHistoryConfigurator::Configure(IVistaDeviceDriver *pDriver,
 	unsigned int nHistorySize = props.GetIntValue("HISTORY");
 
 	VistaDriverMeasureHistoryAspect *pHist =
-		dynamic_cast<VistaDriverMeasureHistoryAspect*>(pDriver->GetAspectById(VistaDriverMeasureHistoryAspect::GetAspectId()));
-	if(pHist && pDriver->GetSensorMeasureSize())
+			dynamic_cast<VistaDriverMeasureHistoryAspect*>(
+					pDriver->GetAspectById(VistaDriverMeasureHistoryAspect::GetAspectId() ) );
+	if( pHist )
 	{
 		if(pDriver->GetNumberOfSensors() == 0)
 		{
-			pDriver->SetDefaultHistorySize( std::max<unsigned int>(1,nHistorySize) );
+			pDriver->SetDefaultHistorySize( std::max<unsigned int>( 1, nHistorySize ) );
 		}
 		else
 		{
@@ -801,9 +802,9 @@ bool VistaGenericHistoryConfigurator::Configure(IVistaDeviceDriver *pDriver,
 			{
 				if(pHist->GetIsRegistered(pDriver->GetSensorByIndex(n)))
 				{
-					pHist->SetHistorySize(pDriver->GetSensorByIndex(n),
-										  std::max<unsigned int>(1,nHistorySize), 1,
-										  pDriver->GetSensorMeasureSize());
+					pDriver->SetupSensorHistory( pDriver->GetSensorByIndex(n),
+												std::max<unsigned int>( 1, nHistorySize ),
+												66.6 );
 				}
 			}
 		}

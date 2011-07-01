@@ -31,7 +31,7 @@
 #include <VistaKernel/VistaKernelConfig.h>
 #include <VistaAspects/VistaLocatable.h>
 #include <VistaBase/VistaVectorMath.h>
-#include <VistaBase/VistaBaseTypes.h> // uint64
+#include <VistaBase/VistaBaseTypes.h> // VistaType::uint64
 
 #include <vector>
 
@@ -153,7 +153,7 @@ public:
 	 * usage. As well it is unclear what happens if we start to overflow the local counters,
 	 * although this could take some while.
 	 */
-	virtual uint64 GetTransformScore() const = 0;
+	virtual VistaType::uint64 GetTransformScore() const = 0;
 	
 protected:
 	/**

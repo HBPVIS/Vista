@@ -268,7 +268,7 @@ void VistaOpenSGParticleManager::PrepareParticleAtOrigin(int iParticleIndex)
 	m_pOriginObject->ChangeParticle(m_oCalculationParticle, 0.0, 0.0);
 }
 
-void VistaOpenSGParticleManager::UpdateParticles( microtime dCurrentTime, microtime dDeltaT )
+void VistaOpenSGParticleManager::UpdateParticles( VistaType::microtime dCurrentTime, VistaType::microtime dDeltaT )
 {
 
 	m_dCurrentTimeStamp = dCurrentTime;

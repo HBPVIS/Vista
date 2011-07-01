@@ -246,9 +246,12 @@ public:
 	 */
 	size_t crm_size() const;
 
+	void Purge(bool bDelete=false);
+
 protected:
 private:
-	std::map<std::string, IVistaDeviceDriver*> m_mpDevices;
+	typedef std::map<std::string, IVistaDeviceDriver*> DEVMAP;
+	DEVMAP m_mpDevices;
 
 	typedef std::map<std::string, IVistaDriverCreationMethod*> CRMAP;
 	CRMAP   m_mapCreationMethods;

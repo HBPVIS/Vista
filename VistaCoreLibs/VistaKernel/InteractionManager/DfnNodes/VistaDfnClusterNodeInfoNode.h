@@ -76,7 +76,7 @@ private:
 	TVdfnPort<std::string> *m_pClusterNodeName;
 	TVdfnPort<int>         *m_pClusterMode;
 	TVdfnPort<double>      *m_pClusterClock;
-	TVdfnPort<microtime>   *m_pAvgUpdate, *m_pAvgSwap;
+	TVdfnPort<VistaType::microtime>   *m_pAvgUpdate, *m_pAvgSwap;
 };
 
 /*============================================================================*/

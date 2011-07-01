@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaTimerImp.h 21315 2011-05-16 13:47:39Z dr165799 $
 
 #ifndef _VISTATIMERIMP_H
 #define _VISTATIMERIMP_H
@@ -42,12 +42,12 @@ public:
 	 * @return a strictly monotonic increasing time
 	 *         with arbitrary reference value 
 	 */
-	virtual microtime  GetMicroTime()   const = 0;
+	virtual VistaType::microtime  GetMicroTime()   const = 0;
 
 	/**
 	 * @return a strictly monotonic increasing timestamp
 	 */
-	virtual microstamp GetMicroStamp()  const = 0;
+	virtual VistaType::microstamp GetMicroStamp()  const = 0;
 
 	/**
 	 * @return a monotonic increasing time value
@@ -55,21 +55,21 @@ public:
 	 *         Due to exceeded double precision, it is not
 	 *         necessarily strictly monotonic, and less precise
 	 */
-	virtual systemtime GetSystemTime() const = 0;
+	virtual VistaType::systemtime GetSystemTime() const = 0;
 
 	/**
-	 * @param  microtime value, as received from GetMicrotime(), i.e. unaltered.
+	 * @param  VistaType::microtime value, as received from GetMicrotime(), i.e. unaltered.
 	 * @return a monotonic increasing time value
 	 *         representing system time (i.e. secs.msecs since 1970)
 	 */
-	virtual systemtime ConvertToSystemTime( const microtime mtTime ) const = 0;
+	virtual VistaType::systemtime ConvertToSystemTime( const VistaType::microtime mtTime ) const = 0;
 
 	/**
 	 * @return the currently set TimerImp singleton
 	 *         this will not create a new instance if no singleton has
 	 *         been set before, so NULL may be returned
 	 */
-	static IVistaTimerImp *GetSingleton();
+	static IVistaTimerImp *GetSingleton( bool bCreateDefaultIfNull = NULL );
 	/**
 	 * @param the timer implementation to use as default for every timer
 	 *        that is created from now on. Note that it does not, however,

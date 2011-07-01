@@ -101,7 +101,7 @@ inline void IVistaReferenceCountable::refup(IVistaReferenceCountable *val)
 inline bool IVistaReferenceCountable::refdown(IVistaReferenceCountable *val)
 {
 	--val->IVistaReferenceCountable::m_iReferenceCount;
-	if(val->IVistaReferenceCountable::m_iReferenceCount == 0)
+	if(val->IVistaReferenceCountable::m_iReferenceCount <= 0)
 	{
 		   delete val;
 		   return true;

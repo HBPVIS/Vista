@@ -1,4 +1,4 @@
-# $Id$
+# $Id: Makefile.objects 19836 2010-11-16 10:04:47Z dominikrausch $
 ## OBJECT FILES LIST
 # add your object filenames here
 # prefixed with $(OBJDIR)/

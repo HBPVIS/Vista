@@ -30,7 +30,7 @@ include( VistaCommon )
 include_directories( ${VistaCoreLibs_SOURCE_DIR} )
 
 # the version type can be either HEAD, RELASE, BRANCH, or TAG
-vista_set_version( VistaCoreLibs HEAD HEAD svn_rev )
+vista_set_version( VistaCoreLibs BRANCH EXTERNAL_TRANSCODES svn_rev )
 
 set( VISTACORELIBS_CREATE_CONFIG_PER_LIBRARY OFF CACHE BOOL "If set to true, a <Package>Config.cmake file will be created and installed for each library, not just one for the CoreLibs" )
 
@@ -48,7 +48,8 @@ vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_KERNELOPENSGEXT		VistaKe
 
 add_subdirectory( VistaDeviceDrivers )
 
-set( VISTACORELIBS_LIBRARY_OUTDIR "${CMAKE_BINARY_DIR}/lib" "${CMAKE_BINARY_DIR}/lib/DriverPlugins" )
+set( VISTACORELIBS_LIBRARY_OUTDIR "${CMAKE_BINARY_DIR}/lib" )
+set( VISTACORELIBS_DRIVER_PLUGIN_DIR "${CMAKE_BINARY_DIR}/lib/DriverPlugins" )
 set( VISTACORELIBS_CONFIG_DEFINITIONS "${VISTA_PLATFORM_DEFINE}" )
 vista_create_cmake_configs( VistaCoreLibs 
 						"${CMAKE_CURRENT_SOURCE_DIR}/VistaBuild/CMake/VistaCoreLibsConfig-build.cmake_proto"

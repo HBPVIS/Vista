@@ -110,53 +110,53 @@ void VistaByteBufferSerializer::SetByteorderSwapFlag(const bool bDoesIt )
 	m_bDoSwap = bDoesIt;
 }
 
-int VistaByteBufferSerializer::WriteShort16(  ushort16 us16Val)
+int VistaByteBufferSerializer::WriteShort16(  VistaType::ushort16 us16Val)
 {
 	fprintf (stderr, "FOOBAR\n");
       if(GetByteorderSwapFlag())
-		VistaSerializingToolset::Swap((void*)&us16Val, sizeof(ushort16));
-	return WriteValue((char*)&us16Val, sizeof(ushort16));
+		VistaSerializingToolset::Swap((void*)&us16Val, sizeof(VistaType::ushort16));
+	return WriteValue((char*)&us16Val, sizeof(VistaType::ushort16));
 }
 
-int VistaByteBufferSerializer::WriteInt32(  sint32 si32Val)
+int VistaByteBufferSerializer::WriteInt32(  VistaType::sint32 si32Val)
 {
 	if(GetByteorderSwapFlag())
-		VistaSerializingToolset::Swap((void*)&si32Val, sizeof(sint32));
+		VistaSerializingToolset::Swap((void*)&si32Val, sizeof(VistaType::sint32));
 	return WriteValue((char*)&si32Val, sizeof(si32Val));
 }
 
-int VistaByteBufferSerializer::WriteInt32(  uint32 si32Val)
+int VistaByteBufferSerializer::WriteInt32(  VistaType::uint32 si32Val)
 {
 	if(GetByteorderSwapFlag())
-		VistaSerializingToolset::Swap((void*)&si32Val, sizeof(uint32));
+		VistaSerializingToolset::Swap((void*)&si32Val, sizeof(VistaType::uint32));
 	return WriteValue((char*)&si32Val, sizeof(si32Val));
 }
 
-int VistaByteBufferSerializer::WriteInt64(  sint64 si64Val)
+int VistaByteBufferSerializer::WriteInt64(  VistaType::sint64 si64Val)
 {
 	if(GetByteorderSwapFlag())
-		VistaSerializingToolset::Swap((void*)&si64Val, sizeof(sint64));
+		VistaSerializingToolset::Swap((void*)&si64Val, sizeof(VistaType::sint64));
 	return WriteValue((char*)&si64Val, sizeof(si64Val));
 }
 
-int VistaByteBufferSerializer::WriteUInt64(  uint64 ui64Val)
+int VistaByteBufferSerializer::WriteUInt64(  VistaType::uint64 ui64Val)
 {
 	if(GetByteorderSwapFlag())
-		VistaSerializingToolset::Swap((void*)&ui64Val, sizeof(uint64));
+		VistaSerializingToolset::Swap((void*)&ui64Val, sizeof(VistaType::uint64));
 	return WriteValue((char*)&ui64Val, sizeof(ui64Val));
 }
 
-int VistaByteBufferSerializer::WriteFloat32(  float32 fVal)
+int VistaByteBufferSerializer::WriteFloat32(  VistaType::float32 fVal)
 {
 	if(GetByteorderSwapFlag())
-		VistaSerializingToolset::Swap((void*)&fVal, sizeof(float32));
+		VistaSerializingToolset::Swap((void*)&fVal, sizeof(VistaType::float32));
 	return WriteValue((char*)&fVal, sizeof(fVal));
 }
 
-int VistaByteBufferSerializer::WriteFloat64(  float64 f64Val)
+int VistaByteBufferSerializer::WriteFloat64(  VistaType::float64 f64Val)
 {
 	if(GetByteorderSwapFlag())
-		VistaSerializingToolset::Swap((void*)&f64Val, sizeof(float64));
+		VistaSerializingToolset::Swap((void*)&f64Val, sizeof(VistaType::float64));
 	return WriteValue((char*)&f64Val, sizeof(f64Val));
 }
 
@@ -197,39 +197,39 @@ int VistaByteBufferSerializer::WriteBool( bool bVal)
 }
 
 
-int VistaByteBufferSerializer::WriteShort16Name( const char *sVarName,  ushort16 us16Val)
+int VistaByteBufferSerializer::WriteShort16Name( const char *sVarName,  VistaType::ushort16 us16Val)
 {
 	return WriteShort16(us16Val);
 }
 
-int VistaByteBufferSerializer::WriteInt32Name( const char *sVarName,  sint32 si32Val)
+int VistaByteBufferSerializer::WriteInt32Name( const char *sVarName,  VistaType::sint32 si32Val)
 {
 	return WriteInt32(si32Val);
 }
 
-int VistaByteBufferSerializer::WriteInt32Name( const char *sVarName,  uint32 si32Val)
+int VistaByteBufferSerializer::WriteInt32Name( const char *sVarName,  VistaType::uint32 si32Val)
 {
 	return WriteInt32(si32Val);
 }
 
 
-int VistaByteBufferSerializer::WriteInt64Name( const char *sVarName,  sint64 si64Val)
+int VistaByteBufferSerializer::WriteInt64Name( const char *sVarName,  VistaType::sint64 si64Val)
 {
 	return WriteInt64(si64Val);
 }
 
-int VistaByteBufferSerializer::WriteUInt64Name( const char *sVarName,  uint64 ui64Val)
+int VistaByteBufferSerializer::WriteUInt64Name( const char *sVarName,  VistaType::uint64 ui64Val)
 {
 	return WriteUInt64(ui64Val);
 }
 
 
-int VistaByteBufferSerializer::WriteFloat32Name( const char *sVarName,  float32 fVal)
+int VistaByteBufferSerializer::WriteFloat32Name( const char *sVarName,  VistaType::float32 fVal)
 {
 	return WriteFloat32(fVal);
 }
 
-int VistaByteBufferSerializer::WriteFloat64Name( const char *sVarName,  float64 f64Val)
+int VistaByteBufferSerializer::WriteFloat64Name( const char *sVarName,  VistaType::float64 f64Val)
 {
 	return WriteFloat64(f64Val);
 }

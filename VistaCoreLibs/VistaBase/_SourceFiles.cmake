@@ -5,6 +5,12 @@ set( RelativeSourceGroup "Source Files" )
 set( SubDirs Half )
 
 set( DirFiles
+	VistaAtomicCounter.cpp
+	VistaAtomicCounter.h
+	VistaAutoBuffer.cpp
+	VistaAutoBuffer.h
+	VistaAutoBufferPool.cpp
+	VistaAutoBufferPool.h
 	VistaBaseConfig.h
 	VistaBaseMain.cpp
 	VistaBaseOut.cpp

@@ -40,7 +40,7 @@
 	#elif defined(LINUX) && defined(__GNUC__) //&& defined(__i386__)
 	// up to now, we are using hand-crafted assembler...
     // up-coming unix kernels have atomics in user-land, so we might switch one day
-	// note: the assembler only works for 32bit
+	// note: the assembler used here only works for 32bit
 	#endif
 #endif // VISTA_USE_ATOMICS || SUNOS
 
@@ -51,86 +51,38 @@
 class VistaAtomics
 {
 public:
-
-	//typedef unsigned int uint32;
-
 	typedef void* SWAPADDRESS;
-	//typedef uint32  CMPVAL;
 
 	/**
 	 * @return the prior-value of v1
 	 */
-	uint32 AtomicSwap(SWAPADDRESS v1, uint32 v2)
+	VistaType::uint32 AtomicSet(SWAPADDRESS v1, VistaType::uint32 v2)
 	{
 #if !defined(VISTA_USE_ATOMICS)
 		VistaSemaphoreLock l(m_lock);
-		uint32 vOld = *((uint32*)v1); // assign old value
-		*((uint32*)v1) = v2; // store new one, we assume that this works using
+		VistaType::uint32 vOld = *((VistaType::uint32*)v1); // assign old value
+		*((VistaType::uint32*)v1) = v2; // store new one, we assume that this works using
 							 // a semaphore
 		return vOld; // return the prior-value.
 #else
 	#if defined(WIN32)
-			/** @todo check on win64: is LONG 32bit? */
+			/** LONG is always 32bit, even on win64 */
 			return InterlockedExchange((LONG*)v1, (LONG)v2);
-	#elif defined(LINUX) //&& defined(__i386__)
-			return intel_gnuc_atomicswap((uint32*)v1, (uint32)v2); //atomic_xchg(v1, v2);
+	#elif defined(__GNUC__) && ( defined(__i386__) || defined(__x86_64__) || defined( __LP32__) || defined(__LP64__) )
+			return intel_gnuc_atomicswap((VistaType::uint32*)v1, (VistaType::uint32)v2); //atomic_xchg(v1, v2);
 	#else
 			VistaSemaphoreLock l(m_lock);
-			*((uint32*)v1) = v2;
-			return *((uint32*)v1);
+			*((VistaType::uint32*)v1) = v2;
+			return *((VistaType::uint32*)v1);
 	#endif
 #endif // VISTA_USE_ATOMICS
 	}
 
-	/**
-	 * Return the prior-value of v1
-	 */
-	uint32 AtomicCompareAndSwap(SWAPADDRESS v1, SWAPADDRESS v2, uint32 cmpval)
-	{
-#if !defined(VISTA_USE_ATOMICS)
-		VistaSemaphoreLock l(m_lock);
-		if( *((uint32*)v1) != cmpval )
-		{
-			uint32 vOld = *((uint32*)v1);
-			*((uint32*)v1) = *((uint32*)v2);
-			return vOld;
-		}
-		return *((uint32*)v1);
-#else
-	#if defined(WIN32)
-			/** @todo check on win64: is LONG 32bit? */
-			return InterlockedCompareExchange((PLONG)v1, (LONG)v2, (LONG)cmpval);
-	#elif defined(LINUX) && defined(__GNUC__) //&& defined(__i386__)
-			return intel_gnuc_atomiccas((uint32*)v1, (uint32)v2, (uint32)cmpval);
-	#else
-			VistaSemaphoreLock l(m_lock);
-			if( *((uint32*)v1) != cmpval )
-				*((uint32*)v1) = *((uint32*)v2);
-			return *((uint32*)v1);
-	#endif
-#endif
-	}
-
-	#if defined(LINUX) && defined(__GNUC__) //&& defined(__i386__)
-	// only valid for 32bit platforms
-	static uint32 intel_gnuc_atomiccas(volatile uint32 *mem,
-			uint32 with,
-			uint32 cmp)
-							{
-							uint32 prev;
-							asm volatile ("lock; cmpxchgl %1, %2"
-							: "=a" (prev)
-							: "r" (with), "m" (*(mem)), "0"(cmp)
-							: "memory", "cc");
-							return prev;
-							}
-	#endif
-
-	#if defined(LINUX) && defined(__GNUC__) //&& defined(__i386__)
-	// only valid for 32bit platforms
-	static uint32 intel_gnuc_atomicswap(volatile uint32 *mem, uint32 val)
+	#if defined(__GNUC__) && ( defined(__i386__) || defined(__x86_64__) || defined( __LP32__) || defined(__LP64__) )
+	// only swaps 32bit values
+	static VistaType::uint32 intel_gnuc_atomicswap(volatile VistaType::uint32 *mem, VistaType::uint32 val)
 						{
-						uint32 prev = val;
+						VistaType::uint32 prev = val;
 						asm volatile ("lock; xchgl %0, %1"
 						: "=r" (prev)
 						: "m" (*(mem)), "0"(prev)
@@ -139,7 +91,7 @@ public:
 						}
 	#endif
 
-	inline uint32 AtomicRead(const uint32 &ref)
+	inline VistaType::uint32 AtomicRead(const VistaType::uint32 &ref)
 	{
 #if !defined(VISTA_USE_ATOMICS) || defined(SUNOS)
 		VistaSemaphoreLock l(m_lock);
@@ -172,6 +124,12 @@ public:
 };
 
 
+// *****************************************************************************
+// helper classes
+// *****************************************************************************
+
+IVistaTranscoderFactoryFactory::~IVistaTranscoderFactoryFactory() {}
+
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
@@ -195,7 +153,7 @@ VistaMeasureHistory::VistaMeasureHistory(unsigned int nHistorySize,
 const VistaSensorMeasure *VistaMeasureHistory::GetCurrentRead() const
 {
 	// nothing read, yet?
-	uint32 nCurHd = m_pAtomics->AtomicRead(m_nSnapshotWriteHead);
+	VistaType::uint32 nCurHd = m_pAtomics->AtomicRead(m_nSnapshotWriteHead);
 	if( nCurHd == ~0)
 		return NULL;
 
@@ -213,17 +171,17 @@ const VistaSensorMeasure *VistaMeasureHistory::GetMostCurrent() const
 	TVistaRingBuffer<VistaSensorMeasure>::const_iterator cit(
 			m_rbHistory.index(
 					m_rbHistory.pred(
-							m_pAtomics->AtomicRead((uint32)m_rbHistory.GetCurrentVal()))));
+							m_pAtomics->AtomicRead((VistaType::uint32)m_rbHistory.GetCurrentVal()))));
 	return &(*(cit));
 
 }
 
-uint32 VistaMeasureHistory::GetCurrentReadPosition() const
+VistaType::uint32 VistaMeasureHistory::GetCurrentReadPosition() const
 {
 	return m_pAtomics->AtomicRead(m_nSnapshotWriteHead);
 }
 
-const VistaSensorMeasure *VistaMeasureHistory::GetPast(unsigned int nNum, uint32 nCurRdPos ) const
+const VistaSensorMeasure *VistaMeasureHistory::GetPast(unsigned int nNum, VistaType::uint32 nCurRdPos ) const
 {
 	if(nCurRdPos == ~0)
 		nCurRdPos = m_pAtomics->AtomicRead(m_nSnapshotWriteHead);
@@ -234,9 +192,6 @@ const VistaSensorMeasure *VistaMeasureHistory::GetPast(unsigned int nNum, uint32
 	TVistaRingBuffer<VistaSensorMeasure>::const_iterator cit
 			 = m_rbHistory.index(m_rbHistory.pred(nCurRdPos));
 
-//	for(unsigned int n=0; n < nNum; ++n)
-//		--cit;
-//	return &(*cit);
 	return &(cit - nNum);
 }
 
@@ -246,9 +201,7 @@ const VistaSensorMeasure *VistaMeasureHistory::GetCurrentPast(unsigned int nNum)
 	TVistaRingBuffer<VistaSensorMeasure>::const_iterator cit(
 			m_rbHistory.index(
 					m_rbHistory.pred(
-							m_pAtomics->AtomicRead((uint32)m_rbHistory.GetCurrentVal()))));
-//	for(unsigned int n=0; n < nNum; ++n)
-//		--cit;
+							m_pAtomics->AtomicRead((VistaType::uint32)m_rbHistory.GetCurrentVal()))));
 	return &(cit - nNum);
 }
 
@@ -258,6 +211,34 @@ const TVistaRingBuffer<VistaSensorMeasure> &VistaMeasureHistory::GetReadBuffer()
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+bool IVistaMeasureTranscoderFactory::OnUnload()
+{
+#if defined(DEBUG)
+	vddout << "IVistaMeasureTranscoderFactory::OnUnload("
+			<< typeid( *this ).name()
+			<< ")" << std::endl;
+#endif
+	VistaPropertyFunctorRegistry *pReg = VistaPropertyFunctorRegistry::GetSingleton();
+
+	// get all getter symbols from prop fac with the co-responding type tag.
+	std::list<IVistaPropertyGetFunctor*> liGetterByClass = pReg->GetGetterByClass( GetTranscoderName() );
+	std::list<IVistaPropertySetFunctor*> liSetterByClass = pReg->GetSetterByClass( GetTranscoderName() );
+
+	// unregister all getters first
+	for( std::list<IVistaPropertyGetFunctor*>::iterator git = liGetterByClass.begin(); git != liGetterByClass.end(); ++git )
+		delete *git;
+
+	for( std::list<IVistaPropertySetFunctor*>::iterator sit = liSetterByClass.begin(); sit != liSetterByClass.end(); ++sit )
+		delete *sit;
+
+	return true;
+}
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 
 IVistaMeasureTranscode::IVistaMeasureTranscode()
 : m_pMeasure(NULL)
@@ -330,7 +311,7 @@ std::set<std::string> IVistaMeasureTranscode::GetMeasureProperties() const
 		return oSet;
 }
 
-class VistaMeasureIndexTranscode : public IVistaMeasureTranscode::TTranscodeValueGet<uint32>
+class VistaMeasureIndexTranscode : public IVistaMeasureTranscode::TTranscodeValueGet<VistaType::uint32>
 {
 public:
 	VistaMeasureIndexTranscode()
@@ -339,35 +320,35 @@ public:
 	{
 	}
 
-	virtual uint32 GetValue(const VistaSensorMeasure *pMeasure ) const
+	virtual VistaType::uint32 GetValue(const VistaSensorMeasure *pMeasure ) const
 	{
 		return pMeasure->m_nMeasureIdx;
 	}
 
 	virtual bool GetValue(const VistaSensorMeasure *pMeasure,
-							uint32 &dIndex ) const
+							VistaType::uint32 &dIndex ) const
 	{
 		dIndex = pMeasure->m_nMeasureIdx;
 		return true;
 	}
 };
 
-class VistaMeasureTimeStampTranscode : public IVistaMeasureTranscode::TTranscodeValueGet<microtime>
+class VistaMeasureTimeStampTranscode : public IVistaMeasureTranscode::TTranscodeValueGet<VistaType::microtime>
 {
 public:
 	VistaMeasureTimeStampTranscode()
-		: IVistaMeasureTranscode::TTranscodeValueGet<microtime>("TIMESTAMP",
+		: IVistaMeasureTranscode::TTranscodeValueGet<VistaType::microtime>("TIMESTAMP",
 		"IVistaMeasureTranscode", "timestamp of raw measurement")
 	{
 	}
 
-	virtual microtime GetValue(const VistaSensorMeasure *pMeasure ) const
+	virtual VistaType::microtime GetValue(const VistaSensorMeasure *pMeasure ) const
 	{
 		return pMeasure->m_nMeasureTs;
 	}
 
 	virtual bool GetValue(const VistaSensorMeasure *pMeasure,
-			microtime &dStamp ) const
+			VistaType::microtime &dStamp ) const
 	{
 		dStamp = pMeasure->m_nMeasureTs;
 		return true;
@@ -398,7 +379,7 @@ public:
 		return true;
 	}
 private:
-	uint64 m_nSpeed;
+	VistaType::uint64 m_nSpeed;
 };
 
 class VistaMeasureDeliveryTranscode : public IVistaMeasureTranscode::TTranscodeValueGet<double>
@@ -479,6 +460,7 @@ VistaDeviceSensor::VistaDeviceSensor()
 VistaDeviceSensor::~VistaDeviceSensor()
 {
 	delete m_pAtomics;
+	delete m_pTickStop;
 }
 
 /*============================================================================*/
@@ -495,7 +477,7 @@ void VistaDeviceSensor::SetParent( IVistaDeviceDriver *pParent )
 	m_pParent = pParent;
 }
 
-microtime VistaDeviceSensor::GetUpdateTimeStamp() const
+VistaType::microtime VistaDeviceSensor::GetUpdateTimeStamp() const
 {
 	// yes, this is a race to read the time-stamp unprotected,
 	// as it is written by the driver concurrently.
@@ -505,7 +487,7 @@ microtime VistaDeviceSensor::GetUpdateTimeStamp() const
 	return m_rbSensorHistory.m_nUpdateTs;
 }
 
-bool VistaDeviceSensor::SetUpdateTimeStamp(microtime nTs)
+bool VistaDeviceSensor::SetUpdateTimeStamp(VistaType::microtime nTs)
 {
 	// !! see comment above: it's a race and we know that.
 	m_rbSensorHistory.m_nUpdateTs = nTs;
@@ -553,10 +535,10 @@ bool VistaDeviceSensor::SwapMeasures()
 	// an atomic read on the respective reference, as the history is
 	// probably under access right now
 	unsigned int nWriteHead =
-		m_pAtomics->AtomicRead( (uint32)m_rbSensorHistory.m_rbHistory.GetCurrentRef() );
+		m_pAtomics->AtomicRead( (VistaType::uint32)m_rbSensorHistory.m_rbHistory.GetCurrentRef() );
 
 	unsigned int nMeasureCount =
-		m_pAtomics->AtomicRead( (uint32)m_rbSensorHistory.m_nMeasureCount );
+		m_pAtomics->AtomicRead( (VistaType::uint32)m_rbSensorHistory.m_nMeasureCount );
 
 	// m_nSnapshotWriteHead is compared against that, note that
 	// m_nSnapshotWriteHead is NOT written by a concurrent thread,
@@ -594,7 +576,7 @@ bool VistaDeviceSensor::SwapMeasures()
 }
 
 
-microtime VistaDeviceSensor::GetLastUpdateTs() const
+VistaType::microtime VistaDeviceSensor::GetLastUpdateTs() const
 {
 	return m_nLastUpdateTs;
 }
@@ -615,8 +597,8 @@ bool VistaDeviceSensor::AdvanceMeasure()
 
 	// get next slot index and save in next (using RingBuffer.succ())
 	// succ() does not change the value, it merely reads it and increases it
-	uint32 next = (uint32)m_rbSensorHistory.m_rbHistory.succ(cur);
-	uint32 cnt  = m_rbSensorHistory.m_nMeasureCount+1; // increase measure count
+	VistaType::uint32 next = (VistaType::uint32)m_rbSensorHistory.m_rbHistory.succ(cur);
+	VistaType::uint32 cnt  = m_rbSensorHistory.m_nMeasureCount+1; // increase measure count
 
 
 	// the next two steps should be performed atomically in one step...
@@ -624,7 +606,7 @@ bool VistaDeviceSensor::AdvanceMeasure()
 	// atomically swap the new index with the old index
 
 	// first... some statistics...
-	microtime nPre = VistaTimeUtils::GetStandardTimer().GetMicroTime();
+	VistaType::microtime nPre = VistaTimeUtils::GetStandardTimer().GetMicroTime();
 
 	// this while loop may seem awkward to you, but AtomicSwap returns the OLD
 	// value of cur. That means: when cur is set to next the return value
@@ -637,14 +619,14 @@ bool VistaDeviceSensor::AdvanceMeasure()
 	// we should do the two following things in a one-time-step!
 	// but due to the order of access, this should not be a problem
 	// repeat: "should"
-	while(m_pAtomics->AtomicSwap((VistaAtomics::SWAPADDRESS)&cur, next) == cur)
+	while(m_pAtomics->AtomicSet((VistaAtomics::SWAPADDRESS)&cur, next) == cur)
 		++m_nSwap1FailCount;
 
-	while(m_pAtomics->AtomicSwap((VistaAtomics::SWAPADDRESS)&nCnt, cnt) == nCnt)
+	while(m_pAtomics->AtomicSet((VistaAtomics::SWAPADDRESS)&nCnt, cnt) == nCnt)
 		++m_nSwap2FailCount;
 
 	// finally... more statistics...
-	microtime nPost = VistaTimeUtils::GetStandardTimer().GetMicroTime();
+	VistaType::microtime nPost = VistaTimeUtils::GetStandardTimer().GetMicroTime();
 
 	// write the swap-time to the "last" written value!
 	// this is, of course, a race, as the "last" value is possibly under
@@ -654,7 +636,7 @@ bool VistaDeviceSensor::AdvanceMeasure()
 	// so, fetch the current slot
 	TVistaRingBuffer<VistaSensorMeasure>::iterator it(
 			m_rbSensorHistory.m_rbHistory.index( // get the index
-					m_rbSensorHistory.m_rbHistory.pred( // if the predecessor
+					m_rbSensorHistory.m_rbHistory.pred( // of the predecessor
 							m_rbSensorHistory.m_rbHistory.GetCurrentVal()))); // of the current slot being written
 
 
@@ -720,6 +702,16 @@ void VistaDeviceSensor::SetSensorName( const std::string &strName )
 VistaWindowAverageTimer &VistaDeviceSensor::GetWindowTimer() const
 {
 	return *m_pTickStop;
+}
+
+unsigned int VistaDeviceSensor::GetNewMeasureCount( unsigned int &lastRead ) const
+{
+	unsigned int nMIndex = GetMeasureIndex();
+	size_t nNewMeasureCount = std::min<unsigned int>( nMIndex - lastRead,
+			m_rbSensorHistory.m_nClientReadSize);
+
+	lastRead = nMIndex;
+	return nNewMeasureCount;
 }
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */

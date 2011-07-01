@@ -99,7 +99,7 @@ bool VdfnDriverSensorNode::DoEvalNode()
 unsigned int VdfnDriverSensorNode::CalcUpdateNeededScore() const
 {
 	// update on new -> swap <- count (indicated by GetDataCount())
-	uint32 nUpd = m_pSensor->GetDataCount();
+	VistaType::uint32 nUpd = m_pSensor->GetDataCount();
 
 	if( m_nLastUpdateIdx != nUpd ) // poll: different to old value?
 	{

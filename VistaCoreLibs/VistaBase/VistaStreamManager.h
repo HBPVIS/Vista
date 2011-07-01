@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaStreamManager.h 21315 2011-05-16 13:47:39Z dr165799 $
 
 #ifndef _VISTASTREAMMANAGER_H
 #define _VISTASTREAMMANAGER_H
@@ -67,10 +67,10 @@ public:
 	public:
 		virtual ~IInfoInterface() {}
 
-		virtual systemtime		GetFrameClock() const	= 0;
-		virtual std::string		GetNodeName() const		= 0;
-		virtual unsigned int	GetFrameCount() const	= 0;
-		virtual float			GetFrameRate() const	= 0;
+		virtual VistaType::systemtime	GetFrameClock() const	= 0;
+		virtual std::string				GetNodeName() const		= 0;
+		virtual unsigned int			GetFrameCount() const	= 0;
+		virtual float					GetFrameRate() const	= 0;
 	};
 	void SetInfoInterface( IInfoInterface* pInfoInterface );
 	IInfoInterface* GetInfoInterface() const;
@@ -82,7 +82,7 @@ public:
 	 * setting bReplaceExistingStream to true.
 	 * If bManageDeletion is true, the stream will be closed/deleted with the
 	 * StreamManager instance
-	 * @return true if stream was sucessfully added
+	 * @return true if stream was successfully added
 	 */
 	virtual bool AddStream( const std::string& sName,
 					std::ostream& oStream,
@@ -119,6 +119,7 @@ public:
 		LE_FRAMECLOCK = 0,
 		LE_AGE,
 		LE_SYSTEMTIME,
+		LE_RELATIVETIME,
 		LE_DATE,
 		LE_NODENAME,
 		LE_FRAMECOUNT,
@@ -141,11 +142,12 @@ public:
 	void PrintInfo( std::ostream& oStream ) const;
 
 	// some state info
-	systemtime GetSystemTime() const;
+	VistaType::systemtime GetSystemTime() const;
+	VistaType::systemtime GetMicroTime() const;
 	std::string GetDateString() const;
 	//special state info only a available if own InfoInterface is set
 	// return 0/"" if no InfoInterface is set
-	systemtime GetFrameClock() const;	
+	VistaType::systemtime GetFrameClock() const;	
 	std::string GetNodeName() const;
 	unsigned int GetFrameCount() const;
 	float GetFrameRate() const;

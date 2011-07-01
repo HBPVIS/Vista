@@ -40,6 +40,8 @@
 #include <list>
 #include <vector>
 #include <string>
+#include <algorithm>
+
 using std::string;
 using std::vector;
 using std::list;
@@ -142,7 +144,7 @@ unsigned int VistaAspectsConversionStuff::ConvertToUnsignedInt(const string &sVa
 bool   VistaAspectsConversionStuff::ConvertToBool(const string &sValue)
 {
 	string sTemp = ConvertToUpper(sValue);
-	if( (sTemp == "ON") || sTemp=="TRUE" || sTemp=="1")
+	if( (sTemp == "ON") || sTemp == "TRUE" || sTemp == "1")
 		return true;
 	return false;
 }
@@ -318,7 +320,7 @@ string VistaAspectsConversionStuff::ConvertToString(unsigned int iVal)
 	return buffer;
 }
 
-string VistaAspectsConversionStuff::ConvertToString(sint64  pVal)
+string VistaAspectsConversionStuff::ConvertToString(VistaType::sint64  pVal)
 {
 	char buffer[4096];
 #ifdef WIN32
@@ -340,9 +342,9 @@ string VistaAspectsConversionStuff::ConvertToString(double  dVal)
 string VistaAspectsConversionStuff::ConvertToString(bool bVal)
 {
 	// kids: never do this at home
-	char buffer[4096];
-	sprintf(buffer, "%s", (bVal ? "TRUE" : "FALSE"));
-	return buffer;
+	if( bVal )
+		return "TRUE";
+	return "FALSE";
 }
 
 string VistaAspectsConversionStuff::ConvertToString(void *pVal)
@@ -358,23 +360,15 @@ string VistaAspectsConversionStuff::ConvertToString(void *pVal)
 
 string VistaAspectsConversionStuff::ConvertToLower(const string &sValue)
 {
-	string strTemp = sValue;
-	for (unsigned int i=0; i<strTemp.size(); ++i)
-	{
-		strTemp[i] = tolower(strTemp[i]);
-	}
-
+	string strTemp;
+	std::transform( sValue.begin(), sValue.end(), std::back_inserter(strTemp), ::tolower);
 	return strTemp;
 }
 
 string VistaAspectsConversionStuff::ConvertToUpper(const string &sValue)
 {
-	string strTemp = sValue;
-	for (unsigned int i=0; i<strTemp.size(); ++i)
-	{
-		strTemp[i] = toupper(strTemp[i]);
-	}
-
+	string strTemp;
+	std::transform(sValue.begin(), sValue.end(), std::back_inserter(strTemp), ::toupper );
 	return strTemp;
 }
 

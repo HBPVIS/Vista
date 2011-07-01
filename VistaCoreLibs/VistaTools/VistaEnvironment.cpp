@@ -139,3 +139,79 @@ void VistaEnvironment::SetEnv(const std::string &sKey, const std::string &sValue
 {
 	putenv((char*)(sKey+std::string("=")+sValue).c_str());
 };
+
+std::string VistaEnvironment::GetLibraryPathEnv()
+{
+#if defined WIN32 
+	return CheckedReturn( getenv( "PATH" ) );
+#elif defined DARWIN
+	return CheckedReturn( getenv( "DYLD_LIBRARY_PATH" ) );
+#else // UNIX
+	return CheckedReturn( getenv( "LD_LIBRARY_PATH" ) );
+#endif
+};
+
+void VistaEnvironment::SetLibraryPathEnv( const std::string &sValue )
+{
+#if defined WIN32 
+	putenv( ( "PATH=" + sValue ).c_str() );
+#elif defined DARWIN
+	putenv( ( "DYLD_LIBRARY_PATH=" + sValue ).c_str() );
+#else // UNIX
+	putenv( (char*)( "LD_LIBRARY_PATH=" + sValue ).c_str() );
+#endif
+};
+
+void VistaEnvironment::AddPathToLibraryPathEnv( const std::string &sValue, bool bAddAtBack )
+{
+	/** @todo check Darwin format */
+#if defined WIN32
+	std::string sNewPath = getenv( "PATH" );
+	if( bAddAtBack )
+		sNewPath = sNewPath + ";" + sValue;
+	else
+		sNewPath = sValue + ";" + sNewPath;
+	putenv( ( "PATH=" + sNewPath ).c_str() );
+#elif defined DARWIN
+	std::string sNewPath = getenv( "DYLD_LIBRARY_PATH" );
+	if( bAddAtBack )
+		sNewPath = sNewPath + ":" + sValue;
+	else
+		sNewPath = sValue + ":" + sNewPath;
+	putenv( ( "DYLD_LIBRARY_PATH=" + sNewPath ).c_str() );
+#else // UNIX
+	std::string sNewPath = GetEnv( "LD_LIBRARY_PATH" );
+	if( bAddAtBack )
+		sNewPath = sNewPath + ":" + sValue;
+	else
+		sNewPath = sValue + ":" + sNewPath;
+	SetEnv( "LD_LIBRARY_PATH", sNewPath );
+#endif
+}
+
+char VistaEnvironment::GetOSEnvironmentPathSeparator()
+{
+#ifdef WIN32
+	return ';';
+#else
+	return ':';
+#endif
+}
+
+std::string VistaEnvironment::ReplaceOSEnvironemntPathSeparators( const std::string& sPathListEntry,
+														const char cReplaceWith )
+{
+	std::string sReturn( sPathListEntry );
+	const char cSep = GetOSEnvironmentPathSeparator();
+	for( std::string::iterator itChar = sReturn.begin();
+			itChar != sReturn.end(); ++itChar )
+	{
+		if( (*itChar) == cSep )
+			(*itChar) = cReplaceWith;
+	}
+	return sReturn;
+}
+
+
+
+

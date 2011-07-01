@@ -155,7 +155,7 @@ DLVistaCheckError DLVistaPipeChecker::CheckPipe(IDLVistaPipeComponent *pBeginnin
 	IDLVistaRTC *pRTC = IDLVistaRTC::GetRTCSingleton();
 	if(!pRTC)
 	{
-		sprintf(ccBuffer, ccSetupErrorMsgs[NORTC_ERROR]);
+		sprintf(ccBuffer, "%s", ccSetupErrorMsgs[NORTC_ERROR]);
 		return DLVistaCheckError(cSErrorNames[EN_SETUP], string(ccBuffer));
 	}
 

@@ -261,12 +261,12 @@ unsigned int VistaClusterSlave::GetSlaveIndex() const
 }
 
 
-microtime VistaClusterSlave::GetAvgUpdateTime() const
+VistaType::microtime VistaClusterSlave::GetAvgUpdateTime() const
 {
 	return m_pAvgUpd->GetAverageTime();
 }
 
-microtime VistaClusterSlave::GetAvgSwapTime() const
+VistaType::microtime VistaClusterSlave::GetAvgSwapTime() const
 {
 	return m_pAvgSwap->GetAverageTime();
 }
@@ -504,7 +504,7 @@ bool VistaClusterSlave::ProcessCurrentFrame()
 
 bool VistaClusterSlave::PostSystemInitEvent()
 {
-	m_pConnection->WriteInt32( (uint32)m_strSlaveName.size() );
+	m_pConnection->WriteInt32( (VistaType::uint32)m_strSlaveName.size() );
 	m_pConnection->WriteString( m_strSlaveName );
 	return true;
 }

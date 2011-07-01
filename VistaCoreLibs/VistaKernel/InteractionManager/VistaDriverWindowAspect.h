@@ -30,7 +30,7 @@
 /*============================================================================*/
 #include <VistaKernel/VistaKernelConfig.h>
 #include <VistaDeviceDriversBase/VistaDeviceDriver.h>
-#include <VistaDeviceDriversBase/VistaDriverAbstractWindowAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverAbstractWindowAspect.h>
 
 #include <list>
 /*============================================================================*/
@@ -75,7 +75,7 @@ public:
 
 	/**
 	 * This is a special attach sequence to work with VistaWindow pointers
-	 * instead of CWindowHandles and is used by kernel level devices, for
+	 * instead of WindowHandles and is used by kernel level devices, for
 	 * example the glut devices in the OpenSG/glut implementation.
 	 */
 	class VISTAKERNELAPI IVistaDriverWindowTouchSequence
@@ -90,9 +90,7 @@ public:
 
 protected:
 private:
-	std::list<
-		std::pair<VistaWindow*, CWindowHandle*>
-	> m_liWindows;
+	std::list<std::pair<VistaWindow*, WindowHandle*> > m_liWindows;
 };
 
 /*============================================================================*/

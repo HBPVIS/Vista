@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaTimeUtils.h 21410 2011-05-20 14:27:43Z dr165799 $
 
 #ifndef _VISTATIMEUTILS_H
 #define _VISTATIMEUTILS_H
@@ -39,12 +39,12 @@ public:
 	 * @param system time
 	 * @return time since start of current day
 	 */
-	static microtime ConvertToDayTime( systemtime mtTime );
+	static VistaType::microtime ConvertToDayTime( VistaType::systemtime mtTime );
 	/**
 	 * Converts a system time value to several integer values
 	 * describing the current time and date
 	 */
-	static void ConvertToDate( const systemtime dTime, 
+	static void ConvertToDate( const VistaType::systemtime dTime, 
 								int& iMillisecond,
 								int& iSecond,
 								int& iMinute,
@@ -58,7 +58,7 @@ public:
 	 * YYMMDD_HHMMSS, which lexicographically sorts by age
 	 * This is especially suitable as postfix for filenames
 	 */
-	static std::string ConvertToLexicographicDateString( const systemtime dTime );
+	static std::string ConvertToLexicographicDateString( const VistaType::systemtime dTime );
 
 	static void Sleep( int iMilliseconds );
 

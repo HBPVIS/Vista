@@ -66,7 +66,7 @@ public:
 
 
 	/**
-	 * @todo rename to GetId(), return uint64 or native (size_t)
+	 * @todo rename to GetId(), return VistaType::uint64 or native (size_t)
 	 * or remove from this interface...
 	 */
 	void* GetNameableId() const;

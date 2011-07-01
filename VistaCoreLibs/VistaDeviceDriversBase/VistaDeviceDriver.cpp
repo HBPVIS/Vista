@@ -24,7 +24,7 @@
 
 #include "VistaDeviceDriver.h"
 #include "VistaDeviceSensor.h"
-#include "VistaDriverMeasureHistoryAspect.h"
+#include "DriverAspects/VistaDriverMeasureHistoryAspect.h"
 
 #include <algorithm>
 
@@ -47,13 +47,14 @@
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
-IVistaDeviceDriver::IVistaDeviceDriver(unsigned int nDefHistSize)
+IVistaDeviceDriver::IVistaDeviceDriver(IVistaDriverCreationMethod *fac, unsigned int nDefHistSize)
 : m_eUpdType (IVistaDeviceDriver::UPDATE_EXPLICIT_POLL),
   m_bEnabled(true),
-  m_pHistoryAspect(new VistaDriverMeasureHistoryAspect(nDefHistSize)),
-  m_nDefaultHistorySize(~0),
+  m_pHistoryAspect( new VistaDriverMeasureHistoryAspect ),
+  m_nDefaultHistorySize( nDefHistSize ),
   m_pFrequencyTimer( new VistaWindowAverageTimer( 50 ) ),
   m_pUpdateTimer( new VistaAverageTimer )
+, m_pFactory( fac )
 {
 	RegisterAspect(m_pHistoryAspect);
 }
@@ -76,7 +77,7 @@ const VistaWindowAverageTimer& IVistaDeviceDriver::GetFrequencyTimer() const
 	return *m_pFrequencyTimer;
 }
 
-microtime IVistaDeviceDriver::GetAverageUpdateFrequency() const
+VistaType::microtime IVistaDeviceDriver::GetAverageUpdateFrequency() const
 {
 	return ( 1.0 / m_pFrequencyTimer->GetAverageTime() );
 }
@@ -86,18 +87,22 @@ const VistaAverageTimer& IVistaDeviceDriver::GetUpdateTimer() const
 	return *m_pUpdateTimer;
 }
 
-microtime IVistaDeviceDriver::GetAverageUpdateTime() const
+VistaType::microtime IVistaDeviceDriver::GetAverageUpdateTime() const
 {
 	return m_pUpdateTimer->GetAverageTime();
 }
 
-void IVistaDeviceDriver::MeasureStart(unsigned int nSensorIdx, microtime dTs)
+VistaSensorMeasure *IVistaDeviceDriver::MeasureStart(unsigned int nSensorIdx, VistaType::microtime dTs, bool getCurrent)
 {
 	VistaDeviceSensor *pSen = GetSensorByIndex(nSensorIdx);
 	if(pSen)
 	{
 		m_pHistoryAspect->MeasureStart(pSen, dTs);
+		if( getCurrent )
+			return m_pHistoryAspect->GetCurrentSlot(pSen);
 	}
+
+	return NULL;
 }
 
 void IVistaDeviceDriver::MeasureStop(unsigned int nSensorIdx)
@@ -119,12 +124,15 @@ void        IVistaDeviceDriver::SetUpdateType(eUpdateType eTp)
 	m_eUpdType = eTp;
 }
 
-void IVistaDeviceDriver::SwapSensorMeasures()
+void IVistaDeviceDriver::SwapSensorMeasures(std::vector<int> *liIds )
 {
 	for(std::vector<VistaDeviceSensor*>::iterator it = m_vecSensors.begin();
 		it != m_vecSensors.end(); ++it)
 	{
-		(*it)->SwapMeasures();
+		if( (*it)->SwapMeasures() && liIds )
+		{
+			(*liIds).push_back( it - m_vecSensors.begin() );
+		}
 	}
 }
 
@@ -161,9 +169,8 @@ unsigned int IVistaDeviceDriver::AddDeviceSensor(VistaDeviceSensor *pSensor)
 	pSensor->SetParent(this);
 	if(m_nDefaultHistorySize != ~0)
 	{
-		m_pHistoryAspect->SetHistorySize( pSensor, m_nDefaultHistorySize, 1, GetSensorMeasureSize() );
+		SetupSensorHistory( pSensor, m_nDefaultHistorySize, 66.6 );
 	}
-
 	return (unsigned int)m_vecSensors.size() - 1;
 }
 
@@ -211,12 +218,19 @@ bool IVistaDeviceDriver::RemDeviceSensorByIndex(unsigned int uiIndex)
 }
 
 bool IVistaDeviceDriver::SetupSensorHistory( VistaDeviceSensor *pSensor,
-						 unsigned int nMaxSlotsToRead,
-	                     float nMaxHistoryAccessTimeInMsec,
-						 unsigned int nUpdateRateOfSensorInHz )
+							unsigned int nMaxSlotsToRead,
+							VistaType::microtime nMaxHistoryAccessTimeInMsec )
 {
-	int nNum = int(ceilf(nMaxHistoryAccessTimeInMsec/float(1000.0f/float(nUpdateRateOfSensorInHz))));
-	return m_pHistoryAspect->SetHistorySize( pSensor, nMaxSlotsToRead, 2*nNum, GetSensorMeasureSize() );
+	unsigned int nUpdateRateOfSensorInHz = m_pFactory->GetUpdateEstimatorFor( pSensor->GetTypeHint() );
+	if( nUpdateRateOfSensorInHz == ~0 )
+		return false;
+
+	int nNum = int(ceilf((float)nMaxHistoryAccessTimeInMsec/float(1000.0f/float(nUpdateRateOfSensorInHz))));
+	unsigned int nMeasureSize = m_pFactory->GetMeasureSizeFor( pSensor->GetTypeHint() );
+	if( nMeasureSize == ~0 )
+		nMeasureSize = 0;
+	
+	return m_pHistoryAspect->SetHistorySize( pSensor, nMaxSlotsToRead, 2*nNum, nMeasureSize );
 }
 
 
@@ -226,7 +240,7 @@ bool IVistaDeviceDriver::Update()
 		return false;
 
 	m_pUpdateTimer->StartRecording();
-	microtime d0 = m_pUpdateTimer->GetMicroTime();
+	VistaType::microtime d0 = m_pUpdateTimer->GetMicroTime();
 	bool bRet = DoSensorUpdate( d0 );
 	
 	if( bRet )
@@ -275,14 +289,9 @@ void IVistaDeviceDriver::DeleteAllSensors()
 	m_vecSensors.clear();
 }
 
-
-IVistaDriverCreationMethod *IVistaDeviceDriver::GetDriverFactoryMethod()
+IVistaDriverCreationMethod *IVistaDeviceDriver::GetFactory() const
 {
-	VISTA_THROW("Called Create driver on base class -- too unspecific",
-		0x01000001);
-
-	// we should never reach this line
-	return NULL;
+	return m_pFactory;
 }
 
 void IVistaDeviceDriver::SetDefaultHistorySize(unsigned int nSize)
@@ -297,24 +306,34 @@ bool IVistaDeviceDriver::Connect()
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-IVistaDriverCreationMethod::IVistaDriverCreationMethod()
+const unsigned int IVistaDriverCreationMethod::INVALID_TYPE = ~0;
+
+IVistaDriverCreationMethod::IVistaDriverCreationMethod(IVistaTranscoderFactoryFactory *metaFac)
 : m_nTypeCount(0)
+, m_metaFac(metaFac)
 {
 }
 
 IVistaDriverCreationMethod::~IVistaDriverCreationMethod()
 {
+	std::list<std::string> liTranscoders = GetTypeNames();
+	std::for_each( liTranscoders.begin(), liTranscoders.end(),
+				   _unregisterAndDeleteTranscoderFac(this) );
+}
+
+IVistaTranscoderFactoryFactory *IVistaDriverCreationMethod::GetMetaFactory() const
+{
+	return m_metaFac;
 }
 
 unsigned int IVistaDriverCreationMethod::RegisterSensorType( const std::string &strName,
 								 unsigned int nMeasureSize,
 								 unsigned int nUpdateEstimator,
-								 IVistaMeasureTranscoderFactory *pFac,
-								 const std::string &strTranscoderType )
+								 IVistaMeasureTranscoderFactory *pFac )
 {
 	// first, lookup the type name
 	if( m_mapTypeNames.find( strName ) != m_mapTypeNames.end() )
-		return ~0; // indicate failure
+		return INVALID_TYPE; // indicate failure
 
 	// ok, this name is not yet registered, so create a mapping
 	m_mapTypeNames[strName] = m_nTypeCount;
@@ -322,23 +341,38 @@ unsigned int IVistaDriverCreationMethod::RegisterSensorType( const std::string &
 	// push factory to its proper place
 
 	m_mapFactories[ m_nTypeCount ] = _sL( pFac, nMeasureSize, nUpdateEstimator ); // copy in
-	AddTranscoderType( strTranscoderType );
+	AddTranscoderType( pFac->GetTranscoderName() );
 	return m_nTypeCount++; // increase counter on leave for the next registration
+}
+
+bool IVistaDriverCreationMethod::SetMeasureSizeFor( const std::string &strType, unsigned int nNewSize )
+{
+	// first, lookup the type name
+	MAPNAME::const_iterator cit = m_mapTypeNames.find(strType);
+	if( cit == m_mapTypeNames.end() )
+		return false;
+
+	unsigned int nType = (*cit).second;
+	_sL &l = m_mapFactories[nType];
+
+	l.m_nMeasureSize = nNewSize;
+
+	return true;
 }
 
 
 bool IVistaDriverCreationMethod::UnregisterType(const std::string &strType, bool bDeleteFactories)
 {
 	MAPNAME::iterator it = m_mapTypeNames.find( strType );
-	if( it != m_mapTypeNames.end() )
+	if( it == m_mapTypeNames.end() )
 		return true; // not registered == unregistered
 
 	// lookup the _sL
 	FACMAP::iterator fit = m_mapFactories.find( (*it).second );
 
 	// should not be end() !!
-	if(bDeleteFactories)
-		delete (*fit).second.m_pFac; // kill fac
+	if(bDeleteFactories && m_metaFac)
+		m_metaFac->DestroyTranscoderFactory((*fit).second.m_pFac); // kill fac
 
 	m_mapFactories.erase(fit); // erase from map
 	m_mapTypeNames.erase(it); // erase from map
@@ -398,7 +432,7 @@ unsigned int IVistaDriverCreationMethod::GetTypeFor( const std::string &strType 
 {
 	MAPNAME::const_iterator cit = m_mapTypeNames.find(strType);
 	if(cit == m_mapTypeNames.end())
-		return ~0;
+		return INVALID_TYPE;
 	return (*cit).second;
 }
 
@@ -406,7 +440,7 @@ unsigned int IVistaDriverCreationMethod::GetMeasureSizeFor( unsigned int nType )
 {
 	FACMAP::const_iterator it = m_mapFactories.find( nType );
 	if( it == m_mapFactories.end() )
-		return ~0; // indicate failure
+		return INVALID_TYPE; // indicate failure
 
 	const _sL &sL = (*it).second;
 	return sL.m_nMeasureSize;
@@ -416,7 +450,7 @@ unsigned int IVistaDriverCreationMethod::GetUpdateEstimatorFor(unsigned int nTyp
 {
 	FACMAP::const_iterator it = m_mapFactories.find( nType );
 	if( it == m_mapFactories.end() )
-		return ~0; // indicate failure
+		return INVALID_TYPE; // indicate failure
 
 	const _sL &sL = (*it).second;
 	return sL.m_nUpdateEstimator;
@@ -473,6 +507,17 @@ void IVistaDriverCreationMethod::AddTranscoderType( const std::string &strType )
 std::list<std::string> IVistaDriverCreationMethod::GetTranscoderTypes() const
 {
 	return m_liTranscoderTypes;
+}
+
+void IVistaDriverCreationMethod::_unregisterAndDeleteTranscoderFac::operator ()( const std::string &strTypeName ) const
+{
+	IVistaMeasureTranscoderFactory *fac = m_crm->GetTranscoderFactoryForSensor(strTypeName);
+	if(fac)
+	{
+		m_crm->UnregisterType( strTypeName );
+		if( m_crm->GetMetaFactory() )
+			m_crm->GetMetaFactory()->DestroyTranscoderFactory( fac );
+	}
 }
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // ASPECTS
@@ -551,11 +596,6 @@ bool IVistaDeviceDriver::UnregisterAspect(IVistaDeviceDriverAspect *pDriverAspec
 		delete pDriverAspect;
 
 	return true;
-}
-
-unsigned int IVistaDeviceDriver::GetSensorMeasureSize() const
-{
-	return 0;
 }
 
 std::list<int> IVistaDeviceDriver::EnumerateAspectIds() const

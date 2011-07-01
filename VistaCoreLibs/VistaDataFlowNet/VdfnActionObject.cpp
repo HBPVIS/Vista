@@ -82,13 +82,13 @@ bool IVdfnActionObject::Pull()
 	return false;
 }
 
-void IVdfnActionObject::SetUpdateTimeStamp( const microtime dTimestamp,
+void IVdfnActionObject::SetUpdateTimeStamp( const VistaType::microtime dTimestamp,
 											const bool bInportsChanged )
 {
 	m_dUpdateTimeStamp = dTimestamp;
 }
 
-microtime IVdfnActionObject::GetUpdateTimeStamp() const
+VistaType::microtime IVdfnActionObject::GetUpdateTimeStamp() const
 {
 	return m_dUpdateTimeStamp;
 }

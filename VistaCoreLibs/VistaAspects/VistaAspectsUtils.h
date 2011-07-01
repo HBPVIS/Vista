@@ -85,7 +85,7 @@ public:
 
 	static std::string ConvertToString(int iVal);
 	static std::string ConvertToString(unsigned int iVal);
-	static std::string ConvertToString(sint64 iVal);
+	static std::string ConvertToString(VistaType::sint64 iVal);
 	static std::string ConvertToString(double dVal);
 	static std::string ConvertToString(bool bVal);
 	static std::string ConvertToString(void *pVal);

@@ -61,8 +61,8 @@ public:
 			{
 				m_fProtOut = fopen(pcFileName, "a+");
 				char c[4096];
-				sprintf(c, "Enabled log for thread %ld, %d @ %x\n",
-					this->GetThreadIdentity(), m_id, this);
+				sprintf(c, "Enabled log for thread %ld, %d @ %lx\n",
+					this->GetThreadIdentity(), m_id, long(this));
 				PutMsg(c);
 			}
 		}
@@ -71,8 +71,8 @@ public:
 			if(m_fProtOut)
 			{
 				char c[4096];
-				sprintf(c, "Closed log for thread %ld, %d @ %x\n",
-					this->GetThreadIdentity(), m_id, this);
+				sprintf(c, "Closed log for thread %ld, %d @ %lx\n",
+					this->GetThreadIdentity(), m_id, long(this));
 				fclose(m_fProtOut);
 				m_fProtOut = NULL;
 			}
@@ -85,11 +85,11 @@ protected:
 	{
 		if(m_fProtOut)
 		{
-			fprintf(m_fProtOut, pcMsg);
+			fprintf(m_fProtOut, "%s", pcMsg);
 		}
 		else
 		{
-			printf(pcMsg);
+			printf("%s", pcMsg);
 		}
 	}
 private:

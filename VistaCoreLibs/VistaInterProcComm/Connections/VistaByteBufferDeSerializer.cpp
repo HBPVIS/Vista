@@ -111,42 +111,42 @@ void VistaByteBufferDeSerializer::SetByteorderSwapFlag(const bool bDoesIt )
 	m_bDoSwap = bDoesIt;
 }
 
-int VistaByteBufferDeSerializer::ReadShort16( ushort16 &us16Val)
+int VistaByteBufferDeSerializer::ReadShort16( VistaType::ushort16 &us16Val)
 {
 	if(!DoRead((unsigned char*)&us16Val, sizeof(us16Val)))
 		return -1;
-	return sizeof(ushort16);
+	return sizeof(VistaType::ushort16);
 }
 
-int VistaByteBufferDeSerializer::ReadInt32( sint32 &si32Val)
+int VistaByteBufferDeSerializer::ReadInt32( VistaType::sint32 &si32Val)
 {
 	if(!DoRead((unsigned char*)&si32Val, sizeof(si32Val)))
 		return -1;
-	return sizeof(sint32);
+	return sizeof(VistaType::sint32);
 }
 
-int VistaByteBufferDeSerializer::ReadInt32( uint32 &si32Val)
+int VistaByteBufferDeSerializer::ReadInt32( VistaType::uint32 &si32Val)
 {
-	if(!DoRead((unsigned char*)&si32Val, sizeof(uint32)))
+	if(!DoRead((unsigned char*)&si32Val, sizeof(VistaType::uint32)))
 		return -1;
-	return sizeof(sint32);
+	return sizeof(VistaType::sint32);
 }
 
- int VistaByteBufferDeSerializer::ReadInt64( sint64 &si64Val)
+ int VistaByteBufferDeSerializer::ReadInt64( VistaType::sint64 &si64Val)
 {
 	if(!DoRead((unsigned char*)&si64Val, sizeof(si64Val)))
 		return -1;
 	return sizeof(si64Val);
 }
 
-int VistaByteBufferDeSerializer::ReadUInt64( uint64 &ui64Val)
+int VistaByteBufferDeSerializer::ReadUInt64( VistaType::uint64 &ui64Val)
 {
 	if(!DoRead((unsigned char*)&ui64Val, sizeof(ui64Val)))
 		return -1;
 	return sizeof(ui64Val);
 }
 
- int VistaByteBufferDeSerializer::ReadFloat32( float32 &fVal)
+ int VistaByteBufferDeSerializer::ReadFloat32( VistaType::float32 &fVal)
 {
 	if( !DoRead((unsigned char*)&fVal, sizeof(fVal)))
 		return -1;
@@ -154,7 +154,7 @@ int VistaByteBufferDeSerializer::ReadUInt64( uint64 &ui64Val)
 
 }
 
- int VistaByteBufferDeSerializer::ReadFloat64( float64 &f64Val)
+ int VistaByteBufferDeSerializer::ReadFloat64( VistaType::float64 &f64Val)
 {
 	if(!DoRead((unsigned char*)&f64Val, sizeof(f64Val)))
 		return -1;
@@ -237,38 +237,38 @@ int VistaByteBufferDeSerializer::ReadRawBuffer(void *pBuffer, int iLen)
 	 return ReadDouble(dDouble);
 }
 
- int VistaByteBufferDeSerializer::ReadShort16Name( const char *sVarName, ushort16 &us16Val)
+ int VistaByteBufferDeSerializer::ReadShort16Name( const char *sVarName, VistaType::ushort16 &us16Val)
 {
 	 return ReadShort16(us16Val);
 }
 
- int VistaByteBufferDeSerializer::ReadInt32Name( const char *sVarName, sint32 &si32Val)
+ int VistaByteBufferDeSerializer::ReadInt32Name( const char *sVarName, VistaType::sint32 &si32Val)
 {
 	 return ReadInt32(si32Val);
 }
 
-int VistaByteBufferDeSerializer::ReadInt32Name( const char *sVarName, uint32 &si32Val)
+int VistaByteBufferDeSerializer::ReadInt32Name( const char *sVarName, VistaType::uint32 &si32Val)
 {
 	 return ReadInt32(si32Val);
 }
 
 
-int VistaByteBufferDeSerializer::ReadInt64Name( const char *sVarName, sint64 &si64Val)
+int VistaByteBufferDeSerializer::ReadInt64Name( const char *sVarName, VistaType::sint64 &si64Val)
 {
 	return ReadInt64(si64Val);
 }
 
-int VistaByteBufferDeSerializer::ReadUInt64Name( const char *sVarName, uint64 &ui64Val)
+int VistaByteBufferDeSerializer::ReadUInt64Name( const char *sVarName, VistaType::uint64 &ui64Val)
 {
 	return ReadUInt64(ui64Val);
 }
 
- int VistaByteBufferDeSerializer::ReadFloat32Name( const char *sVarName, float32 &fVal)
+ int VistaByteBufferDeSerializer::ReadFloat32Name( const char *sVarName, VistaType::float32 &fVal)
 {
 	return ReadFloat32(fVal);
 }
 
- int VistaByteBufferDeSerializer::ReadFloat64Name( const char *sVarName, float64 &f64Val)
+ int VistaByteBufferDeSerializer::ReadFloat64Name( const char *sVarName, VistaType::float64 &f64Val)
 {
 	return ReadFloat64(f64Val);
 }

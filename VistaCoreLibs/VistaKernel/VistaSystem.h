@@ -341,6 +341,11 @@ private:
 
 	bool SetupBasicInteraction();
 
+	bool LoadDeviceDrivers();
+	bool LoadDriverPlugin( const std::string& sDriverType = 0,
+							const std::string& sPluginName = 0,
+							const std::string& sTranscoderName = 0 );
+
 	bool IndicateSystemProgress(int iProgressStage,
 								const std::string &sProgressMessageText,
 								bool bDone);
@@ -355,6 +360,8 @@ private:
 
 	std::list<std::string> m_liSearchPath;
 	bool m_bLockSearchPath;
+
+	std::list<std::string>	m_liDriverPluginPathes;
 };
 
 

@@ -15,6 +15,7 @@ OBJS   	=       ${OBJDIR}/VistaDeviceDriversOut.o \
 				${OBJDIR}/VistaDriverForceFeedbackAspect.o \
 				${OBJDIR}/VistaDriverLoggingAspect.o \
 				${OBJDIR}/VistaDriverMap.o \
+				${OBJDIR}/VistaDriverManager.o \
 				${OBJDIR}/VistaDriverMeasureHistoryAspect.o \
 				${OBJDIR}/VistaDriverSensorMappingAspect.o \
 				${OBJDIR}/VistaDriverThreadAspect.o \
@@ -27,18 +28,8 @@ OBJS   	=       ${OBJDIR}/VistaDeviceDriversOut.o \
 				${OBJDIR}/VistaDeviceIdentificationAspect.o \
 				${OBJDIR}/VistaKeyboardDriver.o \
 				${OBJDIR}/VistaMouseDriver.o \
-				\
-				${OBJDIR}/VistaDTrackDriver.o \
-				${OBJDIR}/VistaHIDDriver.o \
-				${OBJDIR}/VistaHIDDriverForceFeedbackAspect.o \
-				${OBJDIR}/VistaMIDIDriver.o \
-				${OBJDIR}/VistaSpaceMouseDriver.o \
-				${OBJDIR}/VistaIRManDriver.o \
-				${OBJDIR}/VistaFastrakDriver.o \
-				${OBJDIR}/VistaPhantomServerDriver.o \
-				${OBJDIR}/VistaShallowDriver.o \
-				${OBJDIR}/VistaCyberGloveDriver.o
-
+				${OBJDIR}/VistaShallowDriver.o
+				
 # list here objects which are only needed when
 # building with a particular scenegraph toolkit
 OBJS_WTK =	

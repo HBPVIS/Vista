@@ -157,7 +157,7 @@ public:
 
 	void SetWindowTitle( const std::string & strTitle, VistaWindow * pTarget );
 	std::string GetWindowTitle( const VistaWindow * pTarget );
-	void * GetWindowId( const VistaWindow * pTarget );
+	int GetWindowId( const VistaWindow * pTarget );
 	void DebugVistaWindow( std::ostream & out, const VistaWindow * pTarget );
 
 	/**

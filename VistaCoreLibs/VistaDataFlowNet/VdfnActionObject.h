@@ -288,8 +288,8 @@ public:
 	 * is referenced in multiple interaction contexts
 
 	 */
-	virtual void SetUpdateTimeStamp( const microtime dTimestamp, const bool bInportsChanged );
-	microtime GetUpdateTimeStamp() const;
+	virtual void SetUpdateTimeStamp( const VistaType::microtime dTimestamp, const bool bInportsChanged );
+	VistaType::microtime GetUpdateTimeStamp() const;
 
 
 	REFL_INLINEIMP(IVdfnActionObject, IVistaReflectionable);
@@ -298,7 +298,7 @@ protected:
 
 private:
 	mutable std::list<std::string> m_liBaseListCache;
-	microtime m_dUpdateTimeStamp;
+	VistaType::microtime m_dUpdateTimeStamp;
 };
 
 

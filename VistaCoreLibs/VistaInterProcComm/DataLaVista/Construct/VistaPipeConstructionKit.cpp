@@ -79,7 +79,7 @@ DLVistaCheckError DLVistaPipeConstructionKit::Join(IDLVistaPipeComponent *pIn, I
 	else
 	{
 		char cBuffer[128];
-		sprintf(cBuffer, "Attaching %X with %X returned false.", pIn, pOut);
+		sprintf(cBuffer, "Attaching %lx with %lx returned false.", long(pIn), long(pOut));
 		return DLVistaCheckError("DLVistaPipeConstructionKit::Join() -- ERROR", cBuffer);
 	}
 }

@@ -61,9 +61,9 @@ public:
 	public:
 		void Print( std::ostream& oStream, int iDepth, int iMaxDepth, int iMaxNameLength );
 
-		microtime GetLastFrameTime() const;
-		microtime GetFastAverage() const;
-		microtime GetSlowAverage() const;
+		VistaType::microtime GetLastFrameTime() const;
+		VistaType::microtime GetFastAverage() const;
+		VistaType::microtime GetSlowAverage() const;
 
 		int GetNumChildren() const;
 		ProfileTreeNode* GetChild( int iIndex ) const;
@@ -86,17 +86,17 @@ public:
 		bool operator<( const VistaBasicProfiler::ProfileTreeNode& oCompare );
 
 	protected:
-		microtime								m_dEntryTime;
+		VistaType::microtime								m_dEntryTime;
 		std::string								m_sName;
 		ProfileTreeNode*						m_pParent;
 		std::map<std::string, ProfileTreeNode*>	m_mapChildren;	
 		std::list<ProfileTreeNode*>				m_liChildren;
 		ProfileTreeNode*						m_pCurrentChild;
-		microtime								m_dCurrentFrame;
-		microtime								m_dLastFrame;
-		microtime								m_dFastAvg;
-		microtime								m_dSlowAvg;
-		microtime								m_dMax;
+		VistaType::microtime								m_dCurrentFrame;
+		VistaType::microtime								m_dLastFrame;
+		VistaType::microtime								m_dFastAvg;
+		VistaType::microtime								m_dSlowAvg;
+		VistaType::microtime								m_dMax;
 	};
 
 public:

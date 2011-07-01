@@ -124,16 +124,16 @@ int VistaInteractionEvent::Serialize(IVistaSerializer &ser) const
 		if(m_pEventNode)
 		{
 			std::string strName = m_pEventNode->GetNameForNameable();
-			nRet += ser.WriteInt32( (sint32)strName.size() );
+			nRet += ser.WriteInt32( (VistaType::sint32)strName.size() );
 			nRet += ser.WriteString( strName );
 		}
 	}
 
-	nRet += ser.WriteInt32( (sint32)m_mpPortChangeMap.size() );
+	nRet += ser.WriteInt32( (VistaType::sint32)m_mpPortChangeMap.size() );
 	for( PortList::const_iterator it = m_mpPortChangeMap.begin();
 		it != m_mpPortChangeMap.end(); ++it )
 	{
-		sint32 nLength = (*it).length();
+		VistaType::sint32 nLength = (*it).length();
 		nRet += ser.WriteInt32( nLength );
 		nRet += ser.WriteString( *it );
 	}
@@ -164,7 +164,7 @@ int VistaInteractionEvent::DeSerialize(IVistaDeSerializer &deSer)
 		nRet += deSer.ReadBool( bNode );
 		if(bNode)
 		{
-			sint32 size = 0;
+			VistaType::sint32 size = 0;
 			deSer.ReadInt32( size );
 			std::string strName;
 			deSer.ReadString( strName, size );
@@ -178,12 +178,12 @@ int VistaInteractionEvent::DeSerialize(IVistaDeSerializer &deSer)
 	else
 		m_pContext = NULL; // should not happen
 
-	sint32 nCount=0;
+	VistaType::sint32 nCount=0;
 	nRet += deSer.ReadInt32( nCount );
 	m_mpPortChangeMap.clear();
-	for( sint32 n=0; n < nCount;++ n)
+	for( VistaType::sint32 n=0; n < nCount;++ n)
 	{
-		sint32 nLength = 0;
+		VistaType::sint32 nLength = 0;
 		std::string strString;
 		deSer.ReadInt32( nLength );
 		deSer.ReadString( strString, nLength );

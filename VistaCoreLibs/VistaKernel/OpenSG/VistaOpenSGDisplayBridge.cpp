@@ -24,7 +24,6 @@
 
 #ifdef WIN32
 // disable warnings from OpenSG
-#pragma warning(disable: 4231)
 #pragma warning(disable: 4244)
 #endif
 
@@ -1690,10 +1689,9 @@ std::string VistaOpenSGDisplayBridge::GetWindowTitle
 /*  NAME      :   GetWindowId                                                 */
 /*                                                                            */
 /*============================================================================*/
-void * VistaOpenSGDisplayBridge::GetWindowId
-( const VistaWindow * pTarget )
+int VistaOpenSGDisplayBridge::GetWindowId( const VistaWindow * pTarget )
 {
-	return (void *)((WindowData *)pTarget->GetData())->m_iWindowId;
+	return ((WindowData *)pTarget->GetData())->m_iWindowId;
 }
 
 /*============================================================================*/
@@ -1860,13 +1858,12 @@ bool VistaOpenSGDisplayBridge::DestroyViewport
 /*  NAME      :   SetViewportPosition                                         */
 /*                                                                            */
 /*============================================================================*/
-void VistaOpenSGDisplayBridge::SetViewportPosition
-( int x, int y, VistaViewport * pTarget )
+void VistaOpenSGDisplayBridge::SetViewportPosition( int x, int y, VistaViewport * pTarget )
 {
 	osg::ViewportPtr pViewport = ((ViewportData *)pTarget->GetData())->m_Viewport;
 	IVistaWindowingToolkit *pWindowingToolkit = GetVistaSystem()->GetWindowingToolkit();
 	int iWindowID = pWindowingToolkit->GetWindow();
-	pWindowingToolkit->SetWindow(static_cast<int>(reinterpret_cast<long long>(pTarget->GetWindow()->GetWindowId())));
+	pWindowingToolkit->SetWindow( pTarget->GetWindow()->GetWindowId() );
 
 	float width = (float)pViewport->getPixelWidth();
 	float height = (float)pViewport->getPixelHeight();
@@ -1917,7 +1914,7 @@ void VistaOpenSGDisplayBridge::SetViewportSize
 
 	IVistaWindowingToolkit *wta = GetVistaSystem()->GetWindowingToolkit();
 	int win = wta->GetWindow();
-	wta->SetWindow(static_cast<int>(reinterpret_cast<long long>(pTarget->GetWindow()->GetWindowId())));
+	wta->SetWindow( pTarget->GetWindow()->GetWindowId() );
 	// ask the window for its size and not the scenegraph!
 	int *winSize = wta->GetWindowSize();
 

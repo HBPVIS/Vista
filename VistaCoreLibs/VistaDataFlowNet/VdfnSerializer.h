@@ -99,7 +99,7 @@ VISTADFNAPI IVistaDeSerializer &operator>>( IVistaDeSerializer &oSer,
 template<class T>
 IVistaDeSerializer &operator>>( IVistaDeSerializer &oSer, std::vector<T> &v )
 {
-	uint32 size = 0;
+	VistaType::uint32 size = 0;
 	oSer.ReadInt32(size);
 	v.resize(size);
 	for(typename std::vector<T>::size_type n=0; n < size; ++n)
@@ -114,7 +114,7 @@ template<class T>
 IVistaSerializer &operator<<( IVistaSerializer &oSer, const std::vector<T> &v )
 {
 	typename std::vector<T>::size_type size = v.size();
-	oSer.WriteInt32((sint32)size);
+	oSer.WriteInt32((VistaType::sint32)size);
 	for(typename std::vector<T>::size_type n=0; n < size; ++n)
 		oSer << v[n];
 	return oSer;
@@ -127,7 +127,7 @@ IVistaSerializer &operator<<( IVistaSerializer &oSer, const std::vector<T> &v )
 template<class T, class C>
 IVistaDeSerializer &operator>>( IVistaDeSerializer &oSer, std::map<T, C> &m )
 {
-	uint32 size = 0;
+	VistaType::uint32 size = 0;
 	oSer.ReadInt32(size);
 	T first;
 	C second;
@@ -147,7 +147,7 @@ template<class T, class C>
 IVistaSerializer &operator<<( IVistaSerializer &oSer, const std::map<T, C> &m )
 {
 	typename std::map<T, C>::size_type size = m.size();
-	oSer.WriteInt32((sint32)size);
+	oSer.WriteInt32((VistaType::sint32)size);
 	typename std::map<T, C>::const_iterator iterEnd = m.end();
 	for(typename std::map<T, C>::const_iterator iter = m.begin(); iter != iterEnd; ++iter)
 	{
@@ -165,7 +165,7 @@ IVistaSerializer &operator<<( IVistaSerializer &oSer, const std::map<T, C> &m )
 template<class T>
 IVistaDeSerializer &operator>>( IVistaDeSerializer &oSer, std::deque<T> &v )
 {
-	uint32 size = 0;
+	VistaType::uint32 size = 0;
 	oSer.ReadInt32(size);
 	v.resize(size);
 	for(typename std::deque<T>::size_type n=0; n < size; ++n)
@@ -180,7 +180,7 @@ template<class T>
 IVistaSerializer &operator<<( IVistaSerializer &oSer, const std::deque<T> &v )
 {
 	typename std::deque<T>::size_type size = v.size();
-	oSer.WriteInt32((sint32)size);
+	oSer.WriteInt32((VistaType::sint32)size);
 	for(typename std::deque<T>::size_type n=0; n < size; ++n)
 		oSer << v[n];
 	return oSer;

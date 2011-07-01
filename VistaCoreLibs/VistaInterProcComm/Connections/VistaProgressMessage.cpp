@@ -149,16 +149,16 @@ void        VistaProgressMessage::SetPictureName(const string &sPicName)
 int VistaProgressMessage::Serialize(IVistaSerializer &rSer) const
 {
 	int iSize = 0;
-	iSize += rSer.WriteInt32(uint32(m_sApplicationName.size()));
+	iSize += rSer.WriteInt32(VistaType::uint32(m_sApplicationName.size()));
 	iSize += rSer.WriteString(m_sApplicationName);
 
-	iSize += rSer.WriteInt32(uint32(m_sProgressLabel.size()));
+	iSize += rSer.WriteInt32(VistaType::uint32(m_sProgressLabel.size()));
 	iSize += rSer.WriteString(m_sProgressLabel);
 
-	iSize += rSer.WriteInt32(uint32(m_sSubtaskLabel.size()));
+	iSize += rSer.WriteInt32(VistaType::uint32(m_sSubtaskLabel.size()));
 	iSize += rSer.WriteString(m_sSubtaskLabel);
 
-	iSize += rSer.WriteInt32(uint32(m_sPictureName.size()));
+	iSize += rSer.WriteInt32(VistaType::uint32(m_sPictureName.size()));
 	iSize += rSer.WriteString(m_sPictureName);
 
 	iSize += rSer.WriteInt32(m_iTotalProgress);

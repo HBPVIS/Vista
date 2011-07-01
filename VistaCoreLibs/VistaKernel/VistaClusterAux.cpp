@@ -213,7 +213,7 @@ int VistaClusterAux::GetFrameCount() const
 	return nRet;
 }
 
-microtime VistaClusterAux::GetAvgUpdateTime() const
+VistaType::microtime VistaClusterAux::GetAvgUpdateTime() const
 {
 	if(GetIsMaster())
 		return m_pMaster->GetAvgUpdateTime();
@@ -223,7 +223,7 @@ microtime VistaClusterAux::GetAvgUpdateTime() const
 	return 0;
 }
 
-microtime VistaClusterAux::GetAvgSwapTime() const
+VistaType::microtime VistaClusterAux::GetAvgSwapTime() const
 {
 	if(GetIsMaster())
 		return m_pMaster->GetAvgSwapTime();

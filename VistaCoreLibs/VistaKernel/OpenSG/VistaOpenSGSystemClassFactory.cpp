@@ -53,8 +53,6 @@
 
 #include <VistaKernel/WindowingToolkit/VistaWindowingToolkit.h>
 #include <VistaKernel/WindowingToolkit/glut/VistaGlutWindowingToolkit.h>
-#include <VistaKernel/WindowingToolkit/glut/VistaGlutMouseDriver.h>
-#include <VistaKernel/WindowingToolkit/glut/VistaGlutKeyboardDriver.h>
 
 #include <VistaBase/VistaVectorMath.h>
 #include <VistaBase/VistaExceptionBase.h>
@@ -334,7 +332,7 @@ bool VistaOpenSGSystemClassFactory::Run()
 /*                                                                            */
 /*============================================================================*/
 
-microtime VistaOpenSGSystemClassFactory::GetAvgEventLoopTime() const
+VistaType::microtime VistaOpenSGSystemClassFactory::GetAvgEventLoopTime() const
 {
 	return m_pAvgLoopTime->GetAverageTime();
 }
@@ -529,6 +527,7 @@ VistaInteractionManager *VistaOpenSGSystemClassFactory::CreateInteractionManager
 
 	pRet->SetDriverMap(pMap);
 
+/*
 	// decide here which driver you want to use
 	if( m_iWindowingToolkit == GLUT )
 	{
@@ -544,6 +543,7 @@ VistaInteractionManager *VistaOpenSGSystemClassFactory::CreateInteractionManager
 	{
 		vkernerr << "[CreateInteractionManager] not fully supported toolkit." << std::endl;
 	}
+*/
 
 
 	return pRet;

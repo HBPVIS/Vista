@@ -241,7 +241,7 @@ namespace
 		return std::string(buffer);
 	}
 
-	std::string ConvertUInt64ToString( uint64 v )
+	std::string ConvertUInt64ToString( VistaType::uint64 v )
 	{
 		char buffer[4096];
 	#ifdef WIN32
@@ -252,7 +252,7 @@ namespace
 		return std::string(buffer);
 	}
 
-	std::string ConvertMicrotimeToString( microtime ts )
+	std::string ConvertMicrotimeToString( VistaType::microtime ts )
 	{
 		return VistaAspectsConversionStuff::ConvertToString( double(ts) );
 	}
@@ -417,13 +417,13 @@ bool RegisterBasicPortSetters()
 	pFac->AddPortAccess( typeid(unsigned int).name(),
 						 new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<unsigned int>,
 															new TVdfnTranscodePortSet<unsigned int> ) );
-	pFac->AddPortAccess( typeid(sint64).name(),
-						 new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<sint64>,
-															new TVdfnTranscodePortSet<sint64> ) );
+	pFac->AddPortAccess( typeid(VistaType::sint64).name(),
+						 new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<VistaType::sint64>,
+															new TVdfnTranscodePortSet<VistaType::sint64> ) );
 
-	pFac->AddPortAccess( typeid(microtime).name(),
-						 new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<microtime>,
-															new TVdfnTranscodePortSet<microtime> ) );
+	pFac->AddPortAccess( typeid(VistaType::microtime).name(),
+						 new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<VistaType::microtime>,
+															new TVdfnTranscodePortSet<VistaType::microtime> ) );
 
 	pFac->AddPortAccess( typeid(bool).name(),
 						 new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<bool>,
@@ -473,6 +473,18 @@ bool RegisterBasicPortSetters()
 		new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<std::vector<int> >,
 										   new TVdfnTranscodePortSet<std::vector<int> > ) );
 
+	pFac->AddPortAccess( typeid(std::vector<VistaVector3D>).name(),
+		new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<std::vector<VistaVector3D> >,
+										   new TVdfnTranscodePortSet<std::vector<VistaVector3D> > ) );
+
+	pFac->AddPortAccess( typeid(std::vector<VistaTransformMatrix>).name(),
+		new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<std::vector<VistaTransformMatrix> >,
+										   new TVdfnTranscodePortSet<std::vector<VistaTransformMatrix> > ) );
+
+	pFac->AddPortAccess( typeid(std::vector<VistaQuaternion>).name(),
+		new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<std::vector<VistaQuaternion> >,
+										   new TVdfnTranscodePortSet<std::vector<VistaQuaternion> > ) );
+
 	pFac->AddPortAccess( typeid(std::map<std::string, float>).name(),
 		new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<std::map<std::string, float> >,
 										   new TVdfnTranscodePortSet<std::map<std::string, float> > ) );
@@ -508,17 +520,17 @@ bool RegisterBasicPortSetters()
 																	  new TActionSet<DLV_INT64>,
 																	  new VdfnTypedPortCreate<DLV_INT64>,
 																	  new CGet<DLV_INT64>(&ConvertInt64ToString)) );
-	pFac->AddFunctorAccess( typeid(microtime).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<microtime>,
-																	  new TActionSet<microtime>,
-																	  new VdfnTypedPortCreate<microtime>,
-																	  new CGet<microtime>(&ConvertMicrotimeToString)) );
+	pFac->AddFunctorAccess( typeid(VistaType::microtime).name(), new VdfnPortFactory::CFunctorAccess(
+																	  new VdfnTypedPortTypeCompareCreate<VistaType::microtime>,
+																	  new TActionSet<VistaType::microtime>,
+																	  new VdfnTypedPortCreate<VistaType::microtime>,
+																	  new CGet<VistaType::microtime>(&ConvertMicrotimeToString)) );
 
-	pFac->AddFunctorAccess( typeid(uint64).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<uint64>,
-																	  new TActionSet<uint64>,
-																	  new VdfnTypedPortCreate<uint64>,
-																	  new CGet<uint64>(&ConvertUInt64ToString)) );
+	pFac->AddFunctorAccess( typeid(VistaType::uint64).name(), new VdfnPortFactory::CFunctorAccess(
+																	  new VdfnTypedPortTypeCompareCreate<VistaType::uint64>,
+																	  new TActionSet<VistaType::uint64>,
+																	  new VdfnTypedPortCreate<VistaType::uint64>,
+																	  new CGet<VistaType::uint64>(&ConvertUInt64ToString)) );
 
 	pFac->AddFunctorAccess( typeid(bool).name(), new VdfnPortFactory::CFunctorAccess(
 																	  new VdfnTypedPortTypeCompareCreate<bool>,
@@ -627,7 +639,7 @@ bool RegisterBasicNodeCreators(VistaDriverMap *pDrivers,
 	pFac->SetNodeCreator( "ChangeDetect[int]", new TVdfnChangeDetectNodeCreate<int> );
 	pFac->SetNodeCreator( "ChangeDetect[unsigned int]", new TVdfnChangeDetectNodeCreate<unsigned int> );
 	pFac->SetNodeCreator( "ChangeDetect[int64]", new TVdfnChangeDetectNodeCreate<DLV_INT64> );
-	pFac->SetNodeCreator( "ChangeDetect[uint64]", new TVdfnChangeDetectNodeCreate<uint64> );
+	pFac->SetNodeCreator( "ChangeDetect[VistaType::uint64]", new TVdfnChangeDetectNodeCreate<VistaType::uint64> );
 	pFac->SetNodeCreator( "ChangeDetect[float]", new TVdfnChangeDetectNodeCreate<float> );
 	pFac->SetNodeCreator( "ChangeDetect[double]", new TVdfnChangeDetectNodeCreate<double> );
 	pFac->SetNodeCreator( "ChangeDetect[bool]", new TVdfnChangeDetectNodeCreate<bool> );
@@ -649,7 +661,7 @@ bool RegisterBasicNodeCreators(VistaDriverMap *pDrivers,
 	pFac->SetNodeCreator( "TypeConvert[double,unsigned int]", new VdfnTypeConvertNodeCreate<double,unsigned int>( &ConvertFrom<double,unsigned int> ) );
 	pFac->SetNodeCreator( "TypeConvert[double,float]", new VdfnTypeConvertNodeCreate<double,float>( &ConvertFrom<double,float> ) );
 	pFac->SetNodeCreator( "TypeConvert[double,string]", new VdfnTypeConvertNodeCreate<double,std::string>( &ConvertToString<double> ) );
-	pFac->SetNodeCreator( "TypeConvert[microtime,string]", new VdfnTypeConvertNodeCreate<microtime,std::string>( &ConvertMicrotimeToString ) );
+	pFac->SetNodeCreator( "TypeConvert[VistaType::microtime,string]", new VdfnTypeConvertNodeCreate<VistaType::microtime,std::string>( &ConvertMicrotimeToString ) );
 
 	pFac->SetNodeCreator( "TypeConvert[int,bool]", new VdfnTypeConvertNodeCreate<int,bool>( &ConvertFrom<int,bool>) );
 	pFac->SetNodeCreator( "TypeConvert[int,unsigned int]", new VdfnTypeConvertNodeCreate<int,unsigned int>( &ConvertFrom<int,unsigned int>) );
@@ -771,6 +783,17 @@ bool RegisterBasicNodeCreators(VistaDriverMap *pDrivers,
 	pFac->SetNodeCreator( "ProjectVector", new VdfnProjectVectorNodeCreate );
 	pFac->SetNodeCreator( "ForceFeedback", new VdfnForceFeedbackNodeCreate( pDrivers ) );
 	pFac->SetNodeCreator( "ReadWorkspace", new VdfnReadWorkspaceNodeCreate(pDrivers) );
+
+	pFac->SetNodeCreator( "GetElement[vector<int>]", new TVdfnGetElementNodeCreate<std::vector<int>, int> );
+	pFac->SetNodeCreator( "GetElement[vector<usnigned int>]", new TVdfnGetElementNodeCreate<std::vector<unsigned int>, unsigned int> );
+	pFac->SetNodeCreator( "GetElement[vector<float>]", new TVdfnGetElementNodeCreate<std::vector<float>, float> );
+	pFac->SetNodeCreator( "GetElement[vector<double>]", new TVdfnGetElementNodeCreate<std::vector<double>, double> );
+	pFac->SetNodeCreator( "GetElement[vector<VistaVector3D>]", new TVdfnGetElementNodeCreate<std::vector<VistaVector3D>, VistaVector3D> );
+	pFac->SetNodeCreator( "GetElement[vector<VistaQuaternion>]", new TVdfnGetElementNodeCreate<std::vector<VistaQuaternion>, VistaQuaternion> );
+	pFac->SetNodeCreator( "GetElement[vector<VistaTransformMatrix>]", new TVdfnGetElementNodeCreate<std::vector<VistaTransformMatrix>, VistaTransformMatrix> );
+	pFac->SetNodeCreator( "GetElement[VistaVector3D]", new TVdfnGetElementFromArrayNodeCreate<VistaVector3D, float, 4> );
+	pFac->SetNodeCreator( "GetElement[VistaQuaternion]", new TVdfnGetElementFromArrayNodeCreate<VistaQuaternion, float, 4> );
+	
 
 	pFac->SetNodeCreator( "Invert[VistaVector3D]", new TVdfnDefaultNodeCreate<TVdfnInvertNode<VistaVector3D> >);
 	pFac->SetNodeCreator( "Invert[VistaQuaternion]", new TVdfnDefaultNodeCreate<TVdfnInvertNode<VistaQuaternion> >);

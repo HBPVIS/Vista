@@ -43,45 +43,45 @@ using std::string;
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/
 
-IVistaDeSerializer &IVistaDeSerializer::operator>> ( ushort16 &val)
+IVistaDeSerializer &IVistaDeSerializer::operator>> ( VistaType::ushort16 &val)
 {
 	ReadShort16(val);
 	return *this;
 }
 
-IVistaDeSerializer &IVistaDeSerializer::operator>> ( sint32 &val)
+IVistaDeSerializer &IVistaDeSerializer::operator>> ( VistaType::sint32 &val)
 {
 	ReadInt32(val);
 	return *this;
 }
 
-IVistaDeSerializer &IVistaDeSerializer::operator>> ( uint32 &val)
+IVistaDeSerializer &IVistaDeSerializer::operator>> ( VistaType::uint32 &val)
 {
 	ReadInt32(val);
 	return *this;
 }
 
 
-IVistaDeSerializer &IVistaDeSerializer::operator>> ( sint64 &val)
+IVistaDeSerializer &IVistaDeSerializer::operator>> ( VistaType::sint64 &val)
 {
 	ReadInt64(val);
 	return *this;
 }
 
 
-IVistaDeSerializer &IVistaDeSerializer::operator>> ( uint64 &val)
+IVistaDeSerializer &IVistaDeSerializer::operator>> ( VistaType::uint64 &val)
 {
 	ReadUInt64(val);
 	return *this;
 }
 
-IVistaDeSerializer &IVistaDeSerializer::operator>> ( float32 &val)
+IVistaDeSerializer &IVistaDeSerializer::operator>> ( VistaType::float32 &val)
 {
 	ReadFloat32(val);
 	return *this;
 }
 
-IVistaDeSerializer &IVistaDeSerializer::operator>> ( float64 &val)
+IVistaDeSerializer &IVistaDeSerializer::operator>> ( VistaType::float64 &val)
 {
 	ReadFloat64(val);
 	return *this;

@@ -98,7 +98,7 @@ VistaSerializingToolset::eEndianess VistaSerializingToolset::GetPlatformEndianes
 {
 	if(thisMachine == VST_NONEENDIAN)
 	{
-		uint32 iVal = 0; // make sure this int is 32bit wide
+		VistaType::uint32 iVal = 0; // make sure this int is 32bit wide
 		unsigned char ucTmp[4]; // 32bit == 4 byte, unsigned, please
 		ucTmp[0] = 1; // set the first one to 1
 		ucTmp[1] = ucTmp[2] = ucTmp[3] = 0; // set all others to 0
@@ -106,7 +106,7 @@ VistaSerializingToolset::eEndianess VistaSerializingToolset::GetPlatformEndianes
 		// ucTmp[0-3] = 01 00 00 00
 
 		// now look at this as an int32
-		iVal = *((uint32*)ucTmp);
+		iVal = *((VistaType::uint32*)ucTmp);
 
 		// do we think this is 1?
 		if(iVal == 1)

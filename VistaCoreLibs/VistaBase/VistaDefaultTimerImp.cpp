@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDefaultTimerImp.cpp 21315 2011-05-16 13:47:39Z dr165799 $
 
 #include <iostream>
 
@@ -46,7 +46,7 @@
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
 
-// specifies wether or not checks for unexpected jumps in PermormanceCounter
+// specifies whether or not checks for unexpected jumps in PermormanceCounter
 // should be checked and compensated
 // see http://support.microsoft.com/kb/274323/en-us/
 // This should hardly ever occur, however if it does and if the compensation is
@@ -75,23 +75,23 @@ VistaDefaultTimerImp::VistaDefaultTimerImp()
 #ifdef WIN32
 	LARGE_INTEGER nTimestamp;
 	QueryPerformanceCounter( &nTimestamp );
-	m_nInitialStamp = (microstamp)nTimestamp.QuadPart;
+	m_nInitialStamp = (VistaType::microstamp)nTimestamp.QuadPart;
 	m_nLastStamp = 0;
 	m_nLastTickCount = GetTickCount();
 	LARGE_INTEGER nFrequency;
 	QueryPerformanceFrequency( &nFrequency );
-	m_nFrequencyDenom = 1.0 / (microtime)nFrequency.QuadPart;
+	m_nFrequencyDenom = 1.0 / (VistaType::microtime)nFrequency.QuadPart;
 	
 	struct timeb tSysTime;
 	ftime(&tSysTime);
-	m_nInitialSystemTime = (microtime)tSysTime.time 
-						+ (microtime)tSysTime.millitm / 1000.0;
+	m_nInitialSystemTime = (VistaType::microtime)tSysTime.time 
+						+ (VistaType::microtime)tSysTime.millitm / 1000.0;
 #elif defined DARWIN
 	(void) mach_timebase_info(&m_sTimebaseInfo);
 #else // unix-like os
 	struct timespec tv;
     clock_gettime( CLOCK_REALTIME, &tv );
-	m_nInitialSecs = tv.tv_sec;
+	m_nInitialSecs = tv.tv_sec;	
 #endif
 }
 
@@ -106,11 +106,11 @@ VistaDefaultTimerImp::~VistaDefaultTimerImp()
 #endif
 }
 
-microtime  VistaDefaultTimerImp::GetMicroTime()   const
+VistaType::microtime  VistaDefaultTimerImp::GetMicroTime()   const
 {
 #ifdef WIN32
-	microstamp nNewStamp = GetMicroStamp();
-	microtime nTime = nNewStamp * m_nFrequencyDenom;
+	VistaType::microstamp nNewStamp = GetMicroStamp();
+	VistaType::microtime nTime = nNewStamp * m_nFrequencyDenom;
 	return nTime;
 #elif defined DARWIN
 	// returns elapsed seconds (with high, hopefully nanosecond, precision)
@@ -124,25 +124,25 @@ microtime  VistaDefaultTimerImp::GetMicroTime()   const
 #endif
 }
 
-microstamp VistaDefaultTimerImp::GetMicroStamp()  const
+VistaType::microstamp VistaDefaultTimerImp::GetMicroStamp()  const
 {
 #ifdef WIN32
 	LARGE_INTEGER nTimestamp;
 	QueryPerformanceCounter( &nTimestamp );	
-	microstamp nStamp = (microstamp)( nTimestamp.QuadPart ) - m_nInitialStamp;
+	VistaType::microstamp nStamp = (VistaType::microstamp)( nTimestamp.QuadPart );// - m_nInitialStamp;
 #ifdef CHECK_FOR_JUMPS_UNDER_WIN32
 	// we have to convert ticks to time, and then compare to system clock
-	microtime nTimeDelta = ( nStamp - m_nLastStamp ) * m_nFrequencyDenom;
+	VistaType::microtime nTimeDelta = ( nStamp - m_nLastStamp ) * m_nFrequencyDenom;
 	DWORD nNewTick = GetTickCount();
 	if( nTimeDelta > JUMP_CHECK_MAX_MILLISECS 
 		|| nTimeDelta < -JUMP_CHECK_MAX_MILLISECS )
 	{
-		microtime nTickDelta = (microtime)( nNewTick - m_nLastTickCount ) / 1000;
-		microtime nDiscrepancy = nTickDelta - nTimeDelta;
+		VistaType::microtime nTickDelta = (VistaType::microtime)( nNewTick - m_nLastTickCount ) / 1000;
+		VistaType::microtime nDiscrepancy = nTickDelta - nTimeDelta;
 		if( nDiscrepancy > JUMP_CHECK_MAX_MILLISECS
 			|| nDiscrepancy < -JUMP_CHECK_MAX_MILLISECS )
 		{
-			microstamp nMissedTicks = (microstamp)( nDiscrepancy / m_nFrequencyDenom );
+			VistaType::microstamp nMissedTicks = (VistaType::microstamp)( nDiscrepancy / m_nFrequencyDenom );
 			//Safety check: new stamp really larger than previous one?
 			if( nStamp + nMissedTicks <= m_nLastStamp )
 			{
@@ -174,7 +174,7 @@ microstamp VistaDefaultTimerImp::GetMicroStamp()  const
 #endif
 }
 
-microtime VistaDefaultTimerImp::GetSystemTime()  const
+VistaType::microtime VistaDefaultTimerImp::GetSystemTime()  const
 {
 #ifdef WIN32
 	//QueryPerformanceCounter returns a relative value, so
@@ -192,14 +192,14 @@ microtime VistaDefaultTimerImp::GetSystemTime()  const
 #endif
 }
 
-systemtime VistaDefaultTimerImp::ConvertToSystemTime( const microtime mtTime ) const
+VistaType::systemtime VistaDefaultTimerImp::ConvertToSystemTime( const VistaType::microtime mtTime ) const
 {
 #ifdef WIN32
 	return ( m_nInitialSystemTime + mtTime );
 #elif defined DARWIN
 	// @todo fix this as in the linux imp, or get rid of the method
 	// PS: I don't think it actually makes sense to have this routine,
-	//     since microtimes are by definition intervals or times with arbitrary
+	//     since VistaType::microtimes are by definition intervals or times with arbitrary
 	//     reference point, so the conversion is not meaningful IMO.
 	return 0;
 #else // unix-like os

@@ -97,7 +97,7 @@ bool DLVistaPacketQueue::RecyclePacket(IDLVistaDataPacket *pPacket)
 		return true;
 	}
 	else
-		printf("NOT MY (%X) PACKET [%X]\n", this, pPacket); // we SHOULD exit here!
+		printf("NOT MY (%lx) PACKET [%lx]\n", long(this), long(pPacket)); // we SHOULD exit here!
 
 	return false;
 }
@@ -164,7 +164,7 @@ void DLVistaPacketQueue::PrintQueue() const
 {
 	PQUEUE::const_iterator it;
 	for(it = (*m_pquPackets).begin(); it != (*m_pquPackets).end(); ++it)
-		printf("[%X], %s\n", *it, ((*it)->IsLocked() ? "locked" : "unlocked"));
+		printf("[%lx], %s\n", long(*it), ((*it)->IsLocked() ? "locked" : "unlocked"));
 }
 
 

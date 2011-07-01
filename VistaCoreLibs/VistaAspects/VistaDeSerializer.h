@@ -90,41 +90,41 @@ public:
 	/**
 	 *
 	 */
-	virtual int ReadShort16( ushort16 &us16Val) = 0;
+	virtual int ReadShort16( VistaType::ushort16 &us16Val) = 0;
 
 	/**
 	 *
 	 */
-	virtual int ReadInt32( sint32 &si32Val) = 0;
-
-
-	/**
-	 *
-	 */
-	virtual int ReadInt32( uint32 &si32Val) = 0;
+	virtual int ReadInt32( VistaType::sint32 &si32Val) = 0;
 
 
 	/**
 	 *
 	 */
-	virtual int ReadInt64( sint64 &si64Val) = 0;
+	virtual int ReadInt32( VistaType::uint32 &si32Val) = 0;
 
 
 	/**
 	 *
 	 */
-	virtual int ReadUInt64( uint64 &si64Val) = 0;
+	virtual int ReadInt64( VistaType::sint64 &si64Val) = 0;
 
 
 	/**
 	 *
 	 */
-	virtual int ReadFloat32( float32 &fVal) = 0;
+	virtual int ReadUInt64( VistaType::uint64 &si64Val) = 0;
+
 
 	/**
 	 *
 	 */
-	virtual int ReadFloat64( float64 &f64Val) = 0;
+	virtual int ReadFloat32( VistaType::float32 &fVal) = 0;
+
+	/**
+	 *
+	 */
+	virtual int ReadFloat64( VistaType::float64 &f64Val) = 0;
 
 	/**
 	 *
@@ -154,34 +154,34 @@ public:
 	/**
 	 *
 	 */
-	virtual int ReadShort16Name( const char *sVarName, ushort16 &us16Val) = 0;
+	virtual int ReadShort16Name( const char *sVarName, VistaType::ushort16 &us16Val) = 0;
 
 	/**
 	 *
 	 */
-	virtual int ReadInt32Name( const char *sVarName, sint32 &si32Val) = 0;
+	virtual int ReadInt32Name( const char *sVarName, VistaType::sint32 &si32Val) = 0;
 
 	/**
 	 *
 	 */
-	virtual int ReadInt32Name( const char *sVarName, uint32 &ui32Val) = 0;
+	virtual int ReadInt32Name( const char *sVarName, VistaType::uint32 &ui32Val) = 0;
 
 	/**
 	 *
 	 */
-	virtual int ReadInt64Name( const char *sVarName, sint64 &si64Val) = 0;
+	virtual int ReadInt64Name( const char *sVarName, VistaType::sint64 &si64Val) = 0;
 
-	virtual int ReadUInt64Name( const char *sVarName, uint64 &si64Val) = 0;
-
-	/**
-	 *
-	 */
-	virtual int ReadFloat32Name( const char *sVarName, float32 &fVal) = 0;
+	virtual int ReadUInt64Name( const char *sVarName, VistaType::uint64 &si64Val) = 0;
 
 	/**
 	 *
 	 */
-	virtual int ReadFloat64Name( const char *sVarName, float64 &f64Val) = 0;
+	virtual int ReadFloat32Name( const char *sVarName, VistaType::float32 &fVal) = 0;
+
+	/**
+	 *
+	 */
+	virtual int ReadFloat64Name( const char *sVarName, VistaType::float64 &f64Val) = 0;
 
 	/**
 	 *
@@ -216,37 +216,37 @@ public:
 	/**
 	 *
 	 */
-	virtual IVistaDeSerializer &operator>> ( ushort16 &);
+	virtual IVistaDeSerializer &operator>> ( VistaType::ushort16 &);
 
 	/**
 	 *
 	 */
-	virtual IVistaDeSerializer &operator>> ( sint32 &);
+	virtual IVistaDeSerializer &operator>> ( VistaType::sint32 &);
 
 	/**
 	 *
 	 */
-	virtual IVistaDeSerializer &operator>> ( uint32 &);
+	virtual IVistaDeSerializer &operator>> ( VistaType::uint32 &);
 
 	/**
 	 *
 	 */
-	virtual IVistaDeSerializer &operator>> ( sint64 &);
+	virtual IVistaDeSerializer &operator>> ( VistaType::sint64 &);
 
 	/**
 	 *
 	 */
-	virtual IVistaDeSerializer &operator>> ( uint64 &);
+	virtual IVistaDeSerializer &operator>> ( VistaType::uint64 &);
 
 	/**
 	 *
 	 */
-	virtual IVistaDeSerializer &operator>> ( float32 &);
+	virtual IVistaDeSerializer &operator>> ( VistaType::float32 &);
 
 	/**
 	 *
 	 */
-	virtual IVistaDeSerializer &operator>> ( float64 &);
+	virtual IVistaDeSerializer &operator>> ( VistaType::float64 &);
 
 	/**
 	 *

@@ -43,6 +43,7 @@
 
 class IVistaDeviceDriver;
 class IVistaDriverCreationMethod;
+class IVistaTranscoderFactoryFactory;
 class VistaDLL;
 class VistaDeviceSensor;
 
@@ -64,35 +65,20 @@ namespace VddUtil
 		VistaDriverPlugin()
 			: m_pDriver(NULL),
 			  m_pMethod(NULL),
-			  m_Plugin(NULL)
+			  m_Plugin(NULL),
+			  m_TranscoderDll(NULL),
+			  m_pTranscoder(NULL)
 		{
 		}
 
 		IVistaDeviceDriver         *m_pDriver; /**< a pointer to the driver this plugin describes
 		                                            @todo check whether this is outdated! */
-		IVistaDriverCreationMethod *m_pMethod; /**< a pointer to the creation methods for drivers of the type */
-		VistaDLL::DLLHANDLE        m_Plugin;  /**< a handle of the DLL that is managing the driver */
-		std::string                 m_strDriverClassName; /**< symbolic name of the type of devices that can be created */
+		IVistaDriverCreationMethod     *m_pMethod; /**< a pointer to the creation methods for drivers of the type */
+		IVistaTranscoderFactoryFactory *m_pTranscoder;
+		VistaDLL::DLLHANDLE             m_Plugin;  /**< a handle of the DLL that is managing the driver */
+		VistaDLL::DLLHANDLE             m_TranscoderDll;
+		std::string                     m_strDriverClassName; /**< symbolic name of the type of devices that can be created */
 	};
-
-
-	/**
-	 * utility function to load a driver from a dll or so. Note that this method will try
-	 * to create a single driver from a DLL. In case you do only want to create a single
-	 * driver from the dll, this is ok, in case you want to create more than one instance
-	 * of the same driver, use LoadCreationMethodFromPlugin() instead.
-	 * @param the //absolute// path to the dll or so to load
-	 * @param pStoreTo a pointer to a VistaDriverPlugin instance, may not be NULL
-	 * @return false if
-	           - the dll could not be loaded (path?)
-	           - the dll does not contain a C symbol "GetDeviceClassName"
-	           - the dll does not contain a C symbol "GetCreationMethod"
-	           - the dll failed to create a driver
-	   in all these cases, the dll is closed and the value of the members of pStoreTo are undefined.
-	 */
-	bool VISTADEVICEDRIVERSAPI LoadDriverFromPlugin( const std::string &strPathToPlugin,
-		                       VistaDriverPlugin *pStoreTo );
-
 
 	/**
 	 * opens a dll or so and claims a creation method from the shared resource.
@@ -109,6 +95,11 @@ namespace VddUtil
 	bool VISTADEVICEDRIVERSAPI LoadCreationMethodFromPlugin( const std::string &strPathToPlugin,
 		                               VistaDriverPlugin *pStoreTo );
 
+	bool VISTADEVICEDRIVERSAPI LoadTranscoderFromPlugin( const std::string &strPathToPlugin,
+			                           VistaDriverPlugin *pStoreTo );
+
+	bool VISTADEVICEDRIVERSAPI DisposeTranscoderFromPlugin( VistaDriverPlugin *plug );
+
 	/**
 	 * releases memory from a DLL and associated resources. call this method, when cleaning up,
 	 * or when absolutely sure that //NO// ressource allocated by the dll or so is still in use.
@@ -124,26 +115,6 @@ namespace VddUtil
 	 */
 	bool VISTADEVICEDRIVERSAPI DisposePlugin( VistaDriverPlugin *, bool bDeleteCm = false );
 
-	/**
-	 * Utility function to pick the right arguments for user defined history
-	 * setup. Use this function when you do not want to deal with the interfaces
-	 * of aspects, but merely want to create a properly sized history for
-	 * your sensor. Note that you have to know the correct creation method,
-	 * which might need to have access to a static member of a specialized
-	 * driver class.
-	 * @param pDriver the driver that holds pSensor and is created by pCrMethod
-	 * @param pSensor the sensor to setup
-	 * @param strSensorTypeName the type name of the sensor
-	 * @param nDesiredReadSlots the read slots to access (maximum) during read length
-	 * @param nReadLengthInMsecs the maximum read time on a history for n desired slots
-	 * @return false in case of error (the history of the sensor is unchanged)
-	 */
-	bool VISTADEVICEDRIVERSAPI SetupSensorHistory( IVistaDeviceDriver *pDriver,
-			                                VistaDeviceSensor *pSensor,
-			          					  IVistaDriverCreationMethod *pCrMethod,
-										    const std::string &strSensorTypeName,
-											unsigned int nDesiredReadSlots,
-											unsigned int nReadLengthInMsec );
 	bool VISTADEVICEDRIVERSAPI InitVdd();
 	bool VISTADEVICEDRIVERSAPI ExitVdd();
 }

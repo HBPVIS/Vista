@@ -6,10 +6,6 @@ set( RelativeSourceGroup "Source Files\\WindowingToolkit\\glut" )
 set( DirFiles
 	VistaGlut3DTextOverlay.cpp
 	VistaGlut3DTextOverlay.h
-	VistaGlutKeyboardDriver.cpp
-	VistaGlutKeyboardDriver.h
-	VistaGlutMouseDriver.cpp
-	VistaGlutMouseDriver.h
 	VistaGlutSimpleTextOverlay.cpp
 	VistaGlutSimpleTextOverlay.h
 	VistaGlutTextEntity.cpp

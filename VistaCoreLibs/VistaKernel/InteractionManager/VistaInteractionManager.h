@@ -122,6 +122,14 @@ public:
 	 */
 	bool DelInteractionContext(VistaInteractionContext *);
 
+	int GetInteractionContextPriority( VistaInteractionContext* pContext ) const;
+	bool SetInteractionContextPriority( VistaInteractionContext* pContext,
+										int nPriority );
+
+	int GetInteractionContextDelayedUpdate( VistaInteractionContext* pContext ) const;
+	bool SetInteractionContextDelayedUpdate( VistaInteractionContext* pContext,
+										bool bDelayedUpdate );
+
 	/**
 	 * The only api to query for an interaction context by role id.
 	 * @see RegisterRole()
@@ -140,7 +148,7 @@ public:
 	void InitializeGraphContexts();
     void DumpGraphsToDot(bool bWritePorts) const;
 
-    microtime GetAvgUpdateTime() const;
+    VistaType::microtime GetAvgUpdateTime() const;
 	// ##########################################################
 	// ROLE API
 	// ##########################################################

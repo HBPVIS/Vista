@@ -62,7 +62,7 @@ class VISTAKERNELAPI VistaWindow  : public VistaDisplayEntity
 public:
 	virtual ~VistaWindow();
 
-	void *GetWindowId() const;
+	int GetWindowId() const;
 
 	VistaDisplay *GetDisplay() const;
 	std::string GetDisplayName() const;
@@ -88,6 +88,7 @@ public:
 	 * DISPLAY_NAME         -   [string][read only]
 	 * NUMBER_OF_VIEWPORTS  -   [int][read only]
 	 * VIEWPORT_NAMES       -   [list of strings][read only]
+	 * VSYNC				-	[string] UNKNOWN ON OFF
 	 */
 
 	class VISTAKERNELAPI VistaWindowProperties : public IVistaDisplayEntityProperties

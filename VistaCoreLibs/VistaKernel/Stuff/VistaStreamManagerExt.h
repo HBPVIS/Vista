@@ -55,7 +55,7 @@ public:
 	VistaKernelStreamInfoInterface( VistaSystem* pVistaSystem );
 	virtual ~VistaKernelStreamInfoInterface();
 
-	virtual systemtime		GetFrameClock() const;
+	virtual VistaType::systemtime		GetFrameClock() const;
 	virtual std::string		GetNodeName() const;
 	virtual unsigned int	GetFrameCount() const;
 	virtual float			GetFrameRate() const;
@@ -70,6 +70,10 @@ public:
 	VistaSystemEventLogger( VistaEventManager* pManager );
 	virtual ~VistaSystemEventLogger();
 
+	/**
+	 * Register for SystemEvents using the mask, with entries for SystemEvent VSE_XYZ
+	 * beeing 1 << VSE_XYZ (i.e. 2^VSE_XYZ), use ~0 to register for all events
+	 */
 	void SetStreamEventMask( std::ostream& oStream, unsigned int iEventMask );
 	void UnregisterStream(  std::ostream& oStream );
 

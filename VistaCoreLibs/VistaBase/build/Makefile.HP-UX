@@ -1,5 +1,5 @@
 ## VistaAspects Makefile for HPUX
-# $Id$
+# $Id: Makefile.HP-UX 19836 2010-11-16 10:04:47Z dominikrausch $
 
 SYSTEM   = HP-UX
 

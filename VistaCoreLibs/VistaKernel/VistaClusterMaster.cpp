@@ -138,9 +138,9 @@ public:
 	                                         decides to set it to 32k, which should
 	                                         be fine for most events, even devices
 	                                         with a large history. */
-	sint32 m_nEventCount;              /**< some statistics, the number of events sent
+	VistaType::sint32 m_nEventCount;              /**< some statistics, the number of events sent
 											 counted for each (type/id) */
-	sint32 m_nCounter;                 /**< @todo check whether this is needed */
+	VistaType::sint32 m_nCounter;                 /**< @todo check whether this is needed */
 };
 
 /**
@@ -193,8 +193,8 @@ namespace
 			// write initial frame clock
 			evChannel->WriteDouble(dFrameClock);
 			int nAckPort = 0;
-			sint32 iRet = evChannel->ReadInt32( nAckPort );
-			assert( iRet == sizeof(sint32) );
+			VistaType::sint32 iRet = evChannel->ReadInt32( nAckPort );
+			assert( iRet == sizeof(VistaType::sint32) );
 
 			evChannel->SetIsBlocking(false);
 			evChannel->SetIsBuffering(false);
@@ -745,12 +745,12 @@ void VistaClusterMaster::GetSlaveNames(std::list<std::string> &liStorage) const
 	}
 }
 
-microtime VistaClusterMaster::GetAvgUpdateTime() const
+VistaType::microtime VistaClusterMaster::GetAvgUpdateTime() const
 {
 	return m_pEventObserver->m_pAvgSend->GetAverageTime();
 }
 
-microtime VistaClusterMaster::GetAvgSwapTime() const
+VistaType::microtime VistaClusterMaster::GetAvgSwapTime() const
 {
 	return (*m_pAvgBc).GetAverageTime();
 }

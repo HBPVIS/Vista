@@ -1,0 +1,10 @@
+# $Id:
+## OBJECT FILES LIST
+# add your object filenames here
+# prefixed with $(OBJDIR)/
+OBJS   	=	${OBJDIR}/VistaOpenCVCaptureDriver.o
+
+# list here objects which are only needed when
+# building with a particular scenegraph toolkit
+OBJS_WTK =	
+OBJS_OSG =	

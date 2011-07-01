@@ -878,12 +878,12 @@ bool VistaKernelMsgPort::DispatchInteractionMsg(int iMsgType, VistaMsg *pMsg, Vi
 			//	default:
 			//		break;
 			//	}
-			//	ser.WriteInt32(uint32(liDevices.size()));
+			//	ser.WriteInt32(VistaType::uint32(liDevices.size()));
 			//	for(list<string>::const_iterator cit = liDevices.begin();
 			//		cit != liDevices.end();
 			//		++cit)
 			//		{
-			//			ser.WriteInt32(uint32((*cit).size()));
+			//			ser.WriteInt32(VistaType::uint32((*cit).size()));
 			//			ser.WriteString(*cit);
 			//		}
 			//	ser.GetBuffer(veAnswer);

@@ -28,7 +28,7 @@
 #include <VistaTools/VistaFileSystemDirectory.h>
 
 #include "VistaDeviceDriver.h"
-#include "VistaDriverMeasureHistoryAspect.h"
+#include "DriverAspects/VistaDriverMeasureHistoryAspect.h"
 
 #include "VistaDeviceDriversOut.h"
 
@@ -47,55 +47,13 @@
 /*============================================================================*/
 namespace VddUtil
 {
-	bool LoadDriverFromPlugin( const std::string &strPathToPlugin,
-		                       VistaDriverPlugin *pStoreTo )
-	{
-		// make a test for existence?
-		pStoreTo->m_Plugin = VistaDLL::Open( strPathToPlugin );
-		if(pStoreTo->m_Plugin)
-		{
-			VistaDLL::DLLSYMBOL name = VistaDLL::FindSymbol(pStoreTo->m_Plugin, "GetDeviceClassName");
-			if(name)
-			{
-				typedef const char *(*GetNameMethod)();
-				typedef IVistaDeviceDriver *(*CrMethod)(int);
-
-				GetNameMethod f = (GetNameMethod)name;
-				const char *pcName = f(); // claim name
-				pStoreTo->m_strDriverClassName = (pcName ? std::string(pcName) : "");
-
-				VistaDLL::DLLSYMBOL sym = VistaDLL::FindSymbol(pStoreTo->m_Plugin, "CreateDevice");
-				if(sym)
-				{
-					CrMethod m = (CrMethod)sym;
-					pStoreTo->m_pDriver = m(0); // !!! what about the 0?
-					if(pStoreTo->m_pDriver)
-					{
-						// ok, everything is nice so far,
-						return true;
-					}
-					else
-					{
-						VistaDLL::Close( pStoreTo->m_Plugin );
-						return false;
-					}
-				}
-			}
-			else
-			{
-				VistaDLL::Close( pStoreTo->m_Plugin );
-				pStoreTo->m_Plugin = NULL;
-			}
-		}
-		else
-			vddout << VistaDLL::GetError() << std::endl;
-
-		return false;
-	}
 
 	bool LoadCreationMethodFromPlugin( const std::string &strPathToPlugin,
 		                               VistaDriverPlugin *pStoreTo  )
 	{
+		if( pStoreTo->m_pTranscoder == NULL )
+			return false;
+
 		// make a test for existence?
 		pStoreTo->m_Plugin = VistaDLL::Open( strPathToPlugin );
 		if(pStoreTo->m_Plugin)
@@ -104,7 +62,7 @@ namespace VddUtil
 			if(name)
 			{
 				typedef const char *(*GetNameMethod)();
-				typedef IVistaDriverCreationMethod *(*CrMethod)();
+				typedef IVistaDriverCreationMethod *(*CrMethod)(IVistaTranscoderFactoryFactory *);
 
 				GetNameMethod f = (GetNameMethod)name;
 				const char *pcName = f(); // claim name
@@ -114,7 +72,7 @@ namespace VddUtil
 				if(sym)
 				{
 					CrMethod m = (CrMethod)sym;
-					pStoreTo->m_pMethod = m();
+					pStoreTo->m_pMethod = m(pStoreTo->m_pTranscoder);
 					if(pStoreTo->m_pMethod)
 					{
 						// ok, everything is nice so far,
@@ -145,6 +103,70 @@ namespace VddUtil
 		return false;
 	}
 
+
+	bool LoadTranscoderFromPlugin( const std::string &strPathToPlugin,
+				                           VistaDriverPlugin *pStoreTo )
+	{
+		// make a test for existence?		
+		pStoreTo->m_TranscoderDll = VistaDLL::Open( strPathToPlugin );
+		if(pStoreTo->m_TranscoderDll)
+		{
+			typedef IVistaTranscoderFactoryFactory *(*CrMethod)();
+			VistaDLL::DLLSYMBOL sym = VistaDLL::FindSymbol(pStoreTo->m_TranscoderDll, "CreateTranscoderFactoryFactory");
+			if(sym)
+			{
+				CrMethod m = (CrMethod)sym;
+				pStoreTo->m_pTranscoder = m(); // call m
+				if(pStoreTo->m_pTranscoder)
+					return true;
+				else
+				{
+					VistaDLL::Close( pStoreTo->m_TranscoderDll );
+					pStoreTo->m_TranscoderDll = NULL;
+					return false;
+				}
+			}
+			else
+			{
+				VistaDLL::Close( pStoreTo->m_TranscoderDll );
+				pStoreTo->m_TranscoderDll = NULL;
+				return false;
+			}
+		}
+		else
+			vddout << VistaDLL::GetError() << std::endl;
+
+		return false;
+	}
+
+	bool DisposeTranscoderFromPlugin( VistaDriverPlugin *pPlug )
+	{
+		if( pPlug->m_Plugin || pPlug->m_pMethod )
+			return false;
+
+		if(pPlug->m_TranscoderDll)
+		{
+			if( pPlug->m_pTranscoder )
+			{
+				VistaDLL::DLLSYMBOL sym = VistaDLL::FindSymbol(pPlug->m_TranscoderDll, "OnUnloadTranscoderFactoryFactory");
+				if(sym)
+				{
+					typedef bool (*UnloadM)(IVistaTranscoderFactoryFactory*);
+					UnloadM unload = (UnloadM)sym;
+					unload(pPlug->m_pTranscoder);
+				}
+				else
+					IVistaReferenceCountable::refdown(pPlug->m_pTranscoder);
+			}
+			pPlug->m_pTranscoder = NULL;
+
+			VistaDLL::Close( pPlug->m_TranscoderDll );
+			pPlug->m_TranscoderDll = NULL;
+		}
+
+		return true;
+	}
+
 	bool DisposePlugin( VistaDriverPlugin *pPlug, bool bDeleteCm )
 	{
 		if( pPlug->m_pDriver )
@@ -156,23 +178,21 @@ namespace VddUtil
 
 		if( pPlug->m_pMethod )
 		{
-			VistaDLL::DLLSYMBOL name = VistaDLL::FindSymbol(pPlug->m_Plugin, "Unload");
+			VistaDLL::DLLSYMBOL name = VistaDLL::FindSymbol(pPlug->m_Plugin, "UnloadCreationMethod");
 			if(name)
 			{
-				// ok, we have an unload method. let query and cast it!
+				// ok, we have an unload method. lets query and cast it!
 				typedef void (*UnloadMt)(IVistaDriverCreationMethod*);
-				UnloadMt ul = (UnloadMt)name;
+				UnloadMt unloadFunc = (UnloadMt)name;
 
-				ul(pPlug->m_pMethod); // call
-
-				if(bDeleteCm)
-					delete pPlug->m_pMethod;
-
+				unloadFunc(pPlug->m_pMethod); // call
+//				if(bDeleteCm)
+//					delete pPlug->m_pMethod;
 				pPlug->m_pMethod = NULL;
 			}
 			else
 			{
-				pPlug->m_pMethod->OnUnload(); // call directly
+//				pPlug->m_pMethod->OnUnload(); // call directly
 
 				// currently, there is no explicit dispose in plugin structure
 				// even worse: no method to get hold of a generic destructor
@@ -181,7 +201,7 @@ namespace VddUtil
 				// itself... damn...
 
 				if(bDeleteCm)
-					delete pPlug->m_pMethod;
+					IVistaReferenceCountable::refdown(pPlug->m_pMethod);
 
 				// but instead: ignore the problem...
 				pPlug->m_pMethod = NULL;
@@ -193,37 +213,13 @@ namespace VddUtil
 			VistaDLL::Close( pPlug->m_Plugin ); // hopefully, the OS will take care for
 			                                     // not *really* releasing resources
 												 // iff we opened the SO more than once
+			pPlug->m_Plugin = NULL;
 		}
+
+		DisposeTranscoderFromPlugin( pPlug );
+		pPlug->m_strDriverClassName = std::string(); // clear name
+
 		return true;
-	}
-	bool SetupSensorHistory( IVistaDeviceDriver *pDriver, VistaDeviceSensor *pSensor,
-					  IVistaDriverCreationMethod *pCrMethod,
-					  const std::string &strSensorTypeName,
-											unsigned int nDesiredReadSlots,
-											unsigned int nReadLengthInMsecs )
-	{
-		unsigned int nType = pCrMethod->GetTypeFor( strSensorTypeName );
-		if(nType == ~0)
-			return false;
-
-		unsigned int nUpdateEstimator = pCrMethod->GetUpdateEstimatorFor( nType );
-		unsigned int nSlotLength = pCrMethod->GetMeasureSizeFor( nType );
-
-		// calculation:
-		// the update estimator gives the refresh rate in Hz (best-case)
-		// so, for a 15 frame min update, we need:
-		// rt: 1000/estimator -> msecs per sample
-		// mr: 1000/nReadLengthInMsecs -> msecs per frame (max. read-time)
-		// mr/rt = # additional packets we need in order not to create
-		// an overrun during write
-		unsigned int nDriverSize = int(std::ceil((double(nReadLengthInMsecs)/double(1000.0f/double(nUpdateEstimator)))));
-
-		VistaDriverMeasureHistoryAspect *pHistory =
-			dynamic_cast<VistaDriverMeasureHistoryAspect*>( pDriver->GetAspectById(
-					VistaDriverMeasureHistoryAspect::GetAspectId()) );
-
-		// set 2 times the estimated driver size (as paranoia factor ;)
-		return pHistory->SetHistorySize( pSensor, nDesiredReadSlots, 2*nDriverSize, nSlotLength );
 	}
 
 	bool InitVdd()

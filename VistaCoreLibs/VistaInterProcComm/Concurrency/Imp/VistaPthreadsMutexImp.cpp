@@ -22,10 +22,13 @@
 /*============================================================================*/
 // $Id$
 
+#if !defined(_POSIX_C_SOURCE)
+#define _POSIX_C_SOURCE 199506L
+#endif
+
 #include <VistaInterProcComm/Concurrency/VistaIpcThreadModel.h>
 #include <VistaInterProcComm/VistaInterProcCommOut.h>
 
-#define _POSIX_C_SOURCE 199506L
 
 #if defined(VISTA_THREADING_POSIX)
 #include "VistaPthreadsMutexImp.h"

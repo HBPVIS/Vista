@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaStreams.h 21315 2011-05-16 13:47:39Z dr165799 $
 
 #ifndef _VISTASTREAMS_H
 #define _VISTASTREAMS_H

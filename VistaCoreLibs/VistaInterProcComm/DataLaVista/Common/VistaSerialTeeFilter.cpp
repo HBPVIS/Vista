@@ -157,7 +157,7 @@ IDLVistaDataPacket *DLVistaSerialTeeFilter::FilterPacketL(IDLVistaDataPacket *pP
 	{
 		// we have a problem, trying to resend an already teed instance
 #ifdef DEBUG
-		printf("DLVistaSerialTeeFilter::FilterPacketL(%X) -- TRYING TO REFILTER A PACKET WITH INDEX (%d)\n", pPacket, iIdx);
+		printf("DLVistaSerialTeeFilter::FilterPacketL(%lx) -- TRYING TO REFILTER A PACKET WITH INDEX (%d)\n", long(pPacket), iIdx);
 #endif
 		throw;
 	}

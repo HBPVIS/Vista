@@ -232,7 +232,7 @@ void VistaBasicProfiler::ProfileTreeNode::Print( std::ostream& oStream, int iDep
 void VistaBasicProfiler::ProfileTreeNode::NewFrame()
 {
 	m_dLastFrame = m_dCurrentFrame;
-	m_dMax = std::max<microtime>( m_dMax, m_dLastFrame );
+	m_dMax = std::max<VistaType::microtime>( m_dMax, m_dLastFrame );
 	//@todo: inaccurate at the beginning
 	if( m_dSlowAvg > 0.0 )
 	{
@@ -292,17 +292,17 @@ VistaBasicProfiler::ProfileTreeNode* VistaBasicProfiler::ProfileTreeNode::GetChi
 	return NULL;
 }
 
-microtime VistaBasicProfiler::ProfileTreeNode::GetLastFrameTime() const
+VistaType::microtime VistaBasicProfiler::ProfileTreeNode::GetLastFrameTime() const
 {
 	return m_dLastFrame;
 }
 
-microtime VistaBasicProfiler::ProfileTreeNode::GetFastAverage() const
+VistaType::microtime VistaBasicProfiler::ProfileTreeNode::GetFastAverage() const
 {
 	return m_dFastAvg;
 }
 
-microtime VistaBasicProfiler::ProfileTreeNode::GetSlowAverage() const
+VistaType::microtime VistaBasicProfiler::ProfileTreeNode::GetSlowAverage() const
 {
 	return m_dSlowAvg;
 }

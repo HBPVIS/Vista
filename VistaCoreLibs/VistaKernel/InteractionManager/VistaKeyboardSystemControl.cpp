@@ -333,7 +333,7 @@ std::string VistaKeyboardSystemControl::GetHelpTextForToken( int nKeyCode, int n
 
 	CommandMap::const_iterator cit = mapCommands.find(nKeyCode);
 	if(cit == mapCommands.end())
-		return false;
+		return "";
 	return (*cit).second.m_strHelpText;
 }
 

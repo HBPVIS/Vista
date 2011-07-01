@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaTimeUtils.cpp 21315 2011-05-16 13:47:39Z dr165799 $
 
 #include "VistaTimeUtils.h"
 
@@ -56,22 +56,22 @@
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
 
-microtime VistaTimeUtils::ConvertToDayTime( microtime dTime )
+VistaType::microtime VistaTimeUtils::ConvertToDayTime( VistaType::microtime dTime )
 {	
-	microtime dMilliseconds = dTime - (long)dTime;
+	VistaType::microtime dMilliseconds = dTime - (long)dTime;
 
 	time_t tCurrentTime = (time_t)dTime;
 	struct tm* tLocalTime = localtime(&tCurrentTime);
 
-	microtime dDayTime = ( (microtime)tLocalTime->tm_sec) 
-						+ ( ((microtime)tLocalTime->tm_min)*60)
-						+ ( ((microtime)tLocalTime->tm_hour) )*3600
-						+ dMilliseconds;//(((microtime)x.millitm)/1000);
+	VistaType::microtime dDayTime = ( (VistaType::microtime)tLocalTime->tm_sec) 
+						+ ( ((VistaType::microtime)tLocalTime->tm_min)*60)
+						+ ( ((VistaType::microtime)tLocalTime->tm_hour) )*3600
+						+ dMilliseconds;//(((VistaType::microtime)x.millitm)/1000);
 
 	return dDayTime;
 }
 
-void VistaTimeUtils::ConvertToDate( const microtime dTime, 
+void VistaTimeUtils::ConvertToDate( const VistaType::microtime dTime, 
 								int& iMillisecond,
 								int& iSecond,
 								int& iMinute,
@@ -93,7 +93,7 @@ void VistaTimeUtils::ConvertToDate( const microtime dTime,
 	iYear = 1900 + tLocalTime->tm_year;
 }
 
-std::string VistaTimeUtils::ConvertToLexicographicDateString( const systemtime dTime )
+std::string VistaTimeUtils::ConvertToLexicographicDateString( const VistaType::systemtime dTime )
 {
 	std::string sResult;
 	sResult.resize( 13 );

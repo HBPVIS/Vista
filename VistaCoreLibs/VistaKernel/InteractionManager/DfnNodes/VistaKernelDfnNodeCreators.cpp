@@ -154,12 +154,12 @@ bool VistaKernelDfnNodeCreators::RegisterNodeCreates( VistaSystem* pVistaSystem 
 	pFac->SetNodeCreator( "TextOverlay[unsigned int]",
 					new VistaDfnTextOverlayNodeCreate<unsigned int>( pVistaSystem->GetDisplayManager(), &ConvertToString<unsigned int>) );
 	pFac->SetNodeCreator( "TextOverlay[int64]",
-					new VistaDfnTextOverlayNodeCreate<sint64>( pVistaSystem->GetDisplayManager(), &ConvertToString<sint64>) );
+					new VistaDfnTextOverlayNodeCreate<VistaType::sint64>( pVistaSystem->GetDisplayManager(), &ConvertToString<VistaType::sint64>) );
 	pFac->SetNodeCreator( "TextOverlay[bool]",
 					new VistaDfnTextOverlayNodeCreate<bool>( pVistaSystem->GetDisplayManager(), &ConvertToString<bool> ) );
 	pFac->SetNodeCreator( "TextOverlay[double]", new VistaDfnTextOverlayNodeCreate<double>( pVistaSystem->GetDisplayManager(), &ConvertToString<double> ) );
-	pFac->SetNodeCreator( "TextOverlay[microtime]",
-					new VistaDfnTextOverlayNodeCreate<microtime>( pVistaSystem->GetDisplayManager(), &ConvertToString<microtime> ) );
+	pFac->SetNodeCreator( "TextOverlay[VistaType::microtime]",
+					new VistaDfnTextOverlayNodeCreate<VistaType::microtime>( pVistaSystem->GetDisplayManager(), &ConvertToString<VistaType::microtime> ) );
 	pFac->SetNodeCreator( "TextOverlay[float]",
 					new VistaDfnTextOverlayNodeCreate<float>( pVistaSystem->GetDisplayManager(), &ConvertToString<float> ) );
 	pFac->SetNodeCreator( "TextOverlay[string]",

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDefaultTimerImp.h 21315 2011-05-16 13:47:39Z dr165799 $
 
 
 #ifndef _VISTADEFAULTTIMERIMP_H
@@ -56,20 +56,20 @@ class VISTABASEAPI VistaDefaultTimerImp : public IVistaTimerImp
 public:
 	VistaDefaultTimerImp();	
 
-	virtual microtime  GetMicroTime()   const;
-	virtual microstamp GetMicroStamp()  const;
-	virtual microtime  GetSystemTime()  const;
-	virtual systemtime ConvertToSystemTime( const microtime mtTime ) const;
+	virtual VistaType::microtime  GetMicroTime()   const;
+	virtual VistaType::microstamp GetMicroStamp()  const;
+	virtual VistaType::microtime  GetSystemTime()  const;
+	virtual VistaType::systemtime ConvertToSystemTime( const VistaType::microtime mtTime ) const;
 
 protected:
 	~VistaDefaultTimerImp();
 private:
 #ifdef WIN32
-	mutable microstamp		m_nInitialStamp;
-	mutable microstamp		m_nLastStamp;	
+	mutable VistaType::microstamp		m_nInitialStamp;
+	mutable VistaType::microstamp		m_nLastStamp;	
 	mutable DWORD			m_nLastTickCount;
-	microtime				m_nFrequencyDenom;
-	microtime				m_nInitialSystemTime;
+	VistaType::microtime				m_nFrequencyDenom;
+	VistaType::microtime				m_nInitialSystemTime;
 #elif defined DARWIN
 	mach_timebase_info_data_t       m_sTimebaseInfo;
 #else

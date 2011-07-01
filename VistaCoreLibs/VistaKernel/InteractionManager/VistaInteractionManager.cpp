@@ -36,31 +36,17 @@
 #include "VistaInteractionEvent.h"
 #include "VistaInteractionContext.h"
 
-#include <VistaDeviceDriversBase/VistaDriverConnectionAspect.h>
-#include <VistaDeviceDriversBase/VistaDriverMeasureHistoryAspect.h>
-#include <VistaDeviceDriversBase/VistaDriverSensorMappingAspect.h>
-#include <VistaDeviceDriversBase/VistaDriverLoggingAspect.h>
-#include <VistaDeviceDriversBase/VistaDriverForceFeedbackAspect.h>
-#include <VistaDeviceDriversBase/VistaDriverThreadAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverConnectionAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverMeasureHistoryAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverSensorMappingAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverLoggingAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverForceFeedbackAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverThreadAspect.h>
 #include <VistaDataFlowNet/VdfnPersistence.h>
 #include <VistaDataFlowNet/VdfnGraph.h>
 
 
 #include "VistaDriverWindowAspect.h"
-
-
-// SUPPORTED GENERIC DRIVERS
-#include <VistaDeviceDriversBase/Drivers/VistaSpaceMouseDriver.h>
-#include <VistaDeviceDriversBase/Drivers/VistaDTrackDriver.h>
-#include <VistaDeviceDriversBase/Drivers/VistaHIDDriver.h>
-#include <VistaDeviceDriversBase/Drivers/VistaMIDIDriver.h>
-#include <VistaDeviceDriversBase/Drivers/VistaIRManDriver.h>
-#include <VistaDeviceDriversBase/Drivers/VistaPhantomServerDriver.h>
-#include <VistaDeviceDriversBase/Drivers/VistaFastrakDriver.h>
-#include <VistaDeviceDriversBase/Drivers/VistaCyberGloveDriver.h>
-#if 0
-#include <VistaDeviceDriversBase/Drivers/Vista3DCSpaceNavigatorDriver.h>
-#endif
 
 #include <VistaDataFlowNet/VdfnPersistence.h>
 
@@ -329,7 +315,7 @@ VistaInteractionManager::~VistaInteractionManager()
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
 
-microtime VistaInteractionManager::GetAvgUpdateTime() const
+VistaType::microtime VistaInteractionManager::GetAvgUpdateTime() const
 {
 	return m_pAvgUpd->GetAverageTime();
 }
@@ -590,6 +576,7 @@ void VistaInteractionManager::SetDriverMap(VistaDriverMap *pMap)
 	if(!m_mpDriverMap)
 		m_mpDriverMap = pMap;
 
+/*
 	if(m_mpDriverMap)
 	{
 		if(!m_mpDriverMap->GetDriverCreationMethod("SPACEMOUSE"))
@@ -640,8 +627,8 @@ void VistaInteractionManager::SetDriverMap(VistaDriverMap *pMap)
 			m_mpDriverMap->RegisterDriverCreationMethod("CYBERGLOVE",
 				VistaCyberGloveDriver::GetDriverFactoryMethod());
 		}
-
 	}
+	*/
 }
 
 
@@ -1018,6 +1005,64 @@ bool VistaInteractionManager::DelInteractionContext(VistaInteractionContext *pCt
 
 	return true;
 }
+
+int VistaInteractionManager::GetInteractionContextPriority( VistaInteractionContext* pContext ) const
+{
+	for( std::vector<CONTEXT>::const_iterator itCtx = m_vecLogicalDevices.begin();
+			itCtx != m_vecLogicalDevices.end(); ++itCtx )
+	{
+		if( (*itCtx).m_pContext == pContext )
+		{
+			return (*itCtx).m_nPrio;
+		}
+	}
+	return -1;
+}
+bool VistaInteractionManager::SetInteractionContextPriority( VistaInteractionContext* pContext,
+															int nPriority )
+{
+	for( std::vector<CONTEXT>::iterator itCtx = m_vecLogicalDevices.begin();
+			itCtx != m_vecLogicalDevices.end(); ++itCtx )
+	{
+		if( (*itCtx).m_pContext == pContext )
+		{
+			(*itCtx).m_nPrio = nPriority;
+			std::stable_sort(m_vecLogicalDevices.begin(), m_vecLogicalDevices.end());
+			return true;
+		}
+	}
+	return false;
+}
+
+int VistaInteractionManager::GetInteractionContextDelayedUpdate( VistaInteractionContext* pContext ) const
+{
+	for( std::vector<CONTEXT>::const_iterator itCtx = m_vecLogicalDevices.begin();
+			itCtx != m_vecLogicalDevices.end(); ++itCtx )
+	{
+		if( (*itCtx).m_pContext == pContext )
+		{
+			return (*itCtx).m_bDelayedUpdate;
+		}
+	}
+	return false;
+}
+bool VistaInteractionManager::SetInteractionContextDelayedUpdate( 
+															VistaInteractionContext* pContext,
+															bool bDelayedUpdate )
+{
+	for( std::vector<CONTEXT>::iterator itCtx = m_vecLogicalDevices.begin();
+			itCtx != m_vecLogicalDevices.end(); ++itCtx )
+	{
+		if( (*itCtx).m_pContext == pContext )
+		{
+			(*itCtx).m_bDelayedUpdate = bDelayedUpdate;
+			std::stable_sort(m_vecLogicalDevices.begin(), m_vecLogicalDevices.end());
+			return true;
+		}
+	}
+	return false;
+}
+
 
 
 bool VistaInteractionManager::StartDriverThread()

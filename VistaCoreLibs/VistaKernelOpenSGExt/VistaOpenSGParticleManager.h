@@ -84,8 +84,8 @@ public:
 		* is valid.
 		*/
 		virtual	void ChangeParticle( IParticleChanger::SParticle& oParticle,
-									microtime dCurrentTime,
-									microtime dDeltaT ) = 0;
+									VistaType::microtime dCurrentTime,
+									VistaType::microtime dDeltaT ) = 0;
 
 		void SetRandomNumberGenerator(VistaRandomNumberGenerator *pRand);
 
@@ -126,18 +126,18 @@ public:
 	void SetRandomGenerator(VistaRandomNumberGenerator *pRand);
 
 	virtual void HandleEvent(VistaEvent *pEvent);
-	void UpdateParticles(microtime dCurrentTime, microtime dDeltaT);
+	void UpdateParticles(VistaType::microtime dCurrentTime, VistaType::microtime dDeltaT);
 
 private:
 	void PrepareParticleAtOrigin(int iParticleIndex);
 	void CalculateParticle(int iParticleIndex);
 
-	microtime m_dLastTimeStamp;
-	microtime m_dCurrentDeltaT;
-	microtime m_dCurrentTimeStamp;
-	microtime m_dLastParticleDeleted;
-	microtime m_dLastParticleCreated;
-	microtime m_dRemainingSeedTime;
+	VistaType::microtime m_dLastTimeStamp;
+	VistaType::microtime m_dCurrentDeltaT;
+	VistaType::microtime m_dCurrentTimeStamp;
+	VistaType::microtime m_dLastParticleDeleted;
+	VistaType::microtime m_dLastParticleCreated;
+	VistaType::microtime m_dRemainingSeedTime;
 	bool m_bParticleManagerActive;
 	bool m_bParticleAlreadyCreatedThisRun;
 

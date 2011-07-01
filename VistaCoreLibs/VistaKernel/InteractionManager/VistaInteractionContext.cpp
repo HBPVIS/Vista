@@ -64,7 +64,7 @@ int VistaInteractionContext::SerializeContext(IVistaSerializer &ser,
 	{
 		int nRet = 0;
 		unsigned int nCnt = (*pGraph).GetMasterSimCount();
-		ser.WriteInt32( (sint32)nCnt );
+		ser.WriteInt32( (VistaType::sint32)nCnt );
 		if(nCnt > 0)
 		{
 			const VdfnGraph::Nodes &nodes = (*pGraph).GetNodes();
@@ -82,7 +82,7 @@ int VistaInteractionContext::SerializeContext(IVistaSerializer &ser,
 						continue;
 					}
 
-					nRet += ser.WriteInt32( (sint32)strNodeName.size() );
+					nRet += ser.WriteInt32( (VistaType::sint32)strNodeName.size() );
 					nRet += ser.WriteString( strNodeName );
 
 					 std::list<std::string> liOutPorts = (*cit)->GetOutPortNames();
@@ -119,7 +119,7 @@ int VistaInteractionContext::DeSerializeContext(IVistaDeSerializer &deSer,
 			for(unsigned int n=0; n < nCnt; ++n)
 			{
 				// read name
-				sint32 nLength = 0;
+				VistaType::sint32 nLength = 0;
 				deSer.ReadInt32( nLength );
 				deSer.ReadString( strNodeName, nLength );
 

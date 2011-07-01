@@ -449,6 +449,34 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="AutoStuff"
+				>
+				<File
+					RelativePath="..\..\VistaAtomicCounter.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\VistaAtomicCounter.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\VistaAutoBuffer.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\VistaAutoBuffer.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\VistaAutoBufferPool.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\VistaAutoBufferPool.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

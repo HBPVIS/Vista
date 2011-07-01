@@ -45,6 +45,7 @@
 /*============================================================================*/
 class IVistaPropertyGetFunctor;
 class IVistaPropertySetFunctor;
+class VistaAspectsOut;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -93,6 +94,8 @@ class VISTAASPECTSAPI VistaPropertyFunctorRegistry : public IVistaReferenceCount
 
 	bool GetTalkativeFlag() const;
 	void SetTalkativeFlag(bool bTalkative);
+
+	void Show(VistaAspectsOut &) const;
 
 	protected:
 	private:

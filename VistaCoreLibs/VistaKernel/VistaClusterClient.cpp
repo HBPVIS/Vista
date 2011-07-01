@@ -834,7 +834,7 @@ bool VistaClusterClient::PostInitSection(VistaInteractionManager *pNewIA)
 		m_pSyncNode->SetSyncSocket(m_pSyncSocket);
 	}
 #endif
-		m_pEventSucker->GetConnection()->WriteInt32(uint32(m_ClientName.length()));
+		m_pEventSucker->GetConnection()->WriteInt32(VistaType::uint32(m_ClientName.length()));
 		m_pEventSucker->GetConnection()->WriteString(m_ClientName);
 
     if(pNewIA)

@@ -44,6 +44,7 @@
 #include "VdfnCounterNode.h"
 #include "VdfnModuloCounterNode.h"
 #include "VdfnThresholdNode.h"
+#include "VdfnGetElementNode.h"
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -435,10 +436,10 @@ public:
 
     virtual IVdfnNode *CreateNode(const VistaPropertyList &oParams) const {
         try {
-            const VistaPropertyList &prams = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
+            const VistaPropertyList &oSubs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
 
-            T oInitialValue = T(prams.GetDoubleValue("initial_value"));
-            T oModulo = T(prams.GetDoubleValue("modulo"));
+            T oInitialValue = T(oSubs.GetDoubleValue("initial_value"));
+            T oModulo = T(oSubs.GetDoubleValue("modulo"));
             if (oModulo == 0)
                 oModulo = 1;
 
@@ -455,6 +456,53 @@ class VdfnEnvStringValueNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
 {
 public:
 	virtual IVdfnNode *CreateNode( const VistaPropertyList &oParams ) const;
+};
+
+
+template<class Container, class Type>
+class TVdfnGetElementNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator 
+{
+public:
+    virtual IVdfnNode *CreateNode(const VistaPropertyList &oParams) const 
+	{
+        try 
+		{
+            const VistaPropertyList &oSubs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
+
+			int nIndex = -1;
+			if( oSubs.HasProperty( "index" ) )
+				nIndex = oSubs.GetIntValue( "index" );          
+            return new TVdfnGetElementNode<Container, Type>( nIndex );
+        } 
+		catch (VistaExceptionBase &x)
+		{
+            x.PrintException();
+        }
+        return NULL;
+    }
+};
+
+template<class Container, class Type, int Size>
+class TVdfnGetElementFromArrayNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator 
+{
+public:
+    virtual IVdfnNode *CreateNode(const VistaPropertyList &oParams) const 
+	{
+        try 
+		{
+            const VistaPropertyList &oSubs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
+
+			int nIndex = -1;
+			if( oSubs.HasProperty( "index" ) )
+				nIndex = oSubs.GetIntValue( "index" );          
+            return new TVdfnGetElementFromArrayNode<Container, Type, Size>( nIndex );
+        } 
+		catch (VistaExceptionBase &x)
+		{
+            x.PrintException();
+        }
+        return NULL;
+    }
 };
 
 

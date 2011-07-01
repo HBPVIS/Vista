@@ -66,7 +66,7 @@ public:
 	virtual bool	GetBoundingBox(VistaVector3D &pMin, VistaVector3D &pMax) const;
 
 	IVistaNodeData*		GetData() const;
-	virtual uint64 GetTransformScore() const;
+	virtual VistaType::uint64 GetTransformScore() const;
 
 	//implementation of IVistaLocatable
 	virtual bool GetTranslation( VistaVector3D& v3Translation ) const;
@@ -135,7 +135,7 @@ protected:
 
 	IVistaNodeData*		m_pData;
 	IVistaNodeBridge*	m_pBridge;
-	uint64              m_nLocalTransScore;
+	VistaType::uint64              m_nLocalTransScore;
 };
 
 /*============================================================================*/

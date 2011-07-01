@@ -4,24 +4,12 @@ set( RelativeDir "./Drivers" )
 set( RelativeSourceGroup "Source Files\\Drivers" )
 
 set( DirFiles
-	VistaCyberGloveDriver.cpp
-	VistaCyberGloveDriver.h
-	VistaDTrackDriver.cpp
-	VistaDTrackDriver.h
-	VistaFastrakDriver.cpp
-	VistaFastrakDriver.h
-	VistaHIDDriver.cpp
-	VistaHIDDriver.h
-	VistaHIDDriverForceFeedbackAspect.cpp
-	VistaHIDDriverForceFeedbackAspect.h
-	VistaIRManDriver.cpp
-	VistaIRManDriver.h
-	VistaMIDIDriver.cpp
-	VistaMIDIDriver.h
-	VistaPhantomServerDriver.cpp
-	VistaPhantomServerDriver.h
-	VistaSpaceMouseDriver.cpp
-	VistaSpaceMouseDriver.h
+	VistaKeyboardDriver.cpp
+	VistaKeyboardDriver.h
+	VistaMouseDriver.cpp
+	VistaMouseDriver.h
+	VistaShallowDriver.cpp
+	VistaShallowDriver.h
 	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )

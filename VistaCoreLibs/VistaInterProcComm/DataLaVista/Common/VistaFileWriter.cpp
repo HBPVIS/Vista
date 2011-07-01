@@ -94,13 +94,13 @@ bool DLVistaFileWriter::AcceptDataPacket(IDLVistaDataPacket *pPacket, IDLVistaPi
 
 bool DLVistaFileWriter::RecycleDataPacket(IDLVistaDataPacket *, IDLVistaPipeComponent *pComp, bool bBlock)
 {
-	printf("%X @ -- DLVistaFileWriter::RecycleDataPacket()\n", this);
+	printf("%lx @ -- DLVistaFileWriter::RecycleDataPacket()\n", long(this));
 	return false;
 }
 
 bool DLVistaFileWriter::ConsumePacket(IDLVistaDataPacket *pPacket)
 {
-	printf("%X @ -- DLVistaFileWriter::ConsumePacket(%X)\n", this, pPacket);
+	printf("%lx @ -- DLVistaFileWriter::ConsumePacket(%lx)\n", long(this), long(pPacket));
 
 	DLVistaByteBufferPacket *p = static_cast<DLVistaByteBufferPacket *>(pPacket);
 	
@@ -124,13 +124,13 @@ bool DLVistaFileWriter::ConsumePacket(IDLVistaDataPacket *pPacket)
 
 IDLVistaDataPacket *DLVistaFileWriter::GivePacket(bool bBlock)
 {
-	printf("%X @ -- DLVistaFileWriter::GivePacket()\n", this);
+	printf("%lx @ -- DLVistaFileWriter::GivePacket()\n", long(this));
 	return 0;
 }
 
 bool DLVistaFileWriter::InitPacketMgmt()
 {
-	printf("%X @ -- DLVistaFileWriter::InitPacketMgmt()\n", this);
+	printf("%lx @ -- DLVistaFileWriter::InitPacketMgmt()\n", long(this) );
 	return true;
 }
 

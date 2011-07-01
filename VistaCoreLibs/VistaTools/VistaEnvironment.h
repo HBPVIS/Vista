@@ -33,6 +33,7 @@
 #include "VistaToolsConfig.h"
 
 #include <string>
+#include <list>
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -116,6 +117,20 @@ class VISTATOOLSAPI VistaEnvironment
 
 		static std::string GetEnv(const std::string &);
 		static void SetEnv(const std::string &sKey, const std::string &sValue);
+
+		static std::string GetLibraryPathEnv();
+		static void SetLibraryPathEnv( const std::string &sValue );
+		static void AddPathToLibraryPathEnv( const std::string &sValue, bool bAddAtBack = true );
+
+		/**
+		 * returns the OS-specific separator that separates several directories in an env var
+		 */
+		static char GetOSEnvironmentPathSeparator();
+		/**
+		 * Replaces any occurences of the OS-specific path separator in the string
+		 */
+		static std::string ReplaceOSEnvironemntPathSeparators( const std::string& sPathListEntry,
+														const char cReplaceWith );
 };
 
 #endif //_VISTAENVIRONMENT_H

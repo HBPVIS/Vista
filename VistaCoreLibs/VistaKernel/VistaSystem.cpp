@@ -22,11 +22,6 @@
 /*============================================================================*/
 // $Id$
 
-#if defined(WIN32)
-#pragma warning(disable: 4996)
-#endif
-
-
 #include "VistaSystem.h"
 #include "VistaKernelOut.h"
 #include "VistaDataTunnelFactory.h"
@@ -59,9 +54,7 @@
 #include <VistaKernel/InteractionManager/DfnNodes/VistaKernelDfnNodeCreators.h>
 
 #include <VistaDeviceDriversBase/VistaDeviceDriver.h>
-#include <VistaDeviceDriversBase/VistaMouseDriver.h>
-#include <VistaDeviceDriversBase/VistaKeyboardDriver.h>
-#include <VistaDeviceDriversBase/VistaShallowDriver.h>
+#include <VistaDeviceDriversBase/Drivers/VistaShallowDriver.h>
 #include <VistaDeviceDriversBase/VistaDriverUtils.h>
 
 #include <VistaDataFlowNet/VdfnSerializer.h>
@@ -103,9 +96,9 @@
 #include "VistaSystemCommands.h"
 #include <VistaKernel/InteractionManager/VistaKeyboardSystemControl.h>
 #include <VistaKernel/InteractionManager/VistaDriverWindowAspect.h>
-#include <VistaDeviceDriversBase/VistaDriverConnectionAspect.h>
-#include <VistaDeviceDriversBase/VistaDriverSensorMappingAspect.h>
-#include <VistaDeviceDriversBase/VistaDriverMeasureHistoryAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverConnectionAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverSensorMappingAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverMeasureHistoryAspect.h>
 #include <VistaDeviceDriversBase/VistaDriverMap.h>
 
 #include <VistaInterProcComm/Connections/VistaConnectionSerial.h>
@@ -129,8 +122,6 @@ using namespace std;
 #if defined(VISTA_SYS_OPENSG)
 
 #include <VistaKernel/OpenSG/VistaOpenSGSystemClassFactory.h>
-
-// no KERNELAPI, this is  private module
 
 #endif // SystemClassFactory for OpenSG
 
@@ -183,6 +174,33 @@ struct _dllHlp
 	std::list<VddUtil::VistaDriverPlugin> m_liDevices;
 #endif
 };
+struct _drDevHlp
+{
+	_drDevHlp()
+		: m_nPrio(-1), m_pDriver(NULL)
+		{}
+
+	_drDevHlp(IVistaDeviceDriver *pDriver,
+			  const std::string &strTypeName,
+			  const std::string &strName,
+			  const std::string &strSection,
+			  int nPrio,
+			  const std::list<std::string> &liDependsOn)
+		: m_strName(strName),
+		  m_strSection(strSection),
+		  m_strTypeName(strTypeName),
+		  m_nPrio(nPrio),
+		  m_pDriver(pDriver),
+		  m_liDependsOn(liDependsOn)
+		{}
+
+	std::string m_strName,
+		m_strSection,
+		m_strTypeName;
+	int         m_nPrio;
+	IVistaDeviceDriver *m_pDriver;
+	std::list<std::string> m_liDependsOn;
+};
 
 static VistaInteractionContext *SetupContext(VistaInteractionManager *pInMa,
 											  VistaDisplayManager *pDispMgr,
@@ -196,12 +214,6 @@ static VistaInteractionContext *SetupContext(VistaInteractionManager *pInMa,
 											  int nPrioOverride = -1,
 											  int nSlaveId = -1);
 
-/// @todo temporary local helper functions - should vanish when we decide to
-/// introduce boost as utility library. THESE ALL ARE LACKING ROBUSTNESS AND
-/// MAY NOT WORK IN ALL CASES! THAT'S WHY WE PROPOSE USING BOOST FOR THINGS LIKE
-/// THIS!
-
-// <TEMP CODE>
 namespace {
 
 	bool isAbsolutePath(const std::string &path)
@@ -225,15 +237,13 @@ namespace {
 
 
 	/// get absolute path, depending on current working directory
-	/// @bug On posix systems, this fails for non-existant files/directories! -> will not be fixed as this is non-trivial. We'll switch to boost instead...
 	std::string getAbsolutePath(const std::string &path)
 	{
 		if(isAbsolutePath(path))
 		{
 			return path;
-		}		//boost::filesystem::system_complete(path) (without "system_" for older versions)
+		}
 #ifdef WIN32
-		//cerr << "[getAbsolutePath] pwd: " << VistaFileSystemDirectory::GetCurrentWorkingDirectory() << endl;
 		char buf[MAX_PATH];
 		char *newName = _fullpath(buf, path.c_str(), MAX_PATH);
 		if(newName)
@@ -291,7 +301,6 @@ namespace {
 
 
 }
-// </TEMP CODE>
 
 /*============================================================================*/
 /*  MAKROS AND DEFINES                                                        */
@@ -364,7 +373,7 @@ VistaSystem::VistaSystem()
 
 	/**
 	 * Set up IPC specific stuff. We may want to use network
-	 * somewhere; UseIPComm should be reentrant, so this will
+	 * somewhere; UseIPComm can be called several times, so this will
 	 * not hurt.
 	 */
 	VistaIPComm::UseIPComm();
@@ -390,13 +399,14 @@ VistaSystem::VistaSystem()
 
 	//New timer interface: we have to create a TimerImp and set is
 	// as timer's singleton
-	IVistaTimerImp::SetSingleton( new VistaDefaultTimerImp );
+	if( IVistaTimerImp::GetSingleton( false ) == NULL )
+		IVistaTimerImp::SetSingleton( new VistaDefaultTimerImp );
 
 	// we will provide a global timer, which will be needed for
 	// the frame clock (client-sync)
 	m_pTimer = new VistaTimer();	
 
-	//setting the profiler singleton
+	//setting the oProfiler singleton
 	VistaBasicProfiler::SetSingleton( new VistaBasicProfiler );
 
 	std::string sEnvSearchPath = VistaEnvironment::GetEnv("VISTAINIPATH");
@@ -432,13 +442,10 @@ VistaSystem::VistaSystem()
 		m_pEventManager->RegisterEventId(eTp, VistaSystemEvent::GetIdString(n));
 	}
 
-	//VistaOldInteractionManager::RegisterEventTypes(m_pEventManager);
 	VistaDisplayManager::RegisterEventTypes(m_pEventManager);
 	VistaGraphicsManager::RegisterEventTypes(m_pEventManager);
 	VistaPickManager::RegisterEventTypes(m_pEventManager);
 	VistaInteractionManager::RegisterEventTypes(m_pEventManager);
-	//VistaInteractionManager::SetupBasicAspectIds();
-
 
 	// register and map command events
 
@@ -568,9 +575,6 @@ VistaSystem::~VistaSystem()
 
 	// delete RTC
 	delete IDLVistaRTC::GetRTCSingleton();
-
-	//delete TimerImp Singleton
-	//delete IVistaTimerImp::GetSingleton();
 	IVistaTimerImp::SetSingleton(NULL);
 
 	VistaIPComm::CloseIPComm();
@@ -580,6 +584,8 @@ VistaSystem::~VistaSystem()
 
 	delete m_pSystemClassFactory;
 	global_pVistaSystem = NULL;
+
+	m_liDriverPluginPathes.push_back( "." );
 }
 
 /*============================================================================*/
@@ -701,7 +707,7 @@ bool VistaSystem::Init (int argc, char *argv[])
 
 bool VistaSystem::DoInit(int argc, char **argv)
 {
-	VistaProfiler          LocalProfiler;
+	VistaProfiler			 oProfiler;
 	std::string             sDisplayDevice;
 	PrintMsg (" ##### ViSTA SYSTEM INITIALIZATION START...##### \n");
 
@@ -724,7 +730,7 @@ bool VistaSystem::DoInit(int argc, char **argv)
 	if( !m_bLockDisplayIni )
 	{
 		std::string sIni =
-			LocalProfiler.GetTheProfileString("SYSTEM", "DISPLAYINI", 
+			oProfiler.GetTheProfileString("SYSTEM", "DISPLAYINI", 
 											  GetDisplayIniFile(),
 											  sConfigFileName);
 		if(sIni == "")
@@ -736,7 +742,7 @@ bool VistaSystem::DoInit(int argc, char **argv)
 	if( !m_bLockGraphicsIni )
 	{
 		std::string sIni =
-			LocalProfiler.GetTheProfileString("SYSTEM", "GRAPHICSINI", 
+			oProfiler.GetTheProfileString("SYSTEM", "GRAPHICSINI", 
 											  GetGraphicsIniFile(),
 											  sConfigFileName);
 		if(sIni == "")
@@ -748,7 +754,7 @@ bool VistaSystem::DoInit(int argc, char **argv)
 	if( !m_bLockInteractionIni )
 	{
 		std::string sIni =
-			LocalProfiler.GetTheProfileString("SYSTEM", "INTERACTIONINI", 
+			oProfiler.GetTheProfileString("SYSTEM", "INTERACTIONINI", 
 											  GetInteractionIniFile(),
 											  sConfigFileName);
 		if(sIni == "")
@@ -760,7 +766,7 @@ bool VistaSystem::DoInit(int argc, char **argv)
 	if( !m_bLockClusterIni )
 	{
 		std::string sIni =
-			LocalProfiler.GetTheProfileString("SYSTEM", "CLUSTERINI", 
+			oProfiler.GetTheProfileString("SYSTEM", "CLUSTERINI", 
 											  GetClusterIniFile(),
 											  sConfigFileName);
 		if(sIni == "")
@@ -779,47 +785,10 @@ bool VistaSystem::DoInit(int argc, char **argv)
 	// show configuration file
 	PrintMsg (tmp);
 
-	//tmp = "\n\n\t";
-	//for(std::list<std::string>::const_iterator cit = m_liSearchPath.begin();
-	//	cit != m_liSearchPath.end(); ++cit)
-	//{
-	//	tmp = tmp + *cit + "\n\t";
-	//}
-
-	//PrintMsg("[VistaSystem]: Ini-search path: (ordered search)");
-	//PrintMsg(tmp+"\n");
-
-
-	VistaProfiler profiler;
-
-	//std::set<std::string> sFileSet;
-	//sFileSet.insert(GetIniFile());
-	//sFileSet.insert(GetDisplayIniFile());
-	//sFileSet.insert(GetGraphicsIniFile());
-	//sFileSet.insert(GetInteractionIniFile());
-	//sFileSet.insert(GetClusterIniFile());
-
-	//for(std::set<std::string>::const_iterator cit1 = sFileSet.begin();
-	//	cit1 != sFileSet.end(); ++cit1)
-	//{
-	//	PrintMsg("Checking ini-paths for ["+(*cit1)+"]\n");
-	//	// @todo see below ;-)
-	//	//if(!profiler.PrintIniInSearchPath(*cit1))
-	//	//{
-	//	//	cout << "[VistaSystem]:\n## <WARNING>\n\tthere are no ini-file hits in the search path!\n"
-	//	//		<< "\tthat means that all setting will be resolved from the DEFAULT values as\n"
-	//	//		<< "\tgiven at compile time! -> GO CHECK YOUR INI-PATH!\n"
-	//	//		<< "\t* set VISTAINIPATH to a proper value (use comma separation)\n"
-	//	//		<< "\t* give -inisearchpath a argument to your application\n"
-	//	//		<< "\t* provide a valid -vistaini argument to your application\n### </WARNING>\n\n";
-	//	//}
-	//}
-
-
 	// ========================================================================
 	// ========================================================================
 	// create message Port (we might need this for progress messages)
-	bool bCreateMsgPort = LocalProfiler.GetTheProfileBool(gSystemSectionName, "MSGPORT", false, GetIniFile());
+	bool bCreateMsgPort = oProfiler.GetTheProfileBool(gSystemSectionName, "MSGPORT", false, GetIniFile());
 	if(bCreateMsgPort)
 	{
 		PrintMsg(" [ViSystem]: Creating External TCP/IP Msg Port.\n");
@@ -831,16 +800,16 @@ bool VistaSystem::DoInit(int argc, char **argv)
 
 		std::string sHost;
 
-		LocalProfiler.GetTheProfileString(  sSection, "MSGPORTIP","localhost",sHost,GetIniFile());
-		int iPort = LocalProfiler.GetTheProfileInt(sSection, "MSGPORTPORT", 6666, GetIniFile());
+		oProfiler.GetTheProfileString(  sSection, "MSGPORTIP","localhost",sHost,GetIniFile());
+		int iPort = oProfiler.GetTheProfileInt(sSection, "MSGPORTPORT", 6666, GetIniFile());
 
 		bool bCreateIndicator =
-			LocalProfiler.GetTheProfileBool( sSection, "PROGRESSINDICATOR", false, GetIniFile());
+			oProfiler.GetTheProfileBool( sSection, "PROGRESSINDICATOR", false, GetIniFile());
 		vkernout << "[ViMspPort]: Section (" << sSection << ") in file (" << GetIniFile() << ") tells me "
 			 << (bCreateIndicator ? "" : "NOT") << " to reach PROGRESSINDICATOR.\n";
 		std::string sProgressHost;
-		LocalProfiler.GetTheProfileString(sSection, "PROGRESSHOST", "localhost", sProgressHost, GetIniFile());
-		int iProgressPort = LocalProfiler.GetTheProfileInt(sSection, "PROGRESSPORT", 6667, GetIniFile());
+		oProfiler.GetTheProfileString(sSection, "PROGRESSHOST", "localhost", sProgressHost, GetIniFile());
+		int iProgressPort = oProfiler.GetTheProfileInt(sSection, "PROGRESSPORT", 6667, GetIniFile());
 
 		m_pPort = new VistaKernelMsgPort(*this, sHost, iPort,
 										  GetApplicationName(),
@@ -955,7 +924,7 @@ bool VistaSystem::DoInit(int argc, char **argv)
 	{
 		vkernout << "[VistaSystem::DoInit] Creating WindowingToolkit" << std::endl;
 		m_pWindowingToolkit = m_pSystemClassFactory->CreateWindowingToolkit(
-				LocalProfiler.GetTheProfileString("SYSTEM", "WINDOWINGTOOLKIT",
+				oProfiler.GetTheProfileString("SYSTEM", "WINDOWINGTOOLKIT",
 															  "GLUT",
 															  GetDisplayIniFile())
 				);
@@ -1025,12 +994,12 @@ bool VistaSystem::DoInit(int argc, char **argv)
 		if(!SetupBasicInteraction()) // try to setup new interaction iff desired
 			return false;
 
-	std::string sGraphicsSectionName = LocalProfiler.GetTheProfileString(GetSystemSectionName(),
+	std::string sGraphicsSectionName = oProfiler.GetTheProfileString(GetSystemSectionName(),
 																		 "GRAPHICSSECTION",
 																		 "GRAPHICS",
 																		 GetGraphicsIniFile());
 
-	bool bShowCursor = LocalProfiler.GetTheProfileBool(sGraphicsSectionName,
+	bool bShowCursor = oProfiler.GetTheProfileBool(sGraphicsSectionName,
 													   "ShowCursor",
 													   ((IsClient() || GetIsSlave()) ? false : true),
 													   GetGraphicsIniFile());
@@ -1041,7 +1010,7 @@ bool VistaSystem::DoInit(int argc, char **argv)
 	// now as all is set up, we can set the background
 	{
 		std::string strColor;
-		LocalProfiler.GetTheProfileString(sGraphicsSectionName,
+		oProfiler.GetTheProfileString(sGraphicsSectionName,
 										"BackgroundColor",
 										"0.0, 0.4, 0.8",
 										strColor,
@@ -1062,7 +1031,7 @@ bool VistaSystem::DoInit(int argc, char **argv)
 
 	// setup WebInterface if requested
 	{
-		int port = LocalProfiler.GetTheProfileInt(
+		int port = oProfiler.GetTheProfileInt(
 			sGraphicsSectionName,
 			"WebInterface",
 			-1,
@@ -1127,7 +1096,7 @@ bool VistaSystem::DoInit(int argc, char **argv)
 	PrintMsg(" [ViSystem]---------------------------------------\n[ViSystem]   ... init done.\n");
 
 	// preparation for the WTuniverse_go()
-	if (LocalProfiler.GetTheProfileInt (gSystemSectionName, "displayactive",
+	if (oProfiler.GetTheProfileInt (gSystemSectionName, "displayactive",
 										1, (char*)sConfigFileName.c_str()) ==1 )
 	{
 		if(m_pNewWorld)
@@ -1239,7 +1208,7 @@ bool VistaSystem::SetIniSearchPaths(const std::list<std::string> &liSearchPaths)
 		it != liSearchPaths.end();
 		++it)
 	{
-		/// @todo check and only add existing pathes!
+		/// @todo check and only add existing paths!
 		if(isAbsolutePath(*it))
 		{
 			m_liSearchPath.push_back(*it);
@@ -1247,7 +1216,7 @@ bool VistaSystem::SetIniSearchPaths(const std::list<std::string> &liSearchPaths)
 		else
 		{
 			string absPath = getAbsolutePath(*it);
-			// assure that pathes all do end with the separator to ease searching for files later
+			// assure that paths all do end with the separator to ease searching for files later
 			if(absPath[absPath.size()-1] != VistaFileSystemDirectory::GetOSSpecificSeparator().c_str()[0])
 			{
 				//vkernerr << absPath << " absPath[absPath.size()-1]: '" << absPath[absPath.size()-1] << "' appending separator:\n";
@@ -1349,7 +1318,7 @@ bool VistaSystem::SetupCluster (VistaClusterServer *&pServer,
 /*============================================================================*/
 bool VistaSystem::SetupGraphicsManager ()
 {
-	VistaProfiler    LocalProfiler;
+	VistaProfiler    oProfiler;
 	// get ini file name
 	std::string       sConfigFileName = GetGraphicsIniFile();
 
@@ -1360,7 +1329,7 @@ bool VistaSystem::SetupGraphicsManager ()
 
 	std::string sGraphicsSection;
 	std::string sGraphicsType;
-	LocalProfiler.GetTheProfileString(      gSystemSectionName,
+	oProfiler.GetTheProfileString(      gSystemSectionName,
 											"GRAPHICSSECTION",
 											"GRAPHICS",
 											sGraphicsSection,
@@ -1399,76 +1368,6 @@ bool VistaSystem::SetupGraphicsManager ()
 	return true;
 }
 
-
-struct _drDevHlp
-{
-	_drDevHlp()
-		: m_nPrio(-1), m_pDriver(NULL)
-		{}
-
-	_drDevHlp(IVistaDeviceDriver *pDriver,
-			  const std::string &strTypeName,
-			  const std::string &strName,
-			  const std::string &strSection,
-			  int nPrio,
-			  const std::list<std::string> &liDependsOn)
-		: m_strName(strName),
-		  m_strSection(strSection),
-		  m_strTypeName(strTypeName),
-		  m_nPrio(nPrio),
-		  m_pDriver(pDriver),
-		  m_liDependsOn(liDependsOn)
-		{}
-
-	std::string m_strName,
-		m_strSection,
-		m_strTypeName;
-	int         m_nPrio;
-	IVistaDeviceDriver *m_pDriver;
-	std::list<std::string> m_liDependsOn;
-};
-
-
-bool VistaSystem::LoadPlugin( const std::string &strPathToPlugin )
-{
-#if !defined(VISTAKERNELSTATIC)
-	vkernout << "[VistaSystem] testing file " << strPathToPlugin << std::endl;
-	VddUtil::VistaDriverPlugin plug;
-	if( VddUtil::LoadCreationMethodFromPlugin( strPathToPlugin, &plug ) )
-	{
-		VistaDriverMap *pDm = GetDriverMap();
-		// name given AND not registered with this name...
-		if(!plug.m_strDriverClassName.empty() && !pDm->GetDriverCreationMethod( plug.m_strDriverClassName ) )
-		{
-			vkernout << "[VistaSystem]: Registering method for devices of class ["
-				<< plug.m_strDriverClassName
-				<< "] from ["
-				<< strPathToPlugin
-				<< "]\n";
-
-
-			m_pDllHlp->m_liDevices.push_back( plug );
-			pDm->RegisterDriverCreationMethod( plug.m_strDriverClassName, plug.m_pMethod );
-			return true;
-		}
-		else
-		{
-			vkernout << "[VistaSystem]: Either no classname in this plugin, or a class of this type "
-				<< "is already registered?\n";
-			VddUtil::DisposePlugin( &plug );
-		}
-	}
-	else
-	{
-		vkernout << "[VistaSystem]: Loading of plugin ["
-			<< strPathToPlugin << "] FAILED.\n";
-	}
-
-#endif // for static builds
-	return false;
-}
-
-
 bool VistaSystem::SetupBasicInteraction()
 {
 
@@ -1478,17 +1377,17 @@ bool VistaSystem::SetupBasicInteraction()
 	// cache the config file name
 	std::string       sConfigFileName = GetInteractionIniFile();
 
-	// setup profiler with proper search path
-	VistaProfiler profile;
+	// setup oProfiler with proper search path
+	VistaProfiler oProfiler;
 
 	// Load Plugins from plugin directory
 	// works for dll-builds only
-	LoadPlugins( sConfigFileName );
+	//LoadPlugins( sConfigFileName );
 
 	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-	// setup basic key-strok support. Before that: create keyboard system control
+	// setup basic key-stroke support. Before that: create keyboard system control
 	m_pSystemControl = new VistaKeyboardSystemControl;
 
 	m_pSystemControl->BindAction('q',
@@ -1643,408 +1542,11 @@ bool VistaSystem::SetupBasicInteraction()
 	// tricky stuff: setting up the devices for the standalone / master mode
 	// and (more below) for the slave / client mode
 	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	if(!IsClient() && !GetIsSlave())
-	{
-		// no client, no slave, must be master / standalone...
-
-		// CREATE DRIVERS!
-		// create drivers as specified in the ini
-		std::list<std::string> liDriverList;
-		std::map<std::string,_drDevHlp> mpCreatedDrivers;
-
-		// get user defined devices to create, this looks up the SECTION to parse
-		if(profile.GetTheProfileList(GetSystemSectionName(), "DEVICEDRIVERS", "", liDriverList, sConfigFileName))
-		{
-			// iterate over all devices given, but in the driver section
-			for(std::list<std::string>::const_iterator cit = liDriverList.begin();
-				cit != liDriverList.end(); ++cit)
-			{
-				// we need a name and a type. without... there is not much sense in
-				// continuing... well, for the name, we default to the section name.
-				std::string sName  = profile.GetTheProfileString( *cit, "NAME", *cit, sConfigFileName);
-				std::string sType  = profile.GetTheProfileString( *cit, "TYPE", "", sConfigFileName);
-				if(sType.empty()) // but empty type is a no-go
-				{
-					vkernerr << "[ViSys]: ### ERROR ### no type name given for the device [" << *cit << "]" << std::endl;
-					continue;
-				}
-
-				// try to see whether we have a name clash
-				if(m_pDriverMap->GetIsDeviceDriver(sName))
-				{
-					// yes. no-go!
-					this->PrintMsg(std::string(" [ViSys]: ### WARNING : driver of type [")
-								   + *cit + std::string("] with name [")
-								   + sName + std::string("] already registered -- SKIPPING!\n"));
-					continue;
-				}
-
-				// create driver of this type and name and
-				// register with the driver map
-				IVistaDriverCreationMethod *pM = m_pInteractionManager->GetDriverCreationMethod(sType);
-				if(!pM)
-				{
-					this->PrintMsg(std::string(" [ViSys]: ### WARNING : no driver of type [")
-								   + sType + std::string("] registered, check if the DRIVERPLUGINS directory is set correctly for your platform!\n"));
-					continue;
-				}
-
-				// a bit stoopid to read: this creates the driver (operator call)
-				IVistaDeviceDriver *pDriver = (*pM)();
-				if(!pDriver)
-				{
-					this->PrintMsg(std::string(" [ViSys]: ### WARNING : could not create driver [")
-								   + *cit + std::string("] from factory method!\n"));
-					continue;
-				}
-
-				this->PrintMsg(std::string(" [ViSys]: ### ADDING driver of type [")
-							   + sType
-							   + std::string("] with name [")
-							   + sName
-							   +std::string("]\n"));
-
-				// drivers can be sorted by priority for later use
-				unsigned int nPrio = profile.GetTheProfileInt( *cit, "PRIORITY", 0, sConfigFileName );
-				std::list<std::string> liDepends;
-
-				// compound drivers can depend on other drivers to exist and setup beforehand.
-				// this is modelled by an explicit dependency. for example:
-				// a compound driver collects input from MOUSE and KEYBOARD, virtually
-				// resulting in a 2DOF device with a number of buttons
-				// COMPOUND -> { MOUSE, KEYBOARD }. Otherwise, the setup of the COMPOUND
-				// may fail, just because the user swapped the entries in the DEVICEDRIVERS
-				// section of the interaction ini file. The list can be empty, so in that case,
-				// the creation and setup order is arbitrary.
-				profile.GetTheProfileList( *cit, "DEPENDSON", "", liDepends, sConfigFileName );
-				mpCreatedDrivers[sName] = _drDevHlp(pDriver, sType, sName, *cit, nPrio, liDepends);
-			}
-
-			// make a topological sort of the driver, respecting dependencies on other drivers
-			VistaTopologyGraph<_drDevHlp*> depends;
-
-
-			// respect dependency on other drivers:
-			for(std::map<std::string, _drDevHlp>::iterator drList1 = mpCreatedDrivers.begin();
-				drList1 != mpCreatedDrivers.end(); ++drList1)
-			{
-				depends.AddNode( &(*drList1).second  );
-				std::list<std::string> &li = (*drList1).second.m_liDependsOn;
-				for( std::list<std::string>::iterator c = li.begin(); c != li.end(); ++c)
-				{
-					std::map<std::string, _drDevHlp>::iterator o = mpCreatedDrivers.find( *c );
-					if(o == mpCreatedDrivers.end())
-						continue; // skip
-					depends.AddDependency( &(*o).second, &(*drList1).second );
-				}
-			}
-
-
-			// sort
-			std::list<VistaTopologyGraph<_drDevHlp*>::Node*> liConfigOrder = depends.CalcTopology();
-
-			// iterate over this order.
-			for(std::list<VistaTopologyGraph<_drDevHlp*>::Node*>::const_iterator drList = liConfigOrder.begin();
-				drList != liConfigOrder.end(); ++drList)
-			{
-				vkernout << " [ViSys]: Creation and initializing driver ["
-					 << (*drList)->m_oElement->m_strName << "] from section ["
-					 << (*drList)->m_oElement->m_strSection << "]\n";
-
-				std::list<std::string> liKeys;
-				profile.GetTheProfileSectionEntries( (*drList)->m_oElement->m_strSection,
-													 liKeys, GetInteractionIniFile());
-
-				// get a sorted order for the handling of the keys.
-				// we want to evaluate the triggers with the above given dependencies,
-				// but not all drivers have the same set of configurations,
-				// so first, we figure out: which keys are used and which add an
-				// dependency to other keys
-
-				// in a nutshell: the keys might have a dependency, for example we should not
-				// configure the protocol, when the connection is not yet setup and running.
-				// and we only want to configure those keys that are really given in the ini
-				// for example a non-given ATTACHONLY key should not be configured (as it
-				// might be evaluated to true or false, ruining the default setup of the
-				// driver)
-				VistaTopologyGraph<std::string> liConfigDeps;
-				for(std::list<std::string>::const_iterator keyIT = liKeys.begin();
-					keyIT != liKeys.end(); ++keyIT)
-				{
-					// for all keys, we look up the list of dependencies which was given
-					// as a construction argument to the configurator
-					std::list<std::string> liDependsOn = m_pConfigurator->GetDependsForTrigger( *keyIT );
-
-					// for any key in thise dependency list, we check whether it really is a
-					// dependency, or not
-					if(liDependsOn.empty())
-					{
-						// this trigger is used, but has no dependency to any other key
-						// we add it to the dependency graph as a single node
-						if(!liConfigDeps.HasNodeValue(*keyIT)) // this checks the case when a user has given
-															   // a key twice in the ini as a mistake
-							liConfigDeps.AddNode( *keyIT ); // add it as lonely node in the graph
-					}
-					else
-					{
-						// this trigger has a dependency, but the other triggers must not be
-						// part of this configuration, so we check
-						for(std::list<std::string>::const_iterator cit = liDependsOn.begin();
-							cit != liDependsOn.end(); ++cit)
-						{
-							// is the dependency part of this configuration?(e.g., is it given in the ini?)
-							if( std::find( liKeys.begin(), liKeys.end(), *cit ) != liKeys.end() )
-								liConfigDeps.AddDependency( *cit, *keyIT ); // yes, add only iff part of the configuration
-							else
-							{
-								if(!liConfigDeps.HasNodeValue( *keyIT )) // not a node, yet...
-									liConfigDeps.AddNode( *keyIT ); // add the node without dependency, as a floating node
-							}
-						}
-					}
-				}
-
-				// calc a topological sort for the keys
-				std::list<VistaTopologyGraph<std::string>::Node*> liConfig = liConfigDeps.CalcTopology();
-
-				// iterate over the sorted list of triggers for the configuration
-				for(std::list<VistaTopologyGraph<std::string>::Node*>::const_iterator keyit = liConfig.begin();
-					keyit != liConfig.end(); ++keyit)
-				{
-					VistaDriverPropertyConfigurator::IConfigurator *pConf = m_pConfigurator->RetrieveConfigurator( (*keyit)->m_oElement );
-					if(pConf)
-					{
-						// we have a configurator for this trigger
-						VistaPropertyList oProps;
-
-						// first build the PropertyList
-						if(pConf->GeneratePropertyListFromInifile( GetInteractionIniFile(),
-															(*drList)->m_oElement->m_strSection, oProps))
-						{
-							// that did work, go an configure using the PropertyList interface
-							if(pConf->Configure((*drList)->m_oElement->m_pDriver, oProps) == false)
-							{
-								vkernerr << "[ViSys]: Unable to configure element type ["
-									<< (*keyit)->m_oElement << "] -- WHAT NOW?" << std::endl;
-							}
-						}
-						else
-						{
-							vkernerr << "[ViSys]: Ini2PROP conversion failed for [" << (*keyit)->m_oElement << "]" << std::endl;
-						}
-					}
-					else
-					{
-						// in principle, this can happen and be OK (for example, there is no
-						// configurator for TYPE. But in case of simple mis-spelling, this might
-						// be a worthy output.
-						if( (*keyit)->m_oElement != "TYPE" )
-						{
-							vkernerr << "[ViSys]: no configurator for key [" << (*keyit)->m_oElement << "]" << std::endl;
-						}
-					}
-				}
-
-				// this finally tries to ''activate'' the device
-				if( (*drList)->m_oElement->m_pDriver->Connect() )
-				{
-					// ok, worked, add to interaction manager for update
-					m_pInteractionManager->AddDeviceDriver((*drList)->m_oElement->m_strName,
-															  (*drList)->m_oElement->m_pDriver,
-															  (*drList)->m_oElement->m_nPrio);
-
-					// ok, in case the driver had a sensor mapping aspect, the
-					// sensor mapping configurator has taken care of setting up
-					// the sensor names. In case this driver adds sensors dynamically
-					// after a connect, this is not working well, so we create the proper
-					// names AFTER a successful connect
-					std::list<std::string> liSensorNames;
-
-					profile.GetTheProfileList( (*drList)->m_oElement->m_strSection, "SENSORS", liSensorNames, GetInteractionIniFile() );
-					for(std::list<std::string>::const_iterator cit = liSensorNames.begin();
-						cit != liSensorNames.end(); ++cit )
-					{
-						// see whether the user specified the proper index
-						unsigned int nIdx = profile.GetTheProfileInt( *cit, "RAWID", -1, GetInteractionIniFile() );
-						if(nIdx == -1)
-							continue;
-
-						// see whether the user *wants* to set a name
-						std::string strName = profile.GetTheProfileString( *cit, "NAME", "", GetInteractionIniFile() );
-						if(strName.empty())
-							continue; // no
-
-						// get sensor by index
-						VistaDeviceSensor *pSensor = (*drList)->m_oElement->m_pDriver->GetSensorByIndex(nIdx);
-						if(pSensor)
-							pSensor->SetSensorName( strName ); // set name
-					}
-				}
-				else
-				{
-					vkernerr << "[ViSys]: Could not sucessfully connect the driver, so it will not be enabled / registered." << std::endl;
-					delete (*drList)->m_oElement->m_pDriver;
-				}
-
-			}
-
-		}
-	} // !IsClient() && !GetIsSlave()
-	else // IsClient() || GetIsSlave()
-	{
-		// in client mode, we need a driver that is capable of receiving the incoming sensor data during
-		// event dispatching. However, we do not want to create the physical driver, as this device might
-		// not even be connected to the host machine. So we create a dummy / shallow driver for every driver
-		// request and set it up according to the specification.
-
-		std::list<std::string> liDriverList;
-		std::map<std::string,_drDevHlp> mpCreatedDrivers;
-
-		if(profile.GetTheProfileList(GetSystemSectionName(), "DEVICEDRIVERS", "", liDriverList, sConfigFileName))
-		{
-			unsigned int nDriverHistorySize = 1;
-			for(std::list<std::string>::const_iterator cit = liDriverList.begin();
-				cit != liDriverList.end(); ++cit)
-			{
-
-				// find proper section for the driver
-				std::string sName  = profile.GetTheProfileString( *cit, "NAME", *cit, sConfigFileName);
-				std::string sType  = profile.GetTheProfileString( *cit, "TYPE", "", sConfigFileName);
-				if(sType.empty())
-				{
-					vkernerr << "[ViSys]: ### ERROR ### no type name given for the device [" << *cit << "]" << std::endl;
-					continue;
-				}
-
-				nDriverHistorySize = profile.GetTheProfileInt( *cit, "HISTORY", nDriverHistorySize, sConfigFileName);
-				if(m_pDriverMap->GetIsDeviceDriver(sName))
-				{
-					this->PrintMsg(std::string(" [ViSys]: ### WARNING : driver of type [")
-								   + *cit + std::string("] with name [")
-								   + sName + std::string("] already registered -- SKIPPING!\n"));
-					continue;
-				}
-
-				// create a shallow driver for this type
-				VistaShallowDriver *pDriver = new VistaShallowDriver(0);
-
-				// register with the driver map
-				if(!pDriver)
-				{
-					this->PrintMsg(std::string(" [ViSys]: ### WARNING : could not create driver [")
-								   + *cit + std::string("] from factory method!\n"));
-					continue;
-				}
-
-				this->PrintMsg(std::string(" [ViSys]: ### ADDING driver of type [")
-							   + sType
-							   + std::string("] with name [")
-							   + sName
-							   +std::string("]\n"));
-
-				unsigned int nPrio = profile.GetTheProfileInt( *cit, "PRIORITY", 0, sConfigFileName );
-				mpCreatedDrivers[sName] = _drDevHlp(pDriver, sType, sName, *cit, nPrio, std::list<std::string>());
-			}
-
-			for(std::map<std::string,_drDevHlp>::const_iterator drList = mpCreatedDrivers.begin();
-				drList != mpCreatedDrivers.end(); ++drList )
-			{
-				VistaDriverSensorMappingAspect *pSensorMapping = NULL;
-				// for this shallow driver, rebuild the settings in the driver creation method
-				// 1. claim original method
-				IVistaDriverCreationMethod *pOrigin = m_pDriverMap->GetDriverCreationMethod( (*drList).second.m_strTypeName );
-				if(pOrigin)
-				{
-					std::list<unsigned int> liTypes = pOrigin->GetTypes();
-					if( !liTypes.empty() )
-					{
-						// this driver has a sensor mapping!
-						pSensorMapping = new VistaDriverSensorMappingAspect;
-
-						for(std::list<unsigned int>::const_iterator stIt = liTypes.begin();
-							stIt != liTypes.end(); ++stIt )
-						{
-							std::string strType;
-
-							if(pOrigin->GetTypeNameFor(*stIt, strType) == false)
-							{
-								this->PrintMsg(std::string(" [ViSys]: pOrigin did not give a type name for type [")
-										+ VistaAspectsConversionStuff::ConvertToString(*stIt)
-											   + std::string("]\n"));
-								continue; // we should utter a warning here...
-							}
-							pSensorMapping->RegisterType( strType,
-								pOrigin->GetMeasureSizeFor( *stIt ),
-								pOrigin->GetUpdateEstimatorFor( *stIt ),
-								pOrigin->GetTranscoderFactoryForSensor( *stIt ) );
-						}
-						(*drList).second.m_pDriver->RegisterAspect( pSensorMapping );
-					}
-					// rebuild sensors using the original sensor attributes
-					std::list<std::string> liSensors;
-					profile.GetTheProfileList( (*drList).second.m_strSection, "SENSORS", "", liSensors, GetInteractionIniFile() );
-
-					for(std::list<std::string>::const_iterator sit = liSensors.begin();
-						sit != liSensors.end(); ++sit )
-					{
-						std::string sSensorType = profile.GetTheProfileString( *sit, "TYPE", "", GetInteractionIniFile() );
-						std::string sSensorName  = profile.GetTheProfileString( *sit, "NAME", *sit, GetInteractionIniFile() );
-
-						int nSensorId   = profile.GetTheProfileInt( *sit, "RAWID", -1, GetInteractionIniFile() );
-						int nHistory    = profile.GetTheProfileInt( *sit, "HISTORY", nDriverHistorySize, GetInteractionIniFile() );
-
-						unsigned int nType = pOrigin->GetTypeFor( sSensorType );
-						IVistaMeasureTranscoderFactory *pTrFac = pOrigin->GetTranscoderFactoryForSensor( nType );
-						if( (nType != ~0) && pTrFac )
-						{
-							VistaDeviceSensor *pSensor = new VistaDeviceSensor;
-							pSensor->SetTypeHint( nType );
-							pSensor->SetSensorName( sSensorName );
-
-							pSensor->SetMeasureTranscode( pTrFac->CreateTranscoder() );
-
-							unsigned int nDriverSensorId = (*drList).second.m_pDriver->AddDeviceSensor( pSensor );
-
-							if(pSensorMapping)
-							{
-								// create a proper mapping
-								pSensorMapping->SetSensorId(nType, nSensorId, nDriverSensorId);
-							}
-
-							VistaDriverMeasureHistoryAspect *pHist
-								= dynamic_cast<VistaDriverMeasureHistoryAspect*>(
-								(*drList).second.m_pDriver->GetAspectById( VistaDriverMeasureHistoryAspect::GetAspectId() ) );
-							if(pHist) // should never be NULL
-							{
-								int nNum = int(ceilf(66.6f/float(1000.0f/float(pOrigin->GetUpdateEstimatorFor(nType)))));
-								pHist->SetHistorySize( pSensor, nHistory, 2*nNum, pOrigin->GetMeasureSizeFor( nType ) );
-							}
-						}
-					}
-				}// if pOrigin
-				// add driver to the driver map with the given name
-				if((*drList).second.m_pDriver->Connect())
-				{
-					m_pInteractionManager->AddDeviceDriver( (*drList).second.m_strName,
-						(*drList).second.m_pDriver, (*drList).second.m_nPrio );
-
-					// note that for the clustered case, we create shallow drivers
-					// with a proper sensor mapping aspect, so the sensor naming is
-					// supposed to be allright at this point and there is no need
-					// to setup the names (was already done!)
-				}
-				else
-				{
-					vkernerr << "[ViSys]: Could not sucessfully connect the driver, so it will not be enabled / registered." << std::endl;
-					delete (*drList).second.m_pDriver;
-				}
-			} // for all drivers
-		}
-	}
+	LoadDeviceDrivers();
 
 	// SETUP INTERACTIONCONTEXTS
 	std::list<std::string> liInteractionContexts;
-	profile.GetTheProfileList("SYSTEM", "INTERACTIONCONTEXTS", "", liInteractionContexts, GetInteractionIniFile());
+	oProfiler.GetTheProfileList("SYSTEM", "INTERACTIONCONTEXTS", "", liInteractionContexts, GetInteractionIniFile());
 	vkernout << " [ViSys]: Found " << liInteractionContexts.size() << " entries in INTERACTIONCONTEXTS\n";
 
 	for(std::list<std::string>::const_iterator licit = liInteractionContexts.begin();
@@ -2080,11 +1582,11 @@ bool VistaSystem::SetupBasicInteraction()
 	else if(GetIsMaster())
 		sDisplaySystemSectionName = GetVistaClusterMaster()->GetMasterSectionName();
 
-	profile.GetTheProfileList(sDisplaySystemSectionName, "DISPLAYSYSTEMS", "", liDisplaySystems, GetDisplayIniFile());
+	oProfiler.GetTheProfileList(sDisplaySystemSectionName, "DISPLAYSYSTEMS", "", liDisplaySystems, GetDisplayIniFile());
 	for(std::list<std::string>::const_iterator it = liDisplaySystems.begin();
 		it != liDisplaySystems.end(); ++it)
 	{
-		std::string strDSysName = profile.GetTheProfileString(*it, "NAME", "", GetDisplayIniFile());
+		std::string strDSysName = oProfiler.GetTheProfileString(*it, "NAME", "", GetDisplayIniFile());
 		if(strDSysName.empty())
 			strDSysName = *it; // copy section name?
 
@@ -2106,6 +1608,639 @@ bool VistaSystem::SetupBasicInteraction()
 		}
 	}
 	return true;
+}
+
+bool VistaSystem::LoadDeviceDrivers()
+{
+	VistaProfiler oProfiler;
+	oProfiler.SetEnvironmentVariablesEnabled( true );
+	std::string sConfigFileName = GetInteractionIniFile();
+
+	// first, we extract the list of pathes to search for driver plugins
+	std::string sDriverPlugins;
+	oProfiler.GetTheProfileString( GetSystemSectionName(), "DRIVERPLUGINDIRS", "",
+									sDriverPlugins, sConfigFileName );
+	if( sDriverPlugins.empty() )
+	{
+		std::string sEnv = VistaEnvironment::GetEnv( "VISTACORELIBS_DRIVER_PLUGIN_DIRS" );
+		if( sEnv.empty() )
+			m_liDriverPluginPathes.push_back( "." );
+		else
+		{
+			std::string sTmp = VistaEnvironment::ReplaceOSEnvironemntPathSeparators( sEnv, ',' );
+			VistaAspectsConversionStuff::ConvertToList( sTmp, m_liDriverPluginPathes );
+		}
+	}
+	else
+	{
+		std::string sTmp = VistaEnvironment::ReplaceOSEnvironemntPathSeparators( sDriverPlugins, ',' );
+		VistaAspectsConversionStuff::ConvertToList( sTmp, m_liDriverPluginPathes );
+	}
+	
+	std::list<std::string> liDriverList;
+	std::map<std::string,_drDevHlp> mpCreatedDrivers;
+
+	oProfiler.GetTheProfileList( GetSystemSectionName(), "DEVICEDRIVERS", "", 
+									liDriverList, sConfigFileName );
+
+	vkernout << "Loading Driver Plugins" << std::endl;	
+	// Load Plugins for all Drivers
+	for( std::list<std::string>::const_iterator itDriver = liDriverList.begin();
+		itDriver != liDriverList.end(); ++itDriver )
+	{
+		std::string sName = oProfiler.GetTheProfileString( (*itDriver), "NAME", (*itDriver), sConfigFileName);
+		std::string sType = oProfiler.GetTheProfileString( *itDriver, "TYPE", "", sConfigFileName);
+		if( sType.empty() ) // but empty type is a no-go
+		{
+			vkernerr << "[ViSys]: ### ERROR ### no type name given for the device [" << *itDriver << "]" << std::endl;
+			continue;
+		}
+		// check if we have a name clash
+		if( m_pDriverMap->GetIsDeviceDriver(sName) )
+		{
+			// yes. no-go!
+			PrintMsg(std::string(" [ViSys]: ### WARNING : driver of type [")
+						   + *itDriver + std::string("] with name [")
+						   + sName + std::string("] already registered -- SKIPPING!\n"));
+			continue;
+		}
+
+
+		std::string sDriverPlugin = oProfiler.GetTheProfileString( (*itDriver), "DRIVERPLUGIN",
+																	"", sConfigFileName );
+		std::string sTranscoderPlugin = oProfiler.GetTheProfileString( (*itDriver), "TRANSCODERPLUGIN",
+																	"", sConfigFileName );
+
+		IVistaDriverCreationMethod *pM = m_pInteractionManager->GetDriverCreationMethod(sType);
+
+		if(!pM)
+		{
+			if( LoadDriverPlugin( sType, sDriverPlugin, sTranscoderPlugin ) == false )
+			{
+				/** DRIVERTODO warning */
+				vkernerr << "Could not load Plugin for Driver [" << sName 
+							<<  "] of Type [" << sName << "]" << std::endl;
+				continue;
+			}
+		}		
+	}
+
+	if(!IsClient() && !GetIsSlave())
+	{
+		// iterate over all devices given, but in the driver section
+		for( std::list<std::string>::const_iterator itDriver = liDriverList.begin();
+			itDriver != liDriverList.end(); ++itDriver )
+		{
+			std::string sName = oProfiler.GetTheProfileString( (*itDriver), "NAME", (*itDriver), sConfigFileName);
+			std::string sType = oProfiler.GetTheProfileString( *itDriver, "TYPE", "", sConfigFileName);
+			if( sType.empty() ) // but empty type is a no-go
+			{
+				vkernerr << "[ViSys]: ### ERROR ### no type name given for the device [" << *itDriver << "]" << std::endl;
+				continue;
+			}
+			// check if we have a name clash
+			if( m_pDriverMap->GetIsDeviceDriver(sName) )
+			{
+				// yes. no-go!
+				PrintMsg(std::string(" [ViSys]: ### WARNING : driver of type [")
+							   + *itDriver + std::string("] with name [")
+							   + sName + std::string("] already registered -- SKIPPING!\n"));
+				continue;
+			}
+
+
+			std::string sDriverPlugin = oProfiler.GetTheProfileString( (*itDriver), "DRIVERPLUGIN",
+																		"", sConfigFileName );
+			std::string sTranscoderPlugin = oProfiler.GetTheProfileString( (*itDriver), "TRANSCODERPLUGIN",
+																		"", sConfigFileName );
+
+			IVistaDriverCreationMethod *pM = m_pInteractionManager->GetDriverCreationMethod(sType);		
+
+			// create driver of this type and name and
+			// register with the driver map
+			if(!pM)
+			{
+				this->PrintMsg(std::string(" [ViSys]: ### WARNING : no driver of type [")
+							   + sType + std::string("] registered, check if the DRIVERPLUGINS directory is set correctly for your platform!\n"));
+				continue;
+			}
+
+			// a bit stoopid to read: this creates the driver (operator call)
+			IVistaDeviceDriver *pDriver = (*pM).CreateDriver();
+			if(!pDriver)
+			{
+				this->PrintMsg(std::string(" [ViSys]: ### WARNING : could not create driver [")
+							   + *itDriver + std::string("] from factory method!\n"));
+				continue;
+			}
+
+			this->PrintMsg(std::string(" [ViSys]: ### ADDING driver of type [")
+						   + sType
+						   + std::string("] with name [")
+						   + sName
+						   +std::string("]\n"));
+
+			// drivers can be sorted by priority for later use
+			unsigned int nPrio = oProfiler.GetTheProfileInt( *itDriver, "PRIORITY", 0, sConfigFileName );
+			std::list<std::string> liDepends;
+
+			// compound drivers can depend on other drivers to exist and setup beforehand.
+			// this is modelled by an explicit dependency. for example:
+			// a compound driver collects input from MOUSE and KEYBOARD, virtually
+			// resulting in a 2DOF device with a number of buttons
+			// COMPOUND -> { MOUSE, KEYBOARD }. Otherwise, the setup of the COMPOUND
+			// may fail, just because the user swapped the entries in the DEVICEDRIVERS
+			// section of the interaction ini file. The list can be empty, so in that case,
+			// the creation and setup order is arbitrary.
+			oProfiler.GetTheProfileList( *itDriver, "DEPENDSON", "", liDepends, sConfigFileName );
+			mpCreatedDrivers[sName] = _drDevHlp(pDriver, sType, sName, *itDriver, nPrio, liDepends);
+		}
+
+		// make a topological sort of the driver, respecting dependencies on other drivers
+		VistaTopologyGraph<_drDevHlp*> depends;
+
+
+		// respect dependency on other drivers:
+		for(std::map<std::string, _drDevHlp>::iterator drList1 = mpCreatedDrivers.begin();
+			drList1 != mpCreatedDrivers.end(); ++drList1)
+		{
+			depends.AddNode( &(*drList1).second  );
+			std::list<std::string> &li = (*drList1).second.m_liDependsOn;
+			for( std::list<std::string>::iterator c = li.begin(); c != li.end(); ++c)
+			{
+				std::map<std::string, _drDevHlp>::iterator o = mpCreatedDrivers.find( *c );
+				if(o == mpCreatedDrivers.end())
+					continue; // skip
+				depends.AddDependency( &(*o).second, &(*drList1).second );
+			}
+		}
+
+
+		// sort
+		std::list<VistaTopologyGraph<_drDevHlp*>::Node*> liConfigOrder = depends.CalcTopology();
+
+		// iterate over this order.
+		for(std::list<VistaTopologyGraph<_drDevHlp*>::Node*>::const_iterator drList = liConfigOrder.begin();
+			drList != liConfigOrder.end(); ++drList)
+		{
+			vkernout << " [ViSys]: Creation and initializing driver ["
+				 << (*drList)->m_oElement->m_strName << "] from section ["
+				 << (*drList)->m_oElement->m_strSection << "]\n";
+
+			std::list<std::string> liKeys;
+			oProfiler.GetTheProfileSectionEntries( (*drList)->m_oElement->m_strSection,
+												 liKeys, GetInteractionIniFile());
+
+			// get a sorted order for the handling of the keys.
+			// we want to evaluate the triggers with the above given dependencies,
+			// but not all drivers have the same set of configurations,
+			// so first, we figure out: which keys are used and which add an
+			// dependency to other keys
+
+			// in a nutshell: the keys might have a dependency, for example we should not
+			// configure the protocol, when the connection is not yet setup and running.
+			// and we only want to configure those keys that are really given in the ini
+			// for example a non-given ATTACHONLY key should not be configured (as it
+			// might be evaluated to true or false, ruining the default setup of the
+			// driver)
+			VistaTopologyGraph<std::string> liConfigDeps;
+			for(std::list<std::string>::const_iterator keyIT = liKeys.begin();
+				keyIT != liKeys.end(); ++keyIT)
+			{
+				// for all keys, we look up the list of dependencies which was given
+				// as a construction argument to the configurator
+				std::list<std::string> liDependsOn = m_pConfigurator->GetDependsForTrigger( *keyIT );
+
+				// for any key in thise dependency list, we check whether it really is a
+				// dependency, or not
+				if(liDependsOn.empty())
+				{
+					// this trigger is used, but has no dependency to any other key
+					// we add it to the dependency graph as a single node
+					if(!liConfigDeps.HasNodeValue(*keyIT)) // this checks the case when a user has given
+														   // a key twice in the ini as a mistake
+						liConfigDeps.AddNode( *keyIT ); // add it as lonely node in the graph
+				}
+				else
+				{
+					// this trigger has a dependency, but the other triggers must not be
+					// part of this configuration, so we check
+					for(std::list<std::string>::const_iterator cit = liDependsOn.begin();
+						cit != liDependsOn.end(); ++cit)
+					{
+						// is the dependency part of this configuration?(e.g., is it given in the ini?)
+						if( std::find( liKeys.begin(), liKeys.end(), *cit ) != liKeys.end() )
+							liConfigDeps.AddDependency( *cit, *keyIT ); // yes, add only iff part of the configuration
+						else
+						{
+							if(!liConfigDeps.HasNodeValue( *keyIT )) // not a node, yet...
+								liConfigDeps.AddNode( *keyIT ); // add the node without dependency, as a floating node
+						}
+					}
+				}
+			}
+
+			// calc a topological sort for the keys
+			std::list<VistaTopologyGraph<std::string>::Node*> liConfig = liConfigDeps.CalcTopology();
+
+			// iterate over the sorted list of triggers for the configuration
+			for(std::list<VistaTopologyGraph<std::string>::Node*>::const_iterator keyit = liConfig.begin();
+				keyit != liConfig.end(); ++keyit)
+			{
+				VistaDriverPropertyConfigurator::IConfigurator *pConf = m_pConfigurator->RetrieveConfigurator( (*keyit)->m_oElement );
+				if(pConf)
+				{
+					// we have a configurator for this trigger
+					VistaPropertyList oProps;
+
+					// first build the PropertyList
+					if(pConf->GeneratePropertyListFromInifile( GetInteractionIniFile(),
+														(*drList)->m_oElement->m_strSection, oProps))
+					{
+						// that did work, go an configure using the PropertyList interface
+						if(pConf->Configure((*drList)->m_oElement->m_pDriver, oProps) == false)
+						{
+							vkernerr << "[ViSys]: Unable to configure element type ["
+								<< (*keyit)->m_oElement << "] -- WHAT NOW?" << std::endl;
+						}
+					}
+					else
+					{
+						vkernerr << "[ViSys]: Ini2PROP conversion failed for [" << (*keyit)->m_oElement << "]" << std::endl;
+					}
+				}
+				else
+				{
+					// in principle, this can happen and be OK (for example, there is no
+					// configurator for TYPE. But in case of simple mis-spelling, this might
+					// be a worthy output.
+					if( (*keyit)->m_oElement != "TYPE" )
+					{
+						vkernerr << "[ViSys]: no configurator for key [" << (*keyit)->m_oElement << "]" << std::endl;
+					}
+				}
+			}
+
+			// this finally tries to ''activate'' the device
+			if( (*drList)->m_oElement->m_pDriver->Connect() )
+			{
+				// ok, worked, add to interaction manager for update
+				m_pInteractionManager->AddDeviceDriver((*drList)->m_oElement->m_strName,
+														  (*drList)->m_oElement->m_pDriver,
+														  (*drList)->m_oElement->m_nPrio);
+
+				// ok, in case the driver had a sensor mapping aspect, the
+				// sensor mapping configurator has taken care of setting up
+				// the sensor names. In case this driver adds sensors dynamically
+				// after a connect, this is not working well, so we create the proper
+				// names AFTER a successful connect
+				std::list<std::string> liSensorNames;
+
+				oProfiler.GetTheProfileList( (*drList)->m_oElement->m_strSection, "SENSORS", liSensorNames, GetInteractionIniFile() );
+				for(std::list<std::string>::const_iterator cit = liSensorNames.begin();
+					cit != liSensorNames.end(); ++cit )
+				{
+					// see whether the user specified the proper index
+					unsigned int nIdx = oProfiler.GetTheProfileInt( *cit, "RAWID", -1, GetInteractionIniFile() );
+					if(nIdx == -1)
+						continue;
+
+					// see whether the user *wants* to set a name
+					std::string strName = oProfiler.GetTheProfileString( *cit, "NAME", "", GetInteractionIniFile() );
+					if(strName.empty())
+						continue; // no
+
+					// get sensor by index
+					VistaDeviceSensor *pSensor = (*drList)->m_oElement->m_pDriver->GetSensorByIndex(nIdx);
+					if(pSensor)
+						pSensor->SetSensorName( strName ); // set name
+				}
+			}
+			else
+			{
+				vkernerr << "[ViSys]: Could not sucessfully connect the driver, so it will not be enabled / registered." << std::endl;
+				delete (*drList)->m_oElement->m_pDriver;
+			}
+
+		}
+
+
+	} // !IsClient() && !GetIsSlave()
+	else // IsClient() || GetIsSlave()
+	{
+		// in client mode, we need a driver that is capable of receiving the incoming sensor data during
+		// event dispatching. However, we do not want to create the physical driver, as this device might
+		// not even be connected to the host machine. So we create a dummy / shallow driver for every driver
+		// request and set it up according to the specification.
+
+		std::list<std::string> liDriverList;
+		std::map<std::string,_drDevHlp> mpCreatedDrivers;
+
+		if(oProfiler.GetTheProfileList(GetSystemSectionName(), "DEVICEDRIVERS", "", liDriverList, sConfigFileName))
+		{
+			unsigned int nDriverHistorySize = 1;
+			for(std::list<std::string>::const_iterator cit = liDriverList.begin();
+				cit != liDriverList.end(); ++cit)
+			{
+
+				// find proper section for the driver
+				std::string sName  = oProfiler.GetTheProfileString( *cit, "NAME", *cit, sConfigFileName);
+				std::string sType  = oProfiler.GetTheProfileString( *cit, "TYPE", "", sConfigFileName);
+				if(sType.empty())
+				{
+					vkernerr << "[ViSys]: ### ERROR ### no type name given for the device [" << *cit << "]" << std::endl;
+					continue;
+				}
+
+				nDriverHistorySize = oProfiler.GetTheProfileInt( *cit, "HISTORY", nDriverHistorySize, sConfigFileName);
+				if(m_pDriverMap->GetIsDeviceDriver(sName))
+				{
+					this->PrintMsg(std::string(" [ViSys]: ### WARNING : driver of type [")
+								   + *cit + std::string("] with name [")
+								   + sName + std::string("] already registered -- SKIPPING!\n"));
+					continue;
+				}
+
+				// create a shallow driver for this type
+				VistaShallowDriver *pDriver = dynamic_cast<VistaShallowDriver*>(
+							(*VistaShallowDriver::GetDriverFactoryMethod()).CreateDriver() );
+
+				// register with the driver map
+				if(!pDriver)
+				{
+					this->PrintMsg(std::string(" [ViSys]: ### WARNING : could not create driver [")
+								   + *cit + std::string("] from factory method!\n"));
+					continue;
+				}
+
+				this->PrintMsg(std::string(" [ViSys]: ### ADDING driver of type [")
+							   + sType
+							   + std::string("] with name [")
+							   + sName
+							   +std::string("]\n"));
+
+				unsigned int nPrio = oProfiler.GetTheProfileInt( *cit, "PRIORITY", 0, sConfigFileName );
+				mpCreatedDrivers[sName] = _drDevHlp(pDriver, sType, sName, *cit, nPrio, std::list<std::string>());
+			}
+
+			for(std::map<std::string,_drDevHlp>::const_iterator drList = mpCreatedDrivers.begin();
+				drList != mpCreatedDrivers.end(); ++drList )
+			{
+				VistaDriverSensorMappingAspect *pSensorMapping = NULL;
+				// for this shallow driver, rebuild the settings in the driver creation method
+				// 1. claim original method
+				IVistaDriverCreationMethod *pOrigin = m_pDriverMap->GetDriverCreationMethod( (*drList).second.m_strTypeName );
+				if(pOrigin)
+				{
+					std::list<unsigned int> liTypes = pOrigin->GetTypes();
+					if( !liTypes.empty() )
+					{
+						// this driver sensors - create a sensor mapping aspect, and register
+						// the sensors (done in ctor)
+						pSensorMapping = new VistaDriverSensorMappingAspect( pOrigin );
+						(*drList).second.m_pDriver->RegisterAspect( pSensorMapping );
+					}
+					// rebuild sensors using the original sensor attributes
+					std::list<std::string> liSensors;
+					oProfiler.GetTheProfileList( (*drList).second.m_strSection, "SENSORS", "", liSensors, GetInteractionIniFile() );
+
+					for(std::list<std::string>::const_iterator sit = liSensors.begin();
+						sit != liSensors.end(); ++sit )
+					{
+						std::string sSensorType = oProfiler.GetTheProfileString( *sit, "TYPE", "", GetInteractionIniFile() );
+						std::string sSensorName  = oProfiler.GetTheProfileString( *sit, "NAME", *sit, GetInteractionIniFile() );
+
+						int nSensorId   = oProfiler.GetTheProfileInt( *sit, "RAWID", -1, GetInteractionIniFile() );
+						int nHistory    = oProfiler.GetTheProfileInt( *sit, "HISTORY", nDriverHistorySize, GetInteractionIniFile() );
+
+						unsigned int nType = pOrigin->GetTypeFor( sSensorType );
+						IVistaMeasureTranscoderFactory *pTrFac = pOrigin->GetTranscoderFactoryForSensor( nType );
+						if( (nType != ~0) && pTrFac )
+						{
+							VistaDeviceSensor *pSensor = new VistaDeviceSensor;
+							pSensor->SetTypeHint( nType );
+							pSensor->SetSensorName( sSensorName );
+
+							pSensor->SetMeasureTranscode( pTrFac->CreateTranscoder() );
+
+							unsigned int nDriverSensorId = (*drList).second.m_pDriver->AddDeviceSensor( pSensor );
+
+							if(pSensorMapping)
+							{
+								// create a proper mapping
+								pSensorMapping->SetSensorId(nType, nSensorId, nDriverSensorId);
+							}
+
+							VistaDriverMeasureHistoryAspect *pHist
+								= dynamic_cast<VistaDriverMeasureHistoryAspect*>(
+								(*drList).second.m_pDriver->GetAspectById( VistaDriverMeasureHistoryAspect::GetAspectId() ) );
+							if(pHist) // should never be NULL
+							{
+								unsigned int nUpdateRateOfSensorInHz = pOrigin->GetUpdateEstimatorFor( pSensor->GetTypeHint() );
+								if( nUpdateRateOfSensorInHz == ~0 )
+									return false;
+
+								int nNum = int( ceilf( 66.6f / ( 1000.0f / float(nUpdateRateOfSensorInHz) ) ) );
+								unsigned int nMeasureSize = pOrigin->GetMeasureSizeFor( pSensor->GetTypeHint() );
+								if( nMeasureSize == ~0 )
+									nMeasureSize = 0;
+								
+								pHist->SetHistorySize( pSensor, nHistory, 2*nNum, nMeasureSize );
+							}
+						}
+					}
+				}// if pOrigin
+				// add driver to the driver map with the given name
+				if((*drList).second.m_pDriver->Connect())
+				{
+					m_pInteractionManager->AddDeviceDriver( (*drList).second.m_strName,
+						(*drList).second.m_pDriver, (*drList).second.m_nPrio );
+
+					// note that for the clustered case, we create shallow drivers
+					// with a proper sensor mapping aspect, so the sensor naming is
+					// supposed to be allright at this point and there is no need
+					// to setup the names (was already done!)
+				}
+				else
+				{
+					vkernerr << "[ViSys]: Could not sucessfully connect the driver, so it will not be enabled / registered." << std::endl;
+					delete (*drList).second.m_pDriver;
+				}
+			} // for all drivers
+		}
+	}
+	return true;
+}
+
+bool VistaSystem::LoadDriverPlugin( const std::string& sDriverType,
+									const std::string& sPluginName,
+									const std::string& sTranscoderName )
+{
+#if defined( VISTAKERNELSTATIC )
+	return false;
+#else
+	vkernout << "[Loading plugins for driver type [" << sDriverType << "]" << std::endl;
+	/** DRIVERTODO indent */
+
+	// we will later adjust the library path, so we save it so that it can be restored in the end
+	std::string sCurrentPath = VistaEnvironment::GetLibraryPathEnv();
+
+	std::string sPluginFilename, sTranscoderFilename;
+	std::string sPluginPattern = "Vista*Plugin";
+	std::string sTranscoderPattern = "Vista*Transcoder";
+
+	if( sPluginName.empty() )
+	{
+		// derive from driver type
+		sPluginFilename = "Vista" + sDriverType + "Plugin";
+	}
+	else
+	{
+		if( sPluginName.substr( 0, 5 ) != "Vista" )
+			sPluginFilename = "Vista*" + sPluginName + "*";
+		else
+			sPluginFilename = sPluginName + "*";
+	}
+
+	if( sTranscoderName.empty() )
+	{
+		// derive from driver type
+		sTranscoderFilename = "Vista" + sDriverType + "Transcoder";
+	}
+	else
+	{
+		if( sTranscoderName.substr( 0, 5 ) != "Vista" )
+			sTranscoderFilename = "Vista*" + sTranscoderName + "*";
+		else
+			sTranscoderFilename = sTranscoderName + "*";
+	}
+
+#ifdef DEBUG
+	sPluginFilename += "D";
+	sTranscoderFilename += "D";	
+	sPluginPattern += "D";
+	sTranscoderPattern += "D";
+#endif
+#ifdef WIN32
+	sPluginFilename += ".dll";
+	sTranscoderFilename += ".dll";
+	sPluginPattern += ".dll";
+	sTranscoderPattern += ".dll";
+#else
+	sPluginFilename = "lib" + sPluginFilename + ".so";
+	sTranscoderFilename = "lib" + sTranscoderFilename + ".so";
+	sPluginPattern = "lib" + sPluginPattern + ".so";
+	sTranscoderPattern = "lib" + sTranscoderPattern + ".so";
+#endif
+
+	std::string sActualPluginFile, sActualTranscoderFile;
+
+	// we support multiple plugin directories
+	for( std::list<std::string>::const_iterator itDirectory = m_liDriverPluginPathes.begin();
+			itDirectory != m_liDriverPluginPathes.end(); ++itDirectory )
+	{
+		VistaEnvironment::AddPathToLibraryPathEnv( (*itDirectory) );
+		VistaFileSystemDirectory oDirectory( (*itDirectory) );
+		oDirectory.SetPattern( sPluginPattern );
+
+		// we cant just check for the existance of the file, since the filename
+		// may have different casing - we have to check all Vista'.dll/.so files
+		// manually and do a case-insensitive comparison
+		for( VistaFileSystemDirectory::const_iterator itFile = oDirectory.begin();
+				itFile != oDirectory.end(); ++itFile )
+		{
+			if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( 
+											(*itFile)->GetLocalName(), sPluginFilename ) )
+			{
+				sActualPluginFile = (*itFile)->GetName();				
+				break;
+			}			
+		} // for .dll file in plugin folder
+
+		VistaFileSystemDirectory oTransDirectory( (*itDirectory) );
+		oTransDirectory.SetPattern( sTranscoderPattern );
+
+		// we can't just check for the existence of the file, since the filename
+		// may have different casing - we have to check all Vista'.dll/.so files
+		// manually and do a case-insensitive comparison
+		for( VistaFileSystemDirectory::const_iterator itFile = oTransDirectory.begin();
+				itFile != oTransDirectory.end(); ++itFile )
+		{
+			if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( 
+											(*itFile)->GetLocalName(), sTranscoderFilename ) )
+			{
+				sActualTranscoderFile = (*itFile)->GetName();
+				break;
+			}			
+		} // for .dll file in plugin folder
+
+	} // for plugin dir
+
+	if( sActualPluginFile.empty() )
+	{
+		/** DRIVERTODO warning */
+		return false;
+	}
+	if( sActualTranscoderFile.empty() )
+	{
+		/** DRIVERTODO warning */
+		return false;
+	}
+
+	VddUtil::VistaDriverPlugin oPlugin;
+
+	if( VddUtil::LoadTranscoderFromPlugin( sActualTranscoderFile, &oPlugin ) == false )
+	{
+		
+		vkernerr << "[VistaSystem]: Loading of driver plugin ["
+				<< sActualTranscoderFile << "] failed." << std::endl;
+		return false;
+	}
+
+	if( VddUtil::LoadCreationMethodFromPlugin( sActualPluginFile, &oPlugin ) == false )
+	{
+		/** DRIVERTODO warning */
+		vkernerr << "[VistaSystem]: Loading of plugin ["
+				<< sActualPluginFile << "] failed." << std::endl;
+	}
+
+	VistaDriverMap* pDriverMap = GetDriverMap();
+	// name given AND not registered with this name...
+	if( oPlugin.m_strDriverClassName.empty() )
+	{
+		/** DRIVERTODO warning */
+		VddUtil::DisposePlugin( &oPlugin );
+		return false;
+	}
+
+	if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals(
+										oPlugin.m_strDriverClassName, sDriverType ) == false )
+	{
+		/** DRIVERTODO warning */
+		VddUtil::DisposePlugin( &oPlugin );
+		return false;
+	}
+
+	if( pDriverMap->GetDriverCreationMethod( oPlugin.m_strDriverClassName ) )
+	{
+		/** DRIVERTODO warning */
+		VddUtil::DisposePlugin( &oPlugin );
+		return false;
+	}
+
+
+	vkernout << "Registering method for devices of class ["
+						<< oPlugin.m_strDriverClassName
+						<< "]" << std::endl;
+
+	m_pDllHlp->m_liDevices.push_back( oPlugin );
+	pDriverMap->RegisterDriverCreationMethod( sDriverType, oPlugin.m_pMethod );
+
+	// restore library path
+	VistaEnvironment::SetLibraryPathEnv( sCurrentPath );
+
+	return true;
+#endif // no static build
 }
 
 static bool SetupNodeWithTag( VistaClusterAux *pAux, IVdfnNode *pNode )
@@ -2174,12 +2309,12 @@ static VistaInteractionContext *SetupContext(VistaInteractionManager *pInMa,
 											  int nPrioOverride,
 											  int nSlaveId)
 {
-	VistaProfiler profile;
+	VistaProfiler oProfiler;
 
 	VistaInteractionContext *pCtx = NULL;
 	vkernout << " [ViSys]: SetupContext() ["
 		 << strContextSec << "]\n";
-	std::string sRole = profile.GetTheProfileString( strContextSec, "ROLE", "", strInteractionIniFile);
+	std::string sRole = oProfiler.GetTheProfileString( strContextSec, "ROLE", "", strInteractionIniFile);
 	if(sRole.empty())
 	{
 		vkernerr << " [ViSys]: ### WARNING: no role for context [" << strContextSec << "] given!" << std::endl;
@@ -2189,11 +2324,11 @@ static VistaInteractionContext *SetupContext(VistaInteractionManager *pInMa,
 	if(nPrioOverride == -1)
 		nPrio = VistaInteractionManager::PRIO_LAST;
 	else
-		nPrio = profile.GetTheProfileInt( strContextSec, "PRIORITY", int(VistaInteractionManager::PRIO_DONTCARE), strInteractionIniFile );
-	bool bDelayedUpdate = profile.GetTheProfileBool( strContextSec, "DELAYED_UPDATE", false, strInteractionIniFile );
+		nPrio = oProfiler.GetTheProfileInt( strContextSec, "PRIORITY", int(VistaInteractionManager::PRIO_DONTCARE), strInteractionIniFile );
+	bool bDelayedUpdate = oProfiler.GetTheProfileBool( strContextSec, "DELAYED_UPDATE", false, strInteractionIniFile );
 
 
-	std::string sGraphFile = profile.GetTheProfileString( strContextSec, "GRAPH", "", strInteractionIniFile );
+	std::string sGraphFile = oProfiler.GetTheProfileString( strContextSec, "GRAPH", "", strInteractionIniFile );
 	sGraphFile = getAbsolutePathRelativeTo(sGraphFile, strInteractionIniFile);
 	if(!sGraphFile.empty())
 	{
@@ -2201,7 +2336,7 @@ static VistaInteractionContext *SetupContext(VistaInteractionManager *pInMa,
 		pCtx->SetRoleId(pInMa->RegisterRole(sRole));
 
 		// positive on the role
-		std::string sReloadKey = profile.GetTheProfileString( strContextSec, "RELOADTRIGGER", "", strInteractionIniFile );
+		std::string sReloadKey = oProfiler.GetTheProfileString( strContextSec, "RELOADTRIGGER", "", strInteractionIniFile );
 		if(!sReloadKey.empty())
 		{
 			// reload trigger was given by user:
@@ -2216,8 +2351,8 @@ static VistaInteractionContext *SetupContext(VistaInteractionManager *pInMa,
 			}
 			else
 			{
-				bool bDumpGraphs = profile.GetTheProfileBool( "SYSTEM", "DUMPGRAPHS", false, sConfigFileName );
-				bool bWritePorts = profile.GetTheProfileBool( "SYSTEM", "WRITEPORTS", true, sConfigFileName );
+				bool bDumpGraphs = oProfiler.GetTheProfileBool( "SYSTEM", "DUMPGRAPHS", false, sConfigFileName );
+				bool bWritePorts = oProfiler.GetTheProfileBool( "SYSTEM", "WRITEPORTS", true, sConfigFileName );
 
 
 				pCtrl->BindAction( nTrigger, new VistaReloadContextGraphCommand(pSys, pCtx, sRole,
@@ -2229,7 +2364,7 @@ static VistaInteractionContext *SetupContext(VistaInteractionManager *pInMa,
 			}
 		}
 
-		bool bEnable = profile.GetTheProfileBool( strContextSec, "ENABLED", true, strInteractionIniFile);
+		bool bEnable = oProfiler.GetTheProfileBool( strContextSec, "ENABLED", true, strInteractionIniFile);
 		pCtx->SetIsEnabled(bEnable);
 
 		pInMa->AddInteractionContext(pCtx, nPrio, bDelayedUpdate);
@@ -2310,22 +2445,6 @@ void VistaSystem::SetWindowingToolkit( IVistaWindowingToolkit* toolkit )
 	m_pWindowingToolkit = toolkit;
 }
 
-
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   Run                                                         */
-/*                                                                            */
-/*  PURPOSE   :   ...                                                         */
-/*                                                                            */
-/*  INPUT     :   --                                                          */
-/*  OUTPUT    :   --                                                          */
-/*  GLOBALS   :   --                                                          */
-/*  RETURN    :   TRUE  = success                                             */
-/*                FALSE = failure                                             */
-/*                                                                            */
-/*  HISTORY   :                                                               */
-/*                                                                            */
-/*============================================================================*/
 bool VistaSystem::Run()
 {
 	if( !m_bInitialized )
@@ -2355,12 +2474,12 @@ bool VistaSystem::Run()
 
 		GetInteractionManager()->InitializeGraphContexts();
 
-		VistaProfiler profile;
+		VistaProfiler oProfiler;
 		std::string sConfigFileName = GetInteractionIniFile();
 
 		// for servers / master nodes, we will offer a dump on the graphs as a feature
-		bool bDumpGraphs = profile.GetTheProfileBool( "SYSTEM", "DUMPGRAPHS", false, sConfigFileName );
-		bool bWritePorts = profile.GetTheProfileBool( "SYSTEM", "WRITEPORTS", true, sConfigFileName );
+		bool bDumpGraphs = oProfiler.GetTheProfileBool( "SYSTEM", "DUMPGRAPHS", false, sConfigFileName );
+		bool bWritePorts = oProfiler.GetTheProfileBool( "SYSTEM", "WRITEPORTS", true, sConfigFileName );
 		if(bDumpGraphs)
 		{
 			GetInteractionManager()->DumpGraphsToDot(bWritePorts);
@@ -2386,12 +2505,6 @@ bool VistaSystem::Quit()
 	m_pWindowingToolkit->Quit();
 	return true;
 }
-
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   SetCentralEventHandler                                      */
-/*                                                                            */
-/*============================================================================*/
 
 /*============================================================================*/
 /*                                                                            */
@@ -2489,13 +2602,6 @@ void VistaSystem::HandleEvent(VistaEvent *pEvent)
 
 		case VistaSystemEvent::VSE_EXIT:
 		{
-			/*if(GetOldInteractionManager())
-			{
-				GetOldInteractionManager()->StopDeviceDispatching();
-				GetOldInteractionManager()->StopTrackerDispatching();
-			}
-			else
-			*/
 			if(GetInteractionManager())
 			{
 				GetInteractionManager()->StopDriverThread();
@@ -3345,6 +3451,58 @@ void VistaSystem::LoadPlugins( const std::string& sConfigFileName )
 	}
 #endif
 }
+
+bool VistaSystem::LoadPlugin( const std::string &sPathToPlugin )
+{
+#if !defined(VISTAKERNELSTATIC)
+	vkernout << "[VistaSystem] loading driver plugin: " << sPathToPlugin << std::endl;
+	VddUtil::VistaDriverPlugin oPlugin;
+
+	std::string sPathToTranscodePlugin = sPathToPlugin;
+	std::size_t nIndex = sPathToTranscodePlugin.rfind( "Plugin" );
+	sPathToTranscodePlugin.replace( nIndex, std::size_t( 6 ), "Transcoder" );
+
+	if( VddUtil::LoadTranscoderFromPlugin( sPathToTranscodePlugin, &oPlugin ) == false )
+	{
+		vkernerr << "[VistaSystem]: Loading of plugin ["
+			<< sPathToPlugin << "] failed." << std::endl;
+		return false;
+	}
+
+	if( VddUtil::LoadCreationMethodFromPlugin( sPathToPlugin, &oPlugin ) )
+	{
+		VistaDriverMap *pDm = GetDriverMap();
+		// name given AND not registered with this name...
+		if(!oPlugin.m_strDriverClassName.empty() && !pDm->GetDriverCreationMethod( oPlugin.m_strDriverClassName ) )
+		{
+			vkernout << "[VistaSystem]: Registering method for devices of class ["
+				<< oPlugin.m_strDriverClassName
+				<< "] from ["
+				<< sPathToPlugin
+				<< "]\n";
+
+
+			m_pDllHlp->m_liDevices.push_back( oPlugin );
+			pDm->RegisterDriverCreationMethod( oPlugin.m_strDriverClassName, oPlugin.m_pMethod );
+			return true;
+		}
+		else
+		{
+			vkernout << "[VistaSystem]: Either no classname in this plugin, or a class of this type "
+				<< "is already registered?\n";
+			VddUtil::DisposePlugin( &oPlugin );
+		}
+	}
+	else
+	{
+		vkernerr << "[VistaSystem]: Loading of plugin ["
+			<< sPathToPlugin << "] failed." << std::endl;
+	}
+
+#endif // for static builds
+	return false;
+}
+
 
 /*============================================================================*/
 /*                                                                            */

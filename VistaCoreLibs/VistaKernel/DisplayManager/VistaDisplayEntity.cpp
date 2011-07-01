@@ -117,7 +117,7 @@ void VistaDisplayEntity::SetNameForNameable(const std::string &strNewName)
 std::string VistaDisplayEntity::GetNameableIdAsString() const
 {
 	char buf[128];
-	sprintf(buf, "%x\0", GetNameableId());
+	sprintf(buf, "%lx\0", long(GetNameableId()));
 	return string(buf);
 }
 

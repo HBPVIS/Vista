@@ -137,6 +137,7 @@ public:
 
 
    std::string GetName() const;   // relativ oder absolut oder ... ?
+   std::string GetLocalName() const;
    void SetName(const std::string &strName);
 
    bool IsDirectory() const;
@@ -144,6 +145,7 @@ public:
 
 private:
 	std::string m_sName;
+	std::string m_sLocalName;
 };
 
 /*============================================================================*/

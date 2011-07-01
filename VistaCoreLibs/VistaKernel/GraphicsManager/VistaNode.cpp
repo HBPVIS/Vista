@@ -236,7 +236,7 @@ IVistaNodeData* VistaNode::GetData() const
 	return m_pData;
 }
 
-uint64 VistaNode::GetTransformScore() const
+VistaType::uint64 VistaNode::GetTransformScore() const
 {
 	if(m_pParent)
 		return m_pParent->GetTransformScore() + m_nLocalTransScore;

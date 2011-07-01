@@ -50,25 +50,25 @@ VistaCSVSerializer::VistaCSVSerializer(char separator)
 VistaCSVSerializer::~VistaCSVSerializer()
 {}
 
-int VistaCSVSerializer::WriteShort16 (  ushort16 us16Val)
+int VistaCSVSerializer::WriteShort16 (  VistaType::ushort16 us16Val)
 {
 	m_streamOutput << us16Val << m_cSeparator;
 	return  sizeof(us16Val);
 }
 
-int VistaCSVSerializer::WriteInt32(  sint32 si32Val)
+int VistaCSVSerializer::WriteInt32(  VistaType::sint32 si32Val)
 {
 	m_streamOutput << si32Val << m_cSeparator;
 	return  sizeof(si32Val);
 }
 
-int VistaCSVSerializer::WriteInt32(  uint32 si32Val)
+int VistaCSVSerializer::WriteInt32(  VistaType::uint32 si32Val)
 {
 	m_streamOutput << si32Val << m_cSeparator;
 	return  sizeof(si32Val);
 }
 
-int VistaCSVSerializer::WriteInt64(  sint64 si64Val)
+int VistaCSVSerializer::WriteInt64(  VistaType::sint64 si64Val)
 {
 #if defined(WIN32)
 	const char *specifier = "%I64d";
@@ -88,7 +88,7 @@ int VistaCSVSerializer::WriteInt64(  sint64 si64Val)
 	return  sizeof(si64Val);
 }
 
-int VistaCSVSerializer::WriteUInt64(  uint64 ui64Val)
+int VistaCSVSerializer::WriteUInt64(  VistaType::uint64 ui64Val)
 {
 #if defined(WIN32)
 	const char *specifier = "%I64u";
@@ -107,13 +107,13 @@ int VistaCSVSerializer::WriteUInt64(  uint64 ui64Val)
 }
 
 
-int VistaCSVSerializer::WriteFloat32(  float32 fVal)
+int VistaCSVSerializer::WriteFloat32(  VistaType::float32 fVal)
 {
 	m_streamOutput << fVal << m_cSeparator;
 	return  sizeof(fVal);
 }
 
-int VistaCSVSerializer::WriteFloat64(  float64 f64Val)
+int VistaCSVSerializer::WriteFloat64(  VistaType::float64 f64Val)
 {
 	m_streamOutput << f64Val << m_cSeparator;
 	return  sizeof(f64Val);
@@ -158,38 +158,38 @@ int VistaCSVSerializer::WriteBool( bool bVal)
 }
 
 
-int VistaCSVSerializer::WriteShort16Name( const char *sVarName,  ushort16 us16Val)
+int VistaCSVSerializer::WriteShort16Name( const char *sVarName,  VistaType::ushort16 us16Val)
 {
 	return WriteShort16(us16Val);
 }
 
-int VistaCSVSerializer::WriteInt32Name( const char *sVarName,  sint32 si32Val)
+int VistaCSVSerializer::WriteInt32Name( const char *sVarName,  VistaType::sint32 si32Val)
 {
 	return WriteInt32(si32Val);
 }
 
-int VistaCSVSerializer::WriteInt32Name( const char *sVarName,  uint32 si32Val)
+int VistaCSVSerializer::WriteInt32Name( const char *sVarName,  VistaType::uint32 si32Val)
 {
 	return WriteInt32(si32Val);
 }
 
-int VistaCSVSerializer::WriteInt64Name( const char *sVarName,  sint64 si64Val)
+int VistaCSVSerializer::WriteInt64Name( const char *sVarName,  VistaType::sint64 si64Val)
 {
 	return WriteInt64(si64Val);
 }
 
-int VistaCSVSerializer::WriteUInt64Name( const char *sVarName,  uint64 ui64Val)
+int VistaCSVSerializer::WriteUInt64Name( const char *sVarName,  VistaType::uint64 ui64Val)
 {
 	return WriteUInt64(ui64Val);
 }
 
 
-int VistaCSVSerializer::WriteFloat32Name( const char *sVarName,  float32 fVal)
+int VistaCSVSerializer::WriteFloat32Name( const char *sVarName,  VistaType::float32 fVal)
 {
 	return WriteFloat32(fVal);
 }
 
-int VistaCSVSerializer::WriteFloat64Name( const char *sVarName,  float64 f64Val)
+int VistaCSVSerializer::WriteFloat64Name( const char *sVarName,  VistaType::float64 f64Val)
 {
 	return WriteFloat64(f64Val);
 }

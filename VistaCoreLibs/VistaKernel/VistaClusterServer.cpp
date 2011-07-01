@@ -430,7 +430,7 @@ void VistaClusterServer::BroadcastEvents( )
 	// total number of bytes to expect
 	// sizeof(m_iPacketNum)+sizeof(m_nEventCounter)+sizeof(m_dFrameClock)
 	// + |buffer|
-	pBuf.WriteInt32(uint32(2*sizeof(sint32)+sizeof(double)+m_pEventBuffer->GetBufferSize()));
+	pBuf.WriteInt32(VistaType::uint32(2*sizeof(VistaType::sint32)+sizeof(double)+m_pEventBuffer->GetBufferSize()));
 
 
 	pBuf.WriteInt32(m_iPacketNum);

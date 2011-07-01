@@ -1,4 +1,4 @@
-# $Id$
+# $Id: Makefile 19836 2010-11-16 10:04:47Z dominikrausch $
 # supported platforms: IRIX, LINUX, SUNOS, HP-UX
 # Windows has got an own makefile
 

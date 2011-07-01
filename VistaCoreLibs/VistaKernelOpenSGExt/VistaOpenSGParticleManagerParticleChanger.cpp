@@ -73,8 +73,8 @@ T signum( T n )
 
 VistaVector3D PMPhysicalEnvironment::ApplyPhysics(float *v3VelVec,
 								float *v3PosVec,
-								microtime dDeltaT,
-								microtime dParticleTime)
+								VistaType::microtime dDeltaT,
+								VistaType::microtime dParticleTime)
 {
 	//Creating the vectors we're later working with :-)
 
@@ -243,8 +243,8 @@ void PMPhysicalEnvironment::ChangeWind( int iDirection, float fValue )
 /* PMPHYSICALFRAMECHANGE                                                     */
 
 void PMPhysicalFrameChange::ChangeParticle( SParticle& oParticle, 
-											microtime dCurrentTime,
-											microtime dDeltaT )
+											VistaType::microtime dCurrentTime,
+											VistaType::microtime dDeltaT )
 {
 	if (m_pPhysicEngine == NULL)
 	{
@@ -311,7 +311,7 @@ PMPhysicalFrameChange::~PMPhysicalFrameChange()
 
 /* PMORIGINSET                                                      */
 
-void PMOriginSet::CalculatePositionAndVelocities( SParticle& oParticle, microtime fEventTime )
+void PMOriginSet::CalculatePositionAndVelocities( SParticle& oParticle, VistaType::microtime fEventTime )
 {
 	oParticle.m_a3fVelocity[0] = m_v3ParticleVelocities[0] + (float)m_pRand->GenerateDouble2() * m_fVelocitiesFactor;
 	oParticle.m_a3fVelocity[1] = m_v3ParticleVelocities[1] + (float)m_pRand->GenerateDouble2() * m_fVelocitiesFactor;
@@ -322,7 +322,7 @@ void PMOriginSet::CalculatePositionAndVelocities( SParticle& oParticle, microtim
 	oParticle.m_a3fPosition[2] = m_v3ParticleOrigin[2] +(float) m_pRand->GenerateDouble2() * m_fOriginFactor;
 }
 
-void PMOriginSet::CalculateColor( SParticle& oParticle, microtime fEventTime )
+void PMOriginSet::CalculateColor( SParticle& oParticle, VistaType::microtime fEventTime )
 {
 	oParticle.m_a4fColor[0] = m_v3ParticleColor[0] + (float)m_pRand->GenerateDouble2() * m_fColorFactor;
 	oParticle.m_a4fColor[1] = m_v3ParticleColor[1] + (float)m_pRand->GenerateDouble2() * m_fColorFactor;
@@ -330,7 +330,7 @@ void PMOriginSet::CalculateColor( SParticle& oParticle, microtime fEventTime )
 	oParticle.m_a4fColor[3] = 0;
 }
 
-void PMOriginSet::CalculateSize( SParticle& oParticle, microtime fEventTime )
+void PMOriginSet::CalculateSize( SParticle& oParticle, VistaType::microtime fEventTime )
 {
 	oParticle.m_a3fSize[0] = m_v3ParticleSize[0] + (float)m_pRand->GenerateDouble2() * m_fSizeFactor;
 	oParticle.m_a3fSize[1] = m_v3ParticleSize[1] + (float)m_pRand->GenerateDouble2() * m_fSizeFactor;
@@ -360,7 +360,7 @@ m_fSizeFactor(fSizeFactor)
 	m_fLifetime = 0;
 }
 
-void PMOriginSet::ChangeParticle( SParticle& oParticle, microtime dCurrentTime, microtime dDeltaT )
+void PMOriginSet::ChangeParticle( SParticle& oParticle, VistaType::microtime dCurrentTime, VistaType::microtime dDeltaT )
 {
 	*oParticle.m_pRemainingLifeTime = (float)m_fLifetime;
 
@@ -377,7 +377,7 @@ PMOriginSet::~PMOriginSet()
 
 /* PMLINEARFRAMECHANGE                                                      */
 
-void PMLinearFrameChange::ChangeParticle( SParticle& oParticle, microtime dCurrentTime, microtime dDeltaT )
+void PMLinearFrameChange::ChangeParticle( SParticle& oParticle, VistaType::microtime dCurrentTime, VistaType::microtime dDeltaT )
 {
 	*oParticle.m_pRemainingLifeTime -= (float)dDeltaT;
 

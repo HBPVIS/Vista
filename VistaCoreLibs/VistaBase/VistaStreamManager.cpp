@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaStreamManager.cpp 21315 2011-05-16 13:47:39Z dr165799 $
 
 #include "VistaStreamManager.h"
 
@@ -157,11 +157,15 @@ std::vector<VistaStreamManager::INFO_LAYOUT_ELEMENT>& VistaStreamManager::GetInf
 	return m_vecInfoLayout;
 }
 
-systemtime VistaStreamManager::GetSystemTime() const
+VistaType::systemtime VistaStreamManager::GetSystemTime() const
 {
 	return m_pTimer->GetSystemTime(); 
 }
-microtime VistaStreamManager::GetFrameClock() const
+VistaType::systemtime VistaStreamManager::GetMicroTime() const
+{
+	return m_pTimer->GetMicroTime(); 
+}
+VistaType::microtime VistaStreamManager::GetFrameClock() const
 {
 	if( m_pInfo == NULL )
 		return 0;
@@ -212,6 +216,11 @@ void VistaStreamManager::PrintInfo( std::ostream& oStream ) const
 			case LE_SYSTEMTIME:
 			{
 				oStream << vstr::systime;
+				break;
+			}
+			case LE_RELATIVETIME:
+			{
+				oStream << vstr::relativetime;
 				break;
 			}
 			case LE_DATE:

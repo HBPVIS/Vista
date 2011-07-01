@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaTimerImp.cpp 21499 2011-05-25 08:17:39Z dr165799 $
 
 #include "VistaTimerImp.h"
 
@@ -65,9 +65,9 @@ IVistaTimerImp::~IVistaTimerImp()
 	//std::cout << "Deleting TimerImp!" << std::endl;
 }
 
-IVistaTimerImp *IVistaTimerImp::GetSingleton()
+IVistaTimerImp *IVistaTimerImp::GetSingleton( bool bCreateDefaultIfNull )
 {
-	if( STimerImp == NULL )
+	if( STimerImp == NULL && bCreateDefaultIfNull )
 		SetSingleton( new VistaDefaultTimerImp );
 	return STimerImp;
 }

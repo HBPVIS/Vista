@@ -82,7 +82,7 @@ public:
 	unsigned int                m_nNewMeasures, /**< experimental: the number of new measures since last evaluate */
 								m_nRealNewMeasures; /**< experimental: the actual (unskimmed) number of new measures */
 	unsigned int                m_nUpdateIndex; /**< the current update index. reflects VistaSensor::GetDataCount() */
-	microtime                   m_nAvgDriverUpdTime;
+	VistaType::microtime                   m_nAvgDriverUpdTime;
 	double                      m_nAvgUpdFreq;
 };
 
@@ -116,7 +116,7 @@ typedef TVdfnPortTypeCompare<HistoryPort>             HistoryPortCompare;
 /**
  * template class to implement a transfer from 'history' to a 'port value' of
  * type F. It uses the transcoder API to do this polymorphic.
- * @param F the template parmeter F defines the return type of the transcoder and the port-type
+ * @param F the template parameter F defines the return type of the transcoder and the port-type
             (both must match for this template to work)
  */
 template<class F>

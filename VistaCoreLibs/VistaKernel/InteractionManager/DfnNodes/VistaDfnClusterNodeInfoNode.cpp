@@ -46,8 +46,8 @@ VdfnClusterNodeInfoNode::VdfnClusterNodeInfoNode(VistaClusterAux *pClAux )
 , m_pClusterNodeName( new TVdfnPort<std::string> )
 , m_pClusterMode( new TVdfnPort<int> )
 , m_pClusterClock( new TVdfnPort<double> )
-, m_pAvgUpdate( new TVdfnPort<microtime> )
-, m_pAvgSwap( new TVdfnPort<microtime> )
+, m_pAvgUpdate( new TVdfnPort<VistaType::microtime> )
+, m_pAvgSwap( new TVdfnPort<VistaType::microtime> )
 {
 	RegisterOutPort( "node_name", m_pClusterNodeName );
 	RegisterOutPort( "node_mode", m_pClusterMode );

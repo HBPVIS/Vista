@@ -59,7 +59,7 @@ bool VistaDriverWindowAspect::AttachToWindow(VistaWindow *pWindow)
 	if(!GetTouchSequence())
 		return false;
 
-	CWindowHandle *c = NULL;
+	WindowHandle *c = NULL;
 #if defined(WIN32)
 	// unfortunately, there seems to be now way to
 	// retrieve the window id in a reliable way from ViSTA
@@ -68,19 +68,19 @@ bool VistaDriverWindowAspect::AttachToWindow(VistaWindow *pWindow)
 	// so we have to lookup the "global-active-top-level" window
 	// from windows itself.
 	HWND wnd = FindWindow( NULL, pWindow->GetWindowProperties()->GetTitle().c_str() );
-	c = new CWindowHandle( wnd );
+	c = new WindowHandle( pWindow->GetWindowId(), wnd );
 #else
-	c = new CWindowHandle( pWindow->GetWindowId() );
+	c = new WindowHandle( pWindow->GetWindowId(), (void*)((long)pWindow->GetWindowId()) );
 #endif
 	if(c == NULL)
 		return false;
 
-	// ok, no check for the generic case: does attaching on the CWindowHandle work?
+	// ok, no check for the generic case: does attaching on the WindowHandle work?
 	if(GetTouchSequence()->AttachSequence(c))
 	{
-		// yes, add a mapping from the VistaWindow to the CWindowHandle
+		// yes, add a mapping from the VistaWindow to the WindowHandle
 		// for cleanup later on
-		m_liWindows.push_back( std::pair<VistaWindow*, CWindowHandle*>(pWindow,c) );
+		m_liWindows.push_back( std::pair<VistaWindow*, WindowHandle*>(pWindow,c) );
 		return true;
 	}
 	else
@@ -97,11 +97,11 @@ bool VistaDriverWindowAspect::AttachToWindow(VistaWindow *pWindow)
 			if( pTS->AttachSequence( pWindow ) )
 			{
 				// this worked, create a mapping for cleanup
-				m_liWindows.push_back( std::pair<VistaWindow*, CWindowHandle*>(pWindow, c) );
+				m_liWindows.push_back( std::pair<VistaWindow*, WindowHandle*>(pWindow, c) );
 				return true;
 			}
 		}
-		// all in vain: get rid of the CWindowHandle, it's only a carrier anyways...
+		// all in vain: get rid of the WindowHandle, it's only a carrier anyways...
 		delete c;
 		return false;
 	}
@@ -115,7 +115,7 @@ bool VistaDriverWindowAspect::DetachFromWindow(VistaWindow *pWindow)
 
 	// retrieve window handle from mapping
 	std::list<
-		std::pair<VistaWindow*, CWindowHandle*> >::iterator it;
+		std::pair<VistaWindow*, WindowHandle*> >::iterator it;
 	for( it = m_liWindows.begin(); it != m_liWindows.end(); ++it )
 	{
 		// found it...
@@ -158,7 +158,7 @@ bool VistaDriverWindowAspect::GetWindowList(std::list<VistaWindow*> &liWindow) c
 {
 	if(GetTouchSequence())
 	{
-		for(std::list<std::pair<VistaWindow*, CWindowHandle*> >::const_iterator cit = m_liWindows.begin();
+		for(std::list<std::pair<VistaWindow*, WindowHandle*> >::const_iterator cit = m_liWindows.begin();
 			cit != m_liWindows.end(); ++cit)
 		{
 			liWindow.push_back( (*cit).first );

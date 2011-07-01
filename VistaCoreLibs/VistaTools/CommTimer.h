@@ -80,7 +80,7 @@ public:
 	/** StartTiming, EndTiming, GetTiming
 	* Purpose: Begin/Stop/Get time measurement
 	*
-	* @param actual time (may be Systemtime, Commtime or your own time system)
+	* @param actual time (may be VistaType::systemtime, Commtime or your own time system)
 	*/
 	void StartTiming (double nTime);
 
@@ -165,7 +165,7 @@ public:
 	* Purpose: creates new time measurement named sTimingName in timing list
 	*
 	* @param sTimingName  = name of time measurement
-	* @param bUseCommTime = TRUE if use GetCommTime for measurement / FALSE if use SystemTime for measurement
+	* @param bUseCommTime = TRUE if use GetCommTime for measurement / FALSE if use Systemtime for measurement
 	*/
 	void NewTiming (std::string sTimingName, bool bUseCommTime);
 

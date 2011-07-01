@@ -64,7 +64,7 @@ VistaWindow::~VistaWindow()
 /*  NAME      :   GetWindowId                                                 */
 /*                                                                            */
 /*============================================================================*/
-void *VistaWindow::GetWindowId() const
+int VistaWindow::GetWindowId() const
 {
 	return GetDisplayBridge()->GetWindowId(this);
 }

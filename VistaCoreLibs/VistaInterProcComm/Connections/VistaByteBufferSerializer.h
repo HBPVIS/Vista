@@ -104,13 +104,13 @@ public:
 
 	void  GetBuffer(std::vector<unsigned char> &);
 
-	virtual int WriteShort16(  ushort16 us16Val) ;
-	virtual int WriteInt32(  sint32 si32Val) ;
-	virtual int WriteInt32(  uint32 si32Val) ;
-	virtual int WriteInt64(  sint64 si64Val) ;
-	virtual int WriteUInt64(  uint64 ui64Val) ;
-	virtual int WriteFloat32(  float32 fVal);
-	virtual int WriteFloat64(  float64 f64Val);
+	virtual int WriteShort16(  VistaType::ushort16 us16Val) ;
+	virtual int WriteInt32(  VistaType::sint32 si32Val) ;
+	virtual int WriteInt32(  VistaType::uint32 si32Val) ;
+	virtual int WriteInt64(  VistaType::sint64 si64Val) ;
+	virtual int WriteUInt64(  VistaType::uint64 ui64Val) ;
+	virtual int WriteFloat32(  VistaType::float32 fVal);
+	virtual int WriteFloat64(  VistaType::float64 f64Val);
 	virtual int WriteDouble(  double dVal) ;
 	virtual int WriteRawBuffer( const void *pBuffer, const int iLen) ;
 	virtual int WriteBool( bool bVal) ;
@@ -118,13 +118,13 @@ public:
 	virtual int WriteString( const std::string &sString) ;
 	virtual int WriteDelimitedString( const std::string &sString, char cDelim = '\0') ;
 
-	virtual int WriteShort16Name( const char *sVarName,  ushort16 us16Val) ;
-	virtual int WriteInt32Name( const char *sVarName,  sint32 si32Val) ;
-	virtual int WriteInt32Name( const char *sVarName,  uint32 si32Val) ;
-	virtual int WriteInt64Name( const char *sVarName,  sint64 si64Val) ;
-	virtual int WriteUInt64Name( const char *sVarName,  uint64 si64Val) ;
-	virtual int WriteFloat32Name( const char *sVarName,  float32 fVal) ;
-	virtual int WriteFloat64Name( const char *sVarName,  float64 f64Val);
+	virtual int WriteShort16Name( const char *sVarName,  VistaType::ushort16 us16Val) ;
+	virtual int WriteInt32Name( const char *sVarName,  VistaType::sint32 si32Val) ;
+	virtual int WriteInt32Name( const char *sVarName,  VistaType::uint32 si32Val) ;
+	virtual int WriteInt64Name( const char *sVarName,  VistaType::sint64 si64Val) ;
+	virtual int WriteUInt64Name( const char *sVarName,  VistaType::uint64 si64Val) ;
+	virtual int WriteFloat32Name( const char *sVarName,  VistaType::float32 fVal) ;
+	virtual int WriteFloat64Name( const char *sVarName,  VistaType::float64 f64Val);
 	virtual int WriteDoubleName( const char *sVarName,  double ) ;
 	virtual int WriteStringName( const char *sVarName,  const std::string &) ;
 	virtual int WriteRawBufferName(const char *sVarName, const void *pBuffer, const int iLen) ;

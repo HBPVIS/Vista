@@ -117,7 +117,7 @@ bool VistaTCPSocket::CloseSocket(bool bSkipRead)
 		return true;
 
 	m_bCloseRecursionFlag = true;
-	printf("VistaTCPSocket[%x]::CloseSocket(%d)\n",this,bSkipRead);
+	printf("VistaTCPSocket[%lx]::CloseSocket(%d)\n",long(this),bSkipRead);
 
 
 	if(GetIsConnected())

@@ -118,7 +118,7 @@ public:
 
 	/**
 	 * @param sPropName the name of the property to remove
-	 * @return true iff a property with name sPropName() was removed, false if such a property
+	 * @return true when a property with name sPropName() was removed, false if such a property
 	 *         does not exist.
 	 */
 	bool        RemoveProperty(const std::string &sPropName);
@@ -149,7 +149,7 @@ public:
 	 * merged in. Elements that are only in oMergeIn will be in oMaster
 	 * after this call. If oMaster has a PropertyList element named X and
 	 * oMergeIn has the same PropertyList element named X, the list will
-	 * be recusively copied, else, the value of oMergeIn will replace the
+	 * be recursively copied, else, the value of oMergeIn will replace the
 	 * one in oMaster. That means, if oMaster has a property Y which is
 	 * non-PropertyList, and oMergeIn has a property named Y which is PropertyList,
 	 * the returned PropertyList will after this call have a PropertyList property

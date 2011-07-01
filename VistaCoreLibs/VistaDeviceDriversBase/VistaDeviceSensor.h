@@ -37,6 +37,7 @@
 #include <vector>
 #include <set>
 #include <typeinfo>
+#include <functional>
 
 #include <VistaTools/VistaRingBuffer.h>
 
@@ -52,6 +53,7 @@ class IVistaSerializer;
 class IVistaDeSerializer;
 class VistaAtomics;
 class IVistaDeviceDriver;
+class IVistaDriverCreationMethod;
 class VistaWindowAverageTimer;
 class VistaAverageTimer;
 
@@ -80,7 +82,7 @@ public:
 	}
 
 	VistaSensorMeasure(unsigned int nMeasureIdx,
-						microtime nTs,
+						VistaType::microtime nTs,
 						unsigned int nSize)
 		:m_nMeasureIdx(nMeasureIdx),
 		 m_nMeasureTs(nTs),
@@ -89,14 +91,26 @@ public:
 		 m_vecMeasures(nSize)
 	{}
 
-	uint32        m_nMeasureIdx;
-	microtime     m_nMeasureTs;
-	microtime     m_nSwapTime;
-	uint32        m_nEndianess; //<** 0: unknown, 1: LITTLE, 2: MIDDLE, 3: BIG */
+	VistaType::uint32        m_nMeasureIdx;
+	VistaType::microtime     m_nMeasureTs;
+	VistaType::microtime     m_nSwapTime;
+	VistaType::uint32        m_nEndianess; //<** 0: unknown, 1: LITTLE, 2: MIDDLE, 3: BIG */
 	typedef std::vector<unsigned char> MEASUREVEC;
 	MEASUREVEC m_vecMeasures;
-	microtime     m_nDeliverTs; /**< age of sample in history */
-    microtime     m_nAverageDeliverTime;
+	VistaType::microtime     m_nDeliverTs; /**< age of sample in history */
+    VistaType::microtime     m_nAverageDeliverTime;
+
+    template<class T>
+    const T *getRead() const
+    {
+    	return (const T*)( &m_vecMeasures[0] );
+    }
+
+    template<class T>
+    T *getWrite()
+    {
+    	return (T*)( &m_vecMeasures[0] );
+    }
 };
 
 
@@ -137,13 +151,24 @@ public:
 	 * index as given in the arguments. GetPast(0) == GetCurrentRead().
 	 * The index can be an arbitrary index (it is mod'ded in this routine),
 	 * but should not be larger than the number of read-only samples in the history.
-	 * This number of determined on the amount of samples that can be read during
+	 * This number is determined on the amount of samples that can be read during
 	 * a client call (which is a user-given value) depending on the write size
 	 * of the driver that is writing to this history. When not careful, it is possible
 	 * to read the sample that is currently written to by the driver, which leads
 	 * to possibly corrupted data.
+	 *
+	 * @param nNum the offset back in time starting at last value (nNum = 0)
+	 * @param nCurRdPos ~0 means that the current write head position is taken
+	 *        as a base (default), otherwise nNum is relative to the nCurRdPos
+	 *        which has to be within [0..historyLength)
+	 *
+	 * @return NULL in case no data was ever swapped into visibility or taken
+	 *         (i.e.: no data available), a read position in the history otherwise.
+	 *         Note that it is not guaranteed that this is a meaningful measure,
+	 *         it is just present in the history. Test its fields (timestamp) to
+	 *         be sure the data makes sense to you.
 	 */
-	const VistaSensorMeasure *GetPast(unsigned int nNum, uint32 nCurRdPos = ~0 ) const;
+	const VistaSensorMeasure *GetPast(unsigned int nNum, VistaType::uint32 nCurRdPos = ~0 ) const;
 
 	/**
 	 * return the current read-safe position of the latest readable container in
@@ -151,7 +176,7 @@ public:
 	 * @return a usable index for GetPast() or the like, or ~0 for an invalid slot.
 	           This can happen when no data was yet posted to this history.
 	 */
-	uint32 GetCurrentReadPosition() const;
+	VistaType::uint32 GetCurrentReadPosition() const;
 
 	/**
 	 * Same as GetPast() but used the most current as a sample to start with.
@@ -172,14 +197,40 @@ public:
 	// public for debugging purposes. SO DO NOT USE THE BELOW MEMBERS IN YOUR
 	// CODE, use the above given access API instead.
 	TVistaRingBuffer<VistaSensorMeasure> m_rbHistory;
-	microtime                             m_nUpdateTs; /**< strong monotonic clock value, ordinal scale at least */
-	uint32                                m_nDriverWriteSize, /**< statics, but nice for debugging, determined upon creation of the history. */
+	VistaType::microtime                             m_nUpdateTs; /**< strong monotonic clock value, ordinal scale at least */
+	VistaType::uint32                                m_nDriverWriteSize, /**< statics, but nice for debugging, determined upon creation of the history. */
 										  m_nMeasureCount, /**< the index count, e.g. the absolute number of measures */
 										  m_nSwapCount, /**< the number of swaps on the history, is less or equal to measure count */
 										  m_nClientReadSize, /**< statics, but nice for debugging (is determined upon creation of the history) */
 										  m_nSnapshotWriteHead; /**< the fixed index for all readers of the write head in the ringed array */
 private:
 	VistaAtomics                        *m_pAtomics; /**< private inline instance in module */
+};
+
+
+class VISTADEVICEDRIVERSAPI ResolveMeasureFunctor : public std::unary_function<void,VistaSensorMeasure*>
+{
+	public:
+		virtual const VistaSensorMeasure *operator()( void ) const = 0;
+};
+
+class VISTADEVICEDRIVERSAPI SimpleHistoryGet : public ResolveMeasureFunctor
+{
+public:
+	typedef const VistaSensorMeasure *(VistaMeasureHistory::*func)() const;
+
+	SimpleHistoryGet(const VistaMeasureHistory &hist, func f)
+	: m_f(f)
+	, m_o(hist)
+	{}
+
+	virtual const VistaSensorMeasure *operator()( void ) const
+	{
+		return (m_o.*m_f)();
+	}
+
+	func m_f;
+	const VistaMeasureHistory &m_o;
 };
 
 
@@ -375,6 +426,15 @@ protected:
 };
 
 
+namespace TrcU
+{
+	template<class T>
+	const T *To( const VistaSensorMeasure *m ) { return (const T*)&(*m).m_vecMeasures[0]; }
+
+	template<class T>
+	T *ToNc( VistaSensorMeasure *m ) { return (T*)&(*m).m_vecMeasures[0]; }
+}
+
 /**
  * Base class for the creation of transcoders of a
  * special type. It is supposed to be sub-classed in
@@ -389,16 +449,94 @@ class VISTADEVICEDRIVERSAPI IVistaMeasureTranscoderFactory
 public:
 	virtual ~IVistaMeasureTranscoderFactory() {}
 	virtual IVistaMeasureTranscode *CreateTranscoder() = 0;
+	virtual void DestroyTranscoder( IVistaMeasureTranscode * ) = 0;
+	virtual std::string GetTranscoderName() const { return "IVistaMeasureTranscoderFactory"; }
+	virtual bool OnUnload();
 protected:
 };
 
-
-template<class T> class TDefaultTranscoderFactory : public IVistaMeasureTranscoderFactory
+/**
+ * @brief little templated helper class to simplify straightforward transcoder factory creation.
+ * Speaks for itself.
+ */
+template<class T>
+class TDefaultTranscoderFactory : public IVistaMeasureTranscoderFactory
 {
 public:
+	TDefaultTranscoderFactory( const std::string &strName )
+	: m_strName(strName) {}
+
 	virtual IVistaMeasureTranscode *CreateTranscoder()
 	{
 		return new T;
+	}
+
+	virtual void DestroyTranscoder( IVistaMeasureTranscode *trans )
+	{
+		delete trans;
+	}
+
+	virtual std::string GetTranscoderName() const { return m_strName; }
+private:
+	std::string m_strName;
+};
+
+/**
+ * @brief meta factory to be passed to creation methods to create transcoder factories for
+ *        different sensor types.
+ */
+class VISTADEVICEDRIVERSAPI IVistaTranscoderFactoryFactory : public IVistaReferenceCountable
+{
+public:
+	virtual ~IVistaTranscoderFactoryFactory();
+	virtual IVistaMeasureTranscoderFactory *CreateFactoryForType( const std::string &strTypeName ) = 0;
+	virtual void DestroyTranscoderFactory( IVistaMeasureTranscoderFactory *fac ) = 0;
+};
+
+/**
+ * @brief little template helper class to simplify factory-factory creation.
+ */
+template<class T>
+class TSimpleTranscoderFactoryFactory : public IVistaTranscoderFactoryFactory
+{
+public:
+	virtual IVistaMeasureTranscoderFactory *CreateFactoryForType( const std::string &strTypeName )
+	{
+		return new T;
+	}
+
+	virtual void DestroyTranscoderFactory( IVistaMeasureTranscoderFactory *fac )
+	{
+		delete fac;
+	}
+
+	static void OnUnload()
+	{
+		T fac;
+		fac.OnUnload();
+	}
+};
+
+class VISTADEVICEDRIVERSAPI ICreateTranscoder
+{
+public:
+	virtual IVistaMeasureTranscoderFactory *Create() const = 0;
+	virtual void OnUnload() = 0;
+};
+
+template <class T>
+class TCreateTranscoder : public ICreateTranscoder
+{
+	public:
+	IVistaMeasureTranscoderFactory *Create() const
+	{
+		return new TDefaultTranscoderFactory<T>( T::GetTypeString() );
+	}
+
+	void OnUnload()
+	{
+		TDefaultTranscoderFactory<T> t( T::GetTypeString() );
+		t.OnUnload();
 	}
 };
 
@@ -486,6 +624,7 @@ public:
 	 * never be outwardly visible new data on this sensor (e.g., all
 	 * "normal" tries to read data from the history will fail).
 	 * @see GetDataCount()
+	 * @return true if there is new data (i.e.: MEASUREINDEX changed)
 	 */
 	bool         SwapMeasures();
 
@@ -495,9 +634,11 @@ public:
 
 	/**
 	 * shorthand-call to adapt the number of slots for this sensor in the
-	 * sensor's history aspect
-	 * this API should not be called when the driver is running,
-	 * so make sure it is not updating the sensor concurrently.
+	 * sensor's history aspect.
+	 * @param nSampels the absolute number of samples to be stored in the history
+	 *        in terms of measures (i.e. all fields the sensor can record make 1 sample)
+	 * @warning this API should not be called when the driver is running,
+	 *          so make sure nobody is updating the sensor at this time.
 	 */
 	void         SetMeasureHistorySize(unsigned int nSamples);
 
@@ -534,12 +675,12 @@ public:
 	 * that you have read it as an integral value.
 	 * @see SetUpdateTimeStamp()
 	 */
-	microtime    GetUpdateTimeStamp() const;
+	VistaType::microtime    GetUpdateTimeStamp() const;
 
 	/**
 	 * Public API for non-public use. Ignore it unless you are a driver.
 	 */
-	bool         SetUpdateTimeStamp(microtime nTs);
+	bool         SetUpdateTimeStamp(VistaType::microtime nTs);
 
 
 	/**
@@ -573,13 +714,65 @@ public:
 	void         SetTypeHint(unsigned int nType);
 
 	VistaWindowAverageTimer& GetWindowTimer() const;
+
+	// ##############################################################
+	// EASY ACCESS API
+	// ##############################################################
+	template<class T>
+	T *GetProp( const std::string &sName ) const
+	{
+		return dynamic_cast<T*>( GetMeasureTranscode()->GetMeasureProperty(sName) );
+	}
+
+	template<class T>
+	T GetValue(    const std::string &propName,
+			       const ResolveMeasureFunctor &f  ) const
+	{
+		IVistaMeasureTranscode::TTranscodeValueGet<T> *p
+		   = GetProp< IVistaMeasureTranscode::TTranscodeValueGet<T> >( propName );
+		if(p)
+		{
+			const VistaSensorMeasure *m = f();
+			if(!m)
+				throw std::exception();
+
+			T val;
+			p->GetValue( m, val );
+			return val;
+		}
+		throw std::exception();
+	}
+
+	template<class T>
+	T GetLastValue( const std::string &propName  ) const
+	{
+		return GetValue<T>( propName, SimpleHistoryGet( GetMeasures(), &VistaMeasureHistory::GetCurrentRead ) );
+	}
+
+	template<class T>
+	T GetMostCurrentValue( const std::string &propName ) const
+	{
+		return GetValue<T>( propName, SimpleHistoryGet( GetMeasures(), &VistaMeasureHistory::GetMostCurrent ) );
+	}
+
+	/**
+	 * @param lastRead variable to store the current read index to,
+	 *        set to 0 for a first read. Make sure it is initialized as
+	 *        the value will be used to calculate an offset.
+	 *        The resulting value will be clamped against the maximum possible
+	 *        client read size.
+	 * @return the number of slots that were produced since the last
+	 *         read (or in total if it was never read before).
+	 */
+	unsigned int GetNewMeasureCount( unsigned int &lastRead ) const;
+
 	// ##############################################################
 	// DEBUG API -- ignore
 	// ##############################################################
 	unsigned int GetSwap1CountFail() const;
 	unsigned int GetSwap2CountFail() const;
 
-	microtime GetLastUpdateTs() const;
+	VistaType::microtime GetLastUpdateTs() const;
 
 protected:
 private:
@@ -590,7 +783,7 @@ private:
 							m_nSwap2FailCount,
 							m_nTypeHint,
 							m_nLastMeasureCount;
-	microtime               m_nLastUpdateTs;
+	VistaType::microtime               m_nLastUpdateTs;
 	std::string             m_nSensorName;
 	VistaWindowAverageTimer*
 							m_pTickStop;

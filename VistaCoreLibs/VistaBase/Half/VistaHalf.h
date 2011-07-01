@@ -379,7 +379,7 @@ VISTABASEAPI void            printBits   (char  c[35], float f);
 // results if they are.
 //-------------------------------------------------------------------------
 
-#if (defined WIN32) && defined _MSC_VER
+#if (defined _WIN32) && defined _MSC_VER
 
 #define VISTAHALF_MIN    5.96046448e-08f    // Smallest positive half
 

@@ -86,8 +86,8 @@ public:
 
 	std::string GetNodeName() const;
 
-	microtime GetAvgUpdateTime() const;
-	microtime GetAvgSwapTime() const;
+	VistaType::microtime GetAvgUpdateTime() const;
+	VistaType::microtime GetAvgSwapTime() const;
 protected:
 private:
 	VistaClusterServer *m_pServer;

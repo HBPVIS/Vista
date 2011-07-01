@@ -100,7 +100,7 @@ private:
 	VistaDeviceSensor *m_pSensor;
 	HistoryPort        *m_pHistoryPort;
 
-	mutable uint32	m_nLastUpdateIdx; // is updated in CalcUpdateNeededScore()
+	mutable VistaType::uint32	m_nLastUpdateIdx; // is updated in CalcUpdateNeededScore()
 	unsigned int    m_nOldUpdateIndex;
 };
 

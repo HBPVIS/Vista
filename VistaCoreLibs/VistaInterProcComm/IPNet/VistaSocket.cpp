@@ -929,8 +929,8 @@ unsigned long IVistaSocket::WaitForIncomingData(int iTimeout)
 	}
 	if(iRet == -1)
 	{
-		printf("-- WARNING -- socket-select returned -1 (exception) during WaitForIncomingData(%d, %d).\n",
-				m_iSocketID, iTimeout);
+		printf("-- WARNING -- socket-select returned -1 (exception) during WaitForIncomingData(%ld, %d).\n",
+				long(m_iSocketID), iTimeout);
 #if defined(VISTA_IPC_USE_EXCEPTIONS)
 		VISTA_THROW("IVistaSocket::WaitForIncomingData -- Exception", 0x00000104)
 #endif

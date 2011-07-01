@@ -63,8 +63,8 @@ public:
 	// ##################################################################
 	std::string     GetMasterSectionName() const;
 	std::string     GetMasterName() const;
-	microtime       GetAvgUpdateTime() const;
-	microtime       GetAvgSwapTime() const;
+	VistaType::microtime       GetAvgUpdateTime() const;
+	VistaType::microtime       GetAvgSwapTime() const;
 
 	// #####################################################################
 	// interaction

@@ -158,7 +158,7 @@ int VistaConnectionFile::Send( const void * buffer, const int length )
 		return -1;
 }
 
-uint64 VistaConnectionFile::GetFileSize() const
+VistaType::uint64 VistaConnectionFile::GetFileSize() const
 {
 	if( !GetIsOpen() )
 		return ~0 ;

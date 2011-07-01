@@ -120,8 +120,6 @@ OBJS   	=		${OBJDIR}/VistaKernelOut.o \
 				${OBJDIR}/VistaGlutSimpleTextOverlay.o \
 				${OBJDIR}/VistaGlutWindowingToolkit.o \
 				${OBJDIR}/VistaGlutTextEntity.o \
-                ${OBJDIR}/VistaGlutMouseDriver.o \
-                ${OBJDIR}/VistaGlutKeyboardDriver.o \
                 ${OBJDIR}/VistaGlut3DTextOverlay.o
 
 OBJS_OPENSG =	${OBJDIR}/VistaOpenSGDisplayBridge.o \

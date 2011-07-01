@@ -55,7 +55,7 @@ bool VdfnDumpHistoryNode::DoEvalNode()
 	const VistaMeasureHistory &pHistory = pData->m_oHistory;
 
 	unsigned int nUpd = m_pHistory->GetUpdateCounter();
-	uint64 nDc = pData->m_pSensor->GetDataCount();
+	VistaType::uint64 nDc = pData->m_pSensor->GetDataCount();
 
 	m_ofstream << std::fixed << "##############################################"
 			   << std::endl

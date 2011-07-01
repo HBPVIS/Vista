@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaStreamUtils.h 21315 2011-05-16 13:47:39Z dr165799 $
 
 #ifndef _VISTASTREAMUTILS_H
 #define _VISTASTREAMUTILS_H
@@ -104,6 +104,10 @@ namespace vstr
 	 */
 	VISTABASEAPI std::ostream& systime( std::ostream& oStream );
 	/**
+	 * stream manipulator that prints the current mcirotime
+	 */
+	VISTABASEAPI std::ostream& relativetime( std::ostream& oStream );
+	/**
 	 * stream manipulator that prints the current frameclock
 	 * only works if the StreamManagers InfoInterface was set (prints 0 otherwise)
 	 */
@@ -138,16 +142,17 @@ namespace vstr
 
 
 	/**
-	 * stream manipulator that formats a time appropriately, i.e. with 6
+	 * stream manipulator that formats a time appropriately, i.e. by default with 6
 	 * decimal places. The stream's formatting is not altered after a call.
 	 */
 	class VISTABASEAPI formattime
 	{
 	public:
-		formattime( const double dTime );
+		formattime( const double dTime, const int fPrecision = 6 );
 		std::ostream& operator()( std::ostream& oStream ) const;
 	private:
 		double m_dTime;
+		int	m_nPrecision;
 	};
 	/**
 	 * stream coloring, only works with VistaColorStream or cout/cerr

@@ -135,16 +135,16 @@ int VistaMsg::Serialize(IVistaSerializer &out) const
 	iLength += out.WriteBool(m_bSuccess);
 
 	// does size actually fit in 32 bit?
-	if( m_veMsg.size() > numeric_limits<uint32>::max() )
+	if( m_veMsg.size() > numeric_limits<VistaType::uint32>::max() )
 		VISTA_THROW("VistaMsg::Serialize - vector too large for 32 bit!", 0);
-	iLength += out.WriteInt32(uint32(m_veMsg.size()));
+	iLength += out.WriteInt32(VistaType::uint32(m_veMsg.size()));
 
 	if(m_veMsg.size())
 		iLength += out.WriteRawBuffer(&m_veMsg[0], (int)m_veMsg.size());
 
-	if( m_veAnswer.size() > numeric_limits<uint32>::max() )
+	if( m_veAnswer.size() > numeric_limits<VistaType::uint32>::max() )
 		VISTA_THROW("VistaMsg::Serialize - vector too large for 32 bit!", 0);        
-	iLength += out.WriteInt32(uint32(m_veAnswer.size()));
+	iLength += out.WriteInt32(VistaType::uint32(m_veAnswer.size()));
 
 	if(m_veAnswer.size())
 		iLength += out.WriteRawBuffer(&m_veAnswer[0], (int)m_veAnswer.size());

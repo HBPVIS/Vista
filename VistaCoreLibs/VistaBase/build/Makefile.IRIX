@@ -1,5 +1,5 @@
 ## VistaAspects Makefile for IRIX
-# $Id$
+# $Id: Makefile.IRIX 19836 2010-11-16 10:04:47Z dominikrausch $
 
 SYSTEM   = IRIX
 

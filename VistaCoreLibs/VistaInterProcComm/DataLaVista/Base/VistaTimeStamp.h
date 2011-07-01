@@ -109,7 +109,7 @@ public:
 
 	/**
 	 * Sets the given stamp-values for this timestamp.
-	 * @param i64MicroStamp the microstamp to set
+	 * @param i64MicroStamp the VistaType::microstamp to set
 	 * @param i32MacroStamp the macrostamp to set
 	 */
 	virtual void Stamp(DLV_INT64 i64MicroStamp, DLV_INT32 i32MacroStamp)
@@ -133,7 +133,7 @@ public:
 	 * Note that this is supposed to be a 64bit-value (long long), and that
 	 * you might run into trouble printing this via printf or similiar. Look
 	 * for the corrent tranformation parameters!
-	 * -1 indicates an invalid microstamp.
+	 * -1 indicates an invalid VistaType::microstamp.
 	 * @return the value of m_i64MicroStamp
 	 */
 	DLV_INT64 GetMicroStamp() const { return m_i64MicroStamp; };

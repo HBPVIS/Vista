@@ -41,6 +41,8 @@ set( DirFiles
 	VdfnDumpHistoryNode.h
 	VdfnForceFeedbackNode.cpp
 	VdfnForceFeedbackNode.h
+	VdfnGetElementNode.cpp
+	VdfnGetElementNode.h
 	VdfnGetTransformNode.cpp
 	VdfnGetTransformNode.h
 	VdfnGraph.cpp

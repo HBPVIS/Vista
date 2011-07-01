@@ -103,7 +103,7 @@ public:
 	unsigned long PendingDataSize() const ;
 	bool HasPendingData() const ;
 
-	uint64 GetFileSize () const;
+	VistaType::uint64 GetFileSize () const;
 
 	enum MODES {
 		READ,

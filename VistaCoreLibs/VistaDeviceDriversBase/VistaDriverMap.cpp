@@ -237,3 +237,19 @@ bool VistaDriverMap::DeleteDriverCreationMethod( IVistaDriverCreationMethod *pM 
 	delete pM; // we are the cm's friend, so we may call the destructor...
 	return true;
 }
+
+void VistaDriverMap::Purge(bool bDelete)
+{
+	if(bDelete)
+	{
+		for( DEVMAP::iterator it = m_mpDevices.begin(); it != m_mpDevices.end(); ++it )
+			delete (*it).second;
+
+		for( CRMAP::iterator it0 = m_mapCreationMethods.begin(); it0 != m_mapCreationMethods.end(); ++it0 )
+			delete (*it0).second;
+
+	}
+
+	m_mpDevices.clear();
+	m_mapCreationMethods.clear();
+}

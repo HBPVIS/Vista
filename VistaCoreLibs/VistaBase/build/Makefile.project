@@ -1,4 +1,4 @@
-# $Id$
+# $Id: Makefile.project 19836 2010-11-16 10:04:47Z dominikrausch $
 
 ## AUTO DETECTION OF PLATFORM AND ARCHITECTURE
 VISTA_OSTYPE ?= $(shell uname | tr '[:lower:]' '[:upper:]')

@@ -24,7 +24,7 @@
 
 #ifdef WIN32
 // disable warnings from OpenSG
-#pragma warning(disable: 4231)
+#pragma warning(disable: 4244)
 #pragma warning(disable: 4244)
 #endif
 

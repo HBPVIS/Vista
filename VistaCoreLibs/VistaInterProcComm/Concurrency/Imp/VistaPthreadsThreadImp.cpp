@@ -181,7 +181,7 @@ bool     VistaPthreadThreadImp::Join()
 				break;
 			}
 		}
-		return (yeah == 0-1);
+		return (yeah == 0);
 	}
 	return false;
 }
@@ -246,7 +246,8 @@ void VistaPthreadThreadImp::PreRun()
 
 void VistaPthreadThreadImp::PostRun()
 {
-	posixThreadID = 0;
+	// we have no detached paradigm (yet?) so it is not safe to clear the threadID here (race on join())
+//	posixThreadID = 0;
 }
 
 

@@ -32,6 +32,7 @@
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
 
+
 /**
  * These are the attach/detach functions that should be called on dll/so (un)loading.
  * We check typedefs here and stop on error.
@@ -39,11 +40,11 @@
 
 
 #ifdef LINUX
-static void __attribute__ ((constructor))  LoadAspectsLib();
-//static void __attribute__ ((destructor)) UnloadAspectsLib();
+static void __attribute__ ((constructor))  LoadBaseLib();
+//static void __attribute__ ((destructor)) UnloadBaseLib();
 #else
-static void LoadAspectsLib();
-//static void UnloadAspectsLib();
+static void LoadBaseLib();
+//static void UnloadBaseLib();
 #endif
 
 #ifdef WIN32
@@ -57,7 +58,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL,
 	switch (fdwReason)
 	{
 	case DLL_PROCESS_ATTACH:
-		LoadAspectsLib();
+		LoadBaseLib();
 		break;
 	case DLL_PROCESS_DETACH:
 	//      UnloadAspectsLib();
@@ -71,35 +72,30 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL,
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
 
-static void LoadAspectsLib()
+static void LoadBaseLib()
 {
 	// check typedefs
-	assert(sizeof(   sint64) == 8);
-	assert(sizeof(   uint64) == 8);
-	assert(sizeof(  float64) == 8);
+	assert( sizeof(   VistaType::sint64) == 8 );
+	assert( sizeof(   VistaType::uint64) == 8 );
+	assert( sizeof(  VistaType::float64) == 8 );
 
-	assert(sizeof(   sint32) == 4);
-	assert(sizeof(   uint32) == 4);
-	assert(sizeof(  float32) == 4);
+	assert( sizeof(   VistaType::sint32) == 4 );
+	assert( sizeof(   VistaType::uint32) == 4 );
+	assert( sizeof(  VistaType::float32) == 4 );
 
-	assert(sizeof( ushort16) == 2);
-	assert(sizeof( sshort16) == 2);
+	assert( sizeof( VistaType::ushort16) == 2 );
+	assert( sizeof( VistaType::sshort16) == 2 );
 
-	assert(sizeof(   ubyte8) == 1);
-	assert(sizeof(    byte8) == 1);
+	assert( sizeof(   VistaType::ubyte8) == 1 );
+	assert( sizeof(    VistaType::byte8) == 1 );
 
-	assert(sizeof(    void*) == sizeof(size_t));
-	/**
-	 * @todo
-	 * add more checks when all typedefs have been centralized into
-	 * VistaConnTypes (or better: VistaBaseTypes)
-	 */
+	assert( sizeof(    void*) == sizeof(size_t) );	
 }
 
 //
-//static void UnloadAspectsLib()
+//static void UnloadBaseLib()
 //{
-//	std::cout << "unloading VistaAspects library..." << std::endl;
+//	std::cout << "unloading VistaBase library..." << std::endl;
 //}
 
 /*============================================================================*/

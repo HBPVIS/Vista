@@ -54,7 +54,7 @@ VistaKernelStreamInfoInterface::~VistaKernelStreamInfoInterface()
 {
 }
 
-systemtime VistaKernelStreamInfoInterface::GetFrameClock() const
+VistaType::systemtime VistaKernelStreamInfoInterface::GetFrameClock() const
 {
 	return m_pVistaSystem->GetFrameClock();
 }
@@ -121,7 +121,8 @@ void VistaSystemEventLogger::SetStreamEventMask( std::ostream& oStream, unsigned
 		std::list<std::ostream*>::iterator itStream = std::find( 
 			(*itVec).begin(), (*itVec).end(), &oStream );
 
-		if( iEventMask & iEventId )
+		int iEventIndex = 1 << iEventId;
+		if( iEventMask & iEventIndex )
 		{
 			if( itStream == (*itVec).end() )
 				(*itVec).push_back( &oStream );

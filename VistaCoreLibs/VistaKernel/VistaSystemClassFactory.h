@@ -78,7 +78,7 @@ public:
 
 	virtual void Debug(std::ostream &out, bool bVerbose = true) const = 0;
 
-	virtual microtime GetAvgEventLoopTime() const { return 0; }
+	virtual VistaType::microtime GetAvgEventLoopTime() const { return 0; }
 	virtual unsigned int GetFrameCount() const { return 0; }
 
 protected:

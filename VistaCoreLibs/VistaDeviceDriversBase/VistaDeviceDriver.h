@@ -35,7 +35,7 @@
 #include <list>
 #include <string>
 #include <VistaBase/VistaBaseTypes.h>
-
+#include <VistaAspects/VistaReferenceCountable.h>
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -46,9 +46,11 @@
 /*============================================================================*/
 
 class VistaDeviceSensor;
+class VistaSensorMeasure;
 class IVistaDriverCreationMethod;
 class VistaDriverMeasureHistoryAspect;
 class IVistaMeasureTranscoderFactory;
+class IVistaTranscoderFactoryFactory;
 class VistaAverageTimer;
 class VistaWindowAverageTimer;
 
@@ -83,19 +85,8 @@ class VistaWindowAverageTimer;
  *
  * A measuring takes place during the call of DoSensorUpdate().
  *
- * Drivers that do not use a VistaDriverSensorMappingAspect <b>must</b> overload
- * and define the following API properly.
- * - GetSensorMeasureSize(). Return the number of bytes needed for a single measure.
-	 In case there is no VistaDriverSensorMappingAspect exported, this API is
-	 considered in order to setup the space needed for measure histories.
-	 This seems to be a legacy concept and might disappear in the future.
- *
- * Define and create a proper factory method for a specific driver by shadowing the
- * static API GetDriverFactoryMethod(). The factory method can be registered with
- * the VistaDriverMap and is used in order to create instances of drivers during runtime.
- *
  * How to <b>use</b> a driver:<br>
- * - create driver (using the factory or calling the constructor)
+ * - create driver (using the factory from the plugin)
  * - query aspects for configuration
  * - call IVistaDeviceDriver::Connect()
  * - loop over IVistaDeviceDriver::Update() somehow
@@ -193,10 +184,6 @@ public:
 									with 30Hz on your graphical output and all
 									readers live in the rendering thread, then 33.3
 									is the value to set here.
-	 * @param nUpdateRateOfSensorInHz     give the update rate of this sensor.
-	                                if unsure, query the driver factory for the update
-									estimator of this sensor or see if this driver has
-									a sensor mapping aspect
 	 * @param nMaxSlotsToRead define the maximum number of slots to read within the time frame
 	                    specified by nMaxHistoryAccessTimeInMsec for ALL readers of the
 						history. If you are doing latest-sampling, a value of 1 is ok,
@@ -205,8 +192,7 @@ public:
 	 */
 	bool SetupSensorHistory( VistaDeviceSensor *pSensor,
 							 unsigned int nMaxSlotsToRead,
-		                     float nMaxHistoryAccessTimeInMsec,
-							 unsigned int nUpdateRateOfSensorInHz );
+							 VistaType::microtime nMaxHistoryAccessTimeInMsec );
 
 	//@}
 	// #####################################################################
@@ -386,17 +372,7 @@ public:
 	 * clients read it. This is used by the InteractionManager once per
 	 * frame and should not be used by client code.
 	 */
-	void SwapSensorMeasures();
-
-	/**
-	 * Returns an estimate for the number of bytes to store for a single
-	 * sensor measure. Clients should not use this, but subclassed drivers
-	 * <b>must</b> overload this method and return the proper number of bytes
-	 * for the history allocation, otherwise, bad things will happen.
-	 * @return the number of bytes that is needed per measure.
-	 */
-	virtual unsigned int GetSensorMeasureSize() const;
-
+	void SwapSensorMeasures( std::vector<int> *liIds = NULL );
 	/**
 	 * allows to set the number of slots to assign to the history of a sensor by
 	 * a call to AddSensor(). Note that individual sensors may have individual numbers
@@ -404,17 +380,6 @@ public:
 	 * simplify the setup of a sensor, or the quick-setup, to be more precise.
 	 */
 	void SetDefaultHistorySize(unsigned int nSize);
-
-	/**
-	 * Returns a factory method for the creation of a driver.
-	 * This code is used by the new InteractionManager and should
-	 * not be used by client code. If called in the context of
-	 * the base class IVistaDeviceDriver, an exception will be thrown.
-     * Translated this means: never call this without a static context!
-     * - never:  pDriver->GetDriverFactoryMethod()
-     * - always: MyDriverType::GetDriverFactoryMethod()
-	 */
-	static IVistaDriverCreationMethod *GetDriverFactoryMethod();
 	//@}
 
 	/**
@@ -438,11 +403,11 @@ public:
 
 
 	const VistaWindowAverageTimer& GetFrequencyTimer() const;
-	microtime GetAverageUpdateFrequency() const;
+	VistaType::microtime GetAverageUpdateFrequency() const;
 	const VistaAverageTimer& GetUpdateTimer() const;
-	microtime GetAverageUpdateTime() const;
+	VistaType::microtime GetAverageUpdateTime() const;
 
-
+	IVistaDriverCreationMethod *GetFactory() const;
 protected:
 	/**
 	 * Protected constructor.
@@ -451,8 +416,7 @@ protected:
 	                       <b>no</b> history will be setup when a sensor is added.
 	                       This API should be re-thought.
 	 */
-	IVistaDeviceDriver(unsigned int nDefHistSize = ~0);
-
+	IVistaDeviceDriver(IVistaDriverCreationMethod *crm, unsigned int nDefHistSize = ~0);
 
 	// ####################################################################
 	// SUBCLASS PROCESS CODE
@@ -477,7 +441,7 @@ protected:
 	 * The time stamp can be used to mark sensors with in order to indicate the time
 	 * of the update.
 	 */
-	virtual bool DoSensorUpdate(microtime dTs) = 0;
+	virtual bool DoSensorUpdate(VistaType::microtime dTs) = 0;
 
 	// ###################################################################
 	// SENSOR MEASURE API
@@ -489,8 +453,14 @@ protected:
 	 * passed as the time stamp of the measurement.
 	 * @param nSensorIdx the sensor to start a measure for
 	 * @param dTs the time stamp to record for the measure
+	 * @param getCurrent compatibility flag to trigger lookup of current measure space
+	 *        (this is a map lookup, so it will decrease performance when not needed).
+	 *        Default is set to 'false', so MeasureStart() will return NULL then.
+	 * @return a pointer to the memory slot to use for reading new data (or NULL when
+	 *         getCurrent is false or no memory available or a sensor with the given id
+	 *         was not found.)
 	 */
-	void MeasureStart(unsigned int nSensorIdx, microtime dTs);
+	VistaSensorMeasure *MeasureStart(unsigned int nSensorIdx, VistaType::microtime dTs, bool getCurrent = false);
 
 	/**
 	 * Stops the measure for the sensor given by the index.
@@ -526,6 +496,7 @@ protected:
 	 */
 	void         DeleteAllSensors();
 
+
 private:
 	eUpdateType                                      m_eUpdType;
 	std::vector<VistaDeviceSensor*>                 m_vecSensors;
@@ -539,13 +510,30 @@ private:
 								m_pFrequencyTimer;
 	VistaAverageTimer*
 								m_pUpdateTimer;
-	//microtime					m_nAvgUpdateTime;
+
+	IVistaDriverCreationMethod *m_pFactory;
 };
 
-class VISTADEVICEDRIVERSAPI IVistaDriverCreationMethod
+class VISTADEVICEDRIVERSAPI IVistaDriverCreationMethod : public IVistaReferenceCountable
 {
 	friend class VistaDriverMap;
 public:
+
+	/**
+	 * @brief little helper class to unregister and delete transcoder factories
+	 */
+	class _unregisterAndDeleteTranscoderFac : public std::unary_function<const std::string, void>
+	{
+	public:
+		_unregisterAndDeleteTranscoderFac( IVistaDriverCreationMethod *crm )
+		: m_crm(crm) {}
+
+	void operator()( const std::string &strTypeName ) const;
+
+		IVistaDriverCreationMethod *m_crm;
+	};
+
+
 	virtual ~IVistaDriverCreationMethod();
 
     /**
@@ -553,7 +541,7 @@ public:
      * by subclasses mainly. Has no arguments (obviously), and not even a
      * name (for no specific reason... @todo think about a name.
      */
-	virtual IVistaDeviceDriver *operator()() = 0;
+	virtual IVistaDeviceDriver *CreateDriver() = 0;
 
 
 	/**
@@ -565,25 +553,20 @@ public:
 			  sensor type is updated (RTFM of the device to get an estimate here)
      * @param pFac a pointer to the transcoder factory to use for this sensor type
               during creation.
-     * @param strTranscoderTypeString ok... this is the internals of the transcoding
-              mechanism. This is basically the type string to use for this type of transcoder
-              factory as reflectionable. This usually resembles a stringified class name.
-              The string is stored to the list of transcoder types, and can be retrieved
-              using the GetTranscoderTypes() API.
 	 * @return ~0 in case of non-success (type already registered)
 	 * @see GetTranscoderTypes()
 	 */
 	virtual unsigned int RegisterSensorType( const std::string &strName,
 									 unsigned int nMeasureSize,
 									 unsigned int nUpdateEstimator,
-									 IVistaMeasureTranscoderFactory *pFac,
-									 const std::string &strTranscoderTypeString );
+									 IVistaMeasureTranscoderFactory *pFac );
 
 	virtual bool         UnregisterType(const std::string &strType,
 								bool bDeleteFactories = false);
 	virtual unsigned int GetTypeFor( const std::string &strType ) const;
 	virtual bool GetTypeNameFor( unsigned int nTypeId, std::string &strDest ) const;
 	virtual unsigned int GetMeasureSizeFor( unsigned int nType ) const;
+	virtual bool SetMeasureSizeFor( const std::string &strType, unsigned int nNewSize );
 	virtual unsigned int GetUpdateEstimatorFor(unsigned int nType ) const;
 	virtual std::list<std::string> GetTypeNames() const;
 	virtual std::list<unsigned int> GetTypes() const;
@@ -613,8 +596,14 @@ public:
 	 * @todo check whether we need this API in the public interface
 	 */
 	void AddTranscoderType( const std::string &strType );
+	IVistaTranscoderFactoryFactory *GetMetaFactory() const;
+
+	static const unsigned int INVALID_TYPE;
+
 protected:
-	IVistaDriverCreationMethod();
+	IVistaDriverCreationMethod(IVistaTranscoderFactoryFactory *metaFac);
+
+
 private:
 
 
@@ -650,6 +639,8 @@ private:
 	MAPNAME m_mapTypeNames;
 	FACMAP  m_mapFactories;
 	TRANTP  m_liTranscoderTypes;
+
+	IVistaTranscoderFactoryFactory *m_metaFac;
 
 };
 

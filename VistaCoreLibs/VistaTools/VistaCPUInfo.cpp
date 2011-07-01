@@ -76,6 +76,8 @@ class  VistaCPUInfo::_CPU_STAT
 {
 public:
 		_CPU_STAT()
+		: m_Stats()
+		, m_nCpuCount(1)
 		{
 			//memset( &m_Stats, 0, sizeof(_sStats) );
 		}
@@ -428,7 +430,7 @@ bool VistaCPUInfo::QueryCPUInfo()
 
 std::string VistaCPUInfo::GetCPUNameString(  ) const 
 {
-	std::string vendor = (m_pStat->m_Stats.sIdentifier ? m_pStat->m_Stats.sIdentifier : "");
+	std::string vendor((m_pStat->m_Stats.sIdentifier ? m_pStat->m_Stats.sIdentifier : ""));
 
 	int family = m_pStat->m_Stats.iFamily;
 	int model  = m_pStat->m_Stats.iModel;

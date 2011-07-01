@@ -91,7 +91,8 @@ VistaDLL::DLLSYMBOL VistaDLL::FindSymbol( DLLHANDLE hDll, const string &strSymbo
 string VistaDLL::GetError()
 {
 #ifndef WIN32
-	return string(dlerror());
+	const char *err = dlerror();
+	return string(err ? err : "no error");
 #else                   // WIN32
 	DWORD dw=GetLastError();
 	char buffer[512];

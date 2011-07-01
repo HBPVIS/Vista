@@ -335,6 +335,8 @@ bool VistaProfiler::GetTheProfileList (	      const string &IniSectionName,
 	if((pos==string::npos) && (resultStr != ""))
 	{
 		RemoveSpaceAndControlChars(&configString);
+		if( m_bEnvironmentVariablesEnabled )
+			configString = UseEnviromentVariables( configString );
 		destinationList.push_back(configString);
 		return bRet;
 	}
@@ -354,6 +356,8 @@ bool VistaProfiler::GetTheProfileList (	      const string &IniSectionName,
 	}
 	tmpString=configString.substr(0,pos);
 	RemoveSpaceAndControlChars(&tmpString);
+	if( m_bEnvironmentVariablesEnabled )
+		tmpString = UseEnviromentVariables( tmpString );
 //	cout << "par: " << tmpString.c_str() << "\n";
 	if(!tmpString.empty())
 		destinationList.push_back(tmpString);
@@ -398,6 +402,8 @@ bool VistaProfiler::GetTheProfileList (
 	{
 		RemoveSpaceAndControlChars(&configString);
 		destinationList.push_back((float)atof(configString.c_str()));
+		if( m_bEnvironmentVariablesEnabled )
+			tmpString = UseEnviromentVariables( tmpString );
 		return bRet;
 	}
 
@@ -416,6 +422,8 @@ bool VistaProfiler::GetTheProfileList (
 	}
 	tmpString=configString.substr(0,pos);
 	RemoveSpaceAndControlChars(&tmpString);
+	if( m_bEnvironmentVariablesEnabled )
+		tmpString = UseEnviromentVariables( tmpString );
 //	cout << "par: " << tmpString.c_str() << "\n";
 	if(!tmpString.empty())
 		destinationList.push_back((float)atof(tmpString.c_str()));

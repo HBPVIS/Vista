@@ -84,8 +84,8 @@ public:
 	//Applies Physics to the object calling this function! Currently only used for particles, but other objects might profit, too!
 	VistaVector3D ApplyPhysics(float *v3VelocitiesVector,
 								float *v3PositionVector,
-								microtime dDeltaT,
-								microtime dParticleTime);
+								VistaType::microtime dDeltaT,
+								VistaType::microtime dParticleTime);
 
 	void SetConstantWind( const VistaVector3D& v3Wind );
 	void SetThrust( const VistaVector3D& v3Thrust );
@@ -132,8 +132,8 @@ public:
 	void SetPhysicsEngine( PMPhysicalEnvironment *pPhysics );
 
 	void ChangeParticle( SParticle& oParticle,
-						microtime dCurrentTime,
-						microtime dDeltaT );
+						VistaType::microtime dCurrentTime,
+						VistaType::microtime dDeltaT );
 	void CalculatePositionAndVelocities(SParticle& oParticle, double dt);
 	void CalculateColor(SParticle& oParticle, double dt);
 	void CalculateSize(SParticle& oParticle, double dt);
@@ -163,11 +163,11 @@ public:
 	virtual ~PMOriginSet();;
 
 	void ChangeParticle( SParticle& oParticle,
-						microtime dCurrentTime,
-						microtime dDeltaT );
-	void CalculatePositionAndVelocities(SParticle& oParticle, microtime fEventTime);
-	void CalculateColor(SParticle& oParticle, microtime fEventTime);
-	void CalculateSize(SParticle& oParticle, microtime fEventTime);
+						VistaType::microtime dCurrentTime,
+						VistaType::microtime dDeltaT );
+	void CalculatePositionAndVelocities(SParticle& oParticle, VistaType::microtime fEventTime);
+	void CalculateColor(SParticle& oParticle, VistaType::microtime fEventTime);
+	void CalculateSize(SParticle& oParticle, VistaType::microtime fEventTime);
 
 private:
 	VistaVector3D m_v3ParticleVelocities;
@@ -190,8 +190,8 @@ public:
 	virtual ~PMLinearFrameChange();;
 
 	void ChangeParticle( SParticle& oParticle,
-						microtime dCurrentTime,
-						microtime dDeltaT );
+						VistaType::microtime dCurrentTime,
+						VistaType::microtime dDeltaT );
 	void CalculatePositionAndVelocities(SParticle& oParticle, double dt);
 	void CalculateColor(SParticle& oParticle, double dt);
 	void CalculateSize(SParticle& oParticle, double dt);

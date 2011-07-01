@@ -41,45 +41,45 @@
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/
 
-IVistaSerializer &IVistaSerializer::operator<< (  ushort16 val)
+IVistaSerializer &IVistaSerializer::operator<< (  VistaType::ushort16 val)
 {
 	WriteShort16(val);
 	return *this;
 }
 
-IVistaSerializer &IVistaSerializer::operator<< (  sint32 val)
+IVistaSerializer &IVistaSerializer::operator<< (  VistaType::sint32 val)
 {
 	WriteInt32(val);
 	return *this;
 }
 
 
-IVistaSerializer &IVistaSerializer::operator<< (  uint32 val)
+IVistaSerializer &IVistaSerializer::operator<< (  VistaType::uint32 val)
 {
 	WriteInt32(val);
 	return *this;
 }
 
-IVistaSerializer &IVistaSerializer::operator<< (  sint64 val)
+IVistaSerializer &IVistaSerializer::operator<< (  VistaType::sint64 val)
 {
 	WriteInt64(val);
 	return *this;
 }
 
 
-IVistaSerializer &IVistaSerializer::operator<< (  uint64 val)
+IVistaSerializer &IVistaSerializer::operator<< (  VistaType::uint64 val)
 {
 	WriteUInt64(val);
 	return *this;
 }
 
-IVistaSerializer &IVistaSerializer::operator<< (  float32 val)
+IVistaSerializer &IVistaSerializer::operator<< (  VistaType::float32 val)
 {
 	WriteFloat32(val);
 	return *this;
 }
 
-IVistaSerializer &IVistaSerializer::operator<< (  float64 val)
+IVistaSerializer &IVistaSerializer::operator<< (  VistaType::float64 val)
 {
 	WriteFloat64(val);
 	return *this;

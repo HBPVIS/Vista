@@ -24,7 +24,7 @@
 
 #include "VdfnForceFeedbackNode.h"
 
-#include <VistaDeviceDriversBase/VistaDriverForceFeedbackAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverForceFeedbackAspect.h>
 #include <VistaDeviceDriversBase/VistaDriverMap.h>
 #include <VistaDeviceDriversBase/VistaDeviceDriver.h>
 #include <VistaAspects/VistaPropertyAwareable.h>

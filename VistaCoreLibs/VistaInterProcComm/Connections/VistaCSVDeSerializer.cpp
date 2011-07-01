@@ -59,46 +59,46 @@ VistaCSVDeSerializer::~VistaCSVDeSerializer()
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
 
-int VistaCSVDeSerializer::ReadShort16( ushort16 &us16Val)
+int VistaCSVDeSerializer::ReadShort16( VistaType::ushort16 &us16Val)
 {
 	m_streamInput >> us16Val;
 	if (m_streamInput.get()!=m_cSeparator)
 	{
 		if(m_streamInput.eof() == true)
-			return sizeof(ushort16);
+			return sizeof(VistaType::ushort16);
 		return -1;
 	}
 	else
-		return sizeof(ushort16);
+		return sizeof(VistaType::ushort16);
 }
 
-int VistaCSVDeSerializer::ReadInt32( sint32 &si32Val)
+int VistaCSVDeSerializer::ReadInt32( VistaType::sint32 &si32Val)
 {
 	m_streamInput >> si32Val;
 	if (m_streamInput.get()!=m_cSeparator)
 	{
 		if(m_streamInput.eof() == true)
-			return sizeof(sint32);
+			return sizeof(VistaType::sint32);
 		return -1;
 	}
 	else
-		return sizeof(sint32);
+		return sizeof(VistaType::sint32);
 }
 
-int VistaCSVDeSerializer::ReadInt32( uint32 &si32Val)
+int VistaCSVDeSerializer::ReadInt32( VistaType::uint32 &si32Val)
 {
 	m_streamInput >> si32Val;
 	if (m_streamInput.get()!=m_cSeparator)
 	{
 		if(m_streamInput.eof() == true)
-			return sizeof(uint32);
+			return sizeof(VistaType::uint32);
 		return -1;
 	}
 	else
-		return sizeof(uint32);
+		return sizeof(VistaType::uint32);
 }
 
- int VistaCSVDeSerializer::ReadInt64( sint64 &si64Val)
+ int VistaCSVDeSerializer::ReadInt64( VistaType::sint64 &si64Val)
 {
 	char buffer[4096];
 	int iBIdx=0;
@@ -119,10 +119,10 @@ int VistaCSVDeSerializer::ReadInt32( uint32 &si32Val)
 #else
 	si64Val = atoi(buffer); // fix me
 #endif
-	return sizeof(sint64);
+	return sizeof(VistaType::sint64);
 }
 
- int VistaCSVDeSerializer::ReadUInt64( uint64 &ui64Val)
+ int VistaCSVDeSerializer::ReadUInt64( VistaType::uint64 &ui64Val)
 {
 	char buffer[4096];
 	int iBIdx=0;
@@ -139,41 +139,41 @@ int VistaCSVDeSerializer::ReadInt32( uint32 &si32Val)
 	}
 
 #if defined(WIN32)
-	ui64Val = (uint64)_atoi64(buffer);
+	ui64Val = (VistaType::uint64)_atoi64(buffer);
 #else
 	ui64Val = atoi(buffer); // fix me
 #endif
-	return sizeof(sint64);
+	return sizeof(VistaType::sint64);
 }
 
 
- int VistaCSVDeSerializer::ReadFloat32( float32 &fVal)
+ int VistaCSVDeSerializer::ReadFloat32( VistaType::float32 &fVal)
 {
 	m_streamInput >> fVal;
 	if (m_streamInput.get()!=m_cSeparator)
 	{
 		if(m_streamInput.eof() == true)
-			return sizeof(float32);
+			return sizeof(VistaType::float32);
 
 		return -1;
 	}
 	else
-		return sizeof(float32);
+		return sizeof(VistaType::float32);
 
 }
 
- int VistaCSVDeSerializer::ReadFloat64( float64 &f64Val)
+ int VistaCSVDeSerializer::ReadFloat64( VistaType::float64 &f64Val)
 {
 	m_streamInput >> f64Val;
 	if (m_streamInput.get()!=m_cSeparator)
 	{
 	if(m_streamInput.eof() == true)
-		return sizeof(float64);
+		return sizeof(VistaType::float64);
 
 		return -1;
 	}
 	else
-		return sizeof(float64);
+		return sizeof(VistaType::float64);
 
 }
 
@@ -259,38 +259,38 @@ int VistaCSVDeSerializer::ReadRawBuffer(void *pBuffer, int iLen)
 	 return ReadDouble(dDouble);
 }
 
- int VistaCSVDeSerializer::ReadShort16Name( const char *sVarName, ushort16 &us16Val)
+ int VistaCSVDeSerializer::ReadShort16Name( const char *sVarName, VistaType::ushort16 &us16Val)
 {
 	 return ReadShort16(us16Val);
 }
 
- int VistaCSVDeSerializer::ReadInt32Name( const char*sVarName, sint32 &si32Val)
+ int VistaCSVDeSerializer::ReadInt32Name( const char*sVarName, VistaType::sint32 &si32Val)
 {
 	 return ReadInt32(si32Val);
  }
 
- int VistaCSVDeSerializer::ReadInt32Name( const char*sVarName, uint32 &si32Val)
+ int VistaCSVDeSerializer::ReadInt32Name( const char*sVarName, VistaType::uint32 &si32Val)
 {
 	 return ReadInt32(si32Val);
 }
 
 
- int VistaCSVDeSerializer::ReadInt64Name( const char*sVarName, sint64 &si64Val)
+ int VistaCSVDeSerializer::ReadInt64Name( const char*sVarName, VistaType::sint64 &si64Val)
 {
 	return ReadInt64(si64Val);
 }
 
- int VistaCSVDeSerializer::ReadUInt64Name( const char*sVarName, uint64 &ui64Val)
+ int VistaCSVDeSerializer::ReadUInt64Name( const char*sVarName, VistaType::uint64 &ui64Val)
 {
 	return ReadUInt64(ui64Val);
 }
 
- int VistaCSVDeSerializer::ReadFloat32Name( const char*sVarName, float32 &fVal)
+ int VistaCSVDeSerializer::ReadFloat32Name( const char*sVarName, VistaType::float32 &fVal)
 {
 	return ReadFloat32(fVal);
 }
 
- int VistaCSVDeSerializer::ReadFloat64Name( const char*sVarName, float64 &f64Val)
+ int VistaCSVDeSerializer::ReadFloat64Name( const char*sVarName, VistaType::float64 &f64Val)
 {
 	return ReadFloat64(f64Val);
 }

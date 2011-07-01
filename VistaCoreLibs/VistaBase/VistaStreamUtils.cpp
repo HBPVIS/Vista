@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaStreamUtils.cpp 21315 2011-05-16 13:47:39Z dr165799 $
 
 #include "VistaStreamUtils.h"
 
@@ -64,15 +64,16 @@ std::ostream& vstr::Stream( const std::string& sName )
 /* StreamManipulators                                                         */
 /*============================================================================*/
 
-vstr::formattime::formattime( const double dTime )
+vstr::formattime::formattime( const double dTime, const int nPrecision )
 : m_dTime( dTime )
+, m_nPrecision( nPrecision )
 {
 }
 
 std::ostream& vstr::formattime::operator()( std::ostream& oStream ) const
 {
 	std::ios_base::fmtflags oFlags = oStream.flags();
-	std::streamsize nCurrentPrecision = oStream.precision( 6 );		
+	std::streamsize nCurrentPrecision = oStream.precision( m_nPrecision );		
 	oStream.setf( std::ios_base::fixed );
 	//oStream.setf( std::ios_base::floatfield );
 	oStream << m_dTime;
@@ -204,6 +205,14 @@ std::ostream& vstr::systime( std::ostream& oStream )
 	oStream << std::setw( 11 )
 		<< vstr::formattime( vstr::GetStreamManager()->GetSystemTime() );
 	return oStream;
+}
+std::ostream& vstr::relativetime( std::ostream& oStream )
+{
+	oStream << std::setw( 14 )
+		<< vstr::formattime( vstr::GetStreamManager()->GetMicroTime(), 9 );
+	return oStream;
+
+	
 }
 std::ostream& vstr::frameclock( std::ostream& oStream )
 {

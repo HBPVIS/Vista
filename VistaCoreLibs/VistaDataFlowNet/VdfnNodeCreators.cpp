@@ -49,7 +49,7 @@
 #include <VistaDeviceDriversBase/VistaDriverMap.h>
 #include <VistaDeviceDriversBase/VistaDeviceDriver.h>
 #include <VistaDeviceDriversBase/VistaDeviceSensor.h>
-#include <VistaDeviceDriversBase/VistaDriverSensorMappingAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverSensorMappingAspect.h>
 
 #include <VistaTools/VistaEnvironment.h>
 

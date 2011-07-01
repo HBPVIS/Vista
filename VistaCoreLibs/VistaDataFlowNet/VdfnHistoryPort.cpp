@@ -88,7 +88,7 @@ IVistaDeSerializer &operator>>(IVistaDeSerializer &oDeSer,
 		>> oHist.m_nSwapCount    // not as severe, only updated single threaded
 		>> oHist.m_nSnapshotWriteHead;
 
-	uint32 nFirst, nNext, nCurrent, nSize;
+	VistaType::uint32 nFirst, nNext, nCurrent, nSize;
 	nFirst = nNext = nCurrent = nSize = 0;
 	oDeSer >> nSize
 		   >> nFirst
@@ -142,7 +142,7 @@ IVistaSerializer   &operator<<(IVistaSerializer &oSer,
 		 << oMeasure.m_nMeasureTs
 		 << oMeasure.m_nSwapTime
 		 << oMeasure.m_nEndianess
-		 << static_cast<uint32>(oMeasure.m_vecMeasures.size());
+		 << static_cast<VistaType::uint32>(oMeasure.m_vecMeasures.size());
 
 	// we are writing the measure vec as a raw buffer
 	// this will lead to problems, once this data is transferred between machines
@@ -168,10 +168,10 @@ IVistaSerializer   &operator<<(IVistaSerializer &oSer,
 		 << oHist.m_nMeasureCount
 		 << oHist.m_nSwapCount
 		 << oHist.m_nSnapshotWriteHead
-		 << static_cast<uint32>(oHist.GetReadBuffer().GetBufferSize())
-		 << static_cast<uint32>(oHist.GetReadBuffer().GetFirst())
-		 << static_cast<uint32>(oHist.GetReadBuffer().GetNext())
-		 << static_cast<uint32>(oHist.GetReadBuffer().GetCurrentVal());
+		 << static_cast<VistaType::uint32>(oHist.GetReadBuffer().GetBufferSize())
+		 << static_cast<VistaType::uint32>(oHist.GetReadBuffer().GetFirst())
+		 << static_cast<VistaType::uint32>(oHist.GetReadBuffer().GetNext())
+		 << static_cast<VistaType::uint32>(oHist.GetReadBuffer().GetCurrentVal());
 
 	const TVistaRingBuffer<VistaSensorMeasure>::Container_type &vCont = oHist.GetReadBuffer().GetRawAccess();
 

@@ -41,7 +41,8 @@ SUBDIRS =   ${BUILTDIR}
 ## SOURCE DIRECTORY LIST
 # add your directories containing source-files here
 SRCDIRS = .. \
-          ../Drivers
+          ../Drivers \
+          ../DriverAspects
 
 ## LINK LIBRARIES
 # add the libs, library and include directories for those libs which are

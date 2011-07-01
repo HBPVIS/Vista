@@ -146,7 +146,7 @@ IDLVistaDataPacket *IDLVistaTransformFilter::FilterPacketL(IDLVistaDataPacket *p
 		else
 		{
 			// we have to drop this packet!
-			printf("IDLVistaTransformFilter::FilterPacketL(%X) -- drop packet, no outbound present.\n", pPacket);  
+			printf("IDLVistaTransformFilter::FilterPacketL(%lx) -- drop packet, no outbound present.\n", long(pPacket));
 			++m_iDropCount;
 			return NULL;
 		}

@@ -164,7 +164,7 @@ public:
 	virtual void SetWindowTitle         (const std::string &strTitle,
 										 VistaWindow *pTarget) = 0;
 	virtual std::string GetWindowTitle  (const VistaWindow *pTarget) = 0;
-	virtual void *GetWindowId           (const VistaWindow *pTarget) = 0;
+	virtual int GetWindowId             (const VistaWindow *pTarget) = 0;
 	virtual void DebugVistaWindow       (std::ostream &out,
 										 const VistaWindow *pTarget) = 0;
 

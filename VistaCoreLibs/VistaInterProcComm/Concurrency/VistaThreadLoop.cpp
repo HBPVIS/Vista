@@ -151,7 +151,11 @@ bool VistaThreadLoop::StopGently(bool bBlockTheOutsideCallerUntilTheThreadIsReal
 
 	if(bBlockTheOutsideCallerUntilTheThreadIsReallyFinished)
 	{
-		return Join();
+		if(Join())
+		{
+			m_bStopGently = false; // reset flag here... loop thread is not running.
+			                       // in case we want to re-start the loop
+		}
 	}
 	
 	// ok, this should do

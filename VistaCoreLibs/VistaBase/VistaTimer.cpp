@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaTimer.cpp 21315 2011-05-16 13:47:39Z dr165799 $
 
 #include "VistaTimer.h"
 
@@ -84,12 +84,12 @@ VistaTimer::~VistaTimer()
 	m_pImp->DecReferenceCount();
 }
 
-microtime  VistaTimer::GetMicroTime() const
+VistaType::microtime  VistaTimer::GetMicroTime() const
 {
 	return m_pImp->GetMicroTime();
 }
 
-microstamp VistaTimer::GetMicroStamp() const
+VistaType::microstamp VistaTimer::GetMicroStamp() const
 {
 	return m_pImp->GetMicroStamp();
 }
@@ -99,12 +99,12 @@ double    VistaTimer::GetSystemTime() const
 	return m_pImp->GetSystemTime();
 }
 
-systemtime VistaTimer::ConvertToSystemTime( const microtime mtTime ) const
+VistaType::systemtime VistaTimer::ConvertToSystemTime( const VistaType::microtime mtTime ) const
 {
 	return m_pImp->ConvertToSystemTime( mtTime );
 }
 
-microtime VistaTimer::GetLifeTime() const
+VistaType::microtime VistaTimer::GetLifeTime() const
 {
 	// simple: return now - birth time
 	return m_pImp->GetMicroTime() - m_nBirthTime;
@@ -147,19 +147,19 @@ void VistaAverageTimer::StartRecording()
 
 void VistaAverageTimer::RecordTime()
 {
-	microtime nCurrentTime = GetMicroTime();
+	VistaType::microtime nCurrentTime = GetMicroTime();
 	m_nAccumulatedTime += nCurrentTime - m_nRecordStartTime;
 	++m_iCount;
 	m_nRecordStartTime = nCurrentTime;
 	m_nAverage = m_nAccumulatedTime / (float)m_iCount;
 }
 
-microtime VistaAverageTimer::GetCurrentRecordingTime() const
+VistaType::microtime VistaAverageTimer::GetCurrentRecordingTime() const
 {
 	return ( GetMicroTime() - m_nRecordStartTime );
 }
 
-microtime VistaAverageTimer::GetAccumulatedTime() const
+VistaType::microtime VistaAverageTimer::GetAccumulatedTime() const
 {
 	return m_nAccumulatedTime;
 }
@@ -169,7 +169,7 @@ int VistaAverageTimer::GetRecordCount() const
 	return m_iCount;
 }
 
-microtime VistaAverageTimer::GetAverageTime() const
+VistaType::microtime VistaAverageTimer::GetAverageTime() const
 {
 	return m_nAverage;
 }			
@@ -198,8 +198,8 @@ VistaWeightedAverageTimer::~VistaWeightedAverageTimer()
 
 void VistaWeightedAverageTimer::RecordTime()
 {
-	microtime nCurrentTime = GetMicroTime();
-	microtime nDelta = nCurrentTime - m_nRecordStartTime;
+	VistaType::microtime nCurrentTime = GetMicroTime();
+	VistaType::microtime nDelta = nCurrentTime - m_nRecordStartTime;
 	m_nAccumulatedTime += nDelta;
 	++m_iCount;
 	m_nRecordStartTime = nCurrentTime;
@@ -244,8 +244,8 @@ VistaWindowAverageTimer::~VistaWindowAverageTimer()
 
 void VistaWindowAverageTimer::RecordTime()
 {
-	microtime nCurrentTime = GetMicroTime();
-	microtime nDelta = nCurrentTime - m_nRecordStartTime;
+	VistaType::microtime nCurrentTime = GetMicroTime();
+	VistaType::microtime nDelta = nCurrentTime - m_nRecordStartTime;
 
 	if( m_iCount < (int)m_vecRecords.size() )
 		m_iCount++;
@@ -297,7 +297,7 @@ int VistaWindowAverageTimer::GetWindowSize() const
 //
 //	void VistaTickStop::Tick()
 //	{
-//		microtime mt = GetMicroTime();
+//		VistaType::microtime mt = GetMicroTime();
 //		m_nAccumMt += mt - m_nLastMt;
 //
 //		m_vTicks[m_nTickIdx++] = m_nLastMt = mt;
@@ -309,19 +309,19 @@ int VistaWindowAverageTimer::GetWindowSize() const
 //
 //	double VistaTickStop::GetFrequency() const
 //	{
-//		microtime dt = GetAverageDelta();
+//		VistaType::microtime dt = GetAverageDelta();
 //		if(dt)
 //			return 1.0 / dt;
 //		else
 //			return 0;
 //	}
 //
-//	microtime VistaTickStop::GetAverageDelta() const
+//	VistaType::microtime VistaTickStop::GetAverageDelta() const
 //	{
 //		if(m_nTickCount == 0)
 //			return 0;
 //
-//		return m_nAccumMt / microtime(m_nTickCount);
+//		return m_nAccumMt / VistaType::microtime(m_nTickCount);
 //	}
 //
 //	double VistaTickStop::GetWindowFrequency() const
@@ -330,14 +330,14 @@ int VistaWindowAverageTimer::GetWindowSize() const
 //	//	if( m_vTicks.empty() )
 //	//		return 0;
 //	//
-//	//	microtime d = 0;
+//	//	VistaType::microtime d = 0;
 //	//	for( index_type n = 0; n < m_vTicks.size(); ++n)
 //	//		d += m_vTicks[n];
 //	//
 //	//	return double(m_vTicks.size()) / double( d );
 //	}
 //
-//	microtime VistaTickStop::GetAgeFromLast() const
+//	VistaType::microtime VistaTickStop::GetAgeFromLast() const
 //	{
 //		if(m_nLastMt)
 //		{
@@ -352,7 +352,7 @@ int VistaWindowAverageTimer::GetWindowSize() const
 //		m_nTickCount = 0;
 //		m_nAccumMt = 0;
 //		m_nLastMt = 0;
-//		m_vTicks = std::vector<microtime>(m_vTicks.size(),0);
+//		m_vTicks = std::vector<VistaType::microtime>(m_vTicks.size(),0);
 //	}
 //
 ///*============================================================================*/
@@ -363,7 +363,7 @@ int VistaWindowAverageTimer::GetWindowSize() const
 //	{
 //	}
 //
-//	microtime VistaWeightedAverageTimer::GetAverage() const
+//	VistaType::microtime VistaWeightedAverageTimer::GetAverage() const
 //	{
 //		return m_nAvgTime;
 //	}
