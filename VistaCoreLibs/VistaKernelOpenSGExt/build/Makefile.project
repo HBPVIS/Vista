@@ -48,8 +48,8 @@ SRCDIRS = ..
 # shared on all platforms. platform-specific stuff goes to ADD* in
 # Makefile.$(VISTA_OSTYPE)
 
-LIBS_DEBUG      = -lVistaBaseD -lVistaKernelD -lVistaMathD -lOSGBase -lOSGSystem -lGL
-LIBS_RELEASE    = -lVistaBase -lVistaKernel  -lVistaMath  -lOSGBase -lOSGSystem -lGL
+LIBS_DEBUG      = -lVistaAspectsD -lVistaToolsD -lVistaBaseD -lVistaKernelD -lVistaMathD -lOSGBase -lOSGSystem -lGL
+LIBS_RELEASE    = -lVistaAspects -lVistaTools -lVistaBase -lVistaKernel  -lVistaMath  -lOSGBase -lOSGSystem -lGL
 
 OPENSG_ROOT ?= /usr
 LIBDIRS_DEBUG   = -L$(DISTDIR)/lib -L$(OPENSG_ROOT)/lib/dbg
