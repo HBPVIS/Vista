@@ -345,10 +345,13 @@ bool VistaCPUInfo::QueryCPUInfo()
 				// there is a ": " layout here, obviously
 				char *pcRight = pcCol + 2;
 								
+				int iPcRightLen = strlen(pcRight);
+				
 				if(strstr(pcLeft, "vendor_id"))
 				{
-					m_pStat->m_Stats.sIdentifier = new char[strlen(pcRight)];
-					strncpy( m_pStat->m_Stats.sIdentifier, pcRight, strlen(pcRight)-1 ); // omit trailing '\n'
+					m_pStat->m_Stats.sIdentifier = new char[iPcRightLen];
+					strncpy( m_pStat->m_Stats.sIdentifier, pcRight, iPcRightLen-1 ); // omit trailing '\n'
+					m_pStat->m_Stats.sIdentifier[iPcRightLen-1] = '\0';
 				}
 				else if(strstr(pcLeft, "cpu family"))
 				{
@@ -356,8 +359,9 @@ bool VistaCPUInfo::QueryCPUInfo()
 				}
 				else if(strstr(pcLeft, "model name"))
 				{
-					m_pStat->m_Stats.sProcessorName = new char[strlen(pcRight)];
-					strncpy( m_pStat->m_Stats.sProcessorName, pcRight, strlen(pcRight)-1); // omit trailing '\n'
+					m_pStat->m_Stats.sProcessorName = new char[iPcRightLen];
+					strncpy( m_pStat->m_Stats.sProcessorName, pcRight, iPcRightLen-1); // omit trailing '\n'
+					m_pStat->m_Stats.sProcessorName[iPcRightLen-1] = '\0';
 				}				
 				else if(strstr(pcLeft, "model"))
 				{

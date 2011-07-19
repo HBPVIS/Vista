@@ -107,5 +107,5 @@ public:
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/
 
-#endif //_VISTASYSTEM_H
+#endif //_VISTAUDPSOCKET_H
 
