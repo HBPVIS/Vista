@@ -53,8 +53,8 @@ public:
 	}
 
 	void ChangeParticle(SParticle& oParticle,
-		microtime dCurrentTime,
-		microtime dDeltaT  )
+		VistaType::microtime dCurrentTime,
+		VistaType::microtime dDeltaT  )
 	{
 		*oParticle.m_pRemainingLifeTime = (float)m_fLifetime;
 
@@ -63,7 +63,7 @@ public:
 
 	}
 
-	void CalculatePositionAndVelocities(SParticle& oParticle, microtime fEventTime)
+	void CalculatePositionAndVelocities(SParticle& oParticle, VistaType::microtime fEventTime)
 	{
 
 		oParticle.m_a3fVelocity[0] = m_v3ParticleVelocities[0] * ( (float)m_pRand->GenerateDouble3() - 0.5f );
@@ -76,7 +76,7 @@ public:
 
 	}
 
-	void CalculateSize(SParticle& oParticle, microtime fEventTime)
+	void CalculateSize(SParticle& oParticle, VistaType::microtime fEventTime)
 	{
 
 		oParticle.m_a3fSize[0] = m_v3ParticleSize[0];
@@ -106,13 +106,13 @@ public:
 	}
 
 	void ChangeParticle( SParticle& oParticle,
-		microtime dCurrentTime,
-		microtime dDeltaT  )
+		VistaType::microtime dCurrentTime,
+		VistaType::microtime dDeltaT  )
 	{
 		CalculatePositionAndVelocities(oParticle, dDeltaT);
 	}
 
-	void CalculatePositionAndVelocities(SParticle& oParticle, microtime dt)
+	void CalculatePositionAndVelocities(SParticle& oParticle, VistaType::microtime dt)
 	{
 
 		// bounce

@@ -78,7 +78,7 @@ public:
 	{
 	// make the light go round in 60 seconds
             double dSeconds = 60.0f;
-            microtime dTime = pEvent->GetTime();
+            VistaType::microtime dTime = pEvent->GetTime();
             float t = (float)(fmod( dTime, dSeconds ) / dSeconds);
 
             float s = sin(t * Vista::Pi * 2.0f);
@@ -347,7 +347,7 @@ void ShadowDemo::UpdateLightAnimation(VistaEvent *pEvent)
 {
 	// make the light go round in 60 seconds
 	double dSeconds = (double)(60.0f);
-	microtime time = pEvent->GetTime();
+	VistaType::microtime time = pEvent->GetTime();
 	float t = (float)(fmod(time, dSeconds) / dSeconds);
 	
 	float s = sin(t * Vista::Pi * 2.0f);

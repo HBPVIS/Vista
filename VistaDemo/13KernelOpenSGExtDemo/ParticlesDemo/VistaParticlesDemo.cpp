@@ -126,8 +126,8 @@ public:
 	}
 
 	void ChangeParticle(SParticle& oParticle,
-		microtime dCurrentTime,
-		microtime dDeltaT  )
+		VistaType::microtime dCurrentTime,
+		VistaType::microtime dDeltaT  )
 	{
 		*oParticle.m_pRemainingLifeTime = m_fLifetime;
 
@@ -136,7 +136,7 @@ public:
 
 	}
 
-	void CalculatePositionAndVelocities(SParticle& oParticle, microtime fEventTime)
+	void CalculatePositionAndVelocities(SParticle& oParticle, VistaType::microtime fEventTime)
 	{
 
 		oParticle.m_a3fVelocity[0] = m_v3ParticleVelocities[0] - (float)(m_pRand->GenerateDouble2()) * m_fVelocitiesFactor;
@@ -153,7 +153,7 @@ public:
 
 	}
 
-	void CalculateColorandSize(SParticle& oParticle, microtime fEventTime)
+	void CalculateColorandSize(SParticle& oParticle, VistaType::microtime fEventTime)
 	{
 
 		oParticle.m_a3fSize[0] = m_v3ParticleSize[0];
@@ -190,8 +190,8 @@ public:
 
 
 	void ChangeParticle(SParticle& oParticle,
-		microtime dCurrentTime,
-		microtime dDeltaT  )
+		VistaType::microtime dCurrentTime,
+		VistaType::microtime dDeltaT  )
 	{
 
 		*oParticle.m_pRemainingLifeTime -= (float)dDeltaT;
@@ -200,7 +200,7 @@ public:
 		CalculateColorandSize(oParticle, dDeltaT);
 	}
 
-	void CalculatePositionAndVelocities(SParticle& oParticle, microtime dt)
+	void CalculatePositionAndVelocities(SParticle& oParticle, VistaType::microtime dt)
 	{
 
 		oParticle.m_a3fVelocity[2] += m_fVelocitiesFactor*(float)dt;
@@ -211,7 +211,7 @@ public:
 
 	}
 
-	void CalculateColorandSize(SParticle& oParticle, microtime dt)
+	void CalculateColorandSize(SParticle& oParticle, VistaType::microtime dt)
 	{
 
 		oParticle.m_a3fSize[0] = oParticle.m_a3fVelocity[2]*m_fSizeFactor;

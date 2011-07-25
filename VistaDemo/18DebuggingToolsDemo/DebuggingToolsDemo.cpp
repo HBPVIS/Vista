@@ -282,7 +282,7 @@ DebuggingToolsDemoAppl::DebuggingToolsDemoAppl( int argc, char  *argv[] )
 
 	// We now write output to the new splitstream, which then appears both in the log
 	// file and on the console. Additionally, VistaStreamUtils provides several
-	// Stream Manipulators that allow printing things like the frameclock, systemtime, etc.
+	// Stream Manipulators that allow printing things like the frameclock, VistaType::systemtime, etc.
 	// Especially, vstr::info outputs an information string, which by default contains the
 	// frame number and the frameclock, but it can be configured using the StreamManager
 	vstr::Stream() << vstr::info << "Welcome to the DebuggingToolsDemo!" << std::endl;
