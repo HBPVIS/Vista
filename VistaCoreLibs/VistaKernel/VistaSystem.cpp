@@ -1759,7 +1759,6 @@ bool VistaSystem::LoadDeviceDrivers()
 		// make a topological sort of the driver, respecting dependencies on other drivers
 		VistaTopologyGraph<_drDevHlp*> depends;
 
-
 		// respect dependency on other drivers:
 		for(std::map<std::string, _drDevHlp>::iterator drList1 = mpCreatedDrivers.begin();
 			drList1 != mpCreatedDrivers.end(); ++drList1)
@@ -2038,7 +2037,7 @@ bool VistaSystem::LoadDeviceDrivers()
 							{
 								unsigned int nUpdateRateOfSensorInHz = pOrigin->GetUpdateEstimatorFor( pSensor->GetTypeHint() );
 								if( nUpdateRateOfSensorInHz == ~0 )
-									return false;
+									continue;
 
 								int nNum = int( ceilf( 66.6f / ( 1000.0f / float(nUpdateRateOfSensorInHz) ) ) );
 								unsigned int nMeasureSize = pOrigin->GetMeasureSizeFor( pSensor->GetTypeHint() );

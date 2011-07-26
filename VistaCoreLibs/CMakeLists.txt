@@ -32,6 +32,24 @@ include_directories( ${VistaCoreLibs_SOURCE_DIR} )
 # the version type can be either HEAD, RELASE, BRANCH, or TAG
 vista_set_version( VistaCoreLibs HEAD HEAD svn_rev )
 
+vista_find_package( OpenGL QUIET )
+vista_find_package( GLUT QUIET )
+vista_find_package( OpenSG 1.8 QUIET )
+
+set( BUILD_KERNEL_DEFAULT OFF )
+
+if( FIRST_CONFIGURE_RUN )
+	if( NOT OPENGL_FOUND )
+		message( "OpenGL not found - VistaKernel will be disabled by default" )
+	elseif( NOT GLUT_FOUND )
+		message( "Glut not found - VistaKernel will be disabled by default" )
+	elseif( NOT OPENSG_FOUND )
+		message( "OpenSG not found - VistaKernel will be disabled by default" )
+	else()
+		set( BUILD_KERNEL_DEFAULT ON )
+	endif( NOT OPENGL_FOUND )
+endif( FIRST_CONFIGURE_RUN )
+
 set( VISTACORELIBS_CREATE_CONFIG_PER_LIBRARY OFF CACHE BOOL "If set to true, a <Package>Config.cmake file will be created and installed for each library, not just one for the CoreLibs" )
 
 # Let the user decide which libraries to build
@@ -43,8 +61,8 @@ vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_INTERPROCCOMM		VistaInte
 vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_TOOLS				VistaTools				ON ADVANCED   ADD_TO_LIST VISTACORELIBS_COMPONENTS )
 vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_DEVICEDRIVERSBASE	VistaDeviceDriversBase	ON ADVANCED   ADD_TO_LIST VISTACORELIBS_COMPONENTS )
 vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_DATAFLOWNET			VistaDataFlowNet		ON ADVANCED   ADD_TO_LIST VISTACORELIBS_COMPONENTS )
-vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_KERNEL				VistaKernel				ON            ADD_TO_LIST VISTACORELIBS_COMPONENTS )
-vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_KERNELOPENSGEXT		VistaKernelOpenSGExt	ON            ADD_TO_LIST VISTACORELIBS_COMPONENTS )
+vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_KERNEL				VistaKernel				${BUILD_KERNEL_DEFAULT}  ADD_TO_LIST VISTACORELIBS_COMPONENTS )
+vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_KERNELOPENSGEXT		VistaKernelOpenSGExt	${BUILD_KERNEL_DEFAULT}  ADD_TO_LIST VISTACORELIBS_COMPONENTS )
 
 add_subdirectory( VistaDeviceDrivers )
 
