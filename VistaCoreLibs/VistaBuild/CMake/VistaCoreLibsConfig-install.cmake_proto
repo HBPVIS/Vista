@@ -4,6 +4,9 @@ set( @_PACKAGE_NAME_UPPER@_DEFINITIONS @_PACKAGE_DEFINITIONS@ )
 set( VISTACORELIBS_HWARCH "@VISTA_HWARCH@" )
 set( VISTACORELIBS_COMPONENTS @VISTACORELIBS_COMPONENTS@ )
 
+set( VISTACORELIBS_VERSION @VISTACORELIBS_VERSION@ )
+set( VISTACORELIBS_VERSION_EXT @VISTACORELIBS_VERSION_EXT@ )
+
 # we're getting installed to ROOT_DIR/cmake, so to get our root dir, we have to take the current dir
 # and look for the lib dir, which can be one, two, or three steps up
 # we check if the folder is correct by testing if the first library dir exists there

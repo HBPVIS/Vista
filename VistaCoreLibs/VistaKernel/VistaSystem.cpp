@@ -1622,14 +1622,7 @@ bool VistaSystem::LoadDeviceDrivers()
 									sDriverPlugins, sConfigFileName );
 	if( sDriverPlugins.empty() )
 	{
-		std::string sEnv = VistaEnvironment::GetEnv( "VISTACORELIBS_DRIVER_PLUGIN_DIRS" );
-		if( sEnv.empty() )
-			m_liDriverPluginPathes.push_back( "." );
-		else
-		{
-			std::string sTmp = VistaEnvironment::ReplaceOSEnvironemntPathSeparators( sEnv, ',' );
-			VistaAspectsConversionStuff::ConvertToList( sTmp, m_liDriverPluginPathes );
-		}
+		m_liDriverPluginPathes.push_back( "." );
 	}
 	else
 	{
