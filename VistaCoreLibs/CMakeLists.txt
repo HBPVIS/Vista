@@ -25,6 +25,7 @@ else()
 endif( EXISTS "$ENV{VISTA_CMAKE_COMMON}" )
 
 include( VistaCommon )
+require_vistacommon_version( 22650 )
 
 # Self include
 include_directories( ${VistaCoreLibs_SOURCE_DIR} )

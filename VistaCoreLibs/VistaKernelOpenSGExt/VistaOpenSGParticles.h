@@ -25,15 +25,22 @@
 #ifndef _VISTAOPENSGPARTICLES_H__
 #define _VISTAOPENSGPARTICLES_H__
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
-#include <GL/gl.h>
-
 #include "VistaKernelOpenSGExtConfig.h"
+
+#include <VistaBase/VistaVersion.h>
+
+#ifdef WIN32
+#include <windows.h>
+#endif
+
+#if defined(DARWIN)
+  #include <OpenGL/gl.h>
+#else
+  #include <GL/gl.h>
+#endif
+
 #include <string>
 #include <cstring>
-#include <VistaBase/VistaVersion.h>
 
 class VistaGroupNode;
 class VistaExtensionNode;

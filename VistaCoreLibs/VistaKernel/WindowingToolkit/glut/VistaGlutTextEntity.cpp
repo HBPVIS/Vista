@@ -26,14 +26,14 @@
 
 #include <VistaAspects/VistaAspectsUtils.h>
 
-#if defined(USE_NATIVE_GLUT)
-  #if defined(DARWIN) // we use the mac os GLUT framework on darwin
-    #include <GLUT/glut.h>
-  #else
+#if defined(DARWIN) // we use the mac os GLUT framework on darwin
+  #include <GLUT/glut.h>
+#else
+  #if defined(USE_NATIVE_GLUT)
     #include <GL/glut.h>
-  #endif
 #else
     #include <GL/freeglut.h>
+  #endif
 #endif
 
 /*============================================================================*/

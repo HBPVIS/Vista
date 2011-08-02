@@ -36,14 +36,14 @@
 #include <Windows.h>
 #endif
 
-#if defined(USE_NATIVE_GLUT)
-  #if defined(DARWIN) // we use the mac os GLUT framework on darwin
-    #include <GLUT/glut.h>
-  #else
-    #include <GL/glut.h>
-  #endif
+#if defined(DARWIN) // we use the mac os GLUT framework on darwin
+  #include <GLUT/glut.h>
 #else
+  #if defined(USE_NATIVE_GLUT)
+    #include <GL/glut.h>
+  #else
     #include <GL/freeglut.h>
+  #endif
 #endif
 
 #if defined(DARWIN)

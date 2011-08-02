@@ -2,9 +2,9 @@
 
 vista_adopt_version( VistaAspects VistaCoreLibs )
 
-if( UNIX )
+if( UNIX AND NOT APPLE )
 	set( LIBRARIES rt )
-endif( UNIX )
+endif( UNIX AND NOT APPLE )
 
 include( "./_SourceFiles.cmake" )
 

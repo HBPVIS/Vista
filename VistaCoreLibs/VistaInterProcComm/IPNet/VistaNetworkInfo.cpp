@@ -73,6 +73,9 @@
 	#include <sys/types.h>
 	#include <time.h>
 
+#elif defined (DARWIN)
+	#include <VistaBase/VistaExceptionBase.h>
+
 #else
 	#error You have to define the target platform in order to compile ViSTA
 
@@ -169,6 +172,10 @@ bool VistaNetworkInfo::EnumVistaNetworkInfo(vector<VistaNetworkInfo>& devs)
 	if(sock.OpenSocket())
 	{
 #ifndef WIN32
+	#ifdef DARWIN
+		VISTA_THROW( "VistaNetworkInfo::EnumVistaNetworkInfo() Not implementd", 1 );
+	#else
+
 		char buffer[8192];
 		struct ifconf ifc;
 		int fd = sock.GetSocketID();
@@ -226,6 +233,7 @@ bool VistaNetworkInfo::EnumVistaNetworkInfo(vector<VistaNetworkInfo>& devs)
 			devs.push_back(VistaNetworkInfo(ifc.ifc_req[i].ifr_name, m_ipAddr, brdaddr, maskaddr, mtu));
 	#endif
 		}
+#endif
 	#else // WIN32
 
 
