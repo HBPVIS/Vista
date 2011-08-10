@@ -9,8 +9,8 @@ xmlreplaces = [
 
 inireplaces = [
 	( re.compile( r'(TYPE\s*=\s*)(MOUSE\s|KEYBOARD\s)', re.MULTILINE ), r'\1GLUT\2' ),
-	( re.compile( r'(TYPE\s*=\s*)SPACENAVIGATOR(\s)', re.MULTILINE ), r'\1 3DCSPACENAVIGATOR\2' ),
-	( re.compile( r'DRIVERPLUGINS', re.MULTILINE ), r'DRIVERPLUGINDIRS' ),
+	( re.compile( r'^(\s*)DRIVERPLUGINS(\s*=\s*)\S*(\s*)$', re.MULTILINE ), r'\1DRIVERPLUGINDIRS\2${VISTACORELIBS_DRIVER_PLUGIN_DIRS}\3' ),
+	( re.compile( r'^\s*LOADPLUGINS[^\n\r]*[\n\r$]', re.MULTILINE ), r'' ),
 ]
 
 replacementrules = [
@@ -34,7 +34,7 @@ def ReplaceContent( file, replacelist ):
 
 	if replaceCount > 0:
 		print ( ' performed', replaceCount, 'replacements in ' + file )
-		backupFile = file + '.BEFORE_V112_UPDATE.BAK'
+		backupFile = file + '.BEFORE_V110_UPDATE.BAK'
 		if os.path.isfile( backupFile ) == False:
 			print ( '        backing up original file to ' + backupFile )
 			shutil.copy2( file, backupFile )
@@ -58,7 +58,7 @@ def ProcessFiles( root, files ):
 			
 def UndoBackup( root, files ):
 	for name in files:
-		match = re.search( r'(.+)\.BEFORE_V112_UPDATE\.BAK$', name )
+		match = re.search( r'(.+)\.BEFORE_V110_UPDATE\.BAK$', name )
 		if match:
 			fullName = os.path.join( root, name )
 			fullRestoreName = os.path.join( root, match.group(1) )
@@ -82,6 +82,6 @@ if len(sys.argv) > 1 and sys.argv[1] != "":
 			ProcessFiles( root, files )
 else:
 	print( 'Usage:' )
-	print( 'VistaTo1.12.py ConversionRootDir [-undo]' )
+	print( 'VistaTo1.10.py ConversionRootDir [-undo]' )
 	print( '  ConversionRootDir specifies toplevel dir from which on all files and subfolders will be converted, automatically backing up changed files' )
 	print( '  -undo - If provided, the backups from a prior conversion will be restored. NOTE: This removes all changes from th econversion, but also all amnual changes after the backup!' )
