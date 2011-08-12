@@ -40,6 +40,7 @@
 class VistaGroupNode;
 class VistaSG;
 class VistaOpenGLNode;
+class IVistaNode;
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
