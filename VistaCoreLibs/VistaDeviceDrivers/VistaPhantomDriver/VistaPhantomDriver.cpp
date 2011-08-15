@@ -164,7 +164,7 @@ VistaPhantomDriver::VistaPhantomDriver(IVistaDriverCreationMethod *crm)
 
 	AddDeviceSensor(pSensor);
 
-	pSensor->SetMeasureTranscode( GetFactory()->GetTranscoderFactoryForSensor("VistaPhantomDriverMeasureTranscode")->CreateTranscoder() );
+	pSensor->SetMeasureTranscode( GetFactory()->GetTranscoderFactoryForSensor("")->CreateTranscoder() );
 	
 
 	m_pProtocol = new VistaPhantomDriverProtocolAspect(this);
