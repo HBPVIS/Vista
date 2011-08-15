@@ -41,24 +41,24 @@
 		<param name="object" value="CAM:MAIN"/>
 	</node>
 	
-	<node name="multO" type="Multiply[CVistaTransformMatrix,CVistaVector3D]"/>
+	<node name="multO" type="Multiply[VistaTransformMatrix,VistaVector3D]"/>
 	<node name="divO" type="Divide[float]"/>
-	<node name="multN" type="Multiply[CVistaTransformMatrix,CVistaVector3D]"/>
-	<node name="scaleO" type="Multiply[float,CVistaVector3D]"/>
+	<node name="multN" type="Multiply[VistaTransformMatrix,VistaVector3D]"/>
+	<node name="scaleO" type="Multiply[float,VistaVector3D]"/>
 	
-	<node name="invert" type="Invert[CVistaTransformMatrix]"/>
+	<node name="invert" type="Invert[VistaTransformMatrix]"/>
 	
 	<node name="force-control" type="ForceFeedback">
 		<param name="device_id" value="PHANTOM"/>
 	</node>
 	
 	<!-- point -->
-	<node name="planeO" type="ConstantValue[CVistaVector3D]">
+	<node name="planeO" type="ConstantValue[VistaVector3D]">
 		<param name="value" value="0,0,0,1"/>
 	</node>
 	
 	<!-- vector => last component must be set explicit to zero -->
-	<node name="planeN" type="ConstantValue[CVistaVector3D]">
+	<node name="planeN" type="ConstantValue[VistaVector3D]">
 		<param name="value" value="0,1,0,0"/>
 	</node>
 	

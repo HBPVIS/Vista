@@ -44,7 +44,7 @@
 #include <VistaDataFlowNet/VdfnObjectRegistry.h>
 #include <VistaDataFlowNet/VdfnActionNode.h>
 
-#include <VistaDeviceDriversBase/VistaDriverForceFeedbackAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverForceFeedbackAspect.h>
 
 #include <VistaBase/VistaExceptionBase.h>
 

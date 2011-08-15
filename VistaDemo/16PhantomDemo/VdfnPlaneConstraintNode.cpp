@@ -26,7 +26,7 @@
 
 #include "VdfnPlaneConstraintNode.h"
 
-#include <VistaDeviceDriversBase/VistaDriverForceFeedbackAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverForceFeedbackAspect.h>
 
 #include <VistaDataFlowNet/VdfnSerializer.h>
 #include <VistaDataFlowNet/VdfnNode.h>

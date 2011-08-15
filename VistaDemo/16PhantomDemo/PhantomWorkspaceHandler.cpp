@@ -27,7 +27,7 @@
 #include <VistaDataFlowNet/VdfnObjectRegistry.h>
 #include <VistaDataFlowNet/VdfnReadWorkspaceNode.h>
 
-#include <VistaDeviceDriversBase/VistaDriverWorkspaceAspect.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverWorkspaceAspect.h>
 
 #include <VistaAspects/VistaTransformable.h>
 

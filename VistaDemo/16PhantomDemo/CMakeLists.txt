@@ -9,7 +9,7 @@ if( NOT VISTADEMO_COMMON_BUILD )
 endif( NOT VISTADEMO_COMMON_BUILD )
 
 vista_use_package( VistaCoreLibs "HEAD" REQUIRED VistaKernel FIND_DEPENDENCIES )
-
+vista_use_package( OpenHaptics REQUIRED ) # for dll's of phantom driver
 
 # Including the source files of all source subfolders recursively
 include( "./_SourceFiles.cmake" )
