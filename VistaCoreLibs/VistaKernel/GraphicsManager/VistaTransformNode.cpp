@@ -95,13 +95,11 @@ bool VistaTransformNode::SetScale( const VistaVector3D& v3Scale )
 	VistaQuaternion qRotation;
 
 	// The Decomposition will fail if the matrix contains a shearing component!
-	if( matTransform.Decompose( v3Translation, qRotation, v3DecScale ) == false )
-		return false;
+	//if( matTransform.Decompose( v3Translation, qRotation, v3DecScale ) == false )
+	//	return false;
 
-	v3DecScale[0] *= v3Scale[0];
-	v3DecScale[0] *= v3Scale[0];
-	v3DecScale[0] *= v3Scale[0];
-
+	// even if it is sheared, SetScale should overwrite, so it's okay...
+	matTransform.Decompose( v3Translation, qRotation, v3DecScale, VistaQuaternion() );
 	matTransform.Compose( v3Translation, qRotation, v3Scale );
 	m_pBridge->SetTransform( matTransform, m_pData );
 
