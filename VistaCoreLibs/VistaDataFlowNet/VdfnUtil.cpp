@@ -211,6 +211,16 @@ namespace
 		return ConvertArrayToString<float>( &q[0], 4 );
 	}
 
+	std::string ConvertMatToString( VistaTransformMatrix matTransform )
+	{
+		float a16fTrans[16];
+		matTransform.GetValues( a16fTrans );
+		std::string sRet = VistaAspectsConversionStuff::ConvertToString( a16fTrans[0] );
+		for( int i = 1; i < 16; ++i )
+			sRet += ", " + VistaAspectsConversionStuff::ConvertToString( a16fTrans[i] );
+		return sRet;
+	}
+
 	VistaTransformMatrix ConvertVec3DToMatrix( VistaVector3D v3 )
 	{
 		VistaTransformMatrix mat;
@@ -507,7 +517,8 @@ bool RegisterBasicPortSetters()
 	pFac->AddFunctorAccess( typeid(VistaTransformMatrix).name(), new VdfnPortFactory::CFunctorAccess(
 																	  new VdfnTypedPortTypeCompareCreate<VistaTransformMatrix>,
 																	  new TActionSet<VistaTransformMatrix>,
-																	  new VdfnTypedPortCreate<VistaTransformMatrix>) );
+																	  new VdfnTypedPortCreate<VistaTransformMatrix>,
+																	  new CGet<VistaTransformMatrix>(&ConvertMatToString) ) );
 	pFac->AddFunctorAccess( typeid(VistaAxisAndAngle).name(), new VdfnPortFactory::CFunctorAccess(
 																	  new VdfnTypedPortTypeCompareCreate<VistaAxisAndAngle>,
 																	  new TActionSet<VistaAxisAndAngle>,

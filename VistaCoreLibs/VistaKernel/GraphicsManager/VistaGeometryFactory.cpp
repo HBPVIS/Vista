@@ -1445,7 +1445,7 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 				resolutionX, resolutionY, resolutionZ,
 				color );
 	}
-	else if( VistaAspectsComparisonStuff::StringEquals( strType, "BOX", false ) )
+	else if( VistaAspectsComparisonStuff::StringEquals( strType, "DISK", false ) )
 	{
 		float radius = 0.5f;
 		int resolutionC = 16;

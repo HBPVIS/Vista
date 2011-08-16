@@ -102,7 +102,7 @@ private:
 	IVistaDriverForceFeedbackAspect *m_pAspect;
 
 	TVdfnPort<VistaVector3D>   *m_pForceVec;
-	TVdfnPort<VistaQuaternion> *m_pTorque;
+	TVdfnPort<VistaVector3D> *m_pTorque;
 	TVdfnPort<bool>             *m_pEnabled;
 };
 
@@ -118,7 +118,8 @@ class VISTADFNAPI VdfnForceFeedbackNodeCreate : public VdfnNodeFactory::IVdfnNod
 {
 public:
 	VdfnForceFeedbackNodeCreate( VistaDriverMap *pMap );
-	virtual IVdfnNode *CreateNode( const VistaPropertyList &oParams ) const;private:
+	virtual IVdfnNode *CreateNode( const VistaPropertyList &oParams ) const;
+private:
 	VistaDriverMap *m_pMap;
 };
 

@@ -346,7 +346,7 @@ bool VistaPhantomDriver::DoSensorUpdate(VistaType::microtime nTs)
 	if(m_pForceFeedBack->GetForcesEnabled())
 	{
 		VistaVector3D v3Force;
-		VistaQuaternion qTorque;
+		VistaVector3D v3Torque;
 
 		IVistaDriverForceFeedbackAspect::IForceAlgorithm *pMd
             = m_pForceFeedBack->GetForceAlgorithm();
@@ -360,12 +360,12 @@ bool VistaPhantomDriver::DoSensorUpdate(VistaType::microtime nTs)
 													s->m_afAngularVelocity[2]) );
 			// calc update force from that information
 			// @todo: think about the timestamps
-			pMd->UpdateForce( double(nTs), pos, vel, qAngVel, v3Force, qTorque );
+			pMd->UpdateForce( double(nTs), pos, vel, qAngVel, v3Force, v3Torque );
 		}
 		else
 		{
 			v3Force = m_pForceFeedBack->m_v3Force;
-			qTorque = m_pForceFeedBack->m_qAngularForce;
+			v3Torque = m_pForceFeedBack->m_v3AngularForce;
 		}
 
 
@@ -375,7 +375,7 @@ bool VistaPhantomDriver::DoSensorUpdate(VistaType::microtime nTs)
 		}
 
 		if(m_pForceFeedBack->m_nOutputDOF == 6)
-			hdSetFloatv( HD_CURRENT_ANGULAR_VELOCITY, &qTorque[0] );
+			hdSetFloatv( HD_CURRENT_TORQUE, &v3Torque[0] );
 	}
 
 	hdGetIntegerv(HD_CURRENT_BUTTONS,         &s->m_nButtonState);
@@ -466,11 +466,11 @@ VistaPhantomDriver::VistaPhantomForceFeedbackAspect::~VistaPhantomForceFeedbackA
 
 
 bool VistaPhantomDriver::VistaPhantomForceFeedbackAspect::SetForce( const VistaVector3D   & v3Force,
-																	  const VistaQuaternion & qAngularForce)
+																	  const VistaVector3D & v3AngularForce)
 {
 	// check thread safety here!
 	m_v3Force       = v3Force;
-	m_qAngularForce = qAngularForce;
+	m_v3AngularForce = v3AngularForce;
 	return true;
 }
 

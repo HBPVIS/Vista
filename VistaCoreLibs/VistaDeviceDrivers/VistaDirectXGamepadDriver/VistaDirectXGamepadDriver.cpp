@@ -833,8 +833,8 @@ bool VistaDirectXGamepad::VistaDirectXForceFeedbackAspect::DeleteEffect(CEffect 
 	return true;
 }
 
-bool VistaDirectXGamepad::VistaDirectXForceFeedbackAspect::SetForce( const VistaVector3D   & force,
-																	   const VistaQuaternion & )
+bool VistaDirectXGamepad::VistaDirectXForceFeedbackAspect::SetForce( const VistaVector3D& v3Force,
+																	   const VistaVector3D& )
 {
 	if(!m_pCurrentEffect)
 		return false;
@@ -844,7 +844,7 @@ bool VistaDirectXGamepad::VistaDirectXForceFeedbackAspect::SetForce( const Vista
 
 	// interpret the force vector as a projection
 	// on the x-z plane
-	VistaVector3D norm(force);
+	VistaVector3D norm(v3Force);
 	norm[1] = 0;
 	norm.Normalize();
 
@@ -852,7 +852,7 @@ bool VistaDirectXGamepad::VistaDirectXForceFeedbackAspect::SetForce( const Vista
 	DWORD  rgdwAxes[2]     = { DIJOFS_X, DIJOFS_Y };
 
 	DICONSTANTFORCE cf;
-	cf.lMagnitude = (LONG)force.GetLength();
+	cf.lMagnitude = (LONG)v3Force.GetLength();
 
 	eff.dwSize                = sizeof(DIEFFECT);
 	eff.dwFlags               = DIEFF_CARTESIAN | DIEFF_OBJECTOFFSETS;

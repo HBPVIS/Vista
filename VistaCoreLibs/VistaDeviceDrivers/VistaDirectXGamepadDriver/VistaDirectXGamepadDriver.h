@@ -130,8 +130,8 @@ public:
 		bool Start(CEffect *pEffect, int nIterations);
 		bool Stop(CEffect *pEffect);
 
-		virtual bool SetForce( const VistaVector3D   & force,
-							   const VistaQuaternion & qIgnored);
+		virtual bool SetForce( const VistaVector3D& v3Force,
+							   const VistaVector3D& v3Ignored);
 
 		bool     SetCurrentEffect( CEffect * );
 		CEffect *GetCurrentEffect() const;

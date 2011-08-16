@@ -73,7 +73,7 @@ public:
 	 * @param qTorque the angular force to apply, not all devices may support this
 	 */
 	virtual bool SetForce( const VistaVector3D   & v3Force,
-						   const VistaQuaternion &qTorque )=0;
+						   const VistaVector3D &v3Torque )=0;
 
 	/**
 	 * Macro-method, calls SetForce(v3,q) with q=(0,0,0,1)
@@ -161,7 +161,7 @@ public:
 								  const VistaVector3D &v3CurrentVelocity,
 								  const VistaQuaternion &qCurrentOrientation,
 								  VistaVector3D &v3ResultingForce,
-								  VistaQuaternion &qResultingTorque) = 0;
+								  VistaVector3D &v3ResultingTorque) = 0;
 
 		/**
 		 * alternative API to UpdateForce() from above, which takes a
@@ -172,7 +172,7 @@ public:
 								  const VistaTransformMatrix &,
 								  const VistaVector3D &v3Velocity,
 				                  VistaVector3D &v3ResultingForce,
-				                  VistaQuaternion &qResultingTorque );
+				                  VistaVector3D &v3ResultingTorque );
 	protected:
 		/**
 		 * @param nStorageSize defines the size in bytes to store
@@ -238,6 +238,7 @@ class VISTADEVICEDRIVERSAPI VistaPlaneConstraint
 {
 public:
 	VistaPlaneConstraint();
+    virtual ~VistaPlaneConstraint();
 
 	/**
 	 * Is called by the driver to calculate the current force behavior.
@@ -247,7 +248,7 @@ public:
 							  const VistaVector3D &v3CurrentVelocity,
 							  const VistaQuaternion &qCurrentOrientation,
 							  VistaVector3D &v3ResultingForce,
-							  VistaQuaternion &qResultingTorque);
+							  VistaVector3D &v3ResultingTorque);
 
 
 	/**

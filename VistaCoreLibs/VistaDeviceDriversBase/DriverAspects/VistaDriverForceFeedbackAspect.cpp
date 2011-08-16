@@ -80,7 +80,7 @@ IVistaDriverForceFeedbackAspect::~IVistaDriverForceFeedbackAspect()
 
 bool IVistaDriverForceFeedbackAspect::SetForce( const VistaVector3D &v3Force )
 {
-	return SetForce( v3Force, VistaQuaternion() );
+	return SetForce( v3Force, VistaVector3D() );
 }
 
 bool IVistaDriverForceFeedbackAspect::SetForceAlgorithm( IForceAlgorithm *pModel )
@@ -139,12 +139,12 @@ bool IVistaDriverForceFeedbackAspect::IForceAlgorithm::UpdateForce(
 	const VistaTransformMatrix &m,
 	const VistaVector3D &v3CurrentVelocity,
 	VistaVector3D &v3ResultingForce,
-	VistaQuaternion &qResultingTorque )
+	VistaVector3D &v3ResultingTorque )
 {
 	VistaVector3D v3Trans;
 	m.GetTranslation(v3Trans);
  	VistaQuaternion q(m);
-	return UpdateForce(dTs, v3Trans, v3CurrentVelocity, q, v3ResultingForce, qResultingTorque );
+	return UpdateForce(dTs, v3Trans, v3CurrentVelocity, q, v3ResultingForce, v3ResultingTorque );
 }
 
 
@@ -156,11 +156,15 @@ VistaPlaneConstraint::VistaPlaneConstraint()
 
 }
 
+VistaPlaneConstraint::~VistaPlaneConstraint()
+{
+
+}
 bool VistaPlaneConstraint::UpdateForce( double dTs, const VistaVector3D &v3CurrentPos,
 		          const VistaVector3D &v3CurrentVelocity,
 		          const VistaQuaternion &qCurrentOrientation,
 		          VistaVector3D   &v3ResultingForce,
-		          VistaQuaternion &qResultingTorque)
+		          VistaVector3D &v3ResultingTorque)
 {
 	const VistaMeasureHistory &hist = m_pSensor->GetMeasures();
 	const VistaSensorMeasure *pM    = hist.GetCurrentRead();
@@ -183,13 +187,13 @@ bool VistaPlaneConstraint::UpdateForce( double dTs, const VistaVector3D &v3Curre
 						 * pPlane->m_nStiffness
 		                 + VistaVector3D( pPlane->m_afInternalForce );
 
-		qResultingTorque = VistaQuaternion(0,0,0,1);
+		v3ResultingTorque = VistaVector3D(0,0,0,1);
 		return true;
 	}
 	else if(nDistance > 0)
 	{
 		v3ResultingForce = VistaVector3D(0,0,0);
-		qResultingTorque = VistaQuaternion(0,0,0,1);
+		v3ResultingTorque = VistaVector3D(0,0,0,1);
 		return true;
 	}
 	else
@@ -197,7 +201,7 @@ bool VistaPlaneConstraint::UpdateForce( double dTs, const VistaVector3D &v3Curre
         v3ResultingForce = -(oPlane.GetNormVector() * pPlane->m_nStiffness
         		           * nDistance
 						   + pPlane->m_nDamping * v3CurrentVelocity);
-		qResultingTorque = VistaQuaternion(0,0,0,1);
+		v3ResultingTorque = VistaVector3D(0,0,0,1);
 		return true;
 	}
 

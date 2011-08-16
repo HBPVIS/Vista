@@ -22,24 +22,24 @@
 /*============================================================================*/
 // $Id$
 
-#ifndef _VISTAPHANTOMSERVERDRIVER_H
-#define _VISTAPHANTOMSERVERDRIVER_H
+#ifndef _VistaHapticDeviceEmulatorDRIVER_H
+#define _VistaHapticDeviceEmulatorDRIVER_H
 
 // Windows DLL build
-#if defined(WIN32) && !defined(VISTAPHANTOMSERVERDRIVER_STATIC) 
-#ifdef VISTAPHANTOMSERVERDRIVER_EXPORTS
-#define VISTAPHANTOMSERVERDRIVERAPI __declspec(dllexport)
+#if defined(WIN32) && !defined(VISTAHAPTICDEVICEEMULATORDRIVER_STATIC)
+#ifdef VISTAHAPTICDEVICEEMULATORDRIVER_EXPORTS
+#define VISTAHAPTICDEVICEEMULATORDRIVERAPI __declspec(dllexport)
 #else
-#define VISTAPHANTOMSERVERDRIVERAPI __declspec(dllimport)
+#define VISTAHAPTICDEVICEEMULATORDRIVERAPI __declspec(dllimport)
 #endif
 #else // no Windows or static build
-#define VISTAPHANTOMSERVERDRIVERAPI
+#define VISTAHAPTICDEVICEEMULATORDRIVERAPI
 #endif
 
 /*============================================================================*/
 /* INCLUDES                                                                   */
 /*============================================================================*/
-#include "VistaPhantomServerCommonShare.h"
+#include "VistaHapticDeviceEmulatorCommonShare.h"
 #include <VistaDeviceDriversBase/VistaDeviceDriversConfig.h>
 #include <VistaDeviceDriversBase/VistaDeviceDriver.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverForceFeedbackAspect.h>
@@ -48,7 +48,6 @@
 
 //CRM
 #include <VistaDeviceDriversBase/VistaDeviceSensor.h>
-
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -67,10 +66,10 @@ class VistaConnection;
 /*============================================================================*/
 
 /**
- * a driver for remote phantom access using the VistaPhantomServer implementation
- * which constructs a TCP/IP line between the host where the phantom is attached
+ * a driver for connecting to the VistaHapticDeviceEmulator implementation
+ * which constructs a TCP/IP line between the host where the VistaHapticDeviceEmulator is attached
  * and the host where the data is needed. It is not necessarily superceeded by
- * the phantom driver which is available as a plugin to ViSTA, as it realizes
+ * the driver which is available as a plugin to ViSTA, as it realizes
  * the transport remotely, which is not possible using the plugin.
  * However, this driver, by nature has more latency and omits data in order not
  * to clutter up the TCP/IP connection. It supports force feedback rendering
@@ -78,15 +77,13 @@ class VistaConnection;
  *
  *
  */
-class VISTAPHANTOMSERVERDRIVERAPI VistaPhantomServerDriver : public IVistaDeviceDriver
+class VISTAHAPTICDEVICEEMULATORDRIVERAPI VistaHapticDeviceEmulatorDriver : public IVistaDeviceDriver
 {
-	friend class VistaPhantomServerControlAttachSequence;
-	friend class VistaPhantomServerForceFeedbackAspect;
+	friend class VistaHapticDeviceEmulatorControlAttachSequence;
+	friend class VistaHapticDeviceEmulatorForceFeedbackAspect;
 public:
-	VistaPhantomServerDriver(IVistaDriverCreationMethod *crm);
-	virtual ~VistaPhantomServerDriver();
-
-
+	VistaHapticDeviceEmulatorDriver(IVistaDriverCreationMethod *crm);
+	virtual ~VistaHapticDeviceEmulatorDriver();
 
 	/**
 	 * Returns a factory method for the creation of a driver.
@@ -96,12 +93,14 @@ public:
 	 */
 	//static IVistaDriverCreationMethod *GetDriverFactoryMethod();
 
-	class VISTAPHANTOMSERVERDRIVERAPI VistaPhantomServerForceFeedbackAspect : public IVistaDriverForceFeedbackAspect
+	class VISTAHAPTICDEVICEEMULATORDRIVERAPI VistaHapticDeviceEmulatorForceFeedbackAspect : public IVistaDriverForceFeedbackAspect
 	{
-		friend class VistaPhantomServerDriver;
+		friend class VistaHapticDeviceEmulatorDriver;
 	public:
 		virtual bool SetForce( const VistaVector3D   & force,
-							   const VistaVector3D &angularForce );
+							   const VistaQuaternion &angularForce );
+		virtual bool SetForce( const VistaVector3D   & force,
+			const VistaVector3D &angularForce ){return true;};
 
 		bool SetConstraint( const VistaVector3D		& contactPoint,
 									const VistaVector3D	& normal,
@@ -120,13 +119,12 @@ public:
 		bool SetDynamicFrictionEnabled( bool bEnabled );
 		bool GetDynamicFrictionEnabled() const;
 	private:
-		VistaPhantomServerForceFeedbackAspect( VistaPhantomServerDriver *pDriver );
-		virtual ~VistaPhantomServerForceFeedbackAspect();
+		VistaHapticDeviceEmulatorForceFeedbackAspect( VistaHapticDeviceEmulatorDriver *pDriver );
+		virtual ~VistaHapticDeviceEmulatorForceFeedbackAspect();
 
-		VistaPhantomServerDriver *m_pParent;
+		VistaHapticDeviceEmulatorDriver *m_pParent;
 		VistaConnection *GetChannel(int nId) const;
 		VistaByteBufferSerializer *m_pSerializer;
-
 
 		float m_nDefaultStiffness;
 		bool  m_bForcesEnabled;
@@ -146,6 +144,7 @@ protected:
 private:
 	VistaDriverConnectionAspect *m_pConAspect;
 	VistaDriverWorkspaceAspect *m_pWorkSpace;
+	VistaHapticDeviceEmulatorForceFeedbackAspect* m_pForceFeedbackAspect;
 
 	// MEMBERS
 	int		m_inputDOF;
@@ -157,29 +156,25 @@ private:
 	VistaVector3D		m_maxUsableWorkspaceMin, m_maxUsableWorkspaceMax;
 };
 
-class VISTAPHANTOMSERVERDRIVERAPI VistaPhantomServerDriverFactory : public IVistaDriverCreationMethod
+class VISTAHAPTICDEVICEEMULATORDRIVERAPI VistaHapticDeviceEmulatorDriverFactory : public IVistaDriverCreationMethod
 {
 public:
 
-	VistaPhantomServerDriverFactory(IVistaTranscoderFactoryFactory *metaFac)
+	VistaHapticDeviceEmulatorDriverFactory(IVistaTranscoderFactoryFactory *metaFac)
 		: IVistaDriverCreationMethod(metaFac)
 	{
-		RegisterSensorType( "", sizeof(VistaPhantomServerMeasures::sPhantomServerMeasure), 1000,
-			metaFac->CreateFactoryForType("VistaPhantomServerDriverMeasureTranscode"));
+		RegisterSensorType( "", sizeof(VistaHapticDeviceEmulatorMeasures::sHapticDeviceEmulatorMeasure), 1000,
+			metaFac->CreateFactoryForType("VistaHapticDeviceEmulatorDriverMeasureTranscode"));
 	}
 
 	virtual IVistaDeviceDriver *CreateDriver()
 	{
-		return new VistaPhantomServerDriver(this);
+		return new VistaHapticDeviceEmulatorDriver(this);
 	}
 };
-
-
-
 
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/
 
-#endif //_VISTAPHANTOMSERVERDRIVER_H
-
+#endif //_VistaHapticDeviceEmulatorDRIVER_H

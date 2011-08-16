@@ -45,7 +45,7 @@ VdfnForceFeedbackNode::VdfnForceFeedbackNode( IVistaDriverForceFeedbackAspect *p
    m_pEnabled(NULL)
    {
 		RegisterInPortPrototype( "force", new TVdfnPortTypeCompare<TVdfnPort<VistaVector3D> >);
-		RegisterInPortPrototype( "torque", new TVdfnPortTypeCompare<TVdfnPort<VistaQuaternion> >);
+		RegisterInPortPrototype( "torque", new TVdfnPortTypeCompare<TVdfnPort<VistaVector3D> >);
 		RegisterInPortPrototype( "enabled", new TVdfnPortTypeCompare<TVdfnPort<bool> >);
    }
 
@@ -57,7 +57,7 @@ bool VdfnForceFeedbackNode::GetIsValid() const
 bool VdfnForceFeedbackNode::PrepareEvaluationRun()
 {
 	m_pForceVec = dynamic_cast<TVdfnPort<VistaVector3D>*>(GetInPort("force"));
-	m_pTorque = dynamic_cast<TVdfnPort<VistaQuaternion>*>(GetInPort("torque"));
+	m_pTorque = dynamic_cast<TVdfnPort<VistaVector3D>*>(GetInPort("torque"));
 	m_pEnabled = dynamic_cast<TVdfnPort<bool>*>(GetInPort("enabled"));
 
 	return GetIsValid();
@@ -74,7 +74,7 @@ bool VdfnForceFeedbackNode::DoEvalNode()
         return true;
 
 	return m_pAspect->SetForce( (m_pForceVec ? m_pForceVec->GetValue() : VistaVector3D()),
-								(m_pTorque ? m_pTorque->GetValue() : VistaQuaternion()) );
+								(m_pTorque ? m_pTorque->GetValue() : VistaVector3D()) );
 }
 
 void VdfnForceFeedbackNode::OnActivation( double dTs )

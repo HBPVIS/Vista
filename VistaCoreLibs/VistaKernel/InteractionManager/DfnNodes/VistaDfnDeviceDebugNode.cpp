@@ -194,7 +194,7 @@ void VdfnDeviceDebugNode::UpdateDynamicLabels()
 				}
 				else
 				{
-					pE->SetText(FormatLabel((*it).first, pTr->GetReturnType().name()) + "<no-get>");
+					pE->SetText(FormatLabel((*it).first, pTr->GetReturnType().name()) + "<no-string-get>");
 				}
 			}
 			else

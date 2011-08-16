@@ -22,24 +22,24 @@
 /*============================================================================*/
 // $Id$
 
-#ifndef __VISTAPHANTOMDRIVER_H
-#define __VISTAPHANTOMDRIVER_H
+#ifndef __VISTACHAI3DHAPTICDEVICESDRIVER_H
+#define __VISTACHAI3DHAPTICDEVICESDRIVER_H
 
 // Windows DLL build
-#if defined(WIN32) && !defined(VISTAPHANTOMDRIVER_STATIC) 
-#ifdef VISTAPHANTOMDRIVER_EXPORTS
-#define VISTAPHANTOMDRIVERAPI __declspec(dllexport)
+#if defined(WIN32) && !defined(VISTACHAI3DHAPTICDEVICESDRIVER_STATIC)
+#ifdef VISTACHAI3DHAPTICDEVICESDRIVER_EXPORTS
+#define VISTACHAI3DHAPTICDEVICESDRIVERAPI __declspec(dllexport)
 #else
-#define VISTAPHANTOMDRIVERAPI __declspec(dllimport)
+#define VISTACHAI3DHAPTICDEVICESDRIVERAPI __declspec(dllimport)
 #endif
 #else // no Windows or static build
-#define VISTAPHANTOMDRIVERAPI
+#define VISTACHAI3DHAPTICDEVICESDRIVERAPI
 #endif
 
 /*============================================================================*/
 /* INCLUDES                                                                   */
 /*============================================================================*/
-#include "VistaPhantomCommonShare.h"
+#include "VistaCHAI3DHapticDevicesCommonShare.h"
 
 #include <VistaDeviceDriversBase/VistaDeviceDriver.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverForceFeedbackAspect.h>
@@ -59,34 +59,41 @@ class VistaDriverWorkspaceAspect;
 class IVistaDriverProtocolAspect;
 class VistaDriverInfoAspect;
 class VistaDeviceIdentificationAspect;
+class VistaThreadLoop;
+
+class cHapticDeviceHandler;
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
 /**
- * a driver for the Phantom haptic device. It uses the OpenHaptics library
- * and supports multiple phantoms on the same machine. The driver collects
- * data at the full data rate and offers advanced force feedback using the
- * force feedback API and LLDx.
+ * This is a driver to use the CHAI3D Toolkit to support various haptic devices, i.e. a device simulator.
+ * Latter should be started automatically if no other device is pluged into the computer (if not it can be started by hand .
+ * The driver uses a VistaThreadLoop for a cyclic pull of data from the CHAI3D which
+ * is then pushed into the history. As this driver was developed to be usable in exchange with the PhantomDriver
+ * the interface is adapted to it. Therefore the data in the deviceMeasure is sometimes not filled with data from the device, as CHAI3D does not deliver them
+ * Attention! The driver is only tested under Windows 32 bit, with the "VirtualDevice", Phantom Omni, Phantom Premium 1.5 6DOF, and Falcon.
+ * It is possible to use it with multiple devices, e.g., virtual and falcon. But up to now it is not possible to use two Phantom Devices via this driver
+ * in this case you have to use the phantom driver additionally.
+ * Further information about setting up CHAI3D could be found in the drivers README.
  */
-class VISTAPHANTOMDRIVERAPI VistaPhantomDriver : public IVistaDeviceDriver
+class VISTACHAI3DHAPTICDEVICESDRIVERAPI VistaCHAI3DHapticDevicesDriver : public IVistaDeviceDriver
 {
-	friend class VistaPhantomForceFeedbackAspect;
+	friend class VistaCHAI3DHapticDevicesForceFeedbackAspect;
 public:
 
-	VistaPhantomDriver(IVistaDriverCreationMethod *crm);
-	virtual ~VistaPhantomDriver();
+	VistaCHAI3DHapticDevicesDriver(IVistaDriverCreationMethod *crm);
+	virtual ~VistaCHAI3DHapticDevicesDriver();
 
 	/**
 	 * Overloaded from IVistaDeviceDriver.
-	 * Tries to open the phantom device that was specified in the ProtocolAspect's name
-	 * field. Revision is ignored.
+	 * Tries to open a CHAI3D device and get device information
 	 */
 	bool Connect();
 
-	class VISTAPHANTOMDRIVERAPI VistaPhantomForceFeedbackAspect : public IVistaDriverForceFeedbackAspect
+	class VISTACHAI3DHAPTICDEVICESDRIVERAPI VistaCHAI3DHapticDevicesForceFeedbackAspect : public IVistaDriverForceFeedbackAspect
 	{
-		friend class VistaPhantomDriver;
+		friend class VistaCHAI3DHapticDevicesDriver;
 	public:
 		virtual bool SetForce( const VistaVector3D   & force,
 							   const VistaVector3D &angularForce );
@@ -94,18 +101,16 @@ public:
 		virtual bool SetForcesEnabled(bool bEnabled);
 		virtual bool GetForcesEnabled() const;
 
-
 		virtual int GetNumInputDOF() const;
 		virtual int GetNumOutputDOF() const;
 
         virtual float GetMaximumStiffness() const;
         virtual float GetMaximumForce() const;
 
-
 	private:
-		VistaPhantomForceFeedbackAspect( VistaPhantomDriver *pDriver );
-		virtual ~VistaPhantomForceFeedbackAspect();
-		VistaPhantomDriver *m_pParent;
+		VistaCHAI3DHapticDevicesForceFeedbackAspect( VistaCHAI3DHapticDevicesDriver *pDriver );
+		virtual ~VistaCHAI3DHapticDevicesForceFeedbackAspect();
+		VistaCHAI3DHapticDevicesDriver *m_pParent;
 
 		int m_nInputDOF,
 			m_nOutputDOF;
@@ -122,31 +127,35 @@ protected:
 	bool         PhysicalEnable(bool bEnable);
 	virtual bool DoSensorUpdate(VistaType::microtime dTs);
 private:
+
+	//As CHAI3D does not deliver workspace information this is in here only for compatibility reason
 	VistaDriverWorkspaceAspect *m_pWorkSpace;
 	IVistaDriverProtocolAspect  *m_pProtocol;
 	VistaDriverInfoAspect      *m_pInfo;
 	VistaDeviceIdentificationAspect *m_pIdentification;
-	VistaPhantomForceFeedbackAspect *m_pForceFeedBack;
+	VistaCHAI3DHapticDevicesForceFeedbackAspect *m_pForceFeedBack;
 
+	// this thread triggers the update function of the driver
+	VistaThreadLoop*	m_pUpdateLoop;
 
-	struct _sPhantomPrivate;
-	_sPhantomPrivate *m_pPrivate;
+	struct _sCHAI3DHapticDevicesPrivate;
+	_sCHAI3DHapticDevicesPrivate *m_pHapticDevicePrivate;
 };
 
-class VISTAPHANTOMDRIVERAPI VistaPhantomDriverFactory : public IVistaDriverCreationMethod
+class VISTACHAI3DHAPTICDEVICESDRIVERAPI VistaCHAI3DHapticDevicesDriverFactory : public IVistaDriverCreationMethod
 {
 public:
 
-	VistaPhantomDriverFactory(IVistaTranscoderFactoryFactory *metaFac)
+	VistaCHAI3DHapticDevicesDriverFactory(IVistaTranscoderFactoryFactory *metaFac)
 		: IVistaDriverCreationMethod(metaFac)
 	{
-		RegisterSensorType( "", sizeof(VistaPhantomMeasures::sPhantomMeasure), 1000,
-			metaFac->CreateFactoryForType("VistaPhantomDriverMeasureTranscode"));
+		RegisterSensorType( "", sizeof(VistaCHAI3DHapticDevicesMeasures::sCHAI3DHapticDevicesMeasure), 1000,
+			metaFac->CreateFactoryForType("VistaCHAI3DHapticDevicesDriverMeasureTranscode"));
 	}
 
 	virtual IVistaDeviceDriver *CreateDriver()
 	{
-		return new VistaPhantomDriver(this);
+		return new VistaCHAI3DHapticDevicesDriver(this);
 	}
 };
 
@@ -154,5 +163,8 @@ public:
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/
 
-#endif //__VISTAPHANTOMDRIVER_H
+// a CHAI3D haptic device handler. it is defined globally as in case we initialize
+// the driver twice only one handler is created and later reused as otherwise CHAI3D will crash!
 
+cHapticDeviceHandler* m_pHapticDeviceHandler( NULL );
+#endif //__VISTACHAI3DHapticDevicesDRIVER_H

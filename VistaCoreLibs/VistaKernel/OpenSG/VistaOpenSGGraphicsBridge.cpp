@@ -2095,11 +2095,11 @@ bool VistaOpenSGGraphicsBridge::GetNormals(vector<VistaVector3D>& normals,
 	osg::UInt32 i=0;
 	while(i<nnorm)
 	{
-		norm->getValue(vec, i++);
+		norm->getValue(vec, i);
 		normals[i][0] = vec[0];
 		normals[i][1] = vec[1];
 		normals[i][2] = vec[2];
-		normals[i][3] = 0.0f;
+		normals[i++][3] = 0.0f;
 	}
 
 	return true;

@@ -92,7 +92,7 @@ class IVistaDriverProtocolAspect;
 class VistaDriverSensorMappingAspect;
 class VistaDriverGenericParameterAspect;
 class VistaDriverThreadAspect;
-class CWiimoteRumble;
+class WiimoteRumble;
 class VistaMutex;
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -223,7 +223,7 @@ private:
 	VistaDriverSensorMappingAspect    *m_pMappingAspect;
 	VistaDriverGenericParameterAspect *m_pParams;
 	VistaDriverThreadAspect		   *m_pThreadAspect;
-	CWiimoteRumble                     *m_pRumble;
+	WiimoteRumble                     *m_pRumble;
 
 	unsigned int m_nWiimoteId,
 	             m_nNunchukId,

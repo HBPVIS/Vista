@@ -9,6 +9,7 @@ vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_HID			        VistaHIDDri
 vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_IRMAN		        VistaIRManDriver		        ON	ADVANCED )
 vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_MIDI			  	 	VistaMIDIDriver			        ON	ADVANCED )
 vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_PHANTOMSERVER		VistaPhantomServerDriver		ON	ADVANCED )
+vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_HAPTICDEVICEEMULATOR	VistaHapticDeviceEmulatorDriver	ON	ADVANCED )
 vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_SPACEMOUSE			VistaSpaceMouseDriver			ON	ADVANCED )
 
 # 3rd party libraries needed for: (so they are marked OFF by default)
@@ -20,6 +21,7 @@ vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_OPENNI			    VistaOpenNID
 vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_PHANTOM			    VistaPhantomDriver			    OFF )
 vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_VRPN    				VistaVRPNDriver			        OFF )
 vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_WIIMOTE			    VistaWiimoteDriver			    OFF )
+vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_CHAI3DHAPTICDEVICES	VistaChai3dHapticDevicesDriver  OFF )
 
 if( UNIX )
 	vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_JSWJOYSTICK		VistaJswJoystickDriver			OFF )

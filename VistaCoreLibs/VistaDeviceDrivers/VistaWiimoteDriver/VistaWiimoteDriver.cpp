@@ -439,10 +439,10 @@ bool VistaWiimoteDriver::CWiiMoteParameters::SetWaitTimeout( int nTimeoutInSecs 
 // RUMBLE FORCE FEEDBACK
 // ############################################################################
 
-class CWiimoteRumble : public IVistaDriverForceFeedbackAspect
+class WiimoteRumble : public IVistaDriverForceFeedbackAspect
 {
 public:
-	CWiimoteRumble()
+	WiimoteRumble()
 	: IVistaDriverForceFeedbackAspect(),
 	  m_pMote(NULL)
 	{
@@ -457,8 +457,8 @@ public:
 	 * @param v3Force the force vector to set on the device API (dir+length)
 	 * @param qTorque the angular force to apply, not all devices may support this
 	 */
-	virtual bool SetForce( const VistaVector3D   & v3Force,
-						   const VistaQuaternion &qTorque )
+	virtual bool SetForce( const VistaVector3D& v3Force,
+						   const VistaVector3D& v3Torque )
 	{
 		if(!m_pMote)
 			return false;
@@ -522,7 +522,7 @@ VistaWiimoteDriver::VistaWiimoteDriver(IVistaDriverCreationMethod *crm)
   m_pMote(NULL),
   m_nState(ST_NOEXP),
   m_bConnected(false),
-  m_pRumble(new CWiimoteRumble),
+  m_pRumble(new WiimoteRumble),
   m_bParamChangeFlag( false )
 {
 	m_pParams = new VistaDriverGenericParameterAspect( new CWiiMoteParameterCreate( this ) );
@@ -860,10 +860,10 @@ bool VistaWiimoteDriver::DoSensorUpdate(VistaType::microtime nTs)
 		VistaQuaternion q(m);
 
 		VistaVector3D rV3;
-		VistaQuaternion rQ;
-		if(pFF->UpdateForce(double(nTs), crPos, crVel, q, rV3, rQ ))
+		VistaVector3D v3Dummy;
+		if(pFF->UpdateForce(double(nTs), crPos, crVel, q, rV3, v3Dummy ))
 		{
-			m_pRumble->SetForce( rV3, rQ );
+			m_pRumble->SetForce( rV3, v3Dummy );
 		}
 	}
 	return true;
