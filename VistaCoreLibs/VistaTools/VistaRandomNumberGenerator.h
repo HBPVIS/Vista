@@ -75,6 +75,20 @@ public:
 	*/
 	double        GenerateDouble53() ;
 
+	/** 
+	 * Creates a random number according to a gaussian distribution
+	 * with mean at 0 and Std of 1
+	 * This uses the Box-muller-transform to generate a pseudo-gaussian distribution
+	 */
+	double GenerateGaussian();
+
+	/** 
+	 * Creates a random number according to a gaussian distribution
+	 * with specified mean and Std Deviation
+	 * This uses the Box-muller-transform to generate a pseudo-gaussian distribution
+	 */
+	double GenerateGaussian( double dMean, double dStdDev );
+
 
 protected:
 private:

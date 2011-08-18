@@ -26,7 +26,9 @@
 /* INCLUDES                                                                   */
 /*============================================================================*/
 #include "VistaRandomNumberGenerator.h"
+
 #include <string.h>
+#include <math.h>
 
 /*============================================================================*/
 /*  MAKROS AND DEFINES                                                        */
@@ -181,6 +183,27 @@ double        VistaRandomNumberGenerator::GenerateDouble53()
 {
 	unsigned int a=GenerateInt32()>>5, b=GenerateInt32()>>6; 
 	return(a*67108864.0+b)*(1.0/9007199254740992.0); 
+}
+
+double VistaRandomNumberGenerator::GenerateGaussian()
+{
+	double x1, x2, w;
+
+	do 
+	{
+         x1 = 2.0 * GenerateDouble2() - 1.0;
+         x2 = 2.0 * GenerateDouble2() - 1.0;
+         w = x1 * x1 + x2 * x2;
+	} while ( w >= 1.0 );
+
+     w = sqrt( ( -2.0 * log( w ) ) / w );
+	 
+	 return x1 * w;
+}
+
+double VistaRandomNumberGenerator::GenerateGaussian( double dMean, double dStdDev )
+{
+	return dMean + dStdDev * GenerateGaussian();
 }
 
 /*============================================================================*/
