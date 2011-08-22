@@ -41,6 +41,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <iterator>
 
 using std::string;
 using std::vector;
