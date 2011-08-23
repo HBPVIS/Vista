@@ -62,8 +62,8 @@ public:
 	VistaHIDDriverForceFeedbackAspect(VistaConnection *pCon);
 	virtual ~VistaHIDDriverForceFeedbackAspect();
 
-	virtual bool SetForce( const VistaVector3D   & force,
-						   const VistaQuaternion & qIgnored);
+	virtual bool SetForce( const VistaVector3D & force,
+						   const VistaVector3D & v3Ignored);
 
 	int GetNumInputDOF() const;
 	int GetNumOutputDOF() const;

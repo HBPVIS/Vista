@@ -99,7 +99,8 @@ bool VistaTransformNode::SetScale( const VistaVector3D& v3Scale )
 	//	return false;
 
 	// even if it is sheared, SetScale should overwrite, so it's okay...
-	matTransform.Decompose( v3Translation, qRotation, v3DecScale, VistaQuaternion() );
+	VistaQuaternion qDummy;
+	matTransform.Decompose( v3Translation, qRotation, v3DecScale, qDummy );
 	matTransform.Compose( v3Translation, qRotation, v3Scale );
 	m_pBridge->SetTransform( matTransform, m_pData );
 

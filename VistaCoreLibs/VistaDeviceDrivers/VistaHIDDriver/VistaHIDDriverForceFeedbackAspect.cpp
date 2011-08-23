@@ -76,7 +76,7 @@ VistaHIDDriverForceFeedbackAspect::~VistaHIDDriverForceFeedbackAspect()
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
 bool VistaHIDDriverForceFeedbackAspect::SetForce( const VistaVector3D & force,
-												   const VistaQuaternion & )
+												   const VistaVector3D & )
 {
 	input_event start_ff ;
 
