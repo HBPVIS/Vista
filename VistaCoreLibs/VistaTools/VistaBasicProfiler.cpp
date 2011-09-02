@@ -40,13 +40,22 @@ VistaBasicProfiler* pSingleton = NULL;
 
 VistaBasicProfiler::ProfileScopeObject::ProfileScopeObject( const std::string& sName )
 : m_sName( sName )
+, m_pProfiler( VistaBasicProfiler::GetSingleton() )
 {
-	VistaBasicProfiler::GetSingleton()->StartSection( sName );
+	m_pProfiler->StartSection( sName );
+}
+
+VistaBasicProfiler::ProfileScopeObject::ProfileScopeObject( const std::string& sName,
+														   VistaBasicProfiler* pProf )
+: m_sName( sName )
+, m_pProfiler( pProf )
+{
+	m_pProfiler->StartSection( sName );
 }
 
 VistaBasicProfiler::ProfileScopeObject::~ProfileScopeObject()
 {
-	VistaBasicProfiler::GetSingleton()->StopSection( m_sName );
+	m_pProfiler->StopSection( m_sName );
 }
 
 

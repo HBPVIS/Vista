@@ -220,7 +220,7 @@ bool VistaCHAI3DHapticDevicesDriver::Connect()
 
 	// get a handle to the haptic device with this device name
 	// if this is not successful, try to take the first available device
-	for (int i=0;i<numHapticDevices;i++)
+	for ( int i = 0; i < (int)numHapticDevices; i++ )
 	{
 		cHapticDeviceInfo a_deviceSpecification;
 		m_pHapticDeviceHandler->getDeviceSpecifications(a_deviceSpecification, i);

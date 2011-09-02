@@ -86,17 +86,17 @@ public:
 		bool operator<( const VistaBasicProfiler::ProfileTreeNode& oCompare );
 
 	protected:
-		VistaType::microtime								m_dEntryTime;
+		VistaType::microtime					m_dEntryTime;
 		std::string								m_sName;
 		ProfileTreeNode*						m_pParent;
 		std::map<std::string, ProfileTreeNode*>	m_mapChildren;	
 		std::list<ProfileTreeNode*>				m_liChildren;
 		ProfileTreeNode*						m_pCurrentChild;
-		VistaType::microtime								m_dCurrentFrame;
-		VistaType::microtime								m_dLastFrame;
-		VistaType::microtime								m_dFastAvg;
-		VistaType::microtime								m_dSlowAvg;
-		VistaType::microtime								m_dMax;
+		VistaType::microtime					m_dCurrentFrame;
+		VistaType::microtime					m_dLastFrame;
+		VistaType::microtime					m_dFastAvg;
+		VistaType::microtime					m_dSlowAvg;
+		VistaType::microtime					m_dMax;
 	};
 
 public:
@@ -121,8 +121,11 @@ public:
 	{
 	public:
 		ProfileScopeObject( const std::string& sName );
+		ProfileScopeObject( const std::string& sName, VistaBasicProfiler* pProf );
 		~ProfileScopeObject();
+	private:
 		std::string m_sName;
+		VistaBasicProfiler* m_pProfiler;
 	};
 
 private:
