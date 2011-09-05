@@ -234,7 +234,7 @@ bool VistaCHAI3DHapticDevicesDriver::Connect()
 	{
 		std::cerr << "[CHAI3DHapticDevicesDriver]: Can't get a handle to the haptic device with the name: " << m_pHapticDevicePrivate->m_strDeviceString << std::endl;
 		std::cerr << "[CHAI3DHapticDevicesDriver]: The names of the available devices are: ";
-		for (int i=0;i<numHapticDevices;i++)
+		for( unsigned int i = 0; i < numHapticDevices; ++i )
 		{
 			cHapticDeviceInfo a_deviceSpecification;
 			m_pHapticDeviceHandler->getDeviceSpecifications(a_deviceSpecification, i);
@@ -330,13 +330,16 @@ namespace
 {
 	inline float alignDoubleToFloatMinMax(double val)
 	{
-			#undef min
-			#undef max
+		#undef min
+		#undef max
 
-			float back = (float)val;
-			if(std::numeric_limits<float>::min() < val)
-				return std::numeric_limits<float>::min();
-			else if(std::numeric_limits<float>::max() > val)return std::numeric_limits<float>::max();
+		float back = (float)val;
+		if(std::numeric_limits<float>::min() < val)
+			return std::numeric_limits<float>::min();
+		else if(std::numeric_limits<float>::max() > val)
+			return std::numeric_limits<float>::max();
+		else
+			return val;
 	}
 }
 
