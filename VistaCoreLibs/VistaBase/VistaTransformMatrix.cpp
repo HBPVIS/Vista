@@ -723,4 +723,23 @@ bool VistaTransformMatrix::Compose( const VistaVector3D& v3Translation,
 	return true;
 }
 
+VistaQuaternion VistaTransformMatrix::GetRotationAsQuaternion() const
+{
+	return VistaQuaternion( (*this) );
+}
 
+VistaTransformMatrix::VistaTransformMatrix( const VistaVector3D& v3XAxis,
+										   const VistaVector3D& v3YAxis,
+										   const VistaVector3D& v3ZAxis )
+{
+	for( int i = 0; i < 4; ++i )
+	{
+		m_a4x4fMatrix[i][0] = v3XAxis[i];
+		m_a4x4fMatrix[i][1] = v3YAxis[i];
+		m_a4x4fMatrix[i][2] = v3ZAxis[i];
+	}
+	m_a4x4fMatrix[0][3] = 0.0f;
+	m_a4x4fMatrix[1][3] = 0.0f;
+	m_a4x4fMatrix[2][3] = 0.0f;
+	m_a4x4fMatrix[3][3] = 1.0f;
+}

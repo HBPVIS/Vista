@@ -83,8 +83,8 @@ public:
 	VistaQuaternion( float fX, float fY, float fZ, float fW );
 	explicit VistaQuaternion( const float a4fValues[4] );
 	explicit VistaQuaternion( const double a4dValues[4] );
-	explicit VistaQuaternion( const VistaEulerAngles& eulRotation );
-	explicit VistaQuaternion( const VistaAxisAndAngle& aaaRotation);
+	VistaQuaternion( const VistaEulerAngles& eulRotation );
+	VistaQuaternion( const VistaAxisAndAngle& aaaRotation );
 	explicit VistaQuaternion( const VistaVector3D& v3From,
 							const VistaVector3D& v3To );
 	explicit VistaQuaternion( const VistaTransformMatrix& matRotMatrix );
@@ -122,7 +122,11 @@ public:
 	VistaQuaternion GetComplexConjugated() const;
 	VistaQuaternion GetNormalized() const;
 	float GetLengthSquared() const;
-	float GetLength() const;	
+	float GetLength() const;
+
+	VistaVector3D GetViewDir() const; // this.Rotate( -Z-dir )
+	VistaVector3D GetUpDir() const; // this.Rotate( y-dir )
+	void SetFromViewAndUpDir( const VistaVector3D& v3View, const VistaVector3D& v3Up );
 	
 	const VistaQuaternion& operator+=( const VistaQuaternion& v3Other );
 	const VistaQuaternion& operator-=( const VistaQuaternion& v3Other );
@@ -140,6 +144,10 @@ public:
 	
 	const float& operator[]( const int iAxis ) const;
 	float& operator[]( const int iAxis );
+
+public:
+	// constantQuaternions
+	static const VistaQuaternion UnitQuaternion;
 
 private:
 	float		m_a4fValues[4];

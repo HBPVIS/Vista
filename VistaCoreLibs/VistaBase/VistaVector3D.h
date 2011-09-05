@@ -93,7 +93,7 @@ public:
 	bool operator!= ( const VistaVector3D& v3Other ) const;
 	
 	const float& operator[] ( const int iAxis ) const;
-	float& operator[] ( const int iAxis );	
+	float& operator[] ( const int iAxis );
 
 private:
 	float		m_a4fValues[4];
@@ -104,6 +104,16 @@ VistaVector3D operator*( const float fScale, const VistaVector3D& v3Vec );
 
 std::ostream& operator<<( std::ostream& oStream, 
 										const VistaVector3D& v3Vector );
+
+namespace Vista
+{
+	const VistaVector3D ViewVector = VistaVector3D( 0, 0, -1 );
+	const VistaVector3D UpVector = VistaVector3D( 0, 1, 0 );
+	const VistaVector3D ZeroVector = VistaVector3D( 0, 0, 0 );
+	const VistaVector3D XAxis = VistaVector3D( 1, 0, 0 );
+	const VistaVector3D YAxis = VistaVector3D( 0, 1, 0 );
+	const VistaVector3D ZAxis = VistaVector3D( 0, 0, 1 );	
+}
 
 /*============================================================================*/
 /* INLINE IMPLEMENTATIONS                                                     */

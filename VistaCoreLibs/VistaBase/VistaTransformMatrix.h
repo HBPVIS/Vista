@@ -69,6 +69,9 @@ public:
 									const VistaVector3D& v3Translation = VistaVector3D( 0,0,0 ) );
 	explicit VistaTransformMatrix( const VistaAxisAndAngle& aaaRotation );
 	explicit VistaTransformMatrix( const VistaVector3D& v3Translation );
+	explicit VistaTransformMatrix( const VistaVector3D& v3XAxis,
+									const VistaVector3D& v3YAxis,
+									const VistaVector3D& v3ZAxis );
 	VistaTransformMatrix( const float fScale );
 
 	const float* operator[]( const int iRowIndex ) const;
@@ -112,6 +115,7 @@ public:
 	void GetTranslation( VistaVector3D &v3Translation ) const;
 	void GetBasisMatrix( float a3x3Matrix[3][3] ) const;
 	void GetBasisMatrix( float a9fMatrix[9], const bool bTransposed = false ) const;
+	VistaQuaternion GetRotationAsQuaternion() const;
 
 	void SetTranslation( const float a3fTranslation[3] );
 	void SetTranslation( const VistaVector3D& v3Translation );
@@ -194,6 +198,7 @@ private:
 	float m_a4x4fMatrix[4][4];
 };
 
+// global operators
 inline VistaVector3D operator*( const VistaTransformMatrix& matTransform,
 										const VistaVector3D& v3Point );
 inline VistaQuaternion operator*( const VistaTransformMatrix& matTransform,
@@ -212,7 +217,14 @@ inline VistaTransformMatrix operator*( const VistaTransformMatrix& matTransform,
 inline VistaTransformMatrix operator/( const VistaTransformMatrix& matTransform,
 												const float fScale );
 
+// outstream operator
 inline std::ostream& operator<<( std::ostream& oStream, const VistaTransformMatrix& matTransform );
+
+// constant VistaTransformMatrices
+namespace Vista
+{
+	const VistaTransformMatrix UnitMatrix;
+}
 
 /*============================================================================*/
 /* INLINE IMPLEMENTATIONS */

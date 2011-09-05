@@ -443,3 +443,21 @@ VistaQuaternion VistaQuaternion::Slerp( const VistaQuaternion& qEnd, float fFrac
 	return VistaQuaternion( p1*m_a4fValues[0]-p2*qEnd[0], p1*m_a4fValues[1]-p2*qEnd[1], p1*m_a4fValues[2]-p2*qEnd[2], p1*m_a4fValues[3]-p2*qEnd[3] );
 }
 
+VistaVector3D VistaQuaternion::GetViewDir() const
+{
+	return Rotate( Vista::ViewVector );
+}
+
+VistaVector3D VistaQuaternion::GetUpDir() const
+{
+	return Rotate( Vista::UpVector );
+}
+
+void VistaQuaternion::SetFromViewAndUpDir( const VistaVector3D& v3View, const VistaVector3D& v3Up )
+{
+	VistaVector3D v3ZAxis = -v3View;
+	VistaVector3D v3XAxis = v3Up.Cross( v3ZAxis );
+	VistaTransformMatrix matTransform( v3XAxis, v3Up, v3ZAxis );
+	(*this) = matTransform.GetRotationAsQuaternion();
+}
+
