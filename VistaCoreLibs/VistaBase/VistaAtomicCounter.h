@@ -41,26 +41,39 @@
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-template< class baseType >
+template< class BaseType >
 class TVistaAtomicCounter
 {
 public:
 	virtual ~TVistaAtomicCounter() {}
 
-	operator baseType() const { return m_value; }
-	virtual void Set( baseType value ) { m_value = value; }
-	baseType Get() const { return m_value; };
-	virtual void Add( baseType value)  = 0;
-	virtual void Sub( baseType value ) = 0;
+	operator BaseType() const { return m_nValue; }
+	/**
+	 * @brief Setter method for the non-parallel access case.
+	 *
+	 * To be used in case you have to re-adjust the initial value, but you are sure that
+	 * there is no concurrent access at the same time.
+	 */
+	virtual void Set( BaseType nValue ) { m_nValue = nValue; }
+
+	/**
+	 * @brief Getter method for the value.
+	 * 
+	 * Should be safe to use a simple read here, as atomics imply memory barriers.
+	 * For specific cases, this method is marked as virtual to allow override.
+	 */
+	virtual BaseType Get() const { return m_nValue; }
+	virtual void Add( BaseType nValue)  = 0;
+	virtual void Sub( BaseType nValue ) = 0;
 	virtual void Inc() = 0;
 	virtual void Dec() = 0;
 	virtual bool DecAndTestNull() = 0;
-	virtual bool AddAndTestNegative( baseType value ) = 0;
-	virtual baseType ExchangeAndAdd( baseType value ) = 0;
+	virtual bool AddAndTestNegative( BaseType nValue ) = 0;
+	virtual BaseType ExchangeAndAdd( BaseType nValue ) = 0;
 
-	void operator= ( baseType value ) { Set(value); }
-	void operator+=( baseType value ) { Add(value); }
-	void operator-=( baseType value ) { Sub(value); }
+	void operator= ( BaseType nValue ) { Set(nValue); }
+	void operator+=( BaseType nValue ) { Add(nValue); }
+	void operator-=( BaseType nValue ) { Sub(nValue); }
 
 
 	void operator++()
@@ -83,14 +96,16 @@ public:
 	{
 		Dec();
 	} // postfix operator
+
+	BaseType operator==(const BaseType &other) const { return Get() == other; }
 protected:
-	TVistaAtomicCounter( baseType initialValue = 0 )
-	: m_value( initialValue )
+	TVistaAtomicCounter( BaseType initialValue = 0 )
+	: m_nValue( initialValue )
 	{
 
 	}
 
-	volatile baseType m_value;
+	volatile BaseType m_nValue;
 };
 
 class VISTABASEAPI VistaSigned32Atomic : public TVistaAtomicCounter<VistaType::sint32>
@@ -98,27 +113,35 @@ class VISTABASEAPI VistaSigned32Atomic : public TVistaAtomicCounter<VistaType::s
 public:
 	VistaSigned32Atomic( VistaType::sint32 initialValue = 0 );
 
-	virtual void Add( VistaType::sint32 value);
-	virtual void Sub( VistaType::sint32 value );
+	virtual void Add( VistaType::sint32 nValue);
+	virtual void Sub( VistaType::sint32 nValue );
 	virtual void Inc();
 	virtual void Dec();
 	virtual bool DecAndTestNull();
-	virtual bool AddAndTestNegative( VistaType::sint32 value );
-	virtual VistaType::sint32 ExchangeAndAdd( VistaType::sint32 value );
+	virtual bool AddAndTestNegative( VistaType::sint32 nValue );
+	virtual VistaType::sint32 ExchangeAndAdd( VistaType::sint32 nValue );
 };
 
 class VISTABASEAPI VistaSigned64Atomic : public TVistaAtomicCounter<VistaType::sint64>
 {
 public:
 	VistaSigned64Atomic( VistaType::sint64 initialValue = 0 );
+	virtual ~VistaSigned64Atomic();
 
-	virtual void Add( VistaType::sint64 value);
-	virtual void Sub( VistaType::sint64 value );
+	virtual VistaType::sint64 Get() const;
+
+	virtual void Add( VistaType::sint64 nValue);
+	virtual void Sub( VistaType::sint64 nValue );
 	virtual void Inc();
 	virtual void Dec();
 	virtual bool DecAndTestNull();
-	virtual bool AddAndTestNegative( VistaType::sint64 value );
-	virtual VistaType::sint64 ExchangeAndAdd( VistaType::sint64 value );
+	virtual bool AddAndTestNegative( VistaType::sint64 nValue );
+	virtual VistaType::sint64 ExchangeAndAdd( VistaType::sint64 nValue );
+	struct Private 
+	{ 
+		Private() : m_pPrivate(0L) {}
+		void *m_pPrivate; 
+	} m_pPrivate;
 };
 
 
