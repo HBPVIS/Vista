@@ -12,12 +12,13 @@ if( WIN32 )
 	set( 64BIT_ATOMICS_FLAG TRUE )
 	if( "${CMAKE_SYSTEM_VERSION}" VERSION_LESS 5.2 )
 		# WIN XP and below don't support InterlockedExchange64
+		set( 64BIT_ATOMICS_FLAG FALSE )
 	endif()
 	set( VISTACORELIBS_SUPPORT_NATIVE_64BIT_ATOMICS ${64BIT_ATOMICS_FLAG} CACHE BOOL 
 		"Toggle between using the Win32-native InterlockedExchange64, or a Semaphore lock when using 64-bit-atomics. Windows XP and below don't support InterlockedExchange64, so when compiling on or for such a machine, disable this flag." )
-	if( VISTACORELIBS_SUPPORT_NATIVE_64BIT_ATOMICS )
+	if( NOT VISTACORELIBS_SUPPORT_NATIVE_64BIT_ATOMICS )
 		add_definitions( -DVISTA_INTERLOCKEDEXCHANGE64_NOT_AVAILABLE )
-	endif( VISTACORELIBS_SUPPORT_NATIVE_64BIT_ATOMICS )
+	endif( NOT VISTACORELIBS_SUPPORT_NATIVE_64BIT_ATOMICS )
 endif()
 
 add_library( VistaBase ${ProjectSources} )
