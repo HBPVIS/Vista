@@ -341,7 +341,7 @@ bool VistaPhantomDriver::DoSensorUpdate(VistaType::microtime nTs)
 	hdGetFloatv(HD_CURRENT_POSITION,           s->m_afPosition);
     hdGetFloatv(HD_CURRENT_VELOCITY,           s->m_afVelocity);
 	hdGetFloatv(HD_CURRENT_ANGULAR_VELOCITY,   s->m_afAngularVelocity);
-
+	hdGetFloatv(HD_CURRENT_TRANSFORM,          s->m_afRotMatrix);
 
 	if(m_pForceFeedBack->GetForcesEnabled())
 	{
@@ -354,13 +354,20 @@ bool VistaPhantomDriver::DoSensorUpdate(VistaType::microtime nTs)
 		{
 			VistaVector3D pos( s->m_afPosition[0], s->m_afPosition[1], s->m_afPosition[2] );
             VistaVector3D vel( s->m_afVelocity[0], s->m_afVelocity[1], s->m_afVelocity[2] );
-			VistaQuaternion qAngVel(VistaVector3D(0,0,1),
-					                 VistaVector3D(s->m_afAngularVelocity[0],
-													s->m_afAngularVelocity[1],
-													s->m_afAngularVelocity[2]) );
+			//VistaQuaternion qAngVel(VistaVector3D(0,0,1),
+			//		                 VistaVector3D(s->m_afAngularVelocity[0],
+			//										s->m_afAngularVelocity[1],
+			//										s->m_afAngularVelocity[2]) );
+			VistaTransformMatrix t (
+				float(s->m_afRotMatrix[0]), float(s->m_afRotMatrix[1]), float(s->m_afRotMatrix[2]), 0,
+				float(s->m_afRotMatrix[4]), float(s->m_afRotMatrix[5]), float(s->m_afRotMatrix[6]), 0,
+				float(s->m_afRotMatrix[8]), float(s->m_afRotMatrix[9]), float(s->m_afRotMatrix[10]), 0,
+				0,                          0,                          0, 1);
+
+			VistaQuaternion qRot = -VistaQuaternion(t);
 			// calc update force from that information
 			// @todo: think about the timestamps
-			pMd->UpdateForce( double(nTs), pos, vel, qAngVel, v3Force, v3Torque );
+			pMd->UpdateForce( double(nTs), pos, vel, qRot, v3Force, v3Torque );
 		}
 		else
 		{
@@ -380,8 +387,7 @@ bool VistaPhantomDriver::DoSensorUpdate(VistaType::microtime nTs)
 
 	hdGetIntegerv(HD_CURRENT_BUTTONS,         &s->m_nButtonState);
 	hdGetFloatv(HD_MOTOR_TEMPERATURE,          s->m_afOverheatState);
-	hdGetFloatv(HD_INSTANTANEOUS_UPDATE_RATE, &s->m_nUpdateRate);
-	hdGetFloatv(HD_CURRENT_TRANSFORM,          s->m_afRotMatrix);
+	hdGetFloatv(HD_INSTANTANEOUS_UPDATE_RATE, &s->m_nUpdateRate);	
 	hdGetFloatv(HD_CURRENT_JOINT_ANGLES,       s->m_afJointAngles);
 	hdGetFloatv(HD_CURRENT_GIMBAL_ANGLES,      s->m_afGimbalAngles);
 	hdGetLongv(HD_CURRENT_ENCODER_VALUES,      s->m_nEncoderValues);
