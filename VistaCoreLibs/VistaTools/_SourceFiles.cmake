@@ -5,8 +5,6 @@ set( RelativeSourceGroup "Source Files" )
 set( SubDirs tinyXML )
 
 set( DirFiles
-	CommTimer.cpp
-	CommTimer.h
 	EncodeBinary.h
 	VistaBasicProfiler.cpp
 	VistaBasicProfiler.h
@@ -14,8 +12,6 @@ set( DirFiles
 	VistaCPUInfo.h
 	VistaCRC32.cpp
 	VistaCRC32.h
-	VistaColoredConsoleMessage.cpp
-	VistaColoredConsoleMessage.h
 	VistaDLL.cpp
 	VistaDLL.h
 	VistaEnvironment.cpp
@@ -47,8 +43,6 @@ set( DirFiles
 	VistaRingBuffer.h
 	VistaStackWalker.cpp
 	VistaStackWalker.h
-	VistaTimer.cpp
-	VistaTimer.h
 	VistaToolsConfig.h
 	VistaToolsOut.cpp
 	VistaToolsOut.h
