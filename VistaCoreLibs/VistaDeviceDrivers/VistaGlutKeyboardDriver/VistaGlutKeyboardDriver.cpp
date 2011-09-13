@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <VistaDeviceDriversBase/VistaDeviceSensor.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverAbstractWindowAspect.h>
+#include <VistaKernel/InteractionManager/VistaKeyboardSystemControl.h>
 
 #if defined(USE_NATIVE_GLUT)
   #if defined(DARWIN) // we use the mac os GLUT framework on darwin
@@ -111,6 +112,24 @@ void VistaGlutKeyboardDriver::SetKeyValue(VistaGlutKeyboardDriver *pKeyboard,
 												 int nModifier)
 {
 	int nCurrentKey = int(nKeyValue);
+	switch(nKeyValue)
+	{
+		case 27: //ASCII Escape
+			nCurrentKey = VISTA_KEY_ESC;
+			break;
+		case 13: //ASCII Return
+			nCurrentKey = VISTA_KEY_ENTER;
+			break;
+		case 9: //ASCII Tab ???
+			nCurrentKey = VISTA_KEY_TAB;
+			break;
+		case 8: //ASCII Backspace
+			nCurrentKey = VISTA_KEY_BACKSPACE;
+			break;
+		default:
+			nCurrentKey = int(nKeyValue);
+			break;
+	}
 	pKeyboard->m_vecKeyVec.push_back( _sKeyHlp(nCurrentKey, nModifier, bIsUp ) );
 }
 
@@ -119,7 +138,74 @@ void VistaGlutKeyboardDriver::SetSpecialKeyValue(VistaGlutKeyboardDriver *pKeybo
 														bool bIsUp,
 														int nModifier)
 {
-	int nCurrentKey = int(nKeyValue);
+	int nCurrentKey = 0;
+	switch(nKeyValue)
+	{
+	case GLUT_KEY_F1:
+		nCurrentKey = VISTA_KEY_F1;
+		break;
+	case GLUT_KEY_F2:
+		nCurrentKey = VISTA_KEY_F2;
+		break;
+	case GLUT_KEY_F3:
+		nCurrentKey = VISTA_KEY_F3;
+		break;
+	case GLUT_KEY_F4:
+		nCurrentKey = VISTA_KEY_F4;
+		break;
+	case GLUT_KEY_F5:
+		nCurrentKey = VISTA_KEY_F5;
+		break;
+	case GLUT_KEY_F6:
+		nCurrentKey = VISTA_KEY_F6;
+		break;
+	case GLUT_KEY_F7:
+		nCurrentKey = VISTA_KEY_F7;
+		break;
+	case GLUT_KEY_F8:
+		nCurrentKey = VISTA_KEY_F8;
+		break;
+	case GLUT_KEY_F9:
+		nCurrentKey = VISTA_KEY_F9;
+		break;
+	case GLUT_KEY_F10:
+		nCurrentKey = VISTA_KEY_F10;
+		break;
+	case GLUT_KEY_F11:
+		nCurrentKey = VISTA_KEY_F11;
+		break;
+	case GLUT_KEY_F12:
+		nCurrentKey = VISTA_KEY_F12;
+		break;
+	case GLUT_KEY_LEFT:
+		nCurrentKey = VISTA_KEY_LEFTARROW;
+		break;
+	case GLUT_KEY_RIGHT:
+		nCurrentKey = VISTA_KEY_RIGHTARROW;
+		break;
+	case GLUT_KEY_UP:
+		nCurrentKey = VISTA_KEY_UPARROW;
+		break;
+	case GLUT_KEY_DOWN:
+		nCurrentKey = VISTA_KEY_DOWNARROW;
+		break;
+	case GLUT_KEY_PAGE_UP:
+		nCurrentKey = VISTA_KEY_PAGEUP;
+		break;
+	case GLUT_KEY_PAGE_DOWN:
+		nCurrentKey = VISTA_KEY_PAGEDOWN;
+		break;
+	case GLUT_KEY_HOME:
+		nCurrentKey = VISTA_KEY_HOME;
+		break;
+	case GLUT_KEY_END:
+		nCurrentKey = VISTA_KEY_END;
+		break;			
+
+	default:
+		nCurrentKey = nKeyValue;
+		break;
+	}
 	pKeyboard->m_vecKeyVec.push_back( _sKeyHlp(nCurrentKey, nModifier, bIsUp ));
 }
 
