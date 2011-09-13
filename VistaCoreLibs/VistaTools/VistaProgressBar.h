@@ -32,7 +32,6 @@
 #include "VistaToolsConfig.h"
 #include <string>
 #include <iostream>
-#include "VistaColoredConsoleMessage.h"
 #include "VistaToolsOut.h"
 
 /*============================================================================*/
@@ -42,10 +41,7 @@
 /*============================================================================*/
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
-namespace DeprecatedTimer
-{
-	class VistaTimer;
-}
+class VistaTimer;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -54,7 +50,9 @@ class VISTATOOLSAPI VistaProgressBar
 {
 public:
 	// CONSTRUCTOR / DESTRUCTOR
-	VistaProgressBar(double fCountMax = 100.0f, double fCountInc = 1.0f);
+	VistaProgressBar( double fCountMax = 100.0f,
+						double fCountInc = 1.0f,
+						std::ostream* pStream = &std::cout );
 	virtual ~VistaProgressBar();
 
 	//IMPLEMENTATION
@@ -89,8 +87,13 @@ public:
 	int GetBarTicks() const;
 	bool SetBarTicks(int iBarTicks);
 
+	void SetOutstream( std::ostream* pStream );
+	std::ostream* GetOutstream();
+
 protected:
 	void Draw();
+
+	std::ostream* m_pStream;
 
 	bool m_bRunning;
 	bool m_bSilent;
@@ -108,7 +111,7 @@ protected:
 	int m_iCurrentPercentage;
 
 	// time measurement
-	DeprecatedTimer::VistaTimer *m_pTimer;
+	VistaTimer *m_pTimer;
 	double m_fLastTime;
 };
 
@@ -132,8 +135,7 @@ inline bool VistaProgressBar::SetCounter(double fCounter)
 	{
 #ifdef DEBUG
 		if (!m_bSilent)
-			//std::cout << " [VistaProgressBar] - WARNING!!! Unable to set count - bar is not running..." << std::endl;
-			VistaColoredConsoleMessage::PrintError(" [VistaProgressBar] - WARNING!!! Unable to set count - bar is not running...\n");
+			(*m_pStream) << " [VistaProgressBar] - WARNING!!! Unable to set count - bar is not running..." << std::endl;			
 #endif
 		return false;
 	}

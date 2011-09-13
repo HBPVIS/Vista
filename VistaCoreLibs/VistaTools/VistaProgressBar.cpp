@@ -23,8 +23,9 @@
 // $Id$
 
 #include "VistaProgressBar.h"
-#include "VistaTimer.h"
 
+
+#include <VistaBase/VistaTimer.h>
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -34,7 +35,9 @@ using namespace std;
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
-VistaProgressBar::VistaProgressBar(double fCountMax, double fCountInc)
+VistaProgressBar::VistaProgressBar(double fCountMax,
+									double fCountInc,
+									std::ostream* pStream)
 : m_bRunning(false),
   m_bSilent(false),
   m_fCountCurrent(0),
@@ -48,7 +51,8 @@ VistaProgressBar::VistaProgressBar(double fCountMax, double fCountInc)
   m_iCurrentTicks(0),
   m_iCurrentPercentage(0),
   m_pTimer(NULL),
-  m_fLastTime(0)
+  m_fLastTime(0),
+  m_pStream( pStream )
 {
 }
 
@@ -73,9 +77,7 @@ bool VistaProgressBar::Start()
 {
 	if (m_bRunning)
 	{
-		//cout << " [VistaProgressBar] - WARNING!!! Unable to start progress bar - it's already running..." << endl;
-		VistaColoredConsoleMessage::PrintError(" [VistaProgressBar] - WARNING!!! Unable to start progress bar - it's already running...\n");
-
+		vtoolserr << " [VistaProgressBar] - WARNING!!! Unable to start progress bar - it's already running..." << endl;		
 		return false;
 	}
 
@@ -91,7 +93,7 @@ bool VistaProgressBar::Start()
 	// and draw...
 	Draw();
 
-	m_pTimer = new DeprecatedTimer::VistaTimer();
+	m_pTimer = new VistaTimer();
 
 	m_bRunning = true;
 
@@ -107,8 +109,7 @@ bool VistaProgressBar::Finish(bool bComplete)
 {
 	if (!m_bRunning)
 	{
-		//cout << " [VistaProgressBar] - WARNING!!! Unable to finish progress bar - it's not running..." << endl;
-		VistaColoredConsoleMessage::PrintError(" [VistaProgressBar] - WARNING!!! Unable to finish progress bar - it's not running...\n");
+		vtoolserr << " [VistaProgressBar] - WARNING!!! Unable to finish progress bar - it's not running..." << endl;
 		return false;
 	}
 
@@ -148,15 +149,13 @@ bool VistaProgressBar::Reset(double fCountMax, double fCountInc)
 {
 	if (m_bRunning)
 	{
-		//cout << " [VistaProgressBar] - WARNING!!! Unable to reset bar while it's running..." << endl;
-		VistaColoredConsoleMessage::PrintError(" [VistaProgressBar] - WARNING!!! Unable to reset bar while it's running...\n");
+		vtoolserr << " [VistaProgressBar] - WARNING!!! Unable to reset bar while it's running..." << endl;
 		return false;
 	}
 
 	if (fCountMax <= 0 || fCountInc <= 0)
 	{
-		//cout << " [VistaProgessBar] - WARNING!!! Unable to set count maximum and/or increment to negative values..." << endl;
-		VistaColoredConsoleMessage::PrintError(" [VistaProgessBar] - WARNING!!! Unable to set count maximum and/or increment to negative values...\n");
+		vtoolserr << " [VistaProgessBar] - WARNING!!! Unable to set count maximum and/or increment to negative values..." << endl;
 		return false;
 	}
 
@@ -185,8 +184,7 @@ bool VistaProgressBar::SetPrefixString(std::string strPrefix)
 {
 	if (m_bRunning)
 	{
-		//cout << " [VistaProgressBar] - WARNING!!! Unable to set prefix string while bar is running..." << endl;
-		VistaColoredConsoleMessage::PrintError(" [VistaProgressBar] - WARNING!!! Unable to set prefix string while bar is running...");
+		vtoolserr << " [VistaProgressBar] - WARNING!!! Unable to set prefix string while bar is running..." << endl;
 		return false;
 	}
 
@@ -210,8 +208,7 @@ bool VistaProgressBar::SetDisplayPrefix(bool bDisplayPrefix)
 {
 	if (m_bRunning)
 	{
-		//cout << " [VistaProgressBar] - WARNING!!! Unable to set prefix display while bar is running..." << endl;
-		VistaColoredConsoleMessage::PrintError(" [VistaProgressBar] - WARNING!!! Unable to set prefix display while bar is running...\n");
+		vtoolserr << " [VistaProgressBar] - WARNING!!! Unable to set prefix display while bar is running..." << endl;
 		return false;
 	}
 
@@ -229,8 +226,7 @@ bool VistaProgressBar::SetDisplayBar(bool bDisplayBar)
 {
 	if (m_bRunning)
 	{
-		//cout <<	" [VistaProgressBar] - WARNING!!! Unable to set bar display while bar is running..." << endl;
-		VistaColoredConsoleMessage::PrintError(" [VistaProgressBar] - WARNING!!! Unable to set bar display while bar is running...\n");
+		vtoolserr <<	" [VistaProgressBar] - WARNING!!! Unable to set bar display while bar is running..." << endl;
 		return false;
 	}
 
@@ -248,8 +244,7 @@ bool VistaProgressBar::SetDisplayPercentage(bool bDisplayPercentage)
 {
 	if (m_bRunning)
 	{
-		//cout << " [VistaProgressBar] - WARNING!!! Unable to set percentage display while bar is running..." << endl;
-		VistaColoredConsoleMessage::PrintError(" [VistaProgressBar] - WARNING!!! Unable to set percentage display while bar is running...");
+		vtoolserr << " [VistaProgressBar] - WARNING!!! Unable to set percentage display while bar is running..." << endl;
 		return false;
 	}
 
@@ -267,8 +262,7 @@ bool VistaProgressBar::SetBarTicks(int iBarTicks)
 {
 	if (m_bRunning)
 	{
-		//cout << " [VistaProgressBar] - WARNING!!! Unable to set bar ticks while bar is running..." << endl;
-		VistaColoredConsoleMessage::PrintError(" [VistaProgressBar] - WARNING!!! Unable to set bar ticks while bar is running...\n");
+		vtoolserr << " [VistaProgressBar] - WARNING!!! Unable to set bar ticks while bar is running..." << endl;
 		return false;
 	}
 
@@ -287,26 +281,26 @@ void VistaProgressBar::Draw()
 	if (m_bSilent)
 		return;
 
-	vtoolsout << "\r";
+	(*m_pStream) << "\r";
 
 	if (m_bDisplayPrefix)
-		vtoolsout << m_strPrefix;
+		(*m_pStream) << m_strPrefix;
 
 	if (m_bDisplayBar)
 	{
-		vtoolsout << "[";
+		(*m_pStream) << "[";
 
 		int i=0;
 		for (i=0; i<m_iCurrentTicks; ++i)
 		{
-			vtoolsout << "*";
+			(*m_pStream) << "*";
 		}
 		for (; i<m_iBarTicks; ++i)
 		{
-			vtoolsout << "-";
+			(*m_pStream) << "-";
 		}
 
-		vtoolsout << "] ";
+		(*m_pStream) << "] ";
 	}
 
 	if (m_bDisplayPercentage)
@@ -314,12 +308,22 @@ void VistaProgressBar::Draw()
 		if (m_pTimer)
 		{
 			// we're still running and timing
-			vtoolsout << "[" << m_iCurrentPercentage << "% complete]  ";
+			(*m_pStream) << "[" << m_iCurrentPercentage << "% complete]  ";
 		}
 		else
 		{
-			vtoolsout << "[" << m_fLastTime << " seconds]    ";
+			(*m_pStream) << "[" << m_fLastTime << " seconds]    ";
 		}
 	}
+}
+
+void VistaProgressBar::SetOutstream( std::ostream* pStream )
+{
+	m_pStream = pStream;
+}
+
+std::ostream* VistaProgressBar::GetOutstream()
+{
+	return m_pStream;
 }
 

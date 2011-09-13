@@ -26,8 +26,9 @@
 #include "VistaProfiler.h"
 #include "VistaFileSystemDirectory.h"
 #include "VistaFileSystemFile.h"
-#include "VistaTimer.h"
 #include "VistaToolsOut.h"
+
+#include <VistaBase/VistaTimeUtils.h>
 
 #ifdef WIN32
 	#pragma warning(disable: 4996)
@@ -79,10 +80,10 @@ VistaProfiler::VistaProfiler()
 
 	if(GetIsLoggingEnabled())
 	{
-		DeprecatedTimer::VistaTimer t;
+		VistaType::microtime nTime = VistaTimeUtils::GetStandardTimer().GetSystemTime();
 		// open file
 		m_logStream.open(S_strLogFileName.c_str(), ios_base::app);
-		m_logStream << "\n[" << setprecision(16) << t.GetSystemTime() << " Constructor] called without search string.\n";
+		m_logStream << "\n[" << setprecision(16) << nTime << " Constructor] called without search string.\n";
 	}
 
 };

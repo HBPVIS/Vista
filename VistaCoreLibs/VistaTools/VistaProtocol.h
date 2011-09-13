@@ -42,10 +42,7 @@
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
 
-namespace DeprecatedTimer
-{
-	class VistaTimer;
-}
+class VistaTimer;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -148,7 +145,7 @@ private:
 	/**
 	* We need this for time functions
 	*/
-	DeprecatedTimer::VistaTimer * m_Timer;
+	VistaTimer * m_Timer;
 
 
 	/**

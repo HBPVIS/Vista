@@ -67,7 +67,7 @@ private:
 #ifdef WIN32
 	mutable VistaType::microstamp		m_nInitialStamp;
 	mutable VistaType::microstamp		m_nLastStamp;	
-	mutable DWORD			m_nLastTickCount;
+	mutable DWORD						m_nLastTickCount;
 	VistaType::microtime				m_nFrequencyDenom;
 	VistaType::microtime				m_nInitialSystemTime;
 #elif defined DARWIN

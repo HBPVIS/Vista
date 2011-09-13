@@ -129,7 +129,7 @@ VistaType::microstamp VistaDefaultTimerImp::GetMicroStamp()  const
 #ifdef WIN32
 	LARGE_INTEGER nTimestamp;
 	QueryPerformanceCounter( &nTimestamp );	
-	VistaType::microstamp nStamp = (VistaType::microstamp)( nTimestamp.QuadPart );// - m_nInitialStamp;
+	VistaType::microstamp nStamp = (VistaType::microstamp)( nTimestamp.QuadPart ) - m_nInitialStamp;
 #ifdef CHECK_FOR_JUMPS_UNDER_WIN32
 	// we have to convert ticks to time, and then compare to system clock
 	VistaType::microtime nTimeDelta = ( nStamp - m_nLastStamp ) * m_nFrequencyDenom;

@@ -27,9 +27,13 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
-#include "VistaTimer.h"
+
 #include "VistaEnvironment.h"
 #include "VistaToolsOut.h"
+
+#include <VistaBase/VistaTimer.h>
+#include <VistaBase/VistaTimeUtils.h>
+
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
@@ -40,8 +44,8 @@
 
 VistaProtocol::VistaProtocol()
 {
-	m_Timer = new DeprecatedTimer::VistaTimer;
-	m_sDateOfMeasure = m_Timer->GetDateString();
+	m_Timer = new VistaTimer;
+	m_sDateOfMeasure = VistaTimeUtils::ConvertToLexicographicDateString( m_Timer->GetSystemTime() );
 	m_bOverwrite = true;
 	m_bWriteHeader = true;
 	m_bWriteKey = true;
