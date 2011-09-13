@@ -30,7 +30,12 @@
 
 #include <vector>
 
-
+/**
+ * Interface for Timing classes
+ * Only use if you want to provide a special timing method
+ * If a special TimerImp is created, it can be set as singleton so
+ * that all new VistaTimer's use it by default
+ */
 class VISTABASEAPI IVistaTimerImp
 {
 protected:

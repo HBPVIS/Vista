@@ -51,6 +51,12 @@
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
+
+/**
+ * Default implementation of IVistaTimerImp
+ * Should not be used directly - use VistaTimer instead, which automatically
+ * retrieves the TimerImpl singleton
+ */
 class VISTABASEAPI VistaDefaultTimerImp : public IVistaTimerImp
 {
 public:
