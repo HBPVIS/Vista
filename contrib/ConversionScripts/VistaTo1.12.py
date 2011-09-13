@@ -2,6 +2,7 @@ import os, sys, shutil, re
 
 cppreplaces = [
 	( re.compile( r'(\s|\<|\(|\*)(microtime|systemtime|microstamp|sint32|uint32|ushort16|sshort16|float32|ubyte8|byte8|sint64|uint64|float64|val32|val64)(\W)', re.MULTILINE ), r'\1VistaType::\2\3' ),
+	( re.compile( r'<VistaDeviceDriversBase/Vista([a-zA-Z]*)Aspect.h>', re.MULTILINE ), r'<VistaDeviceDriversBase/DriverAspects/Vista\1Aspect.h>' ),
 ]
 
 xmlreplaces = [
