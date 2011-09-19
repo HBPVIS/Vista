@@ -6,7 +6,7 @@
 	<instances>
 		unsigned int
 	</instances>
-	<portstyle value="OUTPORTS_DEPEND_ON_INPORT"/>
+	<portstyle value="OUTPORTS_DEPEND_ON_PARAMETER"/>
 	<ports>
 		<inports>
 			<port name="value" type="@0"/>

@@ -1,16 +1,15 @@
 <prototype>
-	<name value="HistoryProject"/>
-	<type value="HistoryProject"/>
+	<name value="DumpHistory"/>
+	<type value="DumpHistory"/>
 	<origin value="## built-in"/>
 	<params>
 	   <param name="project" value=""/>
 	</params>
 	<instances/>
-	<portstyle value="OUTPORTS_DEPEND_ON_INPORT_VALUE"/>
+	<portstyle value="STATIC_PORTS"/>
 	<ports>
 		<inports>
 			<port name="history" type="history"/>
-			<port name="sampling_mode" type="int"/>
 		</inports>
 		<outports/>
 	</ports>

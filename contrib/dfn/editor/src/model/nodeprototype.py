@@ -14,13 +14,15 @@ class NodePrototype(basemodel.BaseModel):
     '''
     classdocs
     '''
-    NOT_DEFINED               = -1
-    STATIC_PORTS              =  0 # all ports are compile-time bound
-    OUTPORTS_DEPEND_ON_INPORT =  1 # inport provides a value that determines outports (history)
-    ALLPORTS_DEPEND_ON_STATE  =  2 # ports are determined by state (difference to 3?)
-    PORTS_DEPEND_ON_PARAMETER =  3 # ports are determined by a specific parameter
-    OUTPORTS_SAME_AS_INPORTS  =  4 # node does not provide ports, except the ones routed in
-    OUTPORTS_SAME_AS_INPORTS_MIXIN = 5 # node accepts all ports, but provides its own, too
+    NOT_DEFINED                     = -1
+    STATIC_PORTS                    =  0 # all ports are compile-time bound
+    OUTPORTS_DEPEND_ON_INPORT_VALUE =  1 # inport provides a value that determines outports / inports are static
+    ALLPORTS_DEPEND_ON_STATE        =  2 # ports are determined by state (difference to 3?)
+    PORTS_DEPEND_ON_PARAMETER       =  3 # ports are determined by a specific parameter
+    OUTPORTS_SAME_AS_INPORTS        =  4 # node does not provide ports, except the ones routed in
+    OUTPORTS_SAME_AS_INPORTS_MIXIN  =  5 # node accepts all ports, but provides its own, too
+    OUTPORTS_DEPEND_ON_PARAMETER    =  6 # node has static inports, but configurable outports
+    INPORTS_DEPEND_ON_PARAMETER        =  7 # node has static outports, but configurable inports
     
          
     def __init__(self):
@@ -43,12 +45,14 @@ class NodePrototype(basemodel.BaseModel):
         
         self.portStyleString = dict(
                                     { "STATIC_PORTS": NodePrototype.STATIC_PORTS,
-                                    "OUTPORTS_DEPEND_ON_INPORT" : NodePrototype.OUTPORTS_DEPEND_ON_INPORT,
+                                    "OUTPORTS_DEPEND_ON_INPORT_VALUE" : NodePrototype.OUTPORTS_DEPEND_ON_INPORT_VALUE,
                                     "ALLPORTS_DEPEND_ON_STATE" : NodePrototype.ALLPORTS_DEPEND_ON_STATE,
                                     "PORTS_DEPEND_ON_PARAMETER" : NodePrototype.PORTS_DEPEND_ON_PARAMETER,
                                     "OUTPORTS_SAME_AS_INPORTS" : NodePrototype.OUTPORTS_SAME_AS_INPORTS,
                                     "OUTPORTS_SAME_AS_INPORTS_MIXIN" : NodePrototype.OUTPORTS_SAME_AS_INPORTS_MIXIN,
-                                    "NOT_DEFINED" : NodePrototype.NOT_DEFINED }
+                                    "NOT_DEFINED" : NodePrototype.NOT_DEFINED,
+                                    "OUTPORTS_DEPEND_ON_PARAMETER" : NodePrototype.OUTPORTS_DEPEND_ON_PARAMETER,
+                                    "INPORTS_DEPEND_ON_PARAMETER" : NodePrototype.INPORTS_DEPEND_ON_PARAMETER }
                                     )
         self.portStyleId = dict()
         for x in self.portStyleString.keys():

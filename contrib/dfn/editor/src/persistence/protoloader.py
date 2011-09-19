@@ -103,7 +103,7 @@ def CreatePrototype( xmlNode ):
     xmlFirstParam = xmlutils.FindChildElement(xmlParams, "param") 
     prototype.params = graphloader.CreateParameter( xmlFirstParam )
     
-    if prototype.portStyle == model.nodeprototype.NodePrototype.STATIC_PORTS or prototype.portStyle == model.nodeprototype.NodePrototype.OUTPORTS_DEPEND_ON_INPORT or prototype.portStyle == model.nodeprototype.NodePrototype.OUTPORTS_SAME_AS_INPORTS_MIXIN:
+    if prototype.portStyle == model.nodeprototype.NodePrototype.STATIC_PORTS or prototype.portStyle == model.nodeprototype.NodePrototype.OUTPORTS_DEPEND_ON_INPORT_VALUE or prototype.portStyle == model.nodeprototype.NodePrototype.OUTPORTS_SAME_AS_INPORTS_MIXIN:
         xmlPorts = xmlutils.FindChildElement(xmlNode, "ports")
         if xmlPorts <> None:
             CreatePorts(xmlPorts, prototype, instanceTags)
