@@ -8,6 +8,8 @@ set( DirFiles
 	VistaBoundingBox.h
 	VistaBoundingSphere.cpp
 	VistaBoundingSphere.h
+	VistaEaseCurve.cpp
+	VistaEaseCurve.h
 	VistaFilter.h
 	VistaGeometries.cpp
 	VistaGeometries.h
