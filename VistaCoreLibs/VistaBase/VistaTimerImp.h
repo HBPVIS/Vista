@@ -72,9 +72,10 @@ public:
 	/**
 	 * @return the currently set TimerImp singleton
 	 *         this will not create a new instance if no singleton has
-	 *         been set before, so NULL may be returned
+	 *         been set before and bCreateDefaultIfNull is set to false,
+	 *         so NULL may be returned
 	 */
-	static IVistaTimerImp *GetSingleton( bool bCreateDefaultIfNull = NULL );
+	static IVistaTimerImp *GetSingleton( bool bCreateDefaultIfNull = true );
 	/**
 	 * @param the timer implementation to use as default for every timer
 	 *        that is created from now on. Note that it does not, however,
