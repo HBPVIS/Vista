@@ -102,8 +102,6 @@ int main( int argc, char ** argv )
 		// initialize the VistaSystem
 		if(pVistaSystem.Init(argc,argv))
 		{
-			// Create Plane constraint
-			m_pPlane = new VistaPlaneConstraint;
 			// Place the visible elements in the scene
 			CreateScene( pVistaSystem );
 			// Register callbacks
