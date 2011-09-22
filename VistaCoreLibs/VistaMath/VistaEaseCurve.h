@@ -115,21 +115,21 @@ public:
 protected:
 	typedef double(*ValueFn)(double);
 
-	static double GetInValue(double t, ValueFn pValueFn);
+	static inline double GetInValue(double t, ValueFn pValueFn);
 
-	static double GetOutValue(double t, ValueFn pValueFn);
+	static inline double GetOutValue(double t, ValueFn pValueFn);
 
-	static double GetInOutValue(double t, ValueFn pValueFn);
+	static inline double GetInOutValue(double t, ValueFn pValueFn);
 
-	static double GetOutInValue(double t, ValueFn pValueFn);
+	static inline double GetOutInValue(double t, ValueFn pValueFn);
 
-	static double GetQuadraticValue(double t);
+	static inline double GetQuadraticValue(double t);
 
-	static double GetCubicValue(double t);
+	static inline double GetCubicValue(double t);
 
-	static double GetSinValue(double t);
+	static inline double GetSinValue(double t);
 
-	static double GetCircValue(double t);
+	static inline double GetCircValue(double t);
 
 private:
 	eEaseCurveType	m_eType;
