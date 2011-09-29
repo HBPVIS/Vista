@@ -36,7 +36,7 @@
  * 		<table border=0>
  * 			<tr>
  * 				<td align="right">API version:</td>
- * 				<td align="left"><b>1.10</b></td>
+ * 				<td align="left"><b>HEAD</b></td>
  * 			</tr>
  * 			<tr>
  * 				<td align="right">codename:</td>
@@ -53,7 +53,7 @@
  * 			<tr><td colspan=2>&nbsp;</td></tr>
  * 			<tr>
  * 				<td align="right">full version:</td>
- * 				<td align="left"><b>1.10.###</b></td>
+ * 				<td align="left"><b>HEAD</b></td>
  * 			</tr>
  * 			<tr>
  * 				<td align="right">release date:</td>
@@ -68,9 +68,9 @@
 
 #define VISTA_RELEASE_NAME "TRUNK $Revision$ $Date: 2011-05-16 15:47:39 +0200 (Mo, 16. Mai 2011) $"
 //#define VISTA_RELEASE_NAME "FANCYNAME" 
-#define VISTA_VERSION "1.10.0"
+#define VISTA_VERSION "1.11.0"
 #define VISTA_MAJOR    1
-#define VISTA_MINOR    10
+#define VISTA_MINOR    11
 #define VISTA_REVISION 0
 
 /*============================================================================*/
