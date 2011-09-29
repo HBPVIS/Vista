@@ -9,7 +9,7 @@ if( NOT VISTADEMO_COMMON_BUILD )
 endif( NOT VISTADEMO_COMMON_BUILD )
 
 vista_use_package( VistaCoreLibs "HEAD" REQUIRED VistaKernel FIND_DEPENDENCIES )
-vista_use_package( VTK REQUIRED FIND_DEPENDENCIES )
+vista_use_package( VTK 5.6.1 REQUIRED EXACT FIND_DEPENDENCIES )
 
 
 # Including the source files of all source subfolders recursively
