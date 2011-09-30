@@ -44,7 +44,7 @@
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 #include <VistaKernel/GraphicsManager/VistaTextNode.h>
 
-#include <VistaMath/VistaVectorMath.h>
+#include <VistaBase/VistaVectorMath.h>
 
 #include <VistaAspects/VistaExplicitCallbackInterface.h>
 
@@ -101,7 +101,7 @@ public:
 		// the AxisAndAngle constructs a quat that defines a rotation
 		// around the global given axis, keep in mind that the rotation
 		// is given in radians.
-		VistaAxisAndAngle aaa( VistaVector3D(0,1,0), VistaDegToRad(m_nRot) );
+		VistaAxisAndAngle aaa( VistaVector3D(0,1,0), Vista::DegToRad(m_nRot) );
 		VistaQuaternion q(aaa);
 
 		// due to numerical reasons, a quat might degenerate during the
@@ -132,13 +132,8 @@ private:
 
 int main(int argc, char **argv)
 {
-	std::list<std::string> liSearchPath;
-	liSearchPath.push_back("../../VistaDemo/configfiles/");
-
-
 	VistaSystem vistaSystem;
 
-	vistaSystem.SetIniSearchPaths(liSearchPath);
 	if(vistaSystem.Init(argc, argv))
 	{
 		VistaGraphicsManager *pMgr = vistaSystem.GetGraphicsManager();

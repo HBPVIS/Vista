@@ -1,26 +1,19 @@
-cmake_minimum_required(VERSION 2.6)
-project(StereoTester)
+# $Id:$
 
-set(EXEC_NAME VistaStereoTester)
+cmake_minimum_required( VERSION 2.8 )
+project( StereoTester )
 
-find_package(VISTA REQUIRED)
+list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
 
-set(files
-    main.cpp
-)
-source_group("Source Files" FILES ${files})
+include( VistaCommon )
 
-add_executable(${EXEC_NAME}
-    ${files}
-)
+vista_use_package( VistaCoreLibs "HEAD" REQUIRED FIND_DEPENDENCIES )
 
-target_link_libraries(${EXEC_NAME}
-    ${VistaAspects}
-    ${VistaKernel}
-    ${VistaMath}
+add_executable( StereoTester main.cpp )
+target_link_libraries( StereoTester
+	${VISTA_USE_PACKAGE_LIBRARIES} # contains all libraries from vista_use_package() calls
 )
 
-if(UNIX)
-    include(${VISTA_DIR}/VISTAShellScripts.cmake)
-    CREATE_SHELLSCRIPT (${CMAKE_CURRENT_BINARY_DIR}/start_picasso.sh "cd ${CMAKE_CURRENT_SOURCE_DIR}\n${CMAKE_CURRENT_BINARY_DIR}/${EXEC_NAME} -vistaini vista_picasso.ini $1 $2 $3 $4 $5 $6 $7 $8 $9")
-endif(UNIX)
+vista_configure_app( StereoTester )
+vista_create_default_info_file( StereoTester )
+
