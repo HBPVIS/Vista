@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnShallowNode.cpp 21315 2011-05-16 13:47:39Z dr165799 $
 
 #include "VdfnShallowNode.h"
 #include "VdfnPort.h"

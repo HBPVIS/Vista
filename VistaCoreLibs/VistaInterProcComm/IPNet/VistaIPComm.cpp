@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaIPComm.cpp 21315 2011-05-16 13:47:39Z dr165799 $
 
 #include "VistaIPComm.h"
 #include <VistaInterProcComm/Concurrency/VistaMutex.h>

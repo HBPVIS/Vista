@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaCSVDeSerializer.cpp 22128 2011-07-01 11:30:05Z dr165799 $
 
 #include "VistaCSVDeSerializer.h"
 #include <VistaAspects/VistaSerializingToolset.h>

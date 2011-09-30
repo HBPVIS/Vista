@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaVRPNDriver.cpp 23585 2011-09-28 07:44:46Z dr165799 $
 
 #include "VistaVRPNDriver.h"
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverInfoAspect.h>

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaTimeUtils.h 21410 2011-05-20 14:27:43Z dr165799 $
+// $Id$
 
 #ifndef _VISTATIMEUTILS_H
 #define _VISTATIMEUTILS_H

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaBasicProfiler.cpp 23136 2011-09-02 11:59:34Z dr165799 $
 
 #include "VistaBasicProfiler.h"
 

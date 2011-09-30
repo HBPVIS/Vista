@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaMsg.cpp 22128 2011-07-01 11:30:05Z dr165799 $
 
 #include "VistaMsg.h"
 #include <VistaBase/VistaExceptionBase.h>

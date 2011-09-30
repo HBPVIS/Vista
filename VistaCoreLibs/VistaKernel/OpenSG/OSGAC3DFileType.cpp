@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: OSGAC3DFileType.cpp 21315 2011-05-16 13:47:39Z dr165799 $
 
 
 //-------------------------------
@@ -1454,7 +1454,7 @@ const Char8 *OSGAC3DSceneFileType::getName(void) const
 
 namespace
 {
-	static Char8 cvsid_cpp[] = "@(#)$Id$";
+	static Char8 cvsid_cpp[] = "@(#)$Id: OSGAC3DFileType.cpp 21315 2011-05-16 13:47:39Z dr165799 $";
 	static Char8 cvsid_hpp[] = OSGAC3DSCENEFILETYPE_HEADER_CVSID;
 }
 

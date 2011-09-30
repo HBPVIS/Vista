@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaMcastSocketAddress.cpp 21315 2011-05-16 13:47:39Z dr165799 $
 
 #if defined(WIN32)
 #include <winsock2.h>

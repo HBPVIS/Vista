@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPthreadReaderWriterLockImp.cpp 21315 2011-05-16 13:47:39Z dr165799 $
 
 #include <VistaInterProcComm/Concurrency/VistaIpcThreadModel.h>
 #if defined(VISTA_THREADING_POSIX) && defined(_USE_PTHREAD_RWLOCK)

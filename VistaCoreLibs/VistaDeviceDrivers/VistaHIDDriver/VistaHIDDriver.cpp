@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaHIDDriver.cpp 23585 2011-09-28 07:44:46Z dr165799 $
 
 /* The Windows-specific code (especially the InitDriver routine) has been 
  * copied from the VRPN toolkit, which is released in the public domain.

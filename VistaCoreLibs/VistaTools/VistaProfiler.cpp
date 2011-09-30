@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaProfiler.cpp 23279 2011-09-13 11:41:23Z dr165799 $
 
 #include "VistaToolsStd.h"
 #include "VistaProfiler.h"

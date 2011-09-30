@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaMIDIDriver.cpp 23585 2011-09-28 07:44:46Z dr165799 $
 
 #include "VistaMIDIDriver.h"
 #include <VistaDeviceDriversBase/VistaDeviceSensor.h>

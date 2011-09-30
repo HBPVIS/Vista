@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenALRecordDriver.h 5761 2011-01-17 19:46:22Z ingoassenmacher $
+// $Id$
 
 #ifndef __VISTAOPENALRECORDDRIVER_H
 #define __VISTAOPENALRECORDDRIVER_H

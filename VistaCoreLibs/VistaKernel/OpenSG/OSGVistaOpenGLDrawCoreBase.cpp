@@ -237,7 +237,7 @@ OSG_DLLEXPORT_MFIELD_DEF1(VistaOpenGLDrawCorePtr, );
 
 namespace
 {
-    static Char8 cvsid_cpp       [] = "@(#)$Id$";
+    static Char8 cvsid_cpp       [] = "@(#)$Id: OSGVistaOpenGLDrawCoreBase.cpp 21315 2011-05-16 13:47:39Z dr165799 $";
     static Char8 cvsid_hpp       [] = OSGVistaOpenGLDrawCoreBASE_HEADER_CVSID;
     static Char8 cvsid_inl       [] = OSGVistaOpenGLDrawCoreBASE_INLINE_CVSID;
 

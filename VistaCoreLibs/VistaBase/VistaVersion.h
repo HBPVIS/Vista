@@ -66,7 +66,7 @@
 
 #define VISTA_HEAD
 
-#define VISTA_RELEASE_NAME "TRUNK $Revision$ $Date: 2011-05-16 15:47:39 +0200 (Mo, 16. Mai 2011) $"
+#define VISTA_RELEASE_NAME "TRUNK $Revision: 23616 $ $Date: 2011-05-16 15:47:39 +0200 (Mo, 16. Mai 2011) $"
 //#define VISTA_RELEASE_NAME "FANCYNAME" 
 #define VISTA_VERSION "1.11.0"
 #define VISTA_MAJOR    1

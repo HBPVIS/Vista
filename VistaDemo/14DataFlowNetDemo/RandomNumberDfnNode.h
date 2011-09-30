@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: Vdfn3DNormalizeNode.h 5427 2010-07-23 15:45:53Z tbeer $
+// $Id$
 
 #ifndef _RANDOMNUMBERDFNNODE_H
 #define _RANDOMNUMBERDFNNODE_H

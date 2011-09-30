@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSlaveNetworkSync.cpp 21315 2011-05-16 13:47:39Z dr165799 $
 
 #include <VistaInterProcComm/Connections/VistaSlaveNetworkSync.h>
 #include <VistaInterProcComm/Connections/VistaConnectionIP.h>

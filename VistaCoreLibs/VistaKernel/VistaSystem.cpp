@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSystem.cpp 22674 2011-07-27 13:04:10Z dr165799 $
 
 #include "VistaSystem.h"
 #include "VistaKernelOut.h"

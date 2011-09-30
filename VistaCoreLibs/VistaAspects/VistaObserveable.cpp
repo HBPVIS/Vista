@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaObserveable.cpp 21432 2011-05-23 06:27:58Z ak449259 $
 
 #include "VistaObserveable.h"
 #include "VistaObserver.h"

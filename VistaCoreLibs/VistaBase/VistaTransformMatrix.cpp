@@ -34,7 +34,7 @@
 /* be held responsible. Basically, don't be a jerk, and remember that         */
 /* anything free comes with no guarantee.                                     */
 /*============================================================================*/
-// $Id$
+// $Id: VistaTransformMatrix.cpp 23146 2011-09-05 08:12:31Z dr165799 $
 
 #include "VistaTransformMatrix.h" 
 

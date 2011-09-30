@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaGeometries.cpp 21315 2011-05-16 13:47:39Z dr165799 $
 
 #include "VistaVector.h"
 #include <VistaBase/VistaVectorMath.h>

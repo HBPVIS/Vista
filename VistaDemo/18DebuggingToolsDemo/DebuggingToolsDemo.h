@@ -21,7 +21,7 @@
 /*                                                                            */
 /*============================================================================*/
 /*
- * $Id: StackWalkerGeomDemo.h $
+ * $Id$
  */
 
 #ifndef _DEBUGGINGTOOLSDEMOAPPL_H

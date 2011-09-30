@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaBaseOut.h 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #ifndef _VISTABASEOUT_H
 #define _VISTABASEOUT_H

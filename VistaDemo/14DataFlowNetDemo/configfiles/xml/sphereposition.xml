@@ -1,4 +1,4 @@
-<!-- $Id: worldpointer_mouse.xml,v 1.2 2010-04-29 08:35:07 dr165799 Exp $ -->
+<!-- $Id$ -->
 <!-- 
 	We want to create a graph that reads sensor data from the mouse, converts it
 	to a 3D position, and feeds it to the SetPositionActionObject we created in

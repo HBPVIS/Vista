@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaGlutTextEntity.cpp 22778 2011-08-02 08:27:57Z dr165799 $
 
 #include "VistaGlutTextEntity.h"
 

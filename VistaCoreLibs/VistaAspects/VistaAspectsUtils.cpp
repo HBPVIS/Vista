@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaAspectsUtils.cpp 23036 2011-08-22 08:28:20Z tb552214 $
 
 #include "VistaAspectsUtils.h"
 

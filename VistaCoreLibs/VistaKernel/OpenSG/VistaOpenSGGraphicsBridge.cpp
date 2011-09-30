@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaOpenSGGraphicsBridge.cpp 23000 2011-08-16 13:58:11Z su691804 $
 
 #if defined(WIN32)
 #pragma warning(disable: 4996)

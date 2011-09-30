@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaAsyncEventObserver.cpp 21315 2011-05-16 13:47:39Z dr165799 $
 
 #ifdef WIN32
 #include <winsock2.h> // should be included *before* windows.h

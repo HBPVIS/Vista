@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPthreadsMutexImp.cpp 22128 2011-07-01 11:30:05Z dr165799 $
 
 #if !defined(_POSIX_C_SOURCE)
 #define _POSIX_C_SOURCE 199506L

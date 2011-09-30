@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaGeomNode.cpp 21315 2011-05-16 13:47:39Z dr165799 $
 
 #include "VistaKernel/GraphicsManager/VistaGeomNode.h"
 #include "VistaKernel/GraphicsManager/VistaGeometry.h"

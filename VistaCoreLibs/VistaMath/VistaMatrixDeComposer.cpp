@@ -34,7 +34,7 @@
 /* be held responsible. Basically, don't be a jerk, and remember that         */
 /* anything free comes with no guarantee.                                     */
 /*============================================================================*/
-/* $Id::                                                                    $ */
+/* $Id:: VistaMatrixDeComposer.cpp 21315 2011-05-16 13:47:39Z dr165799      $ */
 
 
 #include "VistaMatrixDeComposer.h"

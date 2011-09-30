@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPhantomDriverConfig.h 5769 2011-01-18 13:11:14Z mjoppich $
+// $Id$
 
 #ifndef _VISTAPHANTOMDRIVERCONFIG_H
 #define _VISTAPHANTOMDRIVERCONFIG_H

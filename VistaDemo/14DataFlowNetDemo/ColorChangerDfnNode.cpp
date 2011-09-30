@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: ColorChangerDfnNode.cpp 5427 2010-07-23 15:45:53Z tbeer $
+// $Id$
 
 #include "ColorChangerDfnNode.h"
 

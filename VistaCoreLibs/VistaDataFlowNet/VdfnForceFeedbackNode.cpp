@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnForceFeedbackNode.cpp 23000 2011-08-16 13:58:11Z su691804 $
 
 #include "VdfnForceFeedbackNode.h"
 

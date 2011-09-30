@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: ColorChangerDfnNode.h 5427 2010-07-23 15:45:53Z tbeer $
+// $Id$
 
 #ifndef _COLORCHANGERDFNNODE_H
 #define _COLORCHANGERDFNNODE_H

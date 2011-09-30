@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaTransformNode.cpp 23039 2011-08-23 08:43:22Z dr165799 $
 
 #include "VistaTransformNode.h"
 #include "VistaNodeBridge.h"
