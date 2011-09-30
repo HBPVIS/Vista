@@ -22,8 +22,6 @@ set( DirFiles
 	VistaMathOut.h
 	VistaMathTools.h
 	VistaMatrix.h
-	VistaMatrixDeComposer.cpp
-	VistaMatrixDeComposer.h
 	VistaPolynomial.cpp
 	VistaPolynomial.h
 	VistaSquareMatrix.h

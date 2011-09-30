@@ -24,7 +24,6 @@
 
 #include "VistaVirtualPlatformAdapter.h"
 #include <VistaKernel/DisplayManager/VistaVirtualPlatform.h>
-#include <VistaMath/VistaMatrixDeComposer.h>
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
@@ -141,8 +140,7 @@ bool VistaVirtualPlatformAdapter::Transform( const VistaTransformMatrix& matTran
 	VistaQuaternion qOrientation;
 	VistaVector3D v3Scale;
 	VistaQuaternion qScaleOrientation;
-	VistaMatrixDeComposer::Decompose( matTransform, v3Translation, qOrientation,
-											v3Scale, qScaleOrientation );
+	matTransform.Decompose( v3Translation, qOrientation, v3Scale, qScaleOrientation );
 	// we require that we have no shearing, just normal scaling
 	if( 1 - qScaleOrientation[Vista::W] > Vista::Epsilon )
 		return false;

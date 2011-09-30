@@ -63,7 +63,6 @@ using namespace std;
 #include "VdfnNodeCreators.h"
 
 #include <VistaBase/VistaVectorMath.h>
-#include <VistaMath/VistaMatrixDeComposer.h>
 
 #include <VistaAspects/VistaAspectsUtils.h>
 #include <VistaDeviceDriversBase/VistaDeviceSensor.h>
