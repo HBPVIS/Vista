@@ -325,6 +325,10 @@ bool Vista3DCSpaceNavigator::Connect()
 				return true;
 
 			}
+			else
+			{
+				printf ("[3DCSpaceNav] Unknown product. vendor id is 0x%04x, product id is 0x%04x.\n", device_info.vendor, device_info.product);
+			}
 			close( fd );
 		}
 	}
