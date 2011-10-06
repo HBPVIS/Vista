@@ -1,0 +1,1 @@
+KERNEL=="event[0-9]*", ATTRS{product}=="SpaceNavigator", SYMLINK+="input/%k", GROUP="users", MODE="0666"
