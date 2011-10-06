@@ -191,37 +191,31 @@ bool VistaVdfn3DMouseTransformNode::PrepareEvaluationRun()
 
 bool VistaVdfn3DMouseTransformNode::DoEvalNode()
 {
-
-	VistaVector3D vPixelPoint,
-		vPixelRay,
-		vViewer2MidpointRay;
-
-
-	float fPixelPosXNormed,fPixelPosYNormed;
 	// set new position according to current information
 	// cast ray from viewposition through pixelposition
 	// and convert the direction into a quaternion
 
 	// normalize to viewport coordinates
-	fPixelPosXNormed=(static_cast<float>(m_pX->GetValue()))/(static_cast<float>(m_nVpW));
-	fPixelPosYNormed=(static_cast<float>(m_pY->GetValue()))/(static_cast<float>(m_nVpH));
+	float fPixelPosXNormed = ( static_cast<float>( m_pX->GetValue() ) ) / ( static_cast<float>(m_nVpW) );
+	float fPixelPosYNormed = ( static_cast<float>( m_pY->GetValue() ) ) / ( static_cast<float>(m_nVpH) );
 
 	// cast ray from mid point to pixel point in normalized vp coords
-	vPixelPoint =    m_v3Midpoint
-		+ ((float)(m_nRight-m_nLeft)*fPixelPosXNormed+(float)m_nLeft) * m_v3RightVector
-		+ ((float)(m_nBottom-m_nTop)*fPixelPosYNormed+(float)m_nTop)  * m_v3Up;
+	VistaVector3D v3PixelPoint =    m_v3Midpoint
+		+ ( (float)(m_nRight - m_nLeft) * fPixelPosXNormed + (float)m_nLeft ) * m_v3RightVector
+		+ ( (float)(m_nBottom - m_nTop) * fPixelPosYNormed + (float)m_nTop )  * m_v3Up;
 
 	// determine ray from viewer pos to pixel position in vp
-	vPixelRay = m_v3ViewerPos - vPixelPoint;
-	vPixelRay.Normalize();
+	VistaVector3D v3PixelRay = v3PixelPoint - m_v3ViewerPos;
+	v3PixelRay.Normalize();
 
 	// determine ray from viewer to mid point of projection
-	vViewer2MidpointRay = m_v3ViewerPos - m_v3Midpoint;
-	vViewer2MidpointRay.Normalize();
+	VistaVector3D v3Viewer2MidpointRay = m_v3Midpoint - m_v3ViewerPos;
+	v3Viewer2MidpointRay.Normalize();
 
 	// calculate rotation from one vector to another
 	// yoields rotation such that the pointing direction of the mouse is qOut*(0,0,-1)
-	VistaQuaternion qOut = VistaQuaternion(vViewer2MidpointRay,vPixelRay);
+	// VistaQuaternion qOut = VistaQuaternion(vViewer2MidpointRay,vPixelRay);
+	VistaQuaternion qOut = VistaQuaternion( VistaVector3D( 0, 0, -1 ), v3PixelRay );
 
 	// for now, this is the output
 	VistaVector3D v3Out = m_v3ViewerPos;
