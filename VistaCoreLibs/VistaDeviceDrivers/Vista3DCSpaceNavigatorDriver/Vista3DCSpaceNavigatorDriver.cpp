@@ -304,7 +304,8 @@ bool Vista3DCSpaceNavigator::Connect()
 			// Logitech (0x046d)
 			// 3DConnexion Space Navigator 3D Mouse (0xc626)
 			if( device_info.vendor == 0x046d &&
-				device_info.product == 0xc626 )
+				(device_info.product == 0xc626 || /* SpaceNavigator */
+				 device_info.product == 0xc628 )) /* SpaceNavigator for Notebooks */
 			{
 				std::cout << "[3DCSpaceNav] SpaceNavigator device detected on event interface "
 					<< sDir + entry->d_name << ". keeping fileconnection open."
