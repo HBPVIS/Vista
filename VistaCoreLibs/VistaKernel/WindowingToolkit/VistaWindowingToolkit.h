@@ -50,11 +50,12 @@ class IVistaTextEntity;
 /*============================================================================*/
 /**
  * The VistaWindowingToolkit class provides an interface to bind ViSTA
- * to an specific windowingtoolkit. Every class in the ViSTA CoreLibs should
- * *not* use a concret Implementation of IVistaWindowingToolkit so you
- * keep the capability to change the WindowingToolkit without doing changes
- * in your code. This class acts as factory for TextEntities and 2D Overlay
- * texts and as well as "normal" class with methods to handle windowing stuff.
+ * to a specific windowingtoolkit. Every class in the ViSTA CoreLibs
+ * should *not* use a concrete implementation of
+ * IVistaWindowingToolkit so you keep the capability to change the
+ * WindowingToolkit without doing changes in your code. This class
+ * acts as factory for TextEntities and 2D Overlay texts and as well
+ * as "normal" class with methods to handle windowing stuff.
  */
 class VISTAKERNELAPI IVistaWindowingToolkit : public IVistaObserveable
 {
@@ -255,4 +256,3 @@ public:
 /*============================================================================*/
 
 #endif
-

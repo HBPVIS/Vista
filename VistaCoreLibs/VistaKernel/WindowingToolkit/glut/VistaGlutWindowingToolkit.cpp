@@ -342,7 +342,7 @@ bool VistaGlutWindowingToolkit::CheckVSyncAvailability()
 	if( m_iVSyncMode != ~0 )
 		return ( m_iVSyncMode != VSYNC_STATE_UNAVAILABLE );
 
-#ifdef WIN32
+#if defined WIN32 && !defined USE_NATIVE_GLUT
 	m_iVSyncMode = VSYNC_STATE_UNAVAILABLE;
 	SetSwapIntervalFunction = (PFNWGLSWAPINTERVALEXT)glutGetProcAddress( "wglSwapIntervalEXT" );
 	if( SetSwapIntervalFunction )
@@ -359,7 +359,7 @@ bool VistaGlutWindowingToolkit::CheckVSyncAvailability()
 				m_iVSyncMode = VSYNC_ENABLED;
 		}
 	}
-#elif defined LINUX
+#elif defined LINUX && !defined USE_NATIVE_GLUT
 	SetSwapIntervalFunction = (PFNGLXSWAPINTERVALSGIPROC)glutGetProcAddress( "glXSwapIntervalSGI" );
 	if( SetSwapIntervalFunction )
 	{
