@@ -2334,7 +2334,8 @@ bool VistaOpenSGDisplayBridge::MakeScreenshot
 			const bool &bNoScreenshotOnClients ) const
 {
 	// only works in standalone and servers
-	if( bNoScreenshotOnClients && GetVistaSystem()->IsClient() && GetVistaSystem()->GetIsSlave() )
+	if( bNoScreenshotOnClients && 
+		(GetVistaSystem()->IsClient() || GetVistaSystem()->GetIsSlave()) )
 		return false;
 
 	// get the OpenSG window data from the specified ViSTA window
@@ -2378,7 +2379,7 @@ bool VistaOpenSGDisplayBridge::MakeScreenshot
 		//fileGrab->setName((strFilenamePrefix + ".gif").c_str());
 		//fileGrab->setName((strFilenamePrefix + ".tif").c_str());
 		//fileGrab->setName((strFilenamePrefix + ".jpg").c_str());
-		fileGrab->setName(strFilenamePrefix.c_str());
+		fileGrab->setName(sFileName.c_str());
 
 		fileGrab->setImage(ptrImg);
 	}
