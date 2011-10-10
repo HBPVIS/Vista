@@ -11,7 +11,12 @@ endif( NOT VISTADEMO_COMMON_BUILD )
 #include the sener sub-app into the build
 add_subdirectory( Sender )
 
-vista_use_package( VistaCoreLibs "HEAD" REQUIRED VistaKernel FIND_DEPENDENCIES )
+
+if( NOT VISTADEMO_COMMON_BUILD )
+	vista_use_package( VistaCoreLibs HEAD REQUIRED VistaKernel FIND_DEPENDENCIES )
+else()
+	vista_use_package( VistaCoreLibs REQUIRED VistaKernel FIND_DEPENDENCIES )
+endif()
 
 
 # Including the source files of all source subfolders recursively

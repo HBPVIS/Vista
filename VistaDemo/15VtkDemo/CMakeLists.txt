@@ -6,9 +6,11 @@ if( NOT VISTADEMO_COMMON_BUILD )
 
 	list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
 	include( VistaCommon )
-endif( NOT VISTADEMO_COMMON_BUILD )
-
-vista_use_package( VistaCoreLibs "HEAD" REQUIRED VistaKernel FIND_DEPENDENCIES )
+	
+	vista_use_package( VistaCoreLibs HEAD REQUIRED VistaKernel FIND_DEPENDENCIES )
+else()
+	vista_use_package( VistaCoreLibs REQUIRED VistaKernel FIND_DEPENDENCIES )
+endif()
 vista_use_package( VTK 5.6.1 REQUIRED EXACT FIND_DEPENDENCIES )
 
 

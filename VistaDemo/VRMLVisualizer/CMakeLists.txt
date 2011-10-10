@@ -1,11 +1,10 @@
-# $Id$
-
 cmake_minimum_required( VERSION 2.8 )
-project( VRMLVisualizer )
+if( NOT VISTADEMO_COMMON_BUILD )
+	project( VRMLVisualizer )
 
-list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
-
-include( VistaCommon )
+	list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
+	include( VistaCommon )
+endif( NOT VISTADEMO_COMMON_BUILD )
 
 vista_use_package( VistaCoreLibs "HEAD" REQUIRED FIND_DEPENDENCIES )
 
@@ -19,5 +18,4 @@ target_link_libraries( VRMLVisualizer
 )
 
 vista_configure_app( VRMLVisualizer )
-vista_create_default_info_file( VRMLVisualizer )
 
