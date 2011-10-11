@@ -28,6 +28,8 @@
 /*============================================================================*/
 
 #include "VistaDataProducer.h"
+
+#include <cstddef>
 #include <list>
 using namespace std;
 

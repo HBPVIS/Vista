@@ -29,7 +29,7 @@
 #include "VistaBaseTypes.h"
 
 #include <vector>
-
+#include <cstddef>
 class IVistaTimerImp;
 
 class VISTABASEAPI VistaTimer

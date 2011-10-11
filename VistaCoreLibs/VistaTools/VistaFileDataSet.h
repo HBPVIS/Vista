@@ -159,7 +159,7 @@ public:
 	friend class iterator;
 	class iterator
 		: public std::iterator<std::bidirectional_iterator_tag,
-							   VistaFileSystemFile,ptrdiff_t>
+							   VistaFileSystemFile,std::ptrdiff_t>
 	{
 		std::list<VistaFileSystemFile>::iterator it;
 		std::list<VistaFileSystemFile>* r;

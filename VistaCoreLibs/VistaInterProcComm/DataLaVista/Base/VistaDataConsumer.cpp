@@ -28,6 +28,8 @@
 /*============================================================================*/
 
 #include "VistaDataConsumer.h"
+
+#include <cstddef>
 #include <list>
 using namespace std;
 

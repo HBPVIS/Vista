@@ -41,11 +41,11 @@
 class VISTABASEAPI VistaAutoBufferPool
 {
 public:
-	VistaAutoBufferPool( size_t nNumBufsPreAlloced, size_t nBufDefSize, bool resizeOnNeed = true );
+	VistaAutoBufferPool( std::size_t nNumBufsPreAlloced, std::size_t nBufDefSize, bool resizeOnNeed = true );
 	~VistaAutoBufferPool();
 
 	VistaAutoWriteBuffer GetBufferWrite();
-	size_t GetCurrentNumOfBuffers() const;
+	std::size_t GetCurrentNumOfBuffers() const;
 
 private:
 	std::vector<VistaAutoWriteBuffer> m_pool;

@@ -28,6 +28,8 @@
 /*============================================================================*/
 
 #include <list>
+#include <cstddef>
+
 using std::list;
 
 #include "VistaPipe.h"
