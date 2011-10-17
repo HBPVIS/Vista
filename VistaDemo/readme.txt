@@ -31,7 +31,7 @@
 The VistaDemos are developed to show you how to work with ViSTA VR Toolkit.
 All Demos should work with the release. If they do not work correctly wih the
 tagged version please contact vistavrtoolkit-general@lists.sourceforge.net.
-Use VistaDemoBuild to build all demos, with make or mscv9.
+
 To get an idea of where you can start use the following list.
 
  * VistaKeyboardDemo		Demonstrates the use of the keyboard.
@@ -48,3 +48,14 @@ To get an idea of where you can start use the following list.
 							from an folder.
  * VistaTextDemo			Shows you how to add 2D and 3D text to your application
 
+/*============================================================================*/
+/*                                 Compiling                                  */
+/*============================================================================*/
+
+Use CMake to generate build all demos. 
+Make sure you have compiled VistaVRToolkit and you need the environment Variable 
+VISTA_CMAKE_COMMON pointing to VistaCMakeCommon 
+Tested Platforms are 
+-Windows wirh MSVC8 MSVC9 and MSVC10
+-Linux with gcc up to 4.6
+-and MacOS10
