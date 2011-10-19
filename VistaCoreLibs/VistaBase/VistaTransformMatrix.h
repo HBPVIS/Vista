@@ -764,8 +764,8 @@ inline void VistaTransformMatrix::SetBasisMatrix( const VistaQuaternion& qRotati
 		m_a4x4fMatrix[0][0] = 1.0f;
 		m_a4x4fMatrix[0][1] = 0.0f;
 		m_a4x4fMatrix[0][2] = 0.0f;
-		m_a4x4fMatrix[1][0] = 1.0f;
-		m_a4x4fMatrix[1][1] = 0.0f;
+		m_a4x4fMatrix[1][0] = 0.0f;
+		m_a4x4fMatrix[1][1] = 1.0f;
 		m_a4x4fMatrix[1][2] = 0.0f;
 		m_a4x4fMatrix[2][0] = 0.0f;
 		m_a4x4fMatrix[2][1] = 0.0f;
