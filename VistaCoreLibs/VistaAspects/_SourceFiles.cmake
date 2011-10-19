@@ -4,6 +4,7 @@ set( RelativeDir "." )
 set( RelativeSourceGroup "Source Files" )
 
 set( DirFiles
+	VistaGenericFactory.h
 	VistaAspectsConfig.h
 	VistaAspectsOut.cpp
 	VistaAspectsOut.h
@@ -15,6 +16,8 @@ set( DirFiles
 	VistaExplicitCallbackInterface.h
 	VistaLocatable.cpp
 	VistaLocatable.h
+	VistaMarshalledObjectFactory.cpp
+	VistaMarshalledObjectFactory.h
 	VistaNameable.cpp
 	VistaNameable.h
 	VistaObjectRegistry.cpp
