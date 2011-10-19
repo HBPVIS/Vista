@@ -27,7 +27,7 @@
 #if defined(WIN32)
 #include <windows.h>
 
-#ifdef  VISTA_INTERLOCKEDEXCHANGE64_NOT_AVAILABLE
+#ifdef  VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE
 
 namespace
 {
@@ -65,7 +65,7 @@ namespace
 		CRITICAL_SECTION &m_cs;
 	};
 }
-#endif // VISTA_INTERLOCKEDEXCHANGE64_NOT_AVAILABLE
+#endif // VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE
 
 #endif
 /*============================================================================*/
@@ -90,21 +90,21 @@ VistaSigned64Atomic::VistaSigned64Atomic( VistaType::sint64 initialValue )
 : TVistaAtomicCounter<VistaType::sint64>( initialValue )
 , m_pPrivate()
 {
-#ifdef VISTA_INTERLOCKEDEXCHANGE64_NOT_AVAILABLE
+#ifdef VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE
 	m_pPrivate.m_pPrivate = (void*) new _winprivate;
 #endif
 }
 
 VistaSigned64Atomic::~VistaSigned64Atomic()
 {
-#ifdef VISTA_INTERLOCKEDEXCHANGE64_NOT_AVAILABLE
+#ifdef VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE
 	delete towp( m_pPrivate.m_pPrivate ) ;
 #endif
 }
 
 VistaType::sint64 VistaSigned64Atomic::Get() const
 {
-#ifdef VISTA_INTERLOCKEDEXCHANGE64_NOT_AVAILABLE
+#ifdef VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE
 	_scopedLock l( (*towp( m_pPrivate.m_pPrivate )).m_cs );
 	return m_nValue;
 #else
@@ -283,7 +283,7 @@ VistaType::sint64 VistaSigned64Atomic::Get() const
 		// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 		// VistaSigned64Atomic
 		// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#ifdef VISTA_INTERLOCKEDEXCHANGE64_NOT_AVAILABLE
+#ifdef VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE
 		 inline void VistaSigned64Atomic::Add( VistaType::sint64 nValue)
 		 {
 			 _scopedLock l( (*towp( m_pPrivate.m_pPrivate )).m_cs );
