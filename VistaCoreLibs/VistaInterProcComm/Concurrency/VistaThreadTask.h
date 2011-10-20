@@ -54,7 +54,7 @@ class VISTAINTERPROCCOMMAPI VistaThreadTask : public VistaThread
 public:
 	VistaThreadTask();
 	virtual ~VistaThreadTask();
-	virtual void ThreadBody   ();
+	virtual void ThreadBody();
 
 	bool SetThreadedTask(IVistaThreadedTask *);
 	IVistaThreadedTask *GetThreadedTask() const;
@@ -66,29 +66,65 @@ private:
 	IVistaThreadedTask *m_pTask;
 };
 
+/**
+ * @ingroup VistaInterProcComm
+ * 
+ * @brief Base class for all kinds of threaded tasks in ViSTA.
+ *
+ * The interface defines the three methods PreWork(),
+ * DefinedThreadWork() and PostWork(), which are executed in that
+ * order for the task to be executed. PreWork() is provided for
+ * preparations of the actual task, like allocating resources and
+ * preparing the job's environment. DefinedThreadWork() is the actual
+ * task to be executed, and PostWork() is provided for any kind of
+ * cleanup after the task finished, like deallocating resources which
+ * were allocated beforehand.
+ */
 class VISTAINTERPROCCOMMAPI IVistaThreadedTask
 {
 	friend class VistaThreadTask;
 public:
 	virtual ~IVistaThreadedTask();
 
+	
 	bool GetIsDone() const;
 
-
 	/**
-	 * indicates whether this work instance is CURRENTLY processed.
-	 * a DONE work will return false here!
+	 * Indicates whether this work instance is CURRENTLY processed. A
+	 * DONE task will return false here!
 	 */
 	bool GetIsProcessed() const;
 
+	/**
+	 * Call this routine to execute the whole threaded task. This
+	 * comprises executing PreWork(), DefinedThreadWork() and
+	 * PostWork(). Do not override this method in subclasses, but
+	 * instead overwrite those three designated methods, respectively.
+	 */
 	void ThreadWork();
 
 protected:
 	IVistaThreadedTask();
 
+    /**
+	 * Overwrite this method to prepare your working task. Resource
+	 * allocation and other preparation of the actual job execution
+	 * should happen here.
+	 */
 	virtual void PreWork();
+
+	/**
+	 * Overwrite this method for any cleanup measures after the task
+	 * has finished, like freeing up any allocated resources.
+	 */
 	virtual void PostWork();
+
+	/**
+	 * This method has to be overwritten in subclasses and defines the
+	 * actual work this threaded task will perform.
+	 */
 	virtual void DefinedThreadWork() = 0;
+
 private:
 	void StartWork();
 	void StopWork();
@@ -102,5 +138,4 @@ private:
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/
 
-#endif //_VISTASYSTEM_H
-
+#endif //_VISTATHREADTASK_H

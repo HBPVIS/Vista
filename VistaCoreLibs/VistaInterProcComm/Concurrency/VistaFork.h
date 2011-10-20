@@ -44,10 +44,12 @@ class VistaPriority;
 /*============================================================================*/
 
 /**
- * This is the base class for all concurrency issues.
- * Forking means a ways to split the path of execution into more than just
- * one track. This is the basis for threads as well as processes.
- * @todo remove or rename this..."fork" is missleading
+ * @ingroup VistaInterProcComm
+ *
+ * This is the base class for all concurrency issues. Forking is a way
+ * to split the path of execution into more than just one track. This
+ * is the basis for threads as well as processes.  @todo remove or
+ * rename this..."fork" is misleading
  */
 class VISTAINTERPROCCOMMAPI VistaFork
 {
@@ -56,7 +58,7 @@ public:
 	/**
 	 * Empty constructor.
 	 */
-	VistaFork   () {};
+	VistaFork() {};
 
 
 	/**
@@ -65,80 +67,92 @@ public:
 	virtual ~VistaFork() {};
 
 	/**
-	 * A suspended thread can be resumed. Consider this to be an atomic "pause". Note
-	 * that the pause state can be ANY state in the execution path of any process or
-	 * thread. You should usually only suspend threads that have no timing issues or
-	 * the like. BE SURE TO KNOW WHAT YOU ARE DOING WHEN CALLING SUSPEND.
+	 * A suspended thread can be resumed. Consider this to be an
+	 * atomic "pause". Note that the pause state can be ANY state in
+	 * the execution path of any process or thread. You should usually
+	 * only suspend threads that have no timing issues or the like. BE
+	 * SURE TO KNOW WHAT YOU ARE DOING WHEN CALLING SUSPEND.  
+	 *
 	 * @return true iff the thread is suspended and waiting for resume.
 	 */
-	virtual bool            Suspend         ()                      = 0;
+	virtual bool Suspend() = 0;
 
 
 	/**
-	 * A thread that is suspended can be resumed. Note that it does not make any
-	 * sense to call Resume on a running thread.
-	 * @return true iff the thread/process could be resumed (which implies that the thread was suspended beforehand)
+	 * A thread that is suspended can be resumed. Note that it does
+	 * not make any sense to call Resume on a running thread.  
+	 *
+	 * @return true iff the thread/process could be resumed (which
+	 * implies that the thread was suspended beforehand)
 	 */
-	virtual bool            Resume     ()                      = 0;
+	virtual bool Resume() = 0;
 
 	/**
-	 * Join is called from OUTSIDE the scope of this fork-instance. A call to join will
-	 * ONLY return when the forked process is finished. You can use this to suspend the
-	 * caller of join until the forked work is REALLY done. Note that joining on a forked
-	 * process that will never quit will block the caller of join forever and ever.
+	 * Join is called from OUTSIDE the scope of this fork-instance. A
+	 * call to join will ONLY return when the forked process is
+	 * finished. You can use this to suspend the caller of join until
+	 * the forked work is REALLY done. Note that joining on a forked
+	 * process that will never quit will block the caller of join
+	 * forever and ever.  
+	 * 
 	 * @return true always, as otherwise the caller gets blocked.
 	 */
-	virtual bool            Join       ()                      = 0;
-
+	virtual bool Join() = 0;
 
 	/**
-	 * Abort "CANCELS" a forked process, see this as a kind of "TERMINATE"-command from the
-	 * outside of VistaFork. A forked instance that is running is aborted right aways without
-	 * any chance to synchronize or to give back resources. BE SURE THAT YOU KNOW WHAT
-	 * YOU ARE DOING WHEN CALLING Abort!
-	 * @return true iff the forked process could be terminated, false else (the forked thing is still running)
+	 * Abort "CANCELS" a forked process, see this as a kind of
+	 * "TERMINATE"-command from the outside of VistaFork. A forked
+	 * instance that is running is aborted right aways without any
+	 * chance to synchronize or to give back resources. BE SURE THAT
+	 * YOU KNOW WHAT YOU ARE DOING WHEN CALLING Abort!
+	 *
+	 * @return true iff the forked process could be terminated, false
+	 * else (the forked thing is still running)
 	 */
-	virtual bool            Abort       ()                      = 0;
+	virtual bool Abort() = 0;
 
 	/**
-	 * Allows modification of this forked thing's priority. See the definition
-	 * of VistaPriority for more explanation.
+	 * Allows modification of this forked thing's priority. See the
+	 * definition of VistaPriority for more explanation.
+	 *
 	 * @param prio the priority for the forked thing to get
-	 * @return true iff the priority that was given could be set to this forked thing
+	 * @return true iff the priority that was given could be set for
+	 * this forked thing
 	 */
-	virtual bool            SetPriority  (const VistaPriority &prio)        = 0;
+	virtual bool SetPriority(const VistaPriority &prio) = 0;
 
 
 	/**
 	 * Retrieves the priority of a thread to the caller.
 	 * @see VistaPriority()
+	 *
 	 * @param the out parameter to hold the priority value in
 	 */
-	virtual void            GetPriority  ( VistaPriority & ) const                      = 0;
-
+	virtual void GetPriority( VistaPriority & ) const = 0;
 
 	/**
-	 * Method that is to be performed BEFORE departed fork starts execution
+	 * Method that is to be performed BEFORE departed fork starts
+	 * execution.
 	 */
 	virtual void PreRun() = 0;
 
 	/**
-	 * Method that is to be performed AFTER forked work is done
+	 * Method that is to be performed AFTER forked work is done.
 	 */
 	virtual void PostRun() = 0;
 
 	virtual bool GetIsFinished() const = 0;
+
 private:
+	/**
+	 * Copy-constructor, we deny copying.
+	 */
+	VistaFork( const VistaFork & );
 
 	/**
-	 * copy-constructor, We deny copying
+	 * Assigment is denied.
 	 */
-	VistaFork ( const VistaFork & );
-
-	/**
-	 * assigment is denied.
-	 */
-	VistaFork & operator=  ( const VistaFork & );
+	VistaFork & operator= ( const VistaFork & );
 };
 
 #endif // _VISTAFORK_H

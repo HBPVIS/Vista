@@ -226,7 +226,7 @@ void IVistaAcceptor::DefinedThreadWork()
 	case SOCK_CLIENT:
 		{
 
-			/**
+			/*
 			 * We set the "parent" server socket to blocking, as this is
 			 * usually what the vista programmer expects: a socket is blocking
 			 * until told not to do so...
@@ -272,5 +272,3 @@ void IVistaAcceptor::DefinedThreadWork()
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/
-
-
