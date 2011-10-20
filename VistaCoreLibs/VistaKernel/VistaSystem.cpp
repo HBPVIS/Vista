@@ -1672,7 +1672,7 @@ bool VistaSystem::LoadDeviceDrivers()
 			{
 				/** DRIVERTODO warning */
 				vkernerr << "Could not load Plugin for Driver [" << sName 
-							<<  "] of Type [" << sName << "]" << std::endl;
+							<<  "] of Type [" << sType << "]" << std::endl;
 				continue;
 			}
 		}		
@@ -1714,7 +1714,7 @@ bool VistaSystem::LoadDeviceDrivers()
 			if(!pM)
 			{
 				this->PrintMsg(std::string(" [ViSys]: ### WARNING : no driver of type [")
-							   + sType + std::string("] registered, check if the DRIVERPLUGINS directory is set correctly for your platform!\n"));
+							   + sType + std::string("] registered, check if DRIVERPLUGINDIRS is set correctly for your platform!\n"));
 				continue;
 			}
 
