@@ -31,6 +31,7 @@
 /*============================================================================*/
 /* INCLUDES																	  */
 /*============================================================================*/
+#include <cstddef>
 #include <map>
 
 /*============================================================================*/
@@ -131,8 +132,8 @@ template<typename TProduct, typename TKey>
 VistaGenericFactory<TProduct,TKey>::~VistaGenericFactory()
 {
 	//properly delete all the creators
-	TCreatorMap::iterator itCurrent = m_mapKey2Creators.begin();
-	TCreatorMap::iterator itEnd = m_mapKey2Creators.end();
+	typename TCreatorMap::iterator itCurrent = m_mapKey2Creators.begin();
+	typename TCreatorMap::iterator itEnd = m_mapKey2Creators.end();
 	for(; itCurrent != itEnd; ++itCurrent)
 	{
 		delete itCurrent->second;
@@ -142,7 +143,7 @@ VistaGenericFactory<TProduct,TKey>::~VistaGenericFactory()
 template<typename TProduct, typename TKey>
 bool VistaGenericFactory<TProduct,TKey>::RegisterCreator(const TKey &rKey, IVistaCreator<TProduct> *pCreator)
 {
-	TCreatorMap::iterator itFind = m_mapKey2Creators.find(rKey);
+	typename TCreatorMap::iterator itFind = m_mapKey2Creators.find(rKey);
 	if(itFind != m_mapKey2Creators.end())
 	{
 		return false;
@@ -154,7 +155,7 @@ bool VistaGenericFactory<TProduct,TKey>::RegisterCreator(const TKey &rKey, IVist
 template<typename TProduct, typename TKey>
 TProduct *VistaGenericFactory<TProduct,TKey>::CreateInstance(const TKey &rKey)
 {
-	TCreatorMap::iterator itFind = m_mapKey2Creators.find(rKey);
+	typename TCreatorMap::iterator itFind = m_mapKey2Creators.find(rKey);
 	if(itFind == m_mapKey2Creators.end())
 	{
 		return NULL;

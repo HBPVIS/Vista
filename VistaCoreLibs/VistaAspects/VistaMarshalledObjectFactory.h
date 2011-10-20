@@ -28,7 +28,9 @@
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
-#include<map>
+#include <map>
+#include <typeinfo>
+using std::type_info;
 
 #include "VistaAspectsConfig.h"
 #include "VistaGenericFactory.h"
