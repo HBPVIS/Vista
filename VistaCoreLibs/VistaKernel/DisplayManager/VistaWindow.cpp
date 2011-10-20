@@ -469,7 +469,3 @@ int VistaWindow::VistaWindowProperties::GetVSyncEnabled() const
 	VistaWindow *pW = static_cast<VistaWindow*>(GetParent());
 	return GetDisplayBridge()->GetWindowVSync( pW );
 }
-
-
-
-

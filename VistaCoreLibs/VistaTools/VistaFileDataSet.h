@@ -87,6 +87,7 @@
 #include "VistaFileSystemFile.h"
 #include "VistaFileSystemDirectory.h"
 
+#include <cstddef>
 #include <iostream>
 #include <string>
 #include <vector>

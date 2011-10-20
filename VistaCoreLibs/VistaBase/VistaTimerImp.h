@@ -28,6 +28,7 @@
 #include "VistaBaseConfig.h"
 #include "VistaBaseTypes.h"
 
+#include <cstddef>
 #include <vector>
 
 /**

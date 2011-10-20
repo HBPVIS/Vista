@@ -87,6 +87,4 @@ public:
 
 /*============================================================================*/
 
-#endif // _VISTAITERATIONTHREAD_H
-
-
+#endif // _VISTATHREADEVENT_H

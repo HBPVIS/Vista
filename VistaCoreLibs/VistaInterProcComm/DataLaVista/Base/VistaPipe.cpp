@@ -32,6 +32,8 @@
 
 using std::list;
 
+#include <cstddef>
+
 #include "VistaPipe.h"
 
 

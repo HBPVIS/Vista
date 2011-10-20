@@ -24,6 +24,8 @@
 #ifndef _VISTAAUTOBUFFERPOOL_H_
 #define _VISTAAUTOBUFFERPOOL_H_
 
+#include <cstddef>
+
 #include "VistaAutoBuffer.h"
 #include "VistaBaseConfig.h"
 /*============================================================================*/
