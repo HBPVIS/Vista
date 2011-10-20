@@ -23,51 +23,109 @@
 // $Id: VistaDeSerializer.cpp 4719 2009-09-10 09:29:58Z tbeer $
 
 #include "VistaAtomicCounter.h"
+#include "VistaExceptionBase.h"
 
 #if defined(WIN32)
-#include <windows.h>
+	#include <windows.h>
+#endif
 
 #ifdef  VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE
 
 namespace
 {
-	struct _winprivate
-	{
-		_winprivate()
-		{
-			InitializeCriticalSection(&m_cs);
-		}
+	struct _private;
 
-		~_winprivate()
-		{
-			DeleteCriticalSection(&m_cs);
-		}
-
-		CRITICAL_SECTION m_cs;
-	};
-
-	_winprivate *towp( void *p ) { return reinterpret_cast<_winprivate*>( p ); }
+	_private *towp( void *p ) { return reinterpret_cast<_private*>( p ); }
 
 	class _scopedLock
 	{
 	public:
-		_scopedLock( CRITICAL_SECTION &Cs )
-			: m_cs(Cs) 
-		{
-			EnterCriticalSection( &m_cs );
-		}
+		_scopedLock( _private &Cs );
+		~_scopedLock();
 
-		~_scopedLock()
-		{
-			LeaveCriticalSection( &m_cs );
-		}
-
-		CRITICAL_SECTION &m_cs;
+		_private &m_cs;
 	};
-}
-#endif // VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE
 
-#endif
+	#if defined(WIN32)
+
+		struct _private
+		{
+			_private()
+			{
+				InitializeCriticalSection(&m_cs);
+			}
+
+			~_private()
+			{
+				DeleteCriticalSection(&m_cs);
+			}
+
+			void Lock()
+			{
+				EnterCriticalSection( &m_cs );
+			}
+
+			void Unlock()
+			{
+				LeaveCriticalSection( &m_cs );
+			}
+
+			CRITICAL_SECTION m_cs;
+		};
+
+
+
+	#else // if WIN32
+
+		#include <semaphore.h>
+		// this is for 32bit gnu-based systems, that do not expose the {q} qualifier for assembly construction
+		struct _private
+		{
+			_private()
+			{
+				if(sem_init(&m_semaphore, 0, 1) == -1)
+				{
+					VISTA_THROW("[AtomicCounter::_private]: sem_init() failed", 0L);
+				}
+			}
+
+			~_private()
+			{
+				sem_destroy(&m_semaphore);
+			}
+
+			void Lock()
+			{
+				if( sem_wait(&m_semaphore) )
+					VISTA_THROW("[AtomicCounter::_private::Lock()]: sem_wait() failed", 0L);
+			}
+
+			void Unlock()
+			{
+				if( sem_post(&m_semaphore) )
+					VISTA_THROW("[AtomicCounter::_private::Lock()]: sem_post() failed", 0L);
+			}
+
+			sem_t m_semaphore;
+		};
+	#endif // WIN32
+
+
+		// implementation part for scoped lock
+		_scopedLock::_scopedLock( _private &Cs )
+		: m_cs(Cs)
+		{
+			m_cs.Lock();
+		}
+
+		_scopedLock::~_scopedLock()
+		{
+			m_cs.Unlock();
+		}
+}
+
+
+#endif // VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
@@ -91,7 +149,7 @@ VistaSigned64Atomic::VistaSigned64Atomic( VistaType::sint64 initialValue )
 , m_pPrivate()
 {
 #ifdef VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE
-	m_pPrivate.m_pPrivate = (void*) new _winprivate;
+	m_pPrivate.m_pPrivate = (void*) new _private;
 #endif
 }
 
@@ -105,7 +163,7 @@ VistaSigned64Atomic::~VistaSigned64Atomic()
 VistaType::sint64 VistaSigned64Atomic::Get() const
 {
 #ifdef VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE
-	_scopedLock l( (*towp( m_pPrivate.m_pPrivate )).m_cs );
+	_scopedLock l( *towp( m_pPrivate.m_pPrivate ) );
 	return m_nValue;
 #else
 	return m_nValue;
@@ -126,7 +184,9 @@ VistaType::sint64 VistaSigned64Atomic::Get() const
 	void VistaSigned32Atomic::Add( VistaType::sint32 nValue)
 	{
 		__asm__ __volatile__ ("lock; add{l} {%1,%0|%0,%1}"
-				  	        : "+m" (m_nValue) : "ir" (nValue) : "memory");
+				  	        : "+m" (m_nValue)
+				  	        : "ir" (nValue)
+				  	        : "memory");
 	}
 
 	void VistaSigned32Atomic::Sub( VistaType::sint32 nValue )
@@ -149,7 +209,9 @@ VistaType::sint64 VistaSigned64Atomic::Get() const
 	void VistaSigned32Atomic::Dec()
 	{
 		__asm__ __volatile__ ("lock; dec{l} %0"
-				  : "+m" (m_nValue) : : "memory");
+				  : "+m" (m_nValue)
+				  :
+				  : "memory");
 	}
 
 	bool VistaSigned32Atomic::DecAndTestNull()
@@ -157,7 +219,8 @@ VistaType::sint64 VistaSigned64Atomic::Get() const
 		unsigned char c;
 		__asm__ __volatile__("lock; dec{l} %0; sete %1"
 				 :"+m" (m_nValue), "=qm" (c)
-				 : : "memory");
+				 :
+				 : "memory");
 		return c != 0;
 	}
 
@@ -166,7 +229,8 @@ VistaType::sint64 VistaSigned64Atomic::Get() const
 		unsigned char c;
 		__asm__ __volatile__("lock; add{l} {%2,%0|%0,%2}; sets %1"
 				 :"+m" (m_nValue), "=qm" (c)
-				 :"ir" (nValue) : "memory");
+				 :"ir" (nValue)
+				 : "memory");
 		return c != 0;
 	}
 
@@ -184,29 +248,82 @@ VistaType::sint64 VistaSigned64Atomic::Get() const
 	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	// VistaSigned64Atomic
 	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#if defined( VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE )
+	 inline void VistaSigned64Atomic::Add( VistaType::sint64 nValue)
+	 {
+		 _scopedLock l( *towp( m_pPrivate.m_pPrivate ) );
+		 m_nValue += nValue;
+	 }
+
+	 inline void VistaSigned64Atomic::Sub( VistaType::sint64 nValue )
+	 {
+		 _scopedLock l( *towp( m_pPrivate.m_pPrivate ) );
+		 m_nValue -= nValue;
+	 }
+
+	 void VistaSigned64Atomic::Inc()
+	 {
+		 Add(1);
+	 }
+
+	 void VistaSigned64Atomic::Dec()
+	 {
+		 Sub(1);
+	 }
+
+	 bool VistaSigned64Atomic::DecAndTestNull()
+	 {
+		 _scopedLock l( *towp( m_pPrivate.m_pPrivate ) );
+		 return (--m_nValue == 0);
+	 }
+
+	 bool VistaSigned64Atomic::AddAndTestNegative( VistaType::sint64 nValue )
+	 {
+		 _scopedLock l( *towp( m_pPrivate.m_pPrivate ) );
+		 m_nValue -= nValue;
+		 return m_nValue < 0;
+
+	 }
+
+	 VistaType::sint64 VistaSigned64Atomic::ExchangeAndAdd( VistaType::sint64 nValue )
+	 {
+		 _scopedLock l( *towp( m_pPrivate.m_pPrivate ) );
+		 VistaType::sint64 old = m_nValue;
+		 m_nValue -= nValue;
+		 return old;
+	 }
+#else
 
 	 inline void VistaSigned64Atomic::Add( VistaType::sint64 nValue)
 	 {
 			__asm__ __volatile__ ("lock; add{q} {%1,%0|%0,%1}"
-					  : "+m" (m_nValue) : "ir" (nValue) : "memory");
+					  : "+m" (m_nValue)
+					  : "ir" (nValue)
+					  : "memory");
 	 }
 
 	 inline void VistaSigned64Atomic::Sub( VistaType::sint64 nValue )
 	 {
 			__asm__ __volatile__ ("lock; sub{q} {%1,%0|%0,%1}"
-					  : "+m" (m_nValue) : "ir" (nValue) : "memory");
+					  : "+m" (m_nValue)
+					  : "ir" (nValue)
+					  : "memory");
 	 }
 
 	 void VistaSigned64Atomic::Inc()
 	 {
 			__asm__ __volatile__ ("lock; inc{q} %0"
-					  : "+m" (m_nValue) : : "memory");
+					  : "+m" (m_nValue)
+					  :
+					  : "memory");
 	 }
 
 	 void VistaSigned64Atomic::Dec()
 	 {
 			__asm__ __volatile__ ("lock; dec{q} %0"
-					  : "+m" (m_nValue) : : "memory");
+					  : "+m" (m_nValue)
+					  :
+					  : "memory");
 	 }
 
 	 bool VistaSigned64Atomic::DecAndTestNull()
@@ -214,7 +331,8 @@ VistaType::sint64 VistaSigned64Atomic::Get() const
 			unsigned char c;
 			__asm__ __volatile__("lock; dec{q} %0; sete %1"
 					 :"+m" (m_nValue), "=qm" (c)
-					 : : "memory");
+					 :
+					 : "memory");
 			return c != 0;
 	 }
 
@@ -223,7 +341,8 @@ VistaType::sint64 VistaSigned64Atomic::Get() const
 			unsigned char c;
 			__asm__ __volatile__("lock; add{q} {%2,%0|%0,%2}; sets %1"
 					 :"+m" (m_nValue), "=qm" (c)
-					 :"ir" (nValue) : "memory");
+					 :"ir" (nValue)
+					 : "memory");
 			return c != 0;
 	 }
 
@@ -236,6 +355,7 @@ VistaType::sint64 VistaSigned64Atomic::Get() const
 							: "memory");
 		return res;
 	 }
+#endif // VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE
 
 #elif defined(WIN32) // we use that for win64, too as it is *always* defined according to msdn on windows
 		// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -286,13 +406,13 @@ VistaType::sint64 VistaSigned64Atomic::Get() const
 #ifdef VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE
 		 inline void VistaSigned64Atomic::Add( VistaType::sint64 nValue)
 		 {
-			 _scopedLock l( (*towp( m_pPrivate.m_pPrivate )).m_cs );
+			 _scopedLock l( *towp( m_pPrivate.m_pPrivate ) );
 			 m_nValue += nValue;
 		 }
 
 		 inline void VistaSigned64Atomic::Sub( VistaType::sint64 nValue )
 		 {
-			 _scopedLock l( (*towp( m_pPrivate.m_pPrivate )).m_cs );
+			 _scopedLock l( *towp( m_pPrivate.m_pPrivate ) );
 			 m_nValue -= nValue;
 		 }
 
@@ -308,13 +428,13 @@ VistaType::sint64 VistaSigned64Atomic::Get() const
 
 		 bool VistaSigned64Atomic::DecAndTestNull()
 		 {
- 			 _scopedLock l( (*towp( m_pPrivate.m_pPrivate )).m_cs );
+ 			 _scopedLock l( *towp( m_pPrivate.m_pPrivate ) );
 			 return (--m_nValue == 0);
 		 }
 
 		 bool VistaSigned64Atomic::AddAndTestNegative( VistaType::sint64 nValue )
 		 {
-			 _scopedLock l( (*towp( m_pPrivate.m_pPrivate )).m_cs );
+			 _scopedLock l( *towp( m_pPrivate.m_pPrivate ) );
 			 m_nValue -= nValue;
 			 return m_nValue < 0;
 
@@ -322,7 +442,7 @@ VistaType::sint64 VistaSigned64Atomic::Get() const
 
 		 VistaType::sint64 VistaSigned64Atomic::ExchangeAndAdd( VistaType::sint64 nValue )
 		 {
-			 _scopedLock l( (*towp( m_pPrivate.m_pPrivate )).m_cs );
+			 _scopedLock l( *towp( m_pPrivate.m_pPrivate ) );
 			 VistaType::sint64 old = m_nValue;
 			 m_nValue -= nValue;
 			 return old;
