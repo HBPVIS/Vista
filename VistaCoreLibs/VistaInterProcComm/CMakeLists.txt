@@ -5,6 +5,8 @@ vista_adopt_version( VistaInterProcComm VistaCoreLibs )
 if( WIN32 )
 	add_definitions( -D_USE_WIN32_MUTEX )
 	set( LIBRARIES winmm ws2_32 )
+elseif( UNIX )
+	set( LIBRARIES pthread )
 endif( WIN32 )
 
 set( VISTACORELIBS_IPC_USE_EXCEPTIONS ON CACHE BOOL "Specifies wether or nor the IPC throws exceptions when errors occur" )
