@@ -576,10 +576,17 @@ bool VistaOpenCVFaceTrackDriver::DoSensorUpdate(VistaType::microtime nTs)
 							(int)( (float)m_nLastSizeY / m_fSizeTolerance ) );
 		cv::Size oSizeMax( (int)( (float)m_nLastSizeX * m_fSizeTolerance ),
 							(int)( (float)m_nLastSizeY * m_fSizeTolerance ) );
+#if ( CV_MAJOR_VERSION >= 2 ) && ( CV_MINOR_VERSION >= 2 )
 		m_pCascade->detectMultiScale( oFrame, vecObjects, 1.1, 3,
 			CV_HAAR_SCALE_IMAGE
 			//CV_HAAR_SCALE_IMAGE	//| CV_HAAR_FIND_BIGGEST_OBJECT | CV_HAAR_DO_ROUGH_SEARCH
 			, oSizeMin, oSizeMax );
+#else
+		m_pCascade->detectMultiScale( oFrame, vecObjects, 1.1, 3,
+			CV_HAAR_SCALE_IMAGE
+			//CV_HAAR_SCALE_IMAGE	//| CV_HAAR_FIND_BIGGEST_OBJECT | CV_HAAR_DO_ROUGH_SEARCH
+			, oSizeMin );
+#endif
 	}
 	nDetectTime = m_oTimer.GetMicroTime() - nDetectTime;
 
