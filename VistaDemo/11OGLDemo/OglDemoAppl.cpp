@@ -63,7 +63,11 @@ OglDemoAppl::OglDemoAppl( int argc, char * argv[] ) : m_vistaSystem( VistaSystem
 	if(m_vistaSystem.GetDisplayManager()->GetDisplaySystem(0)== 0 )
 		VISTA_THROW( "No DisplaySystem found" , 1);
 
-	m_vistaSystem.GetDisplayManager()->GetWindowByName("MAIN_WINDOW")->GetWindowProperties()->SetTitle(argv[0]);
+	std::map<std::string,VistaWindow*> wmap=m_vistaSystem.GetDisplayManager()->GetWindows();
+	if (wmap.empty())
+		VISTA_THROW( "No Window found" , 1);
+
+	(*wmap.begin()).second->GetWindowProperties()->SetTitle(argv[0]);
 }
 
 OglDemoAppl::~OglDemoAppl()
