@@ -8,8 +8,9 @@ list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
 include( VistaCommon )
 
 
-vista_use_package( VistaCoreLibs "EXTERNAL_TRANSCODES" REQUIRED VistaKernel FIND_DEPENDENCIES )
+vista_use_package( VistaCoreLibs "HEAD" REQUIRED VistaKernel FIND_DEPENDENCIES )
 vista_use_package( OpenCV REQUIRED ) # so that we find the libs when loading the dlls
+vista_use_package( CLEye QUIET )
 
 
 add_executable( OpenCVFaceTrackDemo main.cpp configfiles/vista.ini configfiles/ucp_facetrack.xml configfiles/keyboard.xml )

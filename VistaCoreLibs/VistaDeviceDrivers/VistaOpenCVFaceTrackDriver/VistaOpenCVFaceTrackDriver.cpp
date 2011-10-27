@@ -673,7 +673,7 @@ bool VistaOpenCVFaceTrackDriver::DoSensorUpdate(VistaType::microtime nTs)
 		cv::putText( oFrame, sUpdText, cv::Point( 4, 70 ), nFont, fScale, oTextColor );
 		cv::putText( oFrame, sDetectText, cv::Point( 4, 95 ), nFont, fScale, oTextColor );
 
-		imshow( S_sDebugWindowName, oFrame );
+		cv::imshow( S_sDebugWindowName, oFrame );
 	}
 
 	return true;

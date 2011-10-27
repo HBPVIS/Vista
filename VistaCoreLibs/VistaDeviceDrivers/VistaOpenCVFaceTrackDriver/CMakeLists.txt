@@ -26,6 +26,12 @@ if( NOT OPENCV_FOUND )
 	message( STATUS "VistaOpenCVFaceTrackDriver requires OpenCV, which is not available - only transcoder will be built" )
 else( NOT OPENCV_FOUND )
 
+	vista_use_package( CLEye QUIET )
+	if( CLEYE_FOUND )
+		message( STATUS "OpenCVDriver found CLEye API - enabling custom support" )
+		add_definitions( -DOPENCVFACETRACK_WITH_CLEYE )
+	endif()
+
 	# Driver Plugin
 
 	set( dirFiles_plugin
