@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSystemConfigurators.h 20766 2011-04-05 09:30:14Z dr165799 $
 
 #ifndef _VISTASYSTEMCONFIGURATORS_H
 #define _VISTASYSTEMCONFIGURATORS_H
@@ -54,32 +54,19 @@ public:
 	VistaWindowConfigurator(VistaDisplayManager *pSys);
 	virtual ~VistaWindowConfigurator();
 
+	bool Configure( IVistaDeviceDriver* pDriver,
+					const VistaPropertyList& oDriverSection,
+					const VistaPropertyList& oConfig );
 
-	// #########################################################################
-	// PROPERTY ACCESSOR API
-	// #########################################################################
-	std::list<VistaWindow*> GetWindowsNameList() const;
-	bool                     SetWindowsByNameList(const std::list<VistaWindow*> &liAttachWindows);
-
-
-	// #########################################################################
-	// ICONFIGURATOR API
-	// #########################################################################
-	bool GeneratePropertyListFromInifile(const std::string &strFile,
-									const std::string &sRootSection,
-									VistaPropertyList &oProps);
-
-	// #########################################################################
-	// IVistaReflectionable API
-	// #########################################################################
-	virtual std::string GetReflectionableType() const;
-protected:
-	virtual int AddToBaseTypeList(std::list<std::string> &rBtList) const;
+	REFL_INLINEIMP( VistaWindowConfigurator,
+				   VistaDriverPropertyConfigurator::IConfigurator )
 
 private:
 	VistaDisplayManager *m_pDispMgr;
 	static std::string SsReflectionType;
 };
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 class VISTAKERNELAPI VistaSensorMappingConfigurator : public VistaDriverPropertyConfigurator::IConfigurator
 {
@@ -87,32 +74,15 @@ public:
 	VistaSensorMappingConfigurator();
 	virtual ~VistaSensorMappingConfigurator();
 
-	// #########################################################################
-	// PROPERTY ACCESSOR API
-	// #########################################################################
-	std::list<std::string> GetSensorNameList() const;
-	bool SetSensorByNameList(const std::list<std::string> &liSensors);
+	bool Configure( IVistaDeviceDriver* pDriver,
+					const VistaPropertyList& oDriverSection,
+					const VistaPropertyList& oConfig );
 
-
-	// #########################################################################
-	// ICONFIGURATOR API
-	// #########################################################################
-	bool Configure(IVistaDeviceDriver *pDriver,
-					   const VistaPropertyList &props);
-	bool GeneratePropertyListFromInifile(const std::string &strFile,
-									const std::string &sRootSection,
-									VistaPropertyList &oProps);
-
-	// #########################################################################
-	// IVistaReflectionable API
-	// #########################################################################
-	virtual std::string GetReflectionableType() const;
-protected:
-	virtual int AddToBaseTypeList(std::list<std::string> &rBtList) const;
+	REFL_INLINEIMP( VistaSensorMappingConfigurator,
+				   VistaDriverPropertyConfigurator::IConfigurator )
 private:
 	static std::string SsReflectionType;
 };
-
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -122,21 +92,12 @@ public:
 	VistaGenericHistoryConfigurator();
 	virtual ~VistaGenericHistoryConfigurator();
 
-	// #########################################################################
-	// ICONFIGURATOR API
-	// #########################################################################
-	bool Configure(IVistaDeviceDriver *pDriver,
-					   const VistaPropertyList &props);
-	bool GeneratePropertyListFromInifile(const std::string &strFile,
-									const std::string &sRootSection,
-									VistaPropertyList &oProps);
+	bool Configure( IVistaDeviceDriver* pDriver,
+					const VistaPropertyList& oDriverSection,
+					const VistaPropertyList& oConfig );
 
-	// #########################################################################
-	// IVistaReflectionable API
-	// #########################################################################
-	virtual std::string GetReflectionableType() const;
-protected:
-	virtual int AddToBaseTypeList(std::list<std::string> &rBtList) const;
+	REFL_INLINEIMP( VistaGenericHistoryConfigurator,
+				   VistaDriverPropertyConfigurator::IConfigurator )
 private:
 	static std::string SsReflectionType;
 };
@@ -171,20 +132,12 @@ public:
 
 	bool AddConFacMethod(const std::string &sKey, IConnectionFactoryMethod*);
 
-	// #########################################################################
-	// ICONFIGURATOR API
-	// #########################################################################
-	bool Configure(IVistaDeviceDriver *pDriver,
-					   const VistaPropertyList &props);
-	bool GeneratePropertyListFromInifile(const std::string &strFile,
-									const std::string &sRootSection,
-									VistaPropertyList &oProps);
+	bool Configure( IVistaDeviceDriver* pDriver,
+					const VistaPropertyList& oDriverSection,
+					const VistaPropertyList& oConfig );
 
-	// #########################################################################
-	// IVistaReflectionable API
-	// #########################################################################
-	REFL_INLINEIMP(VistaConnectionConfigurator,
-				   VistaDriverPropertyConfigurator::IConfigurator)
+	REFL_INLINEIMP( VistaConnectionConfigurator,
+				   VistaDriverPropertyConfigurator::IConfigurator )
 public:
 	std::map<std::string, IConnectionFactoryMethod*> m_mpFactories;
 };
@@ -194,18 +147,12 @@ public:
 class VISTAKERNELAPI VistaDriverProtocolConfigurator : public VistaDriverPropertyConfigurator::IConfigurator
 {
 public:
-	virtual bool Configure(IVistaDeviceDriver *pDriver,
-		const VistaPropertyList &props);
+	bool Configure( IVistaDeviceDriver* pDriver,
+					const VistaPropertyList& oDriverSection,
+					const VistaPropertyList& oConfig );
 
-
-	virtual bool GeneratePropertyListFromInifile(const std::string &strFile,
-		const std::string &sRootSection,
-		VistaPropertyList &);
-	// #########################################################################
-	// IVistaReflectionable API
-	// #########################################################################
-	REFL_INLINEIMP(VistaDriverProtocolConfigurator,
-				   VistaDriverProtocolConfigurator::IConfigurator)
+	REFL_INLINEIMP( VistaDriverProtocolConfigurator,
+				   VistaDriverPropertyConfigurator::IConfigurator )
 };
 
 class VISTAKERNELAPI VistaDriverLoggingConfigurator : public VistaDriverPropertyConfigurator::IConfigurator
@@ -214,22 +161,12 @@ public:
 	VistaDriverLoggingConfigurator();
 	~VistaDriverLoggingConfigurator();
 
-	// #########################################################################
-	// ICONFIGURATOR API
-	// #########################################################################
+	bool Configure( IVistaDeviceDriver* pDriver,
+					const VistaPropertyList& oDriverSection,
+					const VistaPropertyList& oConfig );
 
-	virtual bool Configure(IVistaDeviceDriver *pDriver,
-		const VistaPropertyList &props);
-
-
-	virtual bool GeneratePropertyListFromInifile(const std::string &strFile,
-		const std::string &sRootSection,
-		VistaPropertyList &);
-	// #########################################################################
-	// IVistaReflectionable API
-	// #########################################################################
-	REFL_INLINEIMP(VistaDriverLoggingConfigurator,
-				   VistaDriverPropertyConfigurator::IConfigurator)
+	REFL_INLINEIMP( VistaDriverLoggingConfigurator,
+				   VistaDriverPropertyConfigurator::IConfigurator )
 private:
 };
 
@@ -239,23 +176,12 @@ public:
 	VistaDriverAttachOnlyConfigurator();
 	~VistaDriverAttachOnlyConfigurator();
 
-	// #########################################################################
-	// ICONFIGURATOR API
-	// #########################################################################
+	bool Configure( IVistaDeviceDriver* pDriver,
+					const VistaPropertyList& oDriverSection,
+					const VistaPropertyList& oConfig );
 
-	virtual bool Configure(IVistaDeviceDriver *pDriver,
-		const VistaPropertyList &props);
-
-
-	virtual bool GeneratePropertyListFromInifile(const std::string &strFile,
-		const std::string &sRootSection,
-		VistaPropertyList &);
-	// #########################################################################
-	// IVistaReflectionable API
-	// #########################################################################
-	REFL_INLINEIMP(VistaDriverAttachOnlyConfigurator,
-				   VistaDriverPropertyConfigurator::IConfigurator)
-private:
+	REFL_INLINEIMP( VistaDriverAttachOnlyConfigurator,
+				   VistaDriverPropertyConfigurator::IConfigurator )
 };
 
 class VISTAKERNELAPI VistaDeviceIdentificationConfigurator : public VistaDriverPropertyConfigurator::IConfigurator
@@ -264,23 +190,12 @@ public:
 	VistaDeviceIdentificationConfigurator();
 	~VistaDeviceIdentificationConfigurator();
 
-	// #########################################################################
-	// ICONFIGURATOR API
-	// #########################################################################
+	bool Configure( IVistaDeviceDriver* pDriver,
+					const VistaPropertyList& oDriverSection,
+					const VistaPropertyList& oConfig );
 
-	virtual bool Configure(IVistaDeviceDriver *pDriver,
-						   const VistaPropertyList &props);
-
-
-	virtual bool GeneratePropertyListFromInifile(const std::string &strFile,
-		const std::string &sRootSection,
-		VistaPropertyList &);
-	// #########################################################################
-	// IVistaReflectionable API
-	// #########################################################################
-	REFL_INLINEIMP(VistaDriverAttachOnlyConfigurator,
-				   VistaDriverPropertyConfigurator::IConfigurator)
-private:
+	REFL_INLINEIMP( VistaDeviceIdentificationConfigurator,
+				   VistaDriverPropertyConfigurator::IConfigurator )
 };
 
 
@@ -290,23 +205,12 @@ public:
 	VistaDriverReferenceFrameConfigurator();
 	~VistaDriverReferenceFrameConfigurator();
 
-	// #########################################################################
-	// ICONFIGURATOR API
-	// #########################################################################
+	bool Configure( IVistaDeviceDriver* pDriver,
+					const VistaPropertyList& oDriverSection,
+					const VistaPropertyList& oConfig );
 
-	virtual bool Configure(IVistaDeviceDriver *pDriver,
-		const VistaPropertyList &props);
-
-
-	virtual bool GeneratePropertyListFromInifile(const std::string &strFile,
-		const std::string &sRootSection,
-		VistaPropertyList &);
-	// #########################################################################
-	// IVistaReflectionable API
-	// #########################################################################
-	REFL_INLINEIMP(VistaDriverReferenceFrameConfigurator,
-				   VistaDriverPropertyConfigurator::IConfigurator)
-private:
+	REFL_INLINEIMP( VistaDriverReferenceFrameConfigurator,
+				   VistaDriverPropertyConfigurator::IConfigurator )
 };
 
 
@@ -316,310 +220,14 @@ public:
 	VistaDriverParameterConfigurator();
 	~VistaDriverParameterConfigurator();
 
-	// #########################################################################
-	// ICONFIGURATOR API
-	// #########################################################################
+	bool Configure( IVistaDeviceDriver* pDriver,
+					const VistaPropertyList& oDriverSection,
+					const VistaPropertyList& oConfig );
 
-	virtual bool Configure( IVistaDeviceDriver *pDriver,
-							const VistaPropertyList &props);
-
-
-	virtual bool GeneratePropertyListFromInifile(const std::string &strFile,
-		const std::string &sRootSection,
-		VistaPropertyList &);
-	// #########################################################################
-	// IVistaReflectionable API
-	// #########################################################################
-	REFL_INLINEIMP(VistaDriverReferenceFrameConfigurator,
-				   VistaDriverPropertyConfigurator::IConfigurator)
+	REFL_INLINEIMP( VistaDriverParameterConfigurator,
+				   VistaDriverPropertyConfigurator::IConfigurator )
 private:
 };
-
-
-
-//// #############################################################################
-//// SENSOR TRANSFORMS
-//// #############################################################################
-//
-//class VISTAKERNELAPI VistaSensorFrameTransformConfigurator : public VistaSensorTransformConfigurator::IConfigurator
-//{
-//public:
-//	VistaSensorFrameTransformConfigurator();
-//	~VistaSensorFrameTransformConfigurator();
-//
-//	// #########################################################################
-//	// ICONFIGURATOR API
-//	// #########################################################################
-//
-//	virtual bool Configure(IVistaSensorTransform *pDriver,
-//		const PropertyList &props);
-//
-//
-//	virtual bool GeneratePropertyListFromInifile(const std::string &strFile,
-//		const std::string &sRootSection,
-//		PropertyList &,
-//		const std::list<std::string> &liSearchpath = std::list<std::string>());
-//	// #########################################################################
-//	// IVistaReflectionable API
-//	// #########################################################################
-//	REFL_INLINEIMP(VistaSensorFrameTransformConfigurator,
-//				   VistaSensorTransformConfigurator::IConfigurator)
-//private:
-//};
-//
-//class VISTAKERNELAPI VistaDisjunctTransformConfigurator : public VistaSensorTransformConfigurator::IConfigurator
-//{
-//public:
-//	VistaDisjunctTransformConfigurator(VistaSensorTransformConfigurator *pConfigure);
-//	~VistaDisjunctTransformConfigurator();
-//
-//	// #########################################################################
-//	// ICONFIGURATOR API
-//	// #########################################################################
-//
-//	virtual bool Configure(IVistaSensorTransform *pDriver,
-//		const PropertyList &props);
-//
-//
-//	virtual bool GeneratePropertyListFromInifile(const std::string &strFile,
-//		const std::string &sRootSection,
-//		PropertyList &,
-//		const std::list<std::string> &liSearchpath = std::list<std::string>());
-//	// #########################################################################
-//	// IVistaReflectionable API
-//	// #########################################################################
-//	REFL_INLINEIMP(VistaSensorFrameTransformConfigurator,
-//				   VistaSensorTransformConfigurator::IConfigurator)
-//private:
-//	IVistaSensorTransform *CreateSensorTransform(
-//								const std::string &strType,
-//								const PropertyList &oProps);
-//
-//	VistaSensorTransformConfigurator *m_pTransConfig;
-//};
-//
-//// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-//class VISTAKERNELAPI VistaNormalizeTransformConfigurator : public VistaSensorTransformConfigurator::IConfigurator
-//{
-//public:
-//	VistaNormalizeTransformConfigurator(VistaDisplayManager *pDispMgr);
-//	~VistaNormalizeTransformConfigurator();
-//
-//	// #########################################################################
-//	// ICONFIGURATOR API
-//	// #########################################################################
-//
-//	virtual bool Configure(IVistaSensorTransform *pDriver,
-//		const PropertyList &props);
-//
-//
-//	virtual bool GeneratePropertyListFromInifile(const std::string &strFile,
-//		const std::string &sRootSection,
-//		PropertyList &,
-//		const std::list<std::string> &liSearchpath = std::list<std::string>());
-//	// #########################################################################
-//	// IVistaReflectionable API
-//	// #########################################################################
-//	REFL_INLINEIMP(VistaNormalizeTransformConfigurator,
-//				   VistaSensorTransformConfigurator::IConfigurator)
-//private:
-//	VistaDisplayManager *m_pDispMgr;
-//};
-//
-//class VISTAKERNELAPI Vista3DMouseTransformConfigurator : public VistaSensorTransformConfigurator::IConfigurator
-//{
-//public:
-//	Vista3DMouseTransformConfigurator(VistaDisplayManager *pDispMgr);
-//	~Vista3DMouseTransformConfigurator();
-//
-//	// #########################################################################
-//	// ICONFIGURATOR API
-//	// #########################################################################
-//
-//	virtual bool Configure(IVistaSensorTransform *pDriver,
-//		const PropertyList &props);
-//
-//
-//	virtual bool GeneratePropertyListFromInifile(const std::string &strFile,
-//		const std::string &sRootSection,
-//		PropertyList &,
-//		const std::list<std::string> &liSearchpath = std::list<std::string>());
-//	// #########################################################################
-//	// IVistaReflectionable API
-//	// #########################################################################
-//	REFL_INLINEIMP(Vista3DMouseTransformConfigurator,
-//				   VistaSensorTransformConfigurator::IConfigurator)
-//private:
-//	VistaDisplayManager *m_pDispMgr;
-//};
-//
-//
-//// ##############################################################################
-//class VISTAKERNELAPI VistaGenericCommandMapTransformConfigurator : public VistaSensorTransformConfigurator::IConfigurator
-//{
-//public:
-//	// #########################################################################
-//	// ICONFIGURATOR API
-//	// #########################################################################
-//
-//	virtual bool Configure(IVistaSensorTransform *pTrans,
-//		const PropertyList &props);
-//
-//
-//	virtual bool GeneratePropertyListFromInifile(const std::string &strFile,
-//		const std::string &sRootSection,
-//		PropertyList &oProps,
-//		const std::list<std::string> &liSearchpath = std::list<std::string>());
-//	// #########################################################################
-//	// IVistaReflectionable API
-//	// #########################################################################
-//	REFL_INLINEIMP(VistaGenericCommandMapTransformConfigurator,
-//				   VistaSensorTransformConfigurator::IConfigurator)
-//private:
-//};
-//
-//// ##############################################################################
-//// ##############################################################################
-//class VISTAKERNELAPI VistaPipedTransformConfig : public VistaSensorTransformConfigurator::IConfigurator
-//{
-//	public:
-//	VistaPipedTransformConfig(VistaSensorTransformConfigurator *pConfigure);
-//
-//
-//	IVistaSensorTransform *CreateSensorTransform(const std::string &strType,
-//												const PropertyList &oProps);
-//
-//	bool Configure(IVistaSensorTransform *pTrans, const PropertyList &oProps);
-//
-//	bool GeneratePropertyListFromInifile( const std::string &strFile,
-//									  const std::string &strRootSection,
-//									  PropertyList &oStorage,
-//									  const std::list<std::string> &liSearchPath);
-//
-//
-//	REFL_INLINEIMP(VistaPipeTransformConfig,
-//				   VistaSensorTransformConfigurator::IConfigurator);
-//	private:
-//	VistaSensorTransformConfigurator *m_pTransConfig;
-//};
-//
-//
-//
-//// #####################################################################################
-//
-//class VISTAKERNELAPI VistaRefFrameTransformConfig : public VistaSensorTransformConfigurator::IConfigurator
-//{
-//	public:
-//	VistaRefFrameTransformConfig(VistaDisplayManager *pSys);
-//
-//	bool Configure(IVistaSensorTransform *pTrans, const PropertyList &oProps);
-//
-//	bool GeneratePropertyListFromInifile( const std::string &strFile,
-//									  const std::string &strRootSection,
-//									  PropertyList &oStorage,
-//									  const std::list<std::string> &liSearchPath);
-//
-//
-//	REFL_INLINEIMP(VistaRefFrameTransformConfig,
-//				   VistaSensorTransformConfigurator::IConfigurator);
-//
-//	private:
-//	VistaDisplayManager *m_pSys;
-//};
-//
-//// #####################################################################################
-//class VISTAKERNELAPI VistaSlotValueMultiplexTransformConfig : public VistaSensorTransformConfigurator::IConfigurator
-//{
-//public:
-//	VistaSlotValueMultiplexTransformConfig();
-//
-//	bool Configure(IVistaSensorTransform *pTrans, const PropertyList &oProps);
-//
-//	bool GeneratePropertyListFromInifile( const std::string &strFile,
-//									  const std::string &strRootSection,
-//									  PropertyList &oStorage,
-//									  const std::list<std::string> &liSearchPath);
-//
-//
-//	REFL_INLINEIMP(VistaSlotValueMultiplexTransformConfig,
-//				   VistaSensorTransformConfigurator::IConfigurator);
-//};
-//
-//// #####################################################################################
-//
-//class VISTAKERNELAPI VistaSensorFrameTransformCreationMethod : public VistaSensorTransformConfigurator::ITransformCreationMethod
-//{
-//public:
-//	IVistaSensorTransform *CreateTransform();
-//};
-//
-//class VISTAKERNELAPI VistaIdentityTransformCreationMethod : public VistaSensorTransformConfigurator::ITransformCreationMethod
-//{
-//public:
-//	IVistaSensorTransform *CreateTransform();
-//};
-//
-//class VISTAKERNELAPI VistaCoordIdentityTransformCreationMethod : public VistaSensorTransformConfigurator::ITransformCreationMethod
-//{
-//public:
-//	IVistaSensorTransform *CreateTransform();
-//};
-//
-//class VISTAKERNELAPI VistaCommandIdentityTransformCreationMethod : public VistaSensorTransformConfigurator::ITransformCreationMethod
-//{
-//public:
-//	IVistaSensorTransform *CreateTransform();
-//};
-//
-//class VISTAKERNELAPI VistaDisjunctTransformCreationMethod : public VistaSensorTransformConfigurator::ITransformCreationMethod
-//{
-//public:
-//	IVistaSensorTransform *CreateTransform();
-//};
-//
-//class VISTAKERNELAPI VistaMouseNormalizeCreationMethod : public VistaSensorTransformConfigurator::ITransformCreationMethod
-//{
-//public:
-//	VistaMouseNormalizeCreationMethod(VistaEventManager *pEvMgr);
-//	IVistaSensorTransform *CreateTransform();
-//private:
-//	VistaEventManager *m_pEvMgr;
-//};
-//
-//class VISTAKERNELAPI Vista3DMouseTransformCreationMethod : public VistaSensorTransformConfigurator::ITransformCreationMethod
-//{
-//public:
-//	Vista3DMouseTransformCreationMethod(VistaEventManager *pEvMgr);
-//	IVistaSensorTransform *CreateTransform();
-//private:
-//	VistaEventManager *m_pEvMgr;
-//};
-//
-//class VISTAKERNELAPI VistaGenericCommandMapTransformCreationMethod : public VistaSensorTransformConfigurator::ITransformCreationMethod
-//{
-//public:
-//	IVistaSensorTransform *CreateTransform();
-//};
-//
-//class VISTAKERNELAPI VistaPipedTransformCreate : public VistaSensorTransformConfigurator::ITransformCreationMethod
-//{
-//	public:
-//	IVistaSensorTransform *CreateTransform();
-//};
-//
-//
-//class VISTAKERNELAPI VistaRefFrameTransformCreate : public VistaSensorTransformConfigurator::ITransformCreationMethod
-//{
-//	public:
-//	IVistaSensorTransform *CreateTransform();
-//};
-//
-//class VISTAKERNELAPI VistaSlotValueMultiplexTransformCreate : public VistaSensorTransformConfigurator::ITransformCreationMethod
-//{
-//	public:
-//	IVistaSensorTransform *CreateTransform();
-//};
 
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */

@@ -20,14 +20,15 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPthreadsMutexImp.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #if !defined(_POSIX_C_SOURCE)
 #define _POSIX_C_SOURCE 199506L
 #endif
 
 #include <VistaInterProcComm/Concurrency/VistaIpcThreadModel.h>
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+
+#include <VistaBase/VistaStreamUtils.h>
 
 
 #if defined(VISTA_THREADING_POSIX)
@@ -85,7 +86,7 @@ VistaPthreadsMutexImp::VistaPthreadsMutexImp (const string &sName, const IVistaM
 		}
 	case IVistaMutexImp::eInterProcess:
 		{
-			vipcerr  << "INTERPROCESS-MUTEX CURRENTLY UNSUPPORTED FOR THIS PLATFORM\n";
+			vstr::errp() << "INTERPROCESS-MUTEX CURRENTLY UNSUPPORTED FOR THIS PLATFORM" << std::endl;
 			pPosixMutex = new pthread_mutex_t;
 			#if (PthreadDraftVersion == 4)
 				pthread_mutex_init ( pPosixMutex, PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP );

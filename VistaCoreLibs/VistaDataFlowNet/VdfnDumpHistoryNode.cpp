@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnDumpHistoryNode.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VdfnDumpHistoryNode.h"
 #include <VistaBase/VistaExceptionBase.h>
@@ -122,8 +122,8 @@ IVdfnNode *VdfnDumpHistoryDefaultCreate::CreateNode( const VistaPropertyList &oP
 	try
 	{
 		const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
-		std::string strFileName = subs.GetStringValue("file");
-		if(strFileName.empty())
+		std::string strFileName;
+		if( subs.GetValue( "file", strFileName ) == false || strFileName.empty() )
 			return NULL;
 
 		return new VdfnDumpHistoryNode(strFileName);

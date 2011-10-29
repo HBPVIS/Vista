@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaStreamManager.h 21315 2011-05-16 13:47:39Z dr165799 $
 
 #ifndef _VISTASTREAMMANAGER_H
 #define _VISTASTREAMMANAGER_H
@@ -89,7 +89,8 @@ public:
 					bool bManageDeletion = false,
 					bool bReplaceExistingStream = false );
 	/**
-	 * Removes the stream with the specified name, and deletes it if bDelete == true;
+	 * Removes the stream with the specified name, and deletes it if
+	 * bDelete == true OR MnagaeDeletion was set for the stream
 	 * @return true if Stream was removed, false if no stream of this name exists.
 	 */
 	virtual bool RemoveStream( const std::string& sName,
@@ -151,6 +152,31 @@ public:
 	std::string GetNodeName() const;
 	unsigned int GetFrameCount() const;
 	float GetFrameRate() const;
+
+	/**
+	 * Gets/Sets the default prefix to be printed before warning or error messages
+	 */
+	std::string GetErrorPrefix() const;
+	void SetErrorPrefix( const std::string& sPrefix );
+	std::string GetWarningPrefix() const;
+	void SetWarningPrefix( const std::string& sPrefix );
+
+	/**
+	 * Interface for consistent indentation
+	 */
+	int GetIndentationLevel() const;
+	void SetIndentationLevel( const int iLevel );
+	void AddToIndentationLevel( const int iAdd = +1 );
+	
+	const std::string& GetIndentationPrefixString() const;
+	void SetIndentationPrefixString( const std::string& sString );
+	const std::string& GetIndentationPostfixString() const;
+	void SetIndentationPostfixString( const std::string& sString );
+	const std::string& GetIndentationLevelString() const;
+	void SetIndentationLevelString( const std::string& sString );
+
+	const std::string& GetIndentation() const;
+
 protected:
 	/** 
 	 * This function is called if a stream is requested by GetStream(), but does not
@@ -158,13 +184,22 @@ protected:
 	 * overwritten, e.g. to create a new named stream
 	 */
 	virtual std::ostream& GetDefaultStream( const std::string& sName );
+	void RebuildIndentationString();
 	
 protected:
-	VistaTimer*							m_pTimer;
-	std::map<std::string, std::ostream*>	m_mpStreams;
+	VistaTimer*								m_pTimer;
+	std::map<std::string, std::ostream*>	m_mapStreams;
 	std::vector<std::ostream*>				m_vecOwnStreams;
 	std::vector<INFO_LAYOUT_ELEMENT>		m_vecInfoLayout;
 	IInfoInterface*							m_pInfo;
+
+	std::string								m_sErrorPrefix;
+	std::string								m_sWarningPrefix;
+	int										m_iIndentationLevel;
+	std::string								m_sIndentationLevelString;
+	std::string								m_sIndentationPrefixString;
+	std::string								m_sIndentationPostfixString;
+	std::string								m_sIndentation;
 };
 
 #endif // _VISTASTREAMMANAGER_H

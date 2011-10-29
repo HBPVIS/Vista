@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaByteBufferDeSerializer.h 22143 2011-07-01 15:07:00Z dr165799 $
 
 #ifndef _VISTABYTEBUFFERDESERIALIZER_H
 #define _VISTABYTEBUFFERDESERIALIZER_H
@@ -50,20 +50,6 @@ class VistaConnectionIP;
 /*============================================================================*/
 class VISTAINTERPROCCOMMAPI VistaByteBufferDeSerializer : public IVistaDeSerializer
 {
-private:
-	bool m_bDoSwap;
-
-	//members for externally set buffer space...
-	const char *m_pExternalBuffer;
-	int m_iExternalSize;
-	int m_iCurrentBufferPos;
-	bool m_bDeleteAfterUsage;
-
-	std::deque<unsigned char> m_vecBuffer;
-
-	bool DoRead(unsigned char* pBuf, int iSize, bool bSwap = true);
-
-protected:
 public:
 	VistaByteBufferDeSerializer();
 	virtual ~VistaByteBufferDeSerializer();
@@ -107,36 +93,15 @@ public:
 
 	virtual int ReadDelimitedString(std::string &, char cDelim = '\0');
 
-	virtual int ReadDoubleName( const char *sVarName, double &dDouble);
-
-	virtual int ReadShort16Name( const char *sVarName, VistaType::ushort16 &us16Val);
-
-	virtual int ReadInt32Name( const char *sVarName, VistaType::sint32 &si32Val);
-	virtual int ReadInt32Name( const char *sVarName, VistaType::uint32 &si32Val);
-
-	virtual int ReadInt64Name( const char *sVarName, VistaType::sint64 &si64Val) ;
-	virtual int ReadUInt64Name( const char *sVarName, VistaType::uint64 &ui64Val) ;
-
-	virtual int ReadFloat32Name( const char *sVarName, VistaType::float32 &fVal) ;
-
-	virtual int ReadFloat64Name( const char *sVarName, VistaType::float64 &f64Val);
-
-	virtual int ReadStringName(const char *sVarName, std::string &, int iMaxLength) ;
-	virtual int ReadStringName(const char *sVarName, std::string &, char cDelim = '\0') ;
-
-	virtual int ReadRawBufferName(const char *sVarName, void *pBuffer, int iLen) ;
-
-	virtual int ReadBoolName(const char *sVarName, bool &bVal) ;
-
 	virtual int ReadSerializable(IVistaSerializable &obj) ;
 
 
 	/**
-	 *  FillBuffer() _copies_ iLength bytes of the char vector given in pcBuff to its internal
+	 *  FillBuffer() _copies_ iLength bytes of the VistaType::byte vector given in pcBuff to its internal
 	 *  buffer. Any external associated buffer will be deleted (if stated by the user upon
 	 *  assigning the external buffer with SetBuffer()).
 	 */
-	bool FillBuffer(const char *pcBuff, int iLength);
+	bool FillBuffer( const VistaType::byte* pBuff, int iLength );
 
 	/**
 	* Set the buffer to a given memory location. This will save the costly copy operation
@@ -145,13 +110,26 @@ public:
 	* i.e. iff the deserializer will delete the given memory when the buffer is no longer
 	* needed.
 	*/
-	bool SetBuffer(const char *pcBuff, int iLength, bool bDeleteAfterUse = false);
-	const char *GetBuffer() const;
-	const char *GetReadHead() const;
+	bool SetBuffer( const VistaType::byte* pBuff, int iLength, bool bDeleteAfterUse = false );
+	const VistaType::byte* GetBuffer() const;
+	const VistaType::byte* GetReadHead() const;
 
 	void ClearBuffer();
 
 	unsigned int GetTailSize() const;
+
+private:
+	bool DoRead( VistaType::byte* pBuf, int iSize, bool bSwap = true );
+private:
+	bool m_bDoSwap;
+
+	//members for externally set buffer space...
+	const VistaType::byte* m_pExternalBuffer;
+	int m_iExternalSize;
+	int m_iCurrentBufferPos;
+	bool m_bDeleteAfterUsage;
+
+	std::deque<VistaType::byte> m_vecBuffer;
 };
 
 /*============================================================================*/

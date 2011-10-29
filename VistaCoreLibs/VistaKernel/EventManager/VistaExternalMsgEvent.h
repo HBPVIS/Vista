@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaExternalMsgEvent.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTAEXTERNALMSGEVENT_H
 #define _VISTAEXTERNALMSGEVENT_H

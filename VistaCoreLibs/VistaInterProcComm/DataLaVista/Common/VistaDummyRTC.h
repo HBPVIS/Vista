@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDummyRTC.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTADUMMYRTC_H
 #define _VISTADUMMYRTC_H
@@ -44,16 +44,13 @@
  /* CLASS DEFINITIONS                                                          */
  /*============================================================================*/
 
- /**
-  *
-  */
 class DLVistaDummyRTC : public IDLVistaRTC
 {
 private:
 	/**
 	 * We prohibit copying
 	 */
-						DLVistaDummyRTC	(DLVistaDummyRTC &) {}
+	DLVistaDummyRTC	(DLVistaDummyRTC &) {}
 
 public:
 

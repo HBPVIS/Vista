@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSerializingToolset.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTASERIALIZINGTOOLSET_H
 #define _VISTASERIALIZINGTOOLSET_H
@@ -64,9 +64,6 @@ private:
 	//static void SwapStep(void *p, int iLength, int iCount);
 protected:
 public:
-	/**
-	 *
-	 */
 	enum eEndianess
 	{
 		VST_NONEENDIAN = 0,     /**< no assumption        */

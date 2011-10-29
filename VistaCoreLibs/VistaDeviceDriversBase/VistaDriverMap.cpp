@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDriverMap.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VistaDriverMap.h"
 #include "VistaDeviceDriver.h"
@@ -34,8 +34,6 @@
 /*============================================================================*/
 VistaDriverMap::VistaDriverMap()
 {
-
-	// insert generic drivers for the new interaction manager
 }
 
 VistaDriverMap::~VistaDriverMap()

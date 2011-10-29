@@ -75,7 +75,7 @@ public:
 	{
 	}
 
-	virtual bool AttachSequence(VistaDriverAbstractWindowAspect::WindowHandle *pWindow)
+	virtual bool AttachSequence( const VistaDriverAbstractWindowAspect::WindowHandle& oWindow)
 	{
 		if(m_nHwnd != NULL)
 			return false;
@@ -86,34 +86,34 @@ public:
 		// the window handle "as-raw" handle.
 		// so we have to lookup the "global-active-top-level" window
 		// from windows itself.
-		m_nHwnd = pWindow->GetOSHandle();
+		m_nHwnd = oWindow.GetOSHandle();
 
 		if(m_nHwnd != NULL)
 		{
-			m_liWindows.push_back(pWindow);
+			m_liWindows.push_back(oWindow);
 			return true;
 		}
 		return false;
 	}
 
-	virtual bool DetachSequence(VistaDriverAbstractWindowAspect::WindowHandle *pWindow)
+	virtual bool DetachSequence(const VistaDriverAbstractWindowAspect::WindowHandle& oWindow)
 	{
 		if(m_nHwnd == NULL)
 			return true;
 
-		m_liWindows.remove(pWindow);
+		m_liWindows.remove( oWindow );
 		m_nHwnd = NULL;
 		return true;
 	}
 
-	virtual std::list<VistaDriverAbstractWindowAspect::WindowHandle*> GetWindowList() const
+	virtual std::list<VistaDriverAbstractWindowAspect::WindowHandle> GetWindowList() const
 	{
 		return m_liWindows;
 	}
 
 
 	HWND m_nHwnd;
-	std::list<VistaDriverAbstractWindowAspect::WindowHandle*> m_liWindows;
+	std::list<VistaDriverAbstractWindowAspect::WindowHandle> m_liWindows;
 	VistaDirectXGamepad *m_pParent;
 };
 
@@ -153,7 +153,7 @@ VistaDirectXGamepad::VistaDirectXGamepad(IVistaDriverCreationMethod *crm)
   m_pProtocol(NULL)
 {
 	SetUpdateType( IVistaDeviceDriver::UPDATE_EXPLICIT_POLL );
-	HRESULT hr = DirectInput8Create( GetModuleHandle(NULL), DIRECTINPUT_VERSION,
+	DirectInput8Create( GetModuleHandle(NULL), DIRECTINPUT_VERSION,
 							 IID_IDirectInput8, (VOID**)&m_pDI, NULL );
 
 	m_pProtocol = new GamepadProtocolAspect(this);
@@ -429,14 +429,14 @@ static BOOL CALLBACK FindJoysticksCallback( const DIDEVICEINSTANCE* pdidInstance
 		if( pEnumContext->m_strJoyName == std::string(DeviceInfo.tszInstanceName) )
 			hr = pEnumContext->m_pDI->CreateDevice( pdidInstance->guidInstance,
 			&pEnumContext->m_pJoystick, NULL );
+
+		// Obtain an interface to the enumerated Joystick.
+
+		// If it failed, then we can't use this Joystick. (Maybe the user unplugged
+		// it while we were in the middle of enumerating it.)
+		if( FAILED(hr) )
+			return DIENUM_CONTINUE;
 	}
-	// Obtain an interface to the enumerated Joystick.
-
-
-	// If it failed, then we can't use this Joystick. (Maybe the user unplugged
-	// it while we were in the middle of enumerating it.)
-	if( FAILED(hr) )
-		return DIENUM_CONTINUE;
 
 	return DIENUM_STOP;
 }
@@ -742,8 +742,8 @@ bool VistaDirectXGamepad::UnregisterAspect(IVistaDeviceDriverAspect *pAspect, bo
 {
 	if( m_pWindowAspect && (pAspect->GetAspectId() == VistaDriverAbstractWindowAspect::GetAspectId()) )
 	{
-		std::list<VistaDriverAbstractWindowAspect::WindowHandle*> liWds = m_pWindowAspect->GetWindowList();
-		for(std::list<VistaDriverAbstractWindowAspect::WindowHandle*>::iterator it = liWds.begin(); it != liWds.end(); ++it)
+		std::list<VistaDriverAbstractWindowAspect::WindowHandle> liWds = m_pWindowAspect->GetWindowList();
+		for(std::list<VistaDriverAbstractWindowAspect::WindowHandle>::iterator it = liWds.begin(); it != liWds.end(); ++it)
 			m_pWindowAspect->DetachFromWindow(*it);
 
 		VistaDriverAbstractWindowAspect::IVistaDriverAbstractWindowTouchSequence *pTouch

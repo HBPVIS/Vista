@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaExceptionBase.h 22163 2011-07-03 14:11:15Z dr165799 $
 
 #ifndef _VISTAEXCEPTIONSBASE_H
 #define _VISTAEXCEPTIONSBASE_H
@@ -49,7 +49,10 @@
 class VISTABASEAPI VistaExceptionBase : public virtual std::exception
 {
 public:
-	VistaExceptionBase(const char *pcExMsg, const char *pcExSource, int iExLine, int iExNum) throw();
+	VistaExceptionBase( const char* pcExMsg, const char* pcExSource,
+						int iExLine, int iExNum ) throw();
+	//VistaExceptionBase( const std::string& sExMsg, const std::string& sExSource,
+	//					int iExLine, int iExNum ) throw();
 	virtual ~VistaExceptionBase() throw();
 	
 	/// std::exception interface
@@ -76,6 +79,7 @@ private:
 };
 
 #define VISTA_THROW(MSG,EXITNUMBER) {VistaExceptionBase _rexX(MSG, __FILE__, __LINE__, EXITNUMBER); throw _rexX;}
+#define VISTA_THROW_NOT_IMPLEMENTED {VistaExceptionBase _rexX( "FUNCTION NOT IMPLEMENTED", __FILE__, __LINE__, -1); throw _rexX;}
 
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */

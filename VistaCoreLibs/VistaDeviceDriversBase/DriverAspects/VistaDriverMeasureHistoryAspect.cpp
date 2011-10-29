@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDriverMeasureHistoryAspect.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 #include "VistaDriverMeasureHistoryAspect.h"
 #include "VistaDeviceDriverAspectRegistry.h"
@@ -97,9 +97,7 @@ void VistaDriverMeasureHistoryAspect::MeasureStart(VistaDeviceSensor*pSen,
 		return; // not registered
 
 	// statistics
-	VistaType::microtime t = VistaTimeUtils::GetStandardTimer().GetMicroTime();
 	pSen->GetWindowTimer().RecordTime();
-	//
 
 	// create an entry
 	_sL l(&pSen->GetDriverMeasures());

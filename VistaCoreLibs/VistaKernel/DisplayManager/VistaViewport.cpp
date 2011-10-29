@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaViewport.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaViewport.h"
 #include "VistaDisplaySystem.h"
@@ -159,28 +159,28 @@ void VistaViewport::Debug(std::ostream &out) const
 
 	int x, y;
 	GetViewportProperties()->GetPosition(x, y);
-	out << " [VistaViewport] - position: " << x << " / " << y << endl;
+	out << " [VistaViewport] - position: " << x << " / " << y << std::endl;
 
 	GetViewportProperties()->GetSize(x, y);
-	out << " [VistaViewport] - size:     " << x << " / " << y << endl;
+	out << " [VistaViewport] - size:     " << x << " / " << y << std::endl;
 
 	out << " [VistaViewport] - display system name: ";
 	if (m_pDisplaySystem)
-		out << m_pDisplaySystem->GetNameForNameable() << endl;
+		out << m_pDisplaySystem->GetNameForNameable() << std::endl;
 	else
-		out << "*none* (no display system given)" << endl;
+		out << "*none* (no display system given)" << std::endl;
 
 	out << " [VistaViewport] - window name:         ";
 	if (m_pWindow)
-		out << m_pWindow->GetNameForNameable() << endl;
+		out << m_pWindow->GetNameForNameable() << std::endl;
 	else
-		out <<"*none* (no window given)" << endl;
+		out <<"*none* (no window given)" << std::endl;
 
 	out << " [VistaViewport] - projection name:     ";
 	if (m_pProjection)
-		out << m_pProjection->GetNameForNameable() << endl;
+		out << m_pProjection->GetNameForNameable() << std::endl;
 	else
-		out << "*none* (no projection given)" << endl;
+		out << "*none* (no projection given)" << std::endl;
 }
 
 
@@ -230,21 +230,16 @@ namespace {
 	};
 
 	IVistaPropertySetFunctor *aCsFunctors[] =
-	{
-	
+	{	
 		new TVistaProperty2ValSet<int, VistaViewport::VistaViewportProperties>
 		("POSITION", sSReflectionType,
-		 &VistaViewport::VistaViewportProperties::SetPosition,
-		 &VistaAspectsConversionStuff::ConvertStringTo2Int),
+		 &VistaViewport::VistaViewportProperties::SetPosition),
 		new TVistaProperty2ValSet<int, VistaViewport::VistaViewportProperties>
 		("SIZE", sSReflectionType,
-		 &VistaViewport::VistaViewportProperties::SetSize,
-		 &VistaAspectsConversionStuff::ConvertStringTo2Int),
+		 &VistaViewport::VistaViewportProperties::SetSize),
 		new TVistaPropertySet<const string &, string,VistaViewport::VistaViewportProperties>
 		("NAME", sSReflectionType,
-		 &VistaViewport::VistaViewportProperties::SetName,
-		 &VistaAspectsConversionStuff::ConvertToString),
-
+		 &VistaViewport::VistaViewportProperties::SetName),
 		NULL
 	};
 }

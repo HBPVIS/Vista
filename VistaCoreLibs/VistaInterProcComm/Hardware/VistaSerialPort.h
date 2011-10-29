@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSerialPort.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTASERIALPORT_H
 #define _VISTASERIALPORT_H

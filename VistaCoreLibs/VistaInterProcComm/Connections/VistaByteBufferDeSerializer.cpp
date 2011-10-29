@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaByteBufferDeSerializer.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include <cstring>
 #include <cstdio>
@@ -29,11 +29,12 @@
 #include <iostream>
 
 #include "VistaByteBufferDeSerializer.h"
+
 #include <VistaBase/VistaBaseTypes.h>
+#include <VistaBase/VistaStreamUtils.h>
 #include <VistaAspects/VistaSerializingToolset.h>
 #include <VistaAspects/VistaSerializable.h>
 
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
 
 using namespace std;
 
@@ -62,17 +63,17 @@ VistaByteBufferDeSerializer::~VistaByteBufferDeSerializer()
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
 
-bool VistaByteBufferDeSerializer::DoRead(unsigned char* pBuf, int iSize, bool bSwap)
+bool VistaByteBufferDeSerializer::DoRead( VistaType::byte* pBuf, int iSize, bool bSwap )
 {
 	unsigned int iSwapSize = (unsigned int)iSize;
-	//printf("iSize=%d, vecsize = %d\n", iSize, m_vecBuffer.size());
 
-	if(!m_pExternalBuffer)
+	if( !m_pExternalBuffer )
 	{
-		if(m_vecBuffer.size() < (unsigned int)iSize)
+		if( m_vecBuffer.size() < (unsigned int)iSize )
 		{
-			printf("VistaByteBufferDeSerializer::DoRead() -- could read (%d), should read %d, nulling result\n",
-			int(m_vecBuffer.size()), iSize);
+			vstr::errp() << "VistaByteBufferDeSerializer::DoRead() -- "
+					<< "Could only read [" << m_vecBuffer.size() << "] bytes - Requested: ["
+					<< iSize << "]" << std::endl;
 			iSize = (int)m_vecBuffer.size();
 		}
 		//read data from internal buffer
@@ -84,20 +85,22 @@ bool VistaByteBufferDeSerializer::DoRead(unsigned char* pBuf, int iSize, bool bS
 	}
 	else
 	{
-		if(m_iExternalSize-m_iCurrentBufferPos < iSize)
+		int nRemainingBytes = m_iExternalSize - m_iCurrentBufferPos;
+		if( nRemainingBytes < iSize )
 		{
-			printf("VistaByteBufferDeSerializer::DoRead() -- could read (%d), should read %d, nulling result\n",
-			m_iExternalSize-m_iCurrentBufferPos, iSize);
-			iSize = m_iExternalSize-m_iCurrentBufferPos;
+			vstr::errp() << "VistaByteBufferDeSerializer::DoRead() -- "
+					<< "Could only read [" << nRemainingBytes << "] bytes - Requested: ["
+					<< iSize << "]" << std::endl;
+			iSize = nRemainingBytes;
 		}
 		//read data from externally set buffer
-		memcpy(pBuf, &(m_pExternalBuffer[m_iCurrentBufferPos]), iSize*sizeof(char));
+		memcpy( pBuf, &(m_pExternalBuffer[m_iCurrentBufferPos]), iSize*sizeof(char) );
 		m_iCurrentBufferPos += iSize;
 	}
 
-	if(bSwap && GetByteorderSwapFlag())
-		VistaSerializingToolset::Swap((void*) pBuf, iSwapSize);
-	return (iSwapSize==iSize);  // we indicate success iff we had enough bytes to read
+	if( bSwap && GetByteorderSwapFlag() )
+		VistaSerializingToolset::Swap( (void*)pBuf, iSwapSize );
+	return ( (int)iSwapSize==iSize );  // we indicate success iff we had enough bytes to read
 }
 
 
@@ -113,42 +116,42 @@ void VistaByteBufferDeSerializer::SetByteorderSwapFlag(const bool bDoesIt )
 
 int VistaByteBufferDeSerializer::ReadShort16( VistaType::ushort16 &us16Val)
 {
-	if(!DoRead((unsigned char*)&us16Val, sizeof(us16Val)))
+	if( !DoRead( reinterpret_cast<VistaType::byte*>( &us16Val ), sizeof(us16Val) ) )
 		return -1;
 	return sizeof(VistaType::ushort16);
 }
 
 int VistaByteBufferDeSerializer::ReadInt32( VistaType::sint32 &si32Val)
 {
-	if(!DoRead((unsigned char*)&si32Val, sizeof(si32Val)))
+	if( !DoRead( reinterpret_cast<VistaType::byte*>( &si32Val ), sizeof(si32Val) ) )
 		return -1;
 	return sizeof(VistaType::sint32);
 }
 
 int VistaByteBufferDeSerializer::ReadInt32( VistaType::uint32 &si32Val)
 {
-	if(!DoRead((unsigned char*)&si32Val, sizeof(VistaType::uint32)))
+	if( !DoRead( reinterpret_cast<VistaType::byte*>( &si32Val ), sizeof(VistaType::uint32) ) )
 		return -1;
 	return sizeof(VistaType::sint32);
 }
 
  int VistaByteBufferDeSerializer::ReadInt64( VistaType::sint64 &si64Val)
 {
-	if(!DoRead((unsigned char*)&si64Val, sizeof(si64Val)))
+	if( !DoRead( reinterpret_cast<VistaType::byte*>( &si64Val ), sizeof(si64Val) ) )
 		return -1;
 	return sizeof(si64Val);
 }
 
 int VistaByteBufferDeSerializer::ReadUInt64( VistaType::uint64 &ui64Val)
 {
-	if(!DoRead((unsigned char*)&ui64Val, sizeof(ui64Val)))
+	if(!DoRead( reinterpret_cast<VistaType::byte*>( &ui64Val ), sizeof(ui64Val) ) )
 		return -1;
 	return sizeof(ui64Val);
 }
 
  int VistaByteBufferDeSerializer::ReadFloat32( VistaType::float32 &fVal)
 {
-	if( !DoRead((unsigned char*)&fVal, sizeof(fVal)))
+	if( !DoRead( reinterpret_cast<VistaType::byte*>( &fVal ), sizeof(fVal) ) )
 		return -1;
 	return sizeof(fVal);
 
@@ -156,7 +159,7 @@ int VistaByteBufferDeSerializer::ReadUInt64( VistaType::uint64 &ui64Val)
 
  int VistaByteBufferDeSerializer::ReadFloat64( VistaType::float64 &f64Val)
 {
-	if(!DoRead((unsigned char*)&f64Val, sizeof(f64Val)))
+	if(!DoRead( reinterpret_cast<VistaType::byte*>( &f64Val ), sizeof(f64Val) ) )
 		return -1;
 	return sizeof(f64Val);
 
@@ -164,7 +167,7 @@ int VistaByteBufferDeSerializer::ReadUInt64( VistaType::uint64 &ui64Val)
 
  int VistaByteBufferDeSerializer::ReadDouble( double &dDoubleVal)
 {
-	if(!DoRead((unsigned char*)&dDoubleVal, sizeof(dDoubleVal)))
+	if(!DoRead( reinterpret_cast<VistaType::byte*>( &dDoubleVal ), sizeof(dDoubleVal) ) )
 		return -1;
 	return sizeof(dDoubleVal);
 
@@ -173,12 +176,12 @@ int VistaByteBufferDeSerializer::ReadUInt64( VistaType::uint64 &ui64Val)
  int VistaByteBufferDeSerializer::ReadString(string &sIn, const int iMaxLen)
 {
 	sIn.resize(iMaxLen);
-	if(!DoRead((unsigned char*)sIn.data(), iMaxLen, false))
+	if(!DoRead( reinterpret_cast<VistaType::byte*>( &sIn[0] ), iMaxLen, false) )
 		return -1;
 	return iMaxLen;
 }
 
- int VistaByteBufferDeSerializer::ReadDelimitedString(string &sString, char cDelim )
+ int VistaByteBufferDeSerializer::ReadDelimitedString( string &sString, char cDelim )
  {
 	 sString.erase();
 
@@ -188,7 +191,7 @@ int VistaByteBufferDeSerializer::ReadUInt64( VistaType::uint64 &ui64Val)
 
 	 int iLength = 1;
 	 int iLen = 0; /**< measure length */
-	 do
+	 for(;;)
 	 {
 		 int iRead=0;
 		 if((iRead=ReadRawBuffer((void*)&pcTmp[0], iLength))==iLength)
@@ -205,12 +208,11 @@ int VistaByteBufferDeSerializer::ReadUInt64( VistaType::uint64 &ui64Val)
 		 }
 		 else
 		 {
-			 vipcerr << "Should read: " << iLength
-				 << ", but read: " << iRead << endl;
+			 vstr::errp() << "VistaByteBufferDeSerializer::ReadDelimitedString() -- "
+				 << "Should read: " << iLength << ", but read: " << iRead << std::endl;
 			 break;
 		 }
 	 }
-	 while(true);
 
 	 return iLen;
  }
@@ -218,101 +220,39 @@ int VistaByteBufferDeSerializer::ReadUInt64( VistaType::uint64 &ui64Val)
 int VistaByteBufferDeSerializer::ReadRawBuffer(void *pBuffer, int iLen)
 {
 	/** @todo check me */
-	if(!DoRead((unsigned char*)pBuffer, iLen, false))
+	if( !DoRead( reinterpret_cast<VistaType::byte*>( pBuffer ), iLen, false ) )
 		return -1;
 	return iLen;
 
 }
 
- int VistaByteBufferDeSerializer::ReadBool(bool &bVal)
+ int VistaByteBufferDeSerializer::ReadBool( bool &bVal )
 {
-	if(!DoRead((unsigned char*)&bVal, sizeof(bVal)))
+	if( !DoRead(reinterpret_cast<VistaType::byte*>( &bVal ), sizeof(bVal) ) )
 		return -1;
 	return sizeof(bVal);
 
 }
 
- int VistaByteBufferDeSerializer::ReadDoubleName( const char *sVarName, double &dDouble)
-{
-	 return ReadDouble(dDouble);
-}
-
- int VistaByteBufferDeSerializer::ReadShort16Name( const char *sVarName, VistaType::ushort16 &us16Val)
-{
-	 return ReadShort16(us16Val);
-}
-
- int VistaByteBufferDeSerializer::ReadInt32Name( const char *sVarName, VistaType::sint32 &si32Val)
-{
-	 return ReadInt32(si32Val);
-}
-
-int VistaByteBufferDeSerializer::ReadInt32Name( const char *sVarName, VistaType::uint32 &si32Val)
-{
-	 return ReadInt32(si32Val);
-}
-
-
-int VistaByteBufferDeSerializer::ReadInt64Name( const char *sVarName, VistaType::sint64 &si64Val)
-{
-	return ReadInt64(si64Val);
-}
-
-int VistaByteBufferDeSerializer::ReadUInt64Name( const char *sVarName, VistaType::uint64 &ui64Val)
-{
-	return ReadUInt64(ui64Val);
-}
-
- int VistaByteBufferDeSerializer::ReadFloat32Name( const char *sVarName, VistaType::float32 &fVal)
-{
-	return ReadFloat32(fVal);
-}
-
- int VistaByteBufferDeSerializer::ReadFloat64Name( const char *sVarName, VistaType::float64 &f64Val)
-{
-	return ReadFloat64(f64Val);
-}
-
- int VistaByteBufferDeSerializer::ReadStringName(const char *sVarName, string &sVal, int iMaxLength)
-{
-	return ReadString(sVal, (int)iMaxLength);
-}
-
-int VistaByteBufferDeSerializer::ReadStringName(const char *sVarName, string &sVal, char cDelim)
-{
-	return ReadString(sVal, (char)cDelim);
-}
-
-
- int VistaByteBufferDeSerializer::ReadRawBufferName(const char *sVarName, void *pBuffer, int iLen)
-{
-	return ReadRawBuffer(pBuffer, iLen);
-}
-
- int VistaByteBufferDeSerializer::ReadBoolName(const char *sVarName, bool &bVal)
-{
-	return ReadBool(bVal);
-}
-
- int VistaByteBufferDeSerializer::ReadSerializable(IVistaSerializable &obj)
+ int VistaByteBufferDeSerializer::ReadSerializable( IVistaSerializable &obj )
 {
 	return obj.DeSerialize(*this);
 }
 
-bool VistaByteBufferDeSerializer::FillBuffer(const char *pcBuff, int iLength)
+bool VistaByteBufferDeSerializer::FillBuffer( const VistaType::byte* pBuff, int iLength )
 {
 	ClearBuffer();
 	for(int i=0; i < iLength; ++i)
 	{
-		m_vecBuffer.push_back((unsigned char)pcBuff[i]); /** @todo speed this up */
+		m_vecBuffer.push_back( pBuff[i] ); /** @todo speed this up */
 	}
 	return true;
 }
 
-bool VistaByteBufferDeSerializer::SetBuffer(const char *pcBuff, int iLength, bool bDeleteAfterUse /*=false*/)
+bool VistaByteBufferDeSerializer::SetBuffer( const VistaType::byte* pBuff, int iLength, bool bDeleteAfterUse )
 {
 	ClearBuffer();
-	m_pExternalBuffer = pcBuff;
+	m_pExternalBuffer = pBuff;
 	m_iExternalSize = iLength;
 	m_iCurrentBufferPos = 0;
 	m_bDeleteAfterUsage = bDeleteAfterUse;
@@ -323,10 +263,10 @@ void VistaByteBufferDeSerializer::ClearBuffer()
 {
 	m_vecBuffer.clear();
 	if(m_bDeleteAfterUsage)
-		delete[] (char*)m_pExternalBuffer;
+		delete[] m_pExternalBuffer;
 	m_iCurrentBufferPos = -1;
 	m_bDeleteAfterUsage = false;
-	m_pExternalBuffer = (char*)0x00000000;
+	m_pExternalBuffer = NULL;
 }
 
 unsigned int VistaByteBufferDeSerializer::GetTailSize() const
@@ -345,18 +285,18 @@ unsigned int VistaByteBufferDeSerializer::GetTailSize() const
 	}
 }
 
-const char *VistaByteBufferDeSerializer::GetBuffer() const
+const VistaType::byte* VistaByteBufferDeSerializer::GetBuffer() const
 {
 	if(m_pExternalBuffer)
 		return m_pExternalBuffer;
-	return (const char*)&m_vecBuffer[0];
+	return &m_vecBuffer[0];
 }
 
-const char *VistaByteBufferDeSerializer::GetReadHead() const
+const VistaType::byte* VistaByteBufferDeSerializer::GetReadHead() const
 {
 	if(m_pExternalBuffer)
 		return &m_pExternalBuffer[m_iCurrentBufferPos];
-	return (const char*)&m_vecBuffer[m_iCurrentBufferPos];
+	return &m_vecBuffer[m_iCurrentBufferPos];
 }
 
 

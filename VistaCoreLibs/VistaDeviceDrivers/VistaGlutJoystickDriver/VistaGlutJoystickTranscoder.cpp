@@ -1,6 +1,6 @@
 /*============================================================================*/
 /*                              ViSTA VR toolkit                              */
-/*               Copyright (c) 1997-2011 RWTH Aachen University               */
+/*               Copyright (c) 1997-2009 RWTH Aachen University               */
 /*============================================================================*/
 /*                                  License                                   */
 /*                                                                            */
@@ -189,7 +189,7 @@ namespace
 				}
 			default:
 				{
-					if(nIndex >= 0 && nIndex < 32)
+					if( nIndex < 32)
 					{
 						dScalar = ( int(m->m_nVals[0]) & (1 << nIndex) ? 1.0 : 0.0 );
 						break;

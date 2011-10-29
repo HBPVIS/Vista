@@ -20,12 +20,13 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaWin32SerialPortImp.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #if defined(WIN32)
 
 #include "VistaWin32SerialPortImp.h"
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #pragma warning(disable: 4996)
 
@@ -62,67 +63,67 @@ static void PrintSerialPortErrorMessage(DWORD error)
 	{
 	case CE_RXOVER:
 		{
-			vipcout << "WARNING: Receive Queue overflow\n";
+			vstr::warnp() << "Receive Queue overflow" << std::endl;
 			break;
 		}
 	case CE_OVERRUN:
 		{
-			vipcout << "WARNING: Receive Overrun Error\n";
+			vstr::warnp() << "Receive Overrun Error" << std::endl;
 			break;
 		}
 	case CE_RXPARITY:
 		{
-			vipcout << "WARNING: Receive Parity Error\n";
+			vstr::warnp() << "Receive Parity Error" << std::endl;
 			break;
 		}
 	case CE_FRAME:
 		{
-			vipcout << "WARNING: Receive Framing error\n";
+			vstr::warnp() << "Receive Framing error" << std::endl;
 			break;
 		}
 	case CE_BREAK:
 		{
-			vipcout << "WARNING: Break Detected\n";
+			vstr::warnp() << "Break Detected" << std::endl;
 			break;
 		}
 	case CE_TXFULL:
 		{
-			vipcout << "WARNING: TX Queue is full\n";
+			vstr::warnp() << "TX Queue is full" << std::endl;
 			break;
 		}
 	case CE_PTO:
 		{
-			vipcout << "WARNING: LPTx Timeout\n";
+			vstr::warnp() << "LPTx Timeout" << std::endl;
 			break;
 		}
 	case CE_IOE:
 		{
-			vipcout << "WARNING: LPTx I/O Error\n";
+			vstr::warnp() << "LPTx I/O Error" << std::endl;
 			break;
 		}
 	case CE_DNS:
 		{
-			vipcout << "WARNING: LPTx Device not selected\n";
+			vstr::warnp() << "LPTx Device not selected" << std::endl;
 			break;
 		}
 	case CE_OOP:
 		{
-			vipcout << "WARNING: LPTx Out-Of-Paper\n";
+			vstr::warnp() << "LPTx Out-Of-Paper" << std::endl;
 			break;
 		}
 	case CE_MODE:
 		{
-			vipcout << "WARNING: Requested mode unsupported\n";
+			vstr::warnp() << "Requested mode unsupported" << std::endl;
 			break;
 		}
 	case ERROR_IO_PENDING:
 		{
-			vipcout << "ERROR: IO Pending\n";
+			vstr::errp() << "IO Pending" << std::endl;
 			break;
 		}
 	default:
 		{
-			vipcout << "WARNING: Undocumented win32-serialport error (" << error << ")\n";
+			vstr::warnp() << "Undocumented win32-serialport error (" << error << ")" << std::endl;;
 			LPVOID lpMsgBuf;
 			FormatMessage(
 				FORMAT_MESSAGE_ALLOCATE_BUFFER | 
@@ -134,7 +135,7 @@ static void PrintSerialPortErrorMessage(DWORD error)
 				(LPTSTR) &lpMsgBuf,
 				0, NULL );
 
-			vipcerr << lpMsgBuf << std::endl;
+			vstr::warnp() << lpMsgBuf << std::endl;
 			LocalFree(lpMsgBuf);
 			break;
 		}
@@ -606,7 +607,7 @@ void VistaWin32SerialPortImp::SetIsBlocking(bool bBlocking)
 	COMMTIMEOUTS commTimeout;
 	if ( !GetCommTimeouts ( (HANDLE(m_hanPort)), &commTimeout) )
 	{
-		vipcerr << "[VistaWin32SerialPortImp]: Could not get CommTimeouts.\n";
+		vstr::errp() << "[VistaWin32SerialPortImp]: Could not get CommTimeouts" << std::endl;
 	   return; 
 	} // endif
 
@@ -646,7 +647,7 @@ void VistaWin32SerialPortImp::SetIsBlocking(bool bBlocking)
 
 	if ( !SetCommTimeouts ( (HANDLE(m_hanPort)), &commTimeout ) )
 	{
-		vipcerr << "[VistaWin32SerialPortImp]: Could not set comm timeouts!\n";
+		vstr::errp() << "[VistaWin32SerialPortImp]: Could not set comm timeouts" << std::endl;
 		return;
 	}
 	else

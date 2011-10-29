@@ -20,14 +20,15 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDeSerializer.h 4719 2009-09-10 09:29:58Z tbeer $
 #ifndef _VISTAAUTOBUFFERPOOL_H_
 #define _VISTAAUTOBUFFERPOOL_H_
 
-#include <cstddef>
-
 #include "VistaAutoBuffer.h"
 #include "VistaBaseConfig.h"
+
+#include <cstddef>
+
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/

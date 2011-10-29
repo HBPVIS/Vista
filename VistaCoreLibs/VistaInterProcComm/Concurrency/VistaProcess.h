@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaProcess.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTAPROCESS_H
 #define _VISTAPROCESS_H
@@ -50,62 +50,20 @@ class VistaPriority;
  */
 class VISTAINTERPROCCOMMAPI VistaProcess : public VistaFork
 {
-private:
-	bool m_bRunning;
 public:
-
-	/**
-	 *
-	 */
 	VistaProcess ();
-
-
-	/**
-	 *
-	 */
 	virtual ~VistaProcess ();
 
-	/**
-	 *
-	 */
-	bool     Run         ( const std::string & inCommand );
+	bool Run( const std::string & inCommand );
+	bool Suspend();
+	bool Resume();
+	bool Join();
+	bool Abort();
 
-	/**
-	 *
-	 */
-	bool     Suspend          ();
-
-
-	/**
-	 *
-	 */
-	bool     Resume      ();
-
-	/**
-	 *
-	 */
-	bool     Join        ();
-
-
-	/**
-	 *
-	 */
-	bool     Abort        ();
-
-	/**
-	 *
-	 */
-	bool     SetPriority   ( const VistaPriority & );
-
-
-	/**
-	 *
-	 */
-	void  GetPriority   ( VistaPriority & ) const;
-
+	bool SetPriority( const VistaPriority & );
+	void GetPriority( VistaPriority & ) const;
 
 	virtual void PreRun();
-
 	virtual void PostRun();
 
 	/**
@@ -116,11 +74,9 @@ public:
 
 	std::string GetProcessCommand() const;
 
-
 	virtual bool GetIsFinished() const;
 
 private:
-
 	/**
 	 * Defines the platform specific implementation for this process
 	 */
@@ -128,6 +84,7 @@ private:
 	std::string m_sProcessCommand;
 
 	bool m_bIsFinished;
+	bool m_bRunning;
 };
 
 #endif // _VISTAPROCESS_H

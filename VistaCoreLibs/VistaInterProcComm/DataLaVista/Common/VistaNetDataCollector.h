@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaNetDataCollector.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTADATACOLLECTOR_H
 #define _VISTADATACOLLECTOR_H
@@ -74,8 +74,10 @@ public:
 	* create and open data connection.
 	* per default this source operates in BLOCKING MODE
 	*/
-	DLVistaNetDataCollector(const std::string& sHostName,
-		int iPort, IDLVistaDataPacket* pPacketPrototype);
+	DLVistaNetDataCollector( const std::string& sHostName,
+					int iPort, IDLVistaDataPacket* pPacketPrototype);
+	DLVistaNetDataCollector( VistaConnectionIP* pConnection,
+							IDLVistaDataPacket* pPacketPrototype);
 	virtual ~DLVistaNetDataCollector();
 
 	/**
@@ -87,13 +89,7 @@ public:
 	* via the TCP/IP connection
 	*/
 	void FillPacket(IDLVistaDataPacket* p);
-	/**
-	*
-	*/
 	bool HasPacket() const;
-	/**
-	*
-	*/
 	void DeletePacket(IDLVistaDataPacket* p);
 	/**
 	* Switch between BLOCKING and NON-BLOCKING modes

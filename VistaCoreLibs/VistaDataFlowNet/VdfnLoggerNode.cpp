@@ -20,19 +20,19 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnLoggerNode.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VdfnLoggerNode.h"
 #include "VdfnUtil.h"
 
-#include <VistaAspects/VistaAspectsUtils.h>
+#include <VistaAspects/VistaConversion.h>
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <set>
 #include <algorithm>
 #include <iostream>
 #include <iterator>
-
-#include "VdfnOut.h"
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
@@ -260,10 +260,10 @@ bool VdfnLoggerNode::DoEvalNode()
 	{
 		const double nLastUpdate = GetUpdateTimeStamp();
 
-		(*m_ofstream) << VistaAspectsConversionStuff::ConvertToString(nLastUpdate);
+		(*m_ofstream) << VistaConversion::ToString(nLastUpdate);
 		if( m_bLogToConsole )
 		{
-			vdfnout << VistaAspectsConversionStuff::ConvertToString(nLastUpdate);
+			vstr::outi() << VistaConversion::ToString(nLastUpdate);
 		}
 
 		if(m_bWriteTimeDiff)
@@ -271,18 +271,18 @@ bool VdfnLoggerNode::DoEvalNode()
 			if(m_nLastUpdate)
 			{
 				(*m_ofstream) << m_cSep
-						   << VistaAspectsConversionStuff::ConvertToString(nLastUpdate - m_nLastUpdate);
+						   << VistaConversion::ToString(nLastUpdate - m_nLastUpdate);
 				if( m_bLogToConsole )
 				{
-					vdfnout << m_cSep
-						   << VistaAspectsConversionStuff::ConvertToString(nLastUpdate - m_nLastUpdate);
+					vstr::outi() << m_cSep
+						   << VistaConversion::ToString(nLastUpdate - m_nLastUpdate);
 				}
 			}
 			else
 			{
 				(*m_ofstream) << m_cSep << "0";
 				if( m_bLogToConsole )
-					vdfnout << m_cSep << "0";
+					vstr::outi() << m_cSep << "0";
 			}
 			m_nLastUpdate = nLastUpdate;
 		}
@@ -301,14 +301,15 @@ bool VdfnLoggerNode::DoEvalNode()
 		if( m_bLogToConsole )
 		{
 			if( bPrepend )
-				vdfnout << m_cSep;
-			vdfnout << pSPort->GetValueConstRef();
+				vstr::out() << m_cSep;
+			vstr::out() << pSPort->GetValueConstRef();
 		}
 		bPrepend = true;
 	}
 	(*m_ofstream) << "\n";
+	(*m_ofstream).flush();
 	if( m_bLogToConsole )
-		vdfnout << "\n";
+		vstr::out() << std::endl;
 	return true;
 }
 
@@ -335,6 +336,7 @@ void VdfnLoggerNode::WriteHeader()
 		bPrepend = true;
 	}
 	(*m_ofstream) << "\n";
+	(*m_ofstream).flush();
 }
 
 /*============================================================================*/

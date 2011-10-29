@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPolynomial.h 22163 2011-07-03 14:11:15Z dr165799 $
 
 /* dont forget that these deal with floats! */
 
@@ -32,7 +32,8 @@
 /*============================================================================*/
 #include "VistaMathConfig.h"
 #include "VistaMathTools.h"
-#include "VistaMathOut.h"
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <limits>
 #include <iostream>
@@ -187,7 +188,6 @@ int VistaPolynomial<Type,dim>::FindRoots (std::vector<std::complex<double>*> & v
 			break;
 		default:
 			/** @todo !!implement a general numeric algorithm!! */
-			return -1;
 			break;
 	}
 	return -1;
@@ -334,12 +334,12 @@ inline
 bool VistaPolynomial<Type,dim>::Debug ()
 {
 	int grad = GetDegree();
-	vmathout << " P(x) = ";
+	vstr::out() << " P(x) = ";
 	for (int pos = grad -1; pos >= 0; --pos)
 	{
-		vmathout << " + " << m_pCoeff[pos] << " x^" << pos;
+		vstr::out() << " + " << m_pCoeff[pos] << " x^" << pos;
 	}
-	vmathout << std::endl;
+	vstr::out() << std::endl;
 	return true;
 }
 

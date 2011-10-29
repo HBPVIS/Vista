@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaProfilingFilter.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef DLVISTAPROFILINGFILTER_H
 #define DLVISTAPROFILINGFILTER_H
@@ -49,38 +49,12 @@ class IDLVistaRTC;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI DLVistaProfilingFilter : public IDLVistaInPlaceFilter
 {
 public:
-
-
-private:
-	DLV_INT64 m_i64MicroMean, m_i64MicroMin, m_i64MicroMax;
-	DLV_INT32 m_i32MacroMean, m_i32MacroMin, m_i32MacroMax;
-
-	DLV_INT32 m_i32PacketCount;
-
-	IDLVistaRTC *m_pTimer;
-
-protected:
-	/**
-	 *
-	 */
-	IDLVistaDataPacket *FilterPacketL(IDLVistaDataPacket *pPacket);
-public:
-
-	/**
-	 *
-	 */
 	DLVistaProfilingFilter();
 
 
-	/**
-	 *
-	 */
 	virtual ~DLVistaProfilingFilter();
 
 	IDLVistaDataPacket *GivePacket(bool);
@@ -99,6 +73,15 @@ public:
 	 */
 	virtual int GetOutputPacketType() const;
 
+protected:
+	IDLVistaDataPacket *FilterPacketL(IDLVistaDataPacket *pPacket);
+private:
+	DLV_INT64 m_i64MicroMean, m_i64MicroMin, m_i64MicroMax;
+	DLV_INT32 m_i32MacroMean, m_i32MacroMin, m_i32MacroMax;
+
+	DLV_INT32 m_i32PacketCount;
+
+	IDLVistaRTC *m_pTimer;
 };
 
 

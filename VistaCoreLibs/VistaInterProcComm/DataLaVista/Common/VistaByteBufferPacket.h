@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaByteBufferPacket.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef DLVISTABYTEBUFFERPACKET_H
 #define DLVISTABYTEBUFFERPACKET_H
@@ -45,97 +45,38 @@
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI DLVistaByteBufferPacket : public IDLVistaDataPacket
 {
 private:
-	/**
-	 *
-	 */
 	std::string *m_pSBuffer;
 
 public:
-	/**
-	 *
-	 */
 	DLVistaByteBufferPacket(IDLVistaPipeComponent *);
 
-	/**
-	*
-	*/
 	virtual IDLVistaDataPacket* CreateInstance(IDLVistaPipeComponent* ) const;
 
-	/**
-	 *
-	 */
 	virtual ~DLVistaByteBufferPacket();
 
-	/**
-	 *
-	 */
 	const char * GetCharBuffer() const;
-
-	/**
-	 *
-	 */
 	std::string *GetStringBuffer() const;
-
-	/**
-	 *
-	 */
 	unsigned int GetCharBufferLength() const;
 
-	/**
-	 *
-	 */
 	void *GetByteBuffer() const;
 
-	/**
-	 *
-	 */
 	void AppendToBuffer(const char * );
-
-	/**
-	 *
-	 */
 	void AppendToBuffer(const std::string &);
 
-	/**
-	 *
-	 */
 	int GetPacketType() const;
 
-	/**
-	 *
-	 */
 	int GetPacketSize() const { return (int)(*m_pSBuffer).size(); };
 
-	/**
-	 *
-	 */
 	void SetDataSize(int);
-
-	/**
-	 *
-	 */
 	int GetDataSize() const;
 
-	/**
-	 *
-	 */
 	void SetBuffer(const char *);
-
-	/**
-	 *
-	 */
 	void SetBuffer(const std::string &);
 
 
-	/**
-	 *
-	 */
 	IDLVistaDataPacket * Clone() const;
 
 	/**

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaKernelMsgTab.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTAKERNELMSGTAB_H
 #define _VISTAKERNELMSGTAB_H
@@ -46,13 +46,13 @@
 
 
 // defines for SYSTEMMSG
-#define ISCLIENT                 0x0001
-#define ISSERVER                 0x0002
-#define GETINIFILE               0x0003
-#define SETINIFILE               0x0004
-#define GETVISTAVERSION          0x0005
-#define DISCONNECT               0x0006
-#define ISSTANDALONE             0x0007
+#define ISCLUSTERLEADER          0x0001
+#define ISCLUSTERFOLLOWER        0x0002
+#define GETCLUSTERMODE           0x0003
+#define GETINIFILE               0x0004
+#define SETINIFILE               0x0005
+#define GETVISTAVERSION          0x0006
+#define DISCONNECT               0x0007
 #define GETAPPLICATIONNAME       0x0008
 #define GETOSTYPE                0x0009
 #define GETNUMBEROFPROCESSORS    0x000A

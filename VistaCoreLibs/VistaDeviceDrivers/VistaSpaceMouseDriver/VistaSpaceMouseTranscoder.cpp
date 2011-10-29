@@ -154,3 +154,4 @@ DEFTRANSCODERPLUG_FUNC_IMPORTS( TSimpleTranscoderFactoryFactory<VistaSpacemouseT
 
 DEFTRANSCODERPLUG_CLEANUP;
 IMPTRANSCODERPLUG_CLEANUP(TSimpleTranscoderFactoryFactory<VistaSpacemouseTranscoderFactory>)
+

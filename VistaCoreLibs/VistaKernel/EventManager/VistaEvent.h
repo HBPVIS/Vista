@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaEvent.h 22143 2011-07-01 15:07:00Z dr165799 $
 
 #ifndef _VISTAEVENT_H
 #define _VISTAEVENT_H
@@ -66,8 +66,8 @@ public:
 	 */
 	enum VISTAKERNELAPI EVENT_TYPE
 	{
-	VET_INVALID		= -1,
-	VET_ALL			= -2
+		VET_INVALID		= -1,
+		VET_ALL			= -2
 	};
 
 	enum VISTAKERNELAPI EVENT_ID
@@ -77,83 +77,69 @@ public:
 	};
 
 public:
-	/**
-	 * Destroy the event.
-	 *
-	 */
+
 	virtual ~VistaEvent();
 
 	/**
 	 * Returns the system time of the event's creation
-	 *
-	 * @RETURN  double    event creation time
+	 * @return  VistaType::systemtime    event creation time
 	 */
-	VistaType::microtime	GetTime() const;
+	VistaType::systemtime GetTime() const;
 
 	/**
 	 * Returns the type of the event
-	 *
-	 * @RETURN  int    event type id
+	 * @return  int    event type id
 	 */
-	int		GetType() const;
+	int GetType() const;
 
 	/**
 	 * Returns, whether the event has already been handled
-	 *
-	 * @RETURN  bool   true = already handled / false = not handled yet
+	 * @return  bool   true = already handled / false = not handled yet
 	 */
-	bool	IsHandled() const;
+	bool IsHandled() const;
 
 	/**
 	 * Sets the handling state of the object.
 	 * Use this to mark the event as being handled.
-	 *
 	 * @param   bool bHandled
-	 * @RETURN  --
 	 */
-	void	SetHandled(bool bHandled);
+	void SetHandled( bool bHandled );
 
 	/**
 	 * Returns the name of the event.
-	 *
-	 * @param   --
-	 * @RETURN  std::string
+	 * @return  std::string
 	 */
 	virtual std::string GetName() const;
 
 	/**
 	 * Prints out some debug information to the given output stream.
-	 *
-	 * @param   std::ostream & out
-	 * @RETURN  void
+	 * @param   std::ostream& out
 	 */
-	virtual void  Debug(std::ostream & out) const;
+	virtual void Debug( std::ostream& oOut ) const;
 
 	/**
 	 * Returns the event id
-	 *
-	 * @RETURN  int    event id
+	 * @return  int    event id
 	 */
 	int GetId() const;
 
 	/**
 	 * Sets the id of the event.
-	 *
 	 * @param   int iId
-	 * @RETURN  bool    true=success / false=failure (i.e. id=INVALID)
+	 * @return  bool    true=success / false=failure (i.e. id=INVALID)
 	 */
-	virtual bool	SetId(int iId);
+	virtual bool SetId( int iEventId );
 
 
 	/**
 	 * Think of this as "SAVE"
 	 */
-	virtual int Serialize(IVistaSerializer &) const;
+	virtual int Serialize( IVistaSerializer& oSerializer) const;
 
 	/**
 	 * Think of this as "LOAD"
 	 */
-	virtual int DeSerialize(IVistaDeSerializer &);
+	virtual int DeSerialize( IVistaDeSerializer& oDeSerializer );
 
 	virtual std::string GetSignature() const;
 
@@ -165,55 +151,23 @@ public:
 	int GetCount() const;
 
 protected:
-	VistaEvent();		// avoid instantiation of this class -> use a derived class, instead!
+	// avoid instantiation of this class -> use a derived class, instead!
+	VistaEvent( const int iEventType = VET_INVALID,
+				const int iEventID = VET_INVALID );		
 	void SetType(int iType);
 
-	bool	m_bHandled;	// already handled?
-	VistaType::microtime	m_dTime;	// creation time of event (gets set by CEventManager)
+	bool		m_bHandled;	// already handled?
+	VistaType::systemtime	m_nTime;	// creation time of event (gets set by CEventManager)
 
 private:
-	static int  m_nEventId;
-	int		m_iType;	// the type of the event
-	int	    m_iId;		// the event id
-	int     m_nCnt;
+	/** @todo: static EventID may be confused with "normal" eventId */
+	static int	m_nEventId;
+	int			m_iType;	// the type of the event
+	int			m_iId;		// the event id
+	int			m_nCount;
 
 	friend class VistaEventManager;
 };
-
-/*============================================================================*/
-/* INLINE FUNCTIONS                                                           */
-/*============================================================================*/
-inline VistaEvent::VistaEvent()
-: m_iType(VET_INVALID), m_bHandled(false), m_dTime(0), m_iId(VEID_NONE), m_nCnt(0)
-{
-}
-
-inline VistaType::microtime VistaEvent::GetTime() const
-{
-	return m_dTime;
-}
-
-inline bool VistaEvent::IsHandled() const
-{
-	return m_bHandled;
-}
-
-inline void VistaEvent::SetHandled(bool bHandled)
-{
-	m_bHandled = bHandled;
-}
-
-inline int VistaEvent::GetId() const
-{
-	return m_iId;
-}
-
-inline bool	VistaEvent::SetId(int iId)
-{
-	m_iId = iId;
-	return true;
-};
-
 
 #endif //_VISTAEVENT_H
 

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaBaseMain.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include <iostream>
 
@@ -41,10 +41,8 @@
 
 #ifdef LINUX
 static void __attribute__ ((constructor))  LoadBaseLib();
-//static void __attribute__ ((destructor)) UnloadBaseLib();
 #else
 static void LoadBaseLib();
-//static void UnloadBaseLib();
 #endif
 
 #ifdef WIN32
@@ -59,9 +57,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL,
 	{
 	case DLL_PROCESS_ATTACH:
 		LoadBaseLib();
-		break;
-	case DLL_PROCESS_DETACH:
-	//      UnloadAspectsLib();
 		break;
 	}
 
@@ -86,17 +81,10 @@ static void LoadBaseLib()
 	assert( sizeof( VistaType::ushort16) == 2 );
 	assert( sizeof( VistaType::sshort16) == 2 );
 
-	assert( sizeof(   VistaType::ubyte8) == 1 );
-	assert( sizeof(    VistaType::byte8) == 1 );
+	assert( sizeof(   VistaType::byte)   == 1 );
 
-	assert( sizeof(    void*) == sizeof(size_t) );	
+	assert( sizeof(               void*) == sizeof(size_t) );	
 }
-
-//
-//static void UnloadBaseLib()
-//{
-//	std::cout << "unloading VistaBase library..." << std::endl;
-//}
 
 /*============================================================================*/
 /* IMPLEMENTATION                                                             */

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaByteBufferSerializer.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VistaByteBufferSerializer.h"
 #include <VistaAspects/VistaSerializingToolset.h>
@@ -62,19 +62,15 @@ VistaByteBufferSerializer::~VistaByteBufferSerializer()
 /*============================================================================*/
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
-int VistaByteBufferSerializer::WriteValue(char *pcValue, int iLength)
+int VistaByteBufferSerializer::WriteValue( const VistaType::byte* pValue, int iLength )
 {
 	int iSum = m_iWriteHead+iLength;
-	if(m_uiCapacity < (unsigned int)iSum)
+	if( m_uiCapacity < (unsigned int)iSum )
 	{
 		// we shall not retrim the size
-		if(!m_bRetrimSize)
+		if( !m_bRetrimSize )
 		{
-			// try to adjust the size according to the space left
-			iLength > iSum-(int)m_uiCapacity ? 0 : iSum-(int)m_uiCapacity;
-
-			if(iLength == 0) // no more space left
-				return -1;
+			return -1;
 		}
 		else
 		{
@@ -90,10 +86,9 @@ int VistaByteBufferSerializer::WriteValue(char *pcValue, int iLength)
 			m_pHead = &(m_vecBuffer[0]);
 		}
 	}
-	register char *p = pcValue;
-	register char *pIn = m_pHead+m_iWriteHead;
+	register VistaType::byte* pTarget = m_pHead + m_iWriteHead;
 
-	memcpy(pIn, p, iLength*sizeof(char));
+	memcpy( pTarget, pValue, iLength*sizeof(VistaType::byte));
 	m_iWriteHead += iLength;
 
 	return iLength;
@@ -112,146 +107,85 @@ void VistaByteBufferSerializer::SetByteorderSwapFlag(const bool bDoesIt )
 
 int VistaByteBufferSerializer::WriteShort16(  VistaType::ushort16 us16Val)
 {
-	fprintf (stderr, "FOOBAR\n");
-      if(GetByteorderSwapFlag())
+    if(GetByteorderSwapFlag())
 		VistaSerializingToolset::Swap((void*)&us16Val, sizeof(VistaType::ushort16));
-	return WriteValue((char*)&us16Val, sizeof(VistaType::ushort16));
+	return WriteValue( reinterpret_cast<const VistaType::byte*>( &us16Val ), sizeof(VistaType::ushort16));
 }
 
 int VistaByteBufferSerializer::WriteInt32(  VistaType::sint32 si32Val)
 {
 	if(GetByteorderSwapFlag())
 		VistaSerializingToolset::Swap((void*)&si32Val, sizeof(VistaType::sint32));
-	return WriteValue((char*)&si32Val, sizeof(si32Val));
+	return WriteValue( reinterpret_cast<const VistaType::byte*>( &si32Val ), sizeof(si32Val));
 }
 
 int VistaByteBufferSerializer::WriteInt32(  VistaType::uint32 si32Val)
 {
 	if(GetByteorderSwapFlag())
 		VistaSerializingToolset::Swap((void*)&si32Val, sizeof(VistaType::uint32));
-	return WriteValue((char*)&si32Val, sizeof(si32Val));
+	return WriteValue( reinterpret_cast<const VistaType::byte*>( &si32Val ), sizeof(si32Val));
 }
 
 int VistaByteBufferSerializer::WriteInt64(  VistaType::sint64 si64Val)
 {
 	if(GetByteorderSwapFlag())
 		VistaSerializingToolset::Swap((void*)&si64Val, sizeof(VistaType::sint64));
-	return WriteValue((char*)&si64Val, sizeof(si64Val));
+	return WriteValue( reinterpret_cast<const VistaType::byte*>( &si64Val ), sizeof(si64Val));
 }
 
 int VistaByteBufferSerializer::WriteUInt64(  VistaType::uint64 ui64Val)
 {
 	if(GetByteorderSwapFlag())
 		VistaSerializingToolset::Swap((void*)&ui64Val, sizeof(VistaType::uint64));
-	return WriteValue((char*)&ui64Val, sizeof(ui64Val));
+	return WriteValue( reinterpret_cast<const VistaType::byte*>( &ui64Val ), sizeof(ui64Val));
 }
 
 int VistaByteBufferSerializer::WriteFloat32(  VistaType::float32 fVal)
 {
 	if(GetByteorderSwapFlag())
 		VistaSerializingToolset::Swap((void*)&fVal, sizeof(VistaType::float32));
-	return WriteValue((char*)&fVal, sizeof(fVal));
+	return WriteValue( reinterpret_cast<const VistaType::byte*>( &fVal ), sizeof(fVal));
 }
 
 int VistaByteBufferSerializer::WriteFloat64(  VistaType::float64 f64Val)
 {
 	if(GetByteorderSwapFlag())
 		VistaSerializingToolset::Swap((void*)&f64Val, sizeof(VistaType::float64));
-	return WriteValue((char*)&f64Val, sizeof(f64Val));
+	return WriteValue( reinterpret_cast<const VistaType::byte*>( &f64Val ), sizeof(f64Val));
 }
 
 int VistaByteBufferSerializer::WriteDouble(  double dVal)
 {
 	if(GetByteorderSwapFlag())
 		VistaSerializingToolset::Swap((void*)&dVal, sizeof(double));
-	return WriteValue((char*)&dVal, sizeof(dVal));
+	return WriteValue( reinterpret_cast<const VistaType::byte*>( &dVal ), sizeof(dVal));
 }
 
-int VistaByteBufferSerializer::WriteDelimitedString( const string &sString, char delim)
+int VistaByteBufferSerializer::WriteDelimitedString( const string &sString, char cDelim )
 {
 	int iLength = (int)sString.size();
-	//int iSize //= WriteValue((unsigned char*)&iLength, sizeof(int));
-	int iSize = WriteValue((char*) sString.c_str(), iLength);
-	iSize += WriteValue((char*) &delim, 1);
+	int iSize = WriteValue( reinterpret_cast<const VistaType::byte*>( sString.c_str() ), iLength);
+	iSize += WriteValue( reinterpret_cast<const VistaType::byte*>( &cDelim ), 1);
 	return iSize;
 }
 
 int VistaByteBufferSerializer::WriteString( const string &sString)
 {
 	int iLength = (int)sString.size();
-	//int iSize //= WriteValue((unsigned char*)&iLength, sizeof(int));
-	int iSize = WriteValue((char*)sString.c_str(), iLength);
+	int iSize = WriteValue( reinterpret_cast<const VistaType::byte*>( sString.c_str() ), iLength);
 	return iSize;
 }
 
 int VistaByteBufferSerializer::WriteRawBuffer( const void *pBuffer, const int iLen)
 {
-	return WriteValue((char*)pBuffer, iLen);
+	return WriteValue( reinterpret_cast<const VistaType::byte*>( pBuffer ), iLen );
 }
 
 int VistaByteBufferSerializer::WriteBool( bool bVal)
 {
 	if(GetByteorderSwapFlag())
 		VistaSerializingToolset::Swap((void*)&bVal, sizeof(bool));
-	return WriteValue((char*)&bVal, sizeof(bVal));
-}
-
-
-int VistaByteBufferSerializer::WriteShort16Name( const char *sVarName,  VistaType::ushort16 us16Val)
-{
-	return WriteShort16(us16Val);
-}
-
-int VistaByteBufferSerializer::WriteInt32Name( const char *sVarName,  VistaType::sint32 si32Val)
-{
-	return WriteInt32(si32Val);
-}
-
-int VistaByteBufferSerializer::WriteInt32Name( const char *sVarName,  VistaType::uint32 si32Val)
-{
-	return WriteInt32(si32Val);
-}
-
-
-int VistaByteBufferSerializer::WriteInt64Name( const char *sVarName,  VistaType::sint64 si64Val)
-{
-	return WriteInt64(si64Val);
-}
-
-int VistaByteBufferSerializer::WriteUInt64Name( const char *sVarName,  VistaType::uint64 ui64Val)
-{
-	return WriteUInt64(ui64Val);
-}
-
-
-int VistaByteBufferSerializer::WriteFloat32Name( const char *sVarName,  VistaType::float32 fVal)
-{
-	return WriteFloat32(fVal);
-}
-
-int VistaByteBufferSerializer::WriteFloat64Name( const char *sVarName,  VistaType::float64 f64Val)
-{
-	return WriteFloat64(f64Val);
-}
-
-int VistaByteBufferSerializer::WriteDoubleName( const char *sVarName,  double dVal)
-{
-	return WriteDouble(dVal);
-}
-
-int VistaByteBufferSerializer::WriteStringName( const char *sVarName,  const string &sVal)
-{
-	return WriteString(sVal);
-}
-
-int VistaByteBufferSerializer::WriteRawBufferName(const char *sVarName, const void *pBuffer, const int iLen)
-{
-	return WriteRawBuffer(pBuffer, iLen);
-}
-
-int VistaByteBufferSerializer::WriteBoolName(const char *sVarName,  bool bVal)
-{
-	return WriteBool(bVal);
+	return WriteValue( reinterpret_cast<const VistaType::byte*>( &bVal ), sizeof(bVal) );
 }
 
 int VistaByteBufferSerializer::WriteSerializable(const IVistaSerializable &obj)
@@ -259,21 +193,21 @@ int VistaByteBufferSerializer::WriteSerializable(const IVistaSerializable &obj)
 	return obj.Serialize(*this);
 }
 
-char *VistaByteBufferSerializer::GetBuffer() const
+const VistaType::byte* VistaByteBufferSerializer::GetBuffer() const
 {
-	return const_cast<char *>(m_pHead);
+	return m_pHead;
 }
 
-int   VistaByteBufferSerializer::GetBufferSize() const
+int VistaByteBufferSerializer::GetBufferSize() const
 {
 	return m_iWriteHead;
 //    return m_vecBuffer.size();
 }
 
-void VistaByteBufferSerializer::GetBuffer(vector<unsigned char> &veStore)
+void VistaByteBufferSerializer::GetBuffer( vector<VistaType::byte> &vecStore )
 {
-	veStore.resize(m_iWriteHead);
-	memcpy(&veStore[0], m_pHead, m_iWriteHead);
+	vecStore.resize(m_iWriteHead);
+	memcpy( &vecStore[0], m_pHead, m_iWriteHead );
 }
 
 void VistaByteBufferSerializer::ClearBuffer()
@@ -299,12 +233,12 @@ int  VistaByteBufferSerializer::GetBufferCapacity() const
 	return m_uiCapacity; // this is always correct, even for adopted buffers
 }
 
-void VistaByteBufferSerializer::SetBuffer(char *pvBuffer,
+void VistaByteBufferSerializer::SetBuffer( VistaType::byte* pBuffer,
 										   int iBufferSize,
 										   int iWriteHead)
 {
 	assert( iBufferSize > 0 );
-	if(pvBuffer == NULL)
+	if(pBuffer == NULL)
 	{
 		// relink to internal buffer
 		m_vecBuffer.resize(iBufferSize);
@@ -317,7 +251,7 @@ void VistaByteBufferSerializer::SetBuffer(char *pvBuffer,
 	{
 		// link to external buffer
 		m_bRetrimSize = false;
-		m_pHead = pvBuffer;
+		m_pHead = pBuffer;
 		m_iWriteHead = iWriteHead;
 		m_uiCapacity = iBufferSize;
 	}

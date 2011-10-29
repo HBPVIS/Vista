@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnForceFeedbackNode.cpp 23000 2011-08-16 13:58:11Z su691804 $
+// $Id$
 
 #include "VdfnForceFeedbackNode.h"
 
@@ -109,7 +109,7 @@ IVdfnNode *VdfnForceFeedbackNodeCreate::CreateNode( const VistaPropertyList &oPa
 	try
 	{
 		const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
-		std::string strDriverId = subs.GetStringValue("device_id");
+		std::string strDriverId = subs.GetValue<std::string>( "device_id" );
 		if(strDriverId.empty())
 			return NULL;
 

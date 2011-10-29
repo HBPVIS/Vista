@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaReflectionable.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTAREFLECTIONABLE_H
 #define _VISTAREFLECTIONABLE_H
@@ -61,9 +61,9 @@ class VistaPropertyFunctorRegistry;
 	protected: \
 	int AddToBaseTypeList(std::list<std::string> &rBtList) const \
 	{ \
-	int nRet = superclass::AddToBaseTypeList(rBtList); \
-	rBtList.push_back(#classname);\
-	return ++nRet; \
+		int nRet = superclass::AddToBaseTypeList(rBtList); \
+		rBtList.push_back(#classname);\
+		return ++nRet; \
 	}
 
 #define REFL_DECLARE \
@@ -75,7 +75,7 @@ class VistaPropertyFunctorRegistry;
 #define REFL_IMPLEMENT(classname, superclass) \
 	std::string classname::GetReflectionableType() const \
 	{\
-	return #classname;\
+		return #classname;\
 	}\
 	\
 	int classname::AddToBaseTypeList(std::list<std::string> &rBtList) const \
@@ -89,7 +89,7 @@ class VistaPropertyFunctorRegistry;
 	namespace { std::string SsReflectionName( #classname ); } \
 	std::string classname::GetReflectionableType() const \
 	{\
-	return #classname;\
+		return #classname;\
 	}\
 	\
 	int classname::AddToBaseTypeList(std::list<std::string> &rBtList) const \
@@ -116,7 +116,6 @@ class VISTAASPECTSAPI IVistaReflectionable : public IVistaPropertyAwareable,
 public:
 	virtual ~IVistaReflectionable();
 
-
 	/**
 	 * Override this method in subclasses. This is an absolute
 	 * must. Use the macros REFL_INLINEIMP() in order to
@@ -126,16 +125,11 @@ public:
 	 *         the reflectionable specialization.
 	 */
 	virtual std::string GetReflectionableType() const;
-	//#################################################
-	// OBSERVEABLE-INTERFACE
-	//#################################################
-
 
 	//#################################################
 	// NAMEABLE-INTERFACE
 	//#################################################
 
-	//virtual std::string GetNameForNameable() const;
 	std::string GetNameForNameable() const;
 	void   SetNameForNameable(const std::string &sName);
 
@@ -145,8 +139,6 @@ public:
 	 * instead of void)
 	 * @return true iff sName changed the previous name
 	 */
-
-	//virtual bool   SetNameProp(const std::string &sName);
 	bool   SetNameProp(const std::string &sName);
 
 	//#################################################
@@ -183,7 +175,7 @@ public:
 
 	/**
 	 * Alias to GetBaseTypes(), but returns the list of parent
-	 * type names on the stack (slightly more expensive, but convinient).
+	 * type names on the stack (slightly more expensive, but convenient).
 	 * @return a list of type names for the base types of this
 			   IVistaReflectionable. The names are ordered to
 			   indicate the inheritance chain from most abstract
@@ -219,7 +211,7 @@ protected:
 
 	/**
 	 *  This method <b>must</b> be overloaded by subclasses in order
-	 * to build a propert hierarchy of base-type strings (i.e. strings
+	 * to build a property hierarchy of base-type strings (i.e. strings
 	 * that encode a unique class identifier). This Method will add its
 	 * base type std::string as vanilla std::string to the rBtList.
 	 * @return the number of entries in the list
@@ -247,313 +239,401 @@ template<class T> bool compAssignAndNotify(const T x, T &y, IVistaReflectionable
 
 
 /**
-* TVistaPropertyGet implements a templated getter functor for a
-* IVistaReflectionable object. It should save you the job of writing an
-* own functor in most of the cases.
-* The meaning of the template arguments is as follows:
-*
-* R    return type of getter method
-* C	   reflectionable for which to use/register the GetFunctor
-*
-*/
-template<class R, class C, VistaProperty::ePropType nPropType = VistaProperty::PROPT_STRING> class TVistaPropertyGet
- : public IVistaPropertyGetFunctor
+ * TVistaPropertyGet implements a templated getter functor for a
+ * IVistaReflectionable object. It should save you the job of writing an
+ * own functor in most of the cases.
+ * The meaning of the template arguments is as follows:
+ *
+ * R       return type of getter method
+ * C	   reflectionable for which to use/register the GetFunctor
+ *
+ */
+template<class R, class C, VistaProperty::ePropType nPropType = VistaProperty::PROPT_STRING>
+class TVistaPropertyGet : public IVistaPropertyGetFunctor
 {
-	public:
+public:
+	typedef R (C::*GetterFn)() const;
+
 	/**
 	* This constructor takes all the necessary parameters for creating a
 	* functor which gets a single property from a IVistaReflectionable
 	*
 	* @param	sPropName	std::string encoding of property's name (i.e. key)
 	* @param	sClassType	reflectionable's type name as encoded in the base type list
-	* @param	pfm			pointer to the reflectionable's get method to be used
+	* @param	pfGetter	pointer to the reflectionable's get method to be used
+	* @param	sDescription Descriptive string
 	*/
-	TVistaPropertyGet(const std::string &sPropName,
-					 const std::string &sClassType,
-					 R (C::*pfm)() const,
-					 const std::string &sDescription = "")
-					 : IVistaPropertyGetFunctor(sPropName, sClassType, sDescription),
-					   m_pfn(pfm)
-					 {
-
-					 }
-	~TVistaPropertyGet()
+	TVistaPropertyGet( const std::string &sPropName,
+						const std::string &sClassType,
+						GetterFn pfGetter,
+						const std::string &sDescription = "" )
+	: IVistaPropertyGetFunctor( sPropName, sClassType, sDescription )
+	, m_pfGetter( pfGetter )
 	{
 	}
 
 	virtual bool operator()(const IVistaPropertyAwareable &rObj,
 							VistaProperty &rProp) const
 	{
-		R rTmp = (static_cast<const C&>(rObj).*m_pfn)();
-		rProp.SetValue(VistaAspectsConversionStuff::ConvertToString(rTmp));
+		R rTmp = ( static_cast<const C&>(rObj).*m_pfGetter )();
+		rProp.SetValue( VistaConversion::ToString<R>( rTmp ) );
 		rProp.SetPropertyType(nPropType);
 		return !rProp.GetIsNilProperty();
 	}
 
-	protected:
-	R (C::*m_pfn)() const;
-	private:
-	TVistaPropertyGet() {}
-	TVistaPropertyGet(const std::string &sPropName,
-					 const std::string &sClassType) {}
+protected:
+	GetterFn		m_pfGetter;
 };
 
-
 /**
-* TVistaPropertyGet implements a templated getter functor for a
-* IVistaReflectionable object. It should save you the job of writing an
-* own functor in most of the cases.
-* The meaning of the template arguments is as follows:
-*
-* R    return type of getter method
-* Arg  argument type for conversion method
-*      NOTE: This mithg be different from R due to some const / ref modifiers.
-* C	   reflectionable for which to use/register the GetFunctor
-*
-*/
-template<class R, class Arg, class C,
-		VistaProperty::ePropType nType = VistaProperty::PROPT_STRING> class TVistaPropertyConvertAndGet
-: public IVistaPropertyGetFunctor
+ * TVistaPropertyGet implements a templated getter functor for a
+ * IVistaReflectionable object. It should save you the job of writing an
+ * own functor in most of the cases. This Version allows providing
+ * a custim to-string conversion function
+ * The meaning of the template arguments is as follows:
+ *
+ * R       return type of getter method
+ * ConvArg Argument of conversion function
+ * C	   reflectionable for which to use/register the GetFunctor
+ *
+ */
+template<class R, class ConvArg, class C, VistaProperty::ePropType nPropType = VistaProperty::PROPT_STRING>
+class TVistaPropertyConvertAndGet : public IVistaPropertyGetFunctor
 {
-	public:
+public:
+	typedef R (C::*GetterFn)() const;
+	typedef std::string (*ConvertFn)( ConvArg );
+
 	/**
 	* This constructor takes all the necessary parameters for creating a
 	* functor which gets a single property from a IVistaReflectionable
 	*
 	* @param	sPropName	std::string encoding of property's name (i.e. key)
 	* @param	sClassType	reflectionable's type name as encoded in the base type list
-	* @param	pfm			pointer to the reflectionable's get method to be used
-	* @param	pCFn		pointer to the conversion function to be used
+	* @param	pfGetter	pointer to the reflectionable's get method to be used
+	* @param	pfConert	pointer to ToString Conversion functions
+	* @param	sDescription Descriptive string
 	*/
-	TVistaPropertyConvertAndGet(const std::string &sPropName,
-					 const std::string &sClassType,
-					 R (C::*pfm)() const,
-					 std::string (*pCFn)(Arg),
-					 const std::string &sDescription = "")
-					 : IVistaPropertyGetFunctor(sPropName, sClassType, sDescription),
-					   m_pfn(pfm), m_pCFn(pCFn)
-					 {
-					 }
-	~TVistaPropertyConvertAndGet()
+	TVistaPropertyConvertAndGet( const std::string &sPropName,
+						const std::string &sClassType,
+						GetterFn pfGetter,
+						ConvertFn pfConvert,
+						const std::string &sDescription = "" )
+	: IVistaPropertyGetFunctor( sPropName, sClassType, sDescription )
+	, m_pfGetter( pfGetter )
+	, m_pfConvert( pfConvert )
 	{
 	}
 
 	virtual bool operator()(const IVistaPropertyAwareable &rObj,
 							VistaProperty &rProp) const
 	{
-		R rTmp = (static_cast<const C&>(rObj).*m_pfn)();
-		rProp.SetValue((*m_pCFn)(rTmp));
-		rProp.SetPropertyType(nType);
+		R rTmp = ( static_cast<const C&>(rObj).*m_pfGetter )();
+		rProp.SetValue( (*m_pfConvert)( rTmp ) );
+		rProp.SetPropertyType(nPropType);
 		return !rProp.GetIsNilProperty();
 	}
 
-
-	protected:
-	R (C::*m_pfn)() const;
-	std::string (*m_pCFn)(Arg);
-	private:
-	TVistaPropertyConvertAndGet() {}
-	TVistaPropertyConvertAndGet(const std::string &sPropName,
-					 const std::string &sClassType) {}
+protected:
+	GetterFn		m_pfGetter;
+	ConvertFn		m_pfConvert;
 };
 
 
 /**
-* TVistaPropertySet implements a templated SetFunctor for a
-* IVistaReflectionable object. It should save you the job of writing an
-* own functor in most of the cases.
-* The meaning of the template arguments is as follows:
-*
-* - Arg  input type to reflectionable's setter method
-* - CRes output type of conversion method std::string->input type
-*        NOTE: This might be different from Arg due to some const
-*            modifiers
-* - C	   reflectionable for which to use/register the GetFunctor
-*
-* map functions like<br>
-* bool C::SetMyFoo( const CMySpecialClass & );<br>
-* with<br>
-* TVistaPropertyGet<const CMySpecialClass &, CMySpecialClass, C>(
-*  "MYFOO", SsReflectionName, &C::SetMyFoo, &CMyConversionFromString )<br>
-* where MyConversionFromString is a static function, for example<br>
-* CMySpecialClass CMyConversionFromString( const std::string &strMySpecialClassAsString )
-*/
-template <class Arg, class CRes,
-		  class C> class TVistaPropertySet : public IVistaPropertySetFunctor
+ * TVistaPropertySet implements a templated SetFunctor for a
+ * IVistaReflectionable object. It should save you the job of writing an
+ * own functor in most of the cases.
+ * The meaning of the template arguments is as follows:
+ *
+ * - Arg    input type to reflectionable's setter method
+ * - R      Actual type of the function (Arg withput qualifiers)
+ * - C	    reflectionable for which to use/register the GetFunctor
+ *
+ * map functions like<br>
+ * bool C::SetMyFoo( const CMySpecialClass & );<br>
+ * with<br>
+ * TVistaPropertyGet<const CMySpecialClass &, CMySpecialClass, C>(
+ *               "MYFOO", SsReflectionName, &C::SetMyFoo )<br>
+ */
+template <class Arg, class R, class C>
+class TVistaPropertySet : public IVistaPropertySetFunctor
 {
-	public:
+	typedef bool (C::*SetterFunc)( Arg );
+public:
 	/**
 	* This constructor takes all the necessary parameters for creating a
 	* functor which sets a single property of a IVistaReflectionable
 	*
 	* @param	sPropName	std::string encoding of property's name (i.e. key)
 	* @param	sClassType	reflectionable's type name as encoded in the base type list
-	* @param	pfn			pointer to the reflectionable's set method to be used
-	* @param	pCFn		pointer to the conversion function to be used
+	* @param	pfSetter	pointer to the reflectionable's set method to be used
 	*/
 	TVistaPropertySet(const std::string &sPropName,
-					 const std::string &sClassType,
-					 bool (C::*pfn)(Arg),
-					 CRes (*pCFn)(const std::string &),
-					 const std::string &sDescription = "")
-					 : IVistaPropertySetFunctor(sPropName, sClassType, sDescription),
-					   m_pfn(pfn), m_pCFn(pCFn)
-					   {
-					   }
-	virtual ~TVistaPropertySet()
+					const std::string &sClassType,
+					SetterFunc pfSetter,
+					const std::string &sDescription = "" )
+	: IVistaPropertySetFunctor(sPropName, sClassType, sDescription)
+	, m_pfSetter( pfSetter )
 	{
 	}
-
-	virtual bool operator()(IVistaPropertyAwareable &rObj, const VistaProperty &rProp)
+	virtual bool operator()( IVistaPropertyAwareable &rObj, const VistaProperty &rProp )
 	{
-		CRes rTmp = (*m_pCFn)(rProp.GetValue());
-		// call setter, hope that CRes converts to Arg
-		return (static_cast<C&>(rObj).*m_pfn)(rTmp);
+
+		R oTmp;
+		if( VistaConversion::FromString<R>( rProp.GetValue(), oTmp ) == false )
+			return false;
+		return (static_cast<C&>(rObj).*m_pfSetter)(oTmp);
 	}
-
-
-	protected:
-	bool (C::*m_pfn)( Arg ); /**< the acual setter */
-	CRes (*m_pCFn)(const std::string &); /**< conversion function */
-
-	private:
-	TVistaPropertySet() {}
-	TVistaPropertySet(const std::string &sPropName,
-					 const std::string &sClassType) {}
-};
-
-
-template<class C> class VistaPropertyListGetFunctor : public IVistaPropertyGetFunctor
-{
-public:
-	VistaPropertyListGetFunctor(const std::string &sPropName,
-							 const std::string &sClassName,
-							 VistaPropertyList (C::*pfn)() const,
-							 const std::string &sDescription = "")
-		: IVistaPropertyGetFunctor(sPropName, sClassName, sDescription),
-		 m_pfn(pfn)
-	{
-	}
-
-	~VistaPropertyListGetFunctor()
-	{
-	}
-
-		virtual bool operator()(const IVistaPropertyAwareable &rObj,
-								VistaProperty &rProp) const
-		{
-			VistaPropertyList rProps = (static_cast<const C&>(rObj).*m_pfn)();
-			rProp.SetPropertyListValue(rProps);
-			rProp.SetPropertyType(VistaProperty::PROPT_PROPERTYLIST);
-			return true;
-		}
 
 
 protected:
-private:
-	VistaPropertyList (C::*m_pfn)() const;
+	SetterFunc		m_pfSetter;
 };
 
-template<class C> class VistaPropertyListSetFunctor : public IVistaPropertySetFunctor
+
+/**
+ * TVistaPropertySet implements a templated SetFunctor for a
+ * IVistaReflectionable object. It should save you the job of writing an
+ * own functor in most of the cases.
+ * The meaning of the template arguments is as follows:
+ *
+ * - Arg    input type to reflectionable's setter method
+ * - CRes   return type of the Conversion Method
+ * - C	    reflectionable for which to use/register the GetFunctor
+ 
+ */
+template <class Arg, class CRes, class C>
+class TVistaPropertyConvertAndSet : public IVistaPropertySetFunctor
 {
+	typedef bool (C::*SetterFunc)( Arg );
+	typedef CRes (*ConvertFunc)( const std::string& );
 public:
-	VistaPropertyListSetFunctor(const std::string &sName,
-							 const std::string &sClassName,
-							 bool (C::*pfn)(const VistaPropertyList &),
-							 const std::string &sDescription = "")
-		: IVistaPropertySetFunctor(sName, sClassName, sDescription),
-		m_pfn(pfn)
+	/**
+	* This constructor takes all the necessary parameters for creating a
+	* functor which sets a single property of a IVistaReflectionable
+	*
+	* @param	sPropName	std::string encoding of property's name (i.e. key)
+	* @param	sClassType	reflectionable's type name as encoded in the base type list
+	* @param	pfSetter	pointer to the reflectionable's set method to be used
+	* @param	pfConvert	pointer to the rFromSting conversion function
+	*/
+	TVistaPropertyConvertAndSet( const std::string &sPropName,
+					const std::string &sClassType,
+					SetterFunc pfSetter,
+					ConvertFunc pfConvert,
+					const std::string &sDescription = "" )
+	: IVistaPropertySetFunctor(sPropName, sClassType, sDescription)
+	, m_pfSetter( pfSetter )
+	, m_pfConvert( pfConvert )
 	{
+	}
+	virtual bool operator()( IVistaPropertyAwareable &rObj, const VistaProperty &rProp )
+	{
+
+		CRes oTmp = (*m_pfConvert)(	rProp.GetValue() );
+		return (static_cast<C&>(rObj).*m_pfSetter)(oTmp);
 	}
 
-	~VistaPropertyListSetFunctor()
-	{
-	}
-
-	virtual bool operator()(IVistaPropertyAwareable &rObj, const VistaProperty &rProp)
-	{
-		return (static_cast<C&>(rObj).*m_pfn)(rProp.GetPropertyListValue());
-	}
 
 protected:
-private:
-	bool (C::*m_pfn)(const VistaPropertyList &);
+	SetterFunc		m_pfSetter;
+	ConvertFunc		m_pfConvert;
 };
 
-template<class C> class TVistaPublicStringPropertyGet : public IVistaPropertyGetFunctor
+
+template<class C>
+class TVistaPropertyListGet : public IVistaPropertyGetFunctor
 {
-	public:
-	TVistaPublicStringPropertyGet(const std::string &sPropName,
-					 const std::string &sClassType,
-					 std::string (C::*sProp),
-					 const std::string &sDescription = "")
-					 : IVistaPropertyGetFunctor(sPropName, sClassType, sDescription),
-					  m_sProp(sProp)
-					 {
-
-					 }
-
-	~TVistaPublicStringPropertyGet()
+	typedef VistaPropertyList (C::*GetterFn)() const;
+public:
+	TVistaPropertyListGet( const std::string &sPropName,
+							const std::string &sClassName,
+							GetterFn pfGetter,
+							const std::string &sDescription = "" )
+	: IVistaPropertyGetFunctor(sPropName, sClassName, sDescription)
+	, m_pfGetter( pfGetter )
 	{
 	}
 
 	virtual bool operator()(const IVistaPropertyAwareable &rObj,
 							VistaProperty &rProp) const
 	{
-		rProp.SetValue(static_cast<const C&>(rObj).*m_sProp);
-		rProp.SetPropertyType(VistaProperty::PROPT_STRING);
+		VistaPropertyList rProps = (static_cast<const C&>(rObj).*m_pfGetter)();
+		rProp.SetPropertyListValue(rProps);
+		rProp.SetPropertyType(VistaProperty::PROPT_PROPERTYLIST);
+		return true;
+	}
+
+protected:
+	GetterFn	m_pfGetter;
+};
+
+template<class C> class TVistaPropertyListSet : public IVistaPropertySetFunctor
+{
+public:
+	typedef bool (C::*SetterFunc)(const VistaPropertyList &);
+
+	TVistaPropertyListSet(const std::string &sName,
+							const std::string &sClassName,
+							SetterFunc pfSetter,
+							const std::string &sDescription = "")
+	: IVistaPropertySetFunctor(sName, sClassName, sDescription)
+	, m_pfSetter( pfSetter )
+	{
+	}
+
+	virtual bool operator()(IVistaPropertyAwareable &rObj, const VistaProperty &rProp)
+	{
+		return (static_cast<C&>(rObj).*m_pfSetter)( rProp.GetPropertyListConstRef() );
+	}
+
+protected:
+	SetterFunc		m_pfSetter;
+};
+
+template<class C> class TVistaPublicStringPropertyGet : public IVistaPropertyGetFunctor
+{
+public:
+	typedef std::string (C::*StringMember);
+	TVistaPublicStringPropertyGet(const std::string &sPropName,
+							const std::string &sClassType,
+							StringMember pfMember,
+							const std::string &sDescription = "")
+	: IVistaPropertyGetFunctor(sPropName, sClassType, sDescription)
+	, m_pfMember( pfMember )
+	{
+	}
+
+	virtual bool operator()(const IVistaPropertyAwareable &rObj,
+							VistaProperty &rProp) const
+	{
+		rProp.SetValue( static_cast<const C&>(rObj).*m_pfMember );
+		rProp.SetPropertyType( VistaProperty::PROPT_STRING );
 		return !rProp.GetIsNilProperty();
 	}
 
-
-	protected:
-		std::string (C::*m_sProp);
-
-	private:
-	TVistaPublicStringPropertyGet() {}
-	TVistaPublicStringPropertyGet(const std::string &sPropName,
-					 const std::string &sClassType) {}
+protected:
+	StringMember m_pfMember;
 };
 
 
 template <class C> class TVistaPublicStringPropertySet : public IVistaPropertySetFunctor
 {
-	public:
+public:
+	typedef std::string (C::*StringMember);
 	/**
 	* This constructor takes all the necessary parameters for creating a
 	* functor which sets a single property of a IVistaReflectionable
 	*
 	* @param	sPropName	std::string encoding of property's name (i.e. key)
 	* @param	sClassType	reflectionable's type name as encoded in the base type list
-	* @param	pfn			pointer to the reflectionable's set method to be used
-	* @param	pCFn		pointer to the conversion function to be used
+	* @param	pfMember	pointer to the reflectionable's set method to be used
 	*/
 	TVistaPublicStringPropertySet(const std::string &sPropName,
-					 const std::string &sClassType,
-					 std::string (C::*sProp),
-					 const std::string &sDescription = "")
-					 : IVistaPropertySetFunctor(sPropName, sClassType, sDescription),
-					 m_sProp(sProp)
-					   {
-					   }
-	virtual ~TVistaPublicStringPropertySet()
+									const std::string &sClassType,
+									StringMember pfMember,
+									const std::string &sDescription = "")
+	: IVistaPropertySetFunctor(sPropName, sClassType, sDescription)
+	, m_pfMember( pfMember )
 	{
 	}
 
 	virtual bool operator()(IVistaPropertyAwareable &rObj, const VistaProperty &rProp)
 	{
-		static_cast<C&>(rObj).*m_sProp = rProp.GetValue();
+		static_cast<C&>(rObj).*m_pfMember = rProp.GetValue();
 		return true;
 	}
 
+protected:
+	StringMember m_pfMember;
+};
 
-	protected:
-		std::string (C::*m_sProp);
 
-	private:
-	TVistaPublicStringPropertySet() {}
-	TVistaPublicStringPropertySet(const std::string &sPropName,
-					 const std::string &sClassType) {}
+/**
+ * C - base type
+ * A - ref type
+ * usage, e.g. : bool Get(float &, float &) const;
+ * -> TVistaProperty2RefGet<float, TYPE>("name", "type", &type::Get)
+ */
+template<class A, class C, VistaProperty::ePropType nPropSubType = VistaProperty::PROPT_DOUBLE>
+class TVistaProperty2RefGet : public IVistaPropertyGetFunctor
+{
+public:
+	typedef bool (C::*GetterFunc)( A&, A& ) const;
+
+	/**
+	* This constructor takes all the necessary parameters for creating a
+	* functor which gets a single property from a IVistaReflectionable
+	*
+	* @param	sPropName	std::string encoding of property's name (i.e. key)
+	* @param	sClassType	reflectionable's type name as encoded in the base type list
+	* @param	pfGetter	pointer to the reflectionable's get method to be used
+	*/
+	TVistaProperty2RefGet(const std::string &sPropName,
+							const std::string &sClassType,
+							GetterFunc pfGetter,
+							const std::string &sDescription = "" )
+	: IVistaPropertyGetFunctor(sPropName, sClassType, sDescription)
+	, m_pfGetter( pfGetter )
+	{
+	}
+
+	virtual bool operator()(const IVistaPropertyAwareable &rObj,
+							VistaProperty &rProp) const
+	{
+		A aArray[2];
+		if( (static_cast<const C&>(rObj).*m_pfGetter)( aArray[0], aArray[1] ) == false )
+		{
+			return false;
+		}
+	
+		std::string sText =	VistaConversion::ArrayToString<2, A>( aArray );
+		rProp.SetValue( sText );
+		rProp.SetPropertyType( VistaProperty::PROPT_LIST );
+		rProp.SetPropertyListSubType( nPropSubType );		
+		return true;
+	}
+
+protected:
+	GetterFunc	m_pfGetter;
+};
+
+
+template <class Arg, class C>
+class TVistaProperty2ValSet : public IVistaPropertySetFunctor
+{
+public:
+	typedef bool (C::*SetterFunc)( Arg, Arg );
+	/**
+	* This constructor takes all the necessary parameters for creating a
+	* functor which sets a single property of a IVistaReflectionable
+	*
+	* @param	sPropName	std::string encoding of property's name (i.e. key)
+	* @param	sClassType	reflectionable's type name as encoded in the base type list
+	* @param	pfSetter	pointer to the reflectionable's set method to be used
+	*/
+	TVistaProperty2ValSet( const std::string &sPropName,
+						const std::string &sClassType,
+						SetterFunc pfSetter,
+						const std::string &sDescription = "" )
+	: IVistaPropertySetFunctor( sPropName, sClassType, sDescription )
+	, m_pfSetter( pfSetter )
+	{
+	}
+
+	virtual bool operator()(IVistaPropertyAwareable &rObj, const VistaProperty &rProp)
+	{
+		Arg aData[2];
+		if( VistaConversion::ArrayFromString<2, Arg>( rProp.GetValue(), aData ) )
+		{
+			return ( static_cast<C&>(rObj).*m_pfSetter)( aData[0], aData[1] );
+		}
+		return false;
+	}
+
+protected:
+	SetterFunc	m_pfSetter;
 };
 
 /**
@@ -563,103 +643,84 @@ template <class C> class TVistaPublicStringPropertySet : public IVistaPropertySe
  * -> TVistaProperty2RefGet<float, TYPE>("name", "type", &type::Get)
  */
 template<class A, class C, VistaProperty::ePropType nPropSubType = VistaProperty::PROPT_DOUBLE>
-	class TVistaProperty2RefGet : public IVistaPropertyGetFunctor
+class TVistaProperty3RefGet : public IVistaPropertyGetFunctor
 {
-	public:
+public:
+	typedef bool (C::*GetterFunc)( A&, A&, A& ) const;
 	/**
 	* This constructor takes all the necessary parameters for creating a
 	* functor which gets a single property from a IVistaReflectionable
 	*
 	* @param	sPropName	std::string encoding of property's name (i.e. key)
 	* @param	sClassType	reflectionable's type name as encoded in the base type list
-	* @param	pfm			pointer to the reflectionable's get method to be used
+	* @param	pfGetter	pointer to the reflectionable's get method to be used
 	*/
-	TVistaProperty2RefGet(const std::string &sPropName,
-					 const std::string &sClassType,
-					 bool (C::*pfm)(A &, A &) const,
-					 const std::string &sDescription = "")
-					 : IVistaPropertyGetFunctor(sPropName, sClassType, sDescription),
-					   m_pfn(pfm)
-					 {
-
-					 }
-	~TVistaProperty2RefGet()
+	TVistaProperty3RefGet(const std::string &sPropName,
+							const std::string &sClassType,
+							GetterFunc pfGetter,
+							const std::string &sDescription = "" )
+	: IVistaPropertyGetFunctor(sPropName, sClassType, sDescription)
+	, m_pfGetter( pfGetter )
 	{
 	}
 
 	virtual bool operator()(const IVistaPropertyAwareable &rObj,
 							VistaProperty &rProp) const
 	{
-		A a,b;
-		if((static_cast<const C&>(rObj).*m_pfn)(a,b))
+		A aArray[3];
+		if( (static_cast<const C&>(rObj).*m_pfGetter)( 
+						aArray[0], aArray[1], aArray[2] ) == false )
 		{
-			std::string sA, sB;
-			sA = VistaAspectsConversionStuff::ConvertToString(a);
-			sB = VistaAspectsConversionStuff::ConvertToString(b);
-
-			rProp.SetValue(sA + std::string(", ") + sB);
-			rProp.SetPropertyType(VistaProperty::PROPT_LIST);
-			rProp.SetPropertyListSubType(nPropSubType);
+			return false;
 		}
-
-		return !rProp.GetIsNilProperty();
+	
+		std::string sText =	VistaConversion::ArrayToString<3, A>( aArray );
+		rProp.SetValue( sText );
+		rProp.SetPropertyType( VistaProperty::PROPT_LIST );
+		rProp.SetPropertyListSubType( nPropSubType );		
+		return true;
 	}
 
-	protected:
-	bool (C::*m_pfn)(A &, A &) const;
-	private:
-	TVistaProperty2RefGet() {}
-	TVistaProperty2RefGet(const std::string &sPropName,
-					 const std::string &sClassType) {}
+protected:
+	GetterFunc	m_pfGetter;
 };
 
 
-template <class Arg,
-		  class C> class TVistaProperty2ValSet : public IVistaPropertySetFunctor
+template <class Arg, class C>
+class TVistaProperty3ValSet : public IVistaPropertySetFunctor
 {
-	public:
+public:
+	typedef bool (C::*SetterFunc)( Arg, Arg, Arg );
 	/**
 	* This constructor takes all the necessary parameters for creating a
 	* functor which sets a single property of a IVistaReflectionable
 	*
 	* @param	sPropName	std::string encoding of property's name (i.e. key)
 	* @param	sClassType	reflectionable's type name as encoded in the base type list
-	* @param	pfn			pointer to the reflectionable's set method to be used
-	* @param	pCFn		pointer to the conversion function to be used
+	* @param	pfSetter	pointer to the reflectionable's set method to be used
 	*/
-	TVistaProperty2ValSet(const std::string &sPropName,
-					 const std::string &sClassType,
-					 bool (C::*pfn)(Arg, Arg),
-					 bool (*pCFn)(const std::string &, Arg &, Arg & ),
-					 const std::string &sDescription = "")
-					 : IVistaPropertySetFunctor(sPropName, sClassType, sDescription),
-					   m_pfn(pfn), m_pCFn(pCFn)
-					   {
-					   }
-	virtual ~TVistaProperty2ValSet()
+	TVistaProperty3ValSet( const std::string &sPropName,
+						const std::string &sClassType,
+						SetterFunc pfSetter,
+						const std::string &sDescription = "" )
+	: IVistaPropertySetFunctor(sPropName, sClassType, sDescription)
+	, m_pfSetter( pfSetter )
 	{
 	}
 
 	virtual bool operator()(IVistaPropertyAwareable &rObj, const VistaProperty &rProp)
 	{
-		Arg a, b;
-		if((*m_pCFn)(rProp.GetValue(), a,b))
+		Arg aData[3];
+		if( VistaConversion::ArrayFromString<3, Arg>( rProp.GetValue(), aData ) )
 		{
-			// call setter, hope that CRes converts to Arg
-			return (static_cast<C&>(rObj).*m_pfn)(a,b);
+			return ( static_cast<C&>(rObj).*m_pfSetter)( 
+									aData[0], aData[1], aData[2] );
 		}
 		return false;
 	}
 
-
-	protected:
-	bool (C::*m_pfn)( Arg, Arg ); /**< the acual setter */
-	bool (*m_pCFn)(const std::string &, Arg &, Arg &); /**< conversion function */
-
-	private:
-	TVistaProperty2ValSet() {}
-	TVistaProperty2ValSet(const std::string &sPropName,
-					 const std::string &sClassType) {}
+protected:
+	SetterFunc	m_pfSetter;
 };
 
 /**
@@ -668,212 +729,85 @@ template <class Arg,
  * usage, e.g. : bool Get(float &, float &) const;
  * -> TVistaProperty2RefGet<float, TYPE>("name", "type", &type::Get)
  */
-template<class A, class C, VistaProperty::ePropType nSubType = VistaProperty::PROPT_DOUBLE>
-		 class TVistaProperty3RefGet : public IVistaPropertyGetFunctor
+template<class A, class C, VistaProperty::ePropType nPropSubType = VistaProperty::PROPT_DOUBLE>
+class TVistaProperty4RefGet : public IVistaPropertyGetFunctor
 {
-	public:
+public:
+	typedef bool (C::*GetterFunc)( A&, A&, A&, A& ) const;
 	/**
 	* This constructor takes all the necessary parameters for creating a
 	* functor which gets a single property from a IVistaReflectionable
 	*
 	* @param	sPropName	std::string encoding of property's name (i.e. key)
 	* @param	sClassType	reflectionable's type name as encoded in the base type list
-	* @param	pfm			pointer to the reflectionable's get method to be used
+	* @param	pfGetter	pointer to the reflectionable's get method to be used
 	*/
-	TVistaProperty3RefGet(const std::string &sPropName,
-					 const std::string &sClassType,
-					 bool (C::*pfm)(A&, A&, A&) const,
-					 const std::string &sDescription = "")
-					 : IVistaPropertyGetFunctor(sPropName, sClassType, sDescription),
-					   m_pfn(pfm)
-					 {
-
-					 }
-	~TVistaProperty3RefGet()
+	TVistaProperty4RefGet( const std::string &sPropName,
+							const std::string &sClassType,
+							GetterFunc pfGetter,
+							const std::string &sDescription = "" )
+	: IVistaPropertyGetFunctor(sPropName, sClassType, sDescription)
+	, m_pfGetter( pfGetter )
 	{
 	}
 
 	virtual bool operator()(const IVistaPropertyAwareable &rObj,
 							VistaProperty &rProp) const
 	{
-		A a,b,c;
-		if((static_cast<const C&>(rObj).*m_pfn)(a,b,c))
+		A aArray[4];
+		if( (static_cast<const C&>(rObj).*m_pfGetter)( 
+					aArray[0], aArray[1], aArray[2], aArray[3] ) == false )
 		{
-			std::string sA, sB, sC;
-			sA = VistaAspectsConversionStuff::ConvertToString(a);
-			sB = VistaAspectsConversionStuff::ConvertToString(b);
-			sC = VistaAspectsConversionStuff::ConvertToString(c);
-
-			rProp.SetValue(sA + std::string(", ") + sB + std::string(", ") + sC);
-			rProp.SetPropertyType(VistaProperty::PROPT_LIST);
-			rProp.SetPropertyListSubType(nSubType);
+			return false;
 		}
-
-		return !rProp.GetIsNilProperty();
+	
+		std::string sText =	VistaConversion::ArrayToString<4, A>( aArray );
+		rProp.SetValue( sText );
+		rProp.SetPropertyType( VistaProperty::PROPT_LIST );
+		rProp.SetPropertyListSubType( nPropSubType );		
+		return true;
 	}
 
-	protected:
-	bool (C::*m_pfn)(A&, A&, A&) const;
-	private:
-	TVistaProperty3RefGet() {}
-	TVistaProperty3RefGet(const std::string &sPropName,
-					 const std::string &sClassType) {}
+protected:
+	GetterFunc	m_pfGetter;
 };
 
-template <class Arg,
-		  class C> class TVistaProperty3ValSet : public IVistaPropertySetFunctor
+
+template <class Arg, class C>
+class TVistaProperty4ValSet : public IVistaPropertySetFunctor
 {
-	public:
+public:
+	typedef bool (C::*SetterFunc)( Arg, Arg, Arg, Arg );
 	/**
 	* This constructor takes all the necessary parameters for creating a
 	* functor which sets a single property of a IVistaReflectionable
 	*
 	* @param	sPropName	std::string encoding of property's name (i.e. key)
 	* @param	sClassType	reflectionable's type name as encoded in the base type list
-	* @param	pfn			pointer to the reflectionable's set method to be used
-	* @param	pCFn		pointer to the conversion function to be used
+	* @param	pfSetter	pointer to the reflectionable's set method to be used
 	*/
-	TVistaProperty3ValSet(const std::string &sPropName,
-					 const std::string &sClassType,
-					 bool (C::*pfn)(Arg, Arg, Arg),
-					 bool (*pCFn)(const std::string &, Arg &, Arg &, Arg & ),
-					 const std::string &sDescription = "")
-					 : IVistaPropertySetFunctor(sPropName, sClassType, sDescription),
-					   m_pfn(pfn), m_pCFn(pCFn)
-					   {
-					   }
-	virtual ~TVistaProperty3ValSet()
+	TVistaProperty4ValSet( const std::string &sPropName,
+						const std::string &sClassType,
+						SetterFunc pfSetter,
+						const std::string &sDescription = "" )
+	: IVistaPropertySetFunctor(sPropName, sClassType, sDescription)
+	, m_pfSetter( pfSetter )
 	{
 	}
 
 	virtual bool operator()(IVistaPropertyAwareable &rObj, const VistaProperty &rProp)
 	{
-		Arg a, b, c;
-		if((*m_pCFn)(rProp.GetValue(), a,b,c))
+		Arg aData[4];
+		if( VistaConversion::ArrayFromString<4, Arg>( rProp.GetValue(), aData ) )
 		{
-			// call setter, hope that CRes converts to Arg
-			return (static_cast<C&>(rObj).*m_pfn)(a,b,c);
+			return ( static_cast<C&>(rObj).*m_pfSetter)( 
+									aData[0], aData[1], aData[2], aData[3] );
 		}
 		return false;
 	}
 
-
-	protected:
-	bool (C::*m_pfn)( Arg, Arg, Arg ); /**< the acual setter */
-	bool (*m_pCFn)(const std::string &, Arg &, Arg &, Arg &); /**< conversion function */
-
-	private:
-	TVistaProperty3ValSet() {}
-	TVistaProperty3ValSet(const std::string &sPropName,
-					 const std::string &sClassType) {}
-};
-
-
-/**
- * C - base type
- * A - ref type
- * usage, e.g. : bool Get(float &, float &) const;
- * -> TVistaProperty2RefGet<float, TYPE>("name", "type", &type::Get)
- */
-template<class A, class C, VistaProperty::ePropType nSubType = VistaProperty::PROPT_DOUBLE>
-		 class TVistaProperty4RefGet : public IVistaPropertyGetFunctor
-{
-	public:
-	/**
-	* This constructor takes all the necessary parameters for creating a
-	* functor which gets a single property from a IVistaReflectionable
-	*
-	* @param	sPropName	std::string encoding of property's name (i.e. key)
-	* @param	sClassType	reflectionable's type name as encoded in the base type list
-	* @param	pfm			pointer to the reflectionable's get method to be used
-	*/
-	TVistaProperty4RefGet(const std::string &sPropName,
-					 const std::string &sClassType,
-					 bool (C::*pfm)(A&, A&, A&, A&) const,
-					 const std::string &sDescription = "")
-					 : IVistaPropertyGetFunctor(sPropName, sClassType, sDescription),
-					   m_pfn(pfm)
-					 {
-
-					 }
-	~TVistaProperty4RefGet()
-	{
-	}
-
-	virtual bool operator()(const IVistaPropertyAwareable &rObj,
-							VistaProperty &rProp) const
-	{
-		A a,b,c,d;
-		if((static_cast<const C&>(rObj).*m_pfn)(a,b,c,d))
-		{
-			std::string sA, sB, sC, sD;
-			sA = VistaAspectsConversionStuff::ConvertToString(a);
-			sB = VistaAspectsConversionStuff::ConvertToString(b);
-			sC = VistaAspectsConversionStuff::ConvertToString(c);
-			sD = VistaAspectsConversionStuff::ConvertToString(d);
-
-			rProp.SetValue(sA + std::string(", ") + sB + std::string(", ") + sC + std::string(", ") + sD);
-			rProp.SetPropertyType(VistaProperty::PROPT_LIST);
-			rProp.SetPropertyListSubType(nSubType);
-		}
-
-		return !rProp.GetIsNilProperty();
-	}
-
-	protected:
-	bool (C::*m_pfn)(A&, A&, A&, A&) const;
-	private:
-	TVistaProperty4RefGet() {}
-	TVistaProperty4RefGet(const std::string &sPropName,
-					 const std::string &sClassType) {}
-};
-
-template <class Arg,
-		  class C> class TVistaProperty4ValSet : public IVistaPropertySetFunctor
-{
-	public:
-	/**
-	* This constructor takes all the necessary parameters for creating a
-	* functor which sets a single property of a IVistaReflectionable
-	*
-	* @param	sPropName	std::string encoding of property's name (i.e. key)
-	* @param	sClassType	reflectionable's type name as encoded in the base type list
-	* @param	pfn			pointer to the reflectionable's set method to be used
-	* @param	pCFn		pointer to the conversion function to be used
-	*/
-	TVistaProperty4ValSet(const std::string &sPropName,
-					 const std::string &sClassType,
-					 bool (C::*pfn)(Arg, Arg, Arg, Arg),
-					 bool (*pCFn)(const std::string &, Arg &, Arg &, Arg &, Arg & ),
-					 const std::string &sDescription = "")
-					 : IVistaPropertySetFunctor(sPropName, sClassType, sDescription),
-					   m_pfn(pfn), m_pCFn(pCFn)
-					   {
-					   }
-	virtual ~TVistaProperty4ValSet()
-	{
-	}
-
-	virtual bool operator()(IVistaPropertyAwareable &rObj, const VistaProperty &rProp)
-	{
-		Arg a, b, c, d;
-		if((*m_pCFn)(rProp.GetValue(), a,b,c,d))
-		{
-			// call setter, hope that CRes converts to Arg
-			return (static_cast<C&>(rObj).*m_pfn)(a,b,c,d);
-		}
-		return false;
-	}
-
-
-	protected:
-	bool (C::*m_pfn)( Arg, Arg, Arg, Arg ); /**< the acual setter */
-	bool (*m_pCFn)(const std::string &, Arg &, Arg &, Arg &, Arg &); /**< conversion function */
-
-	private:
-	TVistaProperty4ValSet() {}
-	TVistaProperty4ValSet(const std::string &sPropName,
-					 const std::string &sClassType) {}
+protected:
+	SetterFunc	m_pfSetter;
 };
 
 /**
@@ -887,43 +821,38 @@ template <class Arg,
  * DIM			Number of floats to retrieve
  *
  */
-template<class CRefl, class CArrayType, int DIM=3>
-class VistaGetArrayPropertyFunctor : public IVistaPropertyGetFunctor
+template<class CRefl, class CArrayType, int DIM=3,
+			VistaProperty::ePropType nSubType = VistaProperty::PROPT_DOUBLE>
+class TVistaPropertyArrayGet : public IVistaPropertyGetFunctor
 {
 public:
+	typedef void ( CRefl::*GetterFunc )( CArrayType* ) const;
 	/**
 	 * @param strPropertyName		name of the property to get
 	 * @param strClassName			name of the reflectionable type
-	 * @param getter				pointer to the reflectionable's getter method
+	 * @param pfGetter				pointer to the reflectionable's getter method
 	 */
-	VistaGetArrayPropertyFunctor(	const std::string& strPropertyName,
+	TVistaPropertyArrayGet(	const std::string& strPropertyName,
 									const std::string& strClassType,
-									void (CRefl::*getter)(CArrayType *) const,
-									const std::string &sDescription = "")
-		:	IVistaPropertyGetFunctor(strPropertyName, strClassType, sDescription),
-			m_pGetterFunc(getter)
-	{}
-	virtual ~VistaGetArrayPropertyFunctor(){}
+									GetterFunc pfGetter,
+									const std::string &sDescription = "" )
+	: IVistaPropertyGetFunctor(strPropertyName, strClassType, sDescription)
+	, m_pfGetter( pfGetter )
+	{
+	}
 
-	/**
-	 * get property rProp from the given reflectionable rRefl
-	 */
 	virtual bool operator()(const IVistaPropertyAwareable& rRefl, VistaProperty &rProp) const
 	{
-		CArrayType f[DIM];
-		(static_cast<const CRefl&>(rRefl).*m_pGetterFunc)(f);
-		std::list<CArrayType> liVals;
-		for(int i=0; i<DIM; ++i)
-			liVals.push_back(f[i]);
-		rProp.SetValue(VistaAspectsConversionStuff::ConvertToString(liVals));
-		rProp.SetPropertyType(VistaProperty::PROPT_LIST);
+		CArrayType aData[DIM];
+		(static_cast<const CRefl&>(rRefl).*m_pfGetter)(aData);
+		std::string sValue = VistaConversion::ArrayToString<DIM, CArrayType>( aData );
+		rProp.SetValue( sValue );
+		rProp.SetPropertyType( VistaProperty::PROPT_LIST );
+		rProp.SetPropertyListSubType( nSubType );
 		return !rProp.GetIsNilProperty();
 	}
 protected:
-private:
-	void (CRefl::*m_pGetterFunc)(CArrayType *f) const;
-
-	VistaGetArrayPropertyFunctor() {};
+	GetterFunc	m_pfGetter;
 };
 
 
@@ -939,47 +868,57 @@ private:
  *
  */
 template<class CRefl, class CArrayType, int DIM=3>
-class VistaSetArrayPropertyFunctor : public IVistaPropertySetFunctor
+class TVistaPropertyArraySet : public IVistaPropertySetFunctor
 {
 public:
+	typedef bool ( CRefl::*SetterFuncConst )( const CArrayType* );
+	typedef bool ( CRefl::*SetterFunc )( CArrayType* );
 	/**
 	 * @param strPropertyName		name of the property to set
 	 * @param strClassName			name of the reflectionable type
 	 * @param setter				pointer to the reflectionable's setter method
-	 * @param convert				pointer to the conversion method (std::string -> std::list<CArrayType>)
 	 */
-	VistaSetArrayPropertyFunctor(	const std::string& strPropertyName,
+	TVistaPropertyArraySet(	const std::string& strPropertyName,
 									const std::string& strClassName,
-									bool (CRefl::*setter)(CArrayType*),
-									std::list<CArrayType>(*convert)(const std::string&),
-									const std::string &sDescription = "")
-		:	IVistaPropertySetFunctor(strPropertyName, strClassName, sDescription),
-			m_pSetterFunc(setter),
-			m_pConversion(convert)
-	{}
+									SetterFunc pfSetter,
+									const std::string &sDescription = "" )
+	: IVistaPropertySetFunctor(strPropertyName, strClassName, sDescription)
+	, m_pfSetterFunc( pfSetter )
+	, m_pfConstSetterFunc( NULL )
+	{
+	}
 
-	virtual ~VistaSetArrayPropertyFunctor(){}
+	/**
+	 * @param strPropertyName		name of the property to set
+	 * @param strClassName			name of the reflectionable type
+	 * @param setter				pointer to the reflectionable's setter method
+	 */
+	TVistaPropertyArraySet(	const std::string& strPropertyName,
+									const std::string& strClassName,
+									SetterFuncConst pfSetter,
+									const std::string &sDescription = "" )
+	: IVistaPropertySetFunctor(strPropertyName, strClassName, sDescription)
+	, m_pfSetterFunc( NULL )
+	, m_pfConstSetterFunc( pfSetter )
+	{
+	}
 
 	/**
 	 * set property rProp to the given reflectionable rRefl
 	 */
 	virtual bool operator()(IVistaPropertyAwareable& rRefl, const VistaProperty &rProp)
 	{
-		std::list<CArrayType> liVals = (*m_pConversion)(rProp.GetValue());
-		if(liVals.size() != DIM)
+		CArrayType aData[DIM];
+		if( VistaConversion::ArrayFromString<DIM, CArrayType>( rProp.GetValue(), aData  ) == false )
 			return false;
-		CArrayType f[DIM];
-		typename std::list<CArrayType>::iterator itCurVal = liVals.begin();
-		for(int i=0; i<DIM; ++i, ++itCurVal)
-			f[i] = *itCurVal;
-		return (static_cast<CRefl&>(rRefl).*m_pSetterFunc)(f);
+		if( m_pfConstSetterFunc )
+			return (static_cast<CRefl&>(rRefl).*m_pfConstSetterFunc)( aData );
+		else
+			return (static_cast<CRefl&>(rRefl).*m_pfSetterFunc)( aData );
 	}
 protected:
-private:
-	bool (CRefl::*m_pSetterFunc)(CArrayType *f);
-	std::list<CArrayType>(*m_pConversion)(const std::string&);
-
-	VistaSetArrayPropertyFunctor(){}
+	SetterFuncConst		m_pfConstSetterFunc;
+	SetterFunc			m_pfSetterFunc;
 };
 
 

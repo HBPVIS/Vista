@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSocket.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTASOCKET_H
 #define _VISTASOCKET_H
@@ -312,9 +312,6 @@ protected:
 	 */
 	static bool PrintErrorMessage(const std::string &sMethodName);
 
-	/**
-	 *
-	 */
 	void SetIsConnected(bool bConnected);
 
 	void SetErrorState(bool bState);

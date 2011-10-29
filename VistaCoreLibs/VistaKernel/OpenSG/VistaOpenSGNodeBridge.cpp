@@ -20,19 +20,18 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenSGNodeBridge.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #ifdef WIN32
 // disable warnings from OpenSG
+#pragma warning(disable: 4231)
 #pragma warning(disable: 4244)
-#pragma warning(disable: 4244)
+#pragma warning(disable: 4267)
 #endif
+
 
 #include "VistaOpenSGNodeBridge.h"
 
-
-
-#include <VistaKernel/VistaKernelOut.h>
 #include <VistaKernel/VistaSystem.h>
 
 #include <VistaKernel/OpenSG/OSGVistaOpenGLDrawCore.h>
@@ -49,12 +48,12 @@
 
 #include <VistaTools/VistaFileSystemDirectory.h>
 #include <VistaTools/VistaFileSystemFile.h>
-#include <VistaTools/VistaProfiler.h>
 
 #include <VistaBase/VistaExceptionBase.h>
-#include <VistaAspects/VistaAspectsUtils.h>
+#include <VistaBase/VistaStreamUtils.h>
 
-
+#include <VistaAspects/VistaConversion.h>
+#include <VistaAspects/VistaIniFileParser.h>
 
 #include <OpenSG/OSGNode.h>
 #include <OpenSG/OSGSwitch.h>
@@ -158,7 +157,7 @@ static IVistaNode *dive(VistaOpenSGNodeBridge *pNodeBridge,
 {
 	IVistaNode *pNode = NULL;
 
-	//cout << node->getCore()->getTypeName() << endl;
+	//cout << node->getCore()->getTypeName() << std::endl;
 
 	if(node->getCore()->getType().isDerivedFrom(osg::Transform::getClassType()))
 	{
@@ -369,7 +368,7 @@ IVistaNodeData* VistaOpenSGNodeBridge::NewRootNodeData()
 		return NULL;
 	}
 
-	pNewData->SetCore(osg::Group::create());
+	pNewData->SetCore(osg::Transform::create());
 
 	return pNewData;
 }
@@ -466,9 +465,9 @@ bool VistaOpenSGNodeBridge::SetCenter
 }
 
 bool VistaOpenSGNodeBridge::GetCenter
-( VistaVector3D & center, IVistaNodeData * pData ) const
+( VistaVector3D & center, const IVistaNodeData * pData ) const
 {
-	VistaOpenSGNodeData * pOpenSGData = static_cast<VistaOpenSGNodeData*>(pData);
+	const VistaOpenSGNodeData * pOpenSGData = static_cast<const VistaOpenSGNodeData*>(pData);
 	osg::DistanceLODPtr lod = osg::DistanceLODPtr::dcast(pOpenSGData->GetCore());
 	if(lod == osg::NullFC)
 		return false;
@@ -509,9 +508,9 @@ bool VistaOpenSGNodeBridge::SetRange
 }
 
 bool VistaOpenSGNodeBridge::GetRange
-( std::vector<float> & rangeList, IVistaNodeData * pData ) const
+( std::vector<float> & rangeList, const IVistaNodeData * pData ) const
 {
-	VistaOpenSGNodeData * pOpenSGData = static_cast<VistaOpenSGNodeData*>(pData);
+	const VistaOpenSGNodeData * pOpenSGData = static_cast<const VistaOpenSGNodeData*>(pData);
 	osg::DistanceLODPtr lod = osg::DistanceLODPtr::dcast(pOpenSGData->GetCore());
 
 	if(lod == osg::NullFC)
@@ -544,12 +543,7 @@ IVistaNodeData * VistaOpenSGNodeBridge::NewGeomNodeData( IVistaGeometryData * pD
 
 	VistaOpenSGGeometryData * pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
 
-	VistaOpenSGNodeData * pNewData = new VistaOpenSGGeomNodeData;
-	if(!pNewData)
-	{
-		printf( "Creation of VistaOpenSGGeomNodeData failed!");
-		return NULL;
-	}
+	VistaOpenSGNodeData* pNewData = new VistaOpenSGGeomNodeData;
 
 	pNewData->SetCore(pOpenSGData->GetGeometry());
 
@@ -644,7 +638,8 @@ IVistaNodeData * VistaOpenSGNodeBridge::NewLightNodeData(VISTA_LIGHTTYPE eLightT
 		}
 	default:
 		{
-			vkernerr << "[VistaOpenSGNodeBridge::NewLightNodeData] ERROR!!! Unsupported light type (" << eLightType << ")" << endl;
+			vstr::errp() << "[VistaOpenSGNodeBridge::NewLightNodeData] Unsupported light type ("
+					<< eLightType << ")" << std::endl;
 			delete pLightData;
 			pLightData = NULL;
 			return NULL;
@@ -675,7 +670,7 @@ IVistaNodeData * VistaOpenSGNodeBridge::NewLightNodeData(VISTA_LIGHTTYPE eLightT
 	//----------------------------------------------------------------------
 
 	VistaOpenSGNodeData * pRootData =
-		(VistaOpenSGNodeData*)(GetVistaSG()->GetRealRoot()->GetData());
+		(VistaOpenSGNodeData*)(GetVistaSceneGraph()->GetRealRoot()->GetData());
 	osg::NodePtr rootNode = pRootData->GetNode();
 
 	// re-parent the existing scenegraph under the light node
@@ -948,67 +943,87 @@ IVistaNodeData *VistaOpenSGNodeBridge::NewTextNodeData(IVista3DText *pT)
 /*                                                                            */
 /*============================================================================*/
 // av006ce
-IVistaNode* VistaOpenSGNodeBridge::LoadNode
-( const std::string &strFileName, float fScale,
- IVistaNodeBridge::eOptFlags flags )
+IVistaNode* VistaOpenSGNodeBridge::LoadNode( const std::string &strFileName,
+											float fScale,
+											VistaSceneGraph::eOptFlags flags,
+											const bool bVerbose )
 {
+	if( VistaFileSystemFile( strFileName ).Exists() == false )
+	{
+		vstr::warnp() << "VistaOpenSGNodeBridge::LoadNode() -- "
+				<< "Loading of model file [" << strFileName 
+				<< "] failed - file does not exist!" << std::endl;
+		return NULL;
+	}
+
 	osg::NodePtr pModel = osg::NullFC;
 
-	if(flags != IVistaNodeBridge::OPT_NONE)
+	if(flags != VistaSceneGraph::OPT_NONE)
 	{
-		vkernout << "VistaOpenSGNodeBridge::LoadNode("
-			<< strFileName << ") -- applying optimizations\n";
+		if( bVerbose )
+		{
+			vstr::outi() << "VistaOpenSGNodeBridge::LoadNode("
+				<< strFileName << ") -- applying optimizations" << std::endl;;			
+		}
 
 
 		osg::GraphOpSeq * graphOperator = new osg::GraphOpSeq;
 		// removes redundant geometry information
 		// and merges textures
 
-		if(flags & OPT_MEMORY_HIGH)
+		if(flags & VistaSceneGraph::OPT_MEMORY_HIGH)
 		{
 			graphOperator->addGraphOp(new osg::MaterialMergeGraphOp);
 			graphOperator->addGraphOp(new osg::SharePtrGraphOp);
-			vkernout << "# MEMORY (HIGH):\nMaterialMerge\nSharePtr\n";
+			if( bVerbose )
+				vstr::outi() << "# MEMORY (HIGH):\nMaterialMerge\nSharePtr" << std::endl;
+
 		}
-		else if(flags & OPT_MEMORY_LOW)
+		else if(flags & VistaSceneGraph::OPT_MEMORY_LOW)
 		{
 			graphOperator->addGraphOp(new osg::MaterialMergeGraphOp);
-			vkernout << "# MEMORY (LOW):\nMaterialMerge\n";
+			if( bVerbose )
+				vstr::outi() << "# MEMORY (LOW):\nMaterialMerge" << std::endl;
 		}
 
-		if( flags & OPT_GEOMETRY_LOW)
+		if( flags & VistaSceneGraph::OPT_GEOMETRY_LOW)
 		{
 			graphOperator->addGraphOp(new osg::MergeGraphOp);
-			vkernout << "# GEOMETRY (LOW):\nMerge\n";
+			if( bVerbose )
+				vstr::outi() << "# GEOMETRY (LOW):\nMerge" << std::endl;
 
 		}
-		else if(flags & OPT_GEOMETRY_MID)
-		{
-			graphOperator->addGraphOp(new osg::MergeGraphOp);
-			graphOperator->addGraphOp(new osg::StripeGraphOp);
-			vkernout << "# GEOMETRY (MID):\nMerge\nStripe\n";
-
-
-		}
-		else if(flags & OPT_GEOMETRY_HIGH)
+		else if(flags & VistaSceneGraph::OPT_GEOMETRY_MID)
 		{
 			graphOperator->addGraphOp(new osg::MergeGraphOp);
 			graphOperator->addGraphOp(new osg::StripeGraphOp);
-			vkernout << "# GEOMETRY (HIGH):\nMerge\nStripe\nPrune\n";
+			if( bVerbose )
+				vstr::outi() << "# GEOMETRY (MID):\nMerge\nStripe" << std::endl;
+
+
+		}
+		else if(flags & VistaSceneGraph::OPT_GEOMETRY_HIGH)
+		{
+			graphOperator->addGraphOp(new osg::MergeGraphOp);
+			graphOperator->addGraphOp(new osg::StripeGraphOp);
+			if( bVerbose )
+				vstr::outi() << "# GEOMETRY (HIGH):\nMerge\nStripe\nPrune" << std::endl;
 
 			std::string sOpts = std::string("opt_")+strFileName;
 			float nSize = 1.0f;
 			osg::PruneGraphOp::Method m = osg::PruneGraphOp::SUM_OF_DIMENSIONS;
 
-			VistaFileSystemFile f(sOpts);
-			if(f.Exists())
-			{
-				vkernout << "\tResolving PRUNE options from [" << sOpts << "]\n";
-				VistaProfiler setting;
-				nSize = setting.GetTheProfileFloat("PRUNE", "SIZE", 1.0f, sOpts);
+			VistaIniFileParser oFile;
+			if( oFile.ReadFile( sOpts ) )
+			{	
+				if( bVerbose )
+					vstr::outi() << "\tResolving PRUNE options from [" << sOpts << "]" << std::endl;
 
-				string s = setting.GetTheProfileString("PRUNE", "METHOD", "SUM_OF_DIMENSIONS", sOpts);
-				VistaAspectsConversionStuff::ConvertToLower(s);
+				nSize = oFile.GetPropertyList().GetValueInSubListOrDefault<int>( "SIZE", "PRUNE", 1 );
+
+				string s = oFile.GetPropertyList().GetValueInSubListOrDefault<std::string>(
+													"METHOD", "PRUNE", "SUM_OF_DIMENSIONS" );
+				VistaConversion::StringToLower(s);
 				if(s == "sum_of_dimensions")
 				{
 					m = osg::PruneGraphOp::SUM_OF_DIMENSIONS;
@@ -1017,13 +1032,16 @@ IVistaNode* VistaOpenSGNodeBridge::LoadNode
 				{
 					m = osg::PruneGraphOp::VOLUME;
 				}
-				vkernout << "Using: Prune.SIZE = " << nSize << endl
-					<< "and: method = " << s << "\n";
-
+				if( bVerbose )
+				{
+					vstr::outi() << "Using: Prune.SIZE = " << nSize
+						<< "\nand: method = " << s << std::endl;
+				}
 			}
 			else
 			{
-				vkernout << "Using default options (1.0f and SUM_OF_DIMENSIONS)\n";
+				if( bVerbose )
+					vstr::outi() << "Using default options (1.0f and SUM_OF_DIMENSIONS)" << std::endl;
 			}
 
 			graphOperator->addGraphOp(new osg::PruneGraphOp(nSize, m));
@@ -1031,19 +1049,22 @@ IVistaNode* VistaOpenSGNodeBridge::LoadNode
 		}
 
 
-		if(flags & OPT_CULLING)
+		if(flags & VistaSceneGraph::OPT_CULLING)
 		{
-			vkernout << "# CULLING:\nSplit\n";
+			if( bVerbose )
+				vstr::outi() << "# CULLING:\nSplit" << std::endl;
 			osg::UInt16 nSize = 1000;
 			std::string sOpts = std::string("opt_")+strFileName;
-			VistaFileSystemFile f(sOpts);
-			if(f.Exists())
+			VistaIniFileParser oFile;
+			if( oFile.ReadFile( sOpts ) )
 			{
-				vkernout << "\tResolving SPLIT options from [" << sOpts << "]\n";
-				VistaProfiler setting;
-				nSize = osg::UInt16(setting.GetTheProfileInt("SPLIT", "MAXPOLYGONS", 1000, sOpts));
+				if( bVerbose )
+					vstr::outi() << "\tResolving SPLIT options from [" << sOpts << "]" << std::endl;
+				nSize = (osg::UInt16)oFile.GetPropertyList().GetValueInSubListOrDefault<int>(
+																	"MAXPOLYGONS", "SPLIT", 1000 );
 			}
-			vkernout << "Using nSize = " << nSize << endl;
+			if( bVerbose )
+				vstr::outi() << "Using nSize = " << nSize << std::endl;
 			graphOperator->addGraphOp(new osg::SplitGraphOp("Split", nSize));
 
 		}
@@ -1063,14 +1084,17 @@ IVistaNode* VistaOpenSGNodeBridge::LoadNode
 	}
 	else
 	{
-		vkernout << "VistaOpenSGNodeBridge::LoadNode("
-			<< strFileName << ") -- applying NO optimizations (" << flags << ")\n";
+		if( bVerbose )
+		{
+			vstr::outi() << "VistaOpenSGNodeBridge::LoadNode("
+				<< strFileName << ") -- applying NO optimizations (" << flags << ")" << std::endl;
+		}
 		pModel = osg::SceneFileHandler::the().read(strFileName.c_str(),NULL);
 	}
 
 	if(pModel != osg::NullFC)
 	{
-		IVistaNode *pRet = dive(this, static_cast<VistaOpenSGGraphicsBridge*>(GetVistaSG()->GetGraphicsBridge()), pModel);
+		IVistaNode *pRet = dive(this, static_cast<VistaOpenSGGraphicsBridge*>(GetVistaSceneGraph()->GetGraphicsBridge()), pModel);
 		if(!pRet)
 			return NULL;
 
@@ -1107,64 +1131,74 @@ IVistaNode* VistaOpenSGNodeBridge::LoadNode
 	return NULL;
 }
 
-bool VistaOpenSGNodeBridge::ApplyOptimizationToNode(IVistaNode *pNode,
-		eOptFlags flags)
+bool VistaOpenSGNodeBridge::ApplyOptimizationToNode( IVistaNode *pNode,
+													VistaSceneGraph::eOptFlags eFlags,
+													const bool bVerbose )
 {
-	if(flags != IVistaNodeBridge::OPT_NONE)
+	if(eFlags != VistaSceneGraph::OPT_NONE)
 	{
-		vkernout << "VistaOpenSGNodeBridge::ApplyOptimizationToNode("
-				<< pNode->GetName() << ") -- applying optimizations\n";
+		
+		{
+			vstr::outi() << "VistaOpenSGNodeBridge::ApplyOptimizationToNode("
+					<< pNode->GetName() << ") -- applying optimizations" << std::endl;
+		}
 
 
 		osg::GraphOpSeq * graphOperator = new osg::GraphOpSeq;
 		// removes redundant geometry information
 		// and merges textures
 
-		if(flags & OPT_MEMORY_HIGH)
+		if(eFlags & VistaSceneGraph::OPT_MEMORY_HIGH)
 		{
 			graphOperator->addGraphOp(new osg::MaterialMergeGraphOp);
 			graphOperator->addGraphOp(new osg::SharePtrGraphOp);
-			vkernout << "# MEMORY (HIGH):\nMaterialMerge\nSharePtr\n";
+			if( bVerbose )
+				vstr::outi() << "# MEMORY (HIGH):\nMaterialMerge\nSharePtr" << std::endl;
 		}
-		else if(flags & OPT_MEMORY_LOW)
+		else if(eFlags & VistaSceneGraph::OPT_MEMORY_LOW)
 		{
 			graphOperator->addGraphOp(new osg::MaterialMergeGraphOp);
-			vkernout << "# MEMORY (LOW):\nMaterialMerge\n";
+			if( bVerbose )
+				vstr::outi() << "# MEMORY (LOW):\nMaterialMerge" << std::endl;
 		}
 
-		if( flags & OPT_GEOMETRY_LOW)
+		if( eFlags & VistaSceneGraph::OPT_GEOMETRY_LOW)
 		{
 			graphOperator->addGraphOp(new osg::MergeGraphOp);
-			vkernout << "# GEOMETRY (LOW):\nMerge\n";
+			if( bVerbose )
+				vstr::outi() << "# GEOMETRY (LOW):\nMerge" << std::endl;
 
 		}
-		else if(flags & OPT_GEOMETRY_MID)
-		{
-			graphOperator->addGraphOp(new osg::MergeGraphOp);
-			graphOperator->addGraphOp(new osg::StripeGraphOp);
-			vkernout << "# GEOMETRY (MID):\nMerge\nStripe\n";
-
-
-		}
-		else if(flags & OPT_GEOMETRY_HIGH)
+		else if(eFlags & VistaSceneGraph::OPT_GEOMETRY_MID)
 		{
 			graphOperator->addGraphOp(new osg::MergeGraphOp);
 			graphOperator->addGraphOp(new osg::StripeGraphOp);
-			vkernout << "# GEOMETRY (HIGH):\nMerge\nStripe\nPrune\n";
+			if( bVerbose )
+				vstr::outi() << "# GEOMETRY (MID):\nMerge\nStripe" << std::endl;
+
+
+		}
+		else if(eFlags & VistaSceneGraph::OPT_GEOMETRY_HIGH)
+		{
+			graphOperator->addGraphOp(new osg::MergeGraphOp);
+			graphOperator->addGraphOp(new osg::StripeGraphOp);
+			if( bVerbose )
+				vstr::outi() << "# GEOMETRY (HIGH):\nMerge\nStripe\nPrune" << std::endl;
 
 			std::string sOpts = std::string("opt_")+pNode->GetName();
 			float nSize = 1.0f;
 			osg::PruneGraphOp::Method m = osg::PruneGraphOp::SUM_OF_DIMENSIONS;
 
-			VistaFileSystemFile f(sOpts);
-			if(f.Exists())
+			VistaIniFileParser oFile;
+			if( oFile.ReadFile( sOpts ) )
 			{
-				vkernout << "\tResolving PRUNE options from [" << sOpts << "]\n";
-				VistaProfiler setting;
-				nSize = setting.GetTheProfileFloat("PRUNE", "SIZE", 1.0f, sOpts);
+				if( bVerbose )
+					vstr::outi() << "\tResolving PRUNE options from [" << sOpts << "]" << std::endl;
+				nSize = oFile.GetPropertyList().GetValueInSubListOrDefault<int>( "SIZE", "PRUNE", 1 );
 
-				string s = setting.GetTheProfileString("PRUNE", "METHOD", "SUM_OF_DIMENSIONS", sOpts);
-				VistaAspectsConversionStuff::ConvertToLower(s);
+				string s = oFile.GetPropertyList().GetValueInSubListOrDefault<std::string>(
+																"METHOD", "PRUNE", "SUM_OF_DIMENSIONS" );
+				VistaConversion::StringToLower(s);
 				if(s == "sum_of_dimensions")
 				{
 					m = osg::PruneGraphOp::SUM_OF_DIMENSIONS;
@@ -1173,13 +1207,16 @@ bool VistaOpenSGNodeBridge::ApplyOptimizationToNode(IVistaNode *pNode,
 				{
 					m = osg::PruneGraphOp::VOLUME;
 				}
-				vkernout << "Using: Prune.SIZE = " << nSize << endl
-						<< "and: method = " << s << "\n";
-
+				if( bVerbose )
+				{
+					vstr::outi() << "Using: Prune.SIZE = " << nSize
+						<< "\nand: method = " << s << std::endl;
+				}
 			}
 			else
 			{
-				vkernout << "Using default options (1.0f and SUM_OF_DIMENSIONS)\n";
+				if( bVerbose )
+					vstr::outi() << "Using default options (1.0f and SUM_OF_DIMENSIONS)" << std::endl;
 			}
 
 			graphOperator->addGraphOp(new osg::PruneGraphOp(nSize, m));
@@ -1187,19 +1224,22 @@ bool VistaOpenSGNodeBridge::ApplyOptimizationToNode(IVistaNode *pNode,
 		}
 
 
-		if(flags & OPT_CULLING)
+		if(eFlags & VistaSceneGraph::OPT_CULLING)
 		{
-			vkernout << "# CULLING:\nSplit\n";
+			if( bVerbose )
+				vstr::outi() << "# CULLING:\nSplit" << std::endl;
 			osg::UInt16 nSize = 1000;
 			std::string sOpts = std::string("opt_")+pNode->GetName();
-			VistaFileSystemFile f(sOpts);
-			if(f.Exists())
+			VistaIniFileParser oFile;
+			if( oFile.ReadFile( sOpts ) )
 			{
-				vkernout << "\tResolving SPLIT options from [" << sOpts << "]\n";
-				VistaProfiler setting;
-				nSize = osg::UInt16(setting.GetTheProfileInt("SPLIT", "MAXPOLYGONS", 1000, sOpts));
+				if( bVerbose )
+					vstr::outi() << "\tResolving SPLIT options from [" << sOpts << "]" << std::endl;
+				nSize = (osg::UInt16)oFile.GetPropertyList().GetValueInSubListOrDefault<int>(
+																		"MAXPOLYGONS", "SPLIT", 1000 );
 			}
-			vkernout << "Using nSize = " << nSize << endl;
+			if( bVerbose )
+				vstr::outi() << "Using nSize = " << nSize << std::endl;
 			graphOperator->addGraphOp(new osg::SplitGraphOp("Split", nSize));
 
 		}
@@ -1228,7 +1268,8 @@ bool VistaOpenSGNodeBridge::ApplyOptimizationToNode(IVistaNode *pNode,
 /*  NAME    :   VistaOpenSGNodeBridge::SaveNode                              */
 /*                                                                            */
 /*============================================================================*/
-bool VistaOpenSGNodeBridge::SaveNode(std::string strFName, VistaNode* pNode)
+bool VistaOpenSGNodeBridge::SaveNode( const std::string& strFName,
+										VistaNode* pNode)
 {
 	VistaOpenSGNodeData* pOpenSGNode = static_cast<VistaOpenSGNodeData*>(pNode->GetData());
 	return osg::SceneFileHandler::the().write( pOpenSGNode->GetNode(), strFName.c_str());
@@ -1258,9 +1299,9 @@ bool VistaOpenSGNodeBridge::SetName(const std::string & strName, IVistaNodeData*
 /*  NAME    :   GetName  av006ce                                              */
 /*                                                                            */
 /*============================================================================*/
-bool VistaOpenSGNodeBridge::GetName(std::string & strName, IVistaNodeData* pData) const
+bool VistaOpenSGNodeBridge::GetName(std::string & strName, const IVistaNodeData* pData) const
 {
-	VistaOpenSGNodeData* pOpenSGNodeData = static_cast<VistaOpenSGNodeData*>(pData);
+	const VistaOpenSGNodeData* pOpenSGNodeData = static_cast<const VistaOpenSGNodeData*>(pData);
 	const char *pcName = getName( pOpenSGNodeData->GetNode() );
 
 	strName = pcName ? std::string(pcName) : "";
@@ -1272,9 +1313,9 @@ bool VistaOpenSGNodeBridge::GetName(std::string & strName, IVistaNodeData* pData
 /*  NAME    :   GetIsEnabled                                                  */
 /*                                                                            */
 /*============================================================================*/
-bool VistaOpenSGNodeBridge::GetIsEnabled(IVistaNodeData* pData) const
+bool VistaOpenSGNodeBridge::GetIsEnabled(const IVistaNodeData* pData) const
 {
-	VistaOpenSGNodeData* pOpenSGNodeData = static_cast<VistaOpenSGNodeData*>(pData);
+	const VistaOpenSGNodeData* pOpenSGNodeData = static_cast<const VistaOpenSGNodeData*>(pData);
 	return pOpenSGNodeData->GetNode()->getActive();
 }
 
@@ -1285,7 +1326,7 @@ bool VistaOpenSGNodeBridge::GetIsEnabled(IVistaNodeData* pData) const
 /*============================================================================*/
 void VistaOpenSGNodeBridge::SetIsEnabled(bool bEnabled, IVistaNodeData* pData)
 {
-	VistaOpenSGNodeData* pOpenSGNodeData = static_cast<VistaOpenSGNodeData*>(pData);
+	const VistaOpenSGNodeData* pOpenSGNodeData = static_cast<const VistaOpenSGNodeData*>(pData);
 	beginEditCP( pOpenSGNodeData->GetNode(), osg::Node::TravMaskFieldMask );
 	pOpenSGNodeData->GetNode()->setActive( bEnabled );
 	endEditCP  ( pOpenSGNodeData->GetNode(), osg::Node::TravMaskFieldMask );
@@ -1294,52 +1335,14 @@ void VistaOpenSGNodeBridge::SetIsEnabled(bool bEnabled, IVistaNodeData* pData)
 
 /*============================================================================*/
 /*                                                                            */
-/*  NAME    :   Enable  av006ce                                               */
-/*  !DEPRECATED!                                                              */
-/*============================================================================*/
-bool VistaOpenSGNodeBridge::Enable(IVistaNodeData* pData)
-{
-	VistaOpenSGNodeData* pOpenSGNodeData = static_cast<VistaOpenSGNodeData*>(pData);
-	beginEditCP( pOpenSGNodeData->GetNode(), osg::Node::TravMaskFieldMask );
-	pOpenSGNodeData->GetNode()->setActive( true );
-	endEditCP  ( pOpenSGNodeData->GetNode(), osg::Node::TravMaskFieldMask );
-	return true;
-}
-
-/*============================================================================*/
-/*                                                                            */
-/*  NAME    :   Disable                                                       */
-/*  !DEPRECATED!                                                              */
-/*============================================================================*/
-bool VistaOpenSGNodeBridge::Disable(IVistaNodeData* pData)
-{
-	VistaOpenSGNodeData* pOpenSGNodeData = static_cast<VistaOpenSGNodeData*>(pData);
-	beginEditCP( pOpenSGNodeData->GetNode(), osg::Node::TravMaskFieldMask );
-	pOpenSGNodeData->GetNode()->setActive( false );
-	endEditCP  ( pOpenSGNodeData->GetNode(), osg::Node::TravMaskFieldMask );
-	return true;
-}
-
-/*============================================================================*/
-/*                                                                            */
-/*  NAME    :   IsEnabled                                                     */
-/*  !DEPRECATED!                                                              */
-/*============================================================================*/
-bool VistaOpenSGNodeBridge::IsEnabled(IVistaNodeData* pData) const
-{
-	VistaOpenSGNodeData* pOpenSGNodeData = static_cast<VistaOpenSGNodeData*>(pData);
-	return pOpenSGNodeData->GetNode()->getActive();
-}
-
-/*============================================================================*/
-/*                                                                            */
 /*  NAME    :   GetBoundingBox                                                */
 /*                                                                            */
 /*============================================================================*/
-bool VistaOpenSGNodeBridge::GetBoundingBox(VistaVector3D& pMin, VistaVector3D& pMax, IVistaNodeData* pData) const
+bool VistaOpenSGNodeBridge::GetBoundingBox(VistaVector3D& pMin, VistaVector3D& pMax,
+											const IVistaNodeData* pData) const
 {
 	osg::Pnt3f pMinPnt, pMaxPnt;
-	VistaOpenSGNodeData* pOpenSGNodeData = static_cast<VistaOpenSGNodeData*>(pData);
+	const VistaOpenSGNodeData* pOpenSGNodeData = static_cast<const VistaOpenSGNodeData*>(pData);
 
 	// get the local bounding box of this node.
 	// beware: transform nodes report the transformed bbox of their children here.
@@ -1361,7 +1364,7 @@ bool VistaOpenSGNodeBridge::GetBoundingBox(VistaVector3D& pMin, VistaVector3D& p
 /*  NAME    :   GetTranslation                                                */
 /*                                                                            */
 /*============================================================================*/
-bool VistaOpenSGNodeBridge::GetTranslation(VistaVector3D& pTrans, IVistaNodeData* pData) const
+bool VistaOpenSGNodeBridge::GetTranslation(VistaVector3D& pTrans, const IVistaNodeData* pData) const
 {
 
 	//VistaOpenSGNodeData* pOpenSGData = static_cast<VistaOpenSGNodeData*>(pData);
@@ -1426,7 +1429,7 @@ bool VistaOpenSGNodeBridge::SetTranslation(const VistaVector3D& oTrans, IVistaNo
 /*  NAME    :   GetRotation                                                   */
 /*                                                                            */
 /*============================================================================*/
-bool VistaOpenSGNodeBridge::GetRotation(VistaTransformMatrix& oMatrix, IVistaNodeData* pData) const
+bool VistaOpenSGNodeBridge::GetRotation(VistaTransformMatrix& oMatrix, const IVistaNodeData* pData) const
 {
 	//VistaOpenSGNodeData* pOpenSGData = static_cast<VistaOpenSGNodeData*>(pData);
 	//osg::Matrix m(pOpenSGData->GetTransform());
@@ -1465,7 +1468,7 @@ bool VistaOpenSGNodeBridge::SetRotation(const VistaTransformMatrix& pMatrix, IVi
 /*  NAME    :   GetRotation                                                   */
 /*                                                                            */
 /*============================================================================*/
-bool VistaOpenSGNodeBridge::GetRotation(VistaQuaternion& pOri, IVistaNodeData* pData) const
+bool VistaOpenSGNodeBridge::GetRotation(VistaQuaternion& pOri, const IVistaNodeData* pData) const
 {
 
 	//VistaOpenSGNodeData* pOpenSGData = static_cast<VistaOpenSGNodeData*>(pData);
@@ -1537,17 +1540,17 @@ bool VistaOpenSGNodeBridge::SetRotation(const VistaQuaternion& pOri, IVistaNodeD
 /*                                                                            */
 /*============================================================================*/
 bool VistaOpenSGNodeBridge::GetWorldTransform(VistaTransformMatrix& pTrans,
-							 IVistaNodeData* pData) const
+							 const IVistaNodeData* pData) const
 {
 	/**
 	 * @todo simply get the transform from the toolkit...as the "real-real-root"
-	 * should not be transformable at all (-> see VistaSG::Init - do we need the
+	 * should not be transformable at all (-> see VistaSceneGraph::Init - do we need the
 	 * real-root, the multiplication with
 	 * inv(modelroot-transform) should not be necessary...
 	 */
 
-	VistaOpenSGNodeData* pOpenSGData = static_cast<VistaOpenSGNodeData*>(pData);
-	VistaGroupNode *pSceneRoot = GetVistaSG()->GetRoot();
+	const VistaOpenSGNodeData* pOpenSGData = static_cast<const VistaOpenSGNodeData*>(pData);
+	VistaGroupNode *pSceneRoot = GetVistaSceneGraph()->GetRoot();
 
 	// returns the transformation that transforms local coordinates into world space
 	// old, wrong: osg::NodePtr nd = pOpenSGData->GetNode()->getParent();
@@ -1585,7 +1588,7 @@ bool VistaOpenSGNodeBridge::GetWorldTransform(VistaTransformMatrix& pTrans,
 /*                                                                            */
 /*============================================================================*/
 bool VistaOpenSGNodeBridge::GetWorldPosition( VistaVector3D& v3Pos,
-												IVistaNodeData* pData) const
+												const IVistaNodeData* pData) const
 {
 	VistaTransformMatrix m;
 	if( GetWorldTransform(m, pData) == false )
@@ -1603,7 +1606,7 @@ bool VistaOpenSGNodeBridge::GetWorldPosition( VistaVector3D& v3Pos,
 /*                                                                            */
 /*============================================================================*/
 bool VistaOpenSGNodeBridge::GetWorldOrientation( VistaQuaternion& qOri,
-											 IVistaNodeData* pData) const
+											 const IVistaNodeData* pData) const
 {
 	VistaTransformMatrix m;
 	if( GetWorldTransform(m, pData) == false )
@@ -1660,7 +1663,7 @@ bool VistaOpenSGNodeBridge::SetTransform(const VistaTransformMatrix& matrix, IVi
 /*============================================================================*/
 // av006ce eventually skip the transpose
 bool VistaOpenSGNodeBridge::GetTransform(VistaTransformMatrix& oTrans,
-					  IVistaNodeData* pData) const
+					  const IVistaNodeData* pData) const
 {
 	//VistaOpenSGNodeData* pOpenSGData = static_cast<VistaOpenSGNodeData*>(pData);
 	//osg::Matrix m( pOpenSGData->GetTransform() );
@@ -1759,17 +1762,17 @@ bool VistaOpenSGNodeBridge::Translate(const VistaVector3D& vTrans, IVistaNodeDat
 /*  NAME    :   GetTransformCore                                              */
 /*                                                                            */
 /*============================================================================*/
-osg::TransformPtr VistaOpenSGNodeBridge::GetTransformCore(IVistaNodeData *pData) const
+osg::TransformPtr VistaOpenSGNodeBridge::GetTransformCore(const IVistaNodeData *pData) const
 {
-	VistaOpenSGNodeData* pOpenSGData = static_cast<VistaOpenSGNodeData*>(pData);
+	const VistaOpenSGNodeData* pOpenSGData = static_cast<const VistaOpenSGNodeData*>(pData);
 #ifdef _DEBUG
 	osg::TransformPtr pTrans = osg::TransformPtr::dcast(pOpenSGData->GetCore());
 	if(!pTrans)
 	{
-		std::string buf;
-		GetName(buf, pData);
-		vkernerr << "GetTransformCore called on non-transform node '"
-			 << buf.c_str() << "'!" << endl;
+		std::string sName;
+		GetName( sName, pData );
+		vstr::errp() << "GetTransformCore called on non-transform node '"
+				 << sName << "'!" << std::endl;
 	}
 	return pTrans;
 #else
@@ -1783,7 +1786,7 @@ osg::TransformPtr VistaOpenSGNodeBridge::GetTransformCore(IVistaNodeData *pData)
 /*                                                                            */
 /*============================================================================*/
 bool VistaOpenSGNodeBridge::CanAddChild(IVistaNodeData* pChildData,
-					 IVistaNodeData* pData) const
+					 const IVistaNodeData* pData) const
 {
 	return true; // always succeeds in OpenSG
 }
@@ -1838,7 +1841,7 @@ bool VistaOpenSGNodeBridge::DisconnectChild(int nChildindex, IVistaNodeData* pDa
 	// ViSTA-created light-beacons are always osg::Groups, bail out otherwise
 	if(ptrChildNode->getCore()->getType() == osg::Group::getClassType())
 	{
-		osg::NodePtr ptrRealRoot = static_cast<VistaOpenSGNodeData*>(GetVistaSG()->GetRealRoot()->GetData())->GetNode();
+		osg::NodePtr ptrRealRoot = static_cast<VistaOpenSGNodeData*>(GetVistaSceneGraph()->GetRealRoot()->GetData())->GetNode();
 
 		LightOfBeaconFinder lbf;
 		osg::NodePtr ptrLightNode = lbf.find(ptrChildNode, ptrRealRoot);
@@ -1887,9 +1890,9 @@ bool VistaOpenSGNodeBridge::SetActiveChild(int i, IVistaNodeData* pData)
 /*  NAME    :   GetActiveChild                                                */
 /*                                                                            */
 /*============================================================================*/
-int VistaOpenSGNodeBridge::GetActiveChild(IVistaNodeData* pData) const
+int VistaOpenSGNodeBridge::GetActiveChild(const IVistaNodeData* pData) const
 {
-	VistaOpenSGNodeData* pOpenSGData = static_cast <VistaOpenSGNodeData*>(pData);
+	const VistaOpenSGNodeData* pOpenSGData = static_cast <const VistaOpenSGNodeData*>(pData);
 	osg::SwitchPtr pSwitch = osg::SwitchPtr::dcast(pOpenSGData->GetCore());
 	if(pSwitch == osg::NullFC)
 		return -1;
@@ -2274,9 +2277,9 @@ bool VistaOpenSGNodeBridge::SetLightDirection(VISTA_LIGHTTYPE t,
 
 bool VistaOpenSGNodeBridge::GetLightAmbientColor(VISTA_LIGHTTYPE t,
 						  float &r, float &g, float &b,
-						  IVistaNodeData *pData)
+						  const IVistaNodeData *pData) const
 {
-	VistaOpenSGLightNodeData* pOpenSGData = static_cast <VistaOpenSGLightNodeData*>(pData);
+	const VistaOpenSGLightNodeData* pOpenSGData = static_cast <const VistaOpenSGLightNodeData*>(pData);
 	bool bRet = false;
 	switch(t)
 	{
@@ -2334,10 +2337,10 @@ bool VistaOpenSGNodeBridge::GetLightAmbientColor(VISTA_LIGHTTYPE t,
 
 bool VistaOpenSGNodeBridge::GetLightDiffuseColor(VISTA_LIGHTTYPE t,
 						  float &r, float &g, float &b,
-						  IVistaNodeData *pData)
+						  const IVistaNodeData *pData) const
 {
-	VistaOpenSGLightNodeData* pOpenSGData
-		= static_cast <VistaOpenSGLightNodeData*>(pData);
+	const VistaOpenSGLightNodeData* pOpenSGData
+		= static_cast <const VistaOpenSGLightNodeData*>(pData);
 
 	bool bRet = false;
 	switch(t)
@@ -2369,10 +2372,10 @@ bool VistaOpenSGNodeBridge::GetLightDiffuseColor(VISTA_LIGHTTYPE t,
 
 bool VistaOpenSGNodeBridge::GetLightSpecularColor(VISTA_LIGHTTYPE t,
 						   float &r, float &g, float &b,
-						   IVistaNodeData *pData)
+						   const IVistaNodeData *pData) const
 {
-	VistaOpenSGLightNodeData* pOpenSGData
-		= static_cast <VistaOpenSGLightNodeData*>(pData);
+	const VistaOpenSGLightNodeData* pOpenSGData
+		= static_cast <const VistaOpenSGLightNodeData*>(pData);
 
 	bool bRet = false;
 	switch(t)
@@ -2405,10 +2408,10 @@ bool VistaOpenSGNodeBridge::GetLightSpecularColor(VISTA_LIGHTTYPE t,
 
 bool VistaOpenSGNodeBridge::GetLightAttenuation(VISTA_LIGHTTYPE t,
 												 VistaVector3D &att,
-												 IVistaNodeData *pData)
+												 const IVistaNodeData *pData) const
 {
-	VistaOpenSGLightNodeData* pOpenSGData
-		= static_cast <VistaOpenSGLightNodeData*>(pData);
+	const VistaOpenSGLightNodeData* pOpenSGData
+		= static_cast <const VistaOpenSGLightNodeData*>(pData);
 
 	bool bRet = false;
 	switch(t)
@@ -2440,10 +2443,10 @@ bool VistaOpenSGNodeBridge::GetLightAttenuation(VISTA_LIGHTTYPE t,
 
 bool VistaOpenSGNodeBridge::GetLightPosition(VISTA_LIGHTTYPE t,
 											  VistaVector3D &pos,
-											  IVistaNodeData *pData) const
+											  const IVistaNodeData *pData) const
 {
-	VistaOpenSGLightNodeData* pOpenSGData
-		= static_cast <VistaOpenSGLightNodeData*>(pData);
+	const VistaOpenSGLightNodeData* pOpenSGData
+		= static_cast <const VistaOpenSGLightNodeData*>(pData);
 
 	switch(t)
 	{
@@ -2472,10 +2475,10 @@ bool VistaOpenSGNodeBridge::GetLightPosition(VISTA_LIGHTTYPE t,
 
 bool VistaOpenSGNodeBridge::GetLightDirection(VISTA_LIGHTTYPE t,
 											   VistaVector3D &dir,
-											   IVistaNodeData *pData)
+											   const IVistaNodeData *pData) const
 {
-	VistaOpenSGLightNodeData* pOpenSGData
-		= static_cast <VistaOpenSGLightNodeData*>(pData);
+	const VistaOpenSGLightNodeData* pOpenSGData
+		= static_cast <const VistaOpenSGLightNodeData*>(pData);
 
 	switch(t)
 	{
@@ -2518,10 +2521,10 @@ bool VistaOpenSGNodeBridge::GetLightDirection(VISTA_LIGHTTYPE t,
 
 }
 
-float VistaOpenSGNodeBridge::GetLightIntensity(IVistaNodeData* pData) const
+float VistaOpenSGNodeBridge::GetLightIntensity (const IVistaNodeData* pData) const
 {
-	VistaOpenSGLightNodeData* pOpenSGData
-		= static_cast <VistaOpenSGLightNodeData*>(pData);
+	const VistaOpenSGLightNodeData* pOpenSGData
+		= static_cast <const VistaOpenSGLightNodeData*>(pData);
 
 	return pOpenSGData->m_fIntensity;
 }
@@ -2576,9 +2579,9 @@ bool  VistaOpenSGNodeBridge::SetSpotCharacter(float eCharacter, IVistaNodeData *
 
 }
 
-float VistaOpenSGNodeBridge::GetSpotCharacter(IVistaNodeData *pData) const
+float VistaOpenSGNodeBridge::GetSpotCharacter(const IVistaNodeData *pData) const
 {
-	VistaOpenSGLightNodeData* pOpenSGData = static_cast <VistaOpenSGLightNodeData*>(pData);
+	const VistaOpenSGLightNodeData* pOpenSGData = static_cast <const VistaOpenSGLightNodeData*>(pData);
 	osg::SpotLightPtr pLight
 		= osg::SpotLightPtr::dcast(pOpenSGData->GetLightCore());
 	if(pLight == osg::NullFC)
@@ -2608,10 +2611,10 @@ bool VistaOpenSGNodeBridge::SetSpotDistribution(int nExponent, IVistaNodeData *p
 	return true;
 }
 
-int VistaOpenSGNodeBridge::GetSpotDistribution(IVistaNodeData *pData)
+int VistaOpenSGNodeBridge::GetSpotDistribution(const IVistaNodeData *pData) const
 {
-	VistaOpenSGLightNodeData* pOpenSGData
-		= static_cast <VistaOpenSGLightNodeData*>(pData);
+	const VistaOpenSGLightNodeData* pOpenSGData
+		= static_cast <const VistaOpenSGLightNodeData*>(pData);
 
 	osg::SpotLightPtr pLight
 		= osg::SpotLightPtr::dcast(pOpenSGData->GetLightCore());
@@ -2627,10 +2630,10 @@ int VistaOpenSGNodeBridge::GetSpotDistribution(IVistaNodeData *pData)
 /*  NAME    :   GetLightIsEnabled                                             */
 /*                                                                            */
 /*============================================================================*/
-bool  VistaOpenSGNodeBridge::GetLightIsEnabled(IVistaNodeData *pData) const
+bool  VistaOpenSGNodeBridge::GetLightIsEnabled(const IVistaNodeData *pData) const
 {
-	VistaOpenSGLightNodeData* pOpenSGData
-		= static_cast <VistaOpenSGLightNodeData*>(pData);
+	const VistaOpenSGLightNodeData* pOpenSGData
+		= static_cast <const VistaOpenSGLightNodeData*>(pData);
 
 	OSG::LightPtr pLight
 		= OSG::LightPtr::dcast(pOpenSGData->GetLightCore());

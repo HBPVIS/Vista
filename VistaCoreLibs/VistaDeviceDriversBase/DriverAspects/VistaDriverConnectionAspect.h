@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDriverConnectionAspect.h 22228 2011-07-04 12:49:23Z dr165799 $
 
 #ifndef _VISTADRIVERCONNECTIONASPECT_H
 #define _VISTADRIVERCONNECTIONASPECT_H
@@ -80,6 +80,7 @@ public:
 	class VISTADEVICEDRIVERSAPI IVistaConnectionSequence
 	{
 	public:
+		virtual ~IVistaConnectionSequence() {}
 		/**
 		 * is called with the connection to process.
 		 * @return false if the connection is to be closed again.

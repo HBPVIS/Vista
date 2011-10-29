@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaCSVSerializer.h 22143 2011-07-01 15:07:00Z dr165799 $
 
 #ifndef _VISTACSVSERIALIZER_H
 #define _VISTACSVSERIALIZER_H
@@ -85,17 +85,6 @@ public:
 	virtual int WriteBool( bool bVal) ;
 
 	virtual int WriteString( const std::string &sString) ;
-	virtual int WriteShort16Name( const char *sVarName,  VistaType::ushort16 us16Val) ;
-	virtual int WriteInt32Name( const char *sVarName,  VistaType::sint32 si32Val) ;
-	virtual int WriteInt32Name( const char *sVarName,  VistaType::uint32 si32Val) ;
-	virtual int WriteInt64Name( const char *sVarName,  VistaType::sint64 si64Val) ;
-	virtual int WriteUInt64Name( const char *sVarName,  VistaType::uint64 si64Val) ;
-	virtual int WriteFloat32Name( const char *sVarName,  VistaType::float32 fVal) ;
-	virtual int WriteFloat64Name( const char *sVarName,  VistaType::float64 f64Val);
-	virtual int WriteDoubleName( const char *sVarName,  double ) ;
-	virtual int WriteStringName( const char *sVarName,  const std::string &) ;
-	virtual int WriteRawBufferName(const char *sVarName, const void *pBuffer, const int iLen) ;
-	virtual int WriteBoolName(const char *sVarName,  bool bVal) ;
 
 	virtual int WriteSerializable(const IVistaSerializable &obj);
 	virtual int WriteDelimitedString( const std::string &sString, char cDelim = '\0');

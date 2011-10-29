@@ -20,13 +20,12 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnGraph.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VdfnGraph.h"
 #include "VdfnNode.h"
 #include "VdfnReEvalNode.h"
 #include "VdfnPort.h"
-#include "VdfnOut.h"
 #include "VdfnActionNode.h"
 
 #include <VistaTools/VistaTopologyGraph.h>
@@ -165,7 +164,7 @@ bool VdfnGraph::EvaluateSubGraph( const NodeVec& vecSubGraph, const double nTime
 			if((*citNode)->GetIsEnabled() == false)
 				continue; // skip
 #if defined(_DEBUG)
-			vdfnerr << "[VdfnGraph::EvaluateGraph] Node [" 
+			vstr::warnp() << "[VdfnGraph::EvaluateGraph] Node [" 
 					<< (*citNode)->GetNameForNameable()
 					<< "] is not valid..." << std::endl;
 #endif
@@ -176,7 +175,7 @@ bool VdfnGraph::EvaluateSubGraph( const NodeVec& vecSubGraph, const double nTime
 			if((*citNode)->PrepareEvaluationRun() == false)
 			{
 #if defined(_DEBUG)
-				vdfnerr << "\trecover did not work... continue...\n";
+				vstr::warnp() << "recover did not work... continue..." << std::endl;
 #endif
 				(*citNode)->SetIsEnabled(false); // failed, mark disabled
 				continue;
@@ -278,7 +277,7 @@ bool VdfnGraph::ReloadActionObjects()
 		if( pActionNode == NULL )
 			continue;
 
-		if( pActionNode->PreparePorts() == false )
+		if( pActionNode->ReloadActionObject() == false )
 		{
 			pActionNode->SetIsEnabled(false);
 			continue;
@@ -389,10 +388,10 @@ bool VdfnGraph::UpdateTraversalVector()
 		{
 			std::string strUserTag;
 			(*tcit)->m_oElement->GetUserTag(strUserTag);
-			vdfnerr << "[VdfnGraph--"
+			vstr::warnp() << "[VdfnGraph--"
 				<< strUserTag
 				<< "]: PrepareEvaluationRun() on node ["
-				<< (*tcit)->m_oElement->GetNameForNameable() << "] failed to initialize.\n";
+				<< (*tcit)->m_oElement->GetNameForNameable() << "] failed to initialize." << std::endl;
 		}
 	}
 
@@ -410,8 +409,8 @@ bool VdfnGraph::UpdateTraversalVector()
 			else
 			{
 				// omit broken nodes
-				vdfnerr << "[VdfnGraph]: PrepareEvaluationRun() on node ["
-					<< (*ucit)->GetNameForNameable() << "] failed to initialize.\n";
+				vstr::warnp() << "[VdfnGraph]: PrepareEvaluationRun() on node ["
+					<< (*ucit)->GetNameForNameable() << "] failed to initialize." << std::endl;
 			}
 
 		}
@@ -533,9 +532,9 @@ void VdfnGraph::SetExports(const ExportList &liExports)
 		IVdfnNode *pNode = GetNodeByName( exp.m_strNodeName );
 		if(!pNode)
 		{
-			vdfnerr << "VdfnGraph::SetExports() -- NODE ["
-				<< exp.m_strNodeName << "] NOT FOUND -- SKIP! "
-				<< std::endl;
+			vstr::warnp()<< "VdfnGraph::SetExports() -- Node ["
+					<< exp.m_strNodeName << "] not found - skipping"
+					<< std::endl;
 			continue;
 		}
 		if( exp.m_nDirection == VdfnGraph::ExportData::INPORT )
@@ -543,18 +542,17 @@ void VdfnGraph::SetExports(const ExportList &liExports)
 			// verify on availability of inport
 			if( pNode->GetHasInPort( exp.m_strPortName ) == false )
 			{
-				vdfnerr << "VdfnGraph::SetExports() -- inport ["
-					<< exp.m_strPortName << "] NOT FOUND on node "
-					<< exp.m_strNodeName << std::endl
-					<< "the node has the following in-ports:"
-					<< std::endl;
+				vstr::warnp() << "VdfnGraph::SetExports() -- inport ["
+							<< exp.m_strPortName << "] NOT FOUND on node "
+							<< exp.m_strNodeName << std::endl;
+				vstr::warni() << "the node has the following in-ports:"
+							<< std::endl;
+				vstr::IndentObject oIndent;
 				std::list<std::string> liInPorts = pNode->GetInPortNames();
 				for( std::list<std::string>::const_iterator it = liInPorts.begin();
 					it != liInPorts.end(); ++it )
 				{
-					vdfnerr << "\t"
-						<< *it
-						<< std::endl;
+					vstr::warni()  << *it	<< std::endl;
 				}
 			}
 		}
@@ -562,7 +560,7 @@ void VdfnGraph::SetExports(const ExportList &liExports)
 		{
 			if( pNode->GetOutPort( exp.m_strPortName ) == NULL )
 			{
-				vdfnerr << "VdfnGraph::SetExports() -- outport ["
+				vstr::warnp() << "VdfnGraph::SetExports() -- outport ["
 					<< exp.m_strPortName << "] NOT FOUND on node "
 					<< exp.m_strNodeName << std::endl;
 			}

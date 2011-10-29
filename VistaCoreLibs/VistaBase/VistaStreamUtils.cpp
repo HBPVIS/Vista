@@ -25,7 +25,6 @@
 #include "VistaStreamUtils.h"
 
 #include "VistaStreamManager.h"
-#include "VistaStreams.h"
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -35,30 +34,149 @@
 /* StreamManager Singleton                                                    */
 /*============================================================================*/
 
-VistaStreamManager* s_pManager = NULL;
+VistaStreamManager* S_pManager = NULL;
 
 VistaStreamManager* vstr::GetStreamManager()
 {
-	if( s_pManager == NULL )
-		s_pManager = new VistaStreamManager;
-	return s_pManager;
+	if( S_pManager == NULL )
+		S_pManager = new VistaStreamManager;
+	return S_pManager;
 }
 void vstr::SetStreamManager( VistaStreamManager* pStreamManager,
 										const bool bDeleteOldManager )
 {
-	if( s_pManager != NULL && bDeleteOldManager )
-		delete s_pManager;
-	s_pManager = pStreamManager;
+	if( S_pManager != NULL && bDeleteOldManager )
+		delete S_pManager;
+	S_pManager = pStreamManager;
 }
 void vstr::DestroyStreamManager()
 {
-	delete s_pManager;
-	s_pManager = NULL;
+	delete S_pManager;
+	S_pManager = NULL;
 }
 std::ostream& vstr::Stream( const std::string& sName )
 {
 	return GetStreamManager()->GetStream( sName );
 }
+
+/*============================================================================*/
+/* NullStream Singleton                                                       */
+/*============================================================================*/
+
+class VistaNullOutstream : public std::ostream
+{
+private:
+	class NullBuffer : public std::streambuf
+	{
+	public:
+		NullBuffer() : std::streambuf()	{}
+		~NullBuffer()	{}
+		
+	protected:
+		virtual int_type overflow( int_type cChar )
+		{
+			return cChar;
+		}	
+	};	
+public:
+	VistaNullOutstream()
+	: std::ostream( (std::streambuf*)( new NullBuffer() ) )
+	{
+	}
+	virtual ~VistaNullOutstream() {}
+};
+
+VISTABASEAPI std::ostream& vstr::GetNullStream()
+{
+	static VistaNullOutstream S_oNullStream;
+	return S_oNullStream;
+}
+
+
+/*============================================================================*/
+/* General Streams                                                            */
+/*============================================================================*/
+
+std::ostream* S_pOutStream = &std::cout;
+std::ostream* S_pWarnStream = &std::cerr;
+std::ostream* S_pErrStream = &std::cerr;
+#ifdef DEBUG
+std::ostream* S_pDebugStream = &std::cout;
+#else
+std::ostream* S_pDebugStream = &vstr::GetNullStream();
+#endif
+
+void vstr::SetOutStream( std::ostream* oStream )
+{
+	S_pOutStream = oStream;
+}
+
+void vstr::SetWarnStream( std::ostream* oStream )
+{
+	S_pWarnStream = oStream;
+}
+
+void vstr::SetErrStream( std::ostream* oStream )
+{
+	S_pErrStream = oStream;
+}
+
+void vstr::SetDebugStream( std::ostream* oStream )
+{
+	S_pDebugStream = oStream;
+}
+
+std::ostream& vstr::out()
+{
+	return (*S_pOutStream);
+}
+
+std::ostream& vstr::warn()
+{
+	return (*S_pWarnStream);
+}
+
+std::ostream& vstr::err()
+{
+	return (*S_pErrStream);
+}
+
+std::ostream& vstr::debug()
+{
+	return (*S_pDebugStream);
+}
+
+
+std::ostream& vstr::outi()
+{
+	return (*S_pOutStream) << vstr::indent;
+}
+
+std::ostream& vstr::warni()
+{
+	return (*S_pWarnStream) << vstr::indent;
+}
+
+std::ostream& vstr::erri()
+{
+	return (*S_pErrStream) << vstr::indent;
+}
+
+std::ostream& vstr::debugi()
+{
+	return (*S_pDebugStream) << vstr::indent;
+}
+
+std::ostream& vstr::warnp()
+{
+	return (*S_pWarnStream) << vstr::indent << vstr::warnprefix;
+}
+
+std::ostream& vstr::errp()
+{
+	return (*S_pErrStream) << vstr::indent << vstr::errprefix;
+}
+
 
 /*============================================================================*/
 /* StreamManipulators                                                         */
@@ -79,124 +197,6 @@ std::ostream& vstr::formattime::operator()( std::ostream& oStream ) const
 	oStream << m_dTime;
 	oStream.precision( nCurrentPrecision );	
 	oStream.flags( oFlags );
-	return oStream;
-}
-
-vstr::color::color( const vstr::CONSOLE_COLOR iTextColor, 
-				   const vstr::CONSOLE_COLOR iBackgroundColor )
-: m_iTextColor( iTextColor )
-, m_iBackgroundColor( iBackgroundColor )
-{
-}
-
-std::ostream& vstr::color::operator()( std::ostream& oStream ) const
-{
-	if( oStream == std::cout || oStream == std::cerr )
-	{
-		vstr::SetStdConsoleTextColor( m_iTextColor );
-		vstr::SetStdConsoleBackgroundColor( m_iBackgroundColor );
-		return oStream;
-	}
-
-	VistaColorOutstream* pColorStream 
-				= dynamic_cast<VistaColorOutstream*>( &oStream );
-	if( pColorStream != NULL )
-	{
-		pColorStream->SetTextColor( m_iTextColor );
-		pColorStream->SetBackgroundColor( m_iBackgroundColor );
-		return oStream;
-	}
-
-	VistaSplitOutstream* pSplitStream
-				= dynamic_cast<VistaSplitOutstream*>( &oStream );
-	if( pSplitStream != NULL )
-	{
-		vstr::color oMani( m_iTextColor, m_iBackgroundColor );
-		for( std::vector<std::ostream*>::const_iterator 
-				itStream = pSplitStream->GetStreams().begin();
-				itStream != pSplitStream->GetStreams().end();
-				++itStream )
-		{
-			(*(*itStream)) << oMani;
-		}		
-	}
-
-	return oStream;
-}
-
-vstr::textcolor::textcolor( const vstr::CONSOLE_COLOR iTextColor )
-: m_iTextColor( iTextColor )
-{
-}
-
-std::ostream& vstr::textcolor::operator()( std::ostream& oStream ) const
-{
-	if( oStream == std::cout || oStream == std::cerr )
-	{
-		vstr::SetStdConsoleTextColor( m_iTextColor );
-		return oStream;
-	}
-
-	VistaColorOutstream* pColorStream 
-		= dynamic_cast<VistaColorOutstream*>( &oStream );
-	if( pColorStream != NULL )
-	{
-		pColorStream->SetTextColor( m_iTextColor );
-		return oStream;
-	}
-
-	VistaSplitOutstream* pSplitStream
-		= dynamic_cast<VistaSplitOutstream*>( &oStream );
-	if( pSplitStream != NULL )
-	{
-		vstr::textcolor oMani( m_iTextColor );
-		for( std::vector<std::ostream*>::const_iterator 
-			itStream = pSplitStream->GetStreams().begin();
-			itStream != pSplitStream->GetStreams().end();
-		++itStream )
-		{
-			(*(*itStream)) << oMani;
-		}		
-	}
-
-	return oStream;
-}
-
-vstr::bgcolor::bgcolor( const vstr::CONSOLE_COLOR iBackgroundColor )
-: m_iBackgroundColor( iBackgroundColor )
-{
-}
-
-std::ostream& vstr::bgcolor::operator()( std::ostream& oStream ) const
-{
-	if( oStream == std::cout || oStream == std::cerr )
-	{
-		vstr::SetStdConsoleBackgroundColor( m_iBackgroundColor );
-		return oStream;
-	}
-
-	VistaColorOutstream* pColorStream 
-		= dynamic_cast<VistaColorOutstream*>( &oStream );
-	if( pColorStream != NULL )
-	{
-		pColorStream->SetBackgroundColor( m_iBackgroundColor );
-		return oStream;
-	}
-
-	VistaSplitOutstream* pSplitStream
-		= dynamic_cast<VistaSplitOutstream*>( &oStream );
-	if( pSplitStream != NULL )
-	{
-		vstr::bgcolor oMani( m_iBackgroundColor );
-		for( std::vector<std::ostream*>::const_iterator 
-			itStream = pSplitStream->GetStreams().begin();
-			itStream != pSplitStream->GetStreams().end();
-		++itStream )
-		{
-			(*(*itStream)) << oMani;
-		}		
-	}
-
 	return oStream;
 }
 
@@ -247,7 +247,39 @@ std::ostream& vstr::framerate( std::ostream& oStream )
 	return oStream;
 }	
 
+std::ostream& vstr::indent( std::ostream& oStream )
+{
+	return ( oStream << GetStreamManager()->GetIndentation() );
+}
+std::ostream& vstr::singleindent( std::ostream& oStream )
+{
+	return ( oStream << GetStreamManager()->GetIndentationLevelString() );
+}
+std::ostream& vstr::indentpostfix( std::ostream& oStream )
+{
+	return ( oStream << GetStreamManager()->GetIndentationPrefixString() );
+}
+std::ostream& vstr::indentprefix( std::ostream& oStream )
+{
+	return ( oStream << GetStreamManager()->GetIndentationPostfixString() );
+}
+vstr::IndentObject::IndentObject()
+{
+	vstr::GetStreamManager()->AddToIndentationLevel( +1 );
+}
+vstr::IndentObject::~IndentObject()
+{
+	vstr::GetStreamManager()->AddToIndentationLevel( -1 );
+}
 
+std::ostream& vstr::warnprefix( std::ostream& oStream )
+{
+	return ( oStream << GetStreamManager()->GetWarningPrefix() );
+}
+std::ostream& vstr::errprefix( std::ostream& oStream )
+{
+	return ( oStream << GetStreamManager()->GetErrorPrefix() );
+}
 
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */

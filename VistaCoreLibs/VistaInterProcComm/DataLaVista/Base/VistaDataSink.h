@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDataSink.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef DLVISTADATASINK_H
 #define DLVISTADATASINK_H
@@ -48,23 +48,12 @@ class IDLVistaPipeComponent;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI DLVistaDataSink : public IDLVistaDataConsumer
 {
-private:
-protected:
 public:
 
-	/**
-	 *
-	 */
 	virtual ~DLVistaDataSink();
 
-	/**
-	 *
-	 */
 	virtual bool PullPacket(bool bBlock = true);
 
 	/**
@@ -115,9 +104,6 @@ public:
 	virtual void DeletePacket(IDLVistaDataPacket *);
 
 protected:
-	/**
-	 *
-	 */
 	DLVistaDataSink();
 };
 

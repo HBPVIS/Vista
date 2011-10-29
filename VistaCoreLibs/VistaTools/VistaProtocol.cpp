@@ -20,16 +20,18 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaProtocol.cpp 23279 2011-09-13 11:41:23Z dr165799 $
+// $Id$
 
 #include "VistaProtocol.h"
+
+#include <VistaBase/VistaTimer.h>
+#include "VistaEnvironment.h"
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <fstream>
 #include <iostream>
 #include <algorithm>
-
-#include "VistaEnvironment.h"
-#include "VistaToolsOut.h"
 
 #include <VistaBase/VistaTimer.h>
 #include <VistaBase/VistaTimeUtils.h>
@@ -75,12 +77,14 @@ void VistaProtocol::StartMeasureByName(const std::string & sName)
 		m_mpMeasureMap[sName] = TimeInterval(a);
 	}
 	else
-		vtoolsout << "\nVistaProtocol[<"
+	{
+		vstr::warnp() << "\nVistaProtocol[<"
 				  << m_sFileName
 				  << ">]::StartMeasureByName() :"
 				  << sName.c_str()
 				  << " is already started."
 				  << std::endl;
+	}
 }
 
 void VistaProtocol::StartMeasureByKey(int iKey)
@@ -91,12 +95,14 @@ void VistaProtocol::StartMeasureByKey(int iKey)
 		m_mpMsrMap[iKey] = TimeInterval(a);
 	}
 	else
-		vtoolsout << "\nVistaProtocol[<"
+	{
+		vstr::warnp() << "\nVistaProtocol[<"
 				  << m_sFileName
 				  << ">]::StartMeasureByKey() :["
 				  << iKey
 				  << "] is already started."
 				  << std::endl;
+	}
 }
 
 void VistaProtocol::StopMeasureByKey(int iKey)
@@ -104,23 +110,29 @@ void VistaProtocol::StopMeasureByKey(int iKey)
 	double a = m_Timer->GetSystemTime();
 	std::map<int, TimeInterval>::iterator i = m_mpMsrMap.find(iKey);
 	if(i == m_mpMsrMap.end())
-		vtoolsout << "\nVistaProtocol[<"
+	{
+		vstr::warnp() << "\nVistaProtocol[<"
 				  << m_sFileName
 				  << ">]::StopMeasureByKey(): ["
 				  << iKey
 				  << "] : No stop without start."
 				  << std::endl;
+	}
 	else
 	{
 		if(i->second.dEnd == 0)
+		{
 			i->second.dEnd = a;
+		}
 		else
-			vtoolsout << "\nVistaProtocol[<"
+		{
+			vstr::warnp() << "\nVistaProtocol[<"
 					  << m_sFileName
 					  << ">]::StopMeasureByKey(): ["
 					  << iKey
 					  << "] is already stopped."
 					  << std::endl;
+		}
 	}
 }
 
@@ -133,23 +145,29 @@ void VistaProtocol::StopMeasureByName(const std::string & sName)
 	double a = m_Timer->GetSystemTime();
 	std::map<std::string, TimeInterval>::iterator i = m_mpMeasureMap.find(sName);
 	if(i == m_mpMeasureMap.end())
-		vtoolsout << "\nVistaProtocol[<"
+	{
+		vstr::warnp() << "\nVistaProtocol[<"
 				  << m_sFileName
 				  << ">]::StopMeasureByName(): "
 				  << sName.c_str()
 				  << " : No stop without start."
 				  << std::endl;
+	}
 	else
 	{
 		if(i->second.dEnd == 0)
+		{
 			i->second.dEnd = a;
+		}
 		else
-			vtoolsout << "\nVistaProtocol[<"
+		{
+			vstr::warnp() << "\nVistaProtocol[<"
 					  << m_sFileName
 					  << ">]::StopMeasureByName(): "
 					  << sName.c_str()
 					  << " is already stopped."
 					  << std::endl;
+		}
 	}
 }
 
@@ -163,7 +181,7 @@ double VistaProtocol::GetIntervalByName(const std::string & sName)
 	std::map<std::string, TimeInterval>::const_iterator i = m_mpMeasureMap.find(sName) ;
 	if(i == m_mpMeasureMap.end())
 	{
-		vtoolsout << "\nVistaProtocol[<"
+		vstr::warnp() << "\nVistaProtocol[<"
 				  << m_sFileName
 				  << ">]::GetIntervalByName(): "
 				  << sName.c_str()
@@ -235,7 +253,7 @@ bool VistaProtocol::WriteProtocol()
 		Protocol.open(m_sFileName.c_str(), (GetOverwrite() ? std::ios::out : std::ios::app));
 		if(!Protocol.good()) // sanity check
 		{
-			vtoolsout << "VistaProtocol::WriteProtocol() -- could not open protocol file ["
+			vstr::warnp() << "VistaProtocol::WriteProtocol() -- could not open protocol file ["
 					  << m_sFileName.c_str() << "]"
 					  << std::endl;
 			return false;
@@ -319,7 +337,7 @@ bool VistaProtocol::WriteProtocol()
 	}
 	else
 	{
-		vtoolsout << "\nVistaProtocol::WriteProtocol(): No filename given for protocol-file!"
+		vstr::warnp() << "\nVistaProtocol::WriteProtocol(): No filename given for protocol-file!"
 				  << std::endl;
 		return false;
 	}

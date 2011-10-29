@@ -20,16 +20,17 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaIRManDriver.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 #include "VistaIRManDriver.h"
-
-#include <VistaDeviceDriversBase/VistaDeviceDriversOut.h>
 
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverConnectionAspect.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverMeasureHistoryAspect.h>
 #include <VistaDeviceDriversBase/VistaDeviceSensor.h>
+
 #include <VistaInterProcComm/Connections/VistaConnection.h>
+
+#include <VistaBase/VistaStreamUtils.h>
 
 
 /*============================================================================*/
@@ -97,7 +98,7 @@ bool VistaIRManDriver::Connect()
 	VistaConnection *pConnection = m_pConnectionAspect->GetConnection(0);
 	if(!pConnection)
 	{
-		vdderr << "IRMAN was not given any connection to use for connect." << std::endl;
+		vstr::warnp() << "[IRManDriver]: no connection connection given" << std::endl;
 		return false;
 	}
 
@@ -105,7 +106,7 @@ bool VistaIRManDriver::Connect()
 	{
 		if(!pConnection->Open())
 		{
-			vdderr << "IRMAN could not open connection that was given." << std::endl;
+			vstr::warnp() << "[IRManDriver]: Could not open connection" << std::endl;
 			return false;
 		}
 	}
@@ -122,13 +123,13 @@ bool VistaIRManDriver::Connect()
 	if(sResponse != "OK")
 	{
 		// deep, deep trouble ;)
-		vdderr << "IRMAN DID NOT RESPOND CORRECTLY" << std::endl;
+		vstr::warnp() << "[IRManDriver]: IRMan did not respond correctly" << std::endl;
 		pConnection->Close();
 		return false;
 	}
 	else
 	{
-		vddout << "IRMAN FOUND" << std::endl;
+		vstr::outi() << "[IRManDriver]: IRMan found" << std::endl;
 	}
 	pConnection->SetIsBlocking(false);
 #if defined(WIN32)
@@ -153,7 +154,7 @@ bool VistaIRManDriver::DoSensorUpdate( VistaType::microtime nTs )
 	if(pM == NULL)
 	{
 		MeasureStop(0);
-		vdderr << "IRMAN could not get memory to write to during call to update()" << std::endl;
+		vstr::warnp() << "[IRManDriver]: could not get memory to write to during call to update()" << std::endl;
 		return false;
 	}
 

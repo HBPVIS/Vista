@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPropertyList.cpp 21316 2011-05-16 14:01:03Z dr165799 $
+// $Id$
 
 #include "VistaPropertyList.h"
 
@@ -29,20 +29,16 @@
 #include "VistaDeSerializer.h"
 
 #include <VistaBase/VistaExceptionBase.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <cstdlib>
 #include <string>
 #include <list>
 #include <iostream>
 
-#include "VistaAspectsOut.h"
-using namespace std;
-
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
-
-static VistaProperty oNilProp;
 
 static bool ConvertPropList( const VistaPropertyList& oIn,
 							VistaPropertyList& oOut,
@@ -82,7 +78,7 @@ static bool ConvertPropList( const VistaPropertyList& oIn,
 				}
 				else
 				{
-					vasperr << "### WARNING ### [VistaPropertyList] Name clash when converting "
+					vstr::warnp() << "[VistaPropertyList] Name clash when converting "
 						<< "PropertyList to CaseInsensitive: Entries [" << (*oReturnPair.first).first
 						<< "] and [" << (*itEntry).first << "] have the same key!" << std::endl;
 				}
@@ -102,20 +98,34 @@ static bool ConvertPropList( const VistaPropertyList& oIn,
 	return true;
 }
 
+IVistaSerializer& operator<<( IVistaSerializer& oSer, const VistaPropertyList& oList )
+{
+	VistaPropertyList::SerializePropertyList( oSer, oList, "" );
+	return oSer;
+}
+
+IVistaDeSerializer& operator>>( IVistaDeSerializer& oDeSer, VistaPropertyList& oList )
+{
+	std::string sDummy;
+	VistaPropertyList::DeSerializePropertyList( oDeSer, oList, sDummy );
+	return oDeSer;
+}
+
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
 
 VistaPropertyList::VistaPropertyList( const bool bCaseSensitive )
-: std::map<std::string, VistaProperty, VistaAspectsComparisonStuff::StringCompare>( VistaAspectsComparisonStuff::StringCompare( bCaseSensitive ) )
+: std::map<std::string, VistaProperty, VistaAspectsComparisonStuff::StringLessObject>
+						( VistaAspectsComparisonStuff::StringLessObject( bCaseSensitive ) )
 , m_bIsCaseSensitive( bCaseSensitive )
 {
 }
 
 VistaPropertyList::VistaPropertyList( const VistaPropertyList& oCopy )
-: std::map<std::string, VistaProperty, VistaAspectsComparisonStuff::StringCompare>( oCopy )
+: std::map<std::string, VistaProperty, VistaAspectsComparisonStuff::StringLessObject>( oCopy )
+, m_bIsCaseSensitive( oCopy.GetIsCaseSensitive() )
 {
-
 }
 
 VistaPropertyList::~VistaPropertyList()
@@ -133,7 +143,7 @@ bool VistaPropertyList::GetIsCaseSensitive() const
 
 bool VistaPropertyList::SetIsCaseSensitive( const bool bSet,
 											const bool bConvertSubPropLists,
-											const bool bFailOnNameClash  )
+											const bool bFailOnNameClash )
 {
 	if( m_bIsCaseSensitive == bSet )
 		return true;
@@ -147,71 +157,6 @@ bool VistaPropertyList::SetIsCaseSensitive( const bool bSet,
 		return true;
 	}
 	return false;
-}
-
-
-string VistaPropertyList::GetStringValueTyped(const string &sPropName, VistaProperty::ePropType eType) const
-{
-	VistaPropertyList::const_iterator cit = find(sPropName);
-	if(cit != end())
-	{
-#if 0
-		if((*cit).second.GetPropertyType() != eType)
-			vasperr << "PropertyList::GetStringValue(" << sPropName << ") -- WARNING, "
-				 << "type mismatch (requested=["
-				 << VistaProperty::GetPropTypeName(eType) <<"], is=["
-				 << VistaProperty::GetPropTypeName((*cit).second.GetPropertyType())
-				 << "])\n";
-#endif // DEBUG
-		return (*cit).second.GetValue();
-	}
-	return "";
-}
-
-string VistaPropertyList::GetStringValue(const string &sPropName) const
-{
-	return GetStringValueTyped(sPropName, VistaProperty::PROPT_STRING);
-}
-
-int VistaPropertyList::GetIntValue(const string &sPropName) const
-{
-	string sTmp = GetStringValueTyped(sPropName, VistaProperty::PROPT_INT);
-	return VistaAspectsConversionStuff::ConvertToInt(sTmp);
-}
-
-double VistaPropertyList::GetDoubleValue(const string &sPropName) const
-{
-	string sTmp = GetStringValueTyped(sPropName, VistaProperty::PROPT_DOUBLE);
-	return VistaAspectsConversionStuff::ConvertToDouble(sTmp);
-}
-
-bool VistaPropertyList::GetBoolValue(const string &sPropName) const
-{
-	string sTmp = GetStringValueTyped(sPropName, VistaProperty::PROPT_BOOL);
-	return VistaAspectsConversionStuff::ConvertToBool(sTmp);
-}
-
-void *VistaPropertyList::GetIdValue(const string &sPropName) const
-{
-	string sTmp = GetStringValueTyped(sPropName, VistaProperty::PROPT_ID);
-	return VistaAspectsConversionStuff::ConvertToId(sTmp);
-}
-
-int VistaPropertyList::GetStringListValue(const string &sPropName, list<string> &liStrings) const
-{
-	string sTmp = GetStringValueTyped(sPropName, VistaProperty::PROPT_LIST);
-	return VistaAspectsConversionStuff::ConvertToList(sTmp, liStrings);
-}
-
-VistaPropertyList VistaPropertyList::GetPropertyListValue(const string &sPropName) const
-{
-	VistaPropertyList::const_iterator cit = find(sPropName);
-	if(cit != end())
-	{
-		const VistaProperty &prop = (*cit).second;
-		return prop.GetPropertyListValue(); // this should do
-	}
-	return VistaPropertyList();
 }
 
 int VistaPropertyList::DeSerializePropertyList(IVistaDeSerializer &rDeSer, VistaPropertyList &rPropertyList, std::string &sName)
@@ -229,7 +174,7 @@ int VistaPropertyList::DeSerializePropertyList(IVistaDeSerializer &rDeSer, Vista
 	{
 		int iKeySize, iValueSize, iType, nListSubType;
 		iKeySize = iValueSize = 0;
-		string key, value;
+		std::string key, value;
 
 		iRet += rDeSer.ReadInt32(iType);
 		if(iType == (int)VistaProperty::PROPT_PROPERTYLIST)
@@ -270,7 +215,7 @@ int VistaPropertyList::SerializePropertyList(IVistaSerializer &rSer,
 	for(VistaPropertyList::const_iterator cit = rPropertyList.begin();
 		cit != rPropertyList.end(); ++cit)
 	{
-		string key = (*cit).first;
+		std::string key = (*cit).first;
 		iRet += rSer.WriteInt32((int)(*cit).second.GetPropertyType());
 		if((*cit).second.GetPropertyType() == VistaProperty::PROPT_PROPERTYLIST)
 		{
@@ -280,50 +225,74 @@ int VistaPropertyList::SerializePropertyList(IVistaSerializer &rSer,
 		}
 		else
 		{
-			//string value = (*cit).second;
-			string value = (*cit).second.GetValue();
+			//std::string value = (*cit).second;
+			std::string sValue = (*cit).second.GetValue();
 			iRet += rSer.WriteInt32(int(key.size()));
 			iRet += rSer.WriteString(key);
-			iRet += rSer.WriteInt32(int(value.size()));
-			iRet += rSer.WriteString(value);
+			iRet += rSer.WriteInt32(int(sValue.size()));
+			iRet += rSer.WriteString(sValue);
 			iRet += rSer.WriteInt32((int)(*cit).second.GetPropertyListSubType());
 		}
 	}
 	return iRet;
 }
 
-VistaProperty VistaPropertyList::GetProperty(const string &sPropName) const
+VistaProperty VistaPropertyList::GetPropertyCopy(const std::string& sPropName) const
 {
 	VistaPropertyList::const_iterator cit = find(sPropName);
 
-	if (cit != end())
-		return (*cit).second;
-	else
-		return VistaProperty();
+	if( cit == end() )
+		VISTA_THROW( "VISTAPROPERTYLIST - REQUESTED NON_EXISTANT PROPERTY", -1 )
+	return (*cit).second;
 }
 
-VistaProperty &VistaPropertyList::GetPropertyRef(const string &sPropName)
+VistaProperty &VistaPropertyList::GetPropertyRef(const std::string& sPropName)
 {
 	VistaPropertyList::iterator it = find(sPropName);
 
-	if (it != end())
-		return (*it).second;
-	else
-		return oNilProp;
+	if( it == end() )
+		VISTA_THROW( "VISTAPROPERTYLIST - REQUESTED NON_EXISTANT PROPERTY", -1 )
+	return (*it).second;
 }
 
-const VistaProperty &VistaPropertyList::GetPropertyConstRef(const string &sPropName) const
+const VistaProperty& VistaPropertyList::GetPropertyConstRef(const std::string& sPropName) const
 {
 	VistaPropertyList::const_iterator cit = find(sPropName);
 
-	if (cit != end())
-		return (*cit).second;
-	else
-		return oNilProp;
+	if( cit == end() )
+		VISTA_THROW( "VISTAPROPERTYLIST - REQUESTED NON_EXISTANT PROPERTY", -1 )
+	return (*cit).second;
 }
 
-void VistaPropertyList::SetStringValueTyped(const string &sPropName,
-									   const string &sValue,
+VistaPropertyList VistaPropertyList::GetSubListCopy( const std::string& sPropName ) const
+{
+	VistaPropertyList::const_iterator cit = find(sPropName);
+	if( cit == end() || (*cit).second.GetPropertyType() != VistaProperty::PROPT_PROPERTYLIST )
+		VISTA_THROW( "VISTAPROPERTYLIST - REQUESTED NON_EXISTANT SUB_PROPLIST", -1 )
+	
+	return (*cit).second.GetPropertyListValue();
+}
+
+VistaPropertyList& VistaPropertyList::GetSubListRef( const std::string& sPropName )
+{
+	VistaPropertyList::iterator cit = find(sPropName);
+	if( cit == end() || (*cit).second.GetPropertyType() != VistaProperty::PROPT_PROPERTYLIST  )
+		VISTA_THROW( "VISTAPROPERTYLIST - REQUESTED NON_EXISTANT SUB_PROPLIST", -1 )
+	
+	return (*cit).second.GetPropertyListRef();
+}
+
+const VistaPropertyList& VistaPropertyList::GetSubListConstRef( const std::string& sPropName ) const
+{
+	VistaPropertyList::const_iterator cit = find(sPropName);
+	if( cit == end() || (*cit).second.GetPropertyType() != VistaProperty::PROPT_PROPERTYLIST  )
+		VISTA_THROW( "VISTAPROPERTYLIST - REQUESTED NON_EXISTANT SUB_PROPLIST", -1 )
+	
+	return (*cit).second.GetPropertyListConstRef();
+}
+
+void VistaPropertyList::SetStringValueTyped(const std::string& sPropName,
+									   const std::string &sValue,
 									   VistaProperty::ePropType eType,
 									   VistaProperty::ePropType eListType)
 {
@@ -341,43 +310,7 @@ void VistaPropertyList::SetProperty( const VistaProperty & propVal )
 	(*this)[strPropName] = propVal;
 }
 
-void VistaPropertyList::SetStringValue(const string &propName, const string &propValue)
-{
-	SetStringValueTyped(propName, propValue, VistaProperty::PROPT_STRING, VistaProperty::PROPT_NIL);
-}
-
-
-void VistaPropertyList::SetIntValue(const string &sPropName, int iPropValue)
-{
-	SetStringValueTyped(sPropName, VistaAspectsConversionStuff::ConvertToString(iPropValue),
-		VistaProperty::PROPT_INT, VistaProperty::PROPT_NIL);
-}
-
-void VistaPropertyList::SetDoubleValue(const string &sPropName, double dPropValue)
-{
-	SetStringValueTyped(sPropName, VistaAspectsConversionStuff::ConvertToString(dPropValue),
-		VistaProperty::PROPT_DOUBLE, VistaProperty::PROPT_NIL);
-}
-
-void VistaPropertyList::SetBoolValue(const string &sPropName, bool bPropValue)
-{
-	SetStringValueTyped(sPropName, (bPropValue ? "TRUE" : "FALSE"),
-		VistaProperty::PROPT_BOOL, VistaProperty::PROPT_NIL);
-}
-
-void VistaPropertyList::SetIdValue(const string &sPropName, void *pPropValue)
-{
-	SetStringValueTyped(sPropName, VistaAspectsConversionStuff::ConvertToString(pPropValue),
-		VistaProperty::PROPT_ID, VistaProperty::PROPT_NIL);
-}
-
-void VistaPropertyList::SetStringListValue(const string &sPropName, const list<string> &liStrings)
-{
-	SetStringValueTyped(sPropName, VistaAspectsConversionStuff::ConvertToString(liStrings),
-		VistaProperty::PROPT_LIST, VistaProperty::PROPT_STRING);
-}
-
-void VistaPropertyList::SetPropertyListValue(const string &sPropName, const VistaPropertyList &refList)
+void VistaPropertyList::SetPropertyListValue(const std::string& sPropName, const VistaPropertyList &refList)
 {
 	VistaProperty prop(sPropName);
 	(*this)[sPropName] = prop;
@@ -386,9 +319,16 @@ void VistaPropertyList::SetPropertyListValue(const string &sPropName, const Vist
 	refProp.SetPropertyType(VistaProperty::PROPT_PROPERTYLIST);
 }
 
-bool VistaPropertyList::HasProperty(const string &sPropName) const
+bool VistaPropertyList::HasProperty(const std::string& sPropName) const
 {
 	return find(sPropName) != end();
+}
+bool VistaPropertyList::HasSubList(const std::string& sPropName) const
+{
+	const_iterator itEntry = find( sPropName );
+	if( itEntry == end() )
+		return false;
+	return ( (*itEntry).second.GetPropertyType() == VistaProperty::PROPT_PROPERTYLIST );
 }
 
 bool VistaPropertyList::RemoveProperty(const std::string &sPropName)
@@ -402,95 +342,77 @@ bool VistaPropertyList::RemoveProperty(const std::string &sPropName)
 	return false;
 }
 
-void VistaPropertyList::PrintPropertyList(int iDepth) const
+void VistaPropertyList::Print( std::ostream& oStream, int iDepth) const
 {
-	Print(vaspout, iDepth);
-}
-
-void VistaPropertyList::Print(ostream &out, int iDepth) const
-{
-	string strPrefix;
+	std::string strPrefix;
 	for (int i=0; i<iDepth; ++i)
 		strPrefix += "  ";
 
-	for (VistaPropertyList::const_iterator cit=begin(); cit!=end(); ++cit)
+	for( VistaPropertyList::const_iterator cit = begin(); cit != end(); ++cit )
 	{
-		out << strPrefix << "[" << (*cit).second.GetNameForNameable() << "]";
+		oStream << strPrefix << "[" << (*cit).second.GetNameForNameable() << "]";
 
 
 		if ((*cit).second.GetPropertyType() == VistaProperty::PROPT_PROPERTYLIST)
 		{
-			out << " : TYPE [" << VistaProperty::GetPropTypeName( (*cit).second.GetPropertyType() ) << "]\n";
-			out << strPrefix << "### BEGIN [" << (*cit).second.GetNameForNameable() << "] ###\n";
+			oStream << " : TYPE [" << VistaProperty::GetPropTypeName( (*cit).second.GetPropertyType() ) << "]\n";
+			oStream << strPrefix << "### BEGIN [" << (*cit).second.GetNameForNameable() << "] ###\n";
 			const VistaPropertyList &refProps = (*cit).second.GetPropertyListConstRef();
-			refProps.Print(out, iDepth+1);
-			out << strPrefix << "### END [" << (*cit).second.GetNameForNameable() << "] ###\n";
+			refProps.Print(oStream, iDepth+1);
+			oStream << strPrefix << "### end [" << (*cit).second.GetNameForNameable() 
+					<< "] ###" << std::endl;
 		}
 		else
 		{
-			out << " = [" << (*cit).second.GetValue() << "] : TYPE [";
-			out << VistaProperty::GetPropTypeName( (*cit).second.GetPropertyType() ) << ", "
-				<< VistaProperty::GetPropTypeName( (*cit).second.GetPropertyListSubType() ) << "]\n";
+			oStream << " = [" << (*cit).second.GetValue() << "] : TYPE [";
+			oStream << VistaProperty::GetPropTypeName( (*cit).second.GetPropertyType() ) << ", "
+					<< VistaProperty::GetPropTypeName( (*cit).second.GetPropertyListSubType() )
+					<< "]"  << std::endl;
 		}
 	}
 }
 
-VistaPropertyList VistaPropertyList::MergePropertyLists(const VistaPropertyList &oMaster, const VistaPropertyList &oMergeIn)
+VistaPropertyList VistaPropertyList::MergePropertyLists( const VistaPropertyList& oMaster,
+														const VistaPropertyList& oMergeIn )
 {
 	VistaPropertyList oRet = oMaster;
-	for(VistaPropertyList::const_iterator cit = oMergeIn.begin(); cit != oMergeIn.end(); ++cit)
-	{
-		if((*cit).second.GetPropertyType() == VistaProperty::PROPT_PROPERTYLIST)
-		{
-			if(oMaster.HasProperty((*cit).first)
-				&& (oMaster((*cit).first).GetPropertyType() == VistaProperty::PROPT_PROPERTYLIST))
-			{
-				oRet.SetPropertyListValue((*cit).first,
-									 MergePropertyLists(
-									   oMaster((*cit).first).GetPropertyListConstRef(),
-									   (*cit).second.GetPropertyListConstRef()));
-			}
-			else
-			{
-				oRet.SetPropertyListValue((*cit).first, (*cit).second.GetPropertyListConstRef());
-			}
-		}
-		else
-		{
-			// overwrite value from oMergeIn in oMaster
-			oRet[(*cit).first] = (*cit).second;
-		}
-	}
+	oRet.MergeWith( oMergeIn );
 	return oRet;
 }
 
-bool VistaPropertyList::MergeWith(const VistaPropertyList &oMergeIn)
+bool VistaPropertyList::MergeWith( const VistaPropertyList& oMergeIn )
 {
-	for(VistaPropertyList::const_iterator cit = oMergeIn.begin(); cit != oMergeIn.end(); ++cit)
+	for( VistaPropertyList::const_iterator itProp = oMergeIn.begin(); itProp != oMergeIn.end(); ++itProp )
 	{
-	    if((*cit).second.GetPropertyType() == VistaProperty::PROPT_PROPERTYLIST)
+	    if( (*itProp).second.GetPropertyType() == VistaProperty::PROPT_PROPERTYLIST )
 	    {
-	        if(HasProperty((*cit).first)
-	            && ((*this)((*cit).first).GetPropertyType() == VistaProperty::PROPT_PROPERTYLIST))
+			VistaProperty& oProp = (*this)[(*itProp).first]; // gets existing one or creates a new one
+	        if( oProp.GetPropertyType() == VistaProperty::PROPT_PROPERTYLIST )
 	        {
-	            SetPropertyListValue((*cit).first,
-	                                 MergePropertyLists(
-	                                   (*this)((*cit).first).GetPropertyListConstRef(),
-	                                   (*cit).second.GetPropertyListConstRef()));
+				oProp.GetPropertyListRef().MergeWith( (*itProp).second.GetPropertyListConstRef() );
 	        }
 	        else
 	        {
-	            SetPropertyListValue((*cit).first, (*cit).second.GetPropertyListConstRef());
+	            SetPropertyListValue( (*itProp).first, (*itProp).second.GetPropertyListConstRef() );
 	        }
 	    }
 	    else
 	    {
 	        // overwrite value from oMergeIn in oMaster
-	        (*this)[(*cit).first] = (*cit).second;
+	        (*this)[(*itProp).first] = (*itProp).second;
 	    }
 	}
 
 	return true;
+}
+
+VistaProperty VistaPropertyList::operator()( const std::string &sName ) const
+{
+	VistaPropertyList::const_iterator itEntry = find(sName);
+	if( itEntry == end() )
+		return VistaProperty();
+	else
+		return (*itEntry).second;
 }
 
 /*============================================================================*/

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaGeometryFactory.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTAGEOMFACTORY_H
 #define _VISTAGEOMFACTORY_H
@@ -38,21 +38,21 @@
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
 
-class VistaSG;
+class VistaSceneGraph;
 class VistaColorRGB;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 /**
- * This factory needs to work properly an instance of VistaSG.
+ * This factory needs to work properly an instance of VistaSceneGraph.
  * All methods can be called without any parameters.
  */
 class VISTAKERNELAPI VistaGeometryFactory
 {
 public:
 
-	VistaGeometryFactory(VistaSG *pSG);
+	VistaGeometryFactory(VistaSceneGraph *pSG);
 	virtual ~VistaGeometryFactory();
 
 	/**
@@ -148,10 +148,10 @@ public:
 	VistaGeometry* CreateFromPropertyList( const VistaPropertyList &props );
 
 protected:
-	VistaSG* GetSG() const;
+	VistaSceneGraph* GetSG() const;
 
 private:
-	VistaSG *m_pSG;
+	VistaSceneGraph *m_pSG;
 };
 
 #endif

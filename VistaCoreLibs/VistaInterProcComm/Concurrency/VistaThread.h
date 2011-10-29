@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaThread.h 23493 2011-09-22 16:12:15Z dr165799 $
 
 #ifndef _VISTATHREAD_H
 #define _VISTATHREAD_H
@@ -51,81 +51,25 @@ class IVistaThreadImp;
 /*============================================================================*/
 
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI VistaThread : public VistaFork
 {
 public:
-
-
-	/**
-	 *
-	 */
 	VistaThread (IVistaThreadImp *pImp = NULL);
-
-
-	/**
-	 *
-	 */
 	virtual  ~VistaThread ();
 
 
-	/**
-	 *
-	 */
-	bool      Run        ();
+	bool Run();
+	bool Suspend();
+	bool IsRunning() const;
+	bool Resume();
+	bool Join();
+	bool Abort();
 
-	/**
-	 *
-	 */
-	bool      Suspend         ();
+	void SetCancelAbility(const bool bOkToCancel);
+	bool CanBeCancelled() const;
 
-
-	/**
-	 *
-	 */
-	bool      IsRunning() const;
-
-
-	/**
-	 *
-	 */
-	bool      Resume     ();
-
-	/**
-	 *
-	 */
-	bool      Join       ();
-
-
-	/**
-	 *
-	 */
-	bool      Abort       ();
-
-
-	/**
-	 *
-	 */
-	void      SetCancelAbility(const bool bOkToCancel);
-
-	/**
-	 *
-	 */
-	bool      CanBeCancelled() const;
-
-	/**
-	 *
-	 */
-	bool      SetPriority  ( const VistaPriority &inPrio );
-
-
-	/**
-	 *
-	 */
+	bool SetPriority  ( const VistaPriority &inPrio );
 	void GetPriority  (VistaPriority &) const;
-
 
 	/**
 	 * derive your own class from VistaThread and override this method
@@ -134,7 +78,6 @@ public:
 	 * this method returns, the thread is finished.
 	 */
 	virtual void ThreadBody   () = 0;
-
 
 	/**
 	 * give the processor away temporarily
@@ -155,7 +98,17 @@ public:
 	bool operator==(const VistaThread &oOther);
 
 	virtual bool GetIsFinished() const;
+	/**
+	 * returns the Id of the thread instance
+	 */
 	long GetThreadIdentity() const;
+	/**
+	 * returns the Id of the calling threat (not a specific VistaThread Instance)
+	 * Note that this Id may vary from the Id format that an Instance's GetThreadIdentity()
+	 * may return
+	 * @todo: make sure GetCallingThreadIdentity and GetThreadIdentity return same Id type
+	 */
+	static long GetCallingThreadIdentity();
 
 	/**
 	 * Sets the affinity (i.e. stickiness) of the thread to a
@@ -184,14 +137,8 @@ protected:
 	IVistaThreadImp *GetThreadImp() const;
 private:
 
-	/**
-	 *
-	 */
 	bool m_bIsRunning, m_bIsFinished;
 
-	/**
-	 *
-	 */
 	IVistaThreadImp *m_pImp;
 };
 

@@ -10,8 +10,6 @@ set( DirFiles
 	VistaDeviceDriver.cpp
 	VistaDeviceDriver.h
 	VistaDeviceDriversConfig.h
-	VistaDeviceDriversOut.cpp
-	VistaDeviceDriversOut.h
 	VistaDeviceSensor.cpp
 	VistaDeviceSensor.h
 	VistaDriverManager.cpp

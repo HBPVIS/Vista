@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaWindow.h 22143 2011-07-01 15:07:00Z dr165799 $
 
 #if !defined _VISTAWINDOW_H
 #define _VISTAWINDOW_H
@@ -62,8 +62,6 @@ class VISTAKERNELAPI VistaWindow  : public VistaDisplayEntity
 public:
 	virtual ~VistaWindow();
 
-	int GetWindowId() const;
-
 	VistaDisplay *GetDisplay() const;
 	std::string GetDisplayName() const;
 
@@ -79,16 +77,18 @@ public:
 	 * Get/set window properties. The following keys are understood:
 	 *
 	 * STEREO               -   [bool]
+	 * USE_ACCUM_BUFFER     -   [bool]
+	 * USE_STENCIL_BUFFER   -   [bool]
+	 * STEREO               -   [bool]
 	 * POSITION             -   [list of ints - 2 items]
 	 * SIZE                 -   [list of ints - 2 items]
-	 * DRAW_BORDER          -   [bool]
 	 * FULLSCREEN           -   [bool]
 	 * VSYNC                -   [set: bool] [get: int (-2: unavailable, -1: unknown, 0: disabled, 1: enabled)]
 	 * TITLE                -   [string]
 	 * DISPLAY_NAME         -   [string][read only]
 	 * NUMBER_OF_VIEWPORTS  -   [int][read only]
 	 * VIEWPORT_NAMES       -   [list of strings][read only]
-	 * VSYNC				-	[string] UNKNOWN ON OFF
+	 * WINDOW_ID		    -   [int][read only]
 	 */
 
 	class VISTAKERNELAPI VistaWindowProperties : public IVistaDisplayEntityProperties
@@ -98,6 +98,8 @@ public:
 	public:
 		enum {
 			MSG_STEREO_CHANGE = IVistaDisplayEntityProperties::MSG_LAST,
+			MSG_ACCUM_BUFFER_CHANGE,
+			MSG_STENCIL_BUFFER_CHANGE,
 			MSG_POSITION_CHANGE,
 			MSG_SIZE_CHANGE,
 			MSG_FULLSCREEN_CHANGE,
@@ -106,10 +108,16 @@ public:
 			MSG_LAST
 		};
 
-		bool  SetName(const std::string &sName);
+		bool SetName(const std::string &sName);
 
 		bool GetStereo() const;
 		bool SetStereo(const bool bStereo);
+
+		bool GetUseAccumBuffer() const;
+		bool SetUseAccumBuffer(const bool bStereo);
+
+		bool GetUseStencilBuffer() const;
+		bool SetUseStencilBuffer(const bool bStereo);
 
 		bool GetPosition(int& x, int& y) const;
 		bool SetPosition(const int x, const int y);
@@ -120,11 +128,16 @@ public:
 		bool SetFullScreen(bool bFullScreen);
 		bool GetFullScreen() const;
 
+		bool Set(bool bFullScreen);
+		bool GetFullScreenCustomResolution() const;
+
 		bool SetVSyncEnabled(bool bVSync);
 		int GetVSyncEnabled() const;
 
 		std::string GetTitle() const;
 		bool SetTitle(const std::string& strTitle);
+
+		int GetWindowId() const;
 
 		virtual std::string GetReflectionableType() const;
 

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPacketQueue.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef DLVISTAPACKETQUEUE_H
 #define DLVISTAPACKETQUEUE_H
@@ -101,9 +101,6 @@ public:
 	 */
 	IDLVistaDataPacket *GiveFreshPacket();
 
-	/**
-	 *
-	 */
 	IDLVistaDataPacket *GetPacketByIndex(int iIndex) const;
 
 	/**

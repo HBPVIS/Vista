@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaMcastIPAddress.h 22163 2011-07-03 14:11:15Z dr165799 $
 
 #ifndef _VISTAMCASTIPADDRESS_H
 #define _VISTAMCASTIPADDRESS_H
@@ -101,7 +101,7 @@ public:
 	 * all assigned ip-addresses, and undefined for unassigned addresses.
 	 * @return either "IPV4-Multicast" or "UNASSIGNED"
 	 */
-	void  GetAddressTypeString(string &sString) const;
+	void GetAddressTypeString( std::string &sString ) const;
 
 
 	/**

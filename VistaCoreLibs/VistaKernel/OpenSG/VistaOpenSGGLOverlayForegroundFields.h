@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaOpenSGGLOverlayForegroundFields.h 23493 2011-09-22 16:12:15Z dr165799 $
 
 #ifndef _VISTA_OPENSG_GLOVERLAYFOREGROUND_FIELDS_H_
 #define _VISTA_OPENSG_GLOVERLAYFOREGROUND_FIELDS_H_
@@ -32,7 +32,10 @@
 #if defined(WIN32)
 //diable warnings from OpenSG includes
 #pragma warning(push)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4189)
 #pragma warning(disable: 4231)
+#pragma warning(disable: 4267)
 #endif
 
 #include <OpenSG/OSGConfig.h>

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: OSGVistaOpenGLDrawCore.h 23493 2011-09-22 16:12:15Z dr165799 $
 #ifndef _OSGVISTAOPENGLDRAWCORE_H_
 #define _OSGVISTAOPENGLDRAWCORE_H_
 
@@ -35,7 +35,10 @@
 #ifdef WIN32
 // disable warnings from OpenSG
 #pragma warning(push)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4189)
 #pragma warning(disable: 4231)
+#pragma warning(disable: 4267)
 #endif
 #include <OpenSG/OSGConfig.h>
 #ifdef WIN32
@@ -129,6 +132,6 @@ OSG_END_NAMESPACE
 #include "OSGVistaOpenGLDrawCoreBase.inl"
 #include "OSGVistaOpenGLDrawCore.inl"
 
-#define OSGVistaOpenGLDrawCore_HEADER_CVSID "@(#)$Id$"
+#define OSGVistaOpenGLDrawCore_HEADER_CVSID "@(#)$Id: OSGVistaOpenGLDrawCore.h 23493 2011-09-22 16:12:15Z dr165799 $"
 
 #endif /* _OSGVISTAOPENGLDRAWCORE_H_ */

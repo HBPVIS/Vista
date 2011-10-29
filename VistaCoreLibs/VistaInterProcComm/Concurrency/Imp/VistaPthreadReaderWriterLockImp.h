@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPthreadReaderWriterLockImp.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #if defined(VISTA_THREADING_POSIX) && defined(_USE_PTHREAD_RWLOCK)
 

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaProperty.h 22163 2011-07-03 14:11:15Z dr165799 $
 
 #ifndef _VISTAPROPERTY_H
 #define _VISTAPROPERTY_H
@@ -62,7 +62,7 @@ class VistaPropertyList;
  *  p.SetValue("testvalue");
  *
  *  VistaProperty o("testdouble");
- *  o.SetValue(VistaAspectsConversionStuff::ConvertToString(double(3.14));
+ *  o.SetValue( VistaConversion::ToString( 3.14 ) );
  *  o.SetPropertyType(VistaProperty::PROPT_DOUBLE);
  * </verbatim>
  * <br>
@@ -76,7 +76,7 @@ public:
 
 	enum ePropType
 	{
-		PROPT_NIL=0,
+		PROPT_NIL = 0,
 		PROPT_STRING,   /**< default */
 		PROPT_INT,      /**< captures int as a std::string */
 		PROPT_BOOL,     /**< captures true/false/on/off */
@@ -125,6 +125,7 @@ public:
 	 * @return the value of this property in human-readable format.
 	 */
 	std::string GetValue() const;
+	const std::string& GetValueConstRef() const;
 
 	/**
 	 * Returns the value of this property in <emph>copy</emph>.
@@ -236,10 +237,11 @@ public:
 
 protected:
 private:
-	std::string m_sName, m_sValue;
-	ePropType       m_ePropType,
-					m_eListSubType;
-	VistaPropertyList *m_pSubProps;
+	std::string			m_sName;
+	std::string			m_sValue;
+	ePropType			m_ePropType;
+	ePropType			m_eListSubType;
+	VistaPropertyList*	m_pSubProps;
 };
 
 /*============================================================================*/

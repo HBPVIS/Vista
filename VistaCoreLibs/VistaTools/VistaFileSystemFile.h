@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaFileSystemFile.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTAFILESYSTEMFILE_H
 #define _VISTAFILESYSTEMFILE_H

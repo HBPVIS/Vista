@@ -2,6 +2,11 @@
 
 vista_adopt_version( VistaInterProcComm VistaCoreLibs )
 
+set( VISTAINTERPROCCOMM_INTERNAL_DEPENDENCIES 
+			VistaBase
+			VistaAspects )
+set( VISTAINTERPROCCOMM_INTERNAL_DEPENDENCIES ${VISTAINTERPROCCOMM_INTERNAL_DEPENDENCIES} PARENT_SCOPE )
+
 if( WIN32 )
 	add_definitions( -D_USE_WIN32_MUTEX )
 	set( LIBRARIES winmm ws2_32 )
@@ -18,8 +23,7 @@ include( "./_SourceFiles.cmake" )
 
 add_library( VistaInterProcComm ${ProjectSources} )
 target_link_libraries( VistaInterProcComm
-    VistaAspects
-    VistaTools
+    ${VISTAINTERPROCCOMM_INTERNAL_DEPENDENCIES}
 	${LIBRARIES}
 )
 

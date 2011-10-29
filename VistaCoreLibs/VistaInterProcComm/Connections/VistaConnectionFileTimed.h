@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaConnectionFileTimed.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTACONNECTIONFILETIMED_H
 #define _VISTACONNECTIONFILETIMED_H
@@ -44,24 +44,13 @@
 /*============================================================================*/
 
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI VistaConnectionFileTimed : public VistaConnectionFile
 {
 public:
-
-	/**
-	 *
-	 */
 	VistaConnectionFileTimed( const std::string & sFileName,
-				   const bool & bPulse,
-				   const float & fFrequency,
-				   const bool & bIncoming = true ) ;
-
-	/**
-	 *
-	 */
+				   const bool bPulse,
+				   const float fFrequency,
+				   const bool bIncoming = true ) ;
 	virtual ~VistaConnectionFileTimed() {};
 
 	 /**

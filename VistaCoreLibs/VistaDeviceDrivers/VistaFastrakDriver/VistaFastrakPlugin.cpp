@@ -115,3 +115,4 @@ extern "C" VISTAFASTRAKDRIVERPLUGINAPI const char *GetDeviceClassName()
 {
 	return "VISTAFASTRAK";
 }
+

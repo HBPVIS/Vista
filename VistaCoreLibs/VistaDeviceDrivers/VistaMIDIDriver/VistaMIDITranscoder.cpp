@@ -186,3 +186,5 @@ DEFTRANSCODERPLUG_FUNC_IMPORTS( TSimpleTranscoderFactoryFactory<VistaMIDIDriverT
 
 DEFTRANSCODERPLUG_CLEANUP;
 IMPTRANSCODERPLUG_CLEANUP(TSimpleTranscoderFactoryFactory<VistaMIDIDriverTranscodeFactory>)
+
+

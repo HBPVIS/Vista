@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPthreadsPriorityImp.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #if defined(VISTA_THREADING_POSIX)
 
@@ -44,25 +44,10 @@
 /*============================================================================*/
 
 
-/**
- *
- */
 class VistaPthreadsPriorityImp : public IVistaPriorityImp
 {
-private:
-protected:
-
 public:
-
-	/**
-	 *
-	 */
 	VistaPthreadsPriorityImp();
-
-
-	/**
-	 *
-	 */
 	virtual ~VistaPthreadsPriorityImp();
 };
 

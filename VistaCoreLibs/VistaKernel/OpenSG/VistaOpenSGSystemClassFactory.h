@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaOpenSGSystemClassFactory.h 23493 2011-09-22 16:12:15Z dr165799 $
 
 #ifndef _VISTAOPENSGSGSYSTEMCLASSFACTORY_H
 #define _VISTAOPENSGSGSYSTEMCLASSFACTORY_H
@@ -35,17 +35,18 @@
 #include <VistaKernel/VistaSystemClassFactory.h>
 
 #include <VistaKernel/EventManager/VistaSystemEvent.h>
-#include <VistaKernel/EventManager/VistaGraphicsEvent.h>
 
 #ifdef WIN32
 // disable warnings from OpenSG
 #pragma warning(push)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4189)
 #pragma warning(disable: 4231)
+#pragma warning(disable: 4267)
 #endif
 
 #include <OpenSG/OSGConfig.h>
 #include <OpenSG/OSGRenderAction.h>
-#include <OpenSG/OSGWebInterface.h>
 
 #ifdef WIN32
 // disable warnings from OpenSG
@@ -60,13 +61,11 @@
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
 class VistaSystemEvent;
-class VistaGraphicsEvent;
 class VistaOpenSGDisplayBridge;
 class VistaSystem;
 class VistaEventManager;
 class VistaDriverMap;
 class VistaWeightedAverageTimer;
-class IVistaWindowingToolkit;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -74,68 +73,32 @@ class IVistaWindowingToolkit;
 class VISTAKERNELAPI VistaOpenSGSystemClassFactory : public IVistaSystemClassFactory
 {
 public:
-	VistaOpenSGSystemClassFactory(VistaSystem * pViSy, int argc, char **argv);
+	VistaOpenSGSystemClassFactory( VistaSystem* pVistaSystem );
 
 	~VistaOpenSGSystemClassFactory();
 
 	virtual std::vector<IVistaSystemClassFactory::Manager> GetInitOrder() const;
 
-	virtual VistaGraphicsManager    * CreateGraphicsManager();
+	virtual VistaGraphicsManager* CreateGraphicsManager();
 
-	virtual IVistaGraphicsBridge     * CreateGraphicsBridge();
+	virtual IVistaGraphicsBridge* CreateGraphicsBridge();
 
-	virtual IVistaNodeBridge         * CreateNodeBridge();
+	virtual IVistaNodeBridge* CreateNodeBridge();
 
-	virtual VistaDisplayManager     * CreateDisplayManager();
+	virtual VistaDisplayManager* CreateDisplayManager();
 
-	virtual IVistaWindowingToolkit  * CreateWindowingToolkit( std::string );
-
-	//virtual VistaOldInteractionManager * CreateOldInteractionManager();
-	virtual VistaInteractionManager *CreateInteractionManager(VistaDriverMap *pMap);
-
-	bool Run();
-
-	void Update(void);
-
-	float GetLastFPS() const { return m_fLastFPS; }
-
-	bool GetWebInterfaceEnabled() const;
-	void SetWebInterfaceEnabled( bool bState, const unsigned int &port = 8888);
+	virtual VistaInteractionManager *CreateInteractionManager();	
 
 	void Debug(std::ostream &out, bool bVerbose = true) const;
 
-	virtual VistaType::microtime GetAvgEventLoopTime() const;
-	virtual unsigned int GetFrameCount() const;
-
-	/**
-	 * Enum to define which windowing toolkit is used
-	 */
-	enum WINDOWING_TOOLKIT
-	{
-		UNKNOWN = -1,
-		NONE	= 0,
-		GLUT
-	};
 
 private:
-	VistaSystemEvent m_oSystemEvent;
-	VistaGraphicsEvent m_oGraphicsEvent;
 	VistaSystem       *m_pVistaSystem;
-	VistaWeightedAverageTimer   *m_pAvgLoopTime, *m_pFrameRate;
 	OSG::RenderAction *m_pRenderAction;
 
 	clock_t      m_LastTime;
-	float        m_fLastFPS;
 	unsigned int m_iNumFrames;
-	long         m_lFCStoreOffset;
-
-	int			 m_iArgc;
-	char**		 m_pArgv;
-
-	osg::WebInterface *m_pWeb;
-
-	// store the used windowing toolkit as enum
-	WINDOWING_TOOLKIT  m_iWindowingToolkit;
+	long         m_lFCStoreOffset;	
 };
 
 /*============================================================================*/

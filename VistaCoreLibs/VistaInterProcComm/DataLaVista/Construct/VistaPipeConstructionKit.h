@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPipeConstructionKit.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef IDLVISTAPIPECONSTRUCTIONKIT_H
 #define IDLVISTAPIPECONSTRUCTIONKIT_H
@@ -48,9 +48,6 @@ class DLVistaCheckError;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI DLVistaPipeConstructionKit
 {
 private:

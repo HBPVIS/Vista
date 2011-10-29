@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnSamplerNode.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VdfnSamplerNode.h"
 
@@ -171,12 +171,12 @@ IVdfnNode *VdfnSamplerNodeCreate::CreateNode(const VistaPropertyList &oParams) c
 	const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
 
 	std::list<std::string> liTriggers;
-	subs.GetStringListValue( "triggerlist", liTriggers );
-
-	std::string sMode = subs.GetStringValue("mode");
+	subs.GetValue( "triggerlist", liTriggers );
+	
 	VdfnSamplerNode::eMd md = VdfnSamplerNode::MD_TRIGGER_OR;
 
-	if(sMode == "and")
+	std::string sMode;
+	if( subs.GetValue( "mode", sMode ) && sMode == "and" )
 		md = VdfnSamplerNode::MD_TRIGGER_AND;
 
 	VdfnSamplerNode *pNode = new VdfnSamplerNode(liTriggers);

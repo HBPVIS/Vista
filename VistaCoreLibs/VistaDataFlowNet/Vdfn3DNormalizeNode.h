@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: Vdfn3DNormalizeNode.h 22873 2011-08-08 10:48:52Z dr165799 $
 
 #ifndef _VDFN3DNORMALIZENODE_H
 #define _VDFN3DNORMALIZENODE_H
@@ -135,33 +135,36 @@ public:
 		Vdfn3DNormalizeNode *pNode = new Vdfn3DNormalizeNode;
         try {
             const VistaPropertyList &prams = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
-            if (prams.HasProperty("min_x")) {
-                pNode->SetMinX((float)prams.GetDoubleValue(("min_x")));
+			float fValue;
+			bool bFlipState = false;
+            if( prams.GetValue( "min_x", fValue ) ) {
+                pNode->SetMinX( fValue );
             }
-            if (prams.HasProperty("min_y")) {
-                pNode->SetMinY((float)prams.GetDoubleValue(("min_y")));
+			if( prams.GetValue( "min_y", fValue ) ) {
+                pNode->SetMinY( fValue );
             }
-            if (prams.HasProperty("min_z")) {
-                pNode->SetMinZ((float)prams.GetDoubleValue(("min_z")));
+			if( prams.GetValue( "min_z", fValue ) ) {
+                pNode->SetMinZ( fValue );
             }
-            if (prams.HasProperty("target_w")) {
-                pNode->SetTargetW((float)prams.GetDoubleValue(("target_w")));
+			if( prams.GetValue( "target_w", fValue ) ) {
+                pNode->SetTargetW( fValue );
             }
-            if (prams.HasProperty("target_h")) {
-                pNode->SetTargetH((float)prams.GetDoubleValue(("target_h")));
+			if( prams.GetValue( "target_h", fValue ) ) {
+                pNode->SetTargetH( fValue );
             }
-            if (prams.HasProperty("target_d")) {
-                pNode->SetTargetD((float)prams.GetDoubleValue(("target_d")));
+			if( prams.GetValue( "target_d", fValue ) ) {
+                pNode->SetTargetD( fValue );
             }
-            if (prams.HasProperty("flip_x")) {
-                pNode->SetFlipX(prams.GetBoolValue(("flip_x")));
+			if( prams.GetValue( "flip_x", bFlipState ) ) {
+                pNode->SetFlipX( bFlipState );
             }
-            if (prams.HasProperty("flip_y")) {
-                pNode->SetFlipY(prams.GetBoolValue(("flip_y")));
+			if( prams.GetValue( "flip_y", bFlipState ) ) {
+                pNode->SetFlipY( bFlipState );
             }
-            if (prams.HasProperty("flip_z")) {
-                pNode->SetFlipZ(prams.GetBoolValue(("flip_z")));
+			if( prams.GetValue( "flip_z", bFlipState ) ) {
+                pNode->SetFlipZ( bFlipState );
             }
+
         } catch (VistaExceptionBase &x) {
             x.PrintException();
         }

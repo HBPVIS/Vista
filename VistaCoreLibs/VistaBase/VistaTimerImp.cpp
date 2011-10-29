@@ -67,7 +67,7 @@ IVistaTimerImp::~IVistaTimerImp()
 
 IVistaTimerImp *IVistaTimerImp::GetSingleton( bool bCreateDefaultIfNull )
 {
-	if( STimerImp == NULL && bCreateDefaultIfNull )
+	if( ( STimerImp == NULL ) && bCreateDefaultIfNull )
 		SetSingleton( new VistaDefaultTimerImp );
 	return STimerImp;
 }

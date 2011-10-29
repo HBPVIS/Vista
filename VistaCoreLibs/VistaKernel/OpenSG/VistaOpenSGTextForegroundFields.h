@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaOpenSGTextForegroundFields.h 23493 2011-09-22 16:12:15Z dr165799 $
 
 #ifndef _VISTA_OPENSG_TEXTFOREGROUND_FIELDS_H_
 #define _VISTA_OPENSG_TEXTFOREGROUND_FIELDS_H_
@@ -32,7 +32,10 @@
 #ifdef WIN32
 // disable warnings from OpenSG
 #pragma warning(push)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4189)
 #pragma warning(disable: 4231)
+#pragma warning(disable: 4267)
 #endif
 
 #include <OpenSG/OSGConfig.h>

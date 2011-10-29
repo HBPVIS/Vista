@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaExplicitCallbackInterface.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTAEXPLICITCALLBACKINTERFACE_H
 #define _VISTAEXPLICITCALLBACKINTERFACE_H
@@ -44,9 +44,6 @@
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAASPECTSAPI IVistaExplicitCallbackInterface
 {
 public:

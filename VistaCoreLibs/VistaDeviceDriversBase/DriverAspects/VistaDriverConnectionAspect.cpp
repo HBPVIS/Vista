@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDriverConnectionAspect.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 #include "VistaDriverConnectionAspect.h"
 #include <VistaInterProcComm/Connections/VistaConnection.h>
@@ -128,7 +128,7 @@ unsigned int VistaDriverConnectionAspect::EnumerateRoles(std::list<std::string> 
 	{
 		liTokens.push_back((*cit)->m_strName);
 	}
-	return liTokens.size();
+	return (unsigned int)liTokens.size();
 }
 
 unsigned int VistaDriverConnectionAspect::GetIndexForRole(const std::string &sToken) const

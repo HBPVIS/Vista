@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnPort.h 21565 2011-05-26 13:22:59Z dr165799 $
 
 #ifndef _VDFNPORT_H
 #define _VDFNPORT_H
@@ -171,7 +171,7 @@ public:
 	 * @param pPort the parent port for this serializer
 	 */
 	VdfnPortSerializeAdapter(IVdfnPort *pPort);
-	~VdfnPortSerializeAdapter();
+	virtual ~VdfnPortSerializeAdapter();
 
 	/**
 	 * writes a header into the stream for the port, containing last update and
@@ -237,6 +237,8 @@ public:
 	 */
 	TVdfnPort( const T &oValue )
 		: m_oValue(oValue) {}
+
+	virtual ~TVdfnPort() {}
 
 	/**
 	 * @return the port's value on stack (may be expensive)
@@ -338,6 +340,7 @@ class TVdfnPortSerializerAdapter : public VdfnPortSerializeAdapter
 public:
 	TVdfnPortSerializerAdapter(IVdfnPort *pPort)
 		: VdfnPortSerializeAdapter(pPort) {}
+	virtual ~TVdfnPortSerializerAdapter() {};
 
 	/**
 	 * streams first the base-class stream, and then
@@ -397,6 +400,10 @@ VdfnPortSerializeAdapter *TVdfnPort<T>::GetSerializeAdapter()
 class VISTADFNAPI IVdfnPortTypeCompare
 {
 public:
+	virtual ~IVdfnPortTypeCompare()
+	{
+	}
+
 	/**
 	 * @param pPort the port to check for type matching
 	 * @return true if pPort has a comparable type to this port type compare

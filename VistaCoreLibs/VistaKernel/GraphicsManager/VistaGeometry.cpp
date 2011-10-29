@@ -20,14 +20,14 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaGeometry.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
-#include <VistaKernel/GraphicsManager/VistaGeometry.h>
-#include <VistaMath/VistaGeometries.h>
+#include "VistaGeometry.h"
 
 #include <VistaKernel/GraphicsManager/VistaGraphicsBridge.h>
-#include <VistaKernel/VistaKernelOut.h>
-//#include <VistaKernel/VistaSystem.h>
+
+#include <VistaMath/VistaGeometries.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 /*============================================================================*/
 /*  MAKROS AND DEFINES                                                        */
@@ -41,52 +41,24 @@ static const float EPSILON = 0.00001f;
 /*  CONSTRUCTORS / DESTRUCTOR                                                 */
 /*============================================================================*/
 VistaGeometry::VistaGeometry()
+: m_pBridge( NULL )
+, m_pData( NULL )
+, m_iMaterialIndex( -1 )
 {
-	m_pBridge = NULL;
-	m_pData = NULL;
-	m_iMaterialIndex = -1;
 }
 
 
 VistaGeometry::VistaGeometry(IVistaGraphicsBridge* pBridge, IVistaGeometryData* pData)
-{
-//	m_nNodeCounter = 0;
-	m_pBridge = pBridge;
-	m_pData = pData;
-	m_iMaterialIndex = -1;
+: m_pBridge( pBridge )
+, m_pData( pData )
+, m_iMaterialIndex( -1 )
+{	
 }
 
 VistaGeometry::~VistaGeometry()
 {
-//	m_nNodeCounter = 0;
-//	m_pBridge = NULL;
-//	m_iMaterialIndex = -1;
-
 	delete m_pData;
 }
-
-/*
-VistaVertex::VistaVertex()
-{
-}
-
-VistaVertex::VistaVertex(const VistaVector3D& coordinates)
- : m_coordinates(coordinates)
-{
-}
-
-VistaVertex::VistaVertex (const float& x, const float& y, const float& z)
- : m_coordinates(x, y , z)
-{}
-
-VistaVertex::VistaVertex(const float coordinates[3])
- : m_coordinates(coordinates)
-{}
-
-
-VistaVertex::~VistaVertex()
-{}
-*/
 
 VistaIndexedVertex::VistaIndexedVertex()
 {
@@ -453,9 +425,9 @@ bool VistaGeometry::SetTexture(const int width,
 		                        const int height,
 		                        const int bpp,
 		                        bool bHasAlpha,
-		                        unsigned char *data)
+		                        VistaType::byte* pData)
 {
-	if(m_pBridge->SetTexture(int(long(data)), width, height, bpp, data, bHasAlpha, m_pData))
+	if(m_pBridge->SetTexture(int(long(pData)), width, height, bpp, pData, bHasAlpha, m_pData))
 	{
 		Notify( MSG_SET_TEXTURE );
 		return true;
@@ -492,7 +464,7 @@ bool VistaGeometry::CreateIndexedGeometry(
 		const vector<VistaVector3D>& normals,
 		const vector<VistaColorRGB>& colors,
 		const VistaVertexFormat& vFormat,
-		const VistaGeometry::faceType fType)
+		const VistaGeometry::FaceType fType)
 {
 	if( m_pBridge->CreateIndexedGeometry(vertices, coords, textureCoords, normals, colors, vFormat, fType, m_pData) )
 	{
@@ -510,7 +482,7 @@ bool VistaGeometry::CreateIndexedGeometry
 		 const vector<float>& normals,
 		 const vector<VistaColorRGB>& colors,
 		 const VistaVertexFormat& vFormat,
-		 const VistaGeometry::faceType fType)
+		 const VistaGeometry::FaceType fType)
 {
 	if( m_pBridge->CreateIndexedGeometry(vertices, coords, textureCoords, normals, colors, vFormat, fType, m_pData) )
 	{
@@ -630,7 +602,7 @@ VistaVertexFormat	VistaGeometry::GetVertexFormat() const
 	return m_pBridge->GetVertexFormat(m_pData);
 }
 
-VistaGeometry::faceType	VistaGeometry::GetFaceType() const
+VistaGeometry::FaceType	VistaGeometry::GetFaceType() const
 {
 	return m_pBridge->GetFaceType(m_pData);
 }
@@ -818,7 +790,7 @@ int VistaGeometry::GetNeighbor (const int faceId, const int edgeId) const
 {
 	if(m_halfedges.empty())
 	{
-		vkernout << "[VistaGeometry] Halfedge data structure not initialized." << endl;
+		vstr::warnp() << "[VistaGeometry::GetNeighbor] Halfedge data structure not initialized." << std::endl;
 		return -1;
 	}
 
@@ -826,7 +798,7 @@ int VistaGeometry::GetNeighbor (const int faceId, const int edgeId) const
 
 	if(edgeId>2 || idx>=m_halfedges.size())
 	{
-		vkernout << "[VistaGeometry::GetNeighbor]: index out of range" << endl;
+		vstr::warnp() << "[VistaGeometry::GetNeighbor]: Index out of range" << std::endl;
 		return -1;
 	}
 
@@ -850,7 +822,7 @@ bool VistaGeometry::GetNeighbor(const int faceId, const int edgeId,
 {
 	if(m_halfedges.empty())
 	{
-		vkernout << "[VistaGeometry] Halfedge data structure not initialized." << endl;
+		vstr::warnp() << "[VistaGeometry::GetNeighbor] Halfedge data structure not initialized." << std::endl;
 		return false;
 	}
 
@@ -858,7 +830,7 @@ bool VistaGeometry::GetNeighbor(const int faceId, const int edgeId,
 
 	if(edgeId>2 || idx>=m_halfedges.size())
 	{
-		vkernout << "[VistaGeometry::GetNeighbor]: index out of range" << endl;
+		vstr::warnp() << "[VistaGeometry::GetNeighbor]: index out of range" << std::endl;
 		return false;
 	}
 
@@ -889,7 +861,7 @@ bool VistaGeometry::GetNeighbors(const int faceId, int neighbors[3]) const
 {
 	if (m_halfedges.empty())
 	{
-		vkernout << "[VistaGeometry] Halfedge data structure not initialized." << endl;
+		vstr::warnp() << "[VistaGeometry::GetNeighbor()] Halfedge data structure not initialized." << std::endl;
 		return false;
 	}
 
@@ -897,7 +869,7 @@ bool VistaGeometry::GetNeighbors(const int faceId, int neighbors[3]) const
 
 	if(idx+2>=m_halfedges.size())
 	{
-		vkernout << "[VistaGeometry::GetNeighbor]: index out of range" << endl;
+		vstr::warnp() << "[VistaGeometry::GetNeighbor]: index out of range" << std::endl;
 		return false;
 	}
 
@@ -1169,22 +1141,6 @@ bool VistaGeometry::DeleteVertex(const int vertexId)
 bool VistaGeometry::IsConsistent() const
 {
 	return true;
-}
-
-bool VistaGeometry::BeginEdit()
-{
-	return m_pBridge->BeginEdit(m_pData);
-}
-
-bool VistaGeometry::EndEdit(bool consistencyCheck)
-{
-	if(!m_pBridge->EndEdit(m_pData))
-		return false;
-
-	if(consistencyCheck)
-		return IsConsistent();
-	else
-		return true;
 }
 
 // ============================================================================

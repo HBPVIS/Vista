@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaSpaceMouseDriver.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 #include "VistaSpaceMouseDriver.h"
 #include "VistaSpaceMouseCommonShare.h"
@@ -74,6 +74,17 @@ public:
 
 	VistaSpaceMouseDriver *m_pDriver;
 };
+
+namespace
+{
+	static char SCodeTable[16] =
+	{
+		'0','A','B','3',
+		'D','5','6','G',
+		'H','9',':','K',
+		'<','M','N','?'
+	};
+}
 
 
 /*============================================================================*/
@@ -159,7 +170,7 @@ bool VistaSpaceMouseDriver::DoSensorUpdate(VistaType::microtime dTs)
 	// received
 	//cout << "c: " << ucRead << endl;
 
-	float fRawRotAxis[3];
+	float fRawRotAxis[3] = { 0, 0, 0 };
 
 	switch(ucRead[0])
 	{
@@ -289,13 +300,15 @@ bool VistaSpaceMouseDriver::CmdSetNullRadius(int nRadius)
 bool VistaSpaceMouseDriver::CmdReset(void)
 {
 	unsigned char cResetCommand[]="\rz\rz\r";
-	return m_pConnection->SendCommand(0, cResetCommand,strlen((char*)cResetCommand), 300);
+	return m_pConnection->SendCommand(0, cResetCommand, 
+							(unsigned int)strlen((char*)cResetCommand), 300);
 }
 
 bool VistaSpaceMouseDriver::CmdGetDeviceName(std::string &sName)
 {
 	unsigned char cDeviceCommand[]="\r\rvQ\r";
-	bool bResult = m_pConnection->SendCommand(0, cDeviceCommand,strlen((char*)cDeviceCommand), 1000);
+	bool bResult = m_pConnection->SendCommand(0, cDeviceCommand, 
+								(unsigned int)strlen((char*)cDeviceCommand), 1000);
 
 	if(!bResult)
 		return false;
@@ -321,14 +334,14 @@ unsigned char VistaSpaceMouseDriver::EncodeValue(unsigned int nValue)
 	if(nValue>15)	// Value out of bounds
 		return 0;
 
-	return VistaSpaceMouseMeasures::SCodeTable[nValue];
+	return SCodeTable[nValue];
 }
 
 unsigned int VistaSpaceMouseDriver::DecodeValue(unsigned char cKey)
 {
 	for(register unsigned int i=0;i<16;++i)
 	{
-		if(VistaSpaceMouseMeasures::SCodeTable[i]==cKey)
+		if(SCodeTable[i]==cKey)
 			return i;
 	}
 	return 0;

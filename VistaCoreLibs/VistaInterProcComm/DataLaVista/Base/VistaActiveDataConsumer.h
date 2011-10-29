@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaActiveDataConsumer.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef DLVISTAACTIVEDATACONSUMER_H
 #define DLVISTAACTIVEDATACONSUMER_H
@@ -51,19 +51,6 @@ class VistaThreadLoop;
 
 class VISTAINTERPROCCOMMAPI DLVistaActiveDataConsumer : public IDLVistaDataConsumer, public IDLVistaActiveComponent
 {
-private:
-	/**
-	 * An instance of a thread that defines the pulse for this component.
-	 */
-	VistaThreadLoop *m_pThreadLoop;
-
-
-	/**
-	 *
-	 */
-	IDLVistaDataConsumer *m_pRealConsumer;
-
-protected:
 public:
 
 	/**
@@ -77,54 +64,24 @@ public:
 	 */
 	~DLVistaActiveDataConsumer();
 
-	/**
-	 *
-	 */
 	bool StartComponent();
 
-	/**
-	 *
-	 */
 	bool IsComponentRunning() const;
 
-	/**
-	 *
-	 */
 	bool IsComponentPausing() const;
 
-	/**
-	 *
-	 */
 	bool StopComponentGently(bool bJoin);
 
-	/**
-	 *
-	 */
 	bool PauseComponent(bool bJoin);
 
-	/**
-	 *
-	 */
 	bool UnPauseComponent(bool bJoin);
 
-	/**
-	 *
-	 */
 	bool StopComponent(bool bJoin);
 
-	/**
-	 *
-	 */
 	bool HaltComponent();
 
-	/**
-	 *
-	 */
 	void SetThreadName(const std::string& strName);
 
-	/**
-	 *
-	 */
 	std::string GetThreadName() const;
 
 	/**
@@ -162,29 +119,14 @@ public:
 	 * @return true iff the component was started successfully.
 	 */
 
-	/**
-	 *
-	 */
 	virtual bool AcceptDataPacket(IDLVistaDataPacket *pPacket, IDLVistaPipeComponent *pSender, bool bBlock=false) ;
-	/**
-	 *
-	 */
 	virtual bool RecycleDataPacket(IDLVistaDataPacket *pPacket, IDLVistaPipeComponent *pSender, bool bBlock=false) ;
 
-	/**
-	 *
-	 */
 	virtual bool IsDataProducer() const;
 
-	/**
-	 *
-	 */
 	virtual bool IsDataConsumer() const;
 
 
-	/**
-	 *
-	 */
 	virtual IDLVistaDataPacket *GivePacket(bool bBlock) ;
 	virtual bool InitPacketMgmt();
 
@@ -207,44 +149,20 @@ public:
 
 	virtual bool IsInputComponent(IDLVistaPipeComponent *pComp) const;
 
-	/**
-	 *
-	 */
 	virtual bool AttachInputComponent(IDLVistaPipeComponent *pComp);
 
-	/**
-	 *
-	 */
 	virtual bool AttachOutputComponent(IDLVistaPipeComponent *pComp);
 
-	/**
-	 *
-	 */
 	virtual bool DetachInputComponent(IDLVistaPipeComponent *pComp);
 
-	/**
-	 *
-	 */
 	virtual bool DetachOutputComponent(IDLVistaPipeComponent *pComp);
 
-   /**
-	 *
-	 */
 	virtual IDLVistaPipeComponent *GetOutboundByIndex(int iIndex) const;
 
-	/**
-	 *
-	 */
 	virtual IDLVistaPipeComponent *GetInboundByIndex(int iIndex) const;
 
-	/**
-	 *
-	 */
 	virtual int GetNumberOfOutbounds() const;
 
-	/**
-	 *
-	 */
 	virtual int GetNumberOfInbounds() const;
 
 
@@ -253,6 +171,14 @@ public:
 
 	virtual std::list<IDLVistaPipeComponent *> GetInputComponents() const;
 	virtual std::list<IDLVistaPipeComponent *> GetOutputComponents() const;
+
+private:
+	/**
+	 * An instance of a thread that defines the pulse for this component.
+	 */
+	VistaThreadLoop *m_pThreadLoop;
+
+	IDLVistaDataConsumer *m_pRealConsumer;
 };
 
 

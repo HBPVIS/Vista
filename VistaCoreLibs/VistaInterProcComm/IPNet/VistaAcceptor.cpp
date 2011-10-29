@@ -20,8 +20,14 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaAcceptor.cpp 21315 2011-05-16 13:47:39Z dr165799 $
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+// $Id$
+
+#include "VistaAcceptor.h"
+#include "VistaTCPServerSocket.h"
+#include <VistaInterProcComm/Concurrency/VistaThreadEvent.h>
+
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #if defined(WIN32)
 #pragma warning(disable: 4996)
@@ -42,10 +48,7 @@
 
 #endif
 
-#include "VistaAcceptor.h"
-#include <VistaInterProcComm/Concurrency/VistaThreadEvent.h>
 
-#include "VistaTCPServerSocket.h"
 
 #include <vector>
 #include <deque>
@@ -129,7 +132,8 @@ void IVistaAcceptor::DefinedThreadWork()
 	char buffer[256];
 	sprintf(buffer, "%d", m_iInterfacePort);
 
-	vipcout << ("[ViMsgP]: Created Message Port ["+m_sInterfaceName+", "+string(buffer)+"]\n");
+	vstr::outi() << "[ViMsgP]: Created Message Port ["	<< m_sInterfaceName
+				<< ", " << string(buffer)<< "]" << std::endl;
 
 	eSockState eSock = SOCK_NONE;
 
@@ -255,13 +259,14 @@ void IVistaAcceptor::DefinedThreadWork()
 		}
 	case SOCK_EXIT:
 		{
-			vipcout << "[VMsgP]: Received Exit signal.\n";
+			vstr::outi() << "[VMsgP]: Received Exit signal." << std::endl;
 			HandleAbortMessage();
 			break;
 		}
 	default:
 		{
-			vipcout << "[VMsgP]: Received some unknown signal (Error?: " << eSock << ").\n";
+			vstr::outi() << "[VMsgP]: Received some unknown signal (Error?: " 
+				<< eSock << ")" << std::endl;
 		}
 		break;
 	}

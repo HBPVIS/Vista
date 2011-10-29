@@ -24,8 +24,6 @@
 
 #include "VistaPhantomServerDriver.h"
 
-#include <VistaDeviceDriversBase/VistaDeviceDriversOut.h>
-
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverConnectionAspect.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverMeasureHistoryAspect.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverWorkspaceAspect.h>
@@ -36,6 +34,7 @@
 #include <VistaInterProcComm/Connections/VistaByteBufferSerializer.h>
 
 #include <VistaBase/VistaExceptionBase.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <iostream>
 using namespace std;
@@ -92,3 +91,4 @@ extern "C" VISTAPHANTOMSERVERPLUGINAPI const char *GetDeviceClassName()
 {
 	return "PHANTOMSERVER";
 }
+

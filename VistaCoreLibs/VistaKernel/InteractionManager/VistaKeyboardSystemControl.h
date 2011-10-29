@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaKeyboardSystemControl.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTAKEYBOARDSYSTEMCONTROL_H
 #define _VISTAKEYBOARDSYSTEMCONTROL_H

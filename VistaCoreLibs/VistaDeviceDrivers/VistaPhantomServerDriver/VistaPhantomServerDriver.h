@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPhantomServerDriver.h 23044 2011-08-23 14:22:37Z dr165799 $
 
 #ifndef _VISTAPHANTOMSERVERDRIVER_H
 #define _VISTAPHANTOMSERVERDRIVER_H
@@ -102,6 +102,7 @@ public:
 	public:
 		virtual bool SetForce( const VistaVector3D   & force,
 							   const VistaVector3D &angularForce );
+		using IVistaDriverForceFeedbackAspect::SetForce; //to make overload available
 
 		bool SetConstraint( const VistaVector3D		& contactPoint,
 									const VistaVector3D	& normal,

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDfnClusterNodeInfoNode.h 22143 2011-07-01 15:07:00Z dr165799 $
 
 #ifndef _VISTADFNCLUSTERNODEINFONODE_H
 #define _VISTADFNCLUSTERNODEINFONODE_H
@@ -47,14 +47,14 @@
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
 
-class VistaClusterAux;
+class VistaClusterMode;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
 /**
- * This node take the information given in VistaClusterAux and passes it to
+ * This node take the information given in VistaClusterMode and passes it to
  * the network. Can be useful for per-client logfiles in cluster mode or more
  * debugging.
  * The node is always evaluated, but tries to be calm on resources, basically
@@ -66,17 +66,16 @@ class VistaClusterAux;
 class VISTAKERNELAPI VdfnClusterNodeInfoNode : public IVdfnNode
 {
 public:
-	VdfnClusterNodeInfoNode( VistaClusterAux *pClAux );
+	VdfnClusterNodeInfoNode( VistaClusterMode *pClAux );
 	virtual ~VdfnClusterNodeInfoNode();
 
 protected:
 	bool DoEvalNode();
 private:
-	VistaClusterAux *m_pAux;
-	TVdfnPort<std::string> *m_pClusterNodeName;
-	TVdfnPort<int>         *m_pClusterMode;
-	TVdfnPort<double>      *m_pClusterClock;
-	TVdfnPort<VistaType::microtime>   *m_pAvgUpdate, *m_pAvgSwap;
+	VistaClusterMode*			m_pClusterMode;
+	TVdfnPort<std::string>*		m_pClusterNodeName;
+	TVdfnPort<std::string>*		m_pClusterNodeType;
+	TVdfnPort<double>*			m_pClusterClock;
 };
 
 /*============================================================================*/

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPropertyAwareable.h 22163 2011-07-03 14:11:15Z dr165799 $
 
 #ifndef _VISTAPROPERTYAWAREABLE_H
 #define _VISTAPROPERTYAWAREABLE_H
@@ -31,9 +31,10 @@
 #include "VistaAspectsConfig.h"
 
 #include <VistaAspects/VistaAspectsUtils.h>
-#include <VistaAspects/VistaAspectsOut.h>
 #include <VistaAspects/VistaProperty.h>
 #include <VistaAspects/VistaPropertyList.h>
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <string>
 

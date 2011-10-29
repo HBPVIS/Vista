@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPosixSemaphoreImp.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #if defined(VISTA_THREADING_POSIX)
 
@@ -50,36 +50,26 @@ class VistaPosixSemaphoreImp : public IVistaSemaphoreImp
 {
 public:
 	VistaPosixSemaphoreImp(int nCount);
-	virtual ~VistaPosixSemaphoreImp();
-
-	// if semaphore value is > 0 then decrement it and carry on. If it's
-	// already 0 then block.
+	virtual ~VistaPosixSemaphoreImp();	
 
 	/**
-	 *
+	 * if semaphore value is > 0 then decrement it and carry on. If it's
+	 * already 0 then block.
 	 */
 	virtual void Wait    ();
 
-
-	// if semaphore value is > 0 then decrement it and return true.
-	// If it's already 0 then return false.
-
 	/**
-	 *
+	 * if semaphore value is > 0 then decrement it and return true.
+	 * If it's already 0 then return false.
 	 */
 	virtual bool TryWait ();
 
-
-	// if any threads are blocked in wait(), wake one of them up. Otherwise
-	// increment the value of the semaphore.
-
 	/**
-	 *
+	 * if any threads are blocked in wait(), wake one of them up. Otherwise
+	 * increment the value of the semaphore.
 	 */
 	virtual void Post    ();
 
-
-protected:
 private:
 	sem_t *m_pSemaphore;
 };

@@ -2,6 +2,11 @@
 
 vista_adopt_version( VistaAspects VistaCoreLibs )
 
+# set our dependencies to other corelibs
+set( VISTAASPECTS_INTERNAL_DEPENDENCIES 
+				VistaBase )
+set( VISTAASPECTS_INTERNAL_DEPENDENCIES ${VISTAASPECTS_INTERNAL_DEPENDENCIES} PARENT_SCOPE )
+
 if( UNIX AND NOT APPLE )
 	set( LIBRARIES rt )
 endif( UNIX AND NOT APPLE )
@@ -10,7 +15,7 @@ include( "./_SourceFiles.cmake" )
 
 add_library( VistaAspects ${ProjectSources} )
 target_link_libraries( VistaAspects
-	VistaBase
+	${VISTAASPECTS_INTERNAL_DEPENDENCIES}
 	${LIBRARIES}
 )
 

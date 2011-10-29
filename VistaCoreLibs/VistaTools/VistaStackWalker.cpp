@@ -49,7 +49,7 @@
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
-const static unsigned long long int VISTA_STACKWALK_MAX_NAMELENGTH = 2048;
+const static int VISTA_STACKWALK_MAX_NAMELENGTH = 2048;
 
 #ifdef WIN32
 // WINDOWS IMPLEMENTATION
@@ -148,7 +148,7 @@ namespace
 		{
 			oEntry.m_sFilename = "<unknown>";
 			oEntry.m_sFunctionName = "<unknown>";
-			oEntry.m_iLineNumber = -1;
+			oEntry.m_iLineNumber = ~0;
 		}
 
 		//Reached last StackEntry
@@ -424,14 +424,14 @@ bool VistaStackWalker::GetCallstack( std::vector<VistaStackWalker::CallStackEntr
 		}
 		else
 		{
-		//Extract Filename and LineNqumber from String.
-
+			//Extract Filename and LineNqumber from String.
 			long int iDelimeter;
 			iDelimeter = 0;
-			while((cFileNameLine[iDelimeter]!=':') && (iDelimeter < VISTA_STACKWALK_MAX_NAMELENGTH-1))
-				{
-					++iDelimeter;
-				}
+			while( ( cFileNameLine[iDelimeter] != ':' ) 
+				&& ( iDelimeter < VISTA_STACKWALK_MAX_NAMELENGTH - 1 ) )
+			{
+				++iDelimeter;
+			}
 		
 			fCSEntry.m_sFilename.assign(cFileNameLine);
 			fCSEntry.m_sFilename.assign(cFileNameLine,iDelimeter);
@@ -439,9 +439,9 @@ bool VistaStackWalker::GetCallstack( std::vector<VistaStackWalker::CallStackEntr
 			long int iEnd;
 			iEnd = iDelimeter+1;
 			while((cFileNameLine[iEnd]!='\0') && (iEnd < VISTA_STACKWALK_MAX_NAMELENGTH-1))
-				{
-					++iEnd;
-				}
+			{
+				++iEnd;
+			}
 
 			std::string sTemp;
 			sTemp.assign(cFileNameLine,iDelimeter+1,iEnd-iDelimeter-2);

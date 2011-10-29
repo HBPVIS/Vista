@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaGraphicsBridge.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaGraphicsBridge.h"
 
@@ -45,9 +45,10 @@ IVistaGraphicsBridge::~IVistaGraphicsBridge()
 /*============================================================================*/
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
-VistaGeometry* IVistaGraphicsBridge::NewGeometry(IVistaGeometryData* pData)
+
+VistaGeometry* IVistaGraphicsBridge::NewGeometry( IVistaGeometryData* pData )
 {
-	return new VistaGeometry(this,pData);
+	return new VistaGeometry( this, pData );
 }
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */

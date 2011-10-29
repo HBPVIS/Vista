@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaSPROCThreadImp.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include <VistaInterProcComm/Concurrency/VistaIpcThreadModel.h>
 
@@ -122,51 +122,51 @@ bool     VistaSPROCThreadImp::Run( )
 		return true;
 	}
 
-	vipcerr << "VistaThread[IRIX]::Run() ";
+	vstr::errp() << "VistaThread[IRIX]::Run() ";
 
 	switch ( errno )
 	{
 		case ENOMEM:
-			vipcerr << "If there is not enough virtual space to allocate a new "
+			vstr::err() << "If there is not enough virtual space to allocate a new "
 				 << "stack.  The default stack size is settable via prctl(2), "
-				 << "or setrlimit(2).\n";
+				 << "or setrlimit(2)." << std::endl;
 			break;
 		case EAGAIN:
-			vipcerr << "The system-imposed limit on the total number of processes "
+			vstr::err() << "The system-imposed limit on the total number of processes "
 				 << "under execution, {NPROC} [see intro(2)], would be "
 				 << "exceeded.\n\n or \n\n";
-			vipcerr << "VistaThread: The system-imposed limit on the total number of processes "
+			vstr::err() << "VistaThread: The system-imposed limit on the total number of processes "
 				 << "under execution by a single user {CHILD_MAX} [see "
 				 << "intro(2)], would be exceeded.\n\n or \n\n";
-			vipcerr << "VistaThread: Amount of system memory required is temporarily "
-				 << "unavailable.\n";
+			vstr::err() << "VistaThread: Amount of system memory required is temporarily "
+				 << "unavailable." << std::endl;
 			break;
 		case EINVAL:
-			vipcerr << "VistaThread: sp was null and len was less than 8192.\n";
+			vstr::err() << "VistaThread: sp was null and len was less than 8192." << std::endl;
 			break;
 		case ENOSPC:
 
-			vipcerr << "VistaThread: If the size of the share group exceeds the number of users "
+			vstr::err() << "VistaThread: If the size of the share group exceeds the number of users "
 				 << "specified via usconfig(3P) (8 by default). Any changes "
 				 << "via usconfig(3P) must be done BEFORE the first sproc is "
-				 << "performed.\n";
+				 << "performed." << std::endl;
 			break;
 		case ENOLCK:
-			vipcerr << "VistaThread: There are not enough file locks in the system.\n";
+			vstr::err() << "VistaThread: There are not enough file locks in the system." << std::endl;
 			break;
 		case EACCES:
-			vipcerr << "VistaThread: The shared arena file (located in /usr/tmp) used in "
+			vstr::err() << "VistaThread: The shared arena file (located in /usr/tmp) used in "
 				 << "conjunction with the C library could not be opened or "
-				<< "created for read/write.\n";
+				<< "created for read/write." << std::endl;
 			break;
 		case EPERM:
-			vipcerr << "VistaThread: No permission to create a thread. This should only "
+			vstr::err() << "VistaThread: No permission to create a thread. This should only "
 				 << "happen when you try to mix a pthread thread model with an sproc "
 				 << "thread model. Make sure you do only use sproc-linked libs to build "
-				 << "your program.\n";
+				 << "your program." << std::endl;
 			break;
 		default:
-			vipcerr << "VistaThread: Unkown Error (" << errno << ").\n";
+			vstr::err() << "VistaThread: Unkown Error (" << errno << ")" << std::endl;
 			break;
 	}
 
@@ -273,6 +273,12 @@ long VistaSPROCThreadImp::GetThreadIdentity() const
 {
 	return (long)irixPID;
 }
+
+long VistaSPROCThreadImp::GetCallingThreadIdentity() const
+{
+	VISTA_THROW_NOT_IMPLEMENTED;
+}
+
 /*============================================================================*/
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/

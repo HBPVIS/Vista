@@ -7,9 +7,6 @@ set( VISTACORELIBS_COMPONENTS "@VISTACORELIBS_COMPONENTS@" )
 set( VISTACORELIBS_VERSION @VISTACORELIBS_VERSION@ )
 set( VISTACORELIBS_VERSION_EXT @VISTACORELIBS_VERSION_EXT@ )
 
-# msvc-project for inclusion in other solutions - always empty for installations
-set( @_PACKAGE_NAME_UPPER@_MSVC_PROJECT )
-
 # we're getting installed to ROOT_DIR/cmake, so to get our root dir, we have to take the current dir
 # and look for the lib dir, which can be one, two, or three steps up
 # we check if the folder is correct by testing if the first library dir exists there
@@ -47,46 +44,44 @@ endforeach( _DIR ${VISTACORELIBS_RELATIVE_LIBRARY_DIRS} )
 list( APPEND VISTACORELIBS_INCLUDE_DIRS ${VISTACORELIBS_DRIVER_PLUGIN_DIRS} )
 
 
+
+# these will be filled later depending on selected components
+set( VISTACORELIBS_LIBRARIES )
+set( VISTACORELIBS_FOUND_COMPONENTS )
+set( VISTACORELIBS_MSVC_PROJECT  )
+
+# per-componennt info
+set( VISTABASE_INTERNAL_DEPENDENCIES 				@VISTABASE_INTERNAL_DEPENDENCIES@ )
+set( VISTAASPECTS_INTERNAL_DEPENDENCIES 			@VISTAASPECTS_INTERNAL_DEPENDENCIES@ )
+set( VISTAINTERPROCCOMM_INTERNAL_DEPENDENCIES		@VISTAINTERPROCCOMM_INTERNAL_DEPENDENCIES@ )
+set( VISTAMATH_INTERNAL_DEPENDENCIES				@VISTAMATH_INTERNAL_DEPENDENCIES@ )
+set( VISTATOOLS_INTERNAL_DEPENDENCIES				@VISTATOOLS_INTERNAL_DEPENDENCIES@ )
+set( VISTADEVICEDRIVERSBASE_INTERNAL_DEPENDENCIES	@VISTADEVICEDRIVERSBASE_INTERNAL_DEPENDENCIES@ )
+set( VISTADATAFLOWNET_INTERNAL_DEPENDENCIES			@VISTADATAFLOWNET_INTERNAL_DEPENDENCIES@ )
+set( VISTAKERNEL_INTERNAL_DEPENDENCIES				@VISTAKERNEL_INTERNAL_DEPENDENCIES@ )
+set( VISTAKERNELOPENSGEXT_INTERNAL_DEPENDENCIES		@VISTAKERNELOPENSGEXT_INTERNAL_DEPENDENCIES@ )
+
 macro( _local_vcl_use_component _COMPONENT )
 	string( TOUPPER ${_COMPONENT} _COMPONENT_UPPER )
-	if( NOT ${_COMPONENT_UPPER}_FOUND ) # we may already have incuded it
+	if( NOT ${_COMPONENT_UPPER}_FOUND ) # we may already have included it
 		list( FIND VISTACORELIBS_COMPONENTS ${_COMPONENT} _COMPONENT_FOUND )
 		if( _COMPONENT_FOUND EQUAL -1 )
 			if( VistaCoreLibs_FIND_REQUIRED_${_COMPONENT} )
 				message( SEND_ERROR "VistaCoreLibsConfig - Component \"${_COMPONENT}\" not available" )
-			else( VistaCoreLibs_FIND_REQUIRED_${_COMPONENT} )
+			elseif( NOT VistaCoreLibs_FIND_QUIETLY )
 				message( WARNING "VistaCoreLibsConfig - Component \"${_COMPONENT}\" not available" )
 			endif( VistaCoreLibs_FIND_REQUIRED_${_COMPONENT} )
 		else( _COMPONENT_FOUND EQUAL -1 )
 			set( ${_COMPONENT_UPPER}_FOUND TRUE )
 			
-			if( ${_COMPONENT} STREQUAL "VistaKernelOpenSGExt" )
-				_local_vcl_use_component( "VistaKernel" )
-			elseif( ${_COMPONENT} STREQUAL "VistaKernel" )
-				_local_vcl_use_component( "VistaDataFlowNet" )
-			elseif( ${_COMPONENT} STREQUAL "VistaInterProcComm" )
-				_local_vcl_use_component( "VistaTools" )
-				_local_vcl_use_component( "VistaAspects" )
-				_local_vcl_use_component( "VistaBase" )
-			elseif( ${_COMPONENT} STREQUAL "VistaDataFlowNet" )
-				_local_vcl_use_component( "VistaDeviceDriversBase" )
-			elseif( ${_COMPONENT} STREQUAL "VistaDeviceDriversBase" )
-				_local_vcl_use_component( "VistaInterProcComm" )
-				_local_vcl_use_component( "VistaTools" )
-				_local_vcl_use_component( "VistaMath" )
-				_local_vcl_use_component( "VistaAspects" )				
-			elseif( ${_COMPONENT} STREQUAL "VistaMath" )
-				_local_vcl_use_component( "VistaBase" )
-			elseif( ${_COMPONENT} STREQUAL "VistaTools" )
-				_local_vcl_use_component( "VistaBase" )
-			elseif( ${_COMPONENT} STREQUAL "VistaAspects" )
-				_local_vcl_use_component( "VistaBase" )
-			endif( ${_COMPONENT} STREQUAL "VistaKernelOpenSGExt" )
+			foreach( _INTERNAL_DEPENDENCY ${${_COMPONENT_UPPER}_INTERNAL_DEPENDENCIES} )
+				_local_vcl_use_component( ${_INTERNAL_DEPENDENCY} )
+			endforeach( _INTERNAL_DEPENDENCY ${${_COMPONENT_UPPER}_INTERNAL_DEPENDENCIES} )
 			
 			set( ${_COMPONENT_UPPER}_LIBRARIES )
-			set( ${_COMPONENT_UPPER}_LIBRARY_DIRS "${VISTACORELIBS_LIBRARY_DIRS}" )
-			set( ${_COMPONENT_UPPER}_INCLUDE_DIRS "${VISTACORELIBS_INCLUDE_DIRS}" )
-			set( ${_COMPONENT_UPPER}_DEFINITIONS "${VISTACORELIBS_DEFINITIONS}" )
+			set( ${_COMPONENT_UPPER}_LIBRARY_DIRS ${VISTACORELIBS_LIBRARY_DIRS} )
+			set( ${_COMPONENT_UPPER}_INCLUDE_DIRS ${VISTACORELIBS_INCLUDE_DIRS} )
+			set( ${_COMPONENT_UPPER}_DEFINITIONS ${VISTACORELIBS_DEFINITIONS} )
 			list( APPEND VISTACORELIBS_LIBRARIES optimized ${_COMPONENT} debug ${_COMPONENT}D )
 			list( APPEND VISTACORELIBS_FOUND_COMPONENTS ${_COMPONENT} )
 

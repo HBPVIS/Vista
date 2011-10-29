@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSystemEvent.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTASYSTEMEVENT_H
 #define _VISTASYSTEMEVENT_H
@@ -61,7 +61,6 @@ public:
 		VSE_UPDATE_INTERACTION,
 		VSE_UPDATE_DELAYED_INTERACTION,
 		VSE_UPDATE_DISPLAYS,
-		VSE_UPDATE_PICKING,
 		VSE_PREGRAPHICS,
 		VSE_POSTGRAPHICS,
 		VSE_PREAPPLICATIONLOOP,
@@ -75,6 +74,7 @@ public:
 	 *
 	 */
 	VistaSystemEvent();
+	VistaSystemEvent( const EVENT_ID eEventID );
 
 	/**
 	 * Destroys a VistaSystemEvent object

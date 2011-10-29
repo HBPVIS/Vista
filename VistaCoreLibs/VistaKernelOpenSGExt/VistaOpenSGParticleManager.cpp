@@ -29,15 +29,15 @@
 
 #include <VistaKernel/VistaSystem.h>
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/EventManager/VistaEventManager.h>
 #include <VistaKernel/EventManager/VistaSystemEvent.h>
 
 #include <VistaBase/VistaBaseTypes.h>
 #include <VistaBase/VistaExceptionBase.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <VistaKernelOpenSGExt/VistaOpenSGParticles.h>
-#include <VistaKernelOpenSGExt/VistaKernelOpenSGExtOut.h>
 
 #include <VistaTools/VistaRandomNumberGenerator.h>
 
@@ -52,7 +52,7 @@
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
 
-VistaOpenSGParticleManager::VistaOpenSGParticleManager(VistaGroupNode *pParent, VistaSG *pSG)
+VistaOpenSGParticleManager::VistaOpenSGParticleManager(VistaGroupNode *pParent, VistaSceneGraph *pSG)
 : m_pOriginObject( NULL )
 , m_pChangeObject( NULL )
 , m_afParticlePos( NULL )
@@ -142,8 +142,8 @@ void VistaOpenSGParticleManager::SetParticlesLifetime( float fLifetime )
 	} 
 	else
 	{
-		vosgexterr << "More particles needed as available!" << std::endl;
-		vosgexterr << "Attention: Maximum Number of Particles >= Lifetime * Particles Per Second" << std::endl;
+		vstr::warnp() << "VistaOpenSGParticleManager::SetParticlesLifetime() -- "
+					<< "More particles requested than available!" << std::endl;
 		return;
 	}
 
@@ -167,7 +167,8 @@ void VistaOpenSGParticleManager::SetParticlesPerSecond( float fParticlesPerSec )
 		m_fParticlesPerSecond = fParticlesPerSec;
 		float fNewLifetime = m_iMaxNumberOfParticles / m_fParticlesPerSecond;
 
-		vosgexterr << "Particle Rate of [" << fParticlesPerSec
+		vstr::warnp() << "VistaOpenSGParticleManager::SetParticlesPerSecond() -- "
+				<< "Particle Rate of [" << fParticlesPerSec
 				<< "] at Lifetime [" << m_pOriginObject->GetLifetime()
 				<< "would exceed maximal Particle count, reducing lifetime to ["
 				<< fNewLifetime << "]" << std::endl;
@@ -474,6 +475,9 @@ VistaOpenSGParticleManager::IParticleChanger::IParticleChanger()
 {
 }
 
+VistaOpenSGParticleManager::IParticleChanger::~IParticleChanger()
+{
+}
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/

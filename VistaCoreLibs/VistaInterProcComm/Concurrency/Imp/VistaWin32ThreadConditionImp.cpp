@@ -20,14 +20,15 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaWin32ThreadConditionImp.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #if defined(WIN32)
 #include <VistaInterProcComm/Concurrency/VistaIpcThreadModel.h>
 
 #include "VistaWin32ThreadConditionImp.h"
 #include "VistaWin32MutexImp.h"
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <iostream>
 using namespace std;
@@ -42,31 +43,31 @@ static void PrintError(int iError)
 	{
 	case WAIT_ABANDONED:
 		{
-			vipcerr << "The specified object is a mutex object that was not released\n"
+			vstr::errp() << "The specified object is a mutex object that was not released\n"
 				 << "by the thread that owned the mutex object before the owning\n"
 				 << "thread terminated. Ownership of the mutex object is granted\n"
-				 << "to the calling thread, and the mutex is set to nonsignaled\n";
+				 << "to the calling thread, and the mutex is set to nonsignaled" << std::endl;
 			break;
 		}
 	case WAIT_IO_COMPLETION:
 		{
-			vipcerr << "The wait was ended by one or more user-mode asynchronous\n"
-					  << "procedure calls (APC) queued to the thread.\n";
+			vstr::errp() << "The wait was ended by one or more user-mode asynchronous\n"
+					  << "procedure calls (APC) queued to the thread" << std::endl;
 			break;
 		}
 	case WAIT_TIMEOUT:
 		{
-			vipcerr << "The time-out interval elapsed, and the object's state is nonsignaled.\n";
+			vstr::errp() << "The time-out interval elapsed, and the object's state is nonsignaled" << std::endl;
 			break;
 		}
 	case ERROR_NOT_OWNER:
 		{
-			vipcerr << "Attempt to release mutex not owned by caller.\n";
+			vstr::errp() << "Attempt to release mutex not owned by caller" << std::endl;
 			break;
 		}
 	default:
 		{
-			vipcerr << "Ask the MSDN\n";
+			vstr::errp() << "Ask the MSDN" << std::endl;
 			break;
 		}
 	}

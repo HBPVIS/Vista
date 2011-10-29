@@ -20,26 +20,25 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenSGDisplayBridge.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #ifdef WIN32
 // disable warnings from OpenSG
+#pragma warning(disable: 4231)
 #pragma warning(disable: 4244)
+#pragma warning(disable: 4267)
 #endif
 
 #include "VistaOpenSGDisplayBridge.h"
 
 #include <VistaAspects/VistaPropertyAwareable.h>
 #include <VistaBase/VistaTimerImp.h>
-
+#include <VistaBase/VistaStreamUtils.h>
 #include <VistaBase/VistaVectorMath.h>
-#include <VistaTools/VistaProfiler.h>
 #include <VistaTools/VistaFileSystemDirectory.h>
 
 #include <VistaKernel/VistaSystem.h>
-#include <VistaKernel/VistaClusterClient.h>
-#include <VistaKernel/VistaClusterSlave.h>
-#include <VistaKernel/VistaKernelOut.h>
+#include <VistaKernel/Cluster/VistaClusterMode.h>
 
 #include <VistaKernel/DisplayManager/VistaDisplayManager.h>
 #include <VistaKernel/DisplayManager/VistaDisplaySystem.h>
@@ -47,15 +46,12 @@
 #include <VistaKernel/DisplayManager/VistaWindow.h>
 #include <VistaKernel/DisplayManager/VistaViewport.h>
 #include <VistaKernel/DisplayManager/VistaVirtualPlatform.h>
+#include <VistaKernel/DisplayManager/VistaWindowingToolkit.h>
+#include <VistaKernel/DisplayManager/GlutWindowImp/VistaGlutWindowingToolkit.h>
 
 #include <VistaKernel/OpenSG/VistaOpenSGNodeBridge.h>
 #include <VistaKernel/OpenSG/VistaOpenSGGraphicsBridge.h>
 #include <VistaKernel/OpenSG/VistaOpenSGTextForeground.h>
-
-#include <VistaKernel/EventManager/VistaEventManager.h>
-#include <VistaKernel/EventManager/VistaDisplayEvent.h>
-
-#include <VistaKernel/WindowingToolkit/VistaWindowingToolkit.h>
 
 #include <OpenSG/OSGNode.h>
 #include <OpenSG/OSGSolidBackground.h>
@@ -160,6 +156,7 @@ VistaQuaternion VistaOpenSGDisplayBridge::DisplaySystemData::GetPlatformOrientat
 	osg::Vec3f trans, scale;
 	osg::Quaternion ori, scale_ori;
 	m.getTransform( trans, ori, scale, scale_ori ); // clean but slow
+	/** @todo: remove conversion to/from quaternion */
 	float ax, ay, az, ang;
 	ori.getValueAsAxisRad(ax,ay,az,ang);
 	return VistaQuaternion( VistaAxisAndAngle(VistaVector3D(ax,ay,az), ang) );
@@ -241,7 +238,7 @@ VistaQuaternion VistaOpenSGDisplayBridge::DisplaySystemData::GetCameraPlatformOr
 	return VistaQuaternion( VistaAxisAndAngle(VistaVector3D(ax,ay,az), ang) );
 }
 
-void VistaOpenSGDisplayBridge::DisplaySystemData::SetHMDModeActive( const bool &bSet )
+void VistaOpenSGDisplayBridge::DisplaySystemData::SetHMDModeActive( const bool bSet )
 {
 	m_bHMDModeActive = bSet;
 }
@@ -286,49 +283,122 @@ std::string VistaOpenSGDisplayBridge::DisplayData::GetDisplayName() const
 // CWindowData
 // ##########################
 
+// WindowData::WindowObserver;
+
+class VistaOpenSGDisplayBridge::WindowData::WindowObserver : public IVistaObserver
+{
+public:
+	WindowObserver( VistaWindow* pWindow, VistaOpenSGDisplayBridge* pBridge )
+	: m_pWindow( pWindow )
+	, m_pBridge( pBridge )
+	{
+		pWindow->GetWindowProperties()->AttachObserver( this );
+	}
+	~WindowObserver()
+	{
+		if( m_pWindow )
+			m_pWindow->GetWindowProperties()->DetachObserver( this );
+	}
+
+	virtual bool Observes( IVistaObserveable* pObserveable ) 
+	{
+		if( m_pWindow == NULL )
+			return false;
+		return pObserveable == m_pWindow->GetWindowProperties();
+	}
+	virtual void Observe( IVistaObserveable* pObserveable, int nTicket = IVistaObserveable::TICKET_NONE ) 
+	{
+		// no thanks
+	}
+	virtual void ObserveableDelete( IVistaObserveable* pObserveable, int nTicket = IVistaObserveable::TICKET_NONE ) 
+	{
+		m_pWindow = NULL;
+	}
+	virtual void ObserverUpdate( IVistaObserveable* pObserveable, int nMsg, int nTicket ) 
+	{
+		if( nMsg == VistaWindow::VistaWindowProperties::MSG_SIZE_CHANGE )
+			m_pBridge->OnWindowSizeUpdate( m_pWindow );
+	}
+	virtual void ReleaseObserveable( IVistaObserveable* pObserveable, int nTicket = IVistaObserveable::TICKET_NONE ) 
+	{
+		if( m_pWindow )
+			m_pWindow->GetWindowProperties()->DetachObserver( this );
+		m_pWindow = NULL;
+	}
+
+	virtual bool ObserveableDeleteRequest( IVistaObserveable* pObserveable, int nTicket = IVistaObserveable::TICKET_NONE ) 
+	{
+		return true;
+	}
+private:
+	VistaWindow*				m_pWindow;
+	 VistaOpenSGDisplayBridge*	m_pBridge;
+};
+
 
 VistaOpenSGDisplayBridge::WindowData::WindowData()
-: m_iWindowId(-1),
-m_strTitle(""),
-m_bStereo(false),
-m_bDrawBorder(true),
-m_bFullScreen(false),
-m_ptrWindow(osg::NullFC),
-m_pOldWindowSize(new int[2])
+//: m_sTitle(""),
+//m_bStereo(false),
+//m_bStencilBufferEnabled( false ),
+//m_bAccumBufferEnabled( false ),
+//m_bDrawBorder(true),
+//m_bFullScreen(false),
+//m_ptrWindow(osg::NullFC),
+//m_iOrigPosX( 0 ),
+//m_iOrigPosY( 0 ),
+//m_iOrigSizeX( 0 ),
+//m_iOrigSizeY( 0 ),
+//m_iCurrentSizeX(0),
+//m_iCurrentSizeY(0)
+: m_ptrWindow( osg::NullFC )
+, m_pObserver( NULL )
 {
 }
 
 VistaOpenSGDisplayBridge::WindowData::~WindowData()
 {
-	//if(m_Window != osg::NullFC)
-	//	subRefCP(m_Window);
+	delete m_pObserver;
 }
 
-int VistaOpenSGDisplayBridge::WindowData::GetWindowId()                const
+void VistaOpenSGDisplayBridge::WindowData::ObserveWindow( VistaWindow* pWindow,
+													VistaOpenSGDisplayBridge* pBridge )
 {
-	return m_iWindowId;
+	if( m_pObserver )
+		delete m_pObserver;
+	m_pObserver = new WindowObserver( pWindow, pBridge );
 }
-
-std::string VistaOpenSGDisplayBridge::WindowData::GetTitle()               const
-{
-	return m_strTitle;
-}
-
-
-bool VistaOpenSGDisplayBridge::WindowData::GetDrawBorder()                 const
-{
-	return m_bDrawBorder;
-}
-
-bool VistaOpenSGDisplayBridge::WindowData::GetFullScreen()                 const
-{
-	return m_bFullScreen;
-}
-
-bool VistaOpenSGDisplayBridge::WindowData::GetStereo()                     const
-{
-	return m_bStereo;
-}
+//
+//std::string VistaOpenSGDisplayBridge::WindowData::GetTitle() const
+//{
+//	return m_sTitle;
+//}
+//
+//
+//bool VistaOpenSGDisplayBridge::WindowData::GetDrawBorder() const
+//{
+//	return m_bDrawBorder;
+//}
+//
+//bool VistaOpenSGDisplayBridge::WindowData::GetFullScreen() const
+//{
+//	return m_bFullScreen;
+//}
+//
+//bool VistaOpenSGDisplayBridge::WindowData::GetStereo() const
+//{
+//	return m_bStereo;
+//}
+//
+//bool VistaOpenSGDisplayBridge::WindowData::GetAccumBufferEnabled() const
+//{
+//	return m_bAccumBufferEnabled;
+//}
+//
+//bool VistaOpenSGDisplayBridge::WindowData::GetStencilBufferEnabled() const
+//{
+//	return m_bStencilBufferEnabled;
+//}
+//
 
 osg::WindowPtr VistaOpenSGDisplayBridge::WindowData::GetOpenSGWindow() const
 {
@@ -344,7 +414,7 @@ VistaOpenSGDisplayBridge::ViewportData::ViewportData()
 m_Viewport(osg::NullFC),
 m_RightViewport(osg::NullFC),
 m_TextForeground(osg::NullFC),
-m_overlays(osg::NullFC),
+m_pOverlays(osg::NullFC),
 m_oBitmaps(osg::NullFC)
 {
 }
@@ -356,8 +426,8 @@ VistaOpenSGDisplayBridge::ViewportData::~ViewportData()
 	if(m_RightViewport != osg::NullFC)
 		subRefCP(m_RightViewport);
 
-	if(m_overlays != osg::NullFC)
-		subRefCP(m_overlays);
+	if(m_pOverlays != osg::NullFC)
+		subRefCP(m_pOverlays);
 
 	if(m_TextForeground != osg::NullFC)
 		subRefCP(m_TextForeground);
@@ -371,37 +441,29 @@ bool VistaOpenSGDisplayBridge::ViewportData::GetStereo() const
 	return m_bStereo;
 }
 
-osg::ViewportPtr VistaOpenSGDisplayBridge::
-ViewportData::
-GetOpenSGViewport()      const
+osg::ViewportPtr VistaOpenSGDisplayBridge::ViewportData::GetOpenSGViewport() const
 {
 	return m_Viewport;
 }
 
-osg::ViewportPtr VistaOpenSGDisplayBridge::
-ViewportData::
-GetOpenSGRightViewport() const
+osg::ViewportPtr VistaOpenSGDisplayBridge::ViewportData::GetOpenSGRightViewport() const
 {
 	return m_RightViewport;
 }
 
-osg::VistaOpenSGTextForegroundPtr VistaOpenSGDisplayBridge::
-ViewportData::
-GetTextForeground() const
+osg::VistaOpenSGTextForegroundPtr VistaOpenSGDisplayBridge::ViewportData::GetTextForeground() const
 {
 	return m_TextForeground ;
 }
 
-osg::VistaOpenSGGLOverlayForegroundPtr VistaOpenSGDisplayBridge::
-ViewportData::
-GetOverlayForeground() const
+osg::VistaOpenSGGLOverlayForegroundPtr VistaOpenSGDisplayBridge::ViewportData::GetOverlayForeground() const
 {
-	return m_overlays;
+	return m_pOverlays;
 }
 
 
-void VistaOpenSGDisplayBridge::ViewportData::ReplaceViewport
-(osg::ViewportPtr pNewPort, bool bCopyData,	 bool bRight)
+void VistaOpenSGDisplayBridge::ViewportData::ReplaceViewport(
+									osg::ViewportPtr pNewPort, bool bCopyData,	 bool bRight )
 {
 	osg::ViewportPtr pOldPort;
 	if(bRight)
@@ -471,17 +533,17 @@ VistaOpenSGDisplayBridge::ProjectionData::~ProjectionData()
 }
 
 
-VistaVector3D VistaOpenSGDisplayBridge::ProjectionData::GetLeftEye()      const
+VistaVector3D VistaOpenSGDisplayBridge::ProjectionData::GetLeftEye() const
 {
 	return m_v3LeftEye;
 }
 
-VistaVector3D VistaOpenSGDisplayBridge::ProjectionData::GetRightEye()     const
+VistaVector3D VistaOpenSGDisplayBridge::ProjectionData::GetRightEye() const
 {
 	return m_v3RightEye;
 }
 
-VistaVector3D VistaOpenSGDisplayBridge::ProjectionData::GetMidPoint()     const
+VistaVector3D VistaOpenSGDisplayBridge::ProjectionData::GetMidPoint() const
 {
 	return m_v3MidPoint;
 }
@@ -491,43 +553,43 @@ VistaVector3D VistaOpenSGDisplayBridge::ProjectionData::GetNormalVector() const
 	return m_v3NormalVector;
 }
 
-VistaVector3D VistaOpenSGDisplayBridge::ProjectionData::GetUpVector()     const
+VistaVector3D VistaOpenSGDisplayBridge::ProjectionData::GetUpVector() const
 {
 	return m_v3UpVector;
 }
 
-double         VistaOpenSGDisplayBridge::ProjectionData::GetLeft()         const
+double VistaOpenSGDisplayBridge::ProjectionData::GetLeft() const
 {
 	return m_dLeft;
 }
 
-double         VistaOpenSGDisplayBridge::ProjectionData::GetRight()        const
+double VistaOpenSGDisplayBridge::ProjectionData::GetRight() const
 {
 	return m_dRight;
 }
 
-double         VistaOpenSGDisplayBridge::ProjectionData::GetBottom()       const
+double VistaOpenSGDisplayBridge::ProjectionData::GetBottom() const
 {
 	return m_dBottom;
 }
 
-double         VistaOpenSGDisplayBridge::ProjectionData::GetTop()          const
+double VistaOpenSGDisplayBridge::ProjectionData::GetTop() const
 {
 	return m_dTop;
 }
 
-int            VistaOpenSGDisplayBridge::ProjectionData::GetStereoMode()   const
+int VistaOpenSGDisplayBridge::ProjectionData::GetStereoMode() const
 {
 	return m_iStereoMode;
 }
-osg::ProjectionCameraDecoratorPtr VistaOpenSGDisplayBridge::ProjectionData::GetCamera () const
+osg::ProjectionCameraDecoratorPtr VistaOpenSGDisplayBridge::ProjectionData::GetCamera() const
 {
 	return m_ptrCamDeco;
 }
 
 
-void VistaOpenSGDisplayBridge::ProjectionData::SetCameraTransformation
-( const VistaVector3D & v3CamPos, const VistaQuaternion & qCamOri )
+void VistaOpenSGDisplayBridge::ProjectionData::SetCameraTransformation( 
+							const VistaVector3D & v3CamPos, const VistaQuaternion & qCamOri )
 {
 	VistaTransformMatrix matrix(qCamOri, v3CamPos);
 
@@ -561,8 +623,8 @@ void VistaOpenSGDisplayBridge::ProjectionData::SetCameraTransformation
 	//endEditCP(m_Beacon, osg::Node::CoreFieldMask );
 }
 
-void VistaOpenSGDisplayBridge::ProjectionData::GetCameraTransformation
-( VistaVector3D & v3CamPos, VistaQuaternion & qCamOri ) const
+void VistaOpenSGDisplayBridge::ProjectionData::GetCameraTransformation(
+							VistaVector3D & v3CamPos, VistaQuaternion & qCamOri ) const
 {
 	osg::TransformPtr t = osg::TransformPtr::dcast(m_ptrBeacon->getCore());
 	osg::Matrix m( t->getMatrix() );
@@ -579,8 +641,8 @@ void VistaOpenSGDisplayBridge::ProjectionData::GetCameraTransformation
 	qCamOri = VistaQuaternion( VistaAxisAndAngle(VistaVector3D(ax,ay,az), ang) );
 }
 
-void VistaOpenSGDisplayBridge::ProjectionData::SetCameraTranslation
-( const VistaVector3D & v3CamPos )
+void VistaOpenSGDisplayBridge::ProjectionData::SetCameraTranslation(
+							const VistaVector3D & v3CamPos )
 {
 	osg::TransformPtr t = osg::TransformPtr::dcast(m_ptrBeacon->getCore());
 	osg::Matrix m( t->getMatrix() );
@@ -599,8 +661,8 @@ VistaVector3D VistaOpenSGDisplayBridge::ProjectionData::GetCameraTranslation() c
 	return VistaVector3D(p[0], p[1], p[2]);
 }
 
-void VistaOpenSGDisplayBridge::ProjectionData::SetCameraOrientation
-( const VistaQuaternion & qCamOri )
+void VistaOpenSGDisplayBridge::ProjectionData::SetCameraOrientation(
+							const VistaQuaternion & qCamOri )
 {
 	osg::TransformPtr t = osg::TransformPtr::dcast(m_ptrBeacon->getCore());
 
@@ -775,7 +837,7 @@ void VistaOpenSGDisplayBridge::ProjectionData::SetEyes
 		break;
 	default:
 		{
-			vkernerr << "Warning: Unknown stereo mode -> defaulting to mono mode" << endl;
+			vstr::warnp() << "Unknown stereo mode -> defaulting to mono mode" << std::endl;
 			beginEditCP(m_ptrCamDeco, osg::ProjectionCameraDecorator::UserFieldMask);
 			m_ptrCamDeco->setUser(m_ptrBeacon);
 			endEditCP  (m_ptrCamDeco, osg::ProjectionCameraDecorator::UserFieldMask);
@@ -865,116 +927,76 @@ bool VistaOpenSGDisplayBridge::VistaOpenSG2DBitmap::SetPosition(float fPosX, flo
 /*  CONSTRUCTORS / DESTRUCTOR                                                 */
 /*============================================================================*/
 
-
-// we need the static member here, as glut uses static callbacks without
-// context information
-// sad but true.
-VistaOpenSGDisplayBridge *VistaOpenSGDisplayBridge::g_DispBridge = NULL;
-
-
 VistaOpenSGDisplayBridge::VistaOpenSGDisplayBridge(	osg::RenderAction *pRenderAction,
 														osg::NodePtr pRealRoot)
 : m_bShowCursor(true)
+, m_pWindowingToolkit( NULL )
+, m_pDisplayManager( NULL )
 {
-	m_pDMgr = NULL;
-	g_DispBridge = this;
-
-
 	m_pRealRoot = pRealRoot;
 	if(m_pRealRoot != osg::NullFC)
 		addRefCP(m_pRealRoot);
 
 
 	m_pRenderAction = pRenderAction;
-	m_pActionFunction = NULL;
-
-	// append the OpenSGL text node to the real root
 }
 
 VistaOpenSGDisplayBridge::~VistaOpenSGDisplayBridge()
 {
-	g_DispBridge = NULL;
+	delete m_pWindowingToolkit;
+
 	subRefCP(m_pRealRoot);
 }
 
 
-void VistaOpenSGDisplayBridge::SetDisplayManager(VistaDisplayManager *pDMgr)
+void VistaOpenSGDisplayBridge::SetDisplayManager(VistaDisplayManager *pDisplayManager)
 {
-	m_pDMgr = pDMgr;
+	m_pDisplayManager = pDisplayManager;
 }
 
 VistaDisplayManager *VistaOpenSGDisplayBridge::GetDisplayManager() const
 {
-	return m_pDMgr;
+	return m_pDisplayManager;
 }
 
 /*============================================================================*/
 /*  IMPLEMENTATION                                                            */
 /*============================================================================*/
 
-bool VistaOpenSGDisplayBridge::SetActionFunction(void (*pF)())
+bool VistaOpenSGDisplayBridge::DrawFrame()
 {
-	if(m_pActionFunction)
-		return false;
-	m_pActionFunction = pF;
+	// render to all windows in the display manager
+	const std::map<std::string, VistaWindow*>& mapWindows = m_pDisplayManager->GetWindowsConstRef();
+	std::map<std::string, VistaWindow*>::const_iterator itWindow = mapWindows.begin();
+	for( ; itWindow != mapWindows.end(); ++itWindow )
+	{
+		m_pWindowingToolkit->BindWindow( (*itWindow).second );
+		WindowData* pData = static_cast<WindowData*>( (*itWindow).second->GetData() );
+		pData->m_ptrWindow->render(m_pRenderAction);
+	}
 	return true;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   Draw                                                        */
-/*                                                                            */
-/*============================================================================*/
-void VistaOpenSGDisplayBridge::Draw()
+bool VistaOpenSGDisplayBridge::DisplayFrame()
 {
-	VistaSystem *vistaSystem = GetVistaSystem();
-	IVistaWindowingToolkit *wta = vistaSystem->GetWindowingToolkit();
-	// render to all windows in the display manager
-	WindowData * pWindow;
-	const std::map<std::string, VistaWindow *> &mapWindows =
-		VistaOpenSGDisplayBridge::g_DispBridge->GetDisplayManager()->GetWindowsConstRef();
-	std::map<std::string, VistaWindow *>::const_iterator winIter = mapWindows.begin();
-	for( ; winIter != mapWindows.end(); ++winIter )
-	{
-		pWindow = (WindowData *)winIter->second->GetData();
-
-		int id = pWindow->GetWindowId();
-		wta->SetWindow(id);
-
-		pWindow->m_ptrWindow->render(m_pRenderAction);
-
-		if(vistaSystem->IsClient())
-		{
-		}
-		else if(vistaSystem->GetIsSlave())
-		{
-			vistaSystem->GetVistaClusterSlave()->SwapSync();
-		}
-
-		wta->SwapBuffers();
-
-	}
-	wta->Redisplay();
+	// swap all windows in the display manager
+	m_pWindowingToolkit->DisplayAllWindows();
+	return true;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   UpdateDisplaySystems                                        */
-/*                                                                            */
-/*============================================================================*/
-bool VistaOpenSGDisplayBridge::UpdateDisplaySystems
-( VistaDisplayManager * pDisplayManager )
+bool VistaOpenSGDisplayBridge::SetDisplayUpdateCallback( IVistaExplicitCallbackInterface* pCallback )
+{
+	m_pWindowingToolkit->SetWindowUpdateCallback( pCallback );
+	return true;
+}
+
+
+bool VistaOpenSGDisplayBridge::UpdateDisplaySystems( VistaDisplayManager* pDisplayManager )
 {
 	return true;//the OpenSG implementation doesn't need any DisplaySystem updates
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   UpdateDisplaySystem                                         */
-/*                                                                            */
-/*============================================================================*/
-void VistaOpenSGDisplayBridge::UpdateDisplaySystem
-( VistaDisplaySystem * pDisplaySystem )
+void VistaOpenSGDisplayBridge::UpdateDisplaySystem( VistaDisplaySystem* pDisplaySystem )
 {
 	//the OpenSG implementation doesn't need any DisplaySystem updates
 }
@@ -984,8 +1006,8 @@ void VistaOpenSGDisplayBridge::UpdateDisplaySystem
 /*  NAME      :   ObserverUpdate                                              */
 /*                                                                            */
 /*============================================================================*/
-void VistaOpenSGDisplayBridge::ObserverUpdate
-( IVistaObserveable *pObserveable, int msg, int ticket, VistaDisplaySystem *pTarget)
+void VistaOpenSGDisplayBridge::ObserverUpdate( IVistaObserveable *pObserveable,
+								int msg, int ticket, VistaDisplaySystem *pTarget)
 {
 	if (ticket == VistaDisplaySystem::FRAME_CHANGE)
 	{
@@ -1013,19 +1035,13 @@ void VistaOpenSGDisplayBridge::ObserverUpdate
 	}
 }
 
-VistaDisplaySystem * VistaOpenSGDisplayBridge::CreateDisplaySystem
-( VistaVirtualPlatform * pReferenceFrame, VistaDisplayManager * pDisplayManager,
- const VistaPropertyList & refProps)
+VistaDisplaySystem * VistaOpenSGDisplayBridge::CreateDisplaySystem(
+								VistaVirtualPlatform * pReferenceFrame,
+								VistaDisplayManager * pDisplayManager,
+								const VistaPropertyList & refProps )
 {
 	// create new data container
 	DisplaySystemData * pData = new DisplaySystemData;
-
-	if (!pData)
-	{
-		vkernout << " [VistaOpenSGDisplayBridge] - ERROR - unable to create display system..." << endl;
-		vkernout << "                                      cannot create toolkit specific data..." << endl;
-		return NULL;
-	}
 
 	// get the real OpenSG root node to attach display system beacons to it
 	// this means that display systems and cameras will be hidden for pure ViSTA applications
@@ -1040,9 +1056,9 @@ VistaDisplaySystem * VistaOpenSGDisplayBridge::CreateDisplaySystem
 
 	VistaDisplaySystem * pDisplaySystem = NewDisplaySystem(pReferenceFrame, pData, pDisplayManager);
 
-	if (!pDisplaySystem)
+	if( !pDisplaySystem )
 	{
-		vkernout << " [VistaOpenSGDisplayBridge] - ERROR - unable to create display system..." << endl;
+		vstr::errp() << " [VistaOpenSGDisplayBridge] - Unable to create display system" << std::endl;
 		delete pData;
 		return NULL;
 	}
@@ -1061,8 +1077,7 @@ VistaDisplaySystem * VistaOpenSGDisplayBridge::CreateDisplaySystem
 /*  NAME      :   DestroyDisplaySystem                                        */
 /*                                                                            */
 /*============================================================================*/
-bool VistaOpenSGDisplayBridge::DestroyDisplaySystem
-( VistaDisplaySystem * pDisplaySystem )
+bool VistaOpenSGDisplayBridge::DestroyDisplaySystem( VistaDisplaySystem * pDisplaySystem )
 {
 	if (!pDisplaySystem)
 		return true;
@@ -1093,8 +1108,8 @@ bool VistaOpenSGDisplayBridge::DestroyDisplaySystem
 /*  NAME      :   DebugDisplaySystem                                          */
 /*                                                                            */
 /*============================================================================*/
-void VistaOpenSGDisplayBridge::DebugDisplaySystem
-( std::ostream & out, const VistaDisplaySystem * pTarget)
+void VistaOpenSGDisplayBridge::DebugDisplaySystem( std::ostream & out,
+												  VistaDisplaySystem * pTarget)
 {
 	pTarget->Debug(out);
 }
@@ -1104,8 +1119,8 @@ void VistaOpenSGDisplayBridge::DebugDisplaySystem
 /*  NAME      :   Set/GetViewerPosition                                       */
 /*                                                                            */
 /*============================================================================*/
-void VistaOpenSGDisplayBridge::SetViewerPosition
-( const VistaVector3D & v3Pos, VistaDisplaySystem * pTarget)
+void VistaOpenSGDisplayBridge::SetViewerPosition( const VistaVector3D & v3Pos,
+												 VistaDisplaySystem* pTarget)
 {
 	if (!pTarget)
 		return;
@@ -1145,8 +1160,8 @@ void VistaOpenSGDisplayBridge::SetViewerPosition
 	}
 }
 
-void VistaOpenSGDisplayBridge::GetViewerPosition
-( VistaVector3D & v3Pos, const VistaDisplaySystem * pTarget)
+void VistaOpenSGDisplayBridge::GetViewerPosition( VistaVector3D & v3Pos,
+												 const VistaDisplaySystem * pTarget)
 {
 	if (!pTarget)
 		return;
@@ -1206,8 +1221,8 @@ void VistaOpenSGDisplayBridge::GetViewerPosition
 /*  NAME      :   Set/GetViewerOrientation                                    */
 /*                                                                            */
 /*============================================================================*/
-void VistaOpenSGDisplayBridge::SetViewerOrientation
-(const VistaQuaternion & qOrient, VistaDisplaySystem * pTarget)
+void VistaOpenSGDisplayBridge::SetViewerOrientation(const VistaQuaternion & qOrient,
+													VistaDisplaySystem * pTarget)
 {
 	if (!pTarget)
 		return;
@@ -1246,8 +1261,8 @@ void VistaOpenSGDisplayBridge::SetViewerOrientation
 	}
 }
 
-void VistaOpenSGDisplayBridge::GetViewerOrientation
-(VistaQuaternion & qOrient, const VistaDisplaySystem * pTarget)
+void VistaOpenSGDisplayBridge::GetViewerOrientation(VistaQuaternion & qOrient,
+													const VistaDisplaySystem * pTarget)
 {
 	if (!pTarget)
 		return;
@@ -1303,8 +1318,8 @@ void VistaOpenSGDisplayBridge::GetViewerOrientation
 /*  NAME      :   Set/GetEyeOffsets                                           */
 /*                                                                            */
 /*============================================================================*/
-void VistaOpenSGDisplayBridge::SetEyeOffsets
-( const VistaVector3D & v3LeftOffset, const VistaVector3D & v3RightOffset,
+void VistaOpenSGDisplayBridge::SetEyeOffsets( const VistaVector3D & v3LeftOffset,
+											 const VistaVector3D & v3RightOffset,
  VistaDisplaySystem * pTarget)
 {
 	DisplaySystemData * pData = (DisplaySystemData*)pTarget->GetData();
@@ -1376,28 +1391,22 @@ VistaDisplay * VistaOpenSGDisplayBridge::CreateDisplay
 {
 	if (!refProps.HasProperty("DISPLAY_STRING"))
 	{
-		vkernout << " [VistaOpenSGDisplayBridge - ERROR - unable to create display..." << endl;
-		vkernout << "                                     no display string given..." << endl;
+		vstr::errp() << " [VistaOpenSGDisplayBridge - Unable to create display - no display string given" << std::endl;
 		return NULL;
 	}
 
-	string strName = refProps.GetStringValue("DISPLAY_STRING");
+	string strName;
+	refProps.GetValue( "DISPLAY_STRING", strName );
 
 	// create new data container
 	DisplayData *pData = new DisplayData;
-	if (!pData)
-	{
-		vkernout << " [VistaOpenSGDisplayBridge] - ERROR - unable to create display..." << endl;
-		vkernout << "                                      cannot create toolkit specific data..." << endl;
-		return NULL;
-	}
 
 	pData->m_sDisplayName = strName;
 
 	VistaDisplay *pDisplay = NewDisplay(pData, pDisplayManager);
 	if (!pDisplay)
 	{
-		vkernout << " [VistaOpenSGDisplayBridge] - ERROR - unable to create display..." << endl;
+		vstr::errp() << " [VistaOpenSGDisplayBridge] - unable to create display" << std::endl;
 		delete pData;
 		return NULL;
 	}
@@ -1427,8 +1436,7 @@ bool VistaOpenSGDisplayBridge::DestroyDisplay( VistaDisplay * pDisplay )
 	return true;
 }
 
-void VistaOpenSGDisplayBridge::DebugDisplay
-( std::ostream & out, const VistaDisplay * pTarget)
+void VistaOpenSGDisplayBridge::DebugDisplay( std::ostream & out, const VistaDisplay * pTarget)
 {
 	pTarget->Debug(out);
 }
@@ -1436,80 +1444,88 @@ void VistaOpenSGDisplayBridge::DebugDisplay
 /**
 * Methods for window management.
 */
-VistaWindow * VistaOpenSGDisplayBridge::CreateVistaWindow
-( VistaDisplay * pDisplay, const VistaPropertyList & refProps )
+IVistaWindowingToolkit* VistaOpenSGDisplayBridge::GetWindowingToolkit() const
 {
-	// create new data container
-	WindowData * pData = new WindowData;
-	if (!pData)
+	return m_pWindowingToolkit;
+}
+
+IVistaWindowingToolkit* VistaOpenSGDisplayBridge::CreateWindowingToolkit( const std::string& sName )
+{
+	if( m_pWindowingToolkit != NULL )
 	{
-		vkernerr << " [VistaOpenSGDisplayBridge] - ERROR - unable to create window..." << endl;
-		vkernerr << "                                      cannot create toolkit specific data..." << endl;
-		return NULL;
+		vstr::warnp() << "Creating new WIndowingtoolkit, but one already"
+				<< " exists - deleting old one!" << std::endl;
+		delete m_pWindowingToolkit;
 	}
 
-	VistaWindow * pVistaWindow = NewWindow(pDisplay, pData);
-	if (!pVistaWindow)
+	if( VistaAspectsComparisonStuff::StringEquals( sName, "GLUT", false ) )
 	{
-		vkernerr << " [VistaOpenSGDisplayBridge] - ERROR - unable to create window..." << endl;
+		// compare the string once and store the result as enum
+		m_pWindowingToolkit = new VistaGlutWindowingToolkit( m_pDisplayManager );		
+	}
+	else
+	{
+		vstr::errp() << "[VistaOpenSGSystemClassFactory::CreateWindowingToolkit] " 
+				<< "Toolkit type [" << sName << "] is unknown." << std::endl;
+		m_pWindowingToolkit = NULL;
+	}
+	return m_pWindowingToolkit;
+}
+
+VistaWindow* VistaOpenSGDisplayBridge::CreateVistaWindow( VistaDisplay* pDisplay,
+														 const VistaPropertyList& oProps )
+{
+	// create new data container
+	WindowData* pData = new WindowData;
+
+	VistaWindow* pVistaWindow = NewWindow( pDisplay, pData );
+	if( !pVistaWindow )
+	{
+		vstr::errp() << "[VistaOpenSGDisplayBridge]: - unable to create window" << std::endl;
 		delete pData;
 		return NULL;
 	}
 
-	/// @todo think about display modes
-	IVistaWindowingToolkit *wta = GetVistaSystem()->GetWindowingToolkit();
-	unsigned int displayMode = wta->RGB | wta->DEPTH | wta->DOUBLE;
-	if (refProps.HasProperty("STEREO") && refProps.GetBoolValue("STEREO"))
-	{
-		pData->m_bStereo = true;
-		displayMode |= wta->STEREO;
-	}
-	else
-		pData->m_bStereo = false;
+	m_pWindowingToolkit->RegisterWindow( pVistaWindow );
+
+	//pVistaWindow->SetPropertiesByList(refProps);
+	VistaPropertyList oCleanedList = oProps;
+	//oCleanedList.RemoveProperty( "STEREO" );
+	//oCleanedList.RemoveProperty( "USE_ACCUM_BUFFER" );
+	//oCleanedList.RemoveProperty( "USE_STENCIL_BUFFER" );
+	oCleanedList.RemoveProperty( "DISPLAY" );
+	pVistaWindow->GetProperties()->SetPropertiesByList( oCleanedList );
 
 	// finally create the window
-	wta->SetDisplayMode(displayMode);
-	pData->m_iWindowId = wta->CreateOpenGLContext("ViSTA");
-
-	// set this title as a new title in the internal structure of ViSTA
-	pVistaWindow->GetWindowProperties()->SetTitle("ViSTA");
-
-#ifdef _DEBUG
-	vkernout << "[VistaOpenSGDisplayBridge] register GLUT functions..." << std::endl;
-#endif
-
-	wta->DisplayFunctor(m_pActionFunction);
-	wta->IdleFunctor(m_pActionFunction);
-	wta->ReshapeFunctor(ReshapeFunction);
+	m_pWindowingToolkit->InitWindow( pVistaWindow );
 
 	// set mouse cursor visibility
 	// to default on start.
-	SetShowCursor(GetShowCursor());
-
-#ifdef _DEBUG
-	vkernout << "[VistaOpenSGDisplayBridge] creating passive window..." << std::endl;
-#endif
+	m_pWindowingToolkit->SetCursorIsEnabled( pVistaWindow, GetShowCursor() );
 
 	pData->m_ptrWindow = osg::PassiveWindow::create();
-	pData->m_ptrWindow->init();
 
 	/// @todo ID for passive window? gg508531
 	//pData->m_ptrWindow->setId(pData->m_iWindowId);
 	pData->m_ptrWindow->init();
+	int nWidth, nHeight;
+	m_pWindowingToolkit->GetWindowSize( pVistaWindow, nWidth, nHeight );
+	pData->m_ptrWindow->setSize( nWidth, nHeight );
+
+	pData->ObserveWindow( pVistaWindow, this );
 
 	//pVistaWindow->SetPropertiesByList(refProps);
-	pVistaWindow->GetProperties()->SetPropertiesByList(refProps);
+	//VistaPropertyList oCleanedList = oProps;
+	//oCleanedList.RemoveProperty( "STEREO" );
+	//oCleanedList.RemoveProperty( "USE_ACCUM_BUFFER" );
+	//oCleanedList.RemoveProperty( "USE_STENCIL_BUFFER" );
+	//oCleanedList.RemoveProperty( "DISPLAY" );
+	//pVistaWindow->GetProperties()->SetPropertiesByList( oCleanedList );
 
 	return pVistaWindow;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   DestroyVistaWindow                                          */
-/*                                                                            */
-/*============================================================================*/
-bool VistaOpenSGDisplayBridge::DestroyVistaWindow
-( VistaWindow * pWindow )
+bool VistaOpenSGDisplayBridge::DestroyVistaWindow( VistaWindow* pWindow )
 {
 	if (!pWindow)
 		return true;
@@ -1517,217 +1533,142 @@ bool VistaOpenSGDisplayBridge::DestroyVistaWindow
 	// destroy data containers
 	WindowData * pData = (WindowData*)pWindow->GetData();
 
-	GetVistaSystem()->GetWindowingToolkit()->DestroyWindow(pData->GetWindowId());
+	m_pWindowingToolkit->UnregisterWindow( pWindow );
 
 	delete pData;
-#ifdef _DEBUG
-	vkernout << "VistaOpenSGDisplayBridge::DestroyVistaWindow(" << pWindow << ")\n";
-#endif
+	vstr::debugi() << "VistaOpenSGDisplayBridge::DestroyVistaWindow(" << pWindow->GetNameForNameable() << ")" << std::endl;
 	delete pWindow;
 
 	return true;
 }
 
-void VistaOpenSGDisplayBridge::SetWindowStereo
-( bool bStereo, VistaWindow * pTarget )
+bool VistaOpenSGDisplayBridge::SetWindowStereo( bool bStereo, VistaWindow* pTarget )
 {
-	if(bStereo)
-		vkernout << " Warning: VistaOpenSGDisplayBridge::SetWindowStereo -> this setting can't be changed after window creation... \n";
+	return m_pWindowingToolkit->SetUseStereo( pTarget, bStereo );
 
 }
 
-bool VistaOpenSGDisplayBridge::GetWindowStereo
-( const VistaWindow * pTarget )
+bool VistaOpenSGDisplayBridge::GetWindowAccumBufferEnabled( const VistaWindow * pTarget )
 {
-	return ((WindowData *)pTarget->GetData())->m_bStereo;
+	return m_pWindowingToolkit->GetUseAccumBuffer( pTarget );
 }
 
-void VistaOpenSGDisplayBridge::SetWindowPosition
-( int x, int y, VistaWindow * pTarget )
+bool VistaOpenSGDisplayBridge::SetWindowAccumBufferEnabled( bool bUse, VistaWindow* pTarget )
 {
-	// can not ask glut for beeing fullscreen
-	if(GetFullScreen(pTarget))
-		return;
-
-	IVistaWindowingToolkit *wta = GetVistaSystem()->GetWindowingToolkit();
-	int win = wta->GetWindow();
-	wta->SetWindow(((WindowData *)pTarget->GetData())->m_iWindowId);
-	wta->SetWindowPosition(x, y);
-	wta->SetWindow(win);
+	return m_pWindowingToolkit->SetUseAccumBuffer( pTarget, bUse );
 }
 
-void VistaOpenSGDisplayBridge::GetWindowPosition
-( int & x, int & y, const VistaWindow * pTarget )
+bool VistaOpenSGDisplayBridge::GetWindowStencilBufferEnabled( const VistaWindow * pTarget )
 {
-	int *pos = new int[2];
-	IVistaWindowingToolkit *wta = GetVistaSystem()->GetWindowingToolkit();
-	int win = wta->GetWindow();
-	wta->SetWindow(((WindowData *)pTarget->GetData())->m_iWindowId);
-	pos = wta->GetWindowPosition();
-	x = pos[0];
-	y = pos[1];
-	wta->SetWindow(win);
+	return m_pWindowingToolkit->GetUseStencilBuffer( pTarget );
 }
 
-void VistaOpenSGDisplayBridge::SetWindowSize
-( int w, int h, VistaWindow * pTarget )
+bool VistaOpenSGDisplayBridge::SetWindowStencilBufferEnabled( bool bUse, VistaWindow* pTarget )
 {
-	if(GetFullScreen(pTarget))
-		return;
-
-	if( w < 1 || h < 1 )
-	{
-		vkernout << " VistaOpenSGDisplayBridge::SetWindowSize(w,h) Warning :: invalid parameters " << endl;
-		return;
-	}
-
-	osg::WindowPtr ptrWindow = ((WindowData *)pTarget->GetData())->m_ptrWindow;
-
-	// maybe OpenSG needs this to stay informed of the window size ... who knows?
-	beginEditCP(ptrWindow);
-	ptrWindow->resize(w,h);
-	endEditCP(ptrWindow);
-
-	IVistaWindowingToolkit *wta = GetVistaSystem()->GetWindowingToolkit();
-	int win = wta->GetWindow();
-	wta->SetWindow(((WindowData *)pTarget->GetData())->m_iWindowId);
-	wta->SetWindowSize(w, h);
-	wta->SetWindow(win);
+	return m_pWindowingToolkit->SetUseStencilBuffer( pTarget, bUse );
 }
 
-void VistaOpenSGDisplayBridge::GetWindowSize
-( int & w, int & h, const VistaWindow * pTarget )
+bool VistaOpenSGDisplayBridge::GetWindowStereo( const VistaWindow * pTarget )
 {
-	// cannot ask window for its size
-	osg::WindowPtr window = ((WindowData *)pTarget->GetData())->m_ptrWindow;
-	IVistaWindowingToolkit *wta = GetVistaSystem()->GetWindowingToolkit();
-	int win = wta->GetWindow();
-	int *size = new int[2];
-	wta->SetWindow(((WindowData *)pTarget->GetData())->m_iWindowId);
-	size = wta->GetWindowSize();
-	wta->SetWindow(win);
-	w = size[0];
-	h = size[1];
+	return m_pWindowingToolkit->GetUseStereo( pTarget );
+}
+
+bool VistaOpenSGDisplayBridge::SetWindowPosition( int x, int y, VistaWindow* pTarget )
+{
+	return m_pWindowingToolkit->SetWindowPosition( pTarget, x, y );
+}
+
+bool VistaOpenSGDisplayBridge::GetWindowPosition( int& x, int& y, const VistaWindow* pTarget )
+{
+	return m_pWindowingToolkit->GetWindowPosition( pTarget, x, y );
+}
+
+bool VistaOpenSGDisplayBridge::SetWindowSize( int w, int h, VistaWindow * pTarget )
+{
+	return m_pWindowingToolkit->SetWindowSize( pTarget, w, h );
+}
+
+bool VistaOpenSGDisplayBridge::GetWindowSize( int& w, int& h, const VistaWindow* pTarget )
+{
+	return m_pWindowingToolkit->GetWindowSize( pTarget, w, h );
+}
+
+int VistaOpenSGDisplayBridge::GetWindowId( const VistaWindow* pTarget )
+{
+	return m_pWindowingToolkit->GetWindowId( pTarget );
 }
 
 bool VistaOpenSGDisplayBridge::SetWindowVSync( bool bEnabled, VistaWindow *pTarget )
 {
-	IVistaWindowingToolkit *wta = GetVistaSystem()->GetWindowingToolkit();
-	int win = wta->GetWindow();
-	wta->SetWindow(((WindowData *)pTarget->GetData())->m_iWindowId);
-	bool bReturn = wta->SetVSyncEnabled( bEnabled );
-	wta->SetWindow(win);
-
-	return bReturn;
+	return m_pWindowingToolkit->SetVSyncMode( pTarget, bEnabled );	
 }
-int VistaOpenSGDisplayBridge::GetWindowVSync( const VistaWindow *pTarget )
+int VistaOpenSGDisplayBridge::GetWindowVSync( const VistaWindow* pTarget )
 {
-	IVistaWindowingToolkit *wta = GetVistaSystem()->GetWindowingToolkit();
-	int win = wta->GetWindow();
-	wta->SetWindow(((WindowData *)pTarget->GetData())->m_iWindowId);
-	int nReturn = wta->GetVSyncMode();
-	wta->SetWindow(win);
-
-	return nReturn;
+	return m_pWindowingToolkit->GetVSyncMode( pTarget );	
 }
 
-void VistaOpenSGDisplayBridge::SetFullScreen
-( bool bFullScreen, VistaWindow * pTarget )
+bool VistaOpenSGDisplayBridge::SetFullScreen( bool bFullScreen, VistaWindow* pTarget )
 {
-
-	IVistaWindowingToolkit *wta = GetVistaSystem()->GetWindowingToolkit();
-	int win = wta->GetWindow();
-	wta->SetWindow(((WindowData *)pTarget->GetData())->m_iWindowId);
-	if( bFullScreen )
-	{
-		// save window size of switching to fullscreen
-		static_cast<WindowData*>(pTarget->GetData())->m_pOldWindowSize = wta->GetWindowSize();
-		wta->ActivateFullscreen();
-	}
-	else // windowed
-	{
-		int w = static_cast<WindowData*>(pTarget->GetData())->m_pOldWindowSize[0];
-		int h = static_cast<WindowData*>(pTarget->GetData())->m_pOldWindowSize[1];
-
-		// it can happen that we try to resize a 0 window, so we will
-		// make it one pixel (to avoid a warning)
-		w = w < 1 ? 1:w;
-		h = h < 1 ? 1:h;
-
-		wta->SetWindowSize(w,h);
-	}
-	wta->SetWindow(win);
-
-	((WindowData *)pTarget->GetData())->m_bFullScreen = bFullScreen;
+	return m_pWindowingToolkit->SetFullscreen( pTarget, bFullScreen );
 }
 
-bool VistaOpenSGDisplayBridge::GetFullScreen
-( const VistaWindow * pTarget )
+bool VistaOpenSGDisplayBridge::GetFullScreen( const VistaWindow* pTarget )
 {
-	return ((WindowData *)pTarget->GetData())->m_bFullScreen;
+	return m_pWindowingToolkit->GetFullscreen( pTarget );
 }
 
-void VistaOpenSGDisplayBridge::SetWindowTitle
-( const std::string & strTitle, VistaWindow * pTarget )
+bool VistaOpenSGDisplayBridge::SetWindowTitle( const std::string& sTitle, VistaWindow* pTarget )
 {
-	IVistaWindowingToolkit *wta = GetVistaSystem()->GetWindowingToolkit();
-	int win = wta->GetWindow();
-	wta->SetWindow(((WindowData *)pTarget->GetData())->m_iWindowId);
-	wta->SetTitle(strTitle);
-	wta->SetWindow(win);
-	((WindowData *)pTarget->GetData())->m_strTitle = strTitle;
+	return m_pWindowingToolkit->SetWindowTitle( pTarget, sTitle );
 }
 
-std::string VistaOpenSGDisplayBridge::GetWindowTitle
-( const VistaWindow * pTarget )
+std::string VistaOpenSGDisplayBridge::GetWindowTitle( const VistaWindow * pTarget )
 {
-	return ((WindowData *)pTarget->GetData())->m_strTitle;
+	return m_pWindowingToolkit->GetWindowTitle( pTarget );
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   GetWindowId                                                 */
-/*                                                                            */
-/*============================================================================*/
-int VistaOpenSGDisplayBridge::GetWindowId( const VistaWindow * pTarget )
-{
-	return ((WindowData *)pTarget->GetData())->m_iWindowId;
-}
-
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   DebugVistaWindow                                            */
-/*                                                                            */
-/*============================================================================*/
-void VistaOpenSGDisplayBridge::DebugVistaWindow
-( std::ostream & out, const VistaWindow * pTarget )
+void VistaOpenSGDisplayBridge::DebugVistaWindow( std::ostream& out, const VistaWindow * pTarget )
 {
 	pTarget->Debug(out);
+}
+
+void VistaOpenSGDisplayBridge::OnWindowSizeUpdate( VistaWindow *pTarget )
+{
+	osg::WindowPtr ptrWindow = dynamic_cast<WindowData *>( pTarget->GetData() )->m_ptrWindow;
+	int nWidth, nHeight;
+	m_pWindowingToolkit->GetWindowSize( pTarget, nWidth, nHeight );
+
+	beginEditCP( ptrWindow );
+	ptrWindow->resize( nWidth, nHeight );
+	endEditCP( ptrWindow );
+
+	std::vector<VistaViewport*>& vecViewports = pTarget->GetViewports();
+	for( std::vector<VistaViewport*>::iterator itViewport = vecViewports.begin();
+			itViewport != vecViewports.end(); ++itViewport )
+	{
+		(*itViewport)->GetViewportProperties()->Notify( VistaViewport::VistaViewportProperties::MSG_SIZE_CHANGE );
+	}
 }
 
 /**
 * Methods for viewport management.
 */
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   CreateViewport                                              */
-/*                                                                            */
-/*============================================================================*/
-VistaViewport * VistaOpenSGDisplayBridge::CreateViewport
-( VistaDisplaySystem * pDisplaySystem, VistaWindow * pWindow,
- const VistaPropertyList & refProps)
+VistaViewport * VistaOpenSGDisplayBridge::CreateViewport(
+											VistaDisplaySystem* pDisplaySystem,
+											VistaWindow* pWindow,
+											const VistaPropertyList & refProps)
 {
 	if (!pDisplaySystem)
 	{
-		vkernout << " [VistaOpenSGDisplayBridge] - ERROR - unable to create viewport..." << endl;
-		vkernout << "                                      no display system given..." << endl;
+		vstr::errp() << "[VistaOpenSGDisplayBridge]: Unable to create viewport - "
+				<< "no display system given" << std::endl;
 		return NULL;
 	}
 
 	if (!pWindow)
 	{
-		vkernout << " [VistaOpenSGDisplayBridge] - ERROR - unable to create viewport..." << endl;
-		vkernout << "                                      no window given..." << endl;
+		vstr::errp() << "[VistaOpenSGDisplayBridge]: Unable to create viewport - "
+				<< "no window given" << std::endl;
 		return NULL;
 	}
 
@@ -1736,20 +1677,18 @@ VistaViewport * VistaOpenSGDisplayBridge::CreateViewport
 
 	if (!pData)
 	{
-		vkernout << " [VistaOpenSGDisplayBridge] - ERROR - unable to create viewport..." << endl;
-		vkernout << "                                      cannot create toolkit specific data..." << endl;
+		vstr::errp() << "[VistaOpenSGDisplayBridge]: Unable to create viewport -"
+					"cannot create toolkit specific data" << std::endl;
 		return NULL;
 	}
 
-	VistaViewport * pViewport = NewViewport(pDisplaySystem, pWindow, pData);
+	VistaViewport * pViewport = NewViewport( pDisplaySystem, pWindow, pData );
 	if (!pViewport)
 	{
-		vkernout << " [VistaOpenSGDisplayBridge] - ERROR - unable to create viewport..." << endl;
+		vstr::errp() << "[VistaOpenSGDisplayBridge]: Unable to create viewport" << std::endl;
 		delete pData;
 		return NULL;
 	}
-
-	WindowData * pWindowData = (WindowData *)pWindow->GetData();
 
 	// RWTH blue as background color
 	osg::SolidBackgroundPtr bg = osg::SolidBackground::create();
@@ -1757,12 +1696,12 @@ VistaViewport * VistaOpenSGDisplayBridge::CreateViewport
 	bg->setColor( osg::Color3f( 0.0f,0.4f,0.8f ) );
 	endEditCP(bg);
 
-	// get the real OpenSG root node
-	//osg::NodePtr pOSGRootNode = ((VistaOpenSGNodeData*)GetVistaSystem()
-	// ->GetGraphicsManager()->GetSceneGraph()->GetRealRoot()->GetData())->GetBaseNode();
+	WindowData* pWindowData = static_cast<WindowData*>( pWindow->GetData() );
 
-	pData->m_bStereo = pWindowData->GetStereo(); // just in case somone asks :)
-	if( pWindowData->GetStereo() ) // active STEREO ?
+	pData->m_bStereo = GetWindowStereo( pWindow ); // just in case somone asks :)
+	pData->m_bAccumBufferEnabled = GetWindowAccumBufferEnabled( pWindow );
+	pData->m_bStencilBufferEnabled = GetWindowStencilBufferEnabled( pWindow );
+	if( pData->m_bStereo ) // active STEREO ?
 	{
 		osg::StereoBufferViewportPtr StereoViewport;
 		StereoViewport = osg::StereoBufferViewport::create();
@@ -1815,15 +1754,18 @@ VistaViewport * VistaOpenSGDisplayBridge::CreateViewport
 	if (!pData->m_Viewport)
 	{
 		// hrrk! something still went wrong...
-		vkernout << " [VistaOpenSGDisplayBridge] - ERROR - unable to create viewport..." << endl;
-		vkernout << "                                      OpenSG doesn't allow it..." << endl;
+		vstr::errp() << "[VistaOpenSGDisplayBridge]: Unable to create viewport - "
+					<< "OpenSG doesn't allow it" << std::endl;
 		delete pViewport;
 		delete pData;
 		return NULL;
 	}
 
-	//pViewport->SetPropertiesByList(refProps);
-	pViewport->GetProperties()->SetPropertiesByList(refProps);
+	
+	VistaPropertyList oCleanedProps = refProps;
+	oCleanedProps.RemoveProperty( "PROJECTION" );
+	oCleanedProps.RemoveProperty( "WINDOW" );
+	pViewport->GetProperties()->SetPropertiesByList( oCleanedProps );
 
 	return pViewport;
 }
@@ -1838,8 +1780,6 @@ bool VistaOpenSGDisplayBridge::DestroyViewport
 {
 	if (!pViewport)
 		return true;
-
-	VistaDisplaySystem * pDisplaySystem = pViewport->GetDisplaySystem();
 
 	// destroy data containers
 	ViewportData * pData = (ViewportData*)pViewport->GetData();
@@ -1861,31 +1801,35 @@ bool VistaOpenSGDisplayBridge::DestroyViewport
 void VistaOpenSGDisplayBridge::SetViewportPosition( int x, int y, VistaViewport * pTarget )
 {
 	osg::ViewportPtr pViewport = ((ViewportData *)pTarget->GetData())->m_Viewport;
-	IVistaWindowingToolkit *pWindowingToolkit = GetVistaSystem()->GetWindowingToolkit();
-	int iWindowID = pWindowingToolkit->GetWindow();
-	pWindowingToolkit->SetWindow( pTarget->GetWindow()->GetWindowId() );
 
-	float width = (float)pViewport->getPixelWidth();
-	float height = (float)pViewport->getPixelHeight();
+	float fWidth = (float)pViewport->getPixelWidth();
+	float fHeight = (float)pViewport->getPixelHeight();
 
-	float left = (float)x;
-	float right = left+width;
-	float bottom = (float)y;
-	float top = bottom+height;
+	float fLeft = (float)x;
+	float fRight = fLeft+fWidth;
+	float fBottom = (float)y;
+	float fTop = fBottom+fHeight;
 
+	//int fWindowX = 0;
+	//int fWindowY = 0;
+	//pTarget->GetWindow()->GetWindowProperties()->GetSize( fWindowX, fWindowY );
+
+	//fLeft /= (float)fWindowX;
+	//fRight /= (float)fWindowX;
+	//fTop /= (float)fWindowY;
+	//fBottom /= (float)fWindowY;
 
 	beginEditCP(pViewport);
-	pViewport->setSize( left, bottom, right, top );
+	pViewport->setSize( fLeft, fBottom, fRight, fTop );
 	endEditCP(pViewport);
 
 	if( ((ViewportData *)pTarget->GetData())->m_bStereo )
 	{
 		pViewport = ((ViewportData *)pTarget->GetData())->m_RightViewport;
 		beginEditCP(pViewport);
-		pViewport->setSize( left, bottom, right, top );
+		pViewport->setSize( fLeft, fBottom, fRight, fTop );
 		endEditCP(pViewport);
 	}
-	pWindowingToolkit->SetWindow(iWindowID);
 }
 
 /*============================================================================*/
@@ -1893,8 +1837,7 @@ void VistaOpenSGDisplayBridge::SetViewportPosition( int x, int y, VistaViewport 
 /*  NAME      :   GetViewportPosition                                         */
 /*                                                                            */
 /*============================================================================*/
-void VistaOpenSGDisplayBridge::GetViewportPosition
-( int & x, int & y, const VistaViewport * pTarget )
+void VistaOpenSGDisplayBridge::GetViewportPosition( int& x, int &y, const VistaViewport* pTarget )
 {
 	osg::ViewportPtr viewport = ((ViewportData *)pTarget->GetData())->m_Viewport;
 	x = viewport->getPixelLeft();
@@ -1907,39 +1850,39 @@ void VistaOpenSGDisplayBridge::GetViewportPosition
 /*  NAME      :   SetViewportSize                                             */
 /*                                                                            */
 /*============================================================================*/
-void VistaOpenSGDisplayBridge::SetViewportSize
-( int w, int h, VistaViewport * pTarget )
+void VistaOpenSGDisplayBridge::SetViewportSize( int iWidth, int iHeight, VistaViewport* pTarget )
 {
-	osg::ViewportPtr viewport = ((ViewportData *)pTarget->GetData())->m_Viewport;
-
-	IVistaWindowingToolkit *wta = GetVistaSystem()->GetWindowingToolkit();
-	int win = wta->GetWindow();
-	wta->SetWindow( pTarget->GetWindow()->GetWindowId() );
-	// ask the window for its size and not the scenegraph!
-	int *winSize = wta->GetWindowSize();
+	osg::ViewportPtr pViewport = ((ViewportData *)pTarget->GetData())->m_Viewport;
 
 	// lower-left is (0,0)
-	float left  = static_cast<float>( viewport->getPixelLeft() );
-	float bottom  = static_cast<float>( viewport->getPixelBottom() );
-	float width  = static_cast<float>(w);
-	float height  = static_cast<float>(h);
+	float fLeft = (float) pViewport->getPixelLeft();
+	float fBottom = (float) pViewport->getPixelBottom();
+	float fWidth = (float) iWidth;
+	float fHeight = (float) iHeight;
 
-	float right = left + width;
-	float top = bottom + height;
+	float fRight = fLeft + fWidth;
+	float fTop = fBottom + fHeight;
 
-	beginEditCP(viewport);
-	viewport->setSize( left, bottom, right, top );
-	endEditCP(viewport);
+	int fWindowX = 0;
+	int fWindowY = 0;
+	pTarget->GetWindow()->GetWindowProperties()->GetSize( fWindowX, fWindowY );
 
-	if( ((ViewportData *)pTarget->GetData())->m_bStereo )
+	//fLeft /= (float)fWindowX;
+	//fRight /= (float)fWindowX;
+	//fTop /= (float)fWindowY;
+	//fBottom /= (float)fWindowY;
+
+	beginEditCP(pViewport);
+	pViewport->setSize( fLeft, fBottom, fRight, fTop );
+	endEditCP(pViewport);
+
+	if( ( (ViewportData*)pTarget->GetData() )->m_bStereo )
 	{
-		viewport = ((ViewportData *)pTarget->GetData())->m_RightViewport;
-		beginEditCP(viewport);
-		viewport->setSize( left, bottom, right, top );
-		endEditCP(viewport);
+		pViewport = ((ViewportData *)pTarget->GetData())->m_RightViewport;
+		beginEditCP(pViewport);
+		pViewport->setSize( fLeft, fBottom, fRight, fTop );
+		endEditCP(pViewport);
 	}
-
-	wta->SetWindow(win);
 }
 
 /*============================================================================*/
@@ -1947,8 +1890,7 @@ void VistaOpenSGDisplayBridge::SetViewportSize
 /*  NAME      :   GetViewportSize                                             */
 /*                                                                            */
 /*============================================================================*/
-void VistaOpenSGDisplayBridge::GetViewportSize
-( int & w, int & h, const VistaViewport * pTarget )
+void VistaOpenSGDisplayBridge::GetViewportSize( int& w, int& h, const VistaViewport* pTarget )
 {
 	osg::ViewportPtr viewport = ((ViewportData *)pTarget->GetData())->m_Viewport;
 	w = viewport->getPixelWidth();
@@ -1960,8 +1902,7 @@ void VistaOpenSGDisplayBridge::GetViewportSize
 /*  NAME      :   DebugViewport                                               */
 /*                                                                            */
 /*============================================================================*/
-void VistaOpenSGDisplayBridge::DebugViewport
-( std::ostream & out, const VistaViewport * pTarget )
+void VistaOpenSGDisplayBridge::DebugViewport( std::ostream & out, const VistaViewport * pTarget )
 {
 	pTarget->Debug(out);
 }
@@ -1974,13 +1915,13 @@ void VistaOpenSGDisplayBridge::DebugViewport
 /*  NAME      :   CreateProjection                                            */
 /*                                                                            */
 /*============================================================================*/
-VistaProjection * VistaOpenSGDisplayBridge::CreateProjection
-( VistaViewport * pViewport, const VistaPropertyList & refProps )
+VistaProjection * VistaOpenSGDisplayBridge::CreateProjection( 
+							VistaViewport * pViewport, const VistaPropertyList & refProps )
 {
 	if (!pViewport)
 	{
-		vkernout << " [VistaOpenSGDisplayBridge] - ERROR - unable to create projection..." << endl;
-		vkernout << "                                      no viewport given..." << endl;
+		vstr::errp() << "[VistaOpenSGDisplayBridge] -Unable to create projection - "
+				<< "no viewport given..." << std::endl;
 		return NULL;
 	}
 
@@ -1988,8 +1929,8 @@ VistaProjection * VistaOpenSGDisplayBridge::CreateProjection
 	ProjectionData * pData = new ProjectionData;
 	if (!pData)
 	{
-		vkernout << " [VistaOpenSGDisplayBridge] - ERROR - unable to create projection..." << endl;
-		vkernout << "                                      cannot create toolkit specific data..." << endl;
+		vstr::errp() << "[VistaOpenSGDisplayBridge] -Unable to create projection - "
+				<< "cannot create toolkit specific data..." << std::endl;
 		return NULL;
 	}
 
@@ -2075,7 +2016,8 @@ VistaProjection * VistaOpenSGDisplayBridge::CreateProjection
 	VistaProjection * pProjection = NewProjection(pViewport, pData);
 	if (!pProjection)
 	{
-		vkernout << " [VistaOpenSGDisplayBridge] - ERROR - unable to create projection..." << endl;
+		vstr::errp() << "[VistaOpenSGDisplayBridge] - Unable to create projection"
+				<< std::endl;
 		delete pData;
 		return NULL;
 	}
@@ -2086,7 +2028,8 @@ VistaProjection * VistaOpenSGDisplayBridge::CreateProjection
 	// stereo key must be set before setpropertiesbylist, since the set-functors for e.g.
 	// clipping range depend on it being already set (in the projection data!)
 	// this should be cleaned up on occasion...
-	std::string sMode = refProps.GetStringValue( "STEREO_MODE" );
+	std::string sMode;
+	refProps.GetValue( "STEREO_MODE", sMode );
 	if( sMode == "FULL_STEREO" )
 		pProjData->m_iStereoMode = VistaProjection::VistaProjectionProperties::SM_FULL_STEREO;
 	else if( sMode == "MONO" )
@@ -2236,16 +2179,16 @@ void VistaOpenSGDisplayBridge::SetProjStereoMode
 		{
 			if (iMode != VistaProjection::VistaProjectionProperties::SM_FULL_STEREO)
 			{
-				vkernout << " [VistaOpenSGDisplayBridge] - WARNING - invalid stereo mode "
-					<< iMode << " for stereo window..." << endl;
+				vstr::warnp() << "[VistaOpenSGDisplayBridge] - invalid stereo mode ["
+							<< iMode << "] for stereo window..." << std::endl;
 			}
 		}
 		else
 		{
 			if (iMode == VistaProjection::VistaProjectionProperties::SM_FULL_STEREO)
 			{
-				vkernout << " [VistaOpenSGDisplayBridge] - WARNING - invalid stereo mode "
-					<< "FULL_STEREO for mono window..." << endl;
+				vstr::warnp() << "[VistaOpenSGDisplayBridge] - invalid stereo mode "
+					<< "[FULL_STEREO] for mono window..." << std::endl;
 			}
 		}
 
@@ -2279,67 +2222,21 @@ void VistaOpenSGDisplayBridge::DebugProjection
 /*  NAME    :   RenderAction							                      */
 /*                                                                            */
 /*============================================================================*/
-osg::RenderAction * VistaOpenSGDisplayBridge::GetRenderAction() const
+osg::RenderAction* VistaOpenSGDisplayBridge::GetRenderAction() const
 {
 	return m_pRenderAction;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME    :   ReshapeFunction							                      */
-/*                                                                            */
-/*============================================================================*/
-void VistaOpenSGDisplayBridge::ReshapeFunction(int width, int height)
-{
-	WindowData * pWindow;
-	std::map<std::string, VistaWindow *> mapWindows;
-
-	// this is a static callback hook function for glut,
-	// somehow, we have to get the context we are working on
-	// we use the static member in this class scope to get
-	// a hand on the display manager
-	// this is not much better than retrieving the global
-	// VistaSystem, but a bit better, as we do not need to know
-	// the complete system at this point
-	if(VistaOpenSGDisplayBridge::g_DispBridge
-		&& VistaOpenSGDisplayBridge::g_DispBridge->GetDisplayManager())
-		mapWindows = VistaOpenSGDisplayBridge::g_DispBridge->GetDisplayManager()->GetWindows();
-	else
-		return;
-
-
-	std::map<std::string, VistaWindow *>::const_iterator winIter = mapWindows.begin();
-	for( ; winIter != mapWindows.end(); ++winIter )
-	{
-		pWindow = (WindowData *)winIter->second->GetData();
-		// adapt the window content size for the window that is beeing reshaped only
-		if( pWindow->m_iWindowId == GetVistaSystem()->GetWindowingToolkit()->GetWindow() )
-		{
-			osg::beginEditCP(pWindow->m_ptrWindow);
-			pWindow->m_ptrWindow->resize(width,height);
-			osg::endEditCP(pWindow->m_ptrWindow);
-
-			/// @todo one event for each viewport
-			VistaDisplayEvent oEvent;
-			oEvent.SetViewport((*winIter).second->GetViewport(0));
-			oEvent.SetId(VistaDisplayEvent::VDE_RATIOCHANGE);
-			GetVistaSystem()->GetEventManager()->ProcessEvent(&oEvent);
-		}
-	}
-	GetVistaSystem()->GetWindowingToolkit()->Redisplay();
-}
-
 bool VistaOpenSGDisplayBridge::MakeScreenshot
 			(const VistaWindow & oWin, const std::string & strFilenamePrefix,
-			const bool &bNoScreenshotOnClients ) const
+			const bool bNoScreenshotOnClients ) const
 {
 	// only works in standalone and servers
-	if( bNoScreenshotOnClients && 
-		(GetVistaSystem()->IsClient() || GetVistaSystem()->GetIsSlave()) )
+	if( bNoScreenshotOnClients && GetVistaSystem()->GetClusterMode()->GetIsFollower() )
 		return false;
 
 	// get the OpenSG window data from the specified ViSTA window
-	WindowData * window = (WindowData *)oWin.GetData();
+	WindowData* pWindow = (WindowData *)oWin.GetData();
 
 	size_t iIndex = strFilenamePrefix.find_last_of( '.' );
 	string sFileName;
@@ -2390,10 +2287,10 @@ bool VistaOpenSGDisplayBridge::MakeScreenshot
 
 
 	// add the grabber to the next best viewport
-	window->m_ptrWindow->getPort(0)->getMFForegrounds()->push_back(fileGrab);
+	pWindow->m_ptrWindow->getPort(0)->getMFForegrounds()->push_back(fileGrab);
 
 	// render once
-	window->m_ptrWindow->render(m_pRenderAction);
+	pWindow->m_ptrWindow->render(m_pRenderAction);
 
 	// deactivate grabber
 	beginEditCP(fileGrab, osg::FileGrabForeground::ActiveFieldMask);
@@ -2401,75 +2298,72 @@ bool VistaOpenSGDisplayBridge::MakeScreenshot
 	endEditCP(fileGrab, osg::FileGrabForeground::ActiveFieldMask);
 
 	// remove the grabber from the next best viewport
-	window->m_ptrWindow->getPort(0)->getMFForegrounds()
-		->erase(window->m_ptrWindow->getPort(0)->getMFForegrounds()->end() - 1);
+	pWindow->m_ptrWindow->getPort(0)->getMFForegrounds()
+		->erase(pWindow->m_ptrWindow->getPort(0)->getMFForegrounds()->end() - 1);
 
 	return true;
 }
 
-bool VistaOpenSGDisplayBridge::AddSceneOverlay(IVistaSceneOverlay *pDraw,
-												const std::string &strViewportName)
+bool VistaOpenSGDisplayBridge::AddSceneOverlay( IVistaSceneOverlay *pDraw,
+												VistaViewport* pViewport )
 {
-	VistaViewport* viewport = m_pDMgr->GetViewportByName( strViewportName ) ;
-	if( viewport != NULL )
+	if( pViewport == NULL )
+		return false;
+
+	ViewportData* pViewportData = static_cast<ViewportData*>( pViewport->GetData() );
+	osg::VistaOpenSGGLOverlayForegroundPtr pOverlays = pViewportData->GetOverlayForeground();
+	if( pOverlays == osg::NullFC )
 	{
-		ViewportData* vpdata = (ViewportData*)viewport->GetData() ;
-		osg::VistaOpenSGGLOverlayForegroundPtr overlays = vpdata->GetOverlayForeground();
-		if(overlays == osg::NullFC)
+		pOverlays = osg::VistaOpenSGGLOverlayForeground::create();
+		if( pOverlays == osg::NullFC )
+			return false;
+
+		pViewportData->m_pOverlays = pOverlays;
+
+		osg::ViewportPtr osgvp = pViewportData->GetOpenSGViewport();
+
+		osgvp->getForegrounds().push_back(pOverlays);
+
+		if(pViewportData->GetOpenSGRightViewport())
 		{
-			overlays = osg::VistaOpenSGGLOverlayForeground::create();
-			if(overlays == osg::NullFC)
-				return false;
-
-			vpdata->m_overlays = overlays;
-
-			osg::ViewportPtr osgvp = vpdata->GetOpenSGViewport();
-
-			osgvp->getForegrounds().push_back(overlays);
-
-			if(vpdata->GetOpenSGRightViewport())
-			{
-				vpdata->GetOpenSGRightViewport()->getForegrounds().push_back(overlays);
-			}
+			pViewportData->GetOpenSGRightViewport()->getForegrounds().push_back(pOverlays);
 		}
+	}
 
-		beginEditCP(overlays, osg::VistaOpenSGGLOverlayForeground::GLOverlaysFieldMask);
-		overlays->getMFGLOverlays()->push_back(pDraw);
-		endEditCP(overlays, osg::VistaOpenSGGLOverlayForeground::GLOverlaysFieldMask);
+	beginEditCP(pOverlays, osg::VistaOpenSGGLOverlayForeground::GLOverlaysFieldMask);
+	pOverlays->getMFGLOverlays()->push_back(pDraw);
+	endEditCP(pOverlays, osg::VistaOpenSGGLOverlayForeground::GLOverlaysFieldMask);
 
+	return true;
+}
+
+bool VistaOpenSGDisplayBridge::RemSceneOverlay( IVistaSceneOverlay *pDraw,
+												VistaViewport* pViewport )
+{
+	if( pViewport == NULL )
+		return false;
+
+	ViewportData* vpdata = static_cast<ViewportData*>( pViewport->GetData() );
+	osg::ViewportPtr osgvp = vpdata->GetOpenSGViewport();
+
+	osg::MField<void*> &overls = vpdata->GetOverlayForeground()->getGLOverlays();
+	osg::MField<void*>::iterator it = overls.find(pDraw);
+
+	if(it != overls.end())
+	{
+		overls.erase(it);
 		return true;
 	}
-	return false;
-}
-
-bool VistaOpenSGDisplayBridge::RemSceneOverlay(IVistaSceneOverlay *pDraw,
-												const std::string &strVpName)
-{
-	VistaViewport* viewport = m_pDMgr->GetViewportByName( strVpName ) ;
-	if( viewport != NULL )
-	{
-		ViewportData* vpdata = (ViewportData*)viewport->GetData() ;
-		osg::ViewportPtr osgvp = vpdata->GetOpenSGViewport();
-
-		osg::MField<void*> &overls = vpdata->GetOverlayForeground()->getGLOverlays();
-		osg::MField<void*>::iterator it = overls.find(pDraw);
-
-		if(it != overls.end())
-		{
-			overls.erase(it);
-			return true;
-		}
-	}
 
 	return false;
 }
 
 
-Vista2DText* VistaOpenSGDisplayBridge::Add2DText(const std::string &strViewportName)
+Vista2DText* VistaOpenSGDisplayBridge::New2DText(const std::string &strViewportName)
 {
 	Vista2DText * Text2DObjekt = NULL ;
 
-	VistaViewport* viewport = m_pDMgr->GetViewportByName( strViewportName ) ;
+	VistaViewport* viewport = m_pDisplayManager->GetViewportByName( strViewportName ) ;
 	if( viewport != NULL )
 	{
 		ViewportData* vpdata = (ViewportData*)viewport->GetData() ;
@@ -2503,17 +2397,17 @@ Vista2DText* VistaOpenSGDisplayBridge::Add2DText(const std::string &strViewportN
 	}
 	else
 	{
-		vkernerr << "OpenSGDisplayBridge::Add2DText(): WARNING: non-existent viewport '"
+		vstr::warnp() << "OpenSGDisplayBridge::Add2DText(): non-existent viewport '"
 			<< strViewportName << "' specified!" << std::endl ;
 	}
 
 	return Text2DObjekt;
 }
 
-Vista2DBitmap*	VistaOpenSGDisplayBridge::Add2DBitmap	(const std::string &strViewportName )
+Vista2DBitmap*	VistaOpenSGDisplayBridge::New2DBitmap	(const std::string &strViewportName )
 {
 	Vista2DBitmap *pBm = NULL;
-	VistaViewport* viewport = m_pDMgr->GetViewportByName( strViewportName ) ;
+	VistaViewport* viewport = m_pDisplayManager->GetViewportByName( strViewportName ) ;
 	if( viewport != NULL )
 	{
 		ViewportData* vpdata = (ViewportData*)viewport->GetData() ;
@@ -2539,12 +2433,12 @@ Vista2DBitmap*	VistaOpenSGDisplayBridge::Add2DBitmap	(const std::string &strView
 	return pBm;
 }
 
-Vista2DLine*	VistaOpenSGDisplayBridge::Add2DLine	(const std::string &strWindowName )
+Vista2DLine*	VistaOpenSGDisplayBridge::New2DLine	(const std::string &strWindowName )
 {
 	return NULL;
 }
 
-Vista2DRectangle*	VistaOpenSGDisplayBridge::Add2DRectangle	(const std::string &strWindowName )
+Vista2DRectangle*	VistaOpenSGDisplayBridge::New2DRectangle	(const std::string &strWindowName )
 {
 	return NULL;
 }
@@ -2556,7 +2450,7 @@ bool VistaOpenSGDisplayBridge::Get2DOverlay(const std::string &strWindowName, st
 
 
 bool VistaOpenSGDisplayBridge::DoLoadBitmap(const std::string &strNewFName,
-											 unsigned char** pBitmapData,
+											VistaType::byte** pBitmapData,
 											 int& nWidth, int& nHeight, bool& bAlpha)
 {
 	// this call may return osg::NullFC, which is ok (clear image)
@@ -2580,7 +2474,7 @@ bool VistaOpenSGDisplayBridge::DoLoadBitmap(const std::string &strNewFName,
 
 		endEditCP(image);
 
-		unsigned char* pNewBitmap = image->getData();
+		VistaType::byte* pNewBitmap = image->getData();
 		nWidth     = image->getWidth();
 		nHeight    = image->getHeight();
 		bAlpha     = image->hasAlphaChannel();
@@ -2589,7 +2483,7 @@ bool VistaOpenSGDisplayBridge::DoLoadBitmap(const std::string &strNewFName,
 		int iBuffersize = nWidth * nHeight * (bAlpha ? 4 : 3);
 
 		// alloc memory
-		*pBitmapData = new unsigned char[iBuffersize];
+		*pBitmapData = new VistaType::byte[iBuffersize];
 
 		// deep copy image data
 		memcpy(*pBitmapData, pNewBitmap, iBuffersize);
@@ -2612,7 +2506,7 @@ bool VistaOpenSGDisplayBridge::ReplaceForegroundImage(const std::string &sVpName
 													   osg::ImagePtr oNew,
 													   float xPos, float yPos)
 {
-	VistaViewport* viewport = m_pDMgr->GetViewportByName( sVpName ) ;
+	VistaViewport* viewport = m_pDisplayManager->GetViewportByName( sVpName ) ;
 	if( viewport != NULL )
 	{
 		ViewportData* vpdata = (ViewportData*)viewport->GetData() ;
@@ -2673,34 +2567,22 @@ bool VistaOpenSGDisplayBridge::ReplaceForegroundImage(const std::string &sVpName
 	return false;
 }
 
-bool VistaOpenSGDisplayBridge::CreateDisplaysFromIniFile(const std::string &strDisplayIniFile,
-														  const std::string &strDisplaySection)
-{
-	return true;
-}
-
 void VistaOpenSGDisplayBridge::SetShowCursor(bool bShowCursor)
 {
-	m_bShowCursor = bShowCursor;
-
-	IVistaWindowingToolkit *wta = GetVistaSystem()->GetWindowingToolkit();
-
-	// store current window
-	int window = wta->GetWindow();
+	m_bShowCursor = bShowCursor;	
 
 	// iterate over all glut window contexts from the DM
-	VistaOpenSGDisplayBridge::WindowData * pWindow;
-	map<string, VistaWindow *> mapWindows = GetDisplayManager()->GetWindows();
-	map<string, VistaWindow *>::iterator winIter = mapWindows.begin();
-	for( ; winIter != mapWindows.end(); ++winIter )
+	map<string, VistaWindow*> mapWindows = GetDisplayManager()->GetWindows();
+	map<string, VistaWindow*>::iterator itWindow = mapWindows.begin();
+	for( ; itWindow != mapWindows.end(); ++itWindow )
 	{
-		pWindow = (VistaOpenSGDisplayBridge::WindowData *)winIter->second->GetData();
-		// set glut window context to the current window
-		wta->SetWindow(pWindow->GetWindowId());
 		// toggle cursor
-		bShowCursor ? wta->SetCursor(wta->CURSOR_NORMAL) : wta->SetCursor(wta->CURSOR_NONE);
+		m_pWindowingToolkit->SetCursorIsEnabled( (*itWindow).second, bShowCursor );		
 	}
-
-	// restore previous glut window context
-	wta->SetWindow(window);
 }
+
+bool VistaOpenSGDisplayBridge::GetShowCursor() const
+{
+	return m_bShowCursor;
+}
+

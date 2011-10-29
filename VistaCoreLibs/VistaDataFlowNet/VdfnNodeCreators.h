@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnNodeCreators.h 23043 2011-08-23 14:13:18Z dr165799 $
 
 #ifndef _VDFNNODECREATORS_H
 #define _VDFNNODECREATORS_H
@@ -45,6 +45,8 @@
 #include "VdfnModuloCounterNode.h"
 #include "VdfnThresholdNode.h"
 #include "VdfnGetElementNode.h"
+
+#include <cassert>
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -78,7 +80,8 @@ class VistaDriverMap;
  *
  * inports and outports are optional arguments
  */
-class VISTADFNAPI VdfnShallowNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator {
+class VISTADFNAPI VdfnShallowNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
 public:
     /**
      * inports: subtree of name=type lists
@@ -90,7 +93,8 @@ public:
 /**
  * creates a VdfnTimerNode.
  */
-class VISTADFNAPI VdfnTimerNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator {
+class VISTADFNAPI VdfnTimerNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
 public:
     /**
      * single argument:
@@ -103,7 +107,8 @@ public:
 /**
  * creates VdfnTickTimerNode
  */
-class VdfnTickTimerNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator {
+class VdfnTickTimerNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
 public:
     /**
      * no arguments
@@ -114,7 +119,8 @@ public:
 /**
  * creates VdfnUpdateThresholdNode
  */
-class VdfnUpdateThresholdNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator {
+class VdfnUpdateThresholdNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
 public:
     virtual IVdfnNode *CreateNode(const VistaPropertyList &oParams) const;
 };
@@ -124,7 +130,8 @@ public:
  */
 
 template<class T>
-class VdfnThresholdNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator {
+class VdfnThresholdNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
 public:
 	 /**
      * arguments
@@ -135,22 +142,20 @@ public:
      */
     virtual IVdfnNode *CreateNode( const VistaPropertyList &oParams ) const
 	{
-		double dThreshold = 0.0;
-		bool bUseAbsoluteValue = false;
+		
 		int iMode = VdfnThresholdNode<T>::BTHM_BLOCK;
 		const VistaPropertyList &subs 
 				= oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
 
-		if( subs.HasProperty("threshold") )
-			dThreshold = subs.GetDoubleValue( "threshold" );
+		double dThreshold = 0.0;
+		subs.GetValue( "threshold", dThreshold );
 
-		if( subs.HasProperty( "compare_absolute_value" ) )
-			bUseAbsoluteValue = subs.GetBoolValue( "compare_absolute_value" );
+		bool bUseAbsoluteValue = false;
+		subs.GetValue( "compare_absolute_value", bUseAbsoluteValue );
 
-		
-		if( subs.HasProperty( "mode" ) )
-		{
-			std::string sModeName = subs.GetStringValue( "mode" );
+		std::string sModeName;		
+		if( subs.GetValue( "mode", sModeName ) )
+		{			
 			if( sModeName == "block" )
 				iMode = VdfnThresholdNode<T>::BTHM_BLOCK;
 			else if( sModeName == "output_zero" )
@@ -170,7 +175,8 @@ public:
  * creates VdfnGetTransformNode, needs a pointer to VdfnObjectRegistry to pass to the node in
  * case the target object is not found during a call to CreateNode()
  */
-class VISTADFNAPI VdfnGetTransformNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator {
+class VISTADFNAPI VdfnGetTransformNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
 public:
     /**
      * the object registry must outlive this node creator.
@@ -195,7 +201,8 @@ private:
  * creates an VdfnSetTransformNode, needs a pointer to VdfnObjectRegistry to pass to the node in
  * case the target object is not found during a call to CreateNode()
  */
-class VISTADFNAPI VdfnSetTransformNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator {
+class VISTADFNAPI VdfnSetTransformNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
 public:
     /**
      * the object registry must outlive this node creator.
@@ -217,7 +224,8 @@ private:
  * creates an VdfnApplyTransformNode, needs a pointer to VdfnObjectRegistry to pass to the node in
  * case the target object is not found during a call to CreateNode()
  */
-class VISTADFNAPI VdfnApplyTransformNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator {
+class VISTADFNAPI VdfnApplyTransformNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
 public:
     /**
      * the object registry must outlive this node creator.
@@ -238,7 +246,8 @@ private:
 /**
  * creates a VdfnHistoryProjectNode.
  */
-class VISTADFNAPI VdfnHistoryProjectNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator {
+class VISTADFNAPI VdfnHistoryProjectNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
 public:
     /**
      * single argument:
@@ -251,7 +260,8 @@ public:
 /**
  * creates a VdfnDriverSensorNode
  */
-class VISTADFNAPI VdfnDriverSensorNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator {
+class VISTADFNAPI VdfnDriverSensorNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
 public:
 
     /**
@@ -259,7 +269,8 @@ public:
      * @param pMap a pointer to the driver map to query for node creation
      */
     VdfnDriverSensorNodeCreate(VistaDriverMap *pMap)
-    : m_pMap(pMap) {
+    : m_pMap(pMap)
+	{
     }
 
     /**
@@ -282,7 +293,8 @@ private:
  * template to create an instance of a VdfnAggregateNode<>.
  */
 template<class T>
-class VdfnAggregateNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator {
+class VdfnAggregateNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
 public:
 
     /**
@@ -296,13 +308,18 @@ public:
 	{
         try
 		{
-            const VistaPropertyList &oSubs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
-			std::string sProp = oSubs.GetStringValue("in");
+			assert( oParams.HasSubList("param" ) );
+            const VistaPropertyList &oSubs = oParams.GetSubListConstRef("param");
+			std::string sProp;
+			oSubs.GetValue( "in", sProp );
 			bool bStoreNewestEntryLast = true;
-			if( oSubs.GetStringValue( "order" ) == "newest_entry_first" )
+			std::string sOrder;
+			if( oSubs.GetValue( "order", sOrder ) && sOrder == "newest_entry_first" )
 				bStoreNewestEntryLast = false;
             return new TVdfnAggregateNode<T>( sProp, bStoreNewestEntryLast );
-        } catch (VistaExceptionBase &x) {
+        }
+		catch (VistaExceptionBase &x)
+		{
             x.PrintException();
         }
         return NULL;
@@ -314,13 +331,15 @@ public:
  * creates a TVdfnChangeDetectNode<>
  */
 template<class T>
-class TVdfnChangeDetectNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator {
+class TVdfnChangeDetectNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
 public:
 
     /**
      * no argument.
      */
-    virtual IVdfnNode *CreateNode(const VistaPropertyList &oParams) const {
+    virtual IVdfnNode *CreateNode(const VistaPropertyList &oParams) const
+	{
         return new TVdfnChangeDetectNode<T>;
     }
 };
@@ -330,42 +349,68 @@ public:
  * @todo check error case... memory cleanup?
  */
 template<class T>
-class VdfnConstantValueNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator {
+class VdfnConstantValueNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
 public:
-    typedef T(*CConvFunc)(const std::string &);
+    typedef bool (*CConvFunc)(const std::string &, T& );
 
     /**
      * pass a conversion function from string (proplist input) to
      * type T.
      */
-    VdfnConstantValueNodeCreate(CConvFunc func)
-    : m_Cf(func) {
+    VdfnConstantValueNodeCreate( CConvFunc pfConvert = NULL )
+    : m_pfConvert( pfConvert )
+	{
+		if( m_pfConvert == NULL )
+			m_pfConvert = &VistaConversion::FromString<T>;
     }
 
     /**
      * one argument
      * - value: [type T as string]
      */
-    virtual IVdfnNode *CreateNode(const VistaPropertyList &oParams) const {
+    virtual IVdfnNode *CreateNode(const VistaPropertyList &oParams) const
+	{
         TVdfnConstantValueNode<T> *pNode = new TVdfnConstantValueNode<T>;
-        try {
-            const VistaPropertyList &prams = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
-            if (prams.HasProperty("value")) {
-                pNode->SetValue(m_Cf(prams.GetStringValue("value")));
+        try
+		{
+            const VistaPropertyList &prams = oParams.GetSubListConstRef("param");
+			std::string sValue;
+            if( prams.GetValue( "value", sValue ) )
+			{
+				T oVal;
+				if( m_pfConvert( sValue, oVal ) )
+				{
+					pNode->SetValue( oVal );
+				}
+				else
+				{
+					vstr::warnp() << "[VdfnConstantValueNodeCreate]: Default value ["
+						<< sValue << "] could not be converted to " 
+						<< VistaConversion::GetTypeName<T>() << std::endl;
+				}
             }
-        } catch (VistaExceptionBase &x) {
+			else
+			{
+				vstr::warnp() << "[VdfnConstantValueNodeCreate]: No parameter [value] specified"
+							<< std::endl;
+			}
+        }
+		catch (VistaExceptionBase &x)
+		{
             x.PrintException();
         }
         return pNode;
     }
 private:
-    CConvFunc m_Cf;
+    CConvFunc m_pfConvert;
 };
 
 /**
  * creates a VdfnLoggerNode.
  */
-class VISTADFNAPI VdfnLoggerNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator {
+class VISTADFNAPI VdfnLoggerNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
 public:
     /**
      * arguments
@@ -388,7 +433,8 @@ public:
     virtual IVdfnNode *CreateNode(const VistaPropertyList &oParams) const;
 };
 
-class VdfnCompositeNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator {
+class VdfnCompositeNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
 public:
     virtual IVdfnNode *CreateNode(const VistaPropertyList &oParams) const;
 };
@@ -398,13 +444,15 @@ class TVdfnVectorDecomposeNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator 
 public:
 
     virtual IVdfnNode *CreateNode(const VistaPropertyList &oParams) const {
-        try {
-            const VistaPropertyList &prams = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
+        try
+		{
+			assert( oParams.HasSubList("param" ) );
+            const VistaPropertyList &prams = oParams.GetSubListConstRef("param");
 
             // defaults to false when parameter not there
-            bool bInvertOrder = prams.GetBoolValue("InvertOrder");
+            bool bInvertOrder = prams.GetValueOrDefault<bool>("InvertOrder", false);
 
-            return new TVdfnVectorDecomposeNode<T > (bInvertOrder);
+            return new TVdfnVectorDecomposeNode<T> (bInvertOrder);
         } catch (VistaExceptionBase &x) {
             x.PrintException();
         }
@@ -413,17 +461,24 @@ public:
 };
 
 template<class T>
-class TVdfnCounterNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator {
+class TVdfnCounterNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
 public:
 
-    virtual IVdfnNode *CreateNode(const VistaPropertyList &oParams) const {
-        try {
-            const VistaPropertyList &prams = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
+    virtual IVdfnNode *CreateNode(const VistaPropertyList &oParams) const
+	{
+        try
+		{
+			assert( oParams.HasSubList("param" ) );
+            const VistaPropertyList &prams = oParams.GetSubListConstRef("param");
 
-            T oInitialValue = T(prams.GetDoubleValue("initial_value"));
+            T oInitialValue;
+			prams.GetValue( "initial_value", oInitialValue );
 
-            return new TVdfnCounterNode<T > (oInitialValue);
-        } catch (VistaExceptionBase &x) {
+            return new TVdfnCounterNode<T>( oInitialValue );
+        }
+		catch (VistaExceptionBase &x)
+		{
             x.PrintException();
         }
         return NULL;
@@ -431,20 +486,29 @@ public:
 };
 
 template<class T>
-class TVdfnModuloCounterNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator {
+class TVdfnModuloCounterNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
 public:
 
-    virtual IVdfnNode *CreateNode(const VistaPropertyList &oParams) const {
-        try {
+    virtual IVdfnNode *CreateNode(const VistaPropertyList &oParams) const
+	{
+        try
+		{
             const VistaPropertyList &oSubs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
 
-            T oInitialValue = T(oSubs.GetDoubleValue("initial_value"));
-            T oModulo = T(oSubs.GetDoubleValue("modulo"));
-            if (oModulo == 0)
-                oModulo = 1;
+			T oInitialValue = oSubs.GetValueOrDefault( "initial_value", 0 );
+			T oModulo = 1;			
+			if( oSubs.GetValue( "modulo", oModulo ) == false )
+			{
+				vstr::warnp() << "[TVdfnModuloCounterNode]: -- Could not create node "
+							<< "- no [modulo] specified" << std::endl;
+				return NULL;
+			}
 
-            return new TVdfnModuloCounterNode<T > (oInitialValue, oModulo);
-        } catch (VistaExceptionBase &x) {
+			return new TVdfnModuloCounterNode<T > (oInitialValue, oModulo);
+        }
+		catch (VistaExceptionBase &x)
+		{
             x.PrintException();
         }
         return NULL;
@@ -469,9 +533,7 @@ public:
 		{
             const VistaPropertyList &oSubs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
 
-			int nIndex = -1;
-			if( oSubs.HasProperty( "index" ) )
-				nIndex = oSubs.GetIntValue( "index" );          
+			int nIndex = oSubs.GetValueOrDefault<int>( "index", -1 );
             return new TVdfnGetElementNode<Container, Type>( nIndex );
         } 
 		catch (VistaExceptionBase &x)
@@ -492,9 +554,7 @@ public:
 		{
             const VistaPropertyList &oSubs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
 
-			int nIndex = -1;
-			if( oSubs.HasProperty( "index" ) )
-				nIndex = oSubs.GetIntValue( "index" );          
+			int nIndex = oSubs.GetValueOrDefault<int>( "index", -1 );
             return new TVdfnGetElementFromArrayNode<Container, Type, Size>( nIndex );
         } 
 		catch (VistaExceptionBase &x)

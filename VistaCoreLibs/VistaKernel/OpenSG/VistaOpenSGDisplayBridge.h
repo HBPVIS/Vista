@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaOpenSGDisplayBridge.h 23493 2011-09-22 16:12:15Z dr165799 $
 
 #ifndef _VISTAOPENSGDISPLAYBRIDGE_H
 #define _VISTAOPENSGDISPLAYBRIDGE_H
@@ -42,7 +42,10 @@
 #ifdef WIN32
 // disable warnings from OpenSG
 #pragma warning(push)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4189)
 #pragma warning(disable: 4231)
+#pragma warning(disable: 4267)
 #endif
 
 #include <OpenSG/OSGConfig.h>
@@ -70,6 +73,7 @@
 /*============================================================================*/
 class VistaOpenSGNodeData;
 class VistaDisplayManager;
+class IVistaWindowingToolkit;
 
 
 /*============================================================================*/
@@ -90,137 +94,201 @@ public:
 	class VistaOpenSG2DBitmap;
 
 	// CONSTRUCTOR / DESTRUCTOR
-	VistaOpenSGDisplayBridge(	osg::RenderAction *pRenderAction,
-								osg::NodePtr pRealRoot);
+	VistaOpenSGDisplayBridge( osg::RenderAction* pRenderAction,
+								osg::NodePtr pRealRoot );
 	virtual ~VistaOpenSGDisplayBridge();
 
-	virtual bool CreateDisplaysFromIniFile(const std::string &strDisplayIniFile,
-		const std::string &strDisplaySection);
+	osg::RenderAction* GetRenderAction() const;
 
-	osg::RenderAction * GetRenderAction() const;
+	void OnWindowSizeUpdate( VistaWindow *pTarget );
 
-	// render to all windows in the display manager
-	void Draw();
+	void SetDisplayManager(VistaDisplayManager *);
+	VistaDisplayManager *GetDisplayManager() const;
+	
+	void UpdateDisplaySystem( VistaDisplaySystem* pDisplaySystem  );
+
+
+
+	// ###############################################################
+	// DISPLAYBRIDGE interface Implementation
+	// ###############################################################
 
 	/**
 	 * Update display systems. All necessary information is to be retrieved
 	 * from the registered display manager.
 	 */
-	bool UpdateDisplaySystems ( VistaDisplayManager * pDisplayManager );
-	void UpdateDisplaySystem  ( VistaDisplaySystem  * pDisplaySystem  );
-	VistaDisplaySystem * CreateDisplaySystem( VistaVirtualPlatform * pReferenceFrame,
-												VistaDisplayManager  * pDisplayManager,
-												const VistaPropertyList & refProps );
+	virtual bool UpdateDisplaySystems( VistaDisplayManager* pDisplayManager );
 
-	bool DestroyDisplaySystem( VistaDisplaySystem * pDisplaySystem );
-	void DebugDisplaySystem( std::ostream & out, const VistaDisplaySystem * pTarget );
-	void SetViewerPosition( const VistaVector3D & v3Pos, VistaDisplaySystem * pTarget );
-	void GetViewerPosition( VistaVector3D & v3Pos, const VistaDisplaySystem * pTarget );
-	void SetViewerOrientation( const VistaQuaternion & qOrient, VistaDisplaySystem * pTarget );
-	void GetViewerOrientation( VistaQuaternion & qOrient, const VistaDisplaySystem * pTarget );
-	void SetEyeOffsets( const VistaVector3D & v3LeftOffset, const VistaVector3D & v3RightOffset,
-						VistaDisplaySystem * pTarget );
-	void GetEyeOffsets( VistaVector3D & v3LeftOffset, VistaVector3D & v3RightOffset,
-						const VistaDisplaySystem * pTarget );
-	void SetLocalViewer( bool bLocalViewer, VistaDisplaySystem * pTarget );
-	bool GetLocalViewer( const VistaDisplaySystem * pTarget );
-	void SetHMDModeActive( bool bSet, VistaDisplaySystem * pTarget );
-	bool GetHMDModeActive( const VistaDisplaySystem * pTarget );
+	/**
+	 * Render the current scene to all active windows
+	 */
+	virtual bool DrawFrame();
+	/**
+	 * Swap the Buffers of all active Windows, and displays them
+	 */
+	virtual bool DisplayFrame();
+	/**
+	 * Sets the callbacks that should be called for the main update loop.
+	 * Should be set by the VistaFrameLoop, but can be re-set after initialization,
+	 * but do so only! if you have a very good reason to do so (like defining your
+	 * own FrameLoop)
+	 */
+	virtual bool SetDisplayUpdateCallback( IVistaExplicitCallbackInterface* pCallback );	
 
-	virtual void ObserverUpdate( IVistaObserveable   * pObserveable, int msg, int ticket,
-								 VistaDisplaySystem * pTarget );
+	/**
+	 * Methods for display system management.
+	 */
+	virtual VistaDisplaySystem* CreateDisplaySystem( VistaVirtualPlatform* pReferenceFrame,
+									VistaDisplayManager* pDisplayManager,
+									const VistaPropertyList& refProps );
+	virtual bool DestroyDisplaySystem( VistaDisplaySystem* pDisplaySystem );
+	virtual void DebugDisplaySystem( std::ostream& oStream,
+									VistaDisplaySystem* pTarget );
+	virtual void SetViewerPosition( const VistaVector3D& v3Pos,
+									VistaDisplaySystem* pTarget );
+	virtual void GetViewerPosition( VistaVector3D& v3Pos,
+									const VistaDisplaySystem* pTarget );
+	virtual void SetViewerOrientation( const VistaQuaternion& qOrient,
+									VistaDisplaySystem* pTarget );
+	virtual void GetViewerOrientation( VistaQuaternion& qOrient,
+									const VistaDisplaySystem* pTarget );
+	virtual void SetEyeOffsets( const VistaVector3D& v3LeftOffset,
+									const VistaVector3D& v3RightOffset,
+									VistaDisplaySystem* pTarget );
+	virtual void GetEyeOffsets( VistaVector3D& v3LeftOffset,
+									VistaVector3D& v3RightOffset,
+									const VistaDisplaySystem* pTarget );
+	virtual void SetLocalViewer( bool bLocalViewer,
+									VistaDisplaySystem* pTarget );
+	virtual bool GetLocalViewer( const VistaDisplaySystem* pTarget );
+	virtual void SetHMDModeActive( bool bSet, VistaDisplaySystem* pTarget );
+	virtual bool GetHMDModeActive( const VistaDisplaySystem* pTarget );
+	virtual void ObserverUpdate( IVistaObserveable* pObserveable,
+									int nMessage,
+									int nTicket,
+									VistaDisplaySystem* pTarget );
 
 	/**
 	 * Methods for display management.
 	 */
-	VistaDisplay * CreateDisplay( VistaDisplayManager * pDisplayManager, const VistaPropertyList & refProps );
-	bool DestroyDisplay( VistaDisplay * pTarget );
-	void DebugDisplay( std::ostream & out, const VistaDisplay * pTarget );
+	virtual VistaDisplay* CreateDisplay( VistaDisplayManager* pDisplayManager,
+										 const VistaPropertyList& refProps );
+	virtual bool DestroyDisplay( VistaDisplay* pDisplay );
+	virtual void DebugDisplay( std::ostream& oStream, const VistaDisplay* pTarget );
 
 	/**
 	 * Methods for window management.
 	 */
-	VistaWindow * CreateVistaWindow( VistaDisplay * pDisplay, const VistaPropertyList & refProps );
-	bool DestroyVistaWindow( VistaWindow * pTarget );
-	void SetWindowStereo( bool bStereo, VistaWindow * pTarget );
-	bool GetWindowStereo( const VistaWindow * pTarget );
-	void SetWindowPosition( int x, int y, VistaWindow * pTarget );
-	void GetWindowPosition( int & x, int & y, const VistaWindow * pTarget );
-	void SetWindowSize( int w, int h, VistaWindow * pTarget );
-	void GetWindowSize( int & w, int & h, const VistaWindow * pTarget );
-	bool SetWindowVSync( bool bEnabled, VistaWindow *pTarget );
-	int GetWindowVSync( const VistaWindow *pTarget );
+	virtual IVistaWindowingToolkit* CreateWindowingToolkit( const std::string& sName );
+	virtual IVistaWindowingToolkit* GetWindowingToolkit() const;
 
-	// testing
-	void SetFullScreen( bool bFullScreen, VistaWindow * pTarget );
-	bool GetFullScreen( const VistaWindow * pTarget );
-
-	void SetWindowTitle( const std::string & strTitle, VistaWindow * pTarget );
-	std::string GetWindowTitle( const VistaWindow * pTarget );
-	int GetWindowId( const VistaWindow * pTarget );
-	void DebugVistaWindow( std::ostream & out, const VistaWindow * pTarget );
+	virtual VistaWindow* CreateVistaWindow( VistaDisplay* pDisplay,
+									const VistaPropertyList& refProps );
+	virtual bool DestroyVistaWindow( VistaWindow* pWindow );
+	virtual bool SetWindowStereo( bool bStereo,
+									VistaWindow* pTarget);
+	virtual bool GetWindowStereo( const VistaWindow* pTarget );
+	virtual bool SetWindowAccumBufferEnabled( bool bAccumBufferEnabled,
+									VistaWindow* pTarget );
+	virtual bool GetWindowAccumBufferEnabled( const VistaWindow*  pTarget );
+	virtual bool SetWindowStencilBufferEnabled( bool bStencilBufferEnabled,
+									VistaWindow* pTarget );
+	virtual bool GetWindowStencilBufferEnabled( const VistaWindow* pTarget );
+	virtual bool SetWindowPosition( int nXPos, int nYPos,
+									VistaWindow* pTarget);
+	virtual bool GetWindowPosition( int& nXPos, int& nYPos,
+									const VistaWindow* pTarget );
+	virtual bool SetWindowSize( int nWidth, int nHeight,
+									VistaWindow* pTarget);
+	virtual bool GetWindowSize( int& nWidth, int& nHeight,
+									const VistaWindow* pTarget);
+	virtual bool SetWindowVSync( bool bEnabled,
+									VistaWindow* pTarget );
+	virtual int GetWindowVSync( const VistaWindow* pTarget );
+	virtual bool SetFullScreen( bool bFullScreen,
+									VistaWindow* pTarget);
+	virtual bool GetFullScreen( const VistaWindow* pTarget );
+	virtual int GetWindowId( const VistaWindow* pTarget );
+	virtual bool SetWindowTitle( const std::string& strTitle,
+									VistaWindow* pTarget );
+	virtual std::string GetWindowTitle( const VistaWindow* pTarget );
+	virtual void DebugVistaWindow( std::ostream& oStream,
+									const VistaWindow* pTarget );
 
 	/**
 	 * Methods for viewport management.
 	 */
-	VistaViewport * CreateViewport
-	( VistaDisplaySystem * pDisplaySystem, VistaWindow * pWindow, const VistaPropertyList & refProps );
-	bool DestroyViewport( VistaViewport * pTarget );
-	void SetViewportPosition( int x, int y, VistaViewport * pTarget );
-	void GetViewportPosition( int & x, int & y, const VistaViewport * pTarget );
-	void SetViewportSize( int w, int h, VistaViewport * pTarget );
-	void GetViewportSize( int & w, int & h, const VistaViewport * pTarget );
-	void DebugViewport( std::ostream & out, const VistaViewport * pTarget );
+	virtual VistaViewport* CreateViewport( VistaDisplaySystem* pDisplaySystem,
+									VistaWindow* pWindow,
+									const VistaPropertyList& refProps );
+	virtual bool DestroyViewport( VistaViewport* pViewport );
+	virtual void SetViewportPosition( int nXPos, int nYPos,
+									VistaViewport* pTarget);
+	virtual void GetViewportPosition( int& nXPos, int& nYPos,
+									const VistaViewport* pTarget);
+	virtual void SetViewportSize(int nWidth, int nHeight,
+									VistaViewport* pTarget);
+	virtual void GetViewportSize(int& nWidth, int& nHeight,
+									const VistaViewport* pTarget);
+	virtual void DebugViewport( std::ostream& oStream,
+									const VistaViewport* pTarget );
 
 	/**
 	 * Methods for projection management.
 	 */
-	VistaProjection * CreateProjection( VistaViewport * pViewport, const VistaPropertyList & refProps );
-	bool DestroyProjection( VistaProjection * pTarget );
-	void SetProjectionPlane( const VistaVector3D & v3MidPoint, const VistaVector3D & v3NormalVector,
-							 const VistaVector3D & v3UpVector, VistaProjection * pTarget );
-	void GetProjectionPlane( VistaVector3D & v3MidPoint, VistaVector3D & v3NormalVector,
-							 VistaVector3D & v3UpVector, const VistaProjection * pTarget );
-	void SetProjPlaneExtents( double dLeft, double dRight, double dBottom, double dTop,
-							  VistaProjection * pTarget );
-	void GetProjPlaneExtents( double & dLeft, double & dRight, double & dBottom, double & dTop,
-							  const VistaProjection * pTarget );
-	void SetProjClippingRange( double   dNear, double   dFar,       VistaProjection * pTarget );
-	void GetProjClippingRange( double & dNear, double & dFar, const VistaProjection * pTarget );
-	void SetProjStereoMode( int iMode, VistaProjection * pTarget );
-	int  GetProjStereoMode( const VistaProjection * pTarget );
-	void DebugProjection( std::ostream & out, const VistaProjection * pTarget );
+	virtual VistaProjection* CreateProjection( VistaViewport* pViewport,
+									const VistaPropertyList& refProps );
+	virtual bool DestroyProjection( VistaProjection* pProjection );
+	virtual void SetProjectionPlane( const VistaVector3D& v3MidPoint,
+									const VistaVector3D& v3NormalVector,
+									const VistaVector3D& v3UpVector,
+									VistaProjection* pTarget );
+	virtual void GetProjectionPlane( VistaVector3D& v3MidPoint,
+									VistaVector3D& v3NormalVector,
+									VistaVector3D& v3UpVector,
+									const VistaProjection* pTarget );
+	virtual void SetProjPlaneExtents( double dLeft, double dRight, double dBottom, double dTop,
+									VistaProjection* pTarget );
+	virtual void GetProjPlaneExtents( double& dLeft, double& dRight, double& dBottom, double& dTop,
+									const VistaProjection* pTarget );
+	virtual void SetProjClippingRange( double dNear, double dFar,
+									VistaProjection* pTarget );
+	virtual void GetProjClippingRange( double& dNear, double& dFar,
+									const VistaProjection* pTarget );
+	virtual void SetProjStereoMode( int iMode, VistaProjection* pTarget );
+	virtual int  GetProjStereoMode( const VistaProjection* pTarget);
+	virtual void DebugProjection( std::ostream& oStream, const VistaProjection* pTarget );
 
-	bool SetActionFunction(void (*)());
+	
+	virtual bool MakeScreenshot( const VistaWindow& pWindow,
+									const std::string& strFilenamePrefix,
+									const bool bNoScreenshotOnClients = true ) const;
 
-	void SetDisplayManager(VistaDisplayManager *);
-	VistaDisplayManager *GetDisplayManager() const;
+	virtual Vista2DText* New2DText( const std::string& strWindowName = "" );
+	virtual Vista2DBitmap* New2DBitmap( const std::string& strWindowName = "" );
+	virtual Vista2DLine* New2DLine( const std::string& strWindowName = "" );
+	virtual Vista2DRectangle* New2DRectangle( const std::string& strWindowName = "" );
 
+	virtual bool Get2DOverlay( const std::string& strWindowName,
+							  std::list<Vista2DDrawingObject*>& );
 
-	// PIXEL SPACE FUNCTIONALITY
-	virtual bool MakeScreenshot(const VistaWindow &vp,
-				const std::string &strFilenamePrefix,
-				const bool &bNoScreenshotOnClients = true) const;
-
-	virtual Vista2DText*	Add2DText(const std::string &strVpName = "") ;
-	virtual Vista2DBitmap*	Add2DBitmap	(const std::string &strVpName = "") ;
-	virtual Vista2DLine*	Add2DLine	(const std::string &strVpName ="") ;
-	virtual Vista2DRectangle*	Add2DRectangle	(const std::string &strVpName ="") ;
-	virtual bool Get2DOverlay(const std::string &strVpName, std::list<Vista2DDrawingObject*>&) ;
-
-
-	virtual bool AddSceneOverlay(IVistaSceneOverlay *pDraw, const std::string &strVpName = "");
-	virtual bool RemSceneOverlay(IVistaSceneOverlay *pDraw, const std::string &strVpName = "");
+	virtual bool AddSceneOverlay( IVistaSceneOverlay* pDraw,
+									VistaViewport* pViewport );
+	virtual bool RemSceneOverlay( IVistaSceneOverlay* pDraw,
+									VistaViewport* pViewport );
 
 	/// returns an RBG or RGBA image with 8 bits per channel
 	/// when you no longer need the raw-buffer, use free to clear up the space
-	virtual bool DoLoadBitmap(const std::string &strNewFName, unsigned char** pBitmapData, int& nWidth, int& nHeight, bool& bAlpha ) ;
+	virtual bool DoLoadBitmap( const std::string& strNewFName,
+							  VistaType::byte** pBitmapData,
+							  int& nWidth,
+							  int& nHeight,
+							  bool& bAlpha );
 
-	virtual bool Delete2DDrawingObject(Vista2DDrawingObject* p2DObject) ;
+	virtual bool Delete2DDrawingObject( Vista2DDrawingObject* p2DObject );
 
-	// cursor stuff
-	virtual bool GetShowCursor() const {return m_bShowCursor; }
-	void SetShowCursor(bool bShowCursor);
+	virtual bool GetShowCursor() const;
+	virtual void SetShowCursor( bool bShowCursor );
 
 	// ###############################################################
 	// LOCAL CLASSES
@@ -237,29 +305,29 @@ public:
 		DisplaySystemData();
 		virtual ~DisplaySystemData();
 
-	VistaVector3D   GetLeftEyeOffset()     const;
-	VistaVector3D   GetRightEyeOffset()    const;
+		VistaVector3D   GetLeftEyeOffset()     const;
+		VistaVector3D   GetRightEyeOffset()    const;
 
-	void SetPlatformTransformation( const VistaTransformMatrix & matrix );
+		void SetPlatformTransformation( const VistaTransformMatrix& matrix );
 
-	void SetPlatformTranslation( const VistaVector3D & v3Pos );
-	VistaVector3D GetPlatformTranslation() const;
+		void SetPlatformTranslation( const VistaVector3D& v3Pos );
+		VistaVector3D GetPlatformTranslation() const;
 
-	void SetPlatformOrientation( const VistaQuaternion & qOri );
-	VistaQuaternion GetPlatformOrientation() const;
+		void SetPlatformOrientation( const VistaQuaternion& qOri );
+		VistaQuaternion GetPlatformOrientation() const;
 
-	void SetCameraPlatformTransformation( const VistaTransformMatrix & matrix );
-	VistaTransformMatrix GetCameraPlatformTransformation() const;
+		void SetCameraPlatformTransformation( const VistaTransformMatrix& matrix );
+		VistaTransformMatrix GetCameraPlatformTransformation() const;
 
-	void SetCameraPlatformTranslation( const VistaVector3D & v3Pos );
-	VistaVector3D GetCameraPlatformTranslation() const;
+		void SetCameraPlatformTranslation( const VistaVector3D& v3Pos );
+		VistaVector3D GetCameraPlatformTranslation() const;
 
-	void SetCameraPlatformOrientation( const VistaQuaternion & qOri );
-	VistaQuaternion GetCameraPlatformOrientation() const;
+		void SetCameraPlatformOrientation( const VistaQuaternion& qOri );
+		VistaQuaternion GetCameraPlatformOrientation() const;
 
 
-	void SetHMDModeActive( const bool &bSet );
-	bool GetHMDModeActive() const;
+		void SetHMDModeActive( const bool bSet );
+		bool GetHMDModeActive() const;
 
 	private:
 		bool                m_bLocalViewer;
@@ -281,7 +349,7 @@ public:
 		friend class VistaOpenSGDisplayBridge;
 	public:
 		DisplayData();
-		DisplayData( const std::string & sDisplayName );
+		DisplayData( const std::string& sDisplayName );
 
 		std::string GetDisplayName() const;
 	private:
@@ -299,21 +367,27 @@ public:
 		WindowData();
 		virtual ~WindowData();
 
-		int GetWindowId()                const;
-		std::string GetTitle()               const;
-		bool GetDrawBorder()                 const;
-		bool GetFullScreen()                 const;
-		bool GetStereo()                     const;
-		int	GetOldWindowSize()			const;
+		//std::string GetTitle() const;
+		//bool GetDrawBorder() const;
+		//bool GetFullScreen() const;
+		//bool GetStereo() const;
+		//bool GetAccumBufferEnabled() const;
+		//bool GetStencilBufferEnabled() const;
 		osg::WindowPtr GetOpenSGWindow() const;
+		void ObserveWindow( VistaWindow* pWindow, VistaOpenSGDisplayBridge* pBridge );
 	private:
-		int                    m_iWindowId;
-		std::string            m_strTitle;
-		bool                   m_bDrawBorder;
-		bool                   m_bFullScreen;
-		bool                   m_bStereo; // just in case someone asks ;-)
-		int*					m_pOldWindowSize;
-	osg::PassiveWindowRefPtr  m_ptrWindow;
+		class WindowObserver;
+		WindowObserver*	m_pObserver;
+		//std::string				m_sTitle;
+		//bool					m_bDrawBorder;
+		//bool					m_bFullScreen;
+		//bool					m_bStereo;
+		//bool					m_bStencilBufferEnabled;
+		//bool					m_bAccumBufferEnabled;
+		osg::PassiveWindowRefPtr  m_ptrWindow;
+		//int						m_iOrigPosX, m_iOrigPosY;
+		//int						m_iOrigSizeX, m_iOrigSizeY;
+		//int						m_iCurrentSizeX, m_iCurrentSizeY;
 	};
 
 
@@ -344,10 +418,12 @@ public:
 
 	private:
 		bool             m_bStereo; // just in case someone asks ;-)
+		bool             m_bAccumBufferEnabled;
+		bool             m_bStencilBufferEnabled;
 		osg::ViewportPtr m_Viewport;
 		osg::ViewportPtr m_RightViewport;
 		osg::VistaOpenSGTextForegroundPtr m_TextForeground;
-		osg::VistaOpenSGGLOverlayForegroundPtr m_overlays;
+		osg::VistaOpenSGGLOverlayForegroundPtr m_pOverlays;
 		osg::ImageForegroundPtr m_oBitmaps;
 
 		std::list<Vista2DDrawingObject*> m_liOverlays;
@@ -377,18 +453,18 @@ public:
 		double         GetTop()          const;
 		int            GetStereoMode()   const;
 
-	void SetCameraTransformation( const VistaVector3D & v3CamPos,
-								  const VistaQuaternion & qCamOri );
+	void SetCameraTransformation( const VistaVector3D& v3CamPos,
+								  const VistaQuaternion& qCamOri );
 
-	void GetCameraTransformation( VistaVector3D & v3CamPos,
-								  VistaQuaternion & qCamOri ) const;
-	void SetCameraTranslation( const VistaVector3D & v3CamPos );
+	void GetCameraTransformation( VistaVector3D& v3CamPos,
+								  VistaQuaternion& qCamOri ) const;
+	void SetCameraTranslation( const VistaVector3D& v3CamPos );
 	VistaVector3D GetCameraTranslation() const;
-	void SetCameraOrientation( const VistaQuaternion & qCamOri );
+	void SetCameraOrientation( const VistaQuaternion& qCamOri );
 	VistaQuaternion GetCameraOrientation() const;
 
 	void SetProjectionPlane();
-	void SetEyes( const VistaVector3D & v3LeftOffset, const VistaVector3D & v3RightOffset );
+	void SetEyes( const VistaVector3D& v3LeftOffset, const VistaVector3D& v3RightOffset );
 
 	osg::ProjectionCameraDecoratorPtr GetCamera () const;
 	private:
@@ -425,7 +501,7 @@ public:
 		// ###############################################
 
 		bool SetBitmap(const std::string &strNewFName);
-		bool GetDimensions(int & nWidth, int & nHeight);
+		bool GetDimensions(int& nWidth, int& nHeight);
 		bool SetPosition(float fPosX, float fPosY);
 
 		osg::ImagePtr m_oImage;
@@ -443,15 +519,13 @@ private:
 
 	static void ReshapeFunction(int width, int height);
 
-	void (*m_pActionFunction)();
-
 	bool m_bShowCursor;
 
-	osg::RenderAction * m_pRenderAction;
+	osg::RenderAction* m_pRenderAction;
 
 	osg::NodePtr m_pRealRoot;
-	VistaDisplayManager *m_pDMgr;
-	static VistaOpenSGDisplayBridge *g_DispBridge;
+	IVistaWindowingToolkit* m_pWindowingToolkit;
+	VistaDisplayManager *m_pDisplayManager;
 };
 
 /*============================================================================*/

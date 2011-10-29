@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDriverGenericParameterAspect.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTADRIVERGENERICPARAMETERASPECT_H
 #define _VISTADRIVERGENERICPARAMETERASPECT_H
@@ -46,9 +46,6 @@
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
-/**
- *
- */
 class VISTADEVICEDRIVERSAPI VistaDriverGenericParameterAspect
                           : public IVistaDeviceDriver::IVistaDeviceDriverAspect
 {
@@ -57,7 +54,7 @@ public:
 	{
 		REFL_DECLARE
 	public:
-		~IParameterContainer();
+		virtual ~IParameterContainer();
 
 		virtual bool TurnDef( bool def ) { return false; }
 		virtual bool Apply() { return true; }
@@ -68,6 +65,7 @@ public:
 	class IContainerCreate
 	{
 	public:
+		virtual ~IContainerCreate() {}
 		virtual IParameterContainer *CreateContainer() = 0;
 		virtual bool DeleteContainer( IParameterContainer *pContainer ) = 0;
 	};

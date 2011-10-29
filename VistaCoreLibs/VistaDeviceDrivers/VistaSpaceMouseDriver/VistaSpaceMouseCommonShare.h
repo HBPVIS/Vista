@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSpaceMouseDriver.h 5570 2010-10-26 20:21:11Z ingoassenmacher $
 
 #ifndef _VISTASPACEMOUSEDRIVERCONFIG_H
 #define _VISTASPACEMOUSEDRIVERCONFIG_H
@@ -54,15 +54,6 @@ namespace VistaSpaceMouseMeasures
 
 		double m_nButtonStates[9];
 	};
-
-	static char SCodeTable[16] =
-	{
-		'0','A','B','3',
-		'D','5','6','G',
-		'H','9',':','K',
-		'<','M','N','?'
-	};
 }
-
 
 #endif // _VISTASPACEMOUSEDRIVERCONFIG_H

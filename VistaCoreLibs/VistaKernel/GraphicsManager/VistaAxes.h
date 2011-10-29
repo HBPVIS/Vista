@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaAxes.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTAXES_H
 #define _VISTAXES_H
@@ -36,7 +36,7 @@
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
 
-class VistaSG;
+class VistaSceneGraph;
 class IVistaNode;
 class VistaGroupNode;
 
@@ -54,7 +54,7 @@ class VISTAKERNELAPI VistaAxes
 {
 public:
 
-	VistaAxes(VistaSG * pVistaSG,
+	VistaAxes(VistaSceneGraph * pVistaSceneGraph,
 			  float sizeX=1.0f, float sizeY=1.0f, float sizeZ=1.0f);
 	virtual ~VistaAxes();
 

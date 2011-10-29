@@ -69,8 +69,6 @@ set( DirFiles
 	VdfnNodeFactory.h
 	VdfnObjectRegistry.cpp
 	VdfnObjectRegistry.h
-	VdfnOut.cpp
-	VdfnOut.h
 	VdfnPersistence.cpp
 	VdfnPersistence.h
 	VdfnPort.cpp

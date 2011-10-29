@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDeviceSensor.h 22286 2011-07-06 20:56:09Z dr165799 $
 
 #ifndef _VISTADEVICESENSOR_H
 #define _VISTADEVICESENSOR_H
@@ -77,6 +77,8 @@ public:
 		: m_nMeasureIdx(0),
 		  m_nMeasureTs(0),
 		  m_nSwapTime(0),
+		  m_nDeliverTs(0),
+		  m_nAverageDeliverTime(0),
 		  m_nEndianess(VistaSerializingToolset::GetPlatformEndianess())
 	{
 	}
@@ -87,6 +89,8 @@ public:
 		:m_nMeasureIdx(nMeasureIdx),
 		 m_nMeasureTs(nTs),
 		 m_nSwapTime(0),
+		 m_nDeliverTs(0),
+		 m_nAverageDeliverTime(0),
 		 m_nEndianess(VistaSerializingToolset::GetPlatformEndianess()),
 		 m_vecMeasures(nSize)
 	{}
@@ -95,7 +99,7 @@ public:
 	VistaType::microtime     m_nMeasureTs;
 	VistaType::microtime     m_nSwapTime;
 	VistaType::uint32        m_nEndianess; //<** 0: unknown, 1: LITTLE, 2: MIDDLE, 3: BIG */
-	typedef std::vector<unsigned char> MEASUREVEC;
+	typedef std::vector<VistaType::byte> MEASUREVEC;
 	MEASUREVEC m_vecMeasures;
 	VistaType::microtime     m_nDeliverTs; /**< age of sample in history */
     VistaType::microtime     m_nAverageDeliverTime;
@@ -210,8 +214,9 @@ private:
 
 class VISTADEVICEDRIVERSAPI ResolveMeasureFunctor : public std::unary_function<void,VistaSensorMeasure*>
 {
-	public:
-		virtual const VistaSensorMeasure *operator()( void ) const = 0;
+public:
+	virtual ~ResolveMeasureFunctor() {}
+	virtual const VistaSensorMeasure *operator()( void ) const = 0;
 };
 
 class VISTADEVICEDRIVERSAPI SimpleHistoryGet : public ResolveMeasureFunctor
@@ -520,6 +525,7 @@ public:
 class VISTADEVICEDRIVERSAPI ICreateTranscoder
 {
 public:
+	virtual ~ICreateTranscoder() {}
 	virtual IVistaMeasureTranscoderFactory *Create() const = 0;
 	virtual void OnUnload() = 0;
 };

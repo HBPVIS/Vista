@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaInteractionManager.h 22143 2011-07-01 15:07:00Z dr165799 $
 
 #ifndef _VISTAINTERACTIONMANAGER_H
 #define _VISTAINTERACTIONMANAGER_H
@@ -51,10 +51,10 @@ class IVistaDriverCreationMethod;
 class VistaInteractionContext;
 class VistaDriverMap;
 class VistaConnectionUpdater;
-class VistaUpdateObserver;
+class VistaInteractionUpdateObserver;
 class VistaInteractionEvent;
 class VistaWeightedAverageTimer;
-
+class VistaClusterMode;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -63,9 +63,11 @@ class VistaWeightedAverageTimer;
 class VISTAKERNELAPI VistaInteractionManager : public VistaEventHandler
 {
 public:
-	VistaInteractionManager(VistaEventManager *pMgr,
-		bool bIsServerInMa);
+	VistaInteractionManager( VistaEventManager *pEventManager );
 	virtual ~VistaInteractionManager();
+
+	bool Init( VistaDriverMap* pDriverMap,
+				bool bIsLeaderInCluster );
 
 	/**
 	 *  The update prio can be used to delay update in the
@@ -105,7 +107,7 @@ public:
 	 * @see RemInteractionContext() for removal
 	 * @see DelInteractionContext() for removal and memory disposal
 	 */
-	bool AddInteractionContext(VistaInteractionContext* pContext,
+	bool AddInteractionContext( VistaInteractionContext* pContext,
 								int nPriority,
 								bool bDelayedUpdate );
 	/**
@@ -113,14 +115,14 @@ public:
 	 * devices.  If events are currently being processed, this might
 	 * be delayed until after the next update loop.
 	 */
-	bool RemInteractionContext(VistaInteractionContext *);
+	bool RemInteractionContext( VistaInteractionContext* pContext );
 	/**
 	 * Deletes the interaction context. Behaves like
 	 * RemInteractionContext, but the VistaInteractionContext object
 	 * is also deleted. This may also be deferred until after the next
 	 * update loop.
 	 */
-	bool DelInteractionContext(VistaInteractionContext *);
+	bool DelInteractionContext( VistaInteractionContext* pContext );
 
 	int GetInteractionContextPriority( VistaInteractionContext* pContext ) const;
 	bool SetInteractionContextPriority( VistaInteractionContext* pContext,
@@ -131,7 +133,7 @@ public:
 										bool bDelayedUpdate );
 
 	/**
-	 * The only api to query for an interaction context by role id.
+	 * The api to query for an interaction context by role id.
 	 * @see RegisterRole()
 	 * @see UnregisterRole()
 	 * @see GetRoldId()
@@ -143,20 +145,26 @@ public:
 	VistaInteractionContext* GetInteractionContext( const int iIndex );
 
 	/**
-	 * Enumerates contexts with graphs and initializes them by calling EvaluateGraph(0).
+	 * Loads Context graphs and initializes them by calling EvaluateGraph(0).
 	 */
-	void InitializeGraphContexts();
-    void DumpGraphsToDot(bool bWritePorts) const;
+	void InitializeGraphContexts( const std::string& sNodeTag );
+	bool LoadGraphForContext( VistaInteractionContext* pContext,
+								const std::string& sNodeTag );
+	bool ReloadGraphForContext( VistaInteractionContext* pContext,
+								const std::string& sNodeTag,
+								const bool bDumpGraphAsDot = false,
+								const bool bWritePortsToDump = false );
+    void DumpGraphsToDot( bool bWritePorts ) const;
 
     VistaType::microtime GetAvgUpdateTime() const;
 	// ##########################################################
 	// ROLE API
 	// ##########################################################
-	unsigned int RegisterRole(const std::string &sRole);
-	bool         UnregisterRole(const std::string &sRole);
-	unsigned int GetRoleId(const std::string &sRole) const;
-	bool         GetIsRole(const std::string &sRole) const;
-	std::string  GetRoleForId(unsigned int nRoleId) const;
+	unsigned int RegisterRole( const std::string& sRole );
+	bool         UnregisterRole( const std::string& sRole );
+	unsigned int GetRoleId( const std::string& sRole ) const;
+	bool         GetIsRole( const std::string& sRole ) const;
+	std::string  GetRoleForId (unsigned int nRoleId ) const;
 
 
 	// ##########################################################
@@ -196,20 +204,20 @@ public:
 	// ##########################################################
 	// CREATION METHOD API
 	// ##########################################################
-	bool RegisterDriverCreationMethod(const std::string &sTypeName,
-		IVistaDriverCreationMethod *pMethod,
-		bool bForceRegistration = false);
-	bool UnregisterDriverCreationMethod(const std::string &sTypeName,
-		bool bDeleteDriverCreationMethod = true);
-	IVistaDriverCreationMethod *GetDriverCreationMethod(const std::string &sTypeName) const;
+	bool RegisterDriverCreationMethod( const std::string &sTypeName,
+									IVistaDriverCreationMethod *pMethod,
+									bool bForceRegistration = false );
+	bool UnregisterDriverCreationMethod (const std::string &sTypeName,
+									bool bDeleteDriverCreationMethod = true );
+	IVistaDriverCreationMethod *GetDriverCreationMethod( const std::string& sTypeName ) const;
 
 	// ##########################################################
 
 	class VISTAKERNELAPI IVistaPostUpdateFunctor
 	{
-		public:
-			virtual bool PostDriverUpdate(IVistaDeviceDriver *) = 0;
-		protected:
+	public:
+		virtual ~IVistaPostUpdateFunctor() {}
+		virtual bool PostDriverUpdate( IVistaDeviceDriver* pDriver ) = 0;
 	};
 
 	bool SetPostUpdateFunctor(const std::string &strDriverName,
@@ -236,15 +244,15 @@ private:
 
 		bool operator==(const DRIVER &) const;
 
-		IVistaDeviceDriver *m_pDriver;
-		int                 m_nPrio;
-		IVistaPostUpdateFunctor *m_pPostUpdate;
+		IVistaDeviceDriver*			m_pDriver;
+		int							m_nPrio;
+		IVistaPostUpdateFunctor*	m_pPostUpdate;
 	};
 
 	class CONTEXT
 	{
 	public:
-		CONTEXT(VistaInteractionContext *pCtx, int nPrio, bool bDelayedUpdate)
+		CONTEXT( VistaInteractionContext *pCtx, int nPrio, bool bDelayedUpdate )
 			: m_pContext(pCtx)
 			, m_nPrio(nPrio)
 			, m_bDelayedUpdate( bDelayedUpdate )
@@ -253,27 +261,28 @@ private:
 		bool operator==(const CONTEXT &) const;
 		bool operator<(const CONTEXT &) const;
 
-		VistaInteractionContext *m_pContext;
-		int                       m_nPrio;
+		VistaInteractionContext*	m_pContext;
+		int							m_nPrio;
 		bool						m_bDelayedUpdate;
 	};
 
-	std::vector<DRIVER>                        m_vecInFrameUpdates;
-	std::vector<IVistaDeviceDriver*>           m_vecThreadedUpdates;
-	std::vector<CONTEXT>                       m_vecLogicalDevices;
-	VistaDriverMap                           *m_mpDriverMap;
-	VistaConnectionUpdater                   *m_pUpdater;
-	VistaEventManager                        *m_pEvMgr;
-	VistaUpdateObserver                      *m_pEvObserver;
-	VistaInteractionEvent                    *m_pInteractionEvent;
-	VistaWeightedAverageTimer       *m_pAvgUpd;
-	bool                                       m_bProcessingEvents;
-	std::set<VistaInteractionContext*>        m_setRemoveAfterUpdate;
-	std::set<VistaInteractionContext*>        m_setDeleteAfterUpdate;
+	std::vector<DRIVER>					m_vecInFrameUpdates;
+	std::vector<IVistaDeviceDriver*>	m_vecThreadedUpdates;
+	std::vector<CONTEXT>				m_vecInteractionContexts;
+	VistaDriverMap*						m_pDriverMap;
+	VistaConnectionUpdater*				m_pUpdater;
+	VistaEventManager*					m_pEventManager;
+	VistaInteractionUpdateObserver*		m_pEventObserver;
+	VistaInteractionEvent*				m_pInteractionEvent;
+	VistaClusterMode*					m_pClusterMode;
+	VistaWeightedAverageTimer*			m_pAvgUpd;
+	bool								m_bProcessingEvents;
+	std::set<VistaInteractionContext*>	m_setRemoveAfterUpdate;
+	std::set<VistaInteractionContext*>	m_setDeleteAfterUpdate;
 
-	unsigned int                               m_nRoleIdCount;
-	bool                                       m_bIsServerInMa,
-											   m_bSwallowEvent;
+	unsigned int						m_nRoleIdCount;
+	bool								m_bIsActiveProducer;
+	bool								m_bSwallowEvent;
 
 
 	typedef std::map<unsigned int, std::string> ROLEMAP;

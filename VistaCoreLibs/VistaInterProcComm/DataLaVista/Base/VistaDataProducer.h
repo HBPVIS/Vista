@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDataProducer.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef IDLVISTADATAPRODUCER_H
 #define IDLVISTADATAPRODUCER_H
@@ -49,55 +49,25 @@ class IDLVistaDataConsumer;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI IDLVistaDataProducer : public IDLVistaPipeComponent
 {
 private:
 protected:
-	/**
-	 *
-	 */
 	virtual void FillPacket(IDLVistaDataPacket *pPacket ) =0;
-	/**
-	 *
-	 */
 	IDLVistaPipeComponent * m_pDatipcoutput;
-	/**
-	 *
-	 */
 	IDLVistaDataProducer();
 public:
 
-	/**
-	 *
-	 */
 	virtual ~IDLVistaDataProducer() = 0;
 
-	/**
-	 *
-	 */
 	virtual IDLVistaDataPacket * ProducePacket() =0;
 
-	/**
-	 *
-	 */
 	virtual bool PushPacket(IDLVistaDataPacket *pPacket = 0) =0;
 
-	/**
-	 *
-	 */
 	virtual bool HasPacket() const =0;
 
-	/**
-	 *
-	 */
 	virtual bool IsDataProducer() const { return true;}
 
-	/**
-	 *
-	 */
 	virtual bool IsDataConsumer() const { return false; }
 
 
@@ -105,41 +75,17 @@ public:
 
 	virtual bool IsOutputComponent(IDLVistaPipeComponent *pComp) const;
 
-	/**
-	 *
-	 */
 	virtual bool AttachInputComponent(IDLVistaPipeComponent *pComp);
-	/**
-	 *
-	 */
 	virtual bool DetachInputComponent(IDLVistaPipeComponent *pComp);
-	/**
-	 *
-	 */
 	virtual bool AttachOutputComponent(IDLVistaPipeComponent *pComp);
-	/**
-	 *
-	 */
 	virtual bool DetachOutputComponent(IDLVistaPipeComponent *pComp);
 
-   /**
-	 *
-	 */
 	virtual IDLVistaPipeComponent *GetOutboundByIndex(int iIndex) const;
 
-	/**
-	 *
-	 */
 	virtual IDLVistaPipeComponent *GetInboundByIndex(int iIndex) const;
 
-	/**
-	 *
-	 */
 	virtual int GetNumberOfOutbounds() const;
 
-	/**
-	 *
-	 */
 	virtual int GetNumberOfInbounds() const;
 
 

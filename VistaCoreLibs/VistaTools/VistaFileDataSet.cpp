@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaFileDataSet.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 
 /*============================================================================*/
@@ -38,7 +38,9 @@
 /*============================================================================*/
 
 #include "VistaFileDataSet.h"
-#include "VistaToolsOut.h"
+
+#include <VistaBase/VistaStreamUtils.h>
+
 #include <sstream>
 #include <cassert>    // assert()
 #include <iostream>
@@ -83,6 +85,7 @@ std::ostream& operator<<(std::ostream& out,VistaFileDataSet &data)
 				}
 				break;
 		}
+	default: break;
 	}
 
 	return out;
@@ -97,8 +100,7 @@ std::istream& operator>>(std::istream& in, VistaFileDataSet &data)
 	if (data.m_nType==VistaFileDataSet::DS_NOTSET)
 		data.m_nType = (VistaFileDataSet::DATASET_TYPE) type;
 
-	vtoolsout << "Dataset type "<<type<<endl;
-	vtoolsout.flush();
+	//vstr::outd << "Dataset type " << type << std::endl;
 
 	switch (type)
 	{
@@ -488,7 +490,7 @@ bool VistaFileDataSet::operator== (const VistaFileDataSet& rhs)
 	{
 		switch (m_nType)
 		{
-		case DS_PATTERN: 
+			case DS_PATTERN: 
 			{
 				// same pattern ?
 				if (m_strPattern != rhs.m_strPattern)
@@ -521,14 +523,14 @@ bool VistaFileDataSet::operator== (const VistaFileDataSet& rhs)
 
 				break;
 			}
-		case DS_DIRECTORY: 
+			case DS_DIRECTORY: 
 			{
 				// same directory ?
 				if (m_pDirectory->GetName() != rhs.m_pDirectory->GetName ())
 					bEqual=false;
 				break;
 			}
-		case DS_FILELIST: 
+			case DS_FILELIST: 
 			{
 				// same size ?
 				if (m_listFiles.size() != rhs.m_listFiles.size())
@@ -553,6 +555,11 @@ bool VistaFileDataSet::operator== (const VistaFileDataSet& rhs)
 					}
 					
 				}
+				break;
+			}
+			default:
+			{
+				bEqual = false;
 				break;
 			}
 		}

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaWin32SerialPortImp.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #if defined(WIN32)
 #ifndef _VISTAWIN32SERIALPORTIMP_H
@@ -50,80 +50,23 @@
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI VistaWin32SerialPortImp : public VistaSerialPortImp
 {
-private:
-
-	/**
-	 *
-	 */
-	DCB    m_myDcb;
-
-	/**
-	 *
-	 */
-	HANDLE m_hanPort;
-
-	DWORD    m_iReadMultiplier,
-			 m_iReadTimeout,
-			 m_iReadConstant;
-
-	OVERLAPPED m_hOverlap;
-protected:
-
-	/**
-	 *
-	 */
-	bool SetHardwareState();
-
-	/**
-	 *
-	 */
-	bool GetHardwareState();
-
-	virtual void Delay(int iMsecs) const;
-
 public:
-
-	/**
-	 *
-	 */
 	VistaWin32SerialPortImp();
-
-	/**
-	 *
-	 */
 	virtual ~VistaWin32SerialPortImp();
 
 
-	/**
-	 *
-	 */
 	virtual bool          OpenSerialPort() ;
-
-	/**
-	 *
-	 */
 	virtual bool          CloseSerialPort();
 
 	/**
 	 * Timeout-feature is currently NOT supported on win32
 	 */
 	virtual int           Receive(void *buffer, const int length, int iTimeout = 0) ;
-
-	/**
-	 *
-	 */
 	virtual int           Send(const void *buffer, const int length) ;
 
 
-	/**
-	 *
-	 */
 	virtual bool          SetBlockingMode ( unsigned long inReadInterval, unsigned long inReadMultiplyer, unsigned long inReadConstant );
 
 	/**
@@ -137,7 +80,21 @@ public:
 
 	virtual void          SetIsBlocking(bool bBlocking);
 
-	virtual HANDLE           GetDescriptor() const;
+	virtual HANDLE        GetDescriptor() const;
+
+protected:
+	bool SetHardwareState();
+	bool GetHardwareState();
+
+	virtual void Delay(int iMsecs) const;
+private:
+	DCB    m_myDcb;
+	HANDLE m_hanPort;
+	DWORD    m_iReadMultiplier,
+			 m_iReadTimeout,
+			 m_iReadConstant;
+	OVERLAPPED m_hOverlap;
+
 };
 
 

@@ -24,8 +24,6 @@
 
 #include "VistaHapticDeviceEmulatorDriver.h"
 
-#include <VistaDeviceDriversBase/VistaDeviceDriversOut.h>
-
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverConnectionAspect.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverMeasureHistoryAspect.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverWorkspaceAspect.h>

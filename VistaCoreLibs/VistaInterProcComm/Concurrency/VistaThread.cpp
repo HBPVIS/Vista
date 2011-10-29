@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaThread.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaThread.h"
 #include "Imp/VistaThreadImp.h"
@@ -154,6 +154,12 @@ long VistaThread::GetThreadIdentity() const
 {
 	return m_pImp->GetThreadIdentity();
 }
+
+long VistaThread::GetCallingThreadIdentity()
+{
+	return IVistaThreadImp::GetCallingThreadIdentity();
+}
+
 
 IVistaThreadImp *VistaThread::GetThreadImp() const
 {

@@ -2,6 +2,10 @@
 
 vista_adopt_version( VistaMath VistaCoreLibs )
 
+set( VISTAMATH_INTERNAL_DEPENDENCIES 
+			VistaBase )
+set( VISTAMATH_INTERNAL_DEPENDENCIES ${VISTAMATH_INTERNAL_DEPENDENCIES} PARENT_SCOPE )
+
 if( WIN32 )
 	if( BUILD_SHARED_LIBS )
 		add_definitions( -DVISTAMATH_EXPORTS )
@@ -14,7 +18,7 @@ include( "./_SourceFiles.cmake" )
 
 add_library( VistaMath ${ProjectSources} )
 target_link_libraries( VistaMath
-	VistaBase
+	${VISTAMATH_INTERNAL_DEPENDENCIES}
 )
 
 vista_configure_lib( VistaMath )

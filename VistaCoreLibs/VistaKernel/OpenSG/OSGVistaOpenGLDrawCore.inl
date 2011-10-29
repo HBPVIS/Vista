@@ -25,6 +25,7 @@
 // disable warnings from OpenSG
 #pragma warning(push)
 #pragma warning(disable: 4231)
+#pragma warning(disable: 4267)
 #endif
 
 #include <OpenSG/OSGConfig.h>

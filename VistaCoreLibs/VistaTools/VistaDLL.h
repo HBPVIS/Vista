@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDLL.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTADLL_H
 #define _VISTADLL_H
@@ -44,9 +44,7 @@
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
-/**
- * @todo rename to "CDynamicLibrary" (as after the removal of Vista prefix, just "DLL" or looks ugly ;))
- */
+
 class VISTATOOLSAPI VistaDLL
 {
 public:

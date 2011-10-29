@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSemaphoreImp.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTASEMAPHOREIMP_H
 #define _VISTASEMAPHOREIMP_H
@@ -42,10 +42,6 @@
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI IVistaSemaphoreImp
 {
 
@@ -57,51 +53,33 @@ public:
 		SEM_TYPE_COMPATIBLE
 	};
 
+	virtual ~IVistaSemaphoreImp();	
+
 	/**
-	 *
+	 * if semaphore value is > 0 then decrement it and carry on. If it's
+	 * already 0 then block.
 	 */
-	virtual ~IVistaSemaphoreImp();
-
-	// if semaphore value is > 0 then decrement it and carry on. If it's
-	// already 0 then block.
+	virtual void Wait    () = 0;	
 
 	/**
-	 *
+	 * if semaphore value is > 0 then decrement it and return true.
+	 * If it's already 0 then return false.
 	 */
-	virtual void Wait    () = 0;
-
-
-	// if semaphore value is > 0 then decrement it and return true.
-	// If it's already 0 then return false.
+	virtual bool TryWait () = 0;	
 
 	/**
-	 *
-	 */
-	virtual bool TryWait () = 0;
-
-
-	// if any threads are blocked in wait(), wake one of them up. Otherwise
-	// increment the value of the semaphore.
-
-	/**
-	 *
+	 * if any threads are blocked in wait(), wake one of them up. Otherwise
+	 * increment the value of the semaphore.
 	 */
 	virtual void Post    () = 0;
 
 
 	static IVistaSemaphoreImp *CreateSemaphoreImp(int iCnt, eSemType eType);
+
 protected:
 	IVistaSemaphoreImp  ( ) ;
 private:
-
-	/**
-	 *
-	 */
 	IVistaSemaphoreImp ( const IVistaSemaphoreImp & ) {};
-
-	/**
-	 *
-	 */
 	IVistaSemaphoreImp & operator=       ( const IVistaSemaphoreImp & ) { return *this; };
 
 };

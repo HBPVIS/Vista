@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaTimeoutRouter.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTATIMEOUTROUTER_H
 #define _VISTATIMEOUTROUTER_H
@@ -42,7 +42,7 @@
 /*============================================================================*/
 
 class VistaEventManager;
-class VistaClusterAux;
+class VistaClusterMode;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -71,7 +71,7 @@ class VISTAKERNELAPI VistaTimeoutRouter : public VistaTimeoutHandler
 public:
 
 	VistaTimeoutRouter(VistaEventManager *pEvMgr,
-						VistaClusterAux   *pAux);
+						VistaClusterMode   *pClusterMode);
 	virtual ~VistaTimeoutRouter();
 
 

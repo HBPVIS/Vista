@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaVRPNDriver.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 #include "VistaVRPNDriver.h"
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverInfoAspect.h>
@@ -29,9 +29,9 @@
 
 #include <VistaDeviceDriversBase/VistaDeviceSensor.h>
 #include <VistaDeviceDriversBase/VistaDriverUtils.h>
-#include <VistaDeviceDriversBase/VistaDeviceDriversOut.h>
 
 #include <VistaAspects/VistaAspectsUtils.h>
+#include <VistaBase/VistaStreamUtils.h>
 #include <VistaInterProcComm/Concurrency/VistaMutex.h>
 
 #include <stdio.h>
@@ -319,7 +319,7 @@ public:
 		if(strConnectionName.empty())
 			return; // should be more verbose?
 
-		vddout << "trying to connect to VRPN sensor @ [" << strConnectionName << "]" << std::endl;
+		vstr::outi() << "[VRPNDriver]: Trying to connect to VRPN sensor @ [" << strConnectionName << "]" << std::endl;
 
 		std::string strType;
 		vrpn_BaseClass *pVrpnHandle = NULL;
@@ -374,9 +374,9 @@ public:
 				= dynamic_cast<VistaDriverInfoAspect*>(m_pDriver->GetAspectById( VistaDriverInfoAspect::GetAspectId() ) );
 
 		VistaPropertyList &oSensorSection = (*info).GetInfoPropsWrite().GetPropertyRef("SENSORS").GetPropertyListRef();
-		std::string prefix = VistaAspectsConversionStuff::ConvertToString(nId)
+		std::string prefix = VistaConversion::ToString(nId)
 		                   + std::string(":")
-		                   + VistaAspectsConversionStuff::ConvertToString(nType)
+						   + VistaConversion::ToString(nType)
 						   + std::string(" (")
 						   + strType + ") ";
 
@@ -386,14 +386,14 @@ public:
 		// we do not care for that now, so let's go...
 		if( pVrpnHandle )
 		{
-			oSensorSection.SetStringValue(prefix + strConnectionName, "connected");
+			oSensorSection.SetValue( prefix + strConnectionName, "connected" );
 			pMap->m_pVRPNHandle = pVrpnHandle;
 			m_pDriver->AddVRPNSensor( pMap ); // set map to driver
 		}
 		else
 		{
 			delete pMap;
-			oSensorSection.SetStringValue(prefix + strConnectionName, "failed");
+			oSensorSection.SetValue( prefix + strConnectionName, "failed" );
 		}
 	}
 
@@ -421,7 +421,7 @@ VistaVRPNDriver::VistaVRPNDriver(IVistaDriverCreationMethod *crm)
 	VistaPropertyList &props = m_pInfo->GetInfoPropsWrite();
 	std::string sVRPNVersion( vrpn_cookie_size(), ' ' );
 	write_vrpn_cookie( &sVRPNVersion[0], vrpn_cookie_size(), 0 );
-	props.SetStringValue("VRPN_VERSION", sVRPNVersion );
+	props.SetValue("VRPN_VERSION", sVRPNVersion );
 	props.SetPropertyListValue("SENSORS", VistaPropertyList() );
 }
 

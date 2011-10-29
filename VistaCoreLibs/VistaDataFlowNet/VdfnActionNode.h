@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnActionNode.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VDFNACTIONNODE_H
 #define _VDFNACTIONNODE_H
@@ -147,6 +147,11 @@ public:
 	 */
 	bool PrepareEvaluationRun();
 
+	/**
+	 * Reloads the action object with the original name, in case it has changed
+	 */
+	bool ReloadActionObject();
+
 protected:
 	/**
 	 * the method tries to determine the need for an update of the node based on
@@ -231,6 +236,8 @@ private:
 	mutable unsigned int m_nCount;
 	mutable unsigned int m_nInCnt;
 	std::list<_sOutHlp> m_mpOutMap;
+
+	std::string m_sReflectionableType;
 
 	class _cActObserver;
 	_cActObserver *m_pObs;

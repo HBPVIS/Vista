@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaFileRegistration.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef IDLVISTAFILEREGISTRATION_H
 #define IDLVISTAFILEREGISTRATION_H
@@ -44,9 +44,6 @@
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI DLVistaFileRegistration : public IDLVistaRegistration
 {
 private:
@@ -63,13 +60,7 @@ protected:
 	virtual int CreateTypeIdForName(const std::string &SName);
 
 public:
-	/**
-	 *
-	 */
 	DLVistaFileRegistration(const std::string &SFName);
-	/**
-	 *
-	 */
 	virtual ~DLVistaFileRegistration();
 };
 

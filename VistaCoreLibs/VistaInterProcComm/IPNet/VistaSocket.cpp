@@ -20,8 +20,18 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaSocket.cpp 22128 2011-07-01 11:30:05Z dr165799 $
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+// $Id$
+
+#include "VistaSocket.h"
+#include "VistaIPAddress.h"
+#include "VistaSocketAddress.h"
+#include <VistaInterProcComm/Concurrency/VistaThreadEvent.h>
+
+#if defined(VISTA_IPC_USE_EXCEPTIONS)
+#include <VistaBase/VistaExceptionBase.h>
+#endif
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <cassert>
 #if   defined (WIN32)
@@ -67,13 +77,7 @@ using namespace std;
 #include <cerrno>     // errno
 #include <cstdio>
 #include <fcntl.h>
-#include "VistaSocket.h"
-#include "VistaIPAddress.h"
-#include "VistaSocketAddress.h"
-#include <VistaInterProcComm/Concurrency/VistaThreadEvent.h>
-#if defined(VISTA_IPC_USE_EXCEPTIONS)
-#include <VistaBase/VistaExceptionBase.h>
-#endif
+
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
@@ -93,450 +97,449 @@ bool IVistaSocket::PrintErrorMessage(const string &sMethodName)
 #if defined(IRIX) || defined(SUNOS) || defined(LINUX)
 		if (err & err !=EWOULDBLOCK)
 #endif
-	vipcerr << "IVistaSocket::" << sMethodName << " failed with code " << err << ": ";
+	vstr::errp() << "IVistaSocket::" << sMethodName << " failed with code " << err << ": ";
+		vstr::IndentObject oIndent;
 #ifdef WIN32
 	switch ( err )
 	{
 	case WSAEACCES:
-		vipcerr << "Permission denied.";
+		vstr::err() << "Permission denied." << std::endl;
 		break;
 	case WSAEADDRINUSE:
-		vipcerr << "Address already in use.";
+		vstr::err() << "Address already in use." << std::endl;
 		break;
 	case WSAEADDRNOTAVAIL:
-		vipcerr << "Cannot assign requested address.";
+		vstr::err() << "Cannot assign requested address." << std::endl;
 		break;
 	case WSAEAFNOSUPPORT:
-		vipcerr << "Address family not supported by protocol family.";
+		vstr::err() << "Address family not supported by protocol family." << std::endl;
 		break;
 	case WSAEALREADY:
-		vipcerr << "Operation already in progress.";
+		vstr::err() << "Operation already in progress." << std::endl;
 		break;
 	case WSAECONNABORTED:
-		vipcerr << "Software caused connection abort.";
+		vstr::err() << "Software caused connection abort." << std::endl;
 		break;
 	case WSAECONNREFUSED:
-		vipcerr << "Connection refused.";
+		vstr::err() << "Connection refused." << std::endl;
 		break;
 	case WSAECONNRESET:
-		vipcerr << "Connection reset by peer.";
+		vstr::err() << "Connection reset by peer." << std::endl;
 		break;
 	case WSAEDESTADDRREQ:
-		vipcerr << "Destination address required.";
+		vstr::err() << "Destination address required." << std::endl;
 		break;
 	case WSAEFAULT:
-		vipcerr << "Bad address.";
+		vstr::err() << "Bad address." << std::endl;
 		break;
 	case WSAEHOSTDOWN:
-		vipcerr << "Host is down.";
+		vstr::err() << "Host is down." << std::endl;
 		break;
 	case WSAEHOSTUNREACH:
-		vipcerr << "No route to host.";
+		vstr::err() << "No route to host." << std::endl;
 		break;
 	case WSAEINPROGRESS:
-		vipcerr << "Operation now in progress.";
+		vstr::err() << "Operation now in progress." << std::endl;
 		break;
 	case WSAEINTR:
-		vipcerr << "Interrupted function call.";
+		vstr::err() << "Interrupted function call." << std::endl;
 		break;
 	case WSAEINVAL:
-		vipcerr << "Invalid argument.";
+		vstr::err() << "Invalid argument." << std::endl;
 		break;
 	case WSAEISCONN:
-		vipcerr << "Socket is already connected.";
+		vstr::err() << "Socket is already connected." << std::endl;
 		break;
 	case WSAEMFILE:
-		vipcerr << "Too many open files.";
+		vstr::err() << "Too many open files." << std::endl;
 		break;
 	case WSAEMSGSIZE:
-		vipcerr << "Message too long.";
+		vstr::err() << "Message too long." << std::endl;
 		break;
 	case WSAENETDOWN:
-		vipcerr << "Network is down.";
+		vstr::err() << "Network is down." << std::endl;
 		break;
 	case WSAENETUNREACH:
-		vipcerr << "Network is unreachable.";
+		vstr::err() << "Network is unreachable." << std::endl;
 		break;
 	case WSAENETRESET:
-		vipcerr << "Network dropped connection on reset.";
+		vstr::err() << "Network dropped connection on reset." << std::endl;
 		break;
 	case WSAENOBUFS:
-		vipcerr << "No buffer space available.";
+		vstr::err() << "No buffer space available." << std::endl;
 		break;
 	case WSAENOPROTOOPT:
-		vipcerr << "Bad protocol option.";
+		vstr::err() << "Bad protocol option." << std::endl;
 		break;
 	case WSAENOTCONN:
-		vipcerr << "Socket is not connected.";
+		vstr::err() << "Socket is not connected." << std::endl;
 		break;
 	case WSAENOTSOCK:
-		vipcerr << "Socket operation on non-socket.";
+		vstr::err() << "Socket operation on non-socket." << std::endl;
 		break;
 	case WSAEOPNOTSUPP:
-		vipcerr << "Operation not supported.";
+		vstr::err() << "Operation not supported." << std::endl;
 		break;
 	case WSAEPFNOSUPPORT:
-		vipcerr << "Protocol family not supported.";
+		vstr::err() << "Protocol family not supported." << std::endl;
 		break;
 	case WSAEPROCLIM:
-		vipcerr << "Too many processes.";
+		vstr::err() << "Too many processes." << std::endl;
 		break;
 	case WSAEPROTONOSUPPORT:
-		vipcerr << "Protocol not supported.";
+		vstr::err() << "Protocol not supported." << std::endl;
 		break;
 	case WSAEPROTOTYPE:
-		vipcerr << "Protocol wrong type for socket.";
+		vstr::err() << "Protocol wrong type for socket." << std::endl;
 		break;
 	case WSAESHUTDOWN:
-		vipcerr << "Cannot send after socket shutdown.";
+		vstr::err() << "Cannot send after socket shutdown." << std::endl;
 		break;
 	case WSAESOCKTNOSUPPORT:
-		vipcerr << "Socket type not supported.";
+		vstr::err() << "Socket type not supported." << std::endl;
 		break;
 	case WSAETIMEDOUT:
-		vipcerr << "Connection timed out.";
+		vstr::err() << "Connection timed out." << std::endl;
 		break;
 /*	case WSATYPE_NOT_FOUND:
-		cerr << "Class type not found.";
+		vstr::err() << "Class type not found." << std::endl;
 		break;
 	case WSAHOST_NOT_FOUND:
-		cerr << "Host not found.";
+		vstr::err() << "Host not found." << std::endl;
 		break;
 	case WSA_INVALID_HANDLE:
-		cerr << "Specified event object handle is invalid.";
+		vstr::err() << "Specified event object handle is invalid." << std::endl;
 		break;
 	case WSA_INVALID_PARAMETER:
-		cerr << "One or more parameters are invalid.";
+		vstr::err() << "One or more parameters are invalid." << std::endl;
 		break;
 	case WSAINVALIDPROCTABLE:
-		cerr << "Invalid procedure table from service provider.";
+		vstr::err() << "Invalid procedure table from service provider." << std::endl;
 		break;
 	case WSAINVALIDPROVIDER:
-		cerr << "Invalid service provider version number.";
+		vstr::err() << "Invalid service provider version number." << std::endl;
 		break;
 	case WSA_IO_INCOMPLETE:
-		cerr << "Overlapped I/O event object not in signaled state.";
+		vstr::err() << "Overlapped I/O event object not in signaled state." << std::endl;
 		break;
 	case WSA_IO_PENDING:
-		cerr << "Overlapped operations will complete later.";
+		vstr::err() << "Overlapped operations will complete later." << std::endl;
 		break;
 	case WSA_NOT_ENOUGH_MEMORY:
-		cerr << "Insufficient memory available.";
+		vstr::err() << "Insufficient memory available." << std::endl;
 		break;
 */		case WSANOTINITIALISED:
-		vipcerr << "Successful WSAStartup not yet performed.";
+		vstr::err() << "Successful WSAStartup not yet performed." << std::endl;
 		break;
 	case WSANO_DATA:
-		vipcerr << "Valid name, no data record of requested type.";
+		vstr::err() << "Valid name, no data record of requested type." << std::endl;
 		break;
 	case WSANO_RECOVERY:
-		vipcerr << "This is a non-recoverable error.";
+		vstr::err() << "This is a non-recoverable error." << std::endl;
 		break;
 /*	case WSAPROVIDERFAILEDINIT:
-		cerr << "Unable to initialize a service provider.";
+		vstr::err() << "Unable to initialize a service provider." << std::endl;
 		break;
 	case WSASYSCALLFAILURE:
-		cerr << "System call failure.";
+		vstr::err() << "System call failure." << std::endl;
 		break;
 */		case WSASYSNOTREADY:
-		vipcerr << "Network subsystem is unavailable.";
+		vstr::err() << "Network subsystem is unavailable." << std::endl;
 		break;
 	case WSATRY_AGAIN:
-		vipcerr << "Non-authoritative host not found.";
+		vstr::err() << "Non-authoritative host not found." << std::endl;
 		break;
 	case WSAVERNOTSUPPORTED :
-		vipcerr << "WINSOCK.DLL version out of range.";
+		vstr::err() << "WINSOCK.DLL version out of range." << std::endl;
 		break;
 	case WSAEDISCON:
-		vipcerr << "Graceful shutdown in progress.";
+		vstr::err() << "Graceful shutdown in progress." << std::endl;
 		break;
 /*		case WSA_OPERATION_ABORTED:
-		cerr << "Overlapped operation aborted.";
+		vstr::err() << "Overlapped operation aborted." << std::endl;
 		break;
 		*/
 	case WSAEWOULDBLOCK:
 		break;
 	default:
-		vipcerr << "Unknown error number. (" << err << ")" << endl;
+		vstr::err() << "Unknown error number. (" << err << ")" << std::endl;
 		break;
 	}
 #elif defined ( IRIX )
 	switch ( err )
 	{
 	case 0:
-		//cerr << "An error without error?!? Our code is wrong." << endl;
+		//vstr::err() << "An error without error?!? Our code is wrong." << std::endl;
 		break;
 	case EBADF:
-		vipcerr << "[EBADF] Not a valid descriptor." << endl;
+		vstr::err() << "[EBADF] Not a valid descriptor." << std::endl;
 		break;
 	case ENOTSOCK:
-		vipcerr << "[ENOTSOCK] Is a descriptor for a file, not a socket." << endl;
+		vstr::err() << "[ENOTSOCK] Is a descriptor for a file, not a socket." << std::endl;
 		break;
 	case EADDRNOTAVAIL:
-		vipcerr << "[EADDRNOTAVAIL] The specified address is not available on this ";
-		vipcerr << "machine." << endl;
+		vstr::err() << "[EADDRNOTAVAIL] The specified address is not available on this "
+				<< "machine." << std::endl;
 		break;
 	case EAFNOSUPPORT:
-		vipcerr << "[EAFNOSUPPORT] Addresses in the specified address family cannot be ";
-		vipcerr << "used with this socket." << endl;
+		vstr::err() << "[EAFNOSUPPORT] Addresses in the specified address family cannot be "
+				<< "used with this socket." << std::endl;
 		break;
 	case EISCONN:
-		vipcerr << "[EISCONN] The socket is already connected." << endl;
+		vstr::err() << "[EISCONN] The socket is already connected." << std::endl;
 		break;
 	case ETIMEDOUT:
-		vipcerr << "[ETIMEDOUT] Connection establishment timed out without ";
-		vipcerr << "establishing a connection." << endl;
+		vstr::err() << "[ETIMEDOUT] Connection establishment timed out without "
+				 << "establishing a connection." << std::endl;
 		break;
 	case ECONNREFUSED:
-		vipcerr << "[ECONNREFUSED] The attempt to connect was forcefully rejected." << endl;
+		vstr::err() << "[ECONNREFUSED] The attempt to connect was forcefully rejected." << std::endl;
 		break;
 	case ENETUNREACH:
-		vipcerr << "[ENETUNREACH] The network isn't reachable from this host." << endl;
+		vstr::err() << "[ENETUNREACH] The network isn't reachable from this host." << std::endl;
 		break;
 	case EADDRINUSE:
-		vipcerr << "[EADDRINUSE] The address is already in use." << endl;
+		vstr::err() << "[EADDRINUSE] The address is already in use." << std::endl;
 		break;
 	case EWOULDBLOCK:
 // no message on EWOULDBLOCK
-//		vipcerr << "[EWOULDBLOCK] ";
-//		vipcerr << "The socket is marked as non-blocking, and the ";
-//		vipcerr << "requested operation would block." << endl;
+//		vstr::err() << "[EWOULDBLOCK] "
+//				 << "The socket is marked as non-blocking, and the "
+//				 << "requested operation would block." << std::endl;
 		break;
 	default:
-		vipcerr << "Unknown error number. (" << err << ")" << endl;
+		vstr::err() << "Unknown error number. (" << err << ")" << std::endl;
 		break;
 	}
 #elif defined ( SUNOS )
 	switch ( err )
 	{
 	case 0:
-		//cerr << "An error without error?!? Our code is wrong." << endl;
+		//vstr::errp() << "An error without error?!? Our code is wrong." << std::endl;
 		break;
 	case EACCES:
-		vipcerr << "[EACCES] ";
-		vipcerr << "Search permission is denied for a component of the ";
-		vipcerr << "path prefix of the pathname in name." << endl;
+		vstr::err() << "[EACCES] "
+				 << "Search permission is denied for a component of the "
+				 << "path prefix of the pathname in name." << std::endl;
 		break;
 	case EADDRINUSE:
-		vipcerr << "[EADDRINUSE] ";
-		vipcerr << "The address is already in use." << endl;
+		vstr::err() << "[EADDRINUSE] "
+				 << "The address is already in use." << std::endl;
 		break;
 	case EADDRNOTAVAIL:
-		vipcerr << "[EADDRNOTAVAIL] ";
-		vipcerr << "The specified address is not available on the remote ";
-		vipcerr << "machine." << endl;
+		vstr::err() << "[EADDRNOTAVAIL] "
+				<< "The specified address is not available on the remote "
+				<< "machine." << std::endl;
 		break;
 	case EAFNOSUPPORT:
-		vipcerr << "[EAFNOSUPPORT] ";
-		vipcerr << "Addresses in the specified address family cannot be ";
-		vipcerr << "used with this socket." << endl;
+		vstr::err() << "[EAFNOSUPPORT] "
+				<< "Addresses in the specified address family cannot be "
+				<< "used with this socket." << std::endl;
 		break;
 	case EALREADY:
-		vipcerr << "[EALREADY] ";
-		vipcerr << "The socket is non-blocking, and a previous connection ";
-		vipcerr << "attempt has not yet been completed." << endl;
+		vstr::err() << "[EALREADY] "
+				<< "The socket is non-blocking, and a previous connection "
+				<< "attempt has not yet been completed." << std::endl;
 		break;
 	case EBADF:
-		vipcerr << "[EBADF] ";
-		vipcerr << "Is not a valid descriptor." << endl;
+		vstr::err() << "[EBADF] "
+				<< "Is not a valid descriptor." << std::endl;
 		break;
 	case ECONNREFUSED:
-		vipcerr << "[ECONNREFUSED] ";
-		vipcerr << "The attempt to connect was forcefully rejected. The ";
-		vipcerr << "calling program should close(2) the socket descriptor, ";
-		vipcerr << "and issue another socket(3SOCKET) call to obtain a new ";
-		vipcerr << "descriptor before attempting another connect() call." << endl;
+		vstr::err() << "[ECONNREFUSED] ";
+				<< "The attempt to connect was forcefully rejected. The "
+				<< "calling program should close(2) the socket descriptor, "
+				<< "and issue another socket(3SOCKET) call to obtain a new "
+				<< "descriptor before attempting another connect() call." << std::endl;
 		break;
 	case EINPROGRESS:
-		vipcerr << "[EINPROGRESS] ";
-		vipcerr << "The socket is non-blocking, and the connection  cannot ";
-		vipcerr << "be completed immediately. You can use select(3C) to ";
-		vipcerr << "complete the connection by selecting the socket for ";
-		vipcerr << "writing." << endl;
+		vstr::err() << "[EINPROGRESS] "
+				<< "The socket is non-blocking, and the connection  cannot "
+				<< "be completed immediately. You can use select(3C) to "
+				<< "complete the connection by selecting the socket for "
+				<< "writing." << std::endl;
 		break;
 	case EINTR:
-		vipcerr << "[EINTR] ";
-		vipcerr << "The connection attempt was interrupted before any data ";
-		vipcerr << "arrived by the delivery of a signal." << endl;
+		vstr::err() << "[EINTR] "
+				<< "The connection attempt was interrupted before any data "
+				<< "arrived by the delivery of a signal." << std::endl;
 		break;
 	case EINVAL:
-		vipcerr << "[EINVAL] ";
-		vipcerr << "namelen is not the size of a valid address for the ";
-		vipcerr << "specified address family." << endl;
+		vstr::err() << "[EINVAL] "
+				<< "namelen is not the size of a valid address for the "
+				<< "specified address family." << std::endl;
 		break;
 	case EIO:
-		vipcerr << "[EIO] ";
-		vipcerr << "An I/O error occurred while reading from or writing to ";
-		vipcerr << "the file system." << endl;
+		vstr::err() << "[EIO] "
+				<< "An I/O error occurred while reading from or writing to "
+				<< "the file system." << std::endl;
 		break;
 	case EISCONN:
-		vipcerr << "[EISCONN] ";
-		vipcerr << "The socket is already connected." << endl;
+		vstr::err() << "[EISCONN] "
+				<< "The socket is already connected." << std::endl;
 		break;
 	case ELOOP:
-		vipcerr << "[ELOOP] ";
-		vipcerr << "Too many symbolic links were encountered in translat";
-		vipcerr << "ing the pathname in name." << endl;
+		vstr::err() << "[ELOOP] "
+				<< "Too many symbolic links were encountered in translat"
+				<< "ing the pathname in name." << std::endl;
 		break;
 	case ENETUNREACH:
-		vipcerr << "[ENETUNREACH] ";
-		vipcerr << "The network is not reachable from this host." << endl;
+		vstr::err() << "[ENETUNREACH] "
+				<< "The network is not reachable from this host." << std::endl;
 		break;
 	case EHOSTUNREACH:
-		vipcerr << "[EHOSTUNREACH] ";
-		vipcerr << "The remote host is not reachable from this host." << endl;
+		vstr::err() << "[EHOSTUNREACH] "
+				<< "The remote host is not reachable from this host." << std::endl;
 		break;
 	case ENOENT:
-		vipcerr << "[ENOENT] ";
-		vipcerr << "A component of the path prefix of the pathname in name ";
-		vipcerr << "does not exist." << endl;
+		vstr::err() << "[ENOENT] "
+				<< "A component of the path prefix of the pathname in name "
+				<< "does not exist." << std::endl;
 		break;
 	case ENOSR:
-		vipcerr << "[ENOSR] ";
-		vipcerr << "There were insufficient STREAMS resources available to ";
-		vipcerr << "complete the operation." << endl;
+		vstr::err() << "[ENOSR] "
+				<< "There were insufficient STREAMS resources available to "
+				<< "complete the operation." << std::endl;
 		break;
 	case ENXIO:
-		vipcerr << "[ENXIO] ";
-		vipcerr << " The server exited before the connection was complete." << endl;
+		vstr::err() << "[ENXIO] "
+				<< " The server exited before the connection was complete." << std::endl;
 		break;
 	case ETIMEDOUT:
-		vipcerr << "[ETIMEDOUT] ";
-		vipcerr << "Connection establishment timed out without establish";
-		vipcerr << "ing a connection." << endl;
+		vstr::err() << "[ETIMEDOUT] "
+				<< "Connection establishment timed out without establish"
+				<< "ing a connection." << std::endl;
 		break;
 	case EWOULDBLOCK:
 // no message on EWOULDBLOCK
-//		cerr << "[EWOULDBLOCK] ";
-//		cerr << "The socket is marked as non-blocking, and the ";
-//		cerr << "requested operation would block." << endl;
+//		vstr::err() << "[EWOULDBLOCK] "
+//				<< "The socket is marked as non-blocking, and the "
+//				<< "requested operation would block." << std::endl;
 		break;
 	// The following errors are specific to connecting names in the
 	// UNIX  domain.   These  errors might not apply in future ver-
 	// sions of the UNIX  IPC domain.
 	case ENOTDIR:
-		vipcerr << "[ENOTDIR] ";
-		vipcerr << "A component of the path prefix of the pathname in name ";
-		vipcerr << "is not a directory." << endl;
+		vstr::err() << "[ENOTDIR] "
+				<< "A component of the path prefix of the pathname in name "
+				<< "is not a directory." << std::endl;
 		break;
 	case ENOTSOCK:
-		vipcerr << "[ENOTSOCK] ";
-		vipcerr << "Is not a socket." << endl;
+		vstr::err() << "[ENOTSOCK] "
+				<< "Is not a socket." << std::endl;
 		break;
 	case EPROTOTYPE:
-		vipcerr << "[EPROTOTYPE] ";
-		vipcerr << "The file that is referred to by name is a socket of a ";
-		vipcerr << "type other than type s. For example, s is a SOCK_DGRAM ";
-		vipcerr << "socket, while name refers to a SOCK_STREAM socket." << endl;
+		vstr::err() << "[EPROTOTYPE] "
+				<< "The file that is referred to by name is a socket of a "
+				<< "type other than type s. For example, s is a SOCK_DGRAM "
+				<< "socket, while name refers to a SOCK_STREAM socket." << std::endl;
 		break;
 	default:
-		vipcerr << "Unknown error number. (" << err << ")" << endl;
+		vstr::err() << "Unknown error number. (" << err << ")" << std::endl;
 		break;
 	}
 #elif defined ( LINUX )
 	switch ( err )
 	{
 	case 0:
-		vipcerr << "An error without error?!? Our code is wrong." << endl;
+		vstr::err() << "An error without error?!? Our code is wrong." << std::endl;
 		break;
 	case EBADF:
-		vipcerr << "[EBADF] ";
-		vipcerr << "The  file  descriptor is not a valid index in the descriptor ta-";
-		vipcerr << "ble." << endl;
+		vstr::err() << "[EBADF] "
+				<< "The  file  descriptor is not a valid index in the descriptor table." << std::endl;
 		break;
 	case EFAULT:
-		vipcerr << "[EFAULT] ";
-		vipcerr << "The socket structure  address  is  outside  the  user's  address";
-		vipcerr << "space." << endl;
+		vstr::err() << "[EFAULT] "
+				<< "The socket structure  address  is  outside  the  user's  address space." << std::endl;
 		break;
 	case ENOTSOCK:
-		vipcerr << "[ENOTSOCK] ";
-		vipcerr << " The file descriptor is not associated with a socket."<< endl;
+		vstr::err() << "[ENOTSOCK] "
+				<< " The file descriptor is not associated with a socket."<< std::endl;
 		break;
 	case EISCONN:
-		vipcerr << "[EISCONN] ";
-		vipcerr << "The socket is already connected. " << endl;
+		vstr::err() << "[EISCONN] "
+				<< "The socket is already connected. " << std::endl;
 		break;
 	case ECONNREFUSED:
-		vipcerr << "[ECONNREFUSED] ";
-		vipcerr << "No one listening on the remote address." << endl;
+		vstr::err() << "[ECONNREFUSED] "
+				<< "No one listening on the remote address." << std::endl;
 		break;
 	case ETIMEDOUT:
-		vipcerr << "[ETIMEDOUT] ";
-		vipcerr << "Timeout  while attempting connection. The server may be too busy";
-		vipcerr << "to accept new connections. Note that for IP sockets the  timeout";
-		vipcerr << "may be very long when syncookies are enabled on the server." << endl;
+		vstr::err() << "[ETIMEDOUT] "
+				<< "Timeout  while attempting connection. The server may be too busy" << std::endl;
+		vstr::err() << "to accept new connections. Note that for IP sockets the  timeout"
+				<< "may be very long when syncookies are enabled on the server." << std::endl;
 		break;
 	case ENETUNREACH:
-		vipcerr << "[ENETUNREACH] ";
-		vipcerr << "Network is unreachable." << endl;
+		vstr::err() << "[ENETUNREACH] "
+				<< "Network is unreachable." << std::endl;
 		break;
 	case EADDRINUSE:
-		vipcerr << "[EADDRINUSE] ";
-		vipcerr << "Local address is already in use." << endl;
+		vstr::err() << "[EADDRINUSE] "
+				<< "Local address is already in use." << std::endl;
 		break;
 	case EINPROGRESS:
-		vipcerr << "[EINPROGRESS] ";
-		vipcerr << "The  socket  is  non-blocking  and the connection cannot be com-";
-		vipcerr << "pleted immediately.  It is possible to select(2) or poll(2)  for";
-		vipcerr << "completion  by  selecting  the  socket for writing. After select";
-		vipcerr << "indicates writability, use getsockopt(2) to  read  the  SO_ERROR";
-		vipcerr << "option  at  level  SOL_SOCKET  to determine whether connect com-";
-		vipcerr << "pleted  successfully  (SO_ERROR  is  zero)   or   unsuccessfully";
-		vipcerr << "(SO_ERROR  is one of the usual error codes listed here, explain-";
-		vipcerr << "ing the reason for the failure)." << endl;
+		vstr::err() << "[EINPROGRESS] "
+			<< "The  socket  is  non-blocking  and the connection cannot be com-" << std::endl;
+		vstr::err() << "pleted immediately.  It is possible to select(2) or poll(2)  for"
+				<< "completion  by  selecting  the  socket for writing. After select" << std::endl;
+		vstr::err() << "indicates writability, use getsockopt(2) to  read  the  SO_ERROR"
+				<< "option  at  level  SOL_SOCKET  to determine whether connect com-" << std::endl;
+		vstr::err() << "pleted  successfully  (SO_ERROR  is  zero)   or   unsuccessfully"
+				<< "(SO_ERROR  is one of the usual error codes listed here, explain-" << std::endl;
+		vstr::err() << "ing the reason for the failure)." << std::endl;
 		break;
 	case EALREADY:
-		vipcerr << "[EALREADY] ";
-		vipcerr << "The socket is non-blocking and a previous connection attempt has";
-		vipcerr << "not yet been completed." << endl;
+		vstr::err() << "[EALREADY] "
+				<< "The socket is non-blocking and a previous connection attempt has"
+				<< "not yet been completed." << std::endl;
 		break;
 	case EAGAIN:
-/*		cerr << "[EAGAIN] ";
-		cerr << "No  more free local ports or insufficient entries in the routing";
-		cerr << "cache. For PF_INET see the  net.ipv4.ip_local_port_range  sysctl";
-		cerr << "in ip(7) on how to increase the number of local ports." << endl;
+/*		vstr::err() << "[EAGAIN] "
+				<< "No  more free local ports or insufficient entries in the routing" << std::endl;
+		vstr::err() << "cache. For PF_INET see the  net.ipv4.ip_local_port_range  sysctl"
+				<< "in ip(7) on how to increase the number of local ports." << std::endl;
 		*/
 		break;
 	case EAFNOSUPPORT:
-		vipcerr << "[EAFNOSUPPORT] ";
-		vipcerr << "The passed address didn't have the correct address family in its";
-		vipcerr << "sa_family field." << endl;
+		vstr::err() << "[EAFNOSUPPORT] "
+				<< "The passed address didn't have the correct address family in its"
+				<< "sa_family field." << std::endl;
 		break;
 	case EACCES:
-		vipcerr << "[EACCES] ";
-		vipcerr << "The user tried to connect to a broadcast address without  having";
-		vipcerr << "the  socket  broadcast  flag  enabled  or the connection request";
-		vipcerr << "failed because of a local firewall rule." << endl;
+		vstr::err() << "[EACCES] "
+				<< "The user tried to connect to a broadcast address without  having" << std::endl;
+		vstr::err() << "the  socket  broadcast  flag  enabled  or the connection request"
+				<< "failed because of a local firewall rule." << std::endl;
 		break;
 	case EADDRNOTAVAIL:
 	{
-		vipcerr << "[EADDRNOTAVAIL] ";
-		vipcerr << "Cannot assign requested address.\n";
+		vstr::err() << "[EADDRNOTAVAIL] "
+				<< "Cannot assign requested address." << std::endl;
 		break;
 	}
 	case ENOTCONN:
 	{
-		vipcerr << "[ENOTCONN] ";
-		vipcerr << "Transport endpoint is not connected\n";
+		vstr::err() << "[ENOTCONN] "
+				<< "Transport endpoint is not connected" << std::endl;
 		break;
 	}
 	case ECONNABORTED:
 	{
-		vipcerr << "[ECONNABORTED] "
-		     << "Software caused connection abort.\n";
+		vstr::err() << "[ECONNABORTED] "
+				 << "Software caused connection abort." << std::endl;
 		break;
 	}
 	default:
-		vipcerr << "Unknown error number. (" << err << ")" << endl;
+		vstr::err() << "Unknown error number. (" << err << ")" << std::endl;
 		break;
 	}
 #else
 	switch ( err )
 	{
 	default:
-		vipcerr << "Unknown error number. (" << err << ")" << endl;
-				vipcerr << "try /usr/include/asm/errno.h for more help\n";
+		vstr::err() << "Unknown error number. (" << err << ")" << std::endl;
+		vstr::err() << "try /usr/include/asm/errno.h for more help" << std::endl;
 		break;
 	}
 #endif
@@ -613,6 +616,8 @@ bool IVistaSocket::SetSockOpt(int iCodeLevel, int iOptionName, void *pOptionData
 
 bool IVistaSocket::OpenSocket()
 {
+	if( m_iSocketID != HANDLE( ~0 ) )
+		return false;
 	if((m_iSocketID = HANDLE(socket (m_iDomain, m_iType, m_iProtocol))) <= 0)
 	{
 		// error
@@ -705,7 +710,8 @@ bool IVistaSocket::VerifyBlocking()
 			}
 			else
 			{
-				vipcerr << "IVistaSocket::VerifyBlocking() -- WSA error (" << iErr << ")\n";
+				vstr::errp() << "IVistaSocket::VerifyBlocking() -- WSA error ("
+						<< iErr << ")" << std::endl;
 			}
 		}
 	}
@@ -774,15 +780,15 @@ bool IVistaSocket::BindToAddress(const VistaSocketAddress &rMyAddress)
 
 bool IVistaSocket::ConnectToAddress(const VistaSocketAddress &rAddress)
 {
-	if ( connect ( SOCKET(this->m_iSocketID), (sockaddr *)rAddress.GetINAddress(), rAddress.GetINAddressLength() ) == -1 )
+	if ( connect( SOCKET(this->m_iSocketID), (sockaddr *)rAddress.GetINAddress(), rAddress.GetINAddressLength() ) == -1 )
 	{
 		//m_iSocketID = -1;
 		if(PrintErrorMessage("ConnectToAddress()")==false)
 		{
-			vipcerr << "IVistaSocket::ConnectToAddress("
-				<< rAddress.GetIPAddress().GetHostNameC()
-				<< " [" << rAddress.GetIPAddress().GetIPAddressC()
-				<< "] -- error during connect\n";
+			vstr::warnp() << "IVistaSocket::ConnectToAddress("
+					<< rAddress.GetIPAddress().GetHostNameC()
+					<< " [" << rAddress.GetIPAddress().GetIPAddressC()
+					<< "] -- error during connect" << std::endl;
 			SetErrorState(true);
 			return false;
 		}
@@ -984,15 +990,16 @@ unsigned long IVistaSocket::WaitForSendFinish(int iTimeout)
 	FD_ZERO(&myExSocks);
 	FD_SET(SOCKET(m_iSocketID), &myWrSocks);
 	FD_SET(SOCKET(m_iSocketID), &myExSocks);
-	int iRet = select(int(SOCKET(m_iSocketID)+1), NULL, &myWrSocks, &myExSocks, etv);
+	select(int(SOCKET(m_iSocketID)+1), NULL, &myWrSocks, &myExSocks, etv);
 	if(FD_ISSET(SOCKET(m_iSocketID), &myExSocks))
 	{
 		// whoah!
 		printf("-- WARNING -- socket is in exception array.\n");
 #if defined(VISTA_IPC_USE_EXCEPTIONS)
 		VISTA_THROW("IVistaSocket::WaitForSendFinish -- Exception", 0x00000103)
-#endif
+#else
 		return 0;
+#endif		
 	}
 	return 1;
 }

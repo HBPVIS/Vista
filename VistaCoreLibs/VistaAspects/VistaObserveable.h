@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaObserveable.h 22286 2011-07-06 20:56:09Z dr165799 $
 
 #ifndef _VISTAOBSERVEABLE_H
 #define _VISTAOBSERVEABLE_H
@@ -250,7 +250,7 @@ private:
 	 * The list of attached observers and their respective tickets.
 	 * Notification will be done in the order of this list.
 	 */
-	std::list<OBSERVER_INFO>  m_lIVistaObservers;
+	std::list<OBSERVER_INFO>  m_liVistaObservers;
 
 	/**
 	 * The set of messages that are collected during a run of Notify() with

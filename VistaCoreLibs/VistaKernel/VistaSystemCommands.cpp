@@ -20,27 +20,27 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaSystemCommands.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaSystemCommands.h"
 
-#include "VistaSystem.h"
-#include "DisplayManager/VistaDisplayManager.h"
-#include "DisplayManager/VistaDisplaySystem.h"
-#include "DisplayManager/VistaDisplayBridge.h"
-#include "DisplayManager/VistaWindow.h"
-#include "GraphicsManager/VistaGraphicsManager.h"
-#include "EventManager/VistaEventManager.h"
-#include "EventManager/VistaSystemEvent.h"
-#include "Stuff/VistaKernelProfiling.h"
+#include <VistaKernel/VistaSystem.h>
+#include <VistaKernel/VistaFrameLoop.h>
+#include <VistaKernel/DisplayManager/VistaDisplayManager.h>
+#include <VistaKernel/DisplayManager/VistaDisplaySystem.h>
+#include <VistaKernel/DisplayManager/VistaDisplayBridge.h>
+#include <VistaKernel/DisplayManager/VistaWindow.h>
+#include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
+#include <VistaKernel/EventManager/VistaEventManager.h>
+#include <VistaKernel/EventManager/VistaSystemEvent.h>
+#include <VistaKernel/Stuff/VistaKernelProfiling.h>
+#include <VistaKernel/InteractionManager/VistaKeyboardSystemControl.h>
+#include <VistaKernel/InteractionManager/VistaInteractionManager.h>
+#include <VistaKernel/Cluster/VistaClusterMode.h>
 
-#include "VistaClusterMaster.h"
-#include "InteractionManager/VistaInteractionManager.h"
-#include "InteractionManager/VistaInteractionContext.h"
 #include <VistaDataFlowNet/VdfnPersistence.h>
 #include <VistaDataFlowNet/VdfnGraph.h>
 
-#include <VistaKernel/InteractionManager/VistaKeyboardSystemControl.h>
 #include <VistaAspects/VistaAspectsUtils.h>
 
 #include <list>
@@ -79,14 +79,14 @@ bool VistaQuitCommand::Do()
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-VistaToggleFramerateCommand::VistaToggleFramerateCommand(VistaGraphicsManager *pGrMgr)
-: m_pGrMgr(pGrMgr)
+VistaToggleFramerateCommand::VistaToggleFramerateCommand( VistaFrameLoop* pLoop )
+: m_pLoop( pLoop )
 {
 }
 
 bool VistaToggleFramerateCommand::Do()
 {
-	m_pGrMgr->SetShowInfo(!m_pGrMgr->GetShowInfo());
+	m_pLoop->SetFrameRateDisplayEnabled( !m_pLoop->GetFrameRateDisplayEnabled() );
 	return true;
 }
 
@@ -115,7 +115,7 @@ VistaShowAvailableCommands::VistaShowAvailableCommands(VistaKeyboardSystemContro
 
 bool VistaShowAvailableCommands::Do()
 {	
-	vkernout << m_pCtrl->GetKeyBindingTableString() << std::endl;
+	vstr::out() << m_pCtrl->GetKeyBindingTableString() << std::endl;
 	return true;
 }
 
@@ -126,36 +126,22 @@ VistaReloadContextGraphCommand::VistaReloadContextGraphCommand(VistaSystem *pSys
                                                                  VistaInteractionContext *pCtx,
                                                                  const std::string &strRoleId,
                                                                  bool bDumpGraph, bool bWritePorts )
-                            : IVistaExplicitCallbackInterface(),
-                              m_pCtx(pCtx),
-                              m_strRoleId(strRoleId),
-                              m_pSys(pSys),
-                              m_bDumpGraph(bDumpGraph),
-                              m_bWritePorts(bWritePorts)
+: IVistaExplicitCallbackInterface(),
+  m_pInteractionContext(pCtx),
+  m_sRoleId(strRoleId),
+  m_pSys(pSys),
+  m_bDumpGraph(bDumpGraph),
+  m_bWritePorts(bWritePorts)
 {
 }
 
 bool VistaReloadContextGraphCommand::Do()
 {
-    VdfnGraph *pOldGraph = m_pCtx->GetTransformGraph();
-    std::string strGraphFile = m_pCtx->GetGraphSource();
+	return m_pSys->GetInteractionManager()->ReloadGraphForContext( 
+							m_pInteractionContext,
+							m_pSys->GetClusterMode()->GetNodeName(),
+							m_bDumpGraph, m_bWritePorts );
 
-
-    // load new graph
-	VdfnGraph *pGraph = m_pSys->ProperGraphLoad(strGraphFile, m_strRoleId);
-    if(pGraph)
-    {
-        pGraph->EvaluateGraph(0); // initialize
-        m_pCtx->SetTransformGraph(pGraph);
-        delete pOldGraph;
-
-        if( m_bDumpGraph )
-        {
-            std::string strFileName = m_strRoleId + std::string(".dot");
-            VdfnPersistence::SaveAsDot( pGraph, strFileName, m_strRoleId, m_bWritePorts );
-        }
-    }
-    return true;
 }
 
 bool VistaPrintProfilerOutputCommand::Do()
@@ -178,9 +164,9 @@ VistaToggleFrustumCullingCommand::VistaToggleFrustumCullingCommand( VistaGraphic
 
 bool VistaToggleFrustumCullingCommand::Do()
 {
-	m_pGfxMgr->SetCullingEnabled(!m_pGfxMgr->GetCullingEnabled());
-	vkernout << "[ViSys]: Frustum culling is now "
-		<< (m_pGfxMgr->GetCullingEnabled() ? "ENABLED" : "DISABLED")
+	m_pGfxMgr->SetFrustumCullingEnabled(!m_pGfxMgr->GetFrustumCullingEnabled());
+	vstr::outi() << "[ViSys]: Frustum culling is now "
+		<< (m_pGfxMgr->GetFrustumCullingEnabled() ? "ENABLED" : "DISABLED")
 		<< std::endl;
 	return true;
 }
@@ -197,7 +183,7 @@ VistaToggleOcclusionCullingCommand::VistaToggleOcclusionCullingCommand( VistaGra
 bool VistaToggleOcclusionCullingCommand::Do()
 {
 	m_pGfxMgr->SetOcclusionCullingEnabled(!m_pGfxMgr->GetOcclusionCullingEnabled());
-	vkernout << "[ViSys]: Occlusion culling is now "
+	vstr::outi() << "[ViSys]: Occlusion culling is now "
 		<< (m_pGfxMgr->GetOcclusionCullingEnabled() ? "ENABLED" : "DISABLED")
 		<< std::endl;
 	return true;
@@ -215,7 +201,7 @@ VistaToggleBBoxDrawingCommand::VistaToggleBBoxDrawingCommand( VistaGraphicsManag
 bool VistaToggleBBoxDrawingCommand::Do()
 {
 	m_pGfxMgr->SetBBoxDrawingEnabled(!m_pGfxMgr->GetBBoxDrawingEnabled());
-	vkernout << "[ViSys]: BBox drawing is now "
+	vstr::outi() << "[ViSys]: BBox drawing is now "
 		<< (m_pGfxMgr->GetBBoxDrawingEnabled() ? "ENABLED" : "DISABLED")
 		<< std::endl;
 	return true;
@@ -241,12 +227,12 @@ bool VistaChangeEyeDistanceCommand::Do()
 		v3LeftEyeOffset[0] -= m_fChangeValue;
 		v3RightEyeOffset[0] += m_fChangeValue;
 		pDisplaySys->GetDisplaySystemProperties()->SetEyeOffsets( v3LeftEyeOffset, v3RightEyeOffset );
-		std::streamsize iOldPrecision = vkernout.precision( 3 );
-		vkernout << "Changed x-axis eye offsets of DisplaySystem ["
+		std::streamsize iOldPrecision = vstr::out().precision( 3 );
+		vstr::outi() << "Changed x-axis eye offsets of DisplaySystem ["
 				<< pDisplaySys->GetNameForNameable()
 				<< "] to [" << v3LeftEyeOffset[0] << ", "
 				<< v3RightEyeOffset[0] << "]" << std::endl;
-		vkernout.precision( iOldPrecision );		
+		vstr::out().precision( iOldPrecision );		
 	}
 	return true;
 }
@@ -281,7 +267,7 @@ bool VistaToggleVSyncCommand::Do()
 		}
 		else
 		{
-			std::cout << "***WARNING*** Setting VSync FAILED for Window ["
+			vstr::warnp() << "Setting VSync FAILED for Window ["
 					<< (*itWin).second->GetNameForNameable() << "]" << std::endl;
 		}
 	}

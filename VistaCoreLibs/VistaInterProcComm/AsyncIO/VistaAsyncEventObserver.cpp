@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaAsyncEventObserver.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #ifdef WIN32
 #include <winsock2.h> // should be included *before* windows.h
@@ -38,9 +38,9 @@
 #include <VistaInterProcComm/Connections/VistaByteBufferSerializer.h>
 #include <VistaInterProcComm/IPNet/VistaTCPServerSocket.h>
 #include <VistaInterProcComm/AsyncIO/VistaIOHandleBasedMultiplexer.h>
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
 
 #include <VistaBase/VistaExceptionBase.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <vector>
 #include <map>
@@ -48,45 +48,44 @@
 #include <set>
 #include <algorithm>
 #include <iostream>
-using namespace std;
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
 
 VistaAEObserverTask::VistaAEObserverTask(const std::string &sHost, int iPort)
-		: IVistaThreadedTask(), m_sHostName(sHost), m_iHostPort(iPort),
-		  m_pTranslator(NULL)
-	{
-		m_pMp                = new VistaIOHandleBasedIOMultiplexer;
-		m_pNotificationEvent = new VistaThreadEvent(true);
-		m_pModelEvent        = new VistaThreadEvent(true);
+: IVistaThreadedTask(), m_sHostName(sHost), m_iHostPort(iPort),
+m_pTranslator(NULL)
+{
+	m_pMp                = new VistaIOHandleBasedIOMultiplexer;
+	m_pNotificationEvent = new VistaThreadEvent(true);
+	m_pModelEvent        = new VistaThreadEvent(true);
 
 #ifdef WIN32
-		m_pServerEvent = new VistaThreadEvent(true);
-		m_pClientEvent = new VistaThreadEvent(true);
+	m_pServerEvent = new VistaThreadEvent(true);
+	m_pClientEvent = new VistaThreadEvent(true);
 #else
-		m_pServerEvent = NULL;
-		m_pClientEvent = NULL;
+	m_pServerEvent = NULL;
+	m_pClientEvent = NULL;
 #endif
-		(*m_pMp).AddMultiplexPoint(m_pNotificationEvent->GetEventWaitHandle(), 
-								   E_NOTIFY, 
-								   VistaIOMultiplexer::MP_IOIN);
+	(*m_pMp).AddMultiplexPoint(m_pNotificationEvent->GetEventWaitHandle(), 
+		E_NOTIFY, 
+		VistaIOMultiplexer::MP_IOIN);
 
-		(*m_pMp).AddMultiplexPoint(m_pModelEvent->GetEventWaitHandle(), 
-								   E_MODEL, 
-								   VistaIOMultiplexer::MP_IOIN);
+	(*m_pMp).AddMultiplexPoint(m_pModelEvent->GetEventWaitHandle(), 
+		E_MODEL, 
+		VistaIOMultiplexer::MP_IOIN);
 
-		m_pEventChannel = NULL;
+	m_pEventChannel = NULL;
 
 
-		m_pServer = new VistaTCPServerSocket;
-		(*m_pServer).SetSocketReuse(true);
+	m_pServer = new VistaTCPServerSocket;
+	(*m_pServer).SetSocketReuse(true);
 
-		m_pClient    = NULL;
-		m_pClientCon = NULL;
-		m_bConnected = false;
-	}
+	m_pClient    = NULL;
+	m_pClientCon = NULL;
+	m_bConnected = false;
+}
 
 VistaAEObserverTask::~VistaAEObserverTask()
 {
@@ -129,9 +128,9 @@ bool VistaAEObserverTask::SetupServerSocket()
 
 	if((*m_pServer).OpenSocket())
 	{
-		 vipcout << "CVfvObserverTask::SetupServerSocket("
-				   << m_sHostName << ", " <<  m_iHostPort << ")\n";
-				
+		vstr::outi() << "CVfvObserverTask::SetupServerSocket("
+			<< m_sHostName << ", " <<  m_iHostPort << ")" << std::endl;
+
 		VistaSocketAddress addr(m_sHostName, m_iHostPort);
 		if((*m_pServer).BindToAddress(addr))
 		{
@@ -149,15 +148,15 @@ bool VistaAEObserverTask::SetupServerSocket()
 			}
 			else
 			{
-			 #ifdef WIN32
-			  EnableEventSelect((*m_pServer).GetSocketID(), m_pServerEvent, FD_READ|FD_CLOSE|FD_ACCEPT);
-			  (*m_pMp).AddMultiplexPoint((*m_pServerEvent).GetEventSignalHandle(), 
-									   E_SERVER, 
-									   VistaIOMultiplexer::MP_IOIN);
-			 #else
-			  (*m_pMp).AddMultiplexPoint((*m_pServer).GetSocketID(),E_SERVER, VistaIOMultiplexer::MP_IOIN);
-			//(*m_pMp).AddMultiplexPoint((*m_pServer).GetSocketID(),E_SERVER, VistaIOMultiplexer::MP_IOERR);
-			 #endif
+#ifdef WIN32
+				EnableEventSelect((*m_pServer).GetSocketID(), m_pServerEvent, FD_READ|FD_CLOSE|FD_ACCEPT);
+				(*m_pMp).AddMultiplexPoint((*m_pServerEvent).GetEventSignalHandle(), 
+					E_SERVER, 
+					VistaIOMultiplexer::MP_IOIN);
+#else
+				(*m_pMp).AddMultiplexPoint((*m_pServer).GetSocketID(),E_SERVER, VistaIOMultiplexer::MP_IOIN);
+				//(*m_pMp).AddMultiplexPoint((*m_pServer).GetSocketID(),E_SERVER, VistaIOMultiplexer::MP_IOERR);
+#endif
 			}
 		}
 
@@ -169,14 +168,14 @@ bool VistaAEObserverTask::ShutdownServerSocket()
 {
 	if(m_pServer->GetIsOpen())
 	{
-	   #ifdef WIN32
+#ifdef WIN32
 		DisableEventSelect(m_pServer->GetSocketID(), m_pServerEvent);
 		(*m_pMp).RemMultiplexPoint(m_pServerEvent->GetEventSignalHandle(), VistaIOMultiplexer::MP_IOIN);
-	   #else
+#else
 		(*m_pMp).RemMultiplexPoint(m_pServer->GetSocketID(), VistaIOMultiplexer::MP_IOIN);
 		//(*m_pMp).RemMultiplexPoint(m_pServer->GetSocketID(), VistaIOMultiplexer::MP_IOERR);
-	   #endif
-	   return m_pServer->CloseSocket();
+#endif
+		return m_pServer->CloseSocket();
 	}
 
 	return true;
@@ -206,23 +205,23 @@ void VistaAEObserverTask::StopProcessing()
 }
 
 
- void VistaAEObserverTask::EnableEventSelect(HANDLE iSocketDesc, VistaThreadEvent *pEvent, long iMask)
- {
+void VistaAEObserverTask::EnableEventSelect(HANDLE iSocketDesc, VistaThreadEvent *pEvent, long iMask)
+{
 #ifdef WIN32
 	WSAEventSelect( SOCKET(iSocketDesc), 
-					(*pEvent).GetEventSignalHandle(), 
-					iMask);
+		(*pEvent).GetEventSignalHandle(), 
+		iMask);
 #endif
- }
+}
 
- void VistaAEObserverTask::DisableEventSelect(HANDLE iSocketDesc, VistaThreadEvent *pEvent)
- {
+void VistaAEObserverTask::DisableEventSelect(HANDLE iSocketDesc, VistaThreadEvent *pEvent)
+{
 #ifdef WIN32
 	WSAEventSelect( SOCKET(iSocketDesc), 
-					(*pEvent).GetEventSignalHandle(), 
-					0);
+		(*pEvent).GetEventSignalHandle(), 
+		0);
 #endif
- }
+}
 
 enum eServerEvType
 {
@@ -240,140 +239,138 @@ enum eClientEvType
 };
 
 VistaAEObserverTask::eClientEvType VistaAEObserverTask::DetermineClientEvent()
- {
+{
 #ifdef WIN32
-	 HANDLE han = m_pClientEvent->GetEventSignalHandle();
-	 WSANETWORKEVENTS NetworkEvents;
+	WSANETWORKEVENTS NetworkEvents;
 	if(WSAEnumNetworkEvents(SOCKET((*m_pClient).GetSocketID()), 
-							(*m_pClientEvent).GetEventSignalHandle(),
-							&NetworkEvents) == 0)
+		(*m_pClientEvent).GetEventSignalHandle(),
+		&NetworkEvents) == 0)
 	{
 		// ok, this worked
 		if(NetworkEvents.lNetworkEvents & FD_CLOSE)
 		{
 			// close
-			vipcerr << "CLOSE EVENT!\n";
+			//vstr::outi() << "CLOSE EVENT!" << std::endl;
 			return ETC_CLOSE;
 
 		}
 		else if(NetworkEvents.lNetworkEvents & FD_READ)
 		{
 			// we can read on the socket?
-			vipcerr << "READ?\n";
+			//vstr::outi() << "READ?" << std::endl;
 			return ETC_MESSAGE;
 		}
-		else
-			vipcerr << "Unknown.\n";
+		//else
+		//	vstr::outi() << "Unknown" << std::endl;
 	}
 	return ETC_UNKNOWN;
 #else
 	return ETC_MESSAGE; // we will always assume a read event on unix
 #endif
-	
- }
+
+}
 
 VistaAEObserverTask::eServerEvType VistaAEObserverTask::DetermineServerEvent()
- {
+{
 #ifdef WIN32
-	 HANDLE han = m_pServerEvent->GetEventSignalHandle();
-	 WSANETWORKEVENTS NetworkEvents;
+	WSANETWORKEVENTS NetworkEvents;
 	if(WSAEnumNetworkEvents(SOCKET((*m_pServer).GetSocketID()), 
-							(*m_pServerEvent).GetEventSignalHandle(),
-							&NetworkEvents) == 0)
+		(*m_pServerEvent).GetEventSignalHandle(),
+		&NetworkEvents) == 0)
 	{
 		// ok, this worked
 		if(NetworkEvents.lNetworkEvents & FD_CLOSE)
 		{
 			// close
-			vipcerr << "CLOSE EVENT!\n";
+			//vstr::errp() << "CLOSE EVENT!" << std::endl;
 			return ETS_CLOSE;
 
 		}
 		else if(NetworkEvents.lNetworkEvents & FD_READ)
 		{
 			// we can read on the socket?
-			vipcerr << "READ?\n";
+			//vstr::errp() << "READ?" << std::endl;
 			return ETS_READPOSSIBLE;
 		}
 		else if(NetworkEvents.lNetworkEvents & FD_ACCEPT)
 		{
 			// we have a client
-			vipcerr << "ACCEPT!\n";
+			//vstr::errp() << "ACCEPT!" << std::endl;
 			return ETS_ACCEPT;
 		}
-		else
-			vipcerr << "Unknown.\n";
+		//else
+		//	vstr::errp() << "Unknown." << std::endl;
 	}
 	return ETS_UNKNOWN;
 #else
 
 	return ETS_ACCEPT; // we will always assume an accept on unix
 #endif
- }
+}
 
- bool VistaAEObserverTask::SetupClient(VistaTCPSocket *pSock)
- {
-	 if(m_pClientCon && m_pClientCon->GetIsOpen())
-		 m_pClientCon->Close();
+bool VistaAEObserverTask::SetupClient(VistaTCPSocket *pSock)
+{
+	if(m_pClientCon && m_pClientCon->GetIsOpen())
+		m_pClientCon->Close();
 
-	 delete m_pClientCon;
-	 m_bConnected = false;
-		 
-	 m_pClient = pSock;
+	delete m_pClientCon;
+	m_bConnected = false;
 
-	 m_pClientCon = new VistaConnectionIP(m_pClient); // wrap
+	m_pClient = pSock;
+
+	m_pClientCon = new VistaConnectionIP(m_pClient); // wrap
 
 #ifdef WIN32
-		EnableEventSelect((*pSock).GetSocketID(), m_pClientEvent, FD_READ|FD_WRITE|FD_CLOSE);
-		(*m_pMp).AddMultiplexPoint((*m_pClientEvent).GetEventSignalHandle(), E_CLIENT, VistaIOMultiplexer::MP_IOIN);
+	EnableEventSelect((*pSock).GetSocketID(), m_pClientEvent, FD_READ|FD_WRITE|FD_CLOSE);
+	(*m_pMp).AddMultiplexPoint((*m_pClientEvent).GetEventSignalHandle(), E_CLIENT, VistaIOMultiplexer::MP_IOIN);
 #else
-		(*m_pMp).AddMultiplexPoint((*pSock).GetSocketID(), E_CLIENT, VistaIOMultiplexer::MP_IOIN);
+	(*m_pMp).AddMultiplexPoint((*pSock).GetSocketID(), E_CLIENT, VistaIOMultiplexer::MP_IOIN);
 #endif
 	m_bConnected = true;
 	return true;
- }
+}
 
- void VistaAEObserverTask::ReadClient()
- {
-	 std::string MyString;
-	 int iRet = m_pClientCon->ReadDelimitedString(MyString, (char)'\n');
-	 if(iRet==0) // should be blocking
-		{
-			vipcerr << "Error on ReadClient()\n";
-			DetachClient();
-			SetupServerSocket();
-		}
-		else
-		 vipcout << "str = " << MyString << "\n";
- }
+void VistaAEObserverTask::ReadClient()
+{
+	std::string MyString;
+	int iRet = m_pClientCon->ReadDelimitedString(MyString, (char)'\n');
+	if(iRet==0) // should be blocking
+	{
+		vstr::errp() << "[VistaAEObserverTask]: Error on ReadClient()" << std::endl;
+		DetachClient();
+		SetupServerSocket();
+	}
+	else
+		vstr::outi() << "str = " << MyString << std::endl;
+}
 
- bool VistaAEObserverTask::DetachClient()
- {
+bool VistaAEObserverTask::DetachClient()
+{
 
-	 if(!m_pClientCon)
-		 return true;
+	if(!m_pClientCon)
+		return true;
 
 #ifdef WIN32
-	 DisableEventSelect(m_pClientCon->GetSocketID(), m_pClientEvent);
-	 (*m_pMp).RemMultiplexPoint((*m_pClientEvent).GetEventSignalHandle(), VistaIOMultiplexer::MP_IOIN);
+	DisableEventSelect(m_pClientCon->GetSocketID(), m_pClientEvent);
+	(*m_pMp).RemMultiplexPoint((*m_pClientEvent).GetEventSignalHandle(), VistaIOMultiplexer::MP_IOIN);
 #else
-	 (*m_pMp).RemMultiplexPoint(m_pClientCon->GetConnectionDescriptor(), VistaIOMultiplexer::MP_IOIN);
+	(*m_pMp).RemMultiplexPoint(m_pClientCon->GetConnectionDescriptor(), VistaIOMultiplexer::MP_IOIN);
 #endif
 
-	 if(m_pClientCon && m_pClientCon->GetIsOpen())
-		 m_pClientCon->Close();
+	if(m_pClientCon && m_pClientCon->GetIsOpen())
+		m_pClientCon->Close();
 
-	 delete m_pClientCon; // should kill socket as well
-	 m_pClientCon = NULL;
-	 m_bConnected = false;
-	 m_pClient = NULL; // not valid anymore
+	delete m_pClientCon; // should kill socket as well
+	m_pClientCon = NULL;
+	m_bConnected = false;
+	m_pClient = NULL; // not valid anymore
 
-	 return true;
- }
+	return true;
+}
 
- void VistaAEObserverTask::HandleModelChange()
- {
-	 if(m_pTranslator && !m_ChgSet.empty())
+void VistaAEObserverTask::HandleModelChange()
+{
+	if(m_pTranslator && !m_ChgSet.empty())
 	{
 		VistaByteBufferSerializer ser(8192);
 
@@ -415,7 +412,7 @@ VistaAEObserverTask::eServerEvType VistaAEObserverTask::DetermineServerEvent()
 	{
 		// we should utter something?
 	}
- }
+}
 
 bool VistaAEObserverTask::RegisterUpdateTranslator(VistaAsyncEventObserver::IUpdateTranslator *pTranslator)
 {
@@ -470,32 +467,34 @@ void VistaAEObserverTask::DefinedThreadWork()
 			}
 		case E_CLIENT:
 			{
-				
+
 				switch(DetermineClientEvent())
 				{
-					case ETC_MESSAGE: //read
-						{
-							ReadClient();
-							break;
-						}
-						case ETC_CLOSE: // close
-						{
-							DetachClient();
-							SetupServerSocket();
-							break;
-						}
+				case ETC_MESSAGE: //read
+					{
+						ReadClient();
+						break;
+					}
+				case ETC_CLOSE: // close
+					{
+						DetachClient();
+						SetupServerSocket();
+						break;
+					}
+				default:
+					break;
 				}
 				break;
 			}
 		case E_FAILURE:
 			{
-				vipcout << "LEAVE\n";
+				vstr::outi() << "VistaAEObserverTask::DefinedThreadWork() -- LEAVE" << std::endl;
 				break;
 			}
-		#if !defined(WIN32)
+#if !defined(WIN32)
 			// we have to read off the "signal" on the pipe
 			// on unix
-			case E_METAEVENT:
+		case E_METAEVENT:
 			{
 				// this was a meta-event!
 				/** @todo remove this manual reset of the event */
@@ -503,7 +502,7 @@ void VistaAEObserverTask::DefinedThreadWork()
 				(*m_pMp).Remedy();
 				break;
 			}	
-		#endif
+#endif
 		default:
 			break;
 		}
@@ -515,12 +514,12 @@ void VistaAEObserverTask::DefinedThreadWork()
 	ShutdownServerSocket();
 }
 
-	
+
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
 VistaAsyncEventObserver::VistaAsyncEventObserver(const std::string &sHostName, 
-											   int iHostPort)
+												 int iHostPort)
 {
 	m_pThread        = new VistaThreadTask;
 	m_pThread->SetThreadName("VistaAsyncEventObserver() -- ObserverTask");
@@ -541,53 +540,53 @@ VistaAsyncEventObserver::~VistaAsyncEventObserver()
 	delete m_pThread;
 	delete m_pActivatorTask;
 }
-	
+
 /*============================================================================*/
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
 
- bool VistaAsyncEventObserver::ObserveableDeleteRequest(IVistaObserveable *pObserveable,
-														int nTicket)
- {
-	 return true;
- }
+bool VistaAsyncEventObserver::ObserveableDeleteRequest(IVistaObserveable *pObserveable,
+													   int nTicket)
+{
+	return true;
+}
 
 
- void VistaAsyncEventObserver::ObserveableDelete(IVistaObserveable *pObserveable, int nTicket) 
- {
-	 ReleaseObserveable(pObserveable, nTicket);
- }
+void VistaAsyncEventObserver::ObserveableDelete(IVistaObserveable *pObserveable, int nTicket) 
+{
+	ReleaseObserveable(pObserveable, nTicket);
+}
 
- void VistaAsyncEventObserver::ReleaseObserveable(IVistaObserveable *pObserveable, int nTicket) 
- {
-	 pObserveable->DetachObserver(this);
-	 IVistaObserveable *p = dynamic_cast<IVistaObserveable*>(pObserveable);
+void VistaAsyncEventObserver::ReleaseObserveable(IVistaObserveable *pObserveable, int nTicket) 
+{
+	pObserveable->DetachObserver(this);
+	IVistaObserveable *p = dynamic_cast<IVistaObserveable*>(pObserveable);
 
-	 std::set<IVistaObserveable*>::iterator it = std::find(m_setProConts.begin(),
-												 m_setProConts.end(), p);
-	 if (it != m_setProConts.end())
-	 {
-		 m_setProConts.erase(it);
+	std::set<IVistaObserveable*>::iterator it = std::find(m_setProConts.begin(),
+		m_setProConts.end(), p);
+	if (it != m_setProConts.end())
+	{
+		m_setProConts.erase(it);
 
-	 }
- }
+	}
+}
 
- void VistaAsyncEventObserver::ObserverUpdate(IVistaObserveable *pObserveable, int msg, int ticket) 
- {
-	 m_pActivatorTask->IndicateModelEvent(pObserveable, msg, ticket);
- }
+void VistaAsyncEventObserver::ObserverUpdate(IVistaObserveable *pObserveable, int msg, int ticket) 
+{
+	m_pActivatorTask->IndicateModelEvent(pObserveable, msg, ticket);
+}
 
- bool VistaAsyncEventObserver::Observes(IVistaObserveable *pObserveable) 
- {
-	 return (m_setProConts.find(pObserveable) != m_setProConts.end());
- }
+bool VistaAsyncEventObserver::Observes(IVistaObserveable *pObserveable) 
+{
+	return (m_setProConts.find(pObserveable) != m_setProConts.end());
+}
 
- void VistaAsyncEventObserver::Observe(IVistaObserveable *pObservable, int eTicket) 
- {
-	 pObservable->AttachObserver(this, eTicket);
-	 m_setProConts.insert(dynamic_cast<IVistaObserveable*>(pObservable));
- }
- 
+void VistaAsyncEventObserver::Observe(IVistaObserveable *pObservable, int eTicket) 
+{
+	pObservable->AttachObserver(this, eTicket);
+	m_setProConts.insert(dynamic_cast<IVistaObserveable*>(pObservable));
+}
+
 
 bool VistaAsyncEventObserver::StartObserver()
 {

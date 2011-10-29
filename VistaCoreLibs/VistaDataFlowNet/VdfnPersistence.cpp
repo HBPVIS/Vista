@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnPersistence.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VdfnPersistence.h"
 
@@ -46,8 +46,6 @@
 #include <fstream>
 #include <set>
 
-#include "VdfnOut.h"
-
 using namespace VistaXML;
 
 
@@ -68,7 +66,7 @@ namespace
 
 		// get first param child
 		TiXmlElement *child = nd.FirstChild("param").Element();
-		for(child; child; child = child->NextSiblingElement())
+		for( ; child != NULL ; child = child->NextSiblingElement() )
 		{
 			// does it have a name?
 			const char *pcName = child->Attribute("name");
@@ -92,7 +90,7 @@ namespace
 				if(pcValue)
 				{
 					// assign value attribute
-					oProps.SetStringValue( pcName, pcValue );
+					oProps.SetValue( pcName, pcValue );
 				}
 				else
 				{
@@ -102,11 +100,11 @@ namespace
 					if(next.Text())
 					{
 						// ok assign
-						oProps.SetStringValue( pcName, next.Text()->Value() );
+						oProps.SetValue( pcName, next.Text()->Value() );
 					}
 					else
 					{
-						vdfnerr << "recursive parameter build did not find a value of param ["
+						vstr::warnp() << "recursive parameter build did not find a value of param ["
 						          << pcName
 						          << "], neither value nor a text node found."
 						          << std::endl;
@@ -135,10 +133,11 @@ namespace
 
 			if(!pcType || !pcName)
 			{
-				vdfnerr << "NO TYPE OR NAME GIVEN FOR NODE CREATION [\n";
-				node->Print( stderr, 0 );
-				vdfnerr << "]\n";
-				vdfnerr << "\tLine: " << node->Row() << std::endl;
+				vstr::warnp() << "No Type or Name given for node creation ["
+				//node->Print( stderr, 0 );
+						<< node->Value()
+						<< "] - File [" << strGraphTag 
+						<< "] - Line: " << node->Row() << std::endl;
 				return NULL;
 			}
 
@@ -151,7 +150,7 @@ namespace
 			// try to merge in external props
 			if( nodeParams.HasProperty( pcName ) )
 			{
-				vdfnout << "external props found for node ["
+				vstr::outi() << "[VdfnNode::CreateNode]: External props found for node ["
 				          << pcName
 				          << "]"
 				          << std::endl;
@@ -161,24 +160,24 @@ namespace
 					// yes
 					const VistaPropertyList &ndParams = nodeParams.GetPropertyConstRef(pcName).GetPropertyListConstRef();
 					oParams = VistaPropertyList::MergePropertyLists( oParams, ndParams );
-					vdfnout << "merging creation parameters for ["
+					vstr::outi() << "[VdfnNode::CreateNode]: Merging creation parameters for ["
 							  << pcName
 							  << "] for the node creator."
 							  << std::endl;
-					oParams.PrintPropertyList();
+					oParams.Print();
 				}
 				else
 				{
-					vdfnerr << "merg-in PropertyList is no PropertyList:"
+					vstr::warnp() << "[VdfnNode::CreateNode]: Merge-in PropertyList is no PropertyList:"
 					          << std::endl;
-					nodeParams.PrintPropertyList();
+					nodeParams.Print();
 				}
 			}
 
 			// set (or re-set) the following properties.
-			oProps.SetStringValue("tag", strGraphTag );
-			oProps.SetStringValue("type", pcType);
-			oProps.SetStringValue("name", pcName);
+			oProps.SetValue("tag", strGraphTag );
+			oProps.SetValue("type", pcType);
+			oProps.SetValue("name", pcName);
 			oProps.SetPropertyListValue("param", oParams);
 
 			// pass arguments for factory method and hopefully create the node
@@ -197,16 +196,22 @@ namespace
 			if( !pRet )
 			{
 				// no... did not work
-				vdfnerr << "[Vdfn::CreateNode]: ERROR in graph [" << strGraphTag << "], line " 
-							<< node->Row() << ":" << std::endl
-							<< "\tCould not create node [" << pcName << " ; " << pcType
-							<< "] from factory." << std::endl;							
+				vstr::warnp() << "[Vdfn::CreateNode]: ERROR in graph [" << strGraphTag << "], line " 
+							<< node->Row() << ":" << std::endl;
+				vstr::warni() << vstr::singleindent
+							<< "Could not create node [" 
+							<< pcName << " ; " << pcType
+							<< "] from factory" << std::endl;							
 				if( fac.GetHasCreator( pcType ) == false )
-					vdfnerr << "\tNode Type [" << pcType << "] not registered.\n";
+				{				
+					vstr::warni() << vstr::singleindent
+						<< "Node Type [" << pcType << "] not registered" << std::endl;
+				}
 				else
-					vdfnerr << "\tNode Type [" << pcType << "] registered, so probably the parameters are wrong.\n";
-				//node->Print( stderr, 0 );	
-				vdfnout << std::endl;
+				{
+					vstr::warni() << vstr::singleindent
+							<< "Node Type [" << pcType << "] registered, so probably the parameters are wrong" << std::endl;
+				}
 
 				return NULL;
 			}
@@ -246,7 +251,7 @@ namespace
 
 		// first: create all node declared in the nodespace.
 		TiXmlElement *child = nodespace.FirstChild("node").Element();
-		for(child; child; child = child->NextSiblingElement("node"))
+		for( ; child != NULL ; child = child->NextSiblingElement("node") )
 		{
 
 			IVdfnNode *pNode = CreateNode( child, fac, strTag, nodeParameters );
@@ -258,7 +263,7 @@ namespace
 		}
 
 		TiXmlElement *graphel = graph.FirstChild("node").Element();
-		for(graphel;graphel;graphel = graphel->NextSiblingElement())
+		for( ; graphel != NULL ; graphel = graphel->NextSiblingElement() )
 		{
 			IVdfnNode *pNode = NULL;
 
@@ -278,9 +283,12 @@ namespace
 					IVistaNameable *pNd;
 					if( (pNd = reg.RetrieveNameable( pNode->GetNameForNameable() ) ) )
 					{
-						vdfnerr << "[Vdfn::CreateGraph]: Warning in graph [" << strTag << "]" << std::endl
-							<< "\tA node with name [" << pNode->GetNameForNameable()
-							<< "] is already registered - deleting the old one" << std::endl;
+						vstr::warnp()
+									<< "[Vdfn::CreateGraph]: Warning in graph [" << strTag << "], line "
+									<< graphel->Row() << std::endl;
+						vstr::warni() << vstr::singleindent
+									<< "A node with name [" << pNode->GetNameForNameable()
+									<< "] is already registered - deleting the old one" << std::endl;
 
 						reg.UnregisterNameable( pNd );
 
@@ -305,12 +313,12 @@ namespace
 				bContainsErrors = true;
 //				std::cerr << "COULD NOT CREATE NODE [";
 //				graphel->Print(stderr,0);
-//				std::cerr << "]\n";
+//				std::cerr << "]" << std::endl;
 			}
 		}
 
 		TiXmlElement *edge = edges.FirstChild("edge").Element();
-		for(edge;edge; edge = edge->NextSiblingElement("edge"))
+		for( ; edge != NULL ; edge = edge->NextSiblingElement("edge") )
 		{
 			const char *pcFromName = edge->Attribute( "fromnode" );
 			const char *pcToName = edge->Attribute("tonode");
@@ -336,30 +344,31 @@ namespace
 				IVdfnPort *pFromPort = pFrom->GetOutPort( pcFromPort );
 				if(!pFromPort)
 				{
-					vdfnerr << "[Vdfn::CreateGraph]: ERROR in graph [" << strTag << "], line "
-							<< edge->Row() << std::endl
-							<< "\tConstruction of edge from [" << pcFromPort << ", "
+					vstr::warnp() << "[Vdfn::CreateGraph]: ERROR in graph [" << strTag << "], line "
+							<< edge->Row() << std::endl;
+					vstr::warni() << vstr::singleindent
+							<< "Construction of edge from [" << pcFromPort << ", "
 							<< pFrom->GetNameForNameable() << "] to ["
 							<< pcToPort << ", "
 							<< pTo->GetNameForNameable() 
-							<< "] failed."
-							<< std::endl
-							<< "\tOutport does not exist."
-							<< std::endl;
-
-					vdfnerr << "\tAvailable outports of node [" 
+							<< "] failed\n";
+					vstr::warni() << vstr::singleindent
+							<< "Outport does not exist" << std::endl;
+					vstr::warni() << vstr::singleindent
+							<< "Available outports of node [" 
 							<< pFrom->GetNameForNameable() << "]:" << std::endl;
 					std::list<std::string> liOutPorts = pFrom->GetOutPortNames();
 					if( liOutPorts.empty() )
-						vdfnerr << "\tNone" << std::endl;
+						vstr::warni() << vstr::singleindent << "None" << std::endl;
 					else
 					{
 						for( std::list<std::string>::const_iterator it = liOutPorts.begin() ;
 							 it != liOutPorts.end() ; it++ )
 						{
-							vdfnerr << "\t" << *it << " ["
-									  << typeid(*(pFrom->GetOutPort(*it))).name()
-									  << "]" << std::endl;
+							vstr::warni() << vstr::singleindent
+										<< *it << " ["
+										<< typeid(*(pFrom->GetOutPort(*it))).name()
+										<< "]" << std::endl;
 						}
 					}
 					bContainsErrors = true;
@@ -370,31 +379,32 @@ namespace
 					if(pTo->SetInPort( pcToPort, pFromPort ) == false)
 					{
 						// did not work
-						vdfnerr << "[Vdfn::CreateGraph]: ERROR in graph [" << strTag << "], line "
-									<< edge->Row() << std::endl
-									<< "\tConstruction of edge from [" << pcFromPort << ", "
+						vstr::warnp() << "[Vdfn::CreateGraph]: ERROR in graph [" << strTag << "], line "
+									<< edge->Row() << std::endl;
+						vstr::warni() << vstr::singleindent
+									<< "Construction of edge from [" 
+									<< pcFromPort << ", "
 									<< pFrom->GetNameForNameable() << "] to ["
 									<< pcToPort << ", "
 									<< pTo->GetNameForNameable() 
-									<< "] failed."
-									<< std::endl
-									<< "\tInport does not exist."
-									<< std::endl;
+									<< "] failed - \tInport does not exist" << std::endl;
 
-						vdfnerr << "\tAvailable inports of node [" 
+						vstr::warni() << vstr::singleindent
+									<< "Available inports of node [" 
 									<< pTo->GetNameForNameable() << "]:" << std::endl;
 						std::list<std::string> liInPorts = pTo->GetInPortNames();
 						if( liInPorts.empty() )
-							vdfnerr << "\t\tNone" << std::endl;
+							vstr::warni() << vstr::singleindent << "None" << std::endl;
 						else
 						{
 							for( std::list<std::string>::const_iterator it = liInPorts.begin() ;
 								 it != liInPorts.end() ; it++ )
 							{
 								const IVdfnPortTypeCompare *pPortTC = &(pTo->GetPortTypeCompareFor(*it));
-								vdfnerr << "\t\t" << *it << " ["
-										  << typeid(*(pPortTC)).name()
-										  << "]" << std::endl;
+								vstr::warni() << vstr::singleindent
+											<< *it << " ["
+											<< typeid(*(pPortTC)).name()
+											<< "]" << std::endl;
 							}
 						}
 						bContainsErrors = true;
@@ -404,9 +414,10 @@ namespace
 			else
 			{
 				// total failure. Node not found.
-				vdfnerr << "[Vdfn::CreateGraph]: ERROR in graph [" << strTag << "], line "
-							<< edge->Row() << std::endl
-							<< "\tConstruction of edge from [" 
+				vstr::warnp() << "[Vdfn::CreateGraph]: ERROR in graph [" << strTag << "], line "
+							<< edge->Row() << std::endl;
+				vstr::warni() << vstr::singleindent
+							<< "Construction of edge from [" 
 							<< ( (pFrom) ? (pFrom->GetNameForNameable()) : ("<null>") )
 							<< ", "
 							<< pcFromPort
@@ -417,9 +428,15 @@ namespace
 							<< "] failed."
 							<< std::endl;
 				if( pFrom == NULL )
-					vdfnerr << "\tFrom-Node [" << pcFromName << "] does not exist" << std::endl;
+				{
+					vstr::warni() << vstr::singleindent 
+								<< "From-Node [" << pcFromName << "] does not exist" << std::endl;
+				}
 				if( pTo == NULL )
-					vdfnerr << "\tFrom-Node [" << pcToName << "] does not exist" << std::endl;				
+				{
+					vstr::warni() << vstr::singleindent
+								<< "To-Node [" << pcToName << "] does not exist" << std::endl;				
+				}
 				
 				bContainsErrors = true;
 			}
@@ -521,7 +538,7 @@ namespace
 		std::ofstream of( strDotFile.c_str() );
 		if(!of.good())
 		{
-			vdfnerr << "[DumpXml]: could not open file [" << strDotFile << "]\n";
+			vstr::warnp() << "[DumpXml]: could not open file [" << strDotFile << "]" << std::endl;
 			return false;
 		}
 
@@ -539,7 +556,7 @@ namespace
 
 		// first all elements in the graph itself
 		TiXmlElement *graphel = graph.ChildElement(0).Element();
-		for(graphel;graphel;graphel = graphel->NextSiblingElement())
+		for( ; graphel != NULL; graphel = graphel->NextSiblingElement() )
 		{
 			const char *pcFrom = graphel->Attribute("name");
 			if(pcFrom != NULL)
@@ -550,7 +567,7 @@ namespace
 
 		// now all references in the edge set
 		TiXmlElement *edge = edges.ChildElement(0).Element();
-		for(edge;edge; edge = edge->NextSiblingElement())
+		for( ; edge != NULL; edge = edge->NextSiblingElement() )
 		{
 			const char *pcFromName = edge->Attribute( "fromnode" );
 			const char *pcToName   = edge->Attribute( "tonode" );
@@ -601,7 +618,7 @@ namespace
 	{
 		// simply parse all elements and push CExport instances to their proper place
 		TiXmlElement *graphel = oExportRoot.FirstChild("export").Element();
-		for(graphel;graphel;graphel = graphel->NextSiblingElement("export"))
+		for( ;graphel != NULL; graphel = graphel->NextSiblingElement("export") )
 		{
 			const char *pcMapName   = graphel->Attribute("name");
 			const char *pcPortName  = graphel->Attribute("port");
@@ -610,7 +627,9 @@ namespace
 			if(bStrict)
 				if(!pcDirection && !pcPortName)
 				{
-					vdfnerr << "VdfnPersistence::CreateExports -- Exception (strict set but no direction or no portname set)" << std::endl;
+					vstr::errp() << "VdfnPersistence::CreateExports -- "
+							<< "Exception (strict set but no direction or no portname set)"
+							<< std::endl;
 					return false;
 				}
 
@@ -661,7 +680,7 @@ namespace
 			TiXmlHandle docHandle( &doc );
 			TiXmlHandle parameters = docHandle.FirstChild("parameters");
 			TiXmlElement *nodeel = parameters.FirstChild("node").Element();
-			for(nodeel;nodeel;nodeel = nodeel->NextSiblingElement("node"))
+			for( ; nodeel != NULL; nodeel = nodeel->NextSiblingElement("node") )
 			{
 				const char *pcNodeName = nodeel->Attribute("name");
 				if(pcNodeName)
@@ -727,19 +746,23 @@ VdfnGraph *VdfnPersistence::ParseGraph( const std::string &strGraphText,
 		}
 		else
 		{
-			vdfnerr << "parsing worked, but some sections were not found?\n";
-			vdfnerr << "<module>: " << (module.Element() ? "FOUND" : "NOT FOUND") << std::endl
-			          << "<nodespace>:" << (nodes.Element() ? "FOUND" : "NOT FOUND") << std::endl
-			          << "<graph>:" << (graph.Element() ? "FOUND" : "NOT FOUND") << std::endl
-			          << "<edges>:" << (edges.Element() ? "FOUND" : "NOT FOUND") << std::endl;
+			vstr::warnp() << "VdfnPersistence::ParseGraph() - parsing worked, but some sections were not found?"
+						 << "\n" << vstr::indent << vstr::singleindent
+							<< "<module>: " << (module.Element() ? "FOUND" : "NOT FOUND")
+						 << "\n" << vstr::indent << vstr::singleindent
+							<< "<nodespace>:" << (nodes.Element() ? "FOUND" : "NOT FOUND")
+						 << "\n" << vstr::indent << vstr::singleindent
+							<< "<graph>:" << (graph.Element() ? "FOUND" : "NOT FOUND")
+						 << "\n" << vstr::indent << vstr::singleindent
+							<< "<edges>:" << (edges.Element() ? "FOUND" : "NOT FOUND") << std::endl;
 		}
 	}
 	else
 	{
 		// load error, get more information from TinyXML
-		vdfnerr << "Error: " << doc.ErrorDesc() << std::endl;
-		vdfnerr << "\tLine: " << doc.ErrorRow() << std::endl
-		          << "\tCol: " << doc.ErrorCol() << std::endl;	}
+		vstr::warnp() << "VdfnPersistence::ParseGraph() - Error: " << doc.ErrorDesc() << std::endl;
+		vstr::warni() << vstr::singleindent
+					<< "Line: " << doc.ErrorRow() << " - Col: " << doc.ErrorCol() << std::endl;	}
 
 
 	return NULL;
@@ -768,7 +791,7 @@ VdfnGraph *VdfnPersistence::LoadGraph( const std::string &strGraphXmlFile,
 
 		if(nodes.Element() == NULL)
 		{
-			vdfnerr << "Compat warning: <nodespace> section not found...\n";
+			vstr::warnp() << "VdfnPersistence::LoadGraph() - Compat warning: <nodespace> section not found..." << std::endl;
 		}
 		else if( module.Element() && graph.Element() && edges.Element() )
 		{
@@ -798,11 +821,16 @@ VdfnGraph *VdfnPersistence::LoadGraph( const std::string &strGraphXmlFile,
 		}
 		else
 		{
-			vdfnerr << "loading [" << strGraphXmlFile << "] worked, but some sections were not found?\n";
-			vdfnerr << "<module>: " << (module.Element() ? "FOUND" : "NOT FOUND") << std::endl
-			          << "<nodespace>:" << (nodes.Element() ? "FOUND" : "NOT FOUND") << std::endl
-			          << "<graph>:" << (graph.Element() ? "FOUND" : "NOT FOUND") << std::endl
-			          << "<edges>:" << (edges.Element() ? "FOUND" : "NOT FOUND") << std::endl;
+			vstr::warnp() << "VdfnPersistence::LoadGraph() - loading [" << strGraphXmlFile
+						<< "] worked, but some sections were not found?"
+						<< "\n" << vstr::indent << vstr::singleindent 
+						<< "<module>: " << (module.Element() ? "FOUND" : "NOT FOUND")
+						<< "\n" << vstr::indent << vstr::singleindent 
+						<< "<nodespace>:" << (nodes.Element() ? "FOUND" : "NOT FOUND")
+						<< "\n" << vstr::indent << vstr::singleindent 
+						<< "<graph>:" << (graph.Element() ? "FOUND" : "NOT FOUND")
+						<< "\n" << vstr::indent << vstr::singleindent 
+						<< "<edges>:" << (edges.Element() ? "FOUND" : "NOT FOUND") << std::endl;
 		}
 		if( bValid && exports.Element() )  // exports really declared!
 		{
@@ -810,7 +838,7 @@ VdfnGraph *VdfnPersistence::LoadGraph( const std::string &strGraphXmlFile,
 
 			if(CreateExports( exports, liExports, bStrict ) == false)
 			{
-				vdfnerr << "Error creating exports\n";
+				vstr::errp() << "VdfnPersistence::LoadGraph() - Error creating exports" << std::endl;
 				if(bStrict)
 				{
 					delete pGraph;
@@ -824,22 +852,20 @@ VdfnGraph *VdfnPersistence::LoadGraph( const std::string &strGraphXmlFile,
 	else
 	{
 		// load error, get more information from TinyXML
-		vdfnerr << "Error: " << doc.ErrorDesc() << std::endl;
+		vstr::errp() << "VdfnPersistence::LoadGraph() - Error: " << doc.ErrorDesc() << std::endl;
 		VistaFileSystemFile file( strGraphXmlFile );
 		if( file.Exists() )
 		{
-			vdfnerr << "\tFile exists, so go and check the syntax."
-			          << std::endl;
+			vstr::errp() << "File exists, but syntax is wrong." << std::endl;
 		}
 		else
 		{
-			vdfnerr << "\tCould not locate file by the name given ["
-			          << strGraphXmlFile
-			          << "] -- wd: "
-			          << VistaFileSystemDirectory::GetCurrentWorkingDirectory()
-			          << std::endl
-			          << "\tso go and check your configuration."
-			          << std::endl;
+			vstr::errp() << "Could not locate file by the name given ["
+						<< strGraphXmlFile
+						<< "] -- wd: "
+						<< VistaFileSystemDirectory::GetCurrentWorkingDirectory()
+						<< " - so go and check your configuration."
+						<< std::endl;
 		}
 	}
 
@@ -1075,7 +1101,7 @@ bool VdfnPersistence::SaveAsDot( VdfnGraph *pGraph,
 						std::string strToPortName;
 						if((*nit).first->GetNameForInPort( (*nit).second, strToPortName ) == false)
 						{
-							vdfnerr << "[NO PORT?]\n";
+							vstr::warnp() << "VdfnPersistence::SaveAsDot() - No port given" << std::endl;
 						}
 						if(bWritePorts)
 						{

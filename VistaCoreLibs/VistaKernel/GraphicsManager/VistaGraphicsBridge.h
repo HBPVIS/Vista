@@ -1,13 +1,13 @@
 /*============================================================================*/
 /*                              ViSTA VR toolkit                              */
-/*               Copyright (c) 1997-2011 RWTH Aachen University               */
+/*               Copyright ( c ) 1997-2011 RWTH Aachen University               */
 /*============================================================================*/
 /*                                  License                                   */
 /*                                                                            */
 /*  This program is free software: you can redistribute it and/or modify      */
 /*  it under the terms of the GNU Lesser General Public License as published  */
 /*  by the Free Software Foundation, either version 3 of the License, or      */
-/*  (at your option) any later version.                                       */
+/*  ( at your option ) any later version.                                       */
 /*                                                                            */
 /*  This program is distributed in the hope that it will be useful,           */
 /*  but WITHOUT ANY WARRANTY; without even the implied warranty of            */
@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $nId: VistaGraphicsBridge.h 22163 2011-07-03 14:11:15Z dr165799 $
 
 #ifndef _VISTAGRAPHICSBRIDGE_H
 #define _VISTAGRAPHICSBRIDGE_H
@@ -71,237 +71,282 @@ protected:
 
 class VISTAKERNELAPI IVistaGraphicsBridge
 {
-	//friend class VistaSG;
-	//friend class VistaGraphicsManager;
-	//friend class Vista2DDrawingObject;
-	//friend class Vista2DBitmap;
 public:
+	virtual ~IVistaGraphicsBridge();	
 
-	virtual bool CalcVertexNormals(IVistaGeometryData*, const float &fCreaseAngle = 0.524f) = 0; // 30 degrees
-	virtual bool CalcFaceNormals(IVistaGeometryData*) = 0;
+	/*******************************************/
+	/* Global States                           */
+	/*******************************************/
 
-	virtual VistaColorRGB GetBackgroundColor() const =0;
-	virtual void SetBackgroundColor(const VistaColorRGB & color) =0;
+	virtual VistaColorRGB GetBackgroundColor() const = 0;
+	virtual void SetBackgroundColor( const VistaColorRGB&  color ) = 0;
 
-	virtual int  GetNumberOfVertices(IVistaGeometryData*) const =0;
-	virtual int  GetNumberOfFaces(IVistaGeometryData*) const =0;
-
-	virtual int  GetNumberOfColors(IVistaGeometryData*) const =0;
-	virtual int  GetNumberOfCoords(IVistaGeometryData*) const =0;
-	virtual int  GetNumberOfNormals(IVistaGeometryData*) const =0;
-	virtual int  GetNumberOfTextureCoords(IVistaGeometryData*) const =0;
-
-//	virtual bool IsIndexed(IVistaGeometryData*) const =0;
-	virtual VistaVertexFormat	GetVertexFormat(IVistaGeometryData*) const =0;
-	virtual VistaGeometry::faceType	GetFaceType(IVistaGeometryData*) const =0;
-
-	// non-indexed geometry
-//	virtual bool GetVertices(vector<VistaVertex>& vertices, IVistaGeometryData*) const =0;
-
-	// indexed geometry
-	virtual bool GetVertices(std::vector<VistaIndexedVertex>& vertices, IVistaGeometryData*) const =0;
-	virtual bool GetCoordinates(std::vector<VistaVector3D>& coords, IVistaGeometryData*) const =0;
-	virtual bool GetTextureCoords2D(std::vector<VistaVector3D>& textureCoords2D, IVistaGeometryData*) const =0;
-	virtual bool GetNormals(std::vector<VistaVector3D>& normals, IVistaGeometryData*) const =0;
-	virtual bool GetNormals(std::vector<float>& normals, IVistaGeometryData*) const =0;
-	virtual bool GetColors(std::vector<VistaColorRGB>& colorsRGB, IVistaGeometryData*) const =0;
-
-	virtual bool GetFaces(std::vector<int>& faces, IVistaGeometryData*) const =0;
-	virtual bool GetCoordinates(std::vector<float>& coords, IVistaGeometryData*) const =0;
-
-	/**
-	 * Gives indices for all triangles in the geometry
-	 * ! Returns the indices of Vertices, Normals, or Both
-	 */
-	virtual bool GetTrianglesVertexIndices( std::vector<int>& vecVertexIndices,
-									IVistaGeometryData* pData ) const = 0;
-	virtual bool GetTrianglesNormalIndices( std::vector<int>& vecNormalIndices,
-									IVistaGeometryData* pData ) const = 0;
-	virtual bool GetTrianglesVertexAndNormalIndices( std::vector<int>& vecVertexIndices,
-									std::vector<int>& vecNormalIndices,
-									IVistaGeometryData* pData) const = 0;
-
-	virtual int  GetCoordinateIndex(const int idx, IVistaGeometryData*) const =0;
-	virtual bool GetCoordinate(const int idx, float fCoord[3], IVistaGeometryData*) const =0;
-	virtual VistaVector3D GetCoordinate(const int idx, IVistaGeometryData*) const =0;
-
-	virtual int  GetNormalIndex(const int idx, IVistaGeometryData*) const =0;
-	virtual bool GetNormal(const int idx, float fNormal[3], IVistaGeometryData*) const =0;
-	virtual VistaVector3D GetNormal(const int idx, IVistaGeometryData*) const =0;
-
-	virtual int  GetColorIndex(const int idx, IVistaGeometryData*) const =0;
-	virtual VistaColorRGB GetColor(const int idx, IVistaGeometryData*) const =0;
-
-	virtual int  GetTextureCoordIndex(const int idx, IVistaGeometryData*) const =0;
-	virtual bool GetTextureCoord(const int idx, float fTexCoord[3],  IVistaGeometryData*) const =0;
-	virtual VistaVector3D GetTextureCoord(const int idx, IVistaGeometryData*) const =0;
-
-	virtual bool SetCoordinates(const int startIdx, const std::vector<VistaVector3D>& coords, IVistaGeometryData*) =0;
-	virtual bool SetCoordinates(const int startIdx, const std::vector<float>& coords, IVistaGeometryData*) =0;
-
-	virtual bool SetCoordinate(const int idx, const float coord[3], IVistaGeometryData*) =0;
-	virtual bool SetCoordinate(const int idx, const VistaVector3D& coord, IVistaGeometryData*) =0;
-	virtual bool SetCoordIndex(const int idx, const int value, IVistaGeometryData*) =0;
-	virtual bool SetCoordIndices(const int startIdx, const std::vector<int>& indices, IVistaGeometryData*) =0;
-
-	virtual bool SetTextureCoords2D(const int startIdx, const std::vector<VistaVector3D>& textureCoords2D, IVistaGeometryData*) =0;
-	virtual bool SetTextureCoords2D(const int startIdx, const std::vector<float>& textureCoords2D, IVistaGeometryData*) =0;
-
-	virtual bool SetTextureCoord2D(const int idx, const float coord[3], IVistaGeometryData*) =0;
-	virtual bool SetTextureCoord2D(const int idx, const VistaVector3D& coord, IVistaGeometryData* pData) =0;
-
-	virtual bool SetTextureCoordIndex(const int idx, const int value, IVistaGeometryData*) =0;
-	virtual bool SetTextureCoordsIndices(const int startIdx, const std::vector<int>& indices, IVistaGeometryData*) =0;
-
-	virtual bool SetNormals(const int startIdx, const std::vector<float>& normals, IVistaGeometryData*) =0;
-	virtual bool SetNormals(const int startIdx, const std::vector<VistaVector3D>& normals, IVistaGeometryData*) =0;
-
-	virtual bool SetNormal(const int idx, const float normal[3], IVistaGeometryData*) =0;
-	virtual bool SetNormal(const int idx, const VistaVector3D& normal, IVistaGeometryData*) =0;
-	virtual bool SetNormalIndex(const int idx, const int value, IVistaGeometryData*) =0;
-	virtual bool SetNormalIndices(const int startIdx, const std::vector<int>& indices, IVistaGeometryData*) =0;
-
-	virtual bool SetColors(const int startIdx, const std::vector<VistaColorRGB>& colors, IVistaGeometryData*) =0;
-	virtual bool SetColors(const int startIdx, const int bufferLength, float* colors, IVistaGeometryData*) =0;
-
-	virtual bool SetColor(const int idx, const VistaColorRGB& color, IVistaGeometryData*) =0;
-	virtual bool SetColorIndex(const int idx, const int value, IVistaGeometryData*) =0;
-	virtual bool SetColorIndices(const int startIdx, const std::vector<int>& indices, IVistaGeometryData*) =0;
-
-	virtual bool SetColor(const VistaColorRGB & color, IVistaGeometryData*) =0;
-
-	virtual bool SetMaterial(const VistaMaterial & material, IVistaGeometryData*) =0;
-	virtual bool BindToVistaMaterialTable	(IVistaGeometryData*) = 0;
-	virtual int	 GetNumberOfMaterials		(void) = 0;
-	virtual int	 AddMaterial				(const VistaMaterial &Material) = 0;
-	virtual bool SetMaterialIndex			(const int& materialIndex, IVistaGeometryData*) =0;
-	virtual bool GetMaterialByIndex(int iIndex, VistaMaterial &oIn) const = 0;
-	virtual bool GetMaterialByName(const std::string &sName, VistaMaterial &oIn) const = 0;
-
-	virtual bool SetTexture(const std::string &, IVistaGeometryData*) =0;
-	virtual bool SetTexture(const int id,        /**< unknown parameter ? */
-			                const int width,     /**< width in pixel */
-			                const int height,    /**< height in pixel */
-			                const int bpp,       /**< bits per color channel (8,32) */
-			                unsigned char *data, /**< pointer to pixelbuffer RGB(A) */
-			                bool bHasAlpha,      /**< pixel data has alpha or not RGBA iff true, RGB else */
-			                IVistaGeometryData*) =0;
-	virtual bool DeleteTexture(IVistaGeometryData*) =0;
-
-	virtual bool ScaleGeometry(const float, IVistaGeometryData*) =0;
-	virtual bool ScaleGeometry(const float[3], IVistaGeometryData*) =0;
-	virtual bool ScaleGeometry(const float, const float, const float, IVistaGeometryData*) =0;
-
-	virtual bool GetBoundingBox(VistaVector3D& min, VistaVector3D& max, IVistaGeometryData*) const =0;
-	virtual bool GetFaceBoundingBox(const int idx, VistaVector3D& min, VistaVector3D& max, IVistaGeometryData*) const =0;
-	virtual bool GetFaceCoords(const int idx, VistaVector3D& a,VistaVector3D& b,VistaVector3D& c, IVistaGeometryData*) const =0;
-	virtual bool GetFaceCoords(const int idx, std::vector<int> &coords, int &nMod, IVistaGeometryData*) const = 0;
-	virtual bool GetFaceVertices(const int idx, int& vertexId0, int& vertexId1, int& vertexId2, IVistaGeometryData* pData) const =0;
-
-	virtual bool GetRenderingAttributes(VistaRenderingAttributes& attr, IVistaGeometryData*) const =0;
-	virtual	bool SetRenderingAttributes(const VistaRenderingAttributes& attr, IVistaGeometryData*) = 0;
-
-	virtual float GetTransparency(IVistaGeometryData *) const = 0;
-	virtual bool SetTransparency(const float& transparency, IVistaGeometryData*) = 0;
-
-//	virtual bool CreateGeometry(const std::vector<VistaVertex>& vertices, const VistaVertexFormat& vFormat,
-//		const VistaGeometry::faceType fType, IVistaGeometryData*) =0;
-
-	virtual bool CreateIndexedGeometry(const std::vector<VistaIndexedVertex>& vertices,
-										const std::vector<VistaVector3D>& coords,
-										const std::vector<VistaVector3D>& textureCoords2D,
-										const std::vector<VistaVector3D>& normals,
-										const std::vector<VistaColorRGB>& colorsRGB,
-										const VistaVertexFormat& vFormat,
-										const VistaGeometry::faceType fType,
-										IVistaGeometryData*) =0;
-
-	virtual bool CreateIndexedGeometry
-		(const std::vector<VistaIndexedVertex>& vertices,
-		 const std::vector<float>& coords,
-		 const std::vector<float>& textureCoords,
-		 const std::vector<float>& normals,
-		 const std::vector<VistaColorRGB>& colors,
-		 const VistaVertexFormat& vFormat,
-		 const VistaGeometry::faceType fType,
-		 IVistaGeometryData*) =0;
-
-	virtual bool GetIsStatic(IVistaGeometryData *) = 0;
-	virtual void SetIsStatic(bool bIsStatic, IVistaGeometryData *) = 0;
-
-	/**
-	 * @return returns true if culling is enabled globally, false otherwise
-	 */
-	virtual bool GetCullingEnabled() const = 0;
-	/**
-	 * @param enables global culling if true, disables otherwise
-	 */
-	virtual void SetCullingEnabled(bool bCullingEnabled) = 0;
-
-	/**
-	 * @return returns true if occlusion culling is enabled globally,
-	           false otherwise
-	 */
+	virtual bool GetFrustumCullingEnabled() const = 0;
+	virtual void SetFrustumCullingEnabled( bool bCullingEnabled ) = 0;
+	
 	virtual bool GetOcclusionCullingEnabled() const = 0;
-	/**
-	 * @param enables global occlusion culling if true, disables otherwise
-	 */
 	virtual void SetOcclusionCullingEnabled( bool bOclCullingEnabled ) = 0;
 
-	/**
-	 * @return returns true if bounding box drawing around scenegraph
-	           nodes is enabled, false otherwise
-	 */
 	virtual bool GetBBoxDrawingEnabled() const = 0;
+	virtual void SetBBoxDrawingEnabled( bool bState ) = 0;
+
+
+	/*******************************************/
+	/* Geometry Creation                       */
+	/*******************************************/
+
+	virtual IVistaGeometryData* NewGeometryData() = 0;
+	virtual bool DeleteGeometryData( IVistaGeometryData* pData ) = 0;
+
+	virtual bool CreateIndexedGeometry( const std::vector<VistaIndexedVertex>& vecVertices,
+									const std::vector<VistaVector3D>& vecCoords,
+									const std::vector<VistaVector3D>& vecTexextureCoords2D,
+									const std::vector<VistaVector3D>& vecNormals,
+									const std::vector<VistaColorRGB>& vecColorsRGB,
+									const VistaVertexFormat& oFormat,
+									const VistaGeometry::FaceType fType,
+									IVistaGeometryData* pData ) = 0;
+
+	virtual bool CreateIndexedGeometry( const std::vector<VistaIndexedVertex>& vecVertices,
+									const std::vector<float>& vecCoords,
+									const std::vector<float>& vecTextureCoords,
+									const std::vector<float>& vecNormals,
+									const std::vector<VistaColorRGB>& vecColors,
+									const VistaVertexFormat& oFormat,
+									const VistaGeometry::FaceType fType,
+									IVistaGeometryData* pData ) = 0;
+
+	virtual bool CalcVertexNormals( IVistaGeometryData* pData,
+									const float& fCreaseAngle = 0.524f ) = 0; // 30 degrees
+	virtual bool CalcFaceNormals( IVistaGeometryData* pData ) = 0;
+	
+
+	/*******************************************/
+	/* Geometry Geometric Properties           */
+	/*******************************************/
+
+	virtual int GetNumberOfVertices( const IVistaGeometryData* pData ) const = 0;
+	virtual int GetNumberOfFaces( const IVistaGeometryData* pData ) const = 0;
+
+	virtual int GetNumberOfColors( const IVistaGeometryData* pData ) const = 0;
+	virtual int GetNumberOfCoords( const IVistaGeometryData* pData ) const = 0;
+	virtual int GetNumberOfNormals( const IVistaGeometryData* pData ) const = 0;
+	virtual int GetNumberOfTextureCoords( const IVistaGeometryData* pData ) const = 0;
+
+	virtual VistaVertexFormat GetVertexFormat( const IVistaGeometryData* pData ) const = 0;
+	virtual VistaGeometry::FaceType	GetFaceType( const IVistaGeometryData* pData ) const = 0;
+	
+	// indexed geometry
+	virtual bool GetVertices( std::vector<VistaIndexedVertex>& vecVertices,
+									const IVistaGeometryData* pData ) const = 0;
+	virtual bool GetCoordinates( std::vector<VistaVector3D>& vecCoords,
+									const IVistaGeometryData* pData ) const = 0;
+	virtual bool GetTextureCoords2D( std::vector<VistaVector3D>& vecTexCoords,
+									const IVistaGeometryData* pData ) const = 0;
+	virtual bool GetNormals( std::vector<VistaVector3D>& vecNormals,
+									 const IVistaGeometryData* pData ) const = 0;
+	virtual bool GetNormals( std::vector<float>& vecNormals,
+									const IVistaGeometryData* pData ) const = 0;
+	virtual bool GetColors( std::vector<VistaColorRGB>& vecColors,
+									const IVistaGeometryData* pData ) const = 0;
 	/**
-	 * @param enables bounding box drawing around scenegraph nodes if true,
-	          disables otherwise
+	 * Gives indices for all triangles in the geometry
 	 */
-	virtual void SetBBoxDrawingEnabled(bool bState) = 0;
+	virtual bool GetTrianglesVertexIndices( std::vector<int>& vecVertexIndices,
+									const IVistaGeometryData* pData ) const = 0;
+	virtual bool GetTrianglesNormalIndices( std::vector<int>& vecNormalIndices,
+									const IVistaGeometryData* pData ) const = 0;
+	virtual bool GetTrianglesVertexAndNormalIndices( std::vector<int>& vecVertexIndices,
+									std::vector<int>& vecNormalIndices,
+									const IVistaGeometryData* pData ) const = 0;
 
+	virtual int  GetCoordinateIndex( const int nIndex,
+									const IVistaGeometryData* pData ) const = 0;
+	virtual bool GetCoordinate( const int nIndex, float a3fCoord[3],
+									const IVistaGeometryData* pData ) const = 0;
+	virtual VistaVector3D GetCoordinate( const int nIndex,
+									const IVistaGeometryData* pData ) const = 0;
 
-	/** Begin edit session
-	*/
-	virtual bool BeginEdit(IVistaGeometryData*) = 0;
-	/** End edit session
-	*/
-	virtual bool EndEdit(IVistaGeometryData*) = 0;
+	virtual int  GetNormalIndex( const int nIndex, const IVistaGeometryData* pData ) const = 0;
+	virtual bool GetNormal( const int nIndex, float a3fNormal[3],
+									const IVistaGeometryData* pData ) const = 0;
+	virtual VistaVector3D GetNormal( const int nIndex, const IVistaGeometryData* pData ) const = 0;
 
+	virtual int  GetColorIndex( const int nIndex, const IVistaGeometryData* pData ) const = 0;
+	virtual VistaColorRGB GetColor( const int nIndex, const IVistaGeometryData* pData ) const = 0;
+
+	virtual int  GetTextureCoordIndex( const int nIndex, const IVistaGeometryData* pData ) const = 0;
+	virtual bool GetTextureCoord( const int nIndex, float a3fTexCoord[3],
+									const IVistaGeometryData* pData ) const = 0;
+	virtual VistaVector3D GetTextureCoord( const int nIndex,
+									const IVistaGeometryData* pData ) const = 0;
+
+	virtual bool GetFaceCoords( const int nIndex, std::vector<int>& vecCoords, int& nMod,
+									const IVistaGeometryData* pData ) const = 0;
+	virtual bool GetFaceVertices( const int nIndex, int& nVertexId0,
+									int& nVertexId1, int& nVertexId2,
+									const IVistaGeometryData* pData ) const = 0;
+
+	virtual bool SetCoordinates( const int nStartIndex,
+									const std::vector<VistaVector3D>& vecCoords,
+									IVistaGeometryData* pData ) = 0;
+	virtual bool SetCoordinates( const int nStartIndex,
+									const std::vector<float>& vecCoords,
+									IVistaGeometryData* pData ) = 0;
+
+	virtual bool SetCoordinate( const int nIndex, const float a3fCoords[3],
+									IVistaGeometryData* pData ) = 0;
+	virtual bool SetCoordinate( const int nIndex, const VistaVector3D& v3Coord,
+									IVistaGeometryData* pData ) = 0;
+	virtual bool SetCoordIndex( const int nIndex, const int nValue,
+									IVistaGeometryData* pData ) = 0;
+	virtual bool SetCoordIndices( const int nStartIndex, const std::vector<int>& indices,
+									IVistaGeometryData* pData ) = 0;
+
+	virtual bool SetTextureCoords2D( const int nStartIndex,
+									const std::vector<VistaVector3D>& vecTextureCoords2D,
+									IVistaGeometryData* pData ) = 0;
+	virtual bool SetTextureCoords2D( const int nStartIndex,
+									const std::vector<float>& vecTextureCoords2D,
+									IVistaGeometryData* pData ) = 0;
+
+	virtual bool SetTextureCoord2D( const int nIndex, const float a3fCoord[3],
+									IVistaGeometryData* pData ) = 0;
+	virtual bool SetTextureCoord2D( const int nIndex, const VistaVector3D& v3Coord,
+									 IVistaGeometryData* pData ) = 0;
+
+	virtual bool SetTextureCoordIndex( const int nIndex, const int value,
+									IVistaGeometryData* pData ) = 0;
+	virtual bool SetTextureCoordsIndices( const int nStartIndex, const std::vector<int>& vecIndices,
+									IVistaGeometryData* pData ) = 0;
+
+	virtual bool SetNormals( const int nStartIndex, const std::vector<float>& vecNormals,
+									IVistaGeometryData* pData ) = 0;
+	virtual bool SetNormals( const int nStartIndex, const std::vector<VistaVector3D>& vecNormals,
+									IVistaGeometryData* pData ) = 0;
+
+	virtual bool SetNormal( const int nIndex, const float a3fNormal[3],
+									IVistaGeometryData* pData ) = 0;
+	virtual bool SetNormal( const int nIndex, const VistaVector3D& v3Normal,
+									IVistaGeometryData* pData ) = 0;
+	virtual bool SetNormalIndex( const int nIndex, const int value,
+									IVistaGeometryData* pData ) = 0;
+	virtual bool SetNormalIndices( const int nStartIndex, const std::vector<int>& vecIndices,
+									IVistaGeometryData* pData ) = 0;
+
+	virtual bool SetColors( const int nStartIndex,
+									const std::vector<VistaColorRGB>& vecColors,
+									IVistaGeometryData* pData ) = 0;
+	virtual bool SetColors( const int nStartIndex, const int nBufferLength,
+									float* afColors,
+									IVistaGeometryData* pData ) = 0;
+
+	virtual bool SetColor( const int nIndex, const VistaColorRGB& oColor,
+									IVistaGeometryData* pData ) = 0;
+	virtual bool SetColorIndex( const int nIndex, const int nValue,
+									IVistaGeometryData* pData ) = 0;
+	virtual bool SetColorIndices( const int nStartIndex,
+									const std::vector<int>& vecIndices,
+									IVistaGeometryData* pData ) = 0;
+
+	/*******************************************/
+	/* Individual Face/Coord methods           */
+	/*******************************************/
+	virtual bool GetFaces( std::vector<int>& vecFaces,
+									const IVistaGeometryData* pData ) const = 0;
+	virtual bool GetCoordinates( std::vector<float>& vecCoords,
+									const IVistaGeometryData* pData ) const = 0;
+	virtual bool GetFaceBoundingBox( const int nIndex,
+									VistaVector3D& v3Min, VistaVector3D& v3Max,
+									const IVistaGeometryData* pData ) const = 0;
+	virtual bool GetFaceCoords( const int nIndex, VistaVector3D& v3VertexA,
+									VistaVector3D& v3VertexB, VistaVector3D& v3VertexC,
+									const IVistaGeometryData* pData ) const = 0;
+	
 	/** Add new face defined by vertices 0,1,2
-	  * @param int faceId : faceId of the new face can be specified.
-	*/
-	virtual bool AddFace(const int vertexId0, const int vertexId1, const int vertexId2, int& faceId, IVistaGeometryData*) = 0;
+	 * @param int faceId : faceId of the new face can be specified.
+	 */
+	virtual bool AddFace( const int nVertexId0, const int nVertexId1, const int nVertexId2,
+						int& nFaceId, IVistaGeometryData* pData ) = 0;
 	/** Delete face faceId. Resulting isolated vertices will be deleted if
-	  * deleteVertices is true
-	  * @param int faceId : face to be deleted
-	  * @param bool deleteVertices : delete isolated vertices
-	  * @return bool true/false
-	*/
-	virtual bool DeleteFace(const int faceId, bool deleteVertices, IVistaGeometryData*) = 0;
+	 * deleteVertices is true
+	 * @param int faceId : face to be deleted
+	 * @param bool deleteVertices : delete isolated vertices
+	 * @return bool true/false
+	 */
+	virtual bool DeleteFace( const int nFaceId, bool bDeleteVertices, IVistaGeometryData* pData ) = 0;
 	/** Create a new vertex at a given position.
-	  * @return int new vertexId
-	*/
-	virtual int AddVertex(const VistaVector3D& pos, IVistaGeometryData*) = 0;
-	/** Delete vertex vertexId and all incident faces
-	*/
-	virtual bool DeleteVertex(const int vertexId, IVistaGeometryData*) = 0;
+	 * @return int new vertexId
+	 */
+	virtual int AddVertex( const VistaVector3D& v3Pos, IVistaGeometryData* pData ) = 0;
+	/**
+	 * Delete vertex vertexId and all incident faces
+	 */
+	virtual bool DeleteVertex( const int nVertexId, IVistaGeometryData* pData ) = 0;
+	
 
-	virtual IVistaGeometryData* NewGeometryData() =0;
-	virtual bool DeleteGeometryData(IVistaGeometryData*) =0;
-	VistaGeometry* NewGeometry(IVistaGeometryData* pData);
+	/*******************************************/
+	/* Materials                               */
+	/*******************************************/
 
-	//misc
-	virtual float	GetFrameRate() const =0;
-	virtual unsigned int GetFrameCount() const =0;
-	virtual	bool	CreateMaterialTable	(void) = 0;
+	virtual	bool CreateMaterialTable() = 0;
+
+	virtual int	 GetNumberOfMaterials() = 0;
+	virtual int	 AddMaterial( const VistaMaterial& Material ) = 0;
+	virtual bool SetMaterialIndex( const int& materialIndex,
+									IVistaGeometryData* pData ) = 0;
+	virtual bool GetMaterialByIndex( int iIndex, VistaMaterial& oIn ) const = 0;
+	virtual bool GetMaterialByName( const std::string& sName, VistaMaterial& oIn ) const = 0;
+
+	virtual bool SetColor( const VistaColorRGB& oColor, IVistaGeometryData* pData ) = 0;
+
+	virtual bool SetMaterial( const VistaMaterial& oMaterial,
+									IVistaGeometryData* pData ) = 0;
+	virtual bool BindToVistaMaterialTable( IVistaGeometryData* pData ) = 0;
+
+	/*******************************************/
+	/* Textures                                */
+	/*******************************************/
+
+	virtual bool SetTexture( const std::string& , IVistaGeometryData* pData ) = 0;
+	virtual bool SetTexture( const int nId,				/**< unknown parameter ? */
+									const int nWidth,			/**< width in pixel */
+									const int nHeight,			/**< height in pixel */
+									const int nBitsPerPixel,	/**< bits per color channel ( 8,32 ) */
+									VistaType::byte* pBuffer,	/**< pointer to pixelbuffer RGB( A ) */
+									bool bHasAlpha,				/**< pixel data has alpha or not RGBA iff true, RGB else */
+									IVistaGeometryData* pData ) = 0;
+	virtual bool DeleteTexture( IVistaGeometryData* pData ) = 0;
+
+	/*******************************************/
+	/* Various methods                         */
+	/*******************************************/
+	virtual bool ScaleGeometry( const float, IVistaGeometryData* pData ) = 0;
+	virtual bool ScaleGeometry( const float[3], IVistaGeometryData* pData ) = 0;
+	virtual bool ScaleGeometry( const float, const float, const float, IVistaGeometryData* pData ) = 0;
+
+	virtual bool GetBoundingBox( VistaVector3D& v3Min, VistaVector3D& v3Max, 
+									const IVistaGeometryData* pData ) const = 0;	
+
+	virtual bool GetRenderingAttributes( VistaRenderingAttributes& oAttrib,
+									const IVistaGeometryData* pData ) const = 0;
+	virtual	bool SetRenderingAttributes( const VistaRenderingAttributes& oAttrib,
+									IVistaGeometryData* pData ) = 0;
+
+	virtual float GetTransparency( const IVistaGeometryData* pData ) const = 0;
+	virtual bool SetTransparency( float fTransparency, IVistaGeometryData* pData ) = 0;
+
+	virtual bool GetIsStatic( const IVistaGeometryData* pData ) = 0;
+	virtual void SetIsStatic( bool bIsStatic, IVistaGeometryData* pData ) = 0;
 
 
-	virtual ~IVistaGraphicsBridge();
+	/*******************************************/
+	/* NON-VIRTUAL FUNCTIONS                   */
+	/*******************************************/
+	VistaGeometry* NewGeometry( IVistaGeometryData* pData );
 
 protected:
 	IVistaGraphicsBridge();
-
-
 };
 
 /*============================================================================*/

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaViewport.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #if !defined _VISTAVIEWPORT_H
 #define _VISTAVIEWPORT_H
@@ -88,7 +88,7 @@ public:
 	{
 	public:
 
-		enum 
+		enum
 		{
 			MSG_POSITION_CHANGE = IVistaDisplayEntityProperties::MSG_LAST,
 			MSG_SIZE_CHANGE,

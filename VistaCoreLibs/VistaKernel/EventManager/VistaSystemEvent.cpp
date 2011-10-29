@@ -20,12 +20,13 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaSystemEvent.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include <VistaKernel/EventManager/VistaSystemEvent.h>
-#include <iostream>
-#include "../VistaKernelOut.h"
 
+#include <VistaBase/VistaStreamUtils.h>
+
+#include <iostream>
 /*============================================================================*/
 /*  MAKROS AND DEFINES                                                        */
 /*============================================================================*/
@@ -44,15 +45,17 @@ int VistaSystemEvent::m_nEventId = VistaEvent::VET_INVALID;
 
 VistaSystemEvent::VistaSystemEvent()
 {
-	SetType(VistaSystemEvent::GetTypeId());
-	SetId(VSE_INVALID);
+	SetType( VistaSystemEvent::GetTypeId() );
+}
+
+VistaSystemEvent::VistaSystemEvent( const EVENT_ID eEventID )
+{
+	SetType( VistaSystemEvent::GetTypeId() );
+	SetId( eEventID );
 }
 
 VistaSystemEvent::~VistaSystemEvent()
 {
-#ifdef DEBUG
-	vkernout << " [VistaSystemEvent] >> DESTRUCTOR <<" << endl;
-#endif
 }
 
 /*============================================================================*/
@@ -107,8 +110,6 @@ std::string VistaSystemEvent::GetIdString(int nId)
 		return  "VSE_UPDATE_DELAYED_INTERACTION";
 	case VSE_UPDATE_DISPLAYS:
 		return "VSE_UPDATE_DISPLAYS";
-	case VSE_UPDATE_PICKING:
-		return  "VSE_UPDATE_PICKING";
 	case VSE_PREAPPLICATIONLOOP:
 			return "VSE_PREAPPLICATIONLOOP";
 	case VSE_POSTAPPLICATIONLOOP:
@@ -139,6 +140,6 @@ void VistaSystemEvent::Debug(std::ostream & out) const
 	VistaEvent::Debug(out);
 	out << " [ViSyEv]   EventId: ";
 	out << GetIdString(GetId());
-	out << endl;
+	out << std::endl;
 }
 

@@ -20,10 +20,12 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaEvent.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
-#include <VistaKernel/EventManager/VistaEvent.h>
-#include <iostream>
+#include "VistaEvent.h"
+
+#include <VistaBase/VistaStreamUtils.h>
+
 #include <VistaAspects/VistaSerializer.h>
 #include <VistaAspects/VistaDeSerializer.h>
 
@@ -33,79 +35,93 @@
 /*  MAKROS AND DEFINES                                                        */
 /*============================================================================*/
 
-/*============================================================================*/
-
-// always put this line below your constant definitions
-// to avoid problems with HP's compiler
-using namespace std;
-
 int VistaEvent::m_nEventId = VistaEvent::VET_INVALID;
 
 /*============================================================================*/
 /*  CONSTRUCTORS / DESTRUCTOR                                                 */
 /*============================================================================*/
+VistaEvent::VistaEvent( const int iEventType,
+								const int iEventID )
+: m_iType( iEventType )
+, m_iId( iEventID )
+, m_bHandled( false )
+, m_nTime( 0 )
+, m_nCount( 0 )
+{
+}
+
 VistaEvent::~VistaEvent()
 {
-#ifdef DEBUG
-//    cout << " [VistaEvent] >> DESTRUCTOR <<" << endl;
-#endif
+	//vstr::debugi() << " [VistaEvent] >> DESTRUCTOR <<" << std::endl;
 }
 
 /*============================================================================*/
 /*  IMPLEMENTATION                                                            */
 /*============================================================================*/
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   GetName                                                     */
-/*                                                                            */
-/*============================================================================*/
+VistaType::microtime VistaEvent::GetTime() const
+{
+	return m_nTime;
+}
+
+bool VistaEvent::IsHandled() const
+{
+	return m_bHandled;
+}
+
+void VistaEvent::SetHandled( bool bHandled )
+{
+	m_bHandled = bHandled;
+}
+
+int VistaEvent::GetId() const
+{
+	return m_iId;
+}
+
+bool VistaEvent::SetId( int iId )
+{
+	m_iId = iId;
+	return true;
+};
+
 std::string VistaEvent::GetName() const
 {
-	return std::string("VistaEvent");
+	return "VistaEvent";
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   Debug                                                       */
-/*                                                                            */
-/*============================================================================*/
-void VistaEvent::Debug(std::ostream & out) const
+void VistaEvent::Debug( std::ostream& oOut ) const
 {
-	out << " [ViEv]     Name:      " << GetName() << endl;
-	out << " [ViEv]     TypeId:    " << m_iType << endl;
+	oOut << " [ViEv]     Name:      " << GetName() << std::endl;
+	oOut << " [ViEv]     TypeId:    " << m_iType << std::endl;
 
-	int iPrecision = out.precision(12);
-	out << " [ViEv]     TimeStamp: " << m_dTime << endl;
-	out.precision(iPrecision);
+	std::streamsize iPrecision = oOut.precision(12);
+	oOut << " [ViEv]     TimeStamp: " << m_nTime << std::endl;
+	oOut.precision(iPrecision);
 
-	out << " [ViEv]     Handled:   " << m_bHandled << endl;
+	oOut << " [ViEv]     Handled:   " << m_bHandled << std::endl;
 }
 
 
-int VistaEvent::Serialize(IVistaSerializer &out) const
+int VistaEvent::Serialize(IVistaSerializer& oSerializer) const
 {
 	int iSize=0;
-	iSize += out.WriteInt32(GetType());
-	iSize += out.WriteInt32(GetId());
-	iSize += out.WriteBool(IsHandled());
-	iSize += out.WriteDouble(GetTime());
-  //  vkernout << "VistaEvent::Serialize(): written " << iSize << " bytes.\n";
+	iSize += oSerializer.WriteInt32(GetType());
+	iSize += oSerializer.WriteInt32(GetId());
+	iSize += oSerializer.WriteBool(IsHandled());
+	iSize += oSerializer.WriteDouble(GetTime());
 	return iSize;
 }
 
-int VistaEvent::DeSerialize(IVistaDeSerializer &in)
+int VistaEvent::DeSerialize( IVistaDeSerializer &oDeSerializer )
 {
 	int iSize=0;
-	iSize += in.ReadInt32(m_iType);
-	iSize += in.ReadInt32(m_iId);
-	iSize += in.ReadBool(m_bHandled);
-	iSize += in.ReadDouble(m_dTime);
-	//std::cout << "VistaEvent::DeSerialize(): read " << iSize << " bytes.\n";
-
+	iSize += oDeSerializer.ReadInt32(m_iType);
+	iSize += oDeSerializer.ReadInt32(m_iId);
+	iSize += oDeSerializer.ReadBool(m_bHandled);
+	iSize += oDeSerializer.ReadDouble(m_nTime);
 	return iSize;
 }
-
 
 std::string VistaEvent::GetSignature() const
 {
@@ -116,7 +132,7 @@ std::string VistaEvent::GetSignature() const
 void VistaEvent::SetType(int iType)
 {
 	m_iType = iType;
-	assert(m_iType >= 0);
+	assert( m_iType >= 0 );
 }
 
 int VistaEvent::GetType() const
@@ -126,7 +142,7 @@ int VistaEvent::GetType() const
 
 int VistaEvent::GetCount() const
 {
-	return m_nCnt;
+	return m_nCount;
 }
 
 
@@ -148,9 +164,9 @@ int VistaEvent::GetTypeId()
 	return m_nEventId;
 }
 
-void VistaEvent::SetTypeId(int nId)
+void VistaEvent::SetTypeId( int nId )
 {
-	if(m_nEventId == VistaEvent::VET_INVALID)
+	if( m_nEventId == VistaEvent::VET_INVALID )
 		m_nEventId = nId;
 }
 
@@ -159,9 +175,9 @@ void VistaEvent::SetTypeId(int nId)
 /*  NAME      :   operator<<                                                  */
 /*                                                                            */
 /*============================================================================*/
-ostream & operator<< ( ostream & out, const VistaEvent & object )
+std::ostream& operator<< ( std::ostream& oOut, const VistaEvent& oEvent )
 {
-	object.Debug ( out );
-	return out;
+	oEvent.Debug ( oOut );
+	return oOut;
 }
 

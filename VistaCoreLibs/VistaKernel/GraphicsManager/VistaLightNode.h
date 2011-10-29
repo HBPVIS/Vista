@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaLightNode.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTALIGHTNODE_H
 #define _VISTALIGHTNODE_H
@@ -30,7 +30,7 @@
 /*============================================================================*/
 #include <VistaKernel/VistaKernelConfig.h>
 #include "VistaKernel/GraphicsManager/VistaLeafNode.h"
-#include "VistaKernel/GraphicsManager/VistaSG.h"
+#include "VistaKernel/GraphicsManager/VistaSceneGraph.h"
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -55,12 +55,7 @@ enum VISTA_LIGHTTYPE
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
-/**
- * @todo
- * are Lights leafnodes?
- * Override GetGlobal...for lights to include the lights local position (spot & pointlight)...
- * but wait until the TransformAPI revolution!!!
- */
+
 class VISTAKERNELAPI VistaLightNode : public VistaLeafNode
 {
 public:
@@ -208,7 +203,7 @@ protected:
 
 class VISTAKERNELAPI VistaPointLight : public VistaLightNode
 {
-	//friend class VistaSG;
+	//friend class VistaSceneGraph;
 	friend class IVistaNodeBridge;
 public:
 

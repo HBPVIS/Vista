@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaProfiler.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTAPROFILER_H
 #define _VISTAPROFILER_H

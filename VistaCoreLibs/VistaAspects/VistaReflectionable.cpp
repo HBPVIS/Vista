@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaReflectionable.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaReflectionable.h"
 #include "VistaPropertyFunctorRegistry.h"
@@ -50,11 +50,8 @@ static IVistaPropertyGetFunctor *aCgFunctors[] =
 
 static IVistaPropertySetFunctor *aCsFunctors[] =
 {
-	new TVistaPropertySet<const string &, string,
-						IVistaReflectionable>
-		("NAME", SsReflectionType,
-		&IVistaReflectionable::SetNameProp,
-		&VistaAspectsConversionStuff::ConvertToString),
+	new TVistaPropertySet<const string &, string, IVistaReflectionable>(
+				"NAME", SsReflectionType, &IVistaReflectionable::SetNameProp ),
 	NULL
 };
 
@@ -178,8 +175,8 @@ int IVistaReflectionable::SetProperty(const VistaProperty &rProp)
 #if defined(DEBUG)
 	else
 	{
-		printf("IVistaReflectionable::SetProperty(%s) -- no set-functor found [%s]\n",
-			   rProp.GetNameForNameable().c_str(), GetReflectionableType().c_str());
+		vstr::warnp() << "IVistaReflectionable::SetProperty(" << rProp.GetNameForNameable()
+					<< ") -- no set-functor found [" << GetReflectionableType() << "]" << std::endl;
 	}
 #endif
 	return 0;
@@ -206,8 +203,8 @@ int IVistaReflectionable::GetProperty(VistaProperty &rProp)
 #if defined(DEBUG)
 	else
 	{
-		printf("IVistaReflectionable::GetProperty(%s) -- no get-functor found [%s]\n",
-			   rProp.GetNameForNameable().c_str(), GetReflectionableType().c_str());
+		vstr::warnp() << "IVistaReflectionable::GetProperty( " << rProp.GetNameForNameable()
+				<< " ) -- no get-functor found [" << GetReflectionableType() << "]" << std::endl;
 	}
 #endif
 	return 0;
@@ -236,9 +233,9 @@ int IVistaReflectionable::SetPropertiesByList(const VistaPropertyList &rList)
 	int iSet = 0;
 	for(VistaPropertyList::const_iterator cit = rList.begin();
 	   cit != rList.end(); ++cit)
-	   {
+	{
 		iSet += SetProperty((*cit).second);
-	   }
+	}
 	SetNotificationFlag(bNotify); // re-enable notification if desired
 	if(iSet>0)
 	{
@@ -357,7 +354,7 @@ int IVistaReflectionable::AddToBaseTypeList(list<string> &rBtList) const
 void IVistaReflectionable::SetNameForNameable(const string &sName)
 {
 	//cout << "IVistaReflectionable::SetNameForNameable() -- "
- //            << sName << endl;
+ //            << sName << std::endl;
 	if(compAndAssignFunc<string>(sName, m_sName) == 1)
 	{
 		Notify(MSG_NAMECHANGE);

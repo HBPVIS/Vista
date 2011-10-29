@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaAsyncEventObserver.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTAASYNCEVENTOBSERVER_H
 #define _VISTAASYNCEVENTOBSERVER_H

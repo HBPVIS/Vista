@@ -2,15 +2,21 @@
 
 vista_adopt_version( VistaDataFlowNet VistaCoreLibs )
 
+# set our dependencies to other corelibs
+set( VISTADATAFLOWNET_INTERNAL_DEPENDENCIES 
+			VistaBase
+			VistaAspects
+			VistaInterProcComm
+			VistaTools
+			VistaMath
+			VistaDeviceDriversBase )
+set( VISTADATAFLOWNET_INTERNAL_DEPENDENCIES ${VISTADATAFLOWNET_INTERNAL_DEPENDENCIES} PARENT_SCOPE )
+
 include( "./_SourceFiles.cmake" )
 
 add_library( VistaDataFlowNet ${ProjectSources} )
 target_link_libraries( VistaDataFlowNet
-	VistaBase
-	VistaAspects
-	VistaTools
-	VistaInterProcComm
-    VistaDeviceDriversBase
+	${VISTADATAFLOWNET_INTERNAL_DEPENDENCIES}
 )
 
 vista_configure_lib( VistaDataFlowNet )

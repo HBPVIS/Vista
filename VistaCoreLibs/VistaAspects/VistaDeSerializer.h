@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDeSerializer.h 22143 2011-07-01 15:07:00Z dr165799 $
 
 #ifndef _VISTADESERIALIZER_H
 #define _VISTADESERIALIZER_H
@@ -87,175 +87,37 @@ public:
 	virtual ~IVistaDeSerializer() {};
 
 
-	/**
-	 *
-	 */
 	virtual int ReadShort16( VistaType::ushort16 &us16Val) = 0;
-
-	/**
-	 *
-	 */
 	virtual int ReadInt32( VistaType::sint32 &si32Val) = 0;
-
-
-	/**
-	 *
-	 */
 	virtual int ReadInt32( VistaType::uint32 &si32Val) = 0;
-
-
-	/**
-	 *
-	 */
 	virtual int ReadInt64( VistaType::sint64 &si64Val) = 0;
-
-
-	/**
-	 *
-	 */
 	virtual int ReadUInt64( VistaType::uint64 &si64Val) = 0;
-
-
-	/**
-	 *
-	 */
 	virtual int ReadFloat32( VistaType::float32 &fVal) = 0;
-
-	/**
-	 *
-	 */
 	virtual int ReadFloat64( VistaType::float64 &f64Val) = 0;
-
-	/**
-	 *
-	 */
 	virtual int ReadDouble( double &dVal ) = 0;
-
-	/**
-	 *
-	 */
 	virtual int ReadRawBuffer(void *pBuffer, int iLen) = 0;
-
-	/**
-	 *
-	 */
 	virtual int ReadBool(bool &bVal) = 0;
-
-	/**
-	 *
-	 */
 	virtual int ReadString(std::string &, const int iMaxLen) = 0;
-
-	/**
-	 *
-	 */
 	virtual int ReadDelimitedString(std::string &, char cDelim = '\0') = 0;
 
-	/**
-	 *
-	 */
-	virtual int ReadShort16Name( const char *sVarName, VistaType::ushort16 &us16Val) = 0;
-
-	/**
-	 *
-	 */
-	virtual int ReadInt32Name( const char *sVarName, VistaType::sint32 &si32Val) = 0;
-
-	/**
-	 *
-	 */
-	virtual int ReadInt32Name( const char *sVarName, VistaType::uint32 &ui32Val) = 0;
-
-	/**
-	 *
-	 */
-	virtual int ReadInt64Name( const char *sVarName, VistaType::sint64 &si64Val) = 0;
-
-	virtual int ReadUInt64Name( const char *sVarName, VistaType::uint64 &si64Val) = 0;
-
-	/**
-	 *
-	 */
-	virtual int ReadFloat32Name( const char *sVarName, VistaType::float32 &fVal) = 0;
-
-	/**
-	 *
-	 */
-	virtual int ReadFloat64Name( const char *sVarName, VistaType::float64 &f64Val) = 0;
-
-	/**
-	 *
-	 */
-	virtual int ReadDoubleName( const char *sVarName, double &dDoubleVal) = 0;
-
-
-	/**
-	 *
-	 */
-	virtual int ReadStringName(const char *sVarName, std::string &sVal, int iMaxLen) = 0;
-
-	/**
-	 *
-	 */
-	virtual int ReadStringName(const char *sVarName, std::string &sVal, char cDelim = '\0') = 0;
-	/**
-	 *
-	 */
-	virtual int ReadRawBufferName(const char *sVarName, void *pBuffer, int iLen) = 0;
-
-	/**
-	 *
-	 */
-	virtual int ReadBoolName(const char *sVarName, bool &bVal) = 0;
-
-	/**
-	 *
-	 */
 	virtual int ReadSerializable(IVistaSerializable &) = 0;
 
-	/**
-	 *
-	 */
 	virtual IVistaDeSerializer &operator>> ( VistaType::ushort16 &);
 
-	/**
-	 *
-	 */
 	virtual IVistaDeSerializer &operator>> ( VistaType::sint32 &);
 
-	/**
-	 *
-	 */
 	virtual IVistaDeSerializer &operator>> ( VistaType::uint32 &);
 
-	/**
-	 *
-	 */
 	virtual IVistaDeSerializer &operator>> ( VistaType::sint64 &);
 
-	/**
-	 *
-	 */
 	virtual IVistaDeSerializer &operator>> ( VistaType::uint64 &);
 
-	/**
-	 *
-	 */
 	virtual IVistaDeSerializer &operator>> ( VistaType::float32 &);
 
-	/**
-	 *
-	 */
 	virtual IVistaDeSerializer &operator>> ( VistaType::float64 &);
 
-	/**
-	 *
-	 */
 	virtual IVistaDeSerializer &operator>> ( std::string &);
 
-	/**
-	 *
-	 */
 	virtual IVistaDeSerializer &operator>> ( bool &);
 };
 

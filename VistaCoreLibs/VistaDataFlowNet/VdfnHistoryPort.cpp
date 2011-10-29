@@ -20,11 +20,9 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnHistoryPort.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VdfnHistoryPort.h"
-
-#include "VdfnOut.h"
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
@@ -61,7 +59,7 @@ IVistaDeSerializer &operator>>(IVistaDeSerializer &oDeSer,
 #if defined(DEBUG)
 	if( oMeasure.m_nEndianess != VistaSerializingToolset::GetPlatformEndianess() )
 	{
-		vdfnerr << "#### WARNING! ENDIANESS MISMATCH!!\n";
+		vstr::warnp() << "[VistaDeSerializer]: Endianess mismatch" << std::endl;
 	}
 #endif
 

@@ -20,15 +20,17 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaKernelDfnNodeCreators.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VistaKernelDfnNodeCreators.h"
 
 #include <VistaDataFlowNet/VdfnNodeFactory.h>
 #include <VistaDataFlowNet/VdfnTimerNode.h>
 
+#include <VistaBase/VistaStreamUtils.h>
+
 #include <VistaKernel/VistaSystem.h>
-#include <VistaKernel/VistaClusterAux.h>
+#include <VistaKernel/Cluster/VistaClusterMode.h>
 #include <VistaKernel/DisplayManager/VistaDisplaySystem.h>
 #include <VistaKernel/DisplayManager/VistaVirtualPlatform.h>
 
@@ -53,50 +55,10 @@
 #include <iomanip>
 #include <sstream>
 
+
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
-
-static std::string ConvertV3ToString( const VistaVector3D &v3Value )
-{
-	std::list<float> liTemp;
-	for (int i=0; i<4; ++i)
-		liTemp.push_back(v3Value[i]);
-
-	std::stringstream stream("");
-	stream << std::fixed << std::setw(9)
-		   << v3Value[0] << " "
-		   << v3Value[1] << " "
-		   << v3Value[2] << " " 
-		   << v3Value[3]; 
-
-	return stream.str();
-}
-
-static std::string ConvertQToString( const VistaQuaternion &qValue )
-{
-	std::list<float> liTemp;
-	for (int i=0; i<4; ++i)
-		liTemp.push_back(qValue[i]);
-
-	return VistaAspectsConversionStuff::ConvertToString(liTemp);
-}
-
-static std::string ConvertMatToString( const VistaTransformMatrix &matrix )
-{
-	std::string str = "";
-	std::ostringstream ss(str);
-	for( int r = 0 ; r < 4 ; r++ )
-	{
-		for( int c = 0 ; c < 4 ; c++ )
-		{
-			ss << std::fixed << std::setw(9) << matrix.GetValue(r,c) << " ";
-		}
-		ss << "| ";
-	}
-
-	return ss.str();
-}
 
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
@@ -116,7 +78,7 @@ bool VistaKernelDfnNodeCreators::RegisterNodeCreates( VistaSystem* pVistaSystem 
 	pFac->SetNodeCreator( "ViewerSink", 
 					new VistaDfnViewerSinkNodeCreate( pVistaSystem->GetDisplayManager() ) );
 	pFac->SetNodeCreator( "WindowSource", 
-					new VistaDfnWindowSourceNodeCreate( pVistaSystem->GetEventManager(), pVistaSystem->GetDisplayManager() ) );
+					new VistaDfnWindowSourceNodeCreate( pVistaSystem->GetDisplayManager() ) );
 	pFac->SetNodeCreator( "ViewportSource",
 					new VistaDfnViewportSourceNodeCreate( pVistaSystem->GetDisplayManager() ) );
 	pFac->SetNodeCreator( "ProjectionSource", 
@@ -130,46 +92,46 @@ bool VistaKernelDfnNodeCreators::RegisterNodeCreates( VistaSystem* pVistaSystem 
 	pFac->SetNodeCreator( "SensorFrame",
 					new TVdfnDefaultNodeCreate<VistaDfnSensorFrameNode> );
 	pFac->SetNodeCreator( "DeviceDebug",
-					new VdfnDeviceDebugNodeCreate( pVistaSystem->GetWindowingToolkit() ) );
+					new VistaDfnDeviceDebugNodeCreate( pVistaSystem->GetDisplayManager() ) );
 	pFac->SetNodeCreator( "SystemTriggerControl",
 					new VistaDfnSystemTriggerControlNodeCreate( pVistaSystem->GetKeyboardSystemControl() ) );
 	pFac->SetNodeCreator( "Navigation", 
 					new VistaDfnNavigationNodeCreate() );
 	pFac->SetNodeCreator( "ClusterNodeInfo", 
-					new VdfnClusterNodeInfoNodeCreate( pVistaSystem->GetClusterAux() ) );
+					new VdfnClusterNodeInfoNodeCreate( pVistaSystem->GetClusterMode() ) );
 	pFac->SetNodeCreator( "Frameclock",
-					new VistaFrameclockNodeCreate( pVistaSystem->GetClusterAux() ) );
+					new VistaFrameclockNodeCreate( pVistaSystem->GetClusterMode() ) );
 
 	// this is an override, the old pointer is lost, so expect a memory lead
 	// in a profile. The policy of overriding is currently not defined. @todo
 	pFac->SetNodeCreator( "DumpHistory",
-					new VdfnDumpHistoryNodeClusterCreate( pVistaSystem->GetClusterAux() ) );
+					new VdfnDumpHistoryNodeClusterCreate( pVistaSystem->GetClusterMode() ) );
 
 	pFac->SetNodeCreator( "Trackball",
 					new VistaDfnTrackballNodeCreate( pVistaSystem->GetDisplayManager() ) );
 	pFac->SetNodeCreator( "EventSource",
 					new VistaDfnEventSourceNodeCreate(pVistaSystem-> GetEventManager(), pVistaSystem->GetInteractionManager() ) );
 	pFac->SetNodeCreator( "TextOverlay[int]",
-					new VistaDfnTextOverlayNodeCreate<int>( pVistaSystem->GetDisplayManager(), &ConvertToString<int>) );
+					new VistaDfnTextOverlayNodeCreate<int>( pVistaSystem->GetDisplayManager() ) );
 	pFac->SetNodeCreator( "TextOverlay[unsigned int]",
-					new VistaDfnTextOverlayNodeCreate<unsigned int>( pVistaSystem->GetDisplayManager(), &ConvertToString<unsigned int>) );
+					new VistaDfnTextOverlayNodeCreate<unsigned int>( pVistaSystem->GetDisplayManager() ) );
 	pFac->SetNodeCreator( "TextOverlay[int64]",
-					new VistaDfnTextOverlayNodeCreate<VistaType::sint64>( pVistaSystem->GetDisplayManager(), &ConvertToString<VistaType::sint64>) );
+					new VistaDfnTextOverlayNodeCreate<VistaType::sint64>( pVistaSystem->GetDisplayManager() ) );
 	pFac->SetNodeCreator( "TextOverlay[bool]",
-					new VistaDfnTextOverlayNodeCreate<bool>( pVistaSystem->GetDisplayManager(), &ConvertToString<bool> ) );
-	pFac->SetNodeCreator( "TextOverlay[double]", new VistaDfnTextOverlayNodeCreate<double>( pVistaSystem->GetDisplayManager(), &ConvertToString<double> ) );
-	pFac->SetNodeCreator( "TextOverlay[VistaType::microtime]",
-					new VistaDfnTextOverlayNodeCreate<VistaType::microtime>( pVistaSystem->GetDisplayManager(), &ConvertToString<VistaType::microtime> ) );
+					new VistaDfnTextOverlayNodeCreate<bool>( pVistaSystem->GetDisplayManager()  ) );
+	pFac->SetNodeCreator( "TextOverlay[double]", new VistaDfnTextOverlayNodeCreate<double>( pVistaSystem->GetDisplayManager()  ) );
+	pFac->SetNodeCreator( "TextOverlay[microtime]",
+					new VistaDfnTextOverlayNodeCreate<VistaType::microtime>( pVistaSystem->GetDisplayManager() ) );
 	pFac->SetNodeCreator( "TextOverlay[float]",
-					new VistaDfnTextOverlayNodeCreate<float>( pVistaSystem->GetDisplayManager(), &ConvertToString<float> ) );
+					new VistaDfnTextOverlayNodeCreate<float>( pVistaSystem->GetDisplayManager() ) );
 	pFac->SetNodeCreator( "TextOverlay[string]",
-		new VistaDfnTextOverlayNodeCreate<std::string>( pVistaSystem->GetDisplayManager(), &ConvertToString<std::string> ) );
+		new VistaDfnTextOverlayNodeCreate<std::string>( pVistaSystem->GetDisplayManager() ) );
 	pFac->SetNodeCreator( "TextOverlay[VistaVector3D]",
-					new VistaDfnTextOverlayNodeCreate<VistaVector3D>( pVistaSystem->GetDisplayManager(), &ConvertV3ToString ) );
+					new VistaDfnTextOverlayNodeCreate<VistaVector3D>( pVistaSystem->GetDisplayManager() ) );
 	pFac->SetNodeCreator( "TextOverlay[VistaQuaternion]",
-					new VistaDfnTextOverlayNodeCreate<VistaQuaternion>( pVistaSystem->GetDisplayManager(), &ConvertQToString ) );
+					new VistaDfnTextOverlayNodeCreate<VistaQuaternion>( pVistaSystem->GetDisplayManager() ) );
 	pFac->SetNodeCreator( "TextOverlay[VistaTransformMatrix]",
-					new VistaDfnTextOverlayNodeCreate<VistaTransformMatrix>( pVistaSystem->GetDisplayManager(), &ConvertMatToString ) );
+					new VistaDfnTextOverlayNodeCreate<VistaTransformMatrix>( pVistaSystem->GetDisplayManager() ) );
 
 	return true;
 }
@@ -189,21 +151,20 @@ IVdfnNode *Vista3DMouseTransformNodeCreate::CreateNode( const VistaPropertyList 
 
 		const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
 
-		if(subs.HasProperty("displaysystem") && subs.HasProperty("viewport"))
+		std::string strDisplaySystem;
+		std::string strViewport;
+		if( subs.GetValue( "displaysystem", strDisplaySystem )
+			&& subs.GetValue( "viewport", strViewport ) )
 		{
-			std::string strDisplaySystem = subs.GetStringValue("displaysystem");
 			VistaDisplaySystem *pSys = m_pMgr->GetDisplaySystemByName(strDisplaySystem);
-
-			std::string strViewport = subs.GetStringValue("viewport");
 			VistaViewport *pViewport = m_pMgr->GetViewportByName( strViewport );
 			if(pViewport && pSys)
 			{
 				float fOriginOffset = 0;
-				if( subs.HasProperty( "origin_offset_along_ray" ) )
-					fOriginOffset = (float)subs.GetDoubleValue( "origin_offset_along_ray" );
+				subs.GetValue( "origin_offset_along_ray", fOriginOffset );
 				VistaVdfn3DMouseTransformNode *pNd = new VistaVdfn3DMouseTransformNode(
 																	pSys, pViewport, fOriginOffset );
-				bool bToFrame = subs.GetBoolValue("in_world_coordinates");
+				bool bToFrame = subs.GetValueOrDefault<bool>( "in_world_coordinates", false );
 				pNd->SetTransformPositionFromFrame(bToFrame);
 				return pNd;
 			}
@@ -217,15 +178,10 @@ IVdfnNode *Vista3DMouseTransformNodeCreate::CreateNode( const VistaPropertyList 
 }
 
 
-VdfnDeviceDebugNodeCreate::VdfnDeviceDebugNodeCreate(IVistaWindowingToolkit *wta)
-: m_pWta(wta)
-{
-
-}
 // #############################################################################
 
-VdfnClusterNodeInfoNodeCreate::VdfnClusterNodeInfoNodeCreate(VistaClusterAux *pAux)
-	: m_pAux(pAux)
+VdfnClusterNodeInfoNodeCreate::VdfnClusterNodeInfoNodeCreate(VistaClusterMode *pClusterMode)
+	: m_pClusterMode(pClusterMode)
 {
 }
 
@@ -233,7 +189,7 @@ IVdfnNode *VdfnClusterNodeInfoNodeCreate::CreateNode( const VistaPropertyList &o
 {
 	try
 	{
-		return new VdfnClusterNodeInfoNode(m_pAux);
+		return new VdfnClusterNodeInfoNode(m_pClusterMode);
 	}
 	catch(VistaExceptionBase &x)
 	{
@@ -244,33 +200,38 @@ IVdfnNode *VdfnClusterNodeInfoNodeCreate::CreateNode( const VistaPropertyList &o
 
 // #############################################################################
 
-IVdfnNode *VdfnDeviceDebugNodeCreate::CreateNode( const VistaPropertyList &oParams ) const
+
+VistaDfnDeviceDebugNodeCreate::VistaDfnDeviceDebugNodeCreate( VistaDisplayManager* pDisplayManager )
+: m_pDisplayManager( pDisplayManager )
+{
+}
+
+IVdfnNode *VistaDfnDeviceDebugNodeCreate::CreateNode( const VistaPropertyList &oParams ) const
 {
 	try
 	{
-
 		const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
-		std::string strTagName = subs.GetStringValue("drivername");
-		if(strTagName.empty())
+		std::string strTagName;
+		if( subs.GetValue( "drivername", strTagName ) == false || strTagName.empty() )
 			strTagName = "<none>";
 
 		std::list<std::string> strPorts;
-		subs.GetStringListValue("showlist", strPorts);
+		subs.GetValue( "showlist", strPorts );
 
-		VdfnDeviceDebugNode *pRet = new VdfnDeviceDebugNode( m_pWta, strTagName, strPorts);
+		VistaDfnDeviceDebugNode *pRet = new VistaDfnDeviceDebugNode( m_pDisplayManager, strTagName, strPorts);
 
-
-		float nRed = float(subs.GetDoubleValue("red"));
-		float nGreen = float(subs.GetDoubleValue("green"));
-		float nBlue = float(subs.GetDoubleValue("blue"));
 		if( subs.HasProperty( "red" )
 			|| subs.HasProperty( "green" )
 			|| subs.HasProperty( "blue" ) )
 		{
-			pRet->SetColor(nRed,nGreen,nBlue);
+			float nRed = subs.GetValueOrDefault<float>( "red", 1.0f );
+			float nGreen = subs.GetValueOrDefault<float>( "green", 1.0f );
+			float nBlue = subs.GetValueOrDefault<float>( "blue", 0.0f );
+
+			pRet->SetColor( nRed, nGreen, nBlue );
 		}
 
-		bool bShowType = subs.GetBoolValue("showtype");
+		bool bShowType = subs.GetValueOrDefault<bool>( "showtype", false );
 		pRet->SetShowType(bShowType);
 
 		return pRet;
@@ -284,9 +245,9 @@ IVdfnNode *VdfnDeviceDebugNodeCreate::CreateNode( const VistaPropertyList &oPara
 
 // #############################################################################
 
-VdfnDumpHistoryNodeClusterCreate::VdfnDumpHistoryNodeClusterCreate( VistaClusterAux *pAux )
+VdfnDumpHistoryNodeClusterCreate::VdfnDumpHistoryNodeClusterCreate( VistaClusterMode *pClusterMode )
 	: VdfnNodeFactory::IVdfnNodeCreator()
-	, m_pAux(pAux)
+	, m_pClusterMode(pClusterMode)
 {
 
 }
@@ -296,8 +257,9 @@ IVdfnNode *VdfnDumpHistoryNodeClusterCreate::CreateNode( const VistaPropertyList
 	try
 	{
 		const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
-		std::string strFileName = subs.GetStringValue("file");
-		std::string strHostName = m_pAux->GetNodeName();
+		std::string strFileName;
+		subs.GetValue( "file", strFileName );
+		std::string strHostName = m_pClusterMode->GetNodeName();
 		std::string strFinalName = strHostName.empty() ? strFileName
 								   : strHostName+"."+strFileName;
 
@@ -321,28 +283,23 @@ VistaDfnEventSourceNodeCreate::VistaDfnEventSourceNodeCreate( VistaEventManager 
 }
 
 
-IVdfnNode *VistaDfnEventSourceNodeCreate::CreateNode( const VistaPropertyList &oParams ) const
+IVdfnNode* VistaDfnEventSourceNodeCreate::CreateNode( const VistaPropertyList &oParams ) const
 {
-	return new VistaDfnEventSourceNode( m_pEvMgr, m_pInMa, oParams.GetStringValue("tag") );
+	return new VistaDfnEventSourceNode( m_pEvMgr, m_pInMa, oParams.GetValueOrDefault<std::string>( "tag", "" ) );
 }
 
 // #############################################################################
 
 IVdfnNode *VistaDfnNavigationNodeCreate::CreateNode( const VistaPropertyList &oParams ) const
 {
-	const VistaPropertyList &oPars = oParams.GetPropertyListValue( "param" );
+	assert( oParams.HasSubList("param" ) );
+	const VistaPropertyList &oPars = oParams.GetSubListConstRef( "param" );
 
-	int iDefaultMode = 0;	
-	if( oPars.HasProperty( "default_navigation_mode" ) )
-		iDefaultMode = oPars.GetIntValue( "default_navigation_mode" );
+	int iDefaultMode = oPars.GetValueOrDefault<int>( "default_navigation_mode", 0 );
 
-	float fDefaultLinearVelocity = 1.0f;
-	if( oPars.HasProperty( "default_linear_velocity" ) )
-		fDefaultLinearVelocity = (float)oPars.GetDoubleValue( "default_linear_velocity" );
+	float fDefaultLinearVelocity = oPars.GetValueOrDefault<float>( "default_linear_velocity", 1.0f );
 
-	float fDefaultAngularVelocity = 3.14159f;
-	if( oPars.HasProperty( "default_angular_velocity" ) )
-		fDefaultAngularVelocity = (float)oPars.GetDoubleValue( "default_angular_velocity" );
+	float fDefaultAngularVelocity = oPars.GetValueOrDefault<float>( "default_angular_velocity", Vista::Pi );
 
 	return new VistaDfnNavigationNode( iDefaultMode,
 										fDefaultLinearVelocity,
@@ -352,11 +309,9 @@ IVdfnNode *VistaDfnNavigationNodeCreate::CreateNode( const VistaPropertyList &oP
 
 // #############################################################################
 
-VistaDfnWindowSourceNodeCreate::VistaDfnWindowSourceNodeCreate( VistaEventManager *pEvMgr,
-													  VistaDisplayManager *pMgr )
+VistaDfnWindowSourceNodeCreate::VistaDfnWindowSourceNodeCreate( VistaDisplayManager *pMgr )
 : VdfnNodeFactory::IVdfnNodeCreator(),
-  m_pMgr(pMgr),
-  m_pEvMgr(pEvMgr)
+  m_pMgr(pMgr)
 {
 }
 
@@ -366,13 +321,13 @@ IVdfnNode *VistaDfnWindowSourceNodeCreate::CreateNode( const VistaPropertyList &
 	{
 		const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
 
-		if(subs.HasProperty("value"))
-		{
-			std::string strWindowName = subs.GetStringValue("value");
+		std::string strWindowName;
+		if( subs.GetValue( "value", strWindowName ) )
+		{			
 			VistaWindow *pWindow = m_pMgr->GetWindowByName(strWindowName);
 			if(pWindow)
 			{
-				return new VistaDfnWindowSourceNode( m_pEvMgr, pWindow );
+				return new VistaDfnWindowSourceNode( pWindow );
 			}
 		}
 	}
@@ -398,9 +353,9 @@ IVdfnNode *VistaDfnViewportSourceNodeCreate::CreateNode( const VistaPropertyList
 	{
 		const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
 
-		if(subs.HasProperty("value"))
-		{
-			std::string strWindowName = subs.GetStringValue("value");
+		std::string strWindowName;
+		if( subs.GetValue( "value", strWindowName ) )
+		{			
 			VistaViewport *pVp = m_pMgr->GetViewportByName(strWindowName);
 			if(pVp)
 			{
@@ -432,7 +387,8 @@ IVdfnNode *VistaDfnViewerSinkNodeCreate::CreateNode( const VistaPropertyList &oP
 
 		if(subs.HasProperty("displaysystem"))
 		{
-			std::string strDispSysName = subs.GetStringValue("displaysystem");
+			std::string strDispSysName;
+			subs.GetValue( "displaysystem", strDispSysName );
 			VistaDisplaySystem *pSystem = m_pMgr->GetDisplaySystemByName(strDispSysName);
 			if(pSystem)
 			{
@@ -456,8 +412,6 @@ VistaDfnTrackballNodeCreate::VistaDfnTrackballNodeCreate(VistaDisplayManager *pD
 
 IVdfnNode *VistaDfnTrackballNodeCreate::CreateNode( const VistaPropertyList &oParams ) const
 {
-	const VistaPropertyList &oSubs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
-
 	return new VistaVdfnTrackball();
 }
 
@@ -487,9 +441,9 @@ IVdfnNode* VistaDfnReferenceFrameTransformNodeCreate::CreateNode(
 												const VistaPropertyList &oParams ) const
 {
 	VistaDisplaySystem* pDisplaySystem;
-	if( oParams.HasProperty( "displaysystem" ) )
-	{
-		std::string sDisplaySystemName = oParams.GetStringValue( "displaysystem" );
+	std::string sDisplaySystemName;
+	if( oParams.GetValue( "displaysystem", sDisplaySystemName ) )
+	{		
 		pDisplaySystem = m_pDisplayManager->GetDisplaySystemByName( sDisplaySystemName );		
 	}
 	else
@@ -499,28 +453,28 @@ IVdfnNode* VistaDfnReferenceFrameTransformNodeCreate::CreateNode(
 	if( pDisplaySystem == NULL )
 			return NULL;
 
-	VistaPropertyList oSubParams = oParams.GetPropertyListValue( "param" );
+	assert( oParams.HasSubList("param" ) );
+	const VistaPropertyList& oSubParams = oParams.GetSubListConstRef( "param" );
 	bool bTransformToFrame = false;
-	if( oSubParams.HasProperty( "transform_mode" ) )
+	std::string sTransformMode;
+	if( oSubParams.GetValue( "transform_mode", sTransformMode ) )
 	{
-		if( oSubParams.GetStringValue( "transform_mode" ) == "to_frame" )
+		if( sTransformMode == "to_frame" )
 			bTransformToFrame = true;
-		else if( oSubParams.GetStringValue( "transform_mode" ) == "from_frame" )
+		else if( sTransformMode == "from_frame" )
 			bTransformToFrame = false;
 		else
-			return NULL;
+		{
+			vstr::warnp() << "VistaDfnReferenceFrameTransformNodeCreate -- "
+				<< " Parameter [transform_mode] has unknown value [" << sTransformMode
+				<< "] - valid options are to_frame and from_frame" << std::endl;
+			return NULL; 
+		}
 	}
 
-	int iNrPositionPorts = 1;
-	int iNrOrientationPorts = 1;
-	int iNrMatrixPorts = 0;
-	if( oSubParams.HasProperty( "num_position_ports" ) )
-		iNrPositionPorts = oSubParams.GetIntValue( "num_position_ports" );
-	if( oSubParams.HasProperty( "num_orientation_ports" ) )
-		iNrOrientationPorts = oSubParams.GetIntValue( "num_orientation_ports" );
-	if( oSubParams.HasProperty( "num_matrix_ports" ) )
-		iNrMatrixPorts = oSubParams.GetIntValue( "num_matrix_ports" );
-
+	int iNrPositionPorts = oSubParams.GetValueOrDefault<int>( "num_position_ports", 1 );
+	int iNrOrientationPorts = oSubParams.GetValueOrDefault<int>( "num_orientation_ports", 1 );
+	int iNrMatrixPorts = oSubParams.GetValueOrDefault<int>( "num_matrix_ports", 0 );
 
 	return ( new VistaDfnReferenceFrameTransformNode(
 									pDisplaySystem->GetReferenceFrame(),
@@ -545,9 +499,9 @@ IVdfnNode *VistaDfnProjectionSourceNodeCreate::CreateNode( const VistaPropertyLi
 	{
 		const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
 
-		if(subs.HasProperty("value"))
-		{
-			std::string strWindowName = subs.GetStringValue("value");
+		std::string strWindowName;
+		if( subs.GetValue( "value", strWindowName ) )
+		{			
 			VistaProjection *pVp = m_pMgr->GetProjectionByName(strWindowName);
 			if(pVp)
 			{
@@ -568,7 +522,7 @@ IVdfnNode *VistaDfnProjectionSourceNodeCreate::CreateNode( const VistaPropertyLi
 class VistaFrameclockNodeCreate::TimerNodeFrameclockGet : public VdfnTimerNode::CGetTime
 {
 public:
-	TimerNodeFrameclockGet( VistaClusterAux* pClusterAux )
+	TimerNodeFrameclockGet( VistaClusterMode* pClusterAux )
 	: m_pClusterAux( pClusterAux )
 	{
 	}
@@ -577,10 +531,10 @@ public:
 		return m_pClusterAux->GetFrameClock();
 	}
 private:
-	VistaClusterAux* m_pClusterAux;
+	VistaClusterMode* m_pClusterAux;
 };
 
-VistaFrameclockNodeCreate::VistaFrameclockNodeCreate( VistaClusterAux* pClusterAux ) 
+VistaFrameclockNodeCreate::VistaFrameclockNodeCreate( VistaClusterMode* pClusterAux ) 
 : VdfnNodeFactory::IVdfnNodeCreator()
 , m_pClusterAux( pClusterAux )
 {

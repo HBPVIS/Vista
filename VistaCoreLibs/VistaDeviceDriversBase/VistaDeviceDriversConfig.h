@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDeviceDriversConfig.h 21085 2011-05-03 13:42:29Z dr165799 $
 
 #ifndef _VISTADEVICEDRIVERSCONFIG_H
 #define _VISTADEVICEDRIVERSCONFIG_H

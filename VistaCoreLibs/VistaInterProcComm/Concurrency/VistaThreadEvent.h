@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaThreadEvent.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTATHREADEVENT_H
 #define _VISTATHREADEVENT_H
@@ -38,50 +38,25 @@
 class IVistaThreadEventImp;
 
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI VistaThreadEvent
 {
-private:
-
-	/**
-	 *
-	 */
-	IVistaThreadEventImp *m_pImpl;
-	VistaThreadEvent() {};
-protected:
 public:
-
-	/**
-	 *
-	 */
 	VistaThreadEvent(bool bCreatePosix);
-
-	/**
-	 *
-	 */
 	virtual ~VistaThreadEvent();
 
-
-	/**
-	 *
-	 */
 	void SignalEvent();
 
-	/**
-	 *
-	 */
 	long WaitForEvent(bool bBlock);
 
-	/**
-	 *
-	 */
 	long WaitForEvent(int iBlockTime);
 	HANDLE GetEventSignalHandle() const;
 	HANDLE GetEventWaitHandle() const;
 
 	bool ResetThisEvent();
+
+private:
+	IVistaThreadEventImp *m_pImpl;
+	VistaThreadEvent() {};
 };
 
 

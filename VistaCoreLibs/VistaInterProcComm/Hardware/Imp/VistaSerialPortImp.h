@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSerialPortImp.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTASERIALPORTIMP_H
 #define _VISTASERIALPORTIMP_H
@@ -58,7 +58,7 @@
  */
 class VISTAINTERPROCCOMMAPI VistaSerialPortImp
 {
-	public:
+public:
 
 	/**
 	 * Opens the serial port described here; it is needed to call this prior to Send/Receive calls.
@@ -81,9 +81,6 @@ class VISTAINTERPROCCOMMAPI VistaSerialPortImp
 	virtual bool          OpenSerialPort() = 0;
 
 
-	/**
-	 *
-	 */
 	bool          IsOpen() const;
 
 	/**
@@ -165,117 +162,44 @@ class VISTAINTERPROCCOMMAPI VistaSerialPortImp
 	VistaSerialPortStateDesc::VistaPortIndex GetPortIndex() const;
 
 
-	/**
-	 *
-	 */
 	virtual bool          SetSpeed( VistaSerialPortStateDesc::VistaSpeed eSpeed);
-
-	/**
-	 *
-	 */
 	virtual VistaSerialPortStateDesc::VistaSpeed    GetSpeed() const;
-
-	/**
-	 *
-	 */
 	virtual unsigned long GetMaximumSpeed () const;
 
 
-	/**
-	 *
-	 */
 	virtual bool          SetParity ( VistaSerialPortStateDesc::VistaParity eParam );
-
-	/**
-	 *
-	 */
 	virtual VistaSerialPortStateDesc::VistaParity   GetParity () const;
 
 
-	/**
-	 *
-	 */
 	virtual bool          SetDataBits ( VistaSerialPortStateDesc::VistaDataBits eParam );
-
-	/**
-	 *
-	 */
 	virtual VistaSerialPortStateDesc::VistaDataBits GetDataBits () const;
 
 
-	/**
-	 *
-	 */
 	virtual bool          SetStopBits ( VistaSerialPortStateDesc::VistaStopBits eParam );
-
-	/**
-	 *
-	 */
 	virtual VistaSerialPortStateDesc::VistaStopBits GetStopBits () const;
 
 
-	/**
-	 *
-	 */
 	virtual bool          SetHardwareFlow ( bool bInHandshaking );
-
-	/**
-	 *
-	 */
 	virtual bool          GetIsHardwareFlow() const;
 
 
-	/**
-	 *
-	 */
 	virtual bool          SetSoftwareFlow ( bool bParam );
-
-	/**
-	 *
-	 */
 	virtual bool          SetSoftwareFlowOnOffChars(char cXonChar,
 													char cXoffChar);
 
-	/**
-	 *
-	 */
 	virtual char          GetXonChar() const;
-
-	/**
-	 *
-	 */
 	virtual char          GetXoffChar() const;
 
-	/**
-	 *
-	 */
 	virtual bool          SetCharForParityError(char cErrorChar);
-
-	/**
-	 *
-	 */
 	virtual char          GetCharForParityError() const;
 
-	/**
-	 *
-	 */
 	virtual bool          SetEofChar(char cEofChar);
-
-	/**
-	 *
-	 */
 	virtual char          GetEofChar() const;
 
 
-	/**
-	 *
-	 */
 	virtual bool          GetIsSoftwareFlow () const;
 
 
-	/**
-	 *
-	 */
 	virtual bool          SetBlockingMode ( unsigned long inReadInterval,
 		unsigned long inReadMultiplyer, unsigned long inReadConstant ) = 0;
 
@@ -319,7 +243,6 @@ private:
 	bool m_bIsOpen;
 
 	bool m_bIsBlocking;
-
 
 protected:
 
@@ -437,9 +360,6 @@ protected:
 	 */
 	VistaSerialPortStateDesc::VistaPortIndex     HasPortName(const std::string &sPortName) const;
 
-	/**
-	 *
-	 */
 	void SetIsOpen(bool bIsOpen);
 };
 

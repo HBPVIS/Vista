@@ -20,13 +20,13 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDfnDeviceDebugNode.cpp 23000 2011-08-16 13:58:11Z su691804 $
+// $Id$
 
 #include "VistaDfnDeviceDebugNode.h"
 
-#include <VistaKernel/WindowingToolkit/VistaSimpleTextOverlay.h>
-#include <VistaKernel/WindowingToolkit/VistaTextEntity.h>
-#include <VistaKernel/WindowingToolkit/VistaWindowingToolkit.h>
+#include <VistaKernel/DisplayManager/VistaSimpleTextOverlay.h>
+#include <VistaKernel/DisplayManager/VistaTextEntity.h>
+#include <VistaKernel/DisplayManager/VistaDisplayManager.h>
 
 #include <VistaBase/VistaTimerImp.h>
 #include <VistaTools/VistaRandomNumberGenerator.h>
@@ -39,34 +39,34 @@
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
-VdfnDeviceDebugNode::VdfnDeviceDebugNode(
-		IVistaWindowingToolkit *wta,
+VistaDfnDeviceDebugNode::VistaDfnDeviceDebugNode(
+		VistaDisplayManager* pDisplayManager,
 		const std::string &strDriverName,
 		const std::list<std::string> &showList)
-: IVdfnNode(),
-m_pHistory(NULL),
-m_pWta(wta),
-m_strDriverName(strDriverName),
-m_liShowList(showList),
-m_bShowType(false),
-m_r(1.0), m_g(0.0), m_b(0.0),
-m_pNewMeasures(NULL) // deleted by the overlay, iff created
- , m_pUpdateTime( NULL )
- , m_pFreq(NULL)
-, m_pOverlay(m_pWta->CreateSimpleTextOverlay())
+: IVdfnNode()
+, m_pHistory( NULL )
+, m_pDisplayManager( pDisplayManager)
+, m_strDriverName(strDriverName)
+, m_liShowList(showList)
+, m_bShowType(false)
+, m_r(1.0), m_g(0.0), m_b(0.0)
+, m_pNewMeasures(NULL) // deleted by the overlay, iff created
+, m_pUpdateTime( NULL )
+, m_pFreq( NULL )
+, m_pOverlay( new VistaSimpleTextOverlay( pDisplayManager ) )
 {
 	this->SetEvaluationFlag(true);
 	RegisterInPortPrototype("history", new HistoryPortCompare);
 }
 
-VdfnDeviceDebugNode::~VdfnDeviceDebugNode()
+VistaDfnDeviceDebugNode::~VistaDfnDeviceDebugNode()
 {
 	delete m_pOverlay;
 }
 
-IVistaTextEntity *VdfnDeviceDebugNode::CreateText( int nY, const std::string &sText ) const
+IVistaTextEntity *VistaDfnDeviceDebugNode::CreateText( int nY, const std::string &sText ) const
 {
-	IVistaTextEntity *pRet = m_pWta->CreateTextEntity();
+	IVistaTextEntity *pRet = m_pDisplayManager->CreateTextEntity();
 	pRet->SetYPos( (float)nY );
 	pRet->SetText( sText );
 	pRet->SetColor(VistaColorRGB(m_r, m_g, m_b));
@@ -74,7 +74,7 @@ IVistaTextEntity *VdfnDeviceDebugNode::CreateText( int nY, const std::string &sT
 	return pRet;
 }
 
-bool VdfnDeviceDebugNode::PrepareEvaluationRun()
+bool VistaDfnDeviceDebugNode::PrepareEvaluationRun()
 {
 	m_pHistory = dynamic_cast<HistoryPort*>(GetInPort("history"));
 	if(m_pHistory)
@@ -82,25 +82,24 @@ bool VdfnDeviceDebugNode::PrepareEvaluationRun()
 		int nLine = 1;
 
 		IVistaTextEntity *pName = CreateText(nLine++, "DRIVER: " + m_strDriverName );
-		m_pOverlay->AddText(pName);
+		m_pOverlay->AddText( pName, true );
 
 		m_pUpdateTime = CreateText(nLine++, "avg upd time: ");
-		m_pOverlay->AddText(m_pUpdateTime);
+		m_pOverlay->AddText( m_pUpdateTime, true );
 
 		m_pFreq = CreateText(nLine++, "upd freq:");
-		m_pOverlay->AddText(m_pFreq);
+		m_pOverlay->AddText( m_pFreq, true );
 
 		// cache values
 		VistaDeviceSensor *pSensor         = m_pHistory->GetValue()->m_pSensor;
 		IVistaMeasureTranscode  *pTranscode = m_pHistory->GetValue()->m_pTranscode;
 
 		pName = CreateText(nLine++, "Sensor: " + pSensor->GetSensorName());
-		m_pOverlay->AddText(pName);
+		m_pOverlay->AddText( pName, true );
 
 		m_pNewMeasures = CreateText(nLine++, "New: "
-				   + VistaAspectsConversionStuff::ConvertToString(
-						   m_pHistory->GetValue()->m_nNewMeasures));
-		m_pOverlay->AddText(m_pNewMeasures);
+				+ VistaConversion::ToString( m_pHistory->GetValue()->m_nNewMeasures));
+		m_pOverlay->AddText( m_pNewMeasures, true );
 
 		// dynamic labels
 		std::list<std::string> liProps;
@@ -114,20 +113,20 @@ bool VdfnDeviceDebugNode::PrepareEvaluationRun()
 					continue;
 			}
 			IVistaTextEntity *pE = CreateText(nLine++, (*it) + ": " + pTranscode->GetPropertyByName(*it).GetValue());
-			m_pOverlay->AddText(pE);
+			m_pOverlay->AddText( pE, true );
 			m_mpDynamicLabels[(*it)] = pE;
 		}
 	}
 	else
 	{
 		IVistaTextEntity *pError = CreateText(2, "NOT CONNECTED");
-		m_pOverlay->AddText(pError);
+		m_pOverlay->AddText( pError, true );
 	}
 
 	return GetIsValid();
 }
 
-bool VdfnDeviceDebugNode::DoEvalNode()
+bool VistaDfnDeviceDebugNode::DoEvalNode()
 {
 	UpdateStaticLabels();
 	UpdateDynamicLabels();
@@ -135,7 +134,7 @@ bool VdfnDeviceDebugNode::DoEvalNode()
 }
 
 
-std::string VdfnDeviceDebugNode::FormatLabel(const std::string &strLabel,
+std::string VistaDfnDeviceDebugNode::FormatLabel(const std::string &strLabel,
 		                                      const std::string &strType )
 {
 	if(m_bShowType)
@@ -144,20 +143,17 @@ std::string VdfnDeviceDebugNode::FormatLabel(const std::string &strLabel,
 		return strLabel + ": ";
 }
 
-void VdfnDeviceDebugNode::UpdateStaticLabels()
+void VistaDfnDeviceDebugNode::UpdateStaticLabels()
 {
-	m_pNewMeasures->SetText("New: "
-							+ VistaAspectsConversionStuff::ConvertToString(
-							  m_pHistory->GetValue()->m_nNewMeasures));
+	m_pNewMeasures->SetText( "New: " + VistaConversion::ToString( m_pHistory->GetValue()->m_nNewMeasures) );
 
 	// update value from driver
 	m_pUpdateTime->SetText("avg upd time: "
-						   + VistaAspectsConversionStuff::ConvertToString( double(m_pHistory->GetValue()->m_nAvgDriverUpdTime)));
-	m_pFreq->SetText("avg upd freq: "
-					 + VistaAspectsConversionStuff::ConvertToString( double( m_pHistory->GetValue()->m_nAvgUpdFreq )));
+						   + VistaConversion::ToString( m_pHistory->GetValue()->m_nAvgDriverUpdTime ) );
+	m_pFreq->SetText("avg upd freq: " + VistaConversion::ToString( m_pHistory->GetValue()->m_nAvgUpdFreq ) );
 }
 
-void VdfnDeviceDebugNode::UpdateDynamicLabels()
+void VistaDfnDeviceDebugNode::UpdateDynamicLabels()
 {
 	VdfnPortFactory *pFac = VdfnPortFactory::GetSingleton();
 
@@ -217,17 +213,17 @@ void VdfnDeviceDebugNode::UpdateDynamicLabels()
 	}
 }
 
-bool VdfnDeviceDebugNode::GetShowType() const
+bool VistaDfnDeviceDebugNode::GetShowType() const
 {
 	return m_bShowType;
 }
 
-void VdfnDeviceDebugNode::SetShowType( bool bShowType )
+void VistaDfnDeviceDebugNode::SetShowType( bool bShowType )
 {
 	m_bShowType = bShowType;
 }
 
-void VdfnDeviceDebugNode::SetColor( float r, float g, float b)
+void VistaDfnDeviceDebugNode::SetColor( float r, float g, float b)
 {
 	m_r = r;
 	m_g = g;
@@ -239,14 +235,14 @@ void VdfnDeviceDebugNode::SetColor( float r, float g, float b)
 	}
 }
 
-void VdfnDeviceDebugNode::GetColor( float &r, float &g, float &b) const
+void VistaDfnDeviceDebugNode::GetColor( float &r, float &g, float &b) const
 {
 	r = m_r;
 	g = m_g;
 	b = m_b;
 }
 
-void VdfnDeviceDebugNode::OnActivation( double dTs )
+void VistaDfnDeviceDebugNode::OnActivation( double dTs )
 {
     IVdfnNode::OnActivation(dTs);
     m_pNewMeasures->SetEnabled(true);
@@ -254,7 +250,7 @@ void VdfnDeviceDebugNode::OnActivation( double dTs )
         (*it).second->SetEnabled(true);
 }
 
-void VdfnDeviceDebugNode::OnDeactivation( double dTs )
+void VistaDfnDeviceDebugNode::OnDeactivation( double dTs )
 {
     IVdfnNode::OnDeactivation(dTs);
     m_pNewMeasures->SetEnabled(false);

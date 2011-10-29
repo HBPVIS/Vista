@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: Vista2DDrawingObjects.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTA2DDRAWINGOBJECT_H
 #define _VISTA2DDRAWINGOBJECT_H
@@ -157,11 +157,12 @@ private:
 class VISTAKERNELAPI Vista2DText : public Vista2DDrawingObject
 {
 public:
-	enum Vista2DTextFontFamily {
-	INVALID=-1,
-	SANS=0,
-	TYPEWRITER,
-	SERIF
+	enum Vista2DTextFontFamily
+	{
+		INVALID = -1,
+		SANS = 0,
+		TYPEWRITER,
+		SERIF
 	};
 
 

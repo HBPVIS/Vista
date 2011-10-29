@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnUtil.cpp 23000 2011-08-16 13:58:11Z su691804 $
+// $Id$
 
 #include <list>
 using namespace std;
@@ -69,232 +69,233 @@ using namespace std;
 
 namespace
 {
-	VistaVector3D ConvertToVistaVector3D(const std::string &sValue)
-	{
-		list<float> liTemp;
-		int iSize = VistaAspectsConversionStuff::ConvertToList(sValue, liTemp);
-		if (iSize > 4)
-			iSize = 4;	// allow setting of the homogeneous coordinate
-
-		VistaVector3D v3Temp;
-		list<float>::iterator it=liTemp.begin();
-		for (int i=0; i<iSize; ++i, ++it)
-			v3Temp[i] = *it;
-
-		return v3Temp;
-	}
-
-	VistaQuaternion ConvertToVistaQuaternion(const std::string &sValue)
-	{
-		list<float> liTemp;
-		int iSize = VistaAspectsConversionStuff::ConvertToList(sValue, liTemp);
-		if( iSize == 3 ) // interpret as Euler Angles
-		{
-			float euAngles[3];
-			list<float>::iterator it=liTemp.begin();
-			for (int i=0; i<3; ++i, ++it)
-				euAngles[i] = Vista::DegToRad(*it);
-			VistaQuaternion qTemp( VistaEulerAngles(euAngles[0], euAngles[1], euAngles[2] ) );
-			return qTemp;
-		}
-		else if (iSize > 4)
-			iSize = 4;
-
-		if( iSize != 4)
-			return VistaQuaternion(); // < 3?
-
-		VistaQuaternion qTemp;
-		list<float>::iterator it=liTemp.begin();
-		for (int i=0; i<iSize; ++i, ++it)
-			qTemp[i] = *it;
-
-		return qTemp;
-	}
-
-	VistaTransformMatrix ConvertToVistaMatrix( const std::string &sValue )
-	{
-		list<float> liTemp;
-		int iSize = VistaAspectsConversionStuff::ConvertToList(sValue, liTemp);
-		if(iSize != 16)
-		{
-			vdfnerr << "non-matchung number of arguments (" << iSize << " != 16 )\n";
-			vdfnerr << "original string:\n" << sValue <<  "\n";
-			return VistaTransformMatrix();
-		}
-
-
-		VistaTransformMatrix m;
-		list<float>::iterator it=liTemp.begin();
-		for(int r=0; r < 4; ++r)
-			for(int c=0; c < 4; ++c)
-				m[r][c] = *it++;
-
-		return m;
-	}
-
-
-	bool ConvertDoubleToBool( double dVal )
-	{
-		return (dVal != 0 ? true : false);
-	}
-
-	bool ConvertFloatToBool( float fVal )
-	{
-		return (fVal != 0 ? true : false);
-	}
-
-	template<class tFrom, class tTo>
-	tTo ConvertFrom( tFrom from )
-	{
-		return tTo(from);
-	}
-
-	template<class T>
-	std::string ConvertToString( T val )
-	{
-		return VistaAspectsConversionStuff::ConvertToString(val);
-	}
-
-	template<class T>
-	std::string ConvertArrayToString( T aArray[], int iSize )
-	{
-		std::string sRetVal = VistaAspectsConversionStuff::ConvertToString( aArray[0] );
-		
-		for( int i = 1; i < iSize; ++i )
-		{
-			sRetVal += " " + VistaAspectsConversionStuff::ConvertToString( aArray[i] );
-		}
-
-		return sRetVal;
-	}
-
-	std::string ConvertVecToString( VistaVector<float,4> v4 )
-	{
-		//return (VistaAspectsConversionStuff::ConvertToString(v4[0])
-		//		+ std::string(" ")
-		//		+ VistaAspectsConversionStuff::ConvertToString(v4[1])
-		//		+ std::string(" ")
-		//		+ VistaAspectsConversionStuff::ConvertToString(v4[2])
-		//		+ std::string(" ")
-		//		+ VistaAspectsConversionStuff::ConvertToString(v4[3]));
-		return ConvertArrayToString<float>( &v4[0], 4 );
-	}
-
-	template<class T> std::string ConvertVectorToString( std::vector<T> vec )
-	{
-	//	std::ostringstream ret;
-	//	ret.setf(std::ios::fixed, std::ios::floatfield);
-
-	//	for( typename std::vector<T>::const_iterator cit = vec.begin();
-	//			 cit != vec.end(); ++cit )
-	//	{
-	//		ret << VistaAspectsConversionStuff::ConvertToString( *cit )
-	//		    << std::string( ";" );
-	//	}
-
-	//	return ret.str();
-		return ConvertArrayToString<T>( &vec[0], (int)vec.size() );
-	}
-
-
-	std::string ConvertVec3DToString( VistaVector3D v3 )
-	{
-		//return ConvertVecToString(v3);
-		return ConvertArrayToString<float>( &v3[0], 4 );
-	}
-
-
-	std::string ConvertQuatToString( VistaQuaternion q )
-	{
-		//return ConvertVecToString(q);
-		return ConvertArrayToString<float>( &q[0], 4 );
-	}
-
-	std::string ConvertMatToString( VistaTransformMatrix matTransform )
-	{
-		float a16fTrans[16];
-		matTransform.GetValues( a16fTrans );
-		std::string sRet = VistaAspectsConversionStuff::ConvertToString( a16fTrans[0] );
-		for( int i = 1; i < 16; ++i )
-			sRet += ", " + VistaAspectsConversionStuff::ConvertToString( a16fTrans[i] );
-		return sRet;
-	}
-
-	VistaTransformMatrix ConvertVec3DToMatrix( VistaVector3D v3 )
-	{
-		VistaTransformMatrix mat;
-		mat.SetTranslation(v3);
-		return mat;
-	}
-
-	VistaTransformMatrix ConvertQuatToMatrix( VistaQuaternion q )
-	{
-		VistaTransformMatrix mat(q);
-		return mat;
-	}
-
-    VistaQuaternion ConvertMatrixToQuat( VistaTransformMatrix m )
-	{
-		VistaQuaternion qat(m);
-		return qat;
-	}
-
-	std::string ConvertInt64ToString( DLV_INT64 v )
-	{
-		char buffer[4096];
-	#ifdef WIN32
-		_i64toa_s((_int64) v, buffer, 4096, 10);
-	#else
-		sprintf(buffer, "%lld", (unsigned long long) v);
-	#endif
-		return std::string(buffer);
-	}
-
-	std::string ConvertUInt64ToString( VistaType::uint64 v )
-	{
-		char buffer[4096];
-	#ifdef WIN32
-		_i64toa_s((_int64) v, buffer, 4096, 10);
-	#else
-		sprintf(buffer, "%lld", (unsigned long long) v);
-	#endif
-		return std::string(buffer);
-	}
-
-	std::string ConvertMicrotimeToString( VistaType::microtime ts )
-	{
-		return VistaAspectsConversionStuff::ConvertToString( double(ts) );
-	}
-
-
-	std::string ConvertStringToString( std::string str)
-	{
-		return str;
-	}
-
-	std::string ConvertFloatToString( float f )
-	{
-		return VistaAspectsConversionStuff::ConvertToString( (double(f)) );
-	}
-
-	std::string ConvertAxisToString( VistaAxisAndAngle aaa )
-	{
-		std::string sRet = ConvertVec3DToString(aaa.m_v3Axis)
-						 + " ["
-						 + VistaAspectsConversionStuff::ConvertToString(aaa.m_fAngle)
-						 + "]";
-		return sRet;
-	}
+//	VistaVector3D ConvertToVistaVector3D(const std::string &sValue)
+//	{
+//		list<float> liTemp;
+//		int iSize = VistaAspectsConversionStuff::ConvertToList(sValue, liTemp);
+//		if (iSize > 4)
+//			iSize = 4;	// allow setting of the homogeneous coordinate
+//
+//		VistaVector3D v3Temp;
+//		list<float>::iterator it=liTemp.begin();
+//		for (int i=0; i<iSize; ++i, ++it)
+//			v3Temp[i] = *it;
+//
+//		return v3Temp;
+//	}
+//
+//	VistaQuaternion ConvertToVistaQuaternion(const std::string &sValue)
+//	{
+//		list<float> liTemp;
+//		int iSize = VistaAspectsConversionStuff::ConvertToList(sValue, liTemp);
+//		if( iSize == 3 ) // interpret as Euler Angles
+//		{
+//			float euAngles[3];
+//			list<float>::iterator it=liTemp.begin();
+//			for (int i=0; i<3; ++i, ++it)
+//				euAngles[i] = Vista::DegToRad(*it);
+//			VistaQuaternion qTemp( VistaEulerAngles(euAngles[0], euAngles[1], euAngles[2] ) );
+//			return qTemp;
+//		}
+//		else if (iSize > 4)
+//			iSize = 4;
+//
+//		if( iSize != 4)
+//			return VistaQuaternion(); // < 3?
+//
+//		VistaQuaternion qTemp;
+//		list<float>::iterator it=liTemp.begin();
+//		for (int i=0; i<iSize; ++i, ++it)
+//			qTemp[i] = *it;
+//
+//		return qTemp;
+//	}
+//
+//	VistaTransformMatrix ConvertToVistaMatrix( const std::string &sValue )
+//	{
+//		list<float> liTemp;
+//		int iSize = VistaAspectsConversionStuff::ConvertToList(sValue, liTemp);
+//		if(iSize != 16)
+//		{
+//			vstr::warnp() << "non-matchung number of arguments (" << iSize << " != 16 )\n";
+//			vstr::warni() << vstr::singleindent 
+//					<< "original string: " << sValue << std::endl;
+//			return VistaTransformMatrix();
+//		}
+//
+//
+//		VistaTransformMatrix m;
+//		list<float>::iterator it=liTemp.begin();
+//		for(int r=0; r < 4; ++r)
+//			for(int c=0; c < 4; ++c)
+//				m[r][c] = *it++;
+//
+//		return m;
+//	}
+//
+//
+//	bool ConvertDoubleToBool( double dVal )
+//	{
+//		return (dVal != 0 ? true : false);
+//	}
+//
+//	bool ConvertFloatToBool( float fVal )
+//	{
+//		return (fVal != 0 ? true : false);
+//	}
+//
+//#ifdef WIN32
+//#pragma warning(push)
+//#pragma warning(disable: 4800)
+//#endif
+//	// Convertion from bool to int triggers a warning. WE know of the
+//	// problem, and disable the waring
+//	template<class tFrom, class tTo>
+//	tTo ConvertFrom( tFrom from )
+//	{
+//		return tTo(from);
+//	}
+//#ifdef WIN32
+//#pragma warning(pop)
+//#endif
+//
+//	template<class T>
+//	std::string ConvertToString( T val )
+//	{
+//		return VistaAspectsConversionStuff::ConvertToString(val);
+//	}
+//
+//	template<class T>
+//	std::string ConvertArrayToString( T aArray[], int iSize )
+//	{
+//		std::string sRetVal = VistaAspectsConversionStuff::ConvertToString( aArray[0] );
+//		
+//		for( int i = 1; i < iSize; ++i )
+//		{
+//			sRetVal += " " + VistaAspectsConversionStuff::ConvertToString( aArray[i] );
+//		}
+//
+//		return sRetVal;
+//	}
+//
+//	std::string ConvertVecToString( VistaVector<float,4> v4 )
+//	{
+//		//return (VistaAspectsConversionStuff::ConvertToString(v4[0])
+//		//		+ std::string(" ")
+//		//		+ VistaAspectsConversionStuff::ConvertToString(v4[1])
+//		//		+ std::string(" ")
+//		//		+ VistaAspectsConversionStuff::ConvertToString(v4[2])
+//		//		+ std::string(" ")
+//		//		+ VistaAspectsConversionStuff::ConvertToString(v4[3]));
+//		return ConvertArrayToString<float>( &v4[0], 4 );
+//	}
+//
+//	template<class T> std::string ConvertVectorToString( std::vector<T> vec )
+//	{
+//	//	std::ostringstream ret;
+//	//	ret.setf(std::ios::fixed, std::ios::floatfield);
+//
+//	//	for( typename std::vector<T>::const_iterator cit = vec.begin();
+//	//			 cit != vec.end(); ++cit )
+//	//	{
+//	//		ret << VistaAspectsConversionStuff::ConvertToString( *cit )
+//	//		    << std::string( ";" );
+//	//	}
+//
+//	//	return ret.str();
+//		return ConvertArrayToString<T>( &vec[0], (int)vec.size() );
+//	}
+//
+//
+//	std::string ConvertVec3DToString( VistaVector3D v3 )
+//	{
+//		//return ConvertVecToString(v3);
+//		return ConvertArrayToString<float>( &v3[0], 4 );
+//	}
+//
+//
+//	std::string ConvertQuatToString( VistaQuaternion q )
+//	{
+//		//return ConvertVecToString(q);
+//		return ConvertArrayToString<float>( &q[0], 4 );
+//	}
+//
+//	VistaTransformMatrix ConvertVec3DToMatrix( VistaVector3D v3 )
+//	{
+//		VistaTransformMatrix mat;
+//		mat.SetTranslation(v3);
+//		return mat;
+//	}
+//
+//	VistaTransformMatrix ConvertQuatToMatrix( VistaQuaternion q )
+//	{
+//		VistaTransformMatrix mat(q);
+//		return mat;
+//	}
+//
+//    VistaQuaternion ConvertMatrixToQuat( VistaTransformMatrix m )
+//	{
+//		VistaQuaternion qat(m);
+//		return qat;
+//	}
+//
+//	std::string ConvertInt64ToString( DLV_INT64 v )
+//	{
+//		char buffer[4096];
+//	#ifdef WIN32
+//		_i64toa_s((_int64) v, buffer, 4096, 10);
+//	#else
+//		sprintf(buffer, "%lld", (unsigned long long) v);
+//	#endif
+//		return std::string(buffer);
+//	}
+//
+//	std::string ConvertUInt64ToString( VistaType::uint64 v )
+//	{
+//		char buffer[4096];
+//	#ifdef WIN32
+//		_i64toa_s((_int64) v, buffer, 4096, 10);
+//	#else
+//		sprintf(buffer, "%lld", (unsigned long long) v);
+//	#endif
+//		return std::string(buffer);
+//	}
+//
+//	std::string ConvertMicrotimeToString( VistaType::microtime ts )
+//	{
+//		return VistaAspectsConversionStuff::ConvertToString( double(ts) );
+//	}
+//
+//
+//	std::string ConvertStringToString( std::string str)
+//	{
+//		return str;
+//	}
+//
+//	std::string ConvertFloatToString( float f )
+//	{
+//		return VistaAspectsConversionStuff::ConvertToString( (double(f)) );
+//	}
+//
+//	std::string ConvertAxisToString( VistaAxisAndAngle aaa )
+//	{
+//		std::string sRet = ConvertVec3DToString(aaa.m_v3Axis)
+//						 + " ["
+//						 + VistaAspectsConversionStuff::ConvertToString(aaa.m_fAngle)
+//						 + "]";
+//		return sRet;
+//	}
 
 	template<class T>
 	class CGet : public VdfnPortFactory::StringGet
 	{
 	public:
-		typedef std::string (*Convert)(T);
-		CGet(Convert pFConvert)
-		: m_pFC(pFConvert)
+		typedef std::string (*Convert)( const T& );
+		CGet( Convert pFConvert = NULL )
+		: m_pFC( pFConvert )
 		{
-
+			if( m_pFC == NULL )
+				m_pFC = &VistaConversion::ToString<T>;
 		}
 
 		virtual bool GetStringValue(IVistaPropertyGetFunctor *pF,
@@ -364,6 +365,12 @@ namespace
 		}
 	};
 
+#ifdef WIN32
+#pragma warning(push)
+#pragma warning(disable: 4244)
+#endif
+	// the MultOp can contain some type conversions that may result in warnings
+	// we know and accept that, so we disable the warning locally
 	template<class T, class T2, class K>
 	class VdfnMultOp : public TVdfnBinaryOpNode<T,T2,K>::BinOp
 	{
@@ -372,6 +379,9 @@ namespace
 			return left * right;
 		}
 	};
+#ifdef WIN32
+#pragma warning(pop)
+#endif
 
 	template<class T, class T2, class K>
 	class VdfnDivOp : public TVdfnBinaryOpNode<T,T2,K>::BinOp
@@ -502,76 +512,75 @@ bool RegisterBasicPortSetters()
 																	  new VdfnTypedPortTypeCompareCreate<VistaVector3D>,
 																	  new TActionSet<VistaVector3D>,
 																	  new VdfnTypedPortCreate<VistaVector3D>,
-																	  new CGet<VistaVector3D>(&ConvertVec3DToString) ) );
+																	  new CGet<VistaVector3D> ) );
 	pFac->AddFunctorAccess( typeid(VistaVector<float,4>).name(), new VdfnPortFactory::CFunctorAccess(
 																	  new VdfnTypedPortTypeCompareCreate<VistaVector<float,4> >,
 																	  new TActionSet<VistaVector<float,4> >,
 																	  new VdfnTypedPortCreate<VistaVector<float,4> >,
-																	  new CGet<VistaVector<float,4> >(&ConvertVecToString) ) );
+																	  new CGet<VistaVector<float,4> > ) );
 	pFac->AddFunctorAccess( typeid(VistaQuaternion).name(), new VdfnPortFactory::CFunctorAccess(
 																	  new VdfnTypedPortTypeCompareCreate<VistaQuaternion>,
 																	  new TActionSet<VistaQuaternion>,
 																	  new VdfnTypedPortCreate<VistaQuaternion>,
-																	  new CGet<VistaQuaternion>(&ConvertQuatToString)) );
+																	  new CGet<VistaQuaternion> ) );
 	pFac->AddFunctorAccess( typeid(VistaTransformMatrix).name(), new VdfnPortFactory::CFunctorAccess(
 																	  new VdfnTypedPortTypeCompareCreate<VistaTransformMatrix>,
 																	  new TActionSet<VistaTransformMatrix>,
-																	  new VdfnTypedPortCreate<VistaTransformMatrix>,
-																	  new CGet<VistaTransformMatrix>(&ConvertMatToString) ) );
+																	  new VdfnTypedPortCreate<VistaTransformMatrix>) );
 	pFac->AddFunctorAccess( typeid(VistaAxisAndAngle).name(), new VdfnPortFactory::CFunctorAccess(
 																	  new VdfnTypedPortTypeCompareCreate<VistaAxisAndAngle>,
 																	  new TActionSet<VistaAxisAndAngle>,
 																	  new VdfnTypedPortCreate<VistaAxisAndAngle>,
-																	  new CGet<VistaAxisAndAngle>( &ConvertAxisToString )) );
+																	  new CGet<VistaAxisAndAngle> ) );
 
 
 	pFac->AddFunctorAccess( typeid(DLV_INT64).name(), new VdfnPortFactory::CFunctorAccess(
 																	  new VdfnTypedPortTypeCompareCreate<DLV_INT64>,
 																	  new TActionSet<DLV_INT64>,
 																	  new VdfnTypedPortCreate<DLV_INT64>,
-																	  new CGet<DLV_INT64>(&ConvertInt64ToString)) );
+																	  new CGet<DLV_INT64> ) );
 	pFac->AddFunctorAccess( typeid(VistaType::microtime).name(), new VdfnPortFactory::CFunctorAccess(
 																	  new VdfnTypedPortTypeCompareCreate<VistaType::microtime>,
 																	  new TActionSet<VistaType::microtime>,
 																	  new VdfnTypedPortCreate<VistaType::microtime>,
-																	  new CGet<VistaType::microtime>(&ConvertMicrotimeToString)) );
+																	  new CGet<VistaType::microtime> ) );
 
 	pFac->AddFunctorAccess( typeid(VistaType::uint64).name(), new VdfnPortFactory::CFunctorAccess(
 																	  new VdfnTypedPortTypeCompareCreate<VistaType::uint64>,
 																	  new TActionSet<VistaType::uint64>,
 																	  new VdfnTypedPortCreate<VistaType::uint64>,
-																	  new CGet<VistaType::uint64>(&ConvertUInt64ToString)) );
+																	  new CGet<VistaType::uint64> ) );
 
 	pFac->AddFunctorAccess( typeid(bool).name(), new VdfnPortFactory::CFunctorAccess(
 																	  new VdfnTypedPortTypeCompareCreate<bool>,
 																	  new TActionSet<bool>,
 																	  new VdfnTypedPortCreate<bool>,
-																	  new CGet<bool>(&VistaAspectsConversionStuff::ConvertToString)) );
+																	  new CGet<bool> ) );
 	pFac->AddFunctorAccess( typeid(double).name(), new VdfnPortFactory::CFunctorAccess(
 																	  new VdfnTypedPortTypeCompareCreate<double>,
 																	  new TActionSet<double>,
 																	  new VdfnTypedPortCreate<double>,
-																	  new CGet<double>(&VistaAspectsConversionStuff::ConvertToString)) );
+																	  new CGet<double> ) );
 	pFac->AddFunctorAccess( typeid(float).name(), new VdfnPortFactory::CFunctorAccess(
 																	  new VdfnTypedPortTypeCompareCreate<float>,
 																	  new TActionSet<float>,
 																	  new VdfnTypedPortCreate<float>,
-																	  new CGet<float>(&ConvertFloatToString)) );
+																	  new CGet<float> ) );
 	pFac->AddFunctorAccess( typeid(std::string).name(), new VdfnPortFactory::CFunctorAccess(
 																	  new VdfnTypedPortTypeCompareCreate<std::string>,
 																	  new TActionSet<std::string>,
 																	  new VdfnTypedPortCreate<std::string>,
-																	  new CGet<std::string>(&ConvertStringToString)) );
+																	  new CGet<std::string> ) );
 	pFac->AddFunctorAccess( typeid(int).name(), new VdfnPortFactory::CFunctorAccess(
 																	  new VdfnTypedPortTypeCompareCreate<int>,
 																	  new TActionSet<int>,
 																	  new VdfnTypedPortCreate<int>,
-																	  new CGet<int>(&VistaAspectsConversionStuff::ConvertToString)) );
+																	  new CGet<int> ) );
 	pFac->AddFunctorAccess( typeid(unsigned int).name(), new VdfnPortFactory::CFunctorAccess(
 																	  new VdfnTypedPortTypeCompareCreate<unsigned int>,
 																	  new TActionSet<unsigned int>,
 																	  new VdfnTypedPortCreate<unsigned int>,
-																	  new CGet<unsigned int>(&VistaAspectsConversionStuff::ConvertToString)) );
+																	  new CGet<unsigned int> ) );
 
 	pFac->AddFunctorAccess( typeid(std::vector<int>).name(), new VdfnPortFactory::CFunctorAccess(
 																	  new VdfnTypedPortTypeCompareCreate<std::vector<int> >,
@@ -635,15 +644,15 @@ bool RegisterBasicNodeCreators(VistaDriverMap *pDrivers,
 	pFac->SetNodeCreator( "Logger", new VdfnLoggerNodeCreate );
 	pFac->SetNodeCreator( "DumpHistory", new VdfnDumpHistoryDefaultCreate );
 
-	pFac->SetNodeCreator( "ConstantValue[unsigned int]", new VdfnConstantValueNodeCreate<unsigned int>( &VistaAspectsConversionStuff::ConvertToUnsignedInt ) );
-	pFac->SetNodeCreator( "ConstantValue[int]", new VdfnConstantValueNodeCreate<int>( &VistaAspectsConversionStuff::ConvertToInt ) );
-	pFac->SetNodeCreator( "ConstantValue[float]", new VdfnConstantValueNodeCreate<float>( &VistaAspectsConversionStuff::ConvertToFloat1 ) );
-	pFac->SetNodeCreator( "ConstantValue[double]", new VdfnConstantValueNodeCreate<double>( &VistaAspectsConversionStuff::ConvertToDouble2 ) );
-	pFac->SetNodeCreator( "ConstantValue[bool]", new VdfnConstantValueNodeCreate<bool>( &VistaAspectsConversionStuff::ConvertToBool ));
-	pFac->SetNodeCreator( "ConstantValue[string]", new VdfnConstantValueNodeCreate<std::string>( &VistaAspectsConversionStuff::ConvertToString ) );
-	pFac->SetNodeCreator( "ConstantValue[VistaVector3D]", new VdfnConstantValueNodeCreate<VistaVector3D>( &ConvertToVistaVector3D ) );
-	pFac->SetNodeCreator( "ConstantValue[VistaQuaternion]", new VdfnConstantValueNodeCreate<VistaQuaternion>( &ConvertToVistaQuaternion ) );
-	pFac->SetNodeCreator( "ConstantValue[VistaTransformMatrix]", new VdfnConstantValueNodeCreate<VistaTransformMatrix>( &ConvertToVistaMatrix ) );
+	pFac->SetNodeCreator( "ConstantValue[unsigned int]", new VdfnConstantValueNodeCreate<unsigned int>() );
+	pFac->SetNodeCreator( "ConstantValue[int]", new VdfnConstantValueNodeCreate<int>() );
+	pFac->SetNodeCreator( "ConstantValue[float]", new VdfnConstantValueNodeCreate<float>() );
+	pFac->SetNodeCreator( "ConstantValue[double]", new VdfnConstantValueNodeCreate<double>() );
+	pFac->SetNodeCreator( "ConstantValue[bool]", new VdfnConstantValueNodeCreate<bool>() );
+	pFac->SetNodeCreator( "ConstantValue[string]", new VdfnConstantValueNodeCreate<std::string>() );
+	pFac->SetNodeCreator( "ConstantValue[VistaVector3D]", new VdfnConstantValueNodeCreate<VistaVector3D>() );
+	pFac->SetNodeCreator( "ConstantValue[VistaQuaternion]", new VdfnConstantValueNodeCreate<VistaQuaternion>() );
+	pFac->SetNodeCreator( "ConstantValue[VistaTransformMatrix]", new VdfnConstantValueNodeCreate<VistaTransformMatrix>() );
 	pFac->SetNodeCreator( "EnvValue", new VdfnEnvStringValueNodeCreate );
 
 	pFac->SetNodeCreator( "ChangeDetect[int]", new TVdfnChangeDetectNodeCreate<int> );
@@ -666,45 +675,45 @@ bool RegisterBasicNodeCreators(VistaDriverMap *pDrivers,
 	pFac->SetNodeCreator( "Aggregate[VistaQuaternion]", new VdfnAggregateNodeCreate<VistaQuaternion> );
 	pFac->SetNodeCreator( "Aggregate[VistaTransformMatrix]", new VdfnAggregateNodeCreate<VistaTransformMatrix> );
 
-	pFac->SetNodeCreator( "TypeConvert[double,bool]", new VdfnTypeConvertNodeCreate<double,bool>( &ConvertDoubleToBool ) );
-	pFac->SetNodeCreator( "TypeConvert[double,int]", new VdfnTypeConvertNodeCreate<double,int>( &ConvertFrom<double,int> ) );
-	pFac->SetNodeCreator( "TypeConvert[double,unsigned int]", new VdfnTypeConvertNodeCreate<double,unsigned int>( &ConvertFrom<double,unsigned int> ) );
-	pFac->SetNodeCreator( "TypeConvert[double,float]", new VdfnTypeConvertNodeCreate<double,float>( &ConvertFrom<double,float> ) );
-	pFac->SetNodeCreator( "TypeConvert[double,string]", new VdfnTypeConvertNodeCreate<double,std::string>( &ConvertToString<double> ) );
-	pFac->SetNodeCreator( "TypeConvert[VistaType::microtime,string]", new VdfnTypeConvertNodeCreate<VistaType::microtime,std::string>( &ConvertMicrotimeToString ) );
+	pFac->SetNodeCreator( "TypeConvert[double,bool]", new VdfnTypeConvertNodeCreate<double,bool> );
+	pFac->SetNodeCreator( "TypeConvert[double,int]", new VdfnTypeConvertNodeCreate<double,int> );
+	pFac->SetNodeCreator( "TypeConvert[double,unsigned int]", new VdfnTypeConvertNodeCreate<double,unsigned int> );
+	pFac->SetNodeCreator( "TypeConvert[double,float]", new VdfnTypeConvertNodeCreate<double,float> );
+	pFac->SetNodeCreator( "TypeConvert[double,string]", new VdfnTypeConvertNodeCreate<double,std::string> );
+	pFac->SetNodeCreator( "TypeConvert[VistaType::microtime,string]", new VdfnTypeConvertNodeCreate<VistaType::microtime,std::string> );
 
-	pFac->SetNodeCreator( "TypeConvert[int,bool]", new VdfnTypeConvertNodeCreate<int,bool>( &ConvertFrom<int,bool>) );
-	pFac->SetNodeCreator( "TypeConvert[int,unsigned int]", new VdfnTypeConvertNodeCreate<int,unsigned int>( &ConvertFrom<int,unsigned int>) );
-	pFac->SetNodeCreator( "TypeConvert[int,float]", new VdfnTypeConvertNodeCreate<int,float>( &ConvertFrom<int,float> ) );
-	pFac->SetNodeCreator( "TypeConvert[int,double]", new VdfnTypeConvertNodeCreate<int,double>( &ConvertFrom<int,double> ) );
-	pFac->SetNodeCreator( "TypeConvert[int,string]", new VdfnTypeConvertNodeCreate<int,std::string>( &ConvertToString<int> ) );
+	pFac->SetNodeCreator( "TypeConvert[int,bool]", new VdfnTypeConvertNodeCreate<int,bool>() );
+	pFac->SetNodeCreator( "TypeConvert[int,unsigned int]", new VdfnTypeConvertNodeCreate<int,unsigned int>() );
+	pFac->SetNodeCreator( "TypeConvert[int,float]", new VdfnTypeConvertNodeCreate<int,float>() );
+	pFac->SetNodeCreator( "TypeConvert[int,double]", new VdfnTypeConvertNodeCreate<int,double>() );
+	pFac->SetNodeCreator( "TypeConvert[int,string]", new VdfnTypeConvertNodeCreate<int,std::string>() );
 
-	pFac->SetNodeCreator( "TypeConvert[bool,int]", new VdfnTypeConvertNodeCreate<bool,int>( &ConvertFrom<bool,int> ) );
-	pFac->SetNodeCreator( "TypeConvert[bool,unsigned int]", new VdfnTypeConvertNodeCreate<bool,unsigned int>( &ConvertFrom<bool,unsigned int> ) );
-	pFac->SetNodeCreator( "TypeConvert[bool,float]", new VdfnTypeConvertNodeCreate<bool,float>( &ConvertFrom<bool,float> ) );
-	pFac->SetNodeCreator( "TypeConvert[bool,double]", new VdfnTypeConvertNodeCreate<bool,double>( &ConvertFrom<bool,double> ) );
-	pFac->SetNodeCreator( "TypeConvert[bool,string]", new VdfnTypeConvertNodeCreate<bool,std::string>( &ConvertToString<bool> ) );
+	pFac->SetNodeCreator( "TypeConvert[bool,int]", new VdfnTypeConvertNodeCreate<bool,int>() );
+	pFac->SetNodeCreator( "TypeConvert[bool,unsigned int]", new VdfnTypeConvertNodeCreate<bool,unsigned int>() );
+	pFac->SetNodeCreator( "TypeConvert[bool,float]", new VdfnTypeConvertNodeCreate<bool,float>() );
+	pFac->SetNodeCreator( "TypeConvert[bool,double]", new VdfnTypeConvertNodeCreate<bool,double>() );
+	pFac->SetNodeCreator( "TypeConvert[bool,string]", new VdfnTypeConvertNodeCreate<bool,std::string>() );
 
-	pFac->SetNodeCreator( "TypeConvert[float,bool]", new VdfnTypeConvertNodeCreate<float,bool>( &ConvertFloatToBool ) );
-	pFac->SetNodeCreator( "TypeConvert[float,int]", new VdfnTypeConvertNodeCreate<float,int>( &ConvertFrom<float,int> ) );
-	pFac->SetNodeCreator( "TypeConvert[float,unsigned int]", new VdfnTypeConvertNodeCreate<float,unsigned int>( &ConvertFrom<float,unsigned int> ) );
-	pFac->SetNodeCreator( "TypeConvert[float,double]", new VdfnTypeConvertNodeCreate<float,double>( &ConvertFrom<float,double> ) );
-	pFac->SetNodeCreator( "TypeConvert[float,string]", new VdfnTypeConvertNodeCreate<float,std::string>( &ConvertToString<float> ) );
+	pFac->SetNodeCreator( "TypeConvert[float,bool]", new VdfnTypeConvertNodeCreate<float,bool>() );
+	pFac->SetNodeCreator( "TypeConvert[float,int]", new VdfnTypeConvertNodeCreate<float,int>() );
+	pFac->SetNodeCreator( "TypeConvert[float,unsigned int]", new VdfnTypeConvertNodeCreate<float,unsigned int>() );
+	pFac->SetNodeCreator( "TypeConvert[float,double]", new VdfnTypeConvertNodeCreate<float,double>() );
+	pFac->SetNodeCreator( "TypeConvert[float,string]", new VdfnTypeConvertNodeCreate<float,std::string>() );
 
-	pFac->SetNodeCreator( "TypeConvert[unsigned int,bool]", new VdfnTypeConvertNodeCreate<unsigned int,bool>( &ConvertFrom<unsigned int,bool> ) );
-	pFac->SetNodeCreator( "TypeConvert[unsigned int,int]", new VdfnTypeConvertNodeCreate<unsigned int,int>( &ConvertFrom<unsigned int,int> ) );
-	pFac->SetNodeCreator( "TypeConvert[unsigned int,float]", new VdfnTypeConvertNodeCreate<unsigned int,float>( &ConvertFrom<unsigned int,float> ) );
-	pFac->SetNodeCreator( "TypeConvert[unsigned int,double]", new VdfnTypeConvertNodeCreate<unsigned int,double>( &ConvertFrom<unsigned int,double> ) );
-	pFac->SetNodeCreator( "TypeConvert[unsigned int,string]", new VdfnTypeConvertNodeCreate<unsigned int,std::string>( &ConvertToString<unsigned int> ) );
+	pFac->SetNodeCreator( "TypeConvert[unsigned int,bool]", new VdfnTypeConvertNodeCreate<unsigned int,bool>() );
+	pFac->SetNodeCreator( "TypeConvert[unsigned int,int]", new VdfnTypeConvertNodeCreate<unsigned int,int>() );
+	pFac->SetNodeCreator( "TypeConvert[unsigned int,float]", new VdfnTypeConvertNodeCreate<unsigned int,float>() );
+	pFac->SetNodeCreator( "TypeConvert[unsigned int,double]", new VdfnTypeConvertNodeCreate<unsigned int,double>() );
+	pFac->SetNodeCreator( "TypeConvert[unsigned int,string]", new VdfnTypeConvertNodeCreate<unsigned int,std::string>() );
 
-	pFac->SetNodeCreator( "TypeConvert[VistaVector3D,string]", new VdfnTypeConvertNodeCreate<VistaVector3D,std::string>( &ConvertVec3DToString ) );
- 	pFac->SetNodeCreator( "TypeConvert[VistaQuaternion,string]", new VdfnTypeConvertNodeCreate<VistaQuaternion,std::string>( &ConvertQuatToString ) );
+	pFac->SetNodeCreator( "TypeConvert[VistaVector3D,string]", new VdfnTypeConvertNodeCreate<VistaVector3D,std::string>() );
+ 	pFac->SetNodeCreator( "TypeConvert[VistaQuaternion,string]", new VdfnTypeConvertNodeCreate<VistaQuaternion,std::string>() );
 
-	pFac->SetNodeCreator( "TypeConvert[VistaVector3D,VistaTransformMatrix]",   new VdfnTypeConvertNodeCreate<VistaVector3D,VistaTransformMatrix>( &ConvertVec3DToMatrix ) );
- 	pFac->SetNodeCreator( "TypeConvert[VistaQuaternion,VistaTransformMatrix]", new VdfnTypeConvertNodeCreate<VistaQuaternion,VistaTransformMatrix>( &ConvertQuatToMatrix ) );
- 	pFac->SetNodeCreator( "TypeConvert[VistaTransformMatrix,VistaQuaternion]", new VdfnTypeConvertNodeCreate<VistaTransformMatrix,VistaQuaternion>( &ConvertMatrixToQuat ) );
+	pFac->SetNodeCreator( "TypeConvert[VistaVector3D,VistaTransformMatrix]",   new VdfnTypeConvertNodeCreate<VistaVector3D,VistaTransformMatrix>() );
+ 	pFac->SetNodeCreator( "TypeConvert[VistaQuaternion,VistaTransformMatrix]", new VdfnTypeConvertNodeCreate<VistaQuaternion,VistaTransformMatrix>() );
+ 	pFac->SetNodeCreator( "TypeConvert[VistaTransformMatrix,VistaQuaternion]", new VdfnTypeConvertNodeCreate<VistaTransformMatrix,VistaQuaternion>() );
 
- 	pFac->SetNodeCreator( "TypeConvert[vector[double],string]", new VdfnTypeConvertNodeCreate<std::vector<double>,std::string>( &ConvertVectorToString<double> ) );
+ 	pFac->SetNodeCreator( "TypeConvert[vector[double],string]", new VdfnTypeConvertNodeCreate<std::vector<double>,std::string>() );
 
 
 	pFac->SetNodeCreator( "Add[string]", new TVdfnBinOpCreate<std::string,std::string,std::string>( new VdfnAddOp<std::string,std::string,std::string>) );
@@ -766,8 +775,8 @@ bool RegisterBasicNodeCreators(VistaDriverMap *pDrivers,
 
 	pFac->SetNodeCreator( "And[bool]", new TVdfnBinOpCreate<bool,bool,bool>( new VdfnAndOp<bool,bool,bool> ) );
 
-	pFac->SetNodeCreator( "ValueToTrigger[int]", new TVdfnValueToTriggerNodeCreate<int>(VistaAspectsConversionStuff::ConvertToInt) );
-	pFac->SetNodeCreator( "ValueToTrigger[unsigned int]", new TVdfnValueToTriggerNodeCreate<unsigned int>(VistaAspectsConversionStuff::ConvertToUnsignedInt) );
+	pFac->SetNodeCreator( "ValueToTrigger[int]", new TVdfnValueToTriggerNodeCreate<int> );
+	pFac->SetNodeCreator( "ValueToTrigger[unsigned int]", new TVdfnValueToTriggerNodeCreate<unsigned int> );
 	pFac->SetNodeCreator( "ConditionalRoute", new TVdfnDefaultNodeCreate<VdfnConditionalRouteNode> );
 
 	pFac->SetNodeCreator( "Counter[int]", new TVdfnCounterNodeCreate<int> );

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaTCPClientSocket.h 22163 2011-07-03 14:11:15Z dr165799 $
 
 #ifndef _VISTATCPCLIENTSOCKET_H
 #define _VISTATCPCLIENTSOCKET_H
@@ -28,9 +28,9 @@
 /*============================================================================*/
 /* INCLUDES                                                                   */
 /*============================================================================*/
+
 #include <VistaInterProcComm/VistaInterProcCommConfig.h>
 #include "VistaTCPSocket.h"
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -53,7 +53,7 @@
  * realized by the following sequence:
  * <ol>
  *  <li>VistaTCPClientSocket client;
- *  <li>if( client.ConnectToServer("www.whatyouwant.com", 80) ) { std::cout "connected.\n"; client.CloseSocket() };
+ *  <li>if( client.ConnectToServer("www.whatyouwant.com", 80) ) { std::cout << "connected.\n"; client.CloseSocket() };
  * </ol>
  */
 class VISTAINTERPROCCOMMAPI VistaTCPClientSocket : public VistaTCPSocket

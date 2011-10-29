@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnChangeDetectNode.h 21609 2011-05-27 14:45:26Z dr165799 $
 
 #ifndef _VDFNGETELEMENTNODE_H
 #define _VDFNGETELEMENTNODE_H
@@ -36,7 +36,8 @@
 #include "VdfnPort.h"
 #include "VdfnSerializer.h"
 #include "VdfnUtil.h"
-#include "VdfnOut.h"
+
+#include <VistaBase/VistaStreamUtils.h>
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -106,7 +107,7 @@ protected:
 
 		if( sIndex < 0 || sIndex >= (int)oContainer.size() )
 		{
-			vdfnerr << "[TVdfnGetElementNode]: Index [" << sIndex << "] out of bounds"
+			vstr::errp() << "[TVdfnGetElementNode]: Index [" << sIndex << "] out of bounds"
 				<< std::endl;
 			return true;
 		}
@@ -168,7 +169,7 @@ protected:
 
 		if( sIndex < 0 || sIndex >= Size )
 		{
-			vdfnerr << "[TVdfnGetElementNode]: Index [" << sIndex << "] out of bounds"
+			vstr::errp() << "[TVdfnGetElementNode]: Index [" << sIndex << "] out of bounds"
 				<< std::endl;
 			return true;
 		}

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaCommandEvent.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTACOMMANDEVENT_H
 #define _VISTACOMMANDEVENT_H

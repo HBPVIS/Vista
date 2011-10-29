@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSystemClassFactory.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTASYSTEMCLASSFACTORY_H
 #define _VISTASYSTEMCLASSFACTORY_H
@@ -28,12 +28,12 @@
 /*============================================================================*/
 /* INCLUDES                                                                   */
 /*============================================================================*/
+
+#include <VistaKernel/VistaKernelConfig.h>
+
 #include <vector>
 #include <ostream>
 #include <string>
-#include <VistaKernel/VistaKernelConfig.h>
-
-#include <VistaBase/VistaBaseTypes.h>
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -53,33 +53,29 @@ class IVistaWindowingToolkit;
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
-class VISTAKERNELAPI IVistaSystemClassFactory{
+class VISTAKERNELAPI IVistaSystemClassFactory
+{
 public:
-	enum Manager{DISPLAY,GRAPHICS,INTERACTION,PICK};
+	enum Manager
+	{
+		DISPLAY,
+		GRAPHICS,
+		INTERACTION
+	};
 
 	virtual ~IVistaSystemClassFactory()
-	{}
+	{
+	}
 
 	virtual std::vector<Manager> GetInitOrder() const = 0;
 
-	virtual VistaGraphicsManager       *CreateGraphicsManager() = 0;
-	virtual IVistaGraphicsBridge        *CreateGraphicsBridge() = 0;
-	virtual IVistaNodeBridge            *CreateNodeBridge() = 0;
-
-	virtual VistaDisplayManager        *CreateDisplayManager() = 0;
-
-	//virtual VistaOldInteractionManager    *CreateOldInteractionManager() = 0;
-	virtual VistaInteractionManager *CreateInteractionManager(VistaDriverMap *pMap) = 0;
-
-	virtual IVistaWindowingToolkit *CreateWindowingToolkit( std::string ) = 0;
-
-	virtual bool Run() = 0;
-	virtual void Update(void) = 0;
+	virtual VistaGraphicsManager* CreateGraphicsManager() = 0;
+	virtual IVistaGraphicsBridge* CreateGraphicsBridge() = 0;
+	virtual IVistaNodeBridge* CreateNodeBridge() = 0;
+	virtual VistaDisplayManager* CreateDisplayManager() = 0;
+	virtual VistaInteractionManager* CreateInteractionManager() = 0;
 
 	virtual void Debug(std::ostream &out, bool bVerbose = true) const = 0;
-
-	virtual VistaType::microtime GetAvgEventLoopTime() const { return 0; }
-	virtual unsigned int GetFrameCount() const { return 0; }
 
 protected:
 	IVistaSystemClassFactory()

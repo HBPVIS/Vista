@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaMutexImp.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTAMUTEXIMP_H
 #define _VISTAMUTEXIMP_H
@@ -44,13 +44,8 @@
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI IVistaMutexImp
 {
-
 public:
 
 	enum eScope
@@ -60,34 +55,13 @@ public:
 	};
 
 
-	/**
-	 *
-	 */
 	IVistaMutexImp  ();
-
-	/**
-	 *
-	 */
 	virtual ~IVistaMutexImp ();
 
-	/**
-	 *
-	 */
 	virtual void Lock    () = 0;
-
-	/**
-	 *
-	 */
 	virtual bool TryLock () = 0;
-
-	/**
-	 *
-	 */
 	virtual void Unlock  () = 0;
 
-	/**
-	 *
-	 */
 	static IVistaMutexImp *CreateMutexImp(const std::string &sName, eScope nScope);
 };
 

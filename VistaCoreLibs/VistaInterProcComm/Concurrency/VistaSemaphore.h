@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSemaphore.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTASEMAPHORE_H
 #define _VISTASEMAPHORE_H
@@ -43,13 +43,8 @@ class IVistaSemaphoreImp;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI VistaSemaphore
 {
-
 public:
 
 	enum eSemType
@@ -58,101 +53,56 @@ public:
 		SEM_TYPE_COMPATIBLE
 	};
 
-	/**
-	 *
-	 */
-	VistaSemaphore  ( unsigned int initial = 1 , eSemType eType = SEM_TYPE_FASTEST );
-
+	VistaSemaphore( unsigned int initial = 1 , eSemType eType = SEM_TYPE_FASTEST );
 	virtual ~VistaSemaphore();
 
-	// if semaphore value is > 0 then decrement it and carry on. If it's
-	// already 0 then block.
+	/**
+	 * if semaphore value is > 0 then decrement it and carry on. If it's
+	 * already 0 then block.
+	 */
+	void Wait();
+
 
 	/**
-	 *
+	 * if semaphore value is > 0 then decrement it and return true.
+	 * If it's already 0 then return false.
 	 */
-	void Wait    ();
+	bool TryWait();
 
-
-	// if semaphore value is > 0 then decrement it and return true.
-	// If it's already 0 then return false.
 
 	/**
-	 *
+	 * if any threads are blocked in wait(), wake one of them up. Otherwise
+	 * increment the value of the semaphore.
 	 */
-	bool TryWait ();
-
-
-	// if any threads are blocked in wait(), wake one of them up. Otherwise
-	// increment the value of the semaphore.
-
-	/**
-	 *
-	 */
-	void Post    ();
+	void Post();
 
 private:
-
 	IVistaSemaphoreImp *m_pImp;
-	/**
-	 *
-	 */
 	VistaSemaphore ( const VistaSemaphore & );
 
-	/**
-	 *
-	 */
 	VistaSemaphore & operator=       ( const VistaSemaphore & );
 
-	/**
-	 *
-	 */
 	VistaMutex   counterAccess, wait;
 
-	/**
-	 *
-	 */
 	int           counter;
 
 };
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI VistaSemaphoreLock
 {
-
 public:
 
-	/**
-	 *
-	 */
 	inline VistaSemaphoreLock  ( VistaSemaphore & inSemaphore )
-		: semaphore( inSemaphore )
-		{ this->semaphore.Wait (); }
+	: semaphore( inSemaphore )
+	{ this->semaphore.Wait (); }
 
 
-	/**
-	 *
-	 */
 	inline ~VistaSemaphoreLock ()
-		{ this->semaphore.Post (); }
+	{ this->semaphore.Post (); }
 
 private:
-
-	/**
-	 *
-	 */
 	VistaSemaphoreLock ( const VistaSemaphoreLock & );
-
-	/**
-	 *
-	 */
 	VistaSemaphoreLock & operator=           ( const VistaSemaphoreLock & );
-
-	/**
-	 *
-	 */
 	VistaSemaphore & semaphore;
 
 };

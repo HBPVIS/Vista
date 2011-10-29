@@ -222,7 +222,6 @@ namespace
 			default:
 				return false;
 			}
-			return true;
 		}
 	private:
 		eMd m_md;

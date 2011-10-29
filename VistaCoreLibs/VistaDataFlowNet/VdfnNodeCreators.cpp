@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnNodeCreators.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VdfnNodeCreators.h"
 #include "VdfnPortFactory.h"
@@ -124,10 +124,9 @@ IVdfnNode *VdfnShallowNodeCreate::CreateNode( const VistaPropertyList &oParams )
 IVdfnNode *VdfnTimerNodeCreate::CreateNode( const VistaPropertyList &oParams ) const
 {
 	const VistaPropertyList &oSubs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
-	bool reset = false;
 
-	if( oSubs.HasProperty( "reset_on_activate" ) )
-		reset = oSubs.GetBoolValue( "reset_on_activate" );
+	bool reset = false;
+	oSubs.GetValue( "reset_on_activate", reset );
 
 	return new VdfnTimerNode( new CTimerGetTime, reset );
 }
@@ -143,11 +142,10 @@ IVdfnNode *VdfnTickTimerNodeCreate::CreateNode( const VistaPropertyList &oParams
 
 IVdfnNode *VdfnUpdateThresholdNodeCreate::CreateNode( const VistaPropertyList &oParams ) const
 {
-	double dThreshold = 0.0;
 	const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
 
-	if( subs.HasProperty("threshold") )
-		 dThreshold = subs.GetDoubleValue("threshold");
+	double dThreshold = 0.0;
+	subs.GetValue( "threshold", dThreshold );
 
 	return new VdfnUpdateThresholdNode( dThreshold );
 }
@@ -165,12 +163,15 @@ IVdfnNode *VdfnGetTransformNodeCreate::CreateNode( const VistaPropertyList &oPar
 	try
 	{
 		const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
-		std::string strObj = subs.GetStringValue("object");
+		std::string strObj;
+		if( subs.GetValue("object", strObj) == false )
+		{
+			vstr::warnp() << "VdfnGetTransformNodeCreate::CreateNode() -- "
+				<< "Required parameter [object] has not been specified!" << std::endl;
+		}
 		IVistaTransformable *pTrans = m_pReg->GetObjectTransform( strObj );
 
-        std::string strMode = subs.GetStringValue("mode");
-        if(strMode.empty())
-            strMode = "RELATIVE";
+		std::string strMode = subs.GetValueOrDefault<std::string>( "mode", "RELATIVE" );
 
         VdfnGetTransformNode *pNode;
 		if(pTrans)
@@ -207,7 +208,12 @@ IVdfnNode *VdfnSetTransformNodeCreate::CreateNode( const VistaPropertyList &oPar
 	try
 	{
 		const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
-		std::string strObj = subs.GetStringValue("object");
+		std::string strObj;
+		if( subs.GetValue( "object", strObj ) == false )
+		{
+			vstr::warnp() << "VdfnSetTransformNodeCreate::CreateNode() -- "
+				<< "Required parameter [object] has not been specified!" << std::endl;
+		}
 		IVistaTransformable *pTrans = m_pReg->GetObjectTransform( strObj );
 		if(pTrans)
 			return new VdfnSetTransformNode(pTrans);
@@ -234,8 +240,13 @@ IVdfnNode *VdfnApplyTransformNodeCreate::CreateNode( const VistaPropertyList &oP
 	try
 	{
 		const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
-		std::string strObj = subs.GetStringValue("object");
-		bool applyLocal = subs.GetBoolValue("local");
+		std::string strObj;
+		if( subs.GetValue( "object", strObj ) == false )
+		{
+			vstr::warnp() << "VdfnApplyTransformNodeCreate::CreateNode() -- "
+				<< "Required parameter [object] has not been specified!" << std::endl;
+		}
+		bool applyLocal = subs.GetValueOrDefault<bool>( "local", false );
 		IVistaTransformable *pTrans = m_pReg->GetObjectTransform( strObj );
 		if(pTrans)
 			return new VdfnApplyTransformNode(pTrans, applyLocal);
@@ -260,7 +271,7 @@ IVdfnNode *VdfnHistoryProjectNodeCreate::CreateNode( const VistaPropertyList &oP
 	{
 		const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
 		std::list<std::string> liProjects;
-		subs.GetStringListValue("project", liProjects );
+		subs.GetValue( "project", liProjects );
 
 		return new VdfnHistoryProjectNode(liProjects);
 	}
@@ -278,89 +289,163 @@ IVdfnNode *VdfnDriverSensorNodeCreate::CreateNode( const VistaPropertyList &oPar
 {
 	try
 	{
+		VistaDeviceSensor* pSensor = NULL;
 		const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
 
-		if(subs.HasProperty("driver") && (subs.HasProperty("sensor") || subs.HasProperty("sensor_id")))
+		std::string sDriver;
+		if( subs.GetValue( "driver", sDriver ) == false )
 		{
-			std::string strDriver = subs.GetStringValue("driver");
-			int nIdx;
-			if(subs.HasProperty("sensor"))
-				nIdx = subs.GetIntValue("sensor");
-			else
-				nIdx = -1;
-			std::string strSensorId = subs.GetStringValue("sensor_id");
+			vstr::warnp() << "[SensorNodeCreate]: - "
+					<< "No parameter [driver] has been specified" << std::endl;
+			return NULL;
+		}
+		int nSensorID = -1;
+		std::string sSensorName;
+		
+		const bool bHasSensorIndex = subs.GetValue( "sensor_index", nSensorID );
+		const bool bHasSensorName = subs.GetValue( "sensor_name", sSensorName );
 
-			if(nIdx == -1 && strSensorId.empty())
-				return NULL;
-
-			IVistaDeviceDriver *pDriver = m_pMap->GetDeviceDriver( strDriver );
-			if(pDriver)
+		IVistaDeviceDriver *pDriver = m_pMap->GetDeviceDriver( sDriver );
+		if( pDriver == NULL )
+		{
+			vstr::warnp() << "[DriverSensorNodeCreate]: Driver [" << sDriver << "] not found in map\n"
+						<< vstr::indent << " Available Drivers:" << std::endl;
+			vstr::IndentObject oIndent;
+			for(VistaDriverMap::const_iterator cit = m_pMap->begin();
+				cit != m_pMap->end(); ++cit)
 			{
-				// check for a sensor mapping aspect
-				VistaDeviceSensor *pSensor = NULL;
-				VistaDriverSensorMappingAspect *pAspect =
-						dynamic_cast<VistaDriverSensorMappingAspect*>(pDriver->GetAspectById(
-						VistaDriverSensorMappingAspect::GetAspectId() ) );
-				if(pAspect)
-				{
-					std::string strSensorType = subs.GetStringValue("type");
-					unsigned int nType = pAspect->GetTypeId(strSensorType);
-					if(nType != ~0) // ok, valid type
-					{
-						unsigned int nId = pAspect->GetSensorId( nType, nIdx );
-						if(nId != ~0)
-							pSensor = pDriver->GetSensorByIndex( nId );
-						else if( !strSensorId.empty() )
-							pSensor = pDriver->GetSensorByName( strSensorId );
-						else
-							vdfnerr << "DRIVER [" << strDriver << "] has a sensor mapping aspect, "
-							          << "but a sensor of type [" << strSensorType << "] was not found, "
-							          << "neither an id was given. Giving up." << std::endl;
-					}
-					else
-					{
-						vdfnerr << "DRIVER [" << strDriver << "] has a sensor mapping aspect, "
-								<< "but no sensor type with name [" << strSensorType << "].\n"
-								<< "Type names are: \n";
-						std::list<std::string> liTypes = pAspect->GetTypeNames();
-						for(std::list<std::string>::const_iterator it = liTypes.begin();
-							it != liTypes.end(); ++it )
-						{
-							vdfnerr << "[ " << *it << "]\n";
-						}
-						vdfnerr << std::endl;
-					}
-				}
-				else
-				{
-					if(nIdx != -1)
-						pSensor = pDriver->GetSensorByIndex(nIdx);
-					else
-						pSensor = pDriver->GetSensorByName( strSensorId );
-				}
-
-				if(pSensor)
-					return new VdfnDriverSensorNode(pSensor);
-				else
-				{
-					vdfnerr << "COULD NOT CREATE DRIVER SENSOR NODE\n"
-					          << "NAME given: [" << strSensorId << "]\n"
-					          << "IDX  given: [" << nIdx << "]\n";
-				}
+				vstr::warni()  << (*cit).first << std::endl;
 			}
-			else
+			return NULL;
+		}
+
+		// check for a sensor mapping aspect		
+		VistaDriverSensorMappingAspect *pMappingAspect =
+				dynamic_cast<VistaDriverSensorMappingAspect*>(pDriver->GetAspectById(
+				VistaDriverSensorMappingAspect::GetAspectId() ) );
+
+		if( pMappingAspect )
+		{
+			std::string sSensorType = subs.GetValueOrDefault<std::string>( "type", "" );
+			unsigned int nType = pMappingAspect->GetTypeId( sSensorType );
+			if( nType == ~0 )
 			{
-				vdfnerr << "DRIVER [" << strDriver << "] NOT FOUND IN MAP."
-						  << " AVAILABLE DRIVERS ARE\n";
-
-				for(VistaDriverMap::const_iterator cit = m_pMap->begin();
-					cit != m_pMap->end(); ++cit)
+				vstr::warnp() << "[SensorNodeCreate]: - "
+						<< "Driver [" << sDriver << "] has a sensor mapping aspect, "
+						<< "but no sensor type with name [" << sSensorType << "].\n"
+						<< vstr::indent << "Type names are: " << std::endl;
+				std::list<std::string> liTypes = pMappingAspect->GetTypeNames();
+				vstr::IndentObject oIndent;
+				for(std::list<std::string>::const_iterator it = liTypes.begin();
+					it != liTypes.end(); ++it )
 				{
-					vdfnerr << (*cit).first << std::endl;
+					vstr::warni() << "[" << *it << "]" << std::endl;
 				}
+				return NULL;
+			}
 
+			// drivers with sensor mapping always need specific sensor targets
+			// Exception: There is exactly one type and one sensor
+			if( !bHasSensorIndex && !bHasSensorName )
+			{
+				if( pMappingAspect->GetNumberOfRegisteredTypes() != 1
+					&& pMappingAspect->GetNumRegisteredSensorsForType( nType ) > 1 )
+				{
+					vstr::warnp() << "[SensorNodeCreate]: - Driver ["
+							<< sDriver << "] requires a sensor to be specified!"
+							<< " Use \"sensor_name\" or \"sensor_id\"" << std::endl;
+					return NULL;
+				}
+				unsigned int nId = pMappingAspect->GetSensorId( nType, 0 );
+				pSensor = pDriver->GetSensorByIndex( nId );
+			}			
+			else if( bHasSensorIndex )
+			{
+				unsigned int nId = pMappingAspect->GetSensorId( nType, nSensorID );
+				pSensor = pDriver->GetSensorByIndex( nId );
+			}
+			else if( bHasSensorName )
+			{
+				pSensor = pDriver->GetSensorByName( sSensorName );
+			}
+
+			if( pSensor == NULL )
+			{
+				if( bHasSensorName )
+				{
+					vstr::warnp() << "[SensorNodeCreate]: - "
+						<< "Driver [" << sDriver << "] has no sensor with name [" << sSensorName
+						<< "] for type [" << sSensorType << "].\n";
+				}
+				else
+				{
+					vstr::warnp() << "[SensorNodeCreate]: - "
+						<< "Driver [" << sDriver << "] has no sensor with Id [" << nSensorID
+						<< "] for type [" << sSensorType << "].\n";
+				}
 			}
 		}
+		else
+		{
+			// no SensorMappingAspect
+			if( bHasSensorIndex )
+			{
+				pSensor = pDriver->GetSensorByIndex( nSensorID );
+			}
+			else if( bHasSensorName )
+			{
+				pSensor = pDriver->GetSensorByName( sSensorName );
+			}
+			else if( pDriver->GetNumberOfSensors() == 1 )
+			{
+				// we only have one sensors, so we'll take this one
+				pSensor = pDriver->GetSensorByIndex( 0 );
+			}
+			else
+			{
+				vstr::warnp() << "[SensorNodeCreate]: - Driver ["
+						<< sDriver << "] requires a sensor to be specified! "
+						<< "Use \"sensor_name\" or \"sensor_id\"" << std::endl;
+				return NULL;
+			}
+
+			if( pSensor == NULL )
+			{
+				if( bHasSensorName )
+				{
+					vstr::warnp() << "[SensorNodeCreate]: - "
+						<< "Driver [" << sDriver << "] has no sensor with name [" << sSensorName << "].\n";
+				}
+				else
+				{
+					vstr::warnp() << "[SensorNodeCreate]: - "
+						<< "Driver [" << sDriver << "] has no sensor with Id [" << nSensorID << "].\n";					
+				}
+				vstr::warn() << "Available sensors are: \n";
+				vstr::IndentObject oIndent;
+				for( int i = 0; i < (int)pDriver->GetNumberOfSensors(); ++i  )
+				{
+					vstr::warn() << "Id: " << i 
+							<<  "\tName: " << pDriver->GetSensorByIndex(i)->GetSensorName() 
+							<< std::endl;
+				}
+				return NULL;
+			}
+		}
+
+		if( pSensor )
+		{
+			return new VdfnDriverSensorNode(pSensor);
+		}
+		else
+		{
+			vstr::warnp() << "[DriverSensorNodeCreate]: Could not create SensorNode\n";
+			vstr::IndentObject oIndent;
+			vstr::warni() << "DRIVER       : [" << sDriver << "]\n";
+			vstr::warni() << "SENSOR NAME  : [" << sSensorName << "]\n";
+			vstr::warni() << "SENSOR INDEX : [" << nSensorID << "]" << std::endl;
+		}
+
 	}
 	catch(VistaExceptionBase &x)
 	{
@@ -380,20 +465,20 @@ IVdfnNode *VdfnLoggerNodeCreate::CreateNode( const VistaPropertyList &oParams ) 
 	if(!subs.HasProperty("prefix"))
 		return false;
 
-	bool bWriteHeader = subs.GetBoolValue("writeheader");
-	bool bWriteTime = subs.GetBoolValue("writetime");
-	bool bWriteDiff = subs.GetBoolValue("writediff");
-	bool bLogToConsole = subs.GetBoolValue("logtoconsole");
+	bool bWriteHeader = subs.GetValueOrDefault<bool>( "writeheader", false );
+	bool bWriteTime = subs.GetValueOrDefault<bool>( "writetime", false );
+	bool bWriteDiff = subs.GetValueOrDefault<bool>( "writediff", false );
+	bool bLogToConsole = subs.GetValueOrDefault<bool>( "logtoconsole", false );
 
 	std::list<std::string> liPorts;
-	subs.GetStringListValue( "sortlist", liPorts );
+	subs.GetValue( "sortlist", liPorts );
 
 	std::list<std::string> liTriggers;
-	subs.GetStringListValue( "triggerlist", liTriggers );
+	subs.GetValue( "triggerlist", liTriggers );
 
 	char cSep = ' ';
-	std::string strSep = subs.GetStringValue("seperator");
-	if( !strSep.empty())
+	std::string strSep;	
+	if( subs.GetValue( "seperator", strSep ) == false )
 	{
 		if( strSep == "\\t")
 			cSep = '\t';
@@ -405,7 +490,7 @@ IVdfnNode *VdfnLoggerNodeCreate::CreateNode( const VistaPropertyList &oParams ) 
 	if(!bWriteTime)
 		bWriteDiff = false; // override user settings
 
-	return new VdfnLoggerNode( subs.GetStringValue( "prefix" ),
+	return new VdfnLoggerNode( subs.GetValueOrDefault<std::string>( "prefix", "" ),
 		                         bWriteHeader,
 								 bWriteTime,
 								 bWriteDiff,
@@ -425,18 +510,26 @@ IVdfnNode *VdfnCompositeNodeCreate::CreateNode( const VistaPropertyList &oParams
 		if(!subs.HasProperty("graph"))
 			return NULL;
 
-		std::string strGraphFileName = subs.GetStringValue("graph");
-		std::string strNodeName = oParams.GetStringValue("name");
-		std::string strParameterFile = oParams.GetStringValue("parameterfile");
+		std::string strGraphFileName;
+		if( subs.GetValue( "graph", strGraphFileName ) == false )
+		{
+			vstr::warnp() << "VdfnCompositeNodeCreate() -- no value for [graph] has been given!"
+					<< std::endl;
+			return NULL;
+		}
+		std::string strNodeName;
+		oParams.GetValue( "name", strNodeName );
+		std::string strParameterFile;
+		oParams.GetValue( "parameterfile", strNodeName );
 
 
 		VdfnGraph *pGraph = VdfnPersistence::LoadGraph( strGraphFileName, strNodeName, false, true, strParameterFile );
 		if(!pGraph)
 		{
-			vdfnerr << "VdfnCompositeNodeCreate::CreateNode() -- file: ["
-			          << strGraphFileName
-			          << "]"
-			          << std::endl;
+			vstr::warnp() << "[VdfnCompositeNodeCreate]: -- file: ["
+						<< strGraphFileName
+						<< "] could not be loaded"
+						 << std::endl;
 			return NULL;
 		}
 
@@ -444,13 +537,14 @@ IVdfnNode *VdfnCompositeNodeCreate::CreateNode( const VistaPropertyList &oParams
 			&& oParams.GetPropertyConstRef("dumpparams").GetPropertyType() == VistaProperty::PROPT_PROPERTYLIST )
 		{
 			const VistaPropertyList &dumpParams = oParams.GetPropertyConstRef("dumpparams").GetPropertyListConstRef();
-			bool bDump = dumpParams.GetBoolValue("dump");
+			bool bDump = dumpParams.GetValueOrDefault( "dump", false );
 
 			if(bDump)
 			{
-				std::string strGraphDotFile = dumpParams.GetStringValue("dotfilename");
-				bool bWritePorts = dumpParams.GetBoolValue("writeports");
-				bool bWriteTypes = dumpParams.GetBoolValue("writetypes");
+				std::string strGraphDotFile;
+				dumpParams.GetValue( "dotfilename", strGraphDotFile );
+				bool bWritePorts = dumpParams.GetValueOrDefault<bool>( "writeports", false );
+				bool bWriteTypes = dumpParams.GetValueOrDefault<bool>( "writetypes", false );
 
 				VdfnPersistence::SaveAsDot( pGraph, strGraphDotFile, strNodeName, bWritePorts, bWriteTypes );
 			}
@@ -473,10 +567,12 @@ IVdfnNode *VdfnEnvStringValueNodeCreate::CreateNode( const VistaPropertyList &oP
 {
 	const VistaPropertyList &prams = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
 
-	std::string strEnvVarName = prams.GetStringValue("varname");
-	std::string strEnvDefault = prams.GetStringValue("default");
+	std::string strEnvVarName;
+	std::string strEnvDefault;
+	prams.GetValue( "varname", strEnvVarName );
+	prams.GetValue( "default", strEnvDefault );
 
-	bool bIsStrict = prams.GetBoolValue("strict");
+	bool bIsStrict = prams.GetValueOrDefault<bool>( "strict", false );
 
 	std::string strEnvVarValue = VistaEnvironment::GetEnv(strEnvVarName);
 

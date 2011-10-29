@@ -20,9 +20,11 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenSGGeometryTools.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #if defined(WIN32)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4189)
 #pragma warning(disable: 4231)
 #pragma warning(disable: 4312)
 #pragma warning(disable: 4267)

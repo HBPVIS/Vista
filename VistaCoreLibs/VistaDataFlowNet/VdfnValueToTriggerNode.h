@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnValueToTriggerNode.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VDFNVALUETOTRIGGERNODE_H
 #define _VDFNVALUETOTRIGGERNODE_H
@@ -33,8 +33,6 @@
 #include <list>
 
 #include "VdfnConfig.h"
-
-#include "VdfnOut.h"
 #include "VdfnNode.h"
 #include "VdfnPort.h"
 #include "VdfnNodeFactory.h"
@@ -143,70 +141,86 @@ template<class T>
 class TVdfnValueToTriggerNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
 {
 public:
-	typedef typename TVdfnValueToTriggerNode<T>::ToValueFct ToValueFct;
-	TVdfnValueToTriggerNodeCreate(ToValueFct fct)
-		: m_CFct(fct)
+	TVdfnValueToTriggerNodeCreate()
 	{}
 
 	virtual IVdfnNode *CreateNode( const VistaPropertyList &oParams ) const
 	{
 		const VistaPropertyList &oSubs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
 
-		typename TVdfnValueToTriggerNode<T>::MapType map;
+		typename TVdfnValueToTriggerNode<T>::MapType mapMapping;
 
-		VistaProperty oMapping = oSubs("mapping");
-		if(oMapping.GetPropertyType() == VistaProperty::PROPT_PROPERTYLIST)
+		if( oSubs.HasSubList( "mapping" ) )
 		{
-			for(VistaPropertyList::const_iterator cit = oMapping.GetPropertyListConstRef().begin();
-				cit != oMapping.GetPropertyListConstRef().end(); ++cit)
-				{
-					T value = m_CFct((*cit).second.GetValue());
-					std::string name = (*cit).first;
+			const VistaPropertyList& oSubList = oSubs.GetSubListConstRef( "mapping" );
+			for( VistaPropertyList::const_iterator cit = oSubList.begin();
+				cit != oSubList.end(); ++cit )
+			{
+				T oValue;
+				std::string sName = (*cit).first;
 
-					map[ value ].first = name;
+				if( VistaConversion::FromString( (*cit).second.GetValue(), oValue ) == false )
+				{
+					vstr::warnp() << "[ValueToTriggerNode]: Value [" << (*cit).second.GetValue()
+								<< "] for outport [" << sName << "] cannot be converted to "
+								<< VistaConversion::GetTypeName<T>() << std::endl;
+					continue;
+				}			
+
+				mapMapping[ oValue ].first = sName;
 
 #ifdef DEBUG
-					vdfnout << "[ValueToTrigger] registered outport " << name
-							  << " for value " << value << std::endl;
+				vstr::outi() << "[ValueToTriggerNode] registered outport [" << sName
+						  << "] for value [" << oValue << "]" << std::endl;
 #endif
-				}
+			}
 		}
 		else
 		{
 			std::list<std::string> liStrings;
-			oSubs.GetStringListValue("mapping", liStrings);
-
+			oSubs.GetValue( "mapping", liStrings );
 
 			std::list<std::string>::const_iterator it = liStrings.begin();
 			while( it != liStrings.end() )
 			{
-				T value = m_CFct(*it);
+				T oValue;
+				if( VistaConversion::FromString( (*it), oValue ) == false )
+				{
+					vstr::warnp() << "[ValueToTriggerNode]: Value [" << (*it)
+								<< "] cannot be converted to "
+								<< VistaConversion::GetTypeName<T>() << std::endl;
+					continue;
+				}	
 				it++;
-				map[value].first = *it;
+				mapMapping[oValue].first = *it;
 				it++;
 			}
 		}
 
 		std::list<T> liIgnore;
-		VistaProperty oIgnoreList = oSubs("ignorelist");
 		std::list<std::string> liStrings;
-		oSubs.GetStringListValue("ignorelist", liStrings);
+		oSubs.GetValue( "ignorelist", liStrings );
 		
 		std::list<std::string>::const_iterator it = liStrings.begin();
 		while( it != liStrings.end() )
 		{
-			liIgnore.push_back(m_CFct(*it));
-			vdfnout << "[ValueToTrigger] ignoring value: "	
-					  << m_CFct(*it)
+			T oValue;
+			if( VistaConversion::FromString( (*it), oValue ) == false )
+			{
+				vstr::warnp() << "[ValueToTriggerNode]: Value [" << (*it)
+							<< "] cannot be converted to "
+							<< VistaConversion::GetTypeName<T>() << std::endl;
+				continue;
+			}	
+			liIgnore.push_back( oValue );
+			vstr::outi() << "[ValueToTrigger] ignoring value: "	
+					  << oValue
 					  << std::endl;
 			++it;
 		}
 		
-		return new TVdfnValueToTriggerNode<T>(map, liIgnore);
+		return new TVdfnValueToTriggerNode<T>(mapMapping, liIgnore);
 	}
-
-private:
-	ToValueFct m_CFct;
 };
 
 /*============================================================================*/

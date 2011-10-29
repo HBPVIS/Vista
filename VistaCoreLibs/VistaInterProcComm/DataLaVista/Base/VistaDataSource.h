@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDataSource.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef DLVISTADATASOURCE_H
 #define DLVISTADATASOURCE_H
@@ -59,46 +59,6 @@ class IDLVistaRTC;
  */
 class VISTAINTERPROCCOMMAPI DLVistaDataSource : public IDLVistaDataProducer
 {
-private:
-
-	/**
-	 * This is for debugging purposes on small queues and likely to be removed in future revision.
-	 * @todo Remove me ;)
-	 */
-	void PrintQueue() const;
-
-	int m_iQueueSize,   /**< defines the number of buffer packets to create @see m_pPacketQueue() **/
-		m_iDropCount,   /**< counts the number of times that data had to be dropped because there were no outgoing packets left **/
-		m_iPackageCount;/**< counts the number of packets that were produced by this producer **/
-protected:
-	/**
-	 * A pointer to an instance of an RTC that is needed to timestamp a produced packet.
-	 *
-	 */
-	IDLVistaRTC *m_pTimer;
-
-
-	/**
-	 * Any data source can buffer a number of outgoing packets, this queue is the storage for
-	 * those packets.
-	 */
-	DLVistaPacketQueue *m_pPacketQueue;
-
-	/**
-	 * Constructor. Initializes the buffer-packet-queue to zero packets, gets an instance of the global RTC
-	 * and sets the counting variables to zero
-	 */
-	DLVistaDataSource();
-
-
-	/**
-	 * In case this producer does run out of packets, the production method does call FillUp() in order to
-	 * gain ALL packages that are waiting for recycling at the outbound queue. This strategy tries to
-	 * minimize the times a queue gets empty. If a producer runs out of packets, the consumer is much
-	 * slower than the producer.
-	 * @return a fresh packet that can be used, NULL if there are no fresh packets left
-	 */
-	virtual IDLVistaDataPacket *FillUp();
 public:
 	/**
 	 * Produces a new packet. The algorithm is as follows:
@@ -143,9 +103,6 @@ public:
 	 * @return true iff a packet could be delivered
 	 */
 	virtual bool PushPacket(IDLVistaDataPacket *pPacket = 0);
-	/**
-	 *
-	 */
 	bool AcceptDataPacket(IDLVistaDataPacket *pPacket, IDLVistaPipeComponent *pSender, bool bBlock = false);
 
 	/**
@@ -155,9 +112,6 @@ public:
 	 */
 	bool ConsumePacket(IDLVistaDataPacket *pPacket);
 
-	/**
-	 *
-	 */
 	virtual IDLVistaDataPacket *GetEmptyPacket(bool bBlock = true);
 	/**
 	 * Simply passed the incoming packet to the PacketQueue for recycling.
@@ -184,6 +138,48 @@ public:
 	virtual int GetOutputPacketType() const;
 
 	 int GetPacketCount() const;
+
+ protected:
+	/**
+	 * A pointer to an instance of an RTC that is needed to timestamp a produced packet.
+	 *
+	 */
+	IDLVistaRTC *m_pTimer;
+
+
+	/**
+	 * Any data source can buffer a number of outgoing packets, this queue is the storage for
+	 * those packets.
+	 */
+	DLVistaPacketQueue *m_pPacketQueue;
+
+	/**
+	 * Constructor. Initializes the buffer-packet-queue to zero packets, gets an instance of the global RTC
+	 * and sets the counting variables to zero
+	 */
+	DLVistaDataSource();
+
+
+	/**
+	 * In case this producer does run out of packets, the production method does call FillUp() in order to
+	 * gain ALL packages that are waiting for recycling at the outbound queue. This strategy tries to
+	 * minimize the times a queue gets empty. If a producer runs out of packets, the consumer is much
+	 * slower than the producer.
+	 * @return a fresh packet that can be used, NULL if there are no fresh packets left
+	 */
+	virtual IDLVistaDataPacket *FillUp();
+
+private:
+
+	/**
+	 * This is for debugging purposes on small queues and likely to be removed in future revision.
+	 * @todo Remove me ;)
+	 */
+	void PrintQueue() const;
+
+	int m_iQueueSize,   /**< defines the number of buffer packets to create @see m_pPacketQueue() **/
+		m_iDropCount,   /**< counts the number of times that data had to be dropped because there were no outgoing packets left **/
+		m_iPackageCount;/**< counts the number of packets that were produced by this producer **/
 };
 
 

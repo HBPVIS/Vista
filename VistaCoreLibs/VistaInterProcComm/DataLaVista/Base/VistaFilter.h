@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaFilter.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef IDLVISTAFILTER_H
 #define IDLVISTAFILTER_H
@@ -49,36 +49,18 @@ class DLVistaPacketQueue;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI IDLVistaFilter : public IDLVistaPipeComponent
 {
 private:
-	/**
-	 *
-	 */
 	IDLVistaFilter(IDLVistaFilter &);
 protected:
-	/**
-	 *
-	 */
 	IDLVistaFilter();
 
-	/**
-	 *
-	 */
 	IDLVistaPipeComponent * m_pInput;
 
-	/**
-	 *
-	 */
 	IDLVistaPipeComponent * m_pOutput;
 public:
 
-	/**
-	 *
-	 */
 	virtual ~IDLVistaFilter();
 
 
@@ -93,13 +75,7 @@ public:
 	 */
 	virtual IDLVistaDataPacket *FilterPacketL(IDLVistaDataPacket * pPacket) = 0;
 
-	/**
-	 *
-	 */
 	virtual void ConsumePacket(IDLVistaDataPacket *pPacket );
-	/**
-	 *
-	 */
 	virtual IDLVistaDataPacket *PullPacket(bool bBlock = true);
 
 	/**
@@ -117,31 +93,13 @@ public:
 	virtual bool IsOutputComponent(IDLVistaPipeComponent *pComp) const;
 
 
-	/**
-	 *
-	 */
 	virtual bool AttachInputComponent(IDLVistaPipeComponent *pComp );
-	/**
-	 *
-	 */
 	virtual bool AttachOutputComponent(IDLVistaPipeComponent * pComp);
-	/**
-	 *
-	 */
 	virtual bool DetachInputComponent(IDLVistaPipeComponent * pComp);
-	/**
-	 *
-	 */
 	virtual bool DetachOutputComponent(IDLVistaPipeComponent *pComp );
 
 
-	/**
-	 *
-	 */
 	virtual bool RecycleDataPacket(IDLVistaDataPacket *pPacket, IDLVistaPipeComponent *pSender, bool bBlock=false);
-	/**
-	 *
-	 */
 	virtual bool AcceptDataPacket(IDLVistaDataPacket *pPacket, IDLVistaPipeComponent *pSender, bool bBlock=false);
 
 
@@ -149,25 +107,13 @@ public:
 
 	virtual std::list<IDLVistaPipeComponent *> GetOutputComponents() const;
 
-	/**
-	 *
-	 */
 	virtual IDLVistaPipeComponent *GetOutboundByIndex(int iIndex) const ;
 
-	/**
-	 *
-	 */
 	virtual int GetNumberOfOutbounds() const ;
 
 
-	/**
-	 *
-	 */
 	virtual int GetNumberOfInbounds() const;
 
-	/**
-	 *
-	 */
 	virtual IDLVistaPipeComponent *GetInboundByIndex(int iIndex) const ;
 
 	/**

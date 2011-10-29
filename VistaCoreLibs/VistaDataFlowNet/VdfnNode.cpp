@@ -20,17 +20,17 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnNode.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VdfnNode.h"
 #include "VdfnPort.h"
 
 #include <VistaTools/VistaBasicProfiler.h>
 
+#include <VistaBase/VistaStreamUtils.h>
+
 #include <algorithm>
 #include <iostream>
-
-#include "VdfnOut.h"
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
@@ -191,8 +191,8 @@ void IVdfnNode::OnDeactivation( double dTs )
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 bool IVdfnNode::SetInPort(const std::string &sName, IVdfnPort *pPort)
 {
-	IVdfnPortTypeCompare *pCmp;
-	if((pCmp=CheckInPortRegistration(sName, pPort)))
+	IVdfnPortTypeCompare *pCmp = CheckInPortRegistration(sName, pPort);
+	if( pCmp != NULL )
 	{
 		if(DoSetInPort(sName, pPort))
 		{
@@ -221,8 +221,8 @@ bool IVdfnNode::DoSetInPort( const std::string &sName, IVdfnPort *pPort )
 {
 #if defined(DEBUG)
 	if( m_mpInPorts.find(sName) != m_mpInPorts.end())
-		vdfnerr << "IVdfnNode[" << GetNameForNameable() << "]::DoSetInPort() -- "
-		          << "port [" << sName << "] was already assigned\n";
+		vstr::warnp() << "IVdfnNode[" << GetNameForNameable() << "]::DoSetInPort() -- "
+					<< "port [" << sName << "] was already assigned" << std::endl;
 #endif
 
 	m_mpInPorts[sName] = pPort;

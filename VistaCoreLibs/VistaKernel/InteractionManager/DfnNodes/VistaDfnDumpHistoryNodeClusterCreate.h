@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDfnDumpHistoryNodeClusterCreate.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTADFNDUMPHISTORYCLUSTERCREATE_H
 #define _VISTADFNDUMPHISTORYCLUSTERCREATE_H
@@ -40,7 +40,7 @@
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
 
-class VistaClusterAux;
+class VistaClusterMode;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */

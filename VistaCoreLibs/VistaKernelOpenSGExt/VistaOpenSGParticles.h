@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaOpenSGParticles.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTAOPENSGPARTICLES_H__
 #define _VISTAOPENSGPARTICLES_H__
@@ -45,7 +45,7 @@
 class VistaGroupNode;
 class VistaExtensionNode;
 class VistaOpenGLNode;
-class VistaSG;
+class VistaSceneGraph;
 struct VistaOpenSGParticlesData;
 
 
@@ -57,13 +57,14 @@ public:
 		PM_VIEWERQUADS=3,
 		PM_DIRECTEDQUADS=7
 	};
-	VistaOpenSGParticles(VistaSG *pSG,
+	VistaOpenSGParticles(VistaSceneGraph *pSG,
 						VistaGroupNode *pParent = NULL,
 						int eParticleMode = PM_VIEWERQUADS );
 	virtual ~VistaOpenSGParticles();
 
-	void SetColorsWithAlpha(const bool &bWithAlpha = true) const;
-	void SetNumParticles(const int &iNum, const bool &useSeparateColors = false, const bool &useSeparateSizes = false) const;
+	void SetColorsWithAlpha(const bool bWithAlpha = true) const;
+	void SetNumParticles( const int iNum, const bool bUseSeparateColors = false,
+							const bool bUseSeparateSizes = false ) const;
 
 	int  GetNumParticles() const;
 	int  GetNumColors() const;
@@ -97,7 +98,7 @@ public:
 	//int*   GetParticleIndices1iField() const;
 
 	void SetUseGaussBlobTexture(const int &iTexSize = 64, const float &sigma = 8.0f, const float &m = 50.0f) const;
-	void SetUseSpriteImage(const std::string &strFileName) const;
+	bool SetUseSpriteImage(const std::string &strFileName) const;
 
 	// set rendering options. default values show the defaults used.
 	void SetMaterialTransparency(const float &a = 0.0f) const;

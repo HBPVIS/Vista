@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaRegistration.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef IDLVISTAREGISTRATION_H
 #define IDLVISTAREGISTRATION_H
@@ -68,9 +68,6 @@ private:
 	static IDLVistaRegistration *m_pSingleton; /**< there can only be one... */
 
 protected:
-	/**
-	 *
-	 */
 	IDLVistaRegistration();
 
 	int RegisterPacketType(const std::string &SName);
@@ -87,20 +84,11 @@ protected:
 
 public:
 
-	/**
-	 *
-	 */
 	virtual std::string GetNameForTypeId(int iTypeId) const;
 
-	/**
-	 *
-	 */
 	virtual int       GetTypeIdForName(const std::string &SName) const;
 
 
-	/**
-	 *
-	 */
 	virtual ~IDLVistaRegistration();
 
 	static IDLVistaRegistration *GetRegistrationSingleton();

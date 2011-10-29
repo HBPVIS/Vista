@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaSharedMem.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaSharedMem.h"
 
@@ -314,7 +314,8 @@ void *  VistaSharedMemory::GetSharedMemPointer (string & sharedMem)
 
 	if (hMapObj)
 	{
-		unsigned long errCode = GetLastError();
+		//unsigned long errCode = GetLastError();
+		GetLastError();
 		//if (errCode == ERROR_ALREADY_EXISTS)
 		{
 			// get a pointer to the file mapped shared memory

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaOpenNIDriver.h 22143 2011-07-01 15:07:00Z dr165799 $
 
 #ifndef __VISTAOPENNIDRIVER_H
 #define __VISTAOPENNIDRIVER_H

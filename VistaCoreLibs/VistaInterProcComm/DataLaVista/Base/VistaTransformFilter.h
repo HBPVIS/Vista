@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaTransformFilter.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef IDLVISTATRANSFORMFILTER_H
 #define IDLVISTATRANSFORMFILTER_H
@@ -49,92 +49,41 @@ class DLVistaPacketQueue;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI IDLVistaTransformFilter : public IDLVistaFilter
 {
 private:
-	/**
-	 *
-	 */
 	IDLVistaTransformFilter(IDLVistaTransformFilter &);
 
-	/**
-	 *
-	 */
 	int m_iOutboundQueueSize;
 
-	/**
-	 *
-	 */
 	int m_iFilterCount;
 
-	/**
-	 *
-	 */
 	int m_iDropCount;
 
 protected:
-	/**
-	 *
-	 */
 	IDLVistaTransformFilter();
 
-	/**
-	 *
-	 */
 	virtual bool DoTransform(IDLVistaDataPacket *, IDLVistaDataPacket *pBuf) = 0;
 
-	/**
-	 *
-	 */
 	DLVistaPacketQueue *m_pOutboundPackets;
 public:
 
-	/**
-	 *
-	 */
 	virtual ~IDLVistaTransformFilter();
 
-	/**
-	 *
-	 */
 	virtual IDLVistaDataPacket *FilterPacketL(IDLVistaDataPacket *pPacket );
 
-	/**
-	 *
-	 */
 	virtual bool RecycleDataPacket(IDLVistaDataPacket *pPacket, IDLVistaPipeComponent *pSender, bool bBlock=false);
 
-	/**
-	 *
-	 */
 	virtual bool AcceptDataPacket(IDLVistaDataPacket *pPacket, IDLVistaPipeComponent *pSender, bool bBlock=false);
 
-	/**
-	 *
-	 */
 	virtual IDLVistaDataPacket *GivePacket(bool bBlock);
 
-	/**
-	 *
-	 */
 	void ConsumePacket(IDLVistaDataPacket *pPacket) {};
 
-	/**
-	 *
-	 */
 	virtual bool InitPacketMgmt();
 
-	/**
-	 *
-	 */
 	void SetOutboundQueueSize(int iSize);
 
-	/**
-	 *
-	 */
 	int GetOutboundQueueSize() const;
 
 	/**

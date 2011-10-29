@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaInPlaceFilter.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef IDLVISTAINPLACEFILTER_H
 #define IDLVISTAINPLACEFILTER_H

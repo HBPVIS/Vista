@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaTicker.h 22228 2011-07-04 12:49:23Z dr165799 $
 
 #ifndef _VISTATICKER_H
 #define _VISTATICKER_H
@@ -86,6 +86,7 @@ public:
 	class AfterPulseFunctor
 	{
 	public:
+		virtual ~AfterPulseFunctor() {}
 		virtual bool operator()() = 0;
 	};
 

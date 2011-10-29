@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDfnWindowSourceNode.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTADFNWINDOWSOURCENODE_H
 #define _VISTADFNWINDOWSOURCENODE_H
@@ -45,10 +45,7 @@
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
 
-class VistaEventManager;
 class VistaWindow;
-class VistaDisplayManager;
-
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -56,8 +53,7 @@ class VistaDisplayManager;
 class VISTAKERNELAPI VistaDfnWindowSourceNode : public IVdfnNode
 {
 public:
-	VistaDfnWindowSourceNode(VistaEventManager *pMgr,
-				VistaWindow *pWindow);
+	VistaDfnWindowSourceNode( VistaWindow *pWindow );
 
 
 	~VistaDfnWindowSourceNode();
@@ -65,9 +61,9 @@ public:
 	virtual bool GetIsValid() const;
 
 protected:
-	virtual bool   DoEvalNode();
+	virtual bool DoEvalNode();
 
-	virtual unsigned int    CalcUpdateNeededScore() const;
+	virtual unsigned int CalcUpdateNeededScore() const;
 
 private:
 	TVdfnPort<int> *m_pX,

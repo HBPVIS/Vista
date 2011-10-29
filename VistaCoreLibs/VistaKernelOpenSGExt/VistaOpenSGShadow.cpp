@@ -20,9 +20,11 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenSGShadow.cpp 22778 2011-08-02 08:27:57Z dr165799 $
+// $Id$
 
 #if defined(WIN32)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4189)
 #pragma warning(disable: 4231)
 #pragma warning(disable: 4312)
 #pragma warning(disable: 4267)
@@ -42,9 +44,7 @@
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
-
-#include <VistaTools/VistaProfiler.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 
 #include <VistaKernel/OpenSG/VistaOpenSGDisplayBridge.h>
 #include <VistaKernel/OpenSG/VistaOpenSGNodeBridge.h>
@@ -128,9 +128,9 @@ public:
         return _sfLeftBuffer.getValue();
     }
 
-    void setLeftBuffer(const bool &value)
+    void setLeftBuffer(const bool bValue)
     {
-		_sfLeftBuffer.setValue(value);
+		_sfLeftBuffer.setValue(bValue);
 	}
 
     bool &getRightBuffer(void)
@@ -143,9 +143,9 @@ public:
         return _sfRightBuffer.getValue();
     }
 
-    void setRightBuffer(const bool &value)
+    void setRightBuffer(const bool bValue)
     {
-		_sfRightBuffer.setValue(value);
+		_sfRightBuffer.setValue(bValue);
 	}
 
     void activate(void)
@@ -533,9 +533,6 @@ bool VistaOpenSGShadow::InitWindow (const std::string & strName,
 									VistaWindow* pWindow,
 									VistaGraphicsManager *pGrMgr)
 {
-	VistaOpenSGDisplayBridge::WindowData *pWindowData =
-		static_cast<VistaOpenSGDisplayBridge::WindowData*>(pWindow->GetData());
-
 	VistaGroupNode* pRoot = pGrMgr->GetSceneGraph()->GetRealRoot();
 
 	// get root node data
@@ -639,7 +636,7 @@ bool VistaOpenSGShadow::RemoveLight (VistaLightNode* pLight)
 		m_vecLights.erase(itLight);
 
 	// remove light from all shadow viewports
-	VistaOpenSGNodeData* pOpenSGLightData = static_cast<VistaOpenSGNodeData*> (pLight->GetData());
+	//VistaOpenSGNodeData* pOpenSGLightData = static_cast<VistaOpenSGNodeData*> (pLight->GetData());
 	for (tShadowViewPortNameMap::iterator it =(*m_pShadowVPs).begin(); it != (*m_pShadowVPs).end(); ++it)
 	{
 		OSG::ShadowViewportPtr ptrShadowVP = it->second;

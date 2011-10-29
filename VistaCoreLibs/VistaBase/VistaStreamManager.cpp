@@ -29,6 +29,7 @@
 #include "VistaStreamUtils.h"
 
 #include <fstream>
+#include <algorithm>
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -42,6 +43,12 @@
 VistaStreamManager::VistaStreamManager()
 : m_pTimer( new VistaTimer )
 , m_pInfo( NULL )
+, m_iIndentationLevel( 0 )
+, m_sIndentationPrefixString( "" )
+, m_sIndentationPostfixString( "" )
+, m_sIndentationLevelString( "    " )
+, m_sErrorPrefix( "###ERROR### " )
+, m_sWarningPrefix( "**WARNING** " )
 {	
 	m_vecInfoLayout.push_back( LE_FRAMECOUNT );
 	m_vecInfoLayout.push_back( LE_COLON );
@@ -70,8 +77,8 @@ bool VistaStreamManager::AddNewLogFileStream( const std::string& sStreamName,
 											const bool bAddTimeStamp )
 {
 	std::map<std::string, std::ostream*>::iterator itStream
-							= m_mpStreams.find(sStreamName);
-	if( itStream != m_mpStreams.end() )
+							= m_mapStreams.find(sStreamName);
+	if( itStream != m_mapStreams.end() )
 		return false; // name already exists
 
 	std::string sFullName;
@@ -103,7 +110,7 @@ bool VistaStreamManager::AddNewLogFileStream( const std::string& sStreamName,
 		return false;
 	}
 
-	m_mpStreams[sStreamName] = oStream;
+	m_mapStreams[sStreamName] = oStream;
 	m_vecOwnStreams.push_back( oStream );
 	return true;
 }
@@ -113,29 +120,39 @@ bool VistaStreamManager::AddStream( const std::string& sName,
 										bool bManageDeletion,
 										bool bReplaceExistingStream  )
 {
-	std::map<std::string, std::ostream*>::iterator itStream = m_mpStreams.find( sName );
-	if( itStream != m_mpStreams.end() )
+	std::map<std::string, std::ostream*>::iterator itStream = m_mapStreams.find( sName );
+	if( itStream != m_mapStreams.end() || bReplaceExistingStream == false )
 	{
 		return false;
 	}
-	m_mpStreams[sName] = &oStream;
+	m_mapStreams[sName] = &oStream;
+	if( bManageDeletion )
+		m_vecOwnStreams.push_back( &oStream );
 	return true;
 }
 bool VistaStreamManager::RemoveStream( const std::string& sName,
 										const bool bDelete )
 {
-	std::map<std::string, std::ostream*>::iterator itStream = m_mpStreams.find( sName );
-	if( itStream != m_mpStreams.end() )
+	std::map<std::string, std::ostream*>::iterator itStream = m_mapStreams.find( sName );
+	if( itStream == m_mapStreams.end() )
+		return false;
+
+	std::vector<std::ostream*>::iterator itToDel = std::find( m_vecOwnStreams.begin(),
+							m_vecOwnStreams.end(), (*itStream).second );
+	if( itToDel != m_vecOwnStreams.end() )
 	{
-		m_mpStreams.erase( itStream );		
-		return true;
+		delete (*itStream).second;
+		m_vecOwnStreams.erase( itToDel );
 	}
-	return false;
+	else if( bDelete )
+		delete (*itStream).second;
+	m_mapStreams.erase( itStream );		
+	return true;
 }
 std::ostream& VistaStreamManager::GetStream( const std::string& sName )
 {
-	std::map<std::string, std::ostream*>::iterator itStream = m_mpStreams.find( sName );
-	if( itStream != m_mpStreams.end() )
+	std::map<std::string, std::ostream*>::iterator itStream = m_mapStreams.find( sName );
+	if( itStream != m_mapStreams.end() )
 		return *((*itStream).second);
 	else
 		return GetDefaultStream( sName );
@@ -293,4 +310,91 @@ std::ostream& VistaStreamManager::GetDefaultStream( const std::string& sName )
 {
 	return std::cout;
 }
+
+std::string VistaStreamManager::GetErrorPrefix() const
+{
+	return m_sErrorPrefix;
+}
+void VistaStreamManager::SetErrorPrefix( const std::string& sPrefix )
+{
+	m_sErrorPrefix = sPrefix;
+}
+std::string VistaStreamManager::GetWarningPrefix() const
+{
+	return m_sWarningPrefix;
+}
+void VistaStreamManager::SetWarningPrefix( const std::string& sPrefix )
+{
+	m_sWarningPrefix = sPrefix;
+}
+
+int VistaStreamManager::GetIndentationLevel() const
+{
+	return m_iIndentationLevel;
+}
+void VistaStreamManager::SetIndentationLevel( const int iLevel )
+{
+	if( iLevel == m_iIndentationLevel )
+		return;
+	m_iIndentationLevel = iLevel;
+	if( m_iIndentationLevel < 0 )
+		m_iIndentationLevel = 0;
+	RebuildIndentationString();
+}
+void VistaStreamManager::AddToIndentationLevel( const int iAdd )
+{
+	m_iIndentationLevel += iAdd;
+	if( m_iIndentationLevel < 0 )
+	{
+		m_iIndentationLevel = 0;
+	}
+	/** @todo: can be made more efficient */
+	RebuildIndentationString();
+}
+
+const std::string& VistaStreamManager::GetIndentationPrefixString() const
+{
+	return m_sIndentationPrefixString;
+}
+void VistaStreamManager::SetIndentationPrefixString( const std::string& sString )
+{
+	m_sIndentationPrefixString = sString;
+	RebuildIndentationString();
+}
+const std::string& VistaStreamManager::GetIndentationPostfixString() const
+{
+	return m_sIndentationPostfixString;
+}
+void VistaStreamManager::SetIndentationPostfixString( const std::string& sString )
+{
+	m_sIndentationPostfixString = sString;
+	RebuildIndentationString();
+}
+const std::string& VistaStreamManager::GetIndentationLevelString() const
+{
+	return m_sIndentationLevelString;
+}
+void VistaStreamManager::SetIndentationLevelString( const std::string& sString )
+{
+	m_sIndentationLevelString = sString;
+	RebuildIndentationString();
+}
+
+void VistaStreamManager::RebuildIndentationString()
+{
+	m_sIndentation.clear();
+	if( m_iIndentationLevel > 0 )
+	{
+		m_sIndentation.append( m_sIndentationPrefixString );
+		for( int i = 0; i < m_iIndentationLevel; ++i )
+			m_sIndentation.append( m_sIndentationLevelString );
+		m_sIndentation.append( m_sIndentationPostfixString );
+	}
+}
+
+const std::string& VistaStreamManager::GetIndentation() const
+{
+	return m_sIndentation;
+}
+
 

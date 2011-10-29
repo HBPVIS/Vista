@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOctree.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include <list>
 #include "VistaOctree.h"
@@ -155,12 +155,12 @@ void VistaOctree::GetNodePosition(const VistaOctreeNode& node, float& x, float& 
 
 void VistaOctree::GetNodeBoundingBox (const VistaOctreeNode& node, float& x, float& y, float& z, float& size) const
 {
-//	cout << "[VistaOctree::GetNodeBoundingBox] Processing node (" << node.m_xLocCode << ", " << node.m_yLocCode << ", " << node.m_zLocCode << ")" << endl;
+//	cout << "[VistaOctree::GetNodeBoundingBox] Processing node (" << node.m_xLocCode << ", " << node.m_yLocCode << ", " << node.m_zLocCode << ")" << std::endl;
 	x = (float) node.m_xLocCode / (1 << (m_pRoot->m_level));
 	y = (float) node.m_yLocCode / (1 << (m_pRoot->m_level));
 	z = (float) node.m_zLocCode / (1 << (m_pRoot->m_level));
 	size = 1.0f / (float)(1 << (m_pRoot->m_level - node.m_level));
-//	cout << "[VistaOctree::GetNodeBoundingBox] BBox of node: [(" << x << ", " << y << ", " << z << ") with size " << size << endl;
+//	cout << "[VistaOctree::GetNodeBoundingBox] BBox of node: [(" << x << ", " << y << ", " << z << ") with size " << size << std::endl;
 }
 
 VistaOctreeNode* VistaOctree::Traverse (const int xLocCode, 
@@ -187,13 +187,13 @@ VistaOctreeNode* VistaOctree::Traverse (const int xLocCode,
 					   + ((yLocCode & childBranchBit) >> (nextLevel-1))
 					   + ((zLocCode & childBranchBit) >> (nextLevel-2)); 
 		}
-		if(nextLevel==1)
+		else if(nextLevel==1)
 		{
 			childIndex = ((xLocCode & childBranchBit) >> 1)
 					   +  (yLocCode & childBranchBit)
 					   + ((zLocCode & childBranchBit) << 1); 
 		}
-		if(nextLevel==0)
+		else //if(nextLevel==0)
 		{
 			childIndex =  (xLocCode & childBranchBit)
 					   + ((yLocCode & childBranchBit) << 1)
@@ -247,13 +247,13 @@ VistaOctreeNode* VistaOctree::TraverseToLevel (
 					   + ((yLocCode & childBranchBit) >> (nextLevel-1))
 					   + ((zLocCode & childBranchBit) >> (nextLevel-2)); 
 		}
-		if(nextLevel==1)
+		else if(nextLevel==1)
 		{
 			childIndex = ((xLocCode & childBranchBit) >> 1)
 					   +  (yLocCode & childBranchBit)
 					   + ((zLocCode & childBranchBit) << 1); 
 		}
-		if(nextLevel==0)
+		else //if(nextLevel==0)
 		{
 			childIndex =  (xLocCode & childBranchBit)
 					   + ((yLocCode & childBranchBit) << 1)
@@ -522,7 +522,7 @@ void VistaOctree::Serialize(ostream & outFile) const
 
 	int currLevel = GetRootLevel();
 
-	outFile << currLevel << endl;
+	outFile << currLevel << std::endl;
 
 	nodesFIFO.push_back(m_pRoot);
 
@@ -533,7 +533,7 @@ void VistaOctree::Serialize(ostream & outFile) const
 		if(node->GetLevel()<currLevel)
 		{
 			currLevel--;
-			outFile << endl;
+			outFile << std::endl;
 		}
 
 		outFile << (node->IsLeaf() ? 'x' : 'o');

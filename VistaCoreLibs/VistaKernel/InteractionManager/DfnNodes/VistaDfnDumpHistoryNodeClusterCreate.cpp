@@ -20,12 +20,12 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDfnDumpHistoryNodeClusterCreate.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaDfnDumpHistoryNodeClusterCreate.h"
 
 #include <VistaBase/VistaExceptionBase.h>
-#include <VistaKernel/VistaClusterAux.h>
+#include <VistaKernel/Cluster/VistaClusterMode.h>
 
 
 /*============================================================================*/

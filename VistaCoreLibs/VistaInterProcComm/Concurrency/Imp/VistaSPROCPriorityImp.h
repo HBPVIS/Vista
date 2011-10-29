@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSPROCPriorityImp.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #if defined(VISTA_THREADING_SPROC)
 
@@ -43,24 +43,10 @@
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-
-/**
- *
- */
 class VistaSPROCPriorityImp : public IVistaPriorityImp
 {
-private:
-protected:
-
 public:
-
-	/**
-	 *
-	 */
 	VistaSPROCPriorityImp();
-	/**
-	 *
-	 */
 	virtual ~VistaSPROCPriorityImp();
 };
 

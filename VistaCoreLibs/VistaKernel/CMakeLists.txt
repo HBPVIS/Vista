@@ -2,6 +2,16 @@
 
 vista_adopt_version( VistaKernel VistaCoreLibs )
 
+set( VISTAKERNEL_INTERNAL_DEPENDENCIES 
+			VistaBase
+			VistaAspects
+			VistaInterProcComm
+			VistaMath
+			VistaTools
+			VistaDeviceDriversBase
+			VistaDataFlowNet )
+set( VISTAKERNEL_INTERNAL_DEPENDENCIES ${VISTAKERNEL_INTERNAL_DEPENDENCIES} PARENT_SCOPE )
+
 vista_use_package( OpenGL REQUIRED )
 vista_use_package( GLUT REQUIRED )
 vista_use_package( OpenSG 1.8 REQUIRED )
@@ -12,12 +22,7 @@ include( "./_SourceFiles.cmake" )
 
 add_library( VistaKernel ${ProjectSources} )
 target_link_libraries( VistaKernel
-	VistaBase
-	VistaAspects
-	VistaTools
-	VistaInterProcComm
-	VistaDeviceDriversBase
-    VistaDataFlowNet
+	${VISTAKERNEL_INTERNAL_DEPENDENCIES}
 	${VISTA_USE_PACKAGE_LIBRARIES}
 )
 

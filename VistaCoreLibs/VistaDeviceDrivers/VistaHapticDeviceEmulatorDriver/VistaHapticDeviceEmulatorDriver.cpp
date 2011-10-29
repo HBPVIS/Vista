@@ -24,8 +24,6 @@
 
 #include "VistaHapticDeviceEmulatorDriver.h"
 
-#include <VistaDeviceDriversBase/VistaDeviceDriversOut.h>
-
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverConnectionAspect.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverMeasureHistoryAspect.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverWorkspaceAspect.h>
@@ -94,7 +92,7 @@ public:
 			pCon->ReadFloat32(m_pDriver->m_maxUsableWorkspaceMax[1]);
 			pCon->ReadFloat32(m_pDriver->m_maxUsableWorkspaceMax[2]);
 
-			vddout << "Found haptic device emulator device with vendor: [" << vendor << "], device: [" << deviceType << "]\n";
+			std::cout << "Found haptic device emulator device with vendor: [" << vendor << "], device: [" << deviceType << "]\n";
 		}
 		catch(VistaExceptionBase &x)
 		{
@@ -216,7 +214,7 @@ bool VistaHapticDeviceEmulatorDriver::DoSensorUpdate(VistaType::microtime dTs)
 
 			if(nReadSize > 0)
 			{
-				std::vector<unsigned char> msg(sizeof(VistaHapticDeviceEmulatorMeasures::sHapticDeviceEmulatorMeasure));
+				std::vector<VistaType::byte> msg(sizeof(VistaHapticDeviceEmulatorMeasures::sHapticDeviceEmulatorMeasure));
 
 				// we assume a packet oriented protocol here
 				// otherwise, we might end up in a state where we read off
@@ -235,7 +233,7 @@ bool VistaHapticDeviceEmulatorDriver::DoSensorUpdate(VistaType::microtime dTs)
 				}
 
 				VistaByteBufferDeSerializer deSer;
-				deSer.SetBuffer( (const char*)&msg[0], sizeof(VistaHapticDeviceEmulatorMeasures::sHapticDeviceEmulatorMeasure) );
+				deSer.SetBuffer( &msg[0], sizeof(VistaHapticDeviceEmulatorMeasures::sHapticDeviceEmulatorMeasure) );
 
 				VistaSensorMeasure *pM = m_pHistoryAspect->GetCurrentSlot(GetSensorByIndex(0));
 				if(pM == NULL)
@@ -312,7 +310,7 @@ bool VistaHapticDeviceEmulatorDriver::DoSensorUpdate(VistaType::microtime dTs)
 					nDataRead = pControl->ReadInt32(nCommand);
 					if( nDataRead <= 0)
 					{
-						vddout << "Read error"<< endl;
+						std::cerr << "[VistaHapticDeviceEmulator] Read error" << endl;
 						pControl->Close();
 						return false;
 					}
@@ -329,7 +327,7 @@ bool VistaHapticDeviceEmulatorDriver::DoSensorUpdate(VistaType::microtime dTs)
 						pControl->ReadInt32(nSize);
 						if(nSize > 0)
 							pControl->ReadString(sErrorMsg, nSize);
-						vddout << "[VistaHapticDeviceEmulator] Error: " << errorId << " " << sErrorMsg << std::endl;
+						std::cerr << "[VistaHapticDeviceEmulator] Error: " << errorId << " " << sErrorMsg << std::endl;
 
 						break;
 					}

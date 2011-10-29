@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaAC3DLoader.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #if defined(WIN32)
 #pragma warning(disable: 4996)
@@ -29,10 +29,10 @@
 
 #include "VistaAC3DLoader.h" 
 //#include <VistaKernel/Stuff/VistaAC3DLowLevelLoad.h>
-#include <VistaKernel/VistaKernelOut.h>
 
 #include <VistaBase/VistaExceptionBase.h>
-#include <VistaAspects/VistaAspectsUtils.h>
+#include <VistaBase/VistaStreamUtils.h>
+#include <VistaAspects/VistaConversion.h>
 #include <VistaTools/VistaFileSystemDirectory.h>
 
 
@@ -40,7 +40,7 @@
 #include <VistaKernel/GraphicsManager/VistaOpenGLNode.h>
 #include <VistaKernel/GraphicsManager/VistaGroupNode.h>
 #include <VistaKernel/GraphicsManager/VistaGeomNode.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 //#include <VistaKernel/GraphicsManager/VistaSphere.h>
 #include <VistaKernel/GraphicsManager/VistaOpenGLPolyLine.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
@@ -743,17 +743,17 @@ static void ac3d_dump(ACObject *ob)
 // PROTOTYPES
 
 static IVistaNode *ReadPolyLineKid(const std::string &sFileName,
-								   VistaSG *pSG, 
+								   VistaSceneGraph *pSG, 
 								   VistaGroupNode *pParent,  
 								   ACObject *obj, std::vector<ACMaterial> &mat);
 static IVistaNode *ReadGeomKid(const std::string &sFileName,
 							   const std::string &sTexturePrefix,
-							   VistaSG *pSG, 
+							   VistaSceneGraph *pSG, 
 							   VistaGroupNode *pParent,  
 							   ACObject *obj, std::vector<ACMaterial> &mat);
 static IVistaNode *DiveGroup(const std::string &sFileName,
 							 const std::string &sTexturePrefix,
-							 VistaSG *pSG, 
+							 VistaSceneGraph *pSG, 
 							 VistaGroupNode *pParent, 
 							 ACObject *pObj, std::vector<ACMaterial> &mat);
 
@@ -763,7 +763,7 @@ static std::string ConstructMaterialName(const std::string &sFileName,
 {
 	std::string sName = sFileName+ std::string(".");
 	if(sMatNam.empty())
-		sName = sName + VistaAspectsConversionStuff::ConvertToString(iIndex);
+		sName = sName + VistaConversion::ToString(iIndex);
 	else
 		sName = sName + sMatNam;
 
@@ -774,7 +774,7 @@ static std::string ConstructMaterialName(const std::string &sFileName,
 
 static IVistaNode *DiveGroup(const std::string &sFileName, 
 							 const std::string &sTexturePrefix,
-							 VistaSG *pSG, 
+							 VistaSceneGraph *pSG, 
 							 VistaGroupNode *pParent, ACObject *pObj, std::vector<ACMaterial> &mat)
 {
 	if(pObj->type == AC3D_OBJECT_NORMAL)
@@ -792,7 +792,7 @@ static IVistaNode *DiveGroup(const std::string &sFileName,
 				VistaTransformNode *pTrans = pSG->NewTransformNode(pParent); // shadow argument
 				pTrans->SetTranslation(pObj->loc.x, pObj->loc.y, pObj->loc.z);
 				pTrans->SetName(pObj->name ? pObj->name : "_noname");
-				IVistaNode *pNode = ReadGeomKid(sFileName,sTexturePrefix,pSG, pTrans, pObj, mat);
+				ReadGeomKid(sFileName,sTexturePrefix,pSG, pTrans, pObj, mat);
 				for(int i=0; i < pObj->num_kids; ++i)
 				{
 					// dive group will add childs properly
@@ -807,7 +807,7 @@ static IVistaNode *DiveGroup(const std::string &sFileName,
 	}
 	else if(pObj->type == AC3D_OBJECT_LIGHT)
 	{
-		vkernerr << "Light not supported... yet.\n";
+		vstr::errp() << "Light not supported... yet" << std::endl;
 		return NULL;
 	}
 	else if(pObj->type == AC3D_OBJECT_GROUP || pObj->type == AC3D_OBJECT_WORLD)
@@ -829,20 +829,20 @@ static IVistaNode *DiveGroup(const std::string &sFileName,
 		
 		for(int i=0; i < pObj->num_kids; ++i)
 		{
-			IVistaNode *pKid = DiveGroup(sFileName,sTexturePrefix,pSG, pTransform,  pObj->kids[i], mat);
+			DiveGroup(sFileName,sTexturePrefix,pSG, pTransform,  pObj->kids[i], mat);
 		}
 		return pTransform;
 	}
 	else
 	{
-		vkernerr << "unkown node type (" << pObj->type << "). <skip>\n";
+		vstr::errp() << "unkown node type (" << pObj->type << "). <skip>" << std::endl;
 		return NULL;
 	}
 }
 
 static IVistaNode *ReadGeomKid(const std::string &sFileName,
 							   const std::string &sTexturePrefix,
-							   VistaSG *pSG, VistaGroupNode *pParent,  
+							   VistaSceneGraph *pSG, VistaGroupNode *pParent,  
 							   ACObject *obj, std::vector<ACMaterial> &matTbl)
 {
 	vector<VistaVector3D> coords;
@@ -885,7 +885,7 @@ static IVistaNode *ReadGeomKid(const std::string &sFileName,
 	{
 		if(obj->surfaces[j].num_vertref != 3)
 		{
-			vkernerr << "Surface "
+			vstr::errp() << "Surface "
 				 << "[" << j << "] of obj [" 
 				 << (obj->name ? obj->name : "_noname") 
 				 << "] has " << (obj->surfaces[j].num_vertref > 3 ? "more" : "less")
@@ -894,7 +894,7 @@ static IVistaNode *ReadGeomKid(const std::string &sFileName,
 				 << (pParent ? pParent->GetName() : "_noparent") << "]"
 				 << ". ChildIdx = ["
 				 << (pParent ? pParent->GetNumChildren() + 1 : 0)
-				 << "]. Skipping surface (triangulate your model).\n";
+				 << "]. Skipping surface (triangulate your model)." << std::endl;
 			continue;
 		}
 		// or the shade flag. iff there is _one_ surface in this
@@ -902,27 +902,27 @@ static IVistaNode *ReadGeomKid(const std::string &sFileName,
 		// thie geometry completely
 		if(iShadeFlag == 0)
 			iShadeFlag = (obj->surfaces[j].flags & AC3D_SURFACE_SHADED);
-		//cout << j << "=" << iShadeFlag << endl;
+		//cout << j << "=" << iShadeFlag << std::endl;
 
 		if(iCullFlag == 0)
 			iCullFlag  = (obj->surfaces[j].flags & AC3D_SURFACE_TWOSIDED);
 
 		if((obj->surfaces[j].flags & AC3D_SURFACE_TYPE_POLYGON) != AC3D_SURFACE_TYPE_POLYGON)
 		{
-			vkernerr << "surface (" << j << ") is of type (";
+			vstr::errp() << "surface (" << j << ") is of type (";
 			if((obj->surfaces[j].flags & AC3D_SURFACE_TYPE_CLOSEDLINE) == AC3D_SURFACE_TYPE_CLOSEDLINE)
 			{
-				vkernerr << "CLOSEDLINE";
+				vstr::err() << "CLOSEDLINE";
 			}
 			else if((obj->surfaces[j].flags & AC3D_SURFACE_TYPE_LINE) == AC3D_SURFACE_TYPE_LINE)
 			{
-				vkernerr << "LINE";
+				vstr::err() << "LINE";
 			}
 			else
 			{
-				vkernerr << "<UNKNOWN TYPE (flag=" << obj->surfaces[j].flags << ")>";
+				vstr::err() << "<UNKNOWN TYPE (flag=" << obj->surfaces[j].flags << ")>";
 			}
-			vkernerr << "-- skipping.\n" << endl;
+			vstr::err() << "-- skipping." << std::endl;
 			continue;
 		}
 		
@@ -954,7 +954,7 @@ static IVistaNode *ReadGeomKid(const std::string &sFileName,
 		ACMaterial *pMat = &matTbl[obj->surfaces[0].mat];
 		std::string sMatName = ConstructMaterialName(sFileName, (*pMat).name, (int)obj->surfaces[0].mat);
 		if(pSG->GetMaterialByName(sMatName, oMat) == false)
-			vkernerr << "Warning! could not get material [" << sMatName << "]\n";
+			vstr::errp() << "Warning! could not get material [" << sMatName << "]" << std::endl;
 		else
 		{
 			geom->SetMaterial(oMat);
@@ -1022,7 +1022,7 @@ static IVistaNode *ReadGeomKid(const std::string &sFileName,
 }
 
 static IVistaNode *ReadPolyLineKid(const std::string &sFileName, 
-								   VistaSG *pSG, VistaGroupNode *pParent,  
+								   VistaSceneGraph *pSG, VistaGroupNode *pParent,  
 								   ACObject *obj, std::vector<ACMaterial> &mat)
 {
 	std::vector<float> vecPoints;
@@ -1045,7 +1045,8 @@ static IVistaNode *ReadPolyLineKid(const std::string &sFileName,
 	std::string sName = ConstructMaterialName(sFileName, (*pMat).name, (int)obj->surfaces[0].mat);
 	if(pSG->GetMaterialByName(sName, oMat) == false)
 	{
-		vkernerr << "Warning! Could not resolve material [" << sName << "]\n";
+		vstr::warnp() << "IVistaNode::ReadPolyLineKid() -- "
+			<< "Could not resolve material [" << sName << "]" << std::endl;
 	}
 	else
 	{
@@ -1097,7 +1098,7 @@ VistaAC3DLoader::~VistaAC3DLoader()
 /*============================================================================*/
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
-IVistaNode *VistaAC3DLoader::LoadNode(VistaSG *pSG, VistaGroupNode *pParent, 
+IVistaNode *VistaAC3DLoader::LoadNode(VistaSceneGraph *pSG, VistaGroupNode *pParent, 
 									   const std::string &sFileName,
 									   const std::string &sTexturePathPrefix)
 {

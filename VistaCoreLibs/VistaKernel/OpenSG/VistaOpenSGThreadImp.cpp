@@ -20,16 +20,19 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenSGThreadImp.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaOpenSGThreadImp.h" 
 #include <VistaInterProcComm/Concurrency/VistaThread.h>
-#include <VistaAspects/VistaAspectsUtils.h>
+#include <VistaAspects/VistaConversion.h>
 
 #ifdef WIN32
 // disable warnings from OpenSG
 #pragma warning(push)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4189)
 #pragma warning(disable: 4231)
+#pragma warning(disable: 4267)
 #endif
 
 #include <OpenSG/OSGThreadManager.h>
@@ -161,8 +164,6 @@ VistaOSGThreadImp::VistaOSGThreadImp(const std::string &sName,
 		m_pOSGThread->runFunction(threadFct, m_nAspect, &m_hlp);
 		return true;
 	}
-
-	return false;
 }
 
  bool VistaOSGThreadImp::Suspend()
@@ -282,8 +283,15 @@ VistaOSGThreadImp::VistaOSGThreadImpFactory::~VistaOSGThreadImpFactory()
 IVistaThreadImp *VistaOSGThreadImp::VistaOSGThreadImpFactory::CreateThread(
 													const VistaThread &rThread)
 {
-	std::string sName = VistaAspectsConversionStuff::ConvertToString(++m_nCount);
+	std::string sName = VistaConversion::ToString(++m_nCount);
 	return new VistaOSGThreadImp(sName, const_cast<VistaThread*>(&rThread), 0);
+}
+
+long VistaOSGThreadImp::VistaOSGThreadImpFactory::GetCallingThreadIdentity() const
+{
+	// OpenSG doesn't provide thread Id's so we have to revert to our
+	// own implementations
+	return IVistaThreadImp::GetCallingThreadIdentity( true );
 }
 
 /*============================================================================*/

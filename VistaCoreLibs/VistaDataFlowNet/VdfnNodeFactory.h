@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnNodeFactory.h 21565 2011-05-26 13:22:59Z dr165799 $
 
 #ifndef _VDFNNODEFACTORY_H
 #define _VDFNNODEFACTORY_H
@@ -76,6 +76,7 @@ public:
 	class IVdfnNodeCreator
 	{
 	public:
+		virtual ~IVdfnNodeCreator() {}
 		/**
 		 * create a node given a VistaPropertyList
 		 * @param oParams a VistaPropertyList that must match the need of a specific

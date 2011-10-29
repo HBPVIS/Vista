@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDeSerializer.h 4719 2009-09-10 09:29:58Z tbeer $
 
 #ifndef _VISTAATOMICCOUNTER_H_
 #define _VISTAATOMICCOUNTER_H_

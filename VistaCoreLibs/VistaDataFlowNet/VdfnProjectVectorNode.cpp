@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnProjectVectorNode.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VdfnProjectVectorNode.h" 
 #include <VistaAspects/VistaAspectsUtils.h>
@@ -74,13 +74,16 @@ IVdfnNode *VdfnProjectVectorNodeCreate::CreateNode( const VistaPropertyList &oPa
 
         VdfnProjectVectorNode::eProject ePrj = VdfnProjectVectorNode::PRJ_NONE;
 
-        std::string strProject = subs.GetStringValue("component");
-        if(VistaAspectsComparisonStuff::StringEquals("X", strProject, false))
-            ePrj = VdfnProjectVectorNode::PRJ_X;
-        else if(VistaAspectsComparisonStuff::StringEquals("Y", strProject, false))
-            ePrj = VdfnProjectVectorNode::PRJ_Y;
-        else if(VistaAspectsComparisonStuff::StringEquals("Z", strProject, false))
-            ePrj = VdfnProjectVectorNode::PRJ_Z;
+        std::string strProject;
+		if( subs.GetValue("component", strProject ) )
+		{
+			if(VistaAspectsComparisonStuff::StringEquals("X", strProject, false))
+				ePrj = VdfnProjectVectorNode::PRJ_X;
+			else if(VistaAspectsComparisonStuff::StringEquals("Y", strProject, false))
+				ePrj = VdfnProjectVectorNode::PRJ_Y;
+			else if(VistaAspectsComparisonStuff::StringEquals("Z", strProject, false))
+				ePrj = VdfnProjectVectorNode::PRJ_Z;
+		}
 
         return new VdfnProjectVectorNode(ePrj);
 

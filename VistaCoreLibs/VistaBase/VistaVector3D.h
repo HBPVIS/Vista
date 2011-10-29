@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaVector3D.h 23167 2011-09-05 14:08:59Z dr165799 $
 
 #ifndef _VISTAVECTOR3D_H
 #define _VISTAVECTOR3D_H
@@ -77,21 +77,12 @@ public:
 	 */
 	bool CheckForValidity() const;
 
-	const VistaVector3D& operator+=( const VistaVector3D& v3Other );
-	const VistaVector3D& operator-=( const VistaVector3D& v3Other );
-	const VistaVector3D& operator*=( const float& fScale );
-	const VistaVector3D& operator/=( float fScale );
+	VistaVector3D& operator=( const VistaVector3D& v3Other );
+	VistaVector3D& operator+=( const VistaVector3D& v3Other );
+	VistaVector3D& operator-=( const VistaVector3D& v3Other );
+	VistaVector3D& operator*=( const float fScale );
+	VistaVector3D& operator/=( const float fScale );
 
-	VistaVector3D operator+( const VistaVector3D& v3Other ) const;
-	VistaVector3D operator-( const VistaVector3D& v3Other ) const;
-	VistaVector3D operator*( float fScale ) const;
-	VistaVector3D operator/( float fScale ) const;	
-
-	VistaVector3D operator-( ) const;
-	float operator* ( const VistaVector3D& v3Other ) const;
-	bool operator== ( const VistaVector3D& v3Other ) const;
-	bool operator!= ( const VistaVector3D& v3Other ) const;
-	
 	const float& operator[] ( const int iAxis ) const;
 	float& operator[] ( const int iAxis );
 
@@ -99,8 +90,15 @@ private:
 	float		m_a4fValues[4];
 };
 
-
-VistaVector3D operator*( const float fScale, const VistaVector3D& v3Vec );
+const VistaVector3D operator-( const VistaVector3D& v3Vector );
+const VistaVector3D operator+( const VistaVector3D& v3Left, const VistaVector3D& v3Right );
+const VistaVector3D operator-( const VistaVector3D& v3Left, const VistaVector3D& v3Right );
+const VistaVector3D operator*( const float fScale, const VistaVector3D& v3Vec );
+const VistaVector3D operator*( const VistaVector3D& v3Vec, const float fScale );
+const VistaVector3D operator/( const VistaVector3D& v3Vec, const float fScale );	
+float operator* ( const VistaVector3D& v3Left, const VistaVector3D& v3Right );
+bool operator== ( const VistaVector3D& v3Left, const VistaVector3D& v3Right );
+bool operator!= ( const VistaVector3D& v3Left, const VistaVector3D& v3Right );
 
 std::ostream& operator<<( std::ostream& oStream, 
 										const VistaVector3D& v3Vector );
@@ -153,28 +151,40 @@ inline VistaVector3D::VistaVector3D( const double a3dValues[3] )
 	m_a4fValues[3] = 1.0f;
 }
 
-inline const VistaVector3D& VistaVector3D::operator+=( const VistaVector3D& v3Other )
+// member operators
+
+inline VistaVector3D& VistaVector3D::operator=( const VistaVector3D& v3Other )
+{
+	if( this != &v3Other )
+	{
+		m_a4fValues[0] = v3Other.m_a4fValues[0];
+		m_a4fValues[1] = v3Other.m_a4fValues[1];
+		m_a4fValues[2] = v3Other.m_a4fValues[2];
+	}
+	return (*this);
+}
+inline VistaVector3D& VistaVector3D::operator+=( const VistaVector3D& v3Other )
 {
 	m_a4fValues[0] += v3Other.m_a4fValues[0];
 	m_a4fValues[1] += v3Other.m_a4fValues[1];
 	m_a4fValues[2] += v3Other.m_a4fValues[2];
 	return (*this);
 }
-inline const VistaVector3D& VistaVector3D::operator-=( const VistaVector3D& v3Other )
+inline VistaVector3D& VistaVector3D::operator-=( const VistaVector3D& v3Other )
 {
 	m_a4fValues[0] -= v3Other.m_a4fValues[0];
 	m_a4fValues[1] -= v3Other.m_a4fValues[1];
 	m_a4fValues[2] -= v3Other.m_a4fValues[2];
 	return (*this);
 }
-inline const VistaVector3D& VistaVector3D::operator*=( const float& fScale )
+inline VistaVector3D& VistaVector3D::operator*=( const float fScale )
 {
 	m_a4fValues[0] *= fScale;
 	m_a4fValues[1] *= fScale;
 	m_a4fValues[2] *= fScale;
 	return (*this);
 }
-inline const VistaVector3D& VistaVector3D::operator/=( const float fScale )
+inline VistaVector3D& VistaVector3D::operator/=( const float fScale )
 {
 	// interestingly, /= is faster than caching the div results
 	// thanks, compiler optimization :D
@@ -187,6 +197,16 @@ inline const VistaVector3D& VistaVector3D::operator/=( const float fScale )
 	m_a4fValues[2] /= fScale;
 	return (*this);
 }
+
+inline const float& VistaVector3D::operator[] ( const int iAxis ) const
+{
+	return m_a4fValues[iAxis];
+}
+inline float& VistaVector3D::operator[] ( const int iAxis )
+{
+	return m_a4fValues[iAxis];
+}
+
 
 ///// FUNCTIONS /////
 inline bool VistaVector3D::CheckForValidity() const
@@ -323,75 +343,61 @@ inline VistaVector3D VistaVector3D::Cross( const VistaVector3D& v3Other ) const
 }
 
 
-///// OPERATORS /////
-inline VistaVector3D VistaVector3D::operator+ ( const VistaVector3D& v3Other ) const
+///// global OPERATORS /////
+inline const VistaVector3D operator+ ( const VistaVector3D& v3Left, const VistaVector3D& v3Right )
 {	
-	VistaVector3D v3Res( (*this) );
-	v3Res += v3Other;
+	VistaVector3D v3Res( v3Left );
+	v3Res += v3Right;
 	return v3Res;
 }
-inline VistaVector3D VistaVector3D::operator- ( const VistaVector3D& v3Other ) const
+inline const VistaVector3D operator- ( const VistaVector3D& v3Left, const VistaVector3D& v3Right )
 {
-	VistaVector3D v3Res( (*this) );
-	v3Res -= v3Other;
+	VistaVector3D v3Res( v3Left );
+	v3Res -= v3Right;
 	return v3Res;
 }
-inline VistaVector3D VistaVector3D::operator*( float fScale ) const
+inline const VistaVector3D operator*( const VistaVector3D& v3Vec, const float fScale )
 {
-	VistaVector3D v3Res( (*this) );
+	VistaVector3D v3Res( v3Vec );
 	v3Res *= fScale;
 	return v3Res;
 }
-inline VistaVector3D VistaVector3D::operator/( float fScale ) const
-{
-	VistaVector3D v3Res( (*this) );
-	v3Res *= 1.0f / fScale;
-	return v3Res;
-}
-
-
-inline VistaVector3D VistaVector3D::operator-( ) const
-{
-	return VistaVector3D( -m_a4fValues[0], -m_a4fValues[1], -m_a4fValues[2] );
-}
-
-inline float VistaVector3D::operator* ( const VistaVector3D& v3Other ) const
-{
-	return ( m_a4fValues[0] * v3Other.m_a4fValues[0]
-			+ m_a4fValues[1] * v3Other.m_a4fValues[1]
-			+ m_a4fValues[2] * v3Other.m_a4fValues[2] );
-}
-
-inline bool VistaVector3D::operator== ( const VistaVector3D& v3Other ) const
-{
-	return( m_a4fValues[0] == v3Other.m_a4fValues[0]
-			&& m_a4fValues[1] == v3Other.m_a4fValues[1]
-			&& m_a4fValues[2] == v3Other.m_a4fValues[2]
-			&& m_a4fValues[3] == v3Other.m_a4fValues[3] );
-}
-inline bool VistaVector3D::operator!= ( const VistaVector3D& v3Other ) const
-{
-	return !operator==( v3Other );
-}
-
-
-
-inline const float& VistaVector3D::operator[] ( const int iAxis ) const
-{
-	return m_a4fValues[iAxis];
-}
-inline float& VistaVector3D::operator[] ( const int iAxis )
-{
-	return m_a4fValues[iAxis];
-}
-
-inline VistaVector3D operator*( const float fScale, const VistaVector3D& v3Vec )
+inline const VistaVector3D operator*( const float fScale, const VistaVector3D& v3Vec )
 {
 	return v3Vec * fScale;
 }
 
-inline std::ostream& operator<<( std::ostream& oStream, 
-										const VistaVector3D& v3Vector )
+inline const VistaVector3D operator/( const VistaVector3D& v3Vec, const float fScale )
+{
+	VistaVector3D v3Res( v3Vec );
+	v3Res *= 1.0f / fScale;
+	return v3Res;
+}
+
+inline const VistaVector3D operator-( const VistaVector3D& v3Vec )
+{
+	return VistaVector3D( -v3Vec[0], -v3Vec[1], -v3Vec[2], v3Vec[3] );
+}
+
+inline float operator* ( const VistaVector3D& v3Left, const VistaVector3D& v3Right )
+{
+	return ( v3Left[0] * v3Right[0]	+ v3Left[1] * v3Right[1] + v3Left[2] * v3Right[2] );
+}
+
+inline bool operator== ( const VistaVector3D& v3Left, const VistaVector3D& v3Right )
+{
+	return( v3Left[0] == v3Right[0]
+			&& v3Left[1] == v3Right[1]
+			&& v3Left[2] == v3Right[2]
+			&& v3Left[3] == v3Right[3] );
+}
+inline bool operator!= ( const VistaVector3D& v3Left, const VistaVector3D& v3Right )
+{
+	return !operator==( v3Left, v3Right );
+}
+
+
+inline std::ostream& operator<<( std::ostream& oStream, const VistaVector3D& v3Vector )
 {
 	const std::streamsize iOldPrecision( oStream.precision( 3 ) );
 	const std::ios::fmtflags iOldflags( oStream.flags() );

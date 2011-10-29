@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaConnectionUpdater.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaConnectionUpdater.h" 
 
@@ -33,8 +33,7 @@
 #include <VistaAspects/VistaExplicitCallbackInterface.h>
 
 #include <VistaBase/VistaTimeUtils.h>
-
-#include "VistaDeviceDriversOut.h"
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <cassert>
 #include <iostream>
@@ -123,8 +122,8 @@ public:
 	{
 		if(pCon->GetConnectionWaitForDescriptor() == HANDLE(~0))
 		{
-			vdderr << "[ConUpd]: trying to add a connection with an invalid wait-for-descriptor.\n"
-				<< "[ConUpd]: maybe a connection failed to open and you did not check?\n";
+			vstr::errp() << "[ConUpd]: trying to add a connection with an invalid wait-for-descriptor.\n"
+				<< vstr::indent << "[ConUpd]: maybe a connection failed to open and you did not check?" << std::endl;
 			return false;
 		}
 		
@@ -167,7 +166,8 @@ public:
 				{
 					// panic would be a solution
 					//(*it).second->WaitForJobFinish();
-					vdderr << "PANIC. Trying to delete a callback that is still processed\n";
+					vstr::errp() << "IVistaExplicitCallbackInterface::RemConnectionUpdate() -- "
+						<< " Trying to delete a callback that is still processed" << std::endl;
 					return NULL;
 				}
 

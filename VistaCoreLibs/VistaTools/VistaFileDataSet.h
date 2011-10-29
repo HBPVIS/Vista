@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaFileDataSet.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 /**
  *      Purpose  :  Access to "FileDataSets". A dataset is an
@@ -134,16 +134,9 @@ public:
 
 };
 
-/**
- *
- *
- */
 class VISTATOOLSAPI VistaFileDataSet
  {
-
   /**
-   *
-   *
    * Access the methods of those classes by using
    * '(*iterator_variable)->MethodName()'
    *

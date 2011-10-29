@@ -20,18 +20,22 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: OSGVistaOpenGLDrawCore.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "OSGVistaOpenGLDrawCore.h"
 
 #include <VistaKernel/GraphicsManager/VistaOpenGLDraw.h>
 #include <VistaMath/VistaBoundingBox.h>
-#include <VistaKernel/VistaKernelOut.h>
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #ifdef WIN32
 // disable warnings from OpenSG
 #pragma warning(push)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4189)
 #pragma warning(disable: 4231)
+#pragma warning(disable: 4267)
 #endif
 
 #include <OpenSG/OSGConfig.h>
@@ -125,7 +129,7 @@ void VistaOpenGLDrawCore::SetOpenGLDraw(IVistaOpenGLDraw *ptr) const
 
 Action::ResultE VistaOpenGLDrawCore::drawPrimitives(DrawActionBase * action)
 {
-	bool trashme = s_mapOpenGLDrawObjects[this]->Do();
+	s_mapOpenGLDrawObjects[this]->Do();
 	return Action::Continue;
 }
 
@@ -144,7 +148,7 @@ void VistaOpenGLDrawCore::adjustVolume(Volume & volume)
 		osg::Pnt3f pMin(0,0,0);
 		volume.extendBy(pMin);
 #ifdef DEBUG
-		vkernout << "[VistaOpenGLDrawCore] WARNING - got no bounding box from OpenGLDraw object! Creating zero-volume around the node's origin..." << std::endl;
+		vstr::warnp() << "[VistaOpenGLDrawCore]: got no bounding box from OpenGLDraw object! Creating zero-volume around the node's origin..." << std::endl;
 #endif
 	}
 	else
@@ -214,7 +218,7 @@ void VistaOpenGLDrawCore::dump(      UInt32    ,
 
 namespace
 {
-    static Char8 cvsid_cpp       [] = "@(#)$Id: OSGVistaOpenGLDrawCore.cpp 21315 2011-05-16 13:47:39Z dr165799 $";
+    static Char8 cvsid_cpp       [] = "@(#)$Id$";
     static Char8 cvsid_hpp       [] = OSGVistaOpenGLDrawCoreBASE_HEADER_CVSID;
     static Char8 cvsid_inl       [] = OSGVistaOpenGLDrawCoreBASE_INLINE_CVSID;
 

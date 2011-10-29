@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDTrackCommonShare.h 20121 2011-01-29 20:42:19Z ingoassenmacher $
 
 #ifndef _VISTADTRACKCOMMONSHARE_H
 #define _VISTADTRACKCOMMONSHARE_H

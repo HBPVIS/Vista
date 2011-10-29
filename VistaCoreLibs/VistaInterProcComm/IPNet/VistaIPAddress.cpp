@@ -20,11 +20,12 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaIPAddress.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include <cstdio>
 #include "VistaIPAddress.h"
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #if defined(WIN32)
 #pragma warning(disable: 4996)
@@ -69,171 +70,171 @@ using namespace std;
 /*============================================================================*/
 static void TranslateHostResolveError(int iErrno)
 {
-	vipcerr << "VistaIPAddress::HostResolveError:";
+	vstr::errp() << "VistaIPAddress::HostResolveError: ";
 #ifdef WIN32
 	switch ( iErrno )
 	{
 	case WSAEACCES:
-		vipcerr << "Permission denied.";
+		vstr::err() << "Permission denied.";
 		break;
 	case WSAEADDRINUSE:
-		vipcerr << "Address already in use.";
+		vstr::err() << "Address already in use.";
 		break;
 	case WSAEADDRNOTAVAIL:
-		vipcerr << "Cannot assign requested address.";
+		vstr::err() << "Cannot assign requested address.";
 		break;
 	case WSAEAFNOSUPPORT:
-		vipcerr << "Address family not supported by protocol family.";
+		vstr::err() << "Address family not supported by protocol family.";
 		break;
 	case WSAEALREADY:
-		vipcerr << "Operation already in progress.";
+		vstr::err() << "Operation already in progress.";
 		break;
 	case WSAECONNABORTED:
-		vipcerr << "Software caused connection abort.";
+		vstr::err() << "Software caused connection abort.";
 		break;
 	case WSAECONNREFUSED:
-		vipcerr << "Connection refused.";
+		vstr::err() << "Connection refused.";
 		break;
 	case WSAECONNRESET:
-		vipcerr << "Connection reset by peer.";
+		vstr::err() << "Connection reset by peer.";
 		break;
 	case WSAEDESTADDRREQ:
-		vipcerr << "Destination address required.";
+		vstr::err() << "Destination address required.";
 		break;
 	case WSAEFAULT:
-		vipcerr << "Bad address.";
+		vstr::err() << "Bad address.";
 		break;
 	case WSAEHOSTDOWN:
-		vipcerr << "Host is down.";
+		vstr::err() << "Host is down.";
 		break;
 	case WSAEHOSTUNREACH:
-		vipcerr << "No route to host.";
+		vstr::err() << "No route to host.";
 		break;
 	case WSAEINPROGRESS:
-		vipcerr << "Operation now in progress.";
+		vstr::err() << "Operation now in progress.";
 		break;
 	case WSAEINTR:
-		vipcerr << "Interrupted function call.";
+		vstr::err() << "Interrupted function call.";
 		break;
 	case WSAEINVAL:
-		vipcerr << "Invalid argument.";
+		vstr::err() << "Invalid argument.";
 		break;
 	case WSAEISCONN:
-		vipcerr << "Socket is already connected.";
+		vstr::err() << "Socket is already connected.";
 		break;
 	case WSAEMFILE:
-		vipcerr << "Too many open files.";
+		vstr::err() << "Too many open files.";
 		break;
 	case WSAEMSGSIZE:
-		vipcerr << "Message too long.";
+		vstr::err() << "Message too long.";
 		break;
 	case WSAENETDOWN:
-		vipcerr << "Network is down.";
+		vstr::err() << "Network is down.";
 		break;
 	case WSAENETUNREACH:
-		vipcerr << "Network is unreachable.";
+		vstr::err() << "Network is unreachable.";
 		break;
 	case WSAENETRESET:
-		vipcerr << "Network dropped connection on reset.";
+		vstr::err() << "Network dropped connection on reset.";
 		break;
 	case WSAENOBUFS:
-		vipcerr << "No buffer space available.";
+		vstr::err() << "No buffer space available.";
 		break;
 	case WSAENOPROTOOPT:
-		vipcerr << "Bad protocol option.";
+		vstr::err() << "Bad protocol option.";
 		break;
 	case WSAENOTCONN:
-		vipcerr << "Socket is not connected.";
+		vstr::err() << "Socket is not connected.";
 		break;
 	case WSAENOTSOCK:
-		vipcerr << "Socket operation on non-socket.";
+		vstr::err() << "Socket operation on non-socket.";
 		break;
 	case WSAEOPNOTSUPP:
-		vipcerr << "Operation not supported.";
+		vstr::err() << "Operation not supported.";
 		break;
 	case WSAEPFNOSUPPORT:
-		vipcerr << "Protocol family not supported.";
+		vstr::err() << "Protocol family not supported.";
 		break;
 	case WSAEPROCLIM:
-		vipcerr << "Too many processes.";
+		vstr::err() << "Too many processes.";
 		break;
 	case WSAEPROTONOSUPPORT:
-		vipcerr << "Protocol not supported.";
+		vstr::err() << "Protocol not supported.";
 		break;
 	case WSAEPROTOTYPE:
-		vipcerr << "Protocol wrong type for socket.";
+		vstr::err() << "Protocol wrong type for socket.";
 		break;
 	case WSAESHUTDOWN:
-		vipcerr << "Cannot send after socket shutdown.";
+		vstr::err() << "Cannot send after socket shutdown.";
 		break;
 	case WSAESOCKTNOSUPPORT:
-		vipcerr << "Socket type not supported.";
+		vstr::err() << "Socket type not supported.";
 		break;
 	case WSAETIMEDOUT:
-		vipcerr << "Connection timed out.";
+		vstr::err() << "Connection timed out.";
 		break;
 /*	case WSATYPE_NOT_FOUND:
-		cerr << "Class type not found.";
+		vstr::err() << "Class type not found.";
 		break;
 	case WSAHOST_NOT_FOUND:
-		cerr << "Host not found.";
+		vstr::err() << "Host not found.";
 		break;
 	case WSA_INVALID_HANDLE:
-		cerr << "Specified event object handle is invalid.";
+		vstr::err() << "Specified event object handle is invalid.";
 		break;
 	case WSA_INVALID_PARAMETER:
-		cerr << "One or more parameters are invalid.";
+		vstr::err() << "One or more parameters are invalid.";
 		break;
 	case WSAINVALIDPROCTABLE:
-		cerr << "Invalid procedure table from service provider.";
+		vstr::err() << "Invalid procedure table from service provider.";
 		break;
 	case WSAINVALIDPROVIDER:
-		cerr << "Invalid service provider version number.";
+		vstr::err() << "Invalid service provider version number.";
 		break;
 	case WSA_IO_INCOMPLETE:
-		cerr << "Overlapped I/O event object not in signaled state.";
+		vstr::err() << "Overlapped I/O event object not in signaled state.";
 		break;
 	case WSA_IO_PENDING:
-		cerr << "Overlapped operations will complete later.";
+		vstr::err() << "Overlapped operations will complete later.";
 		break;
 	case WSA_NOT_ENOUGH_MEMORY:
-		cerr << "Insufficient memory available.";
+		vstr::err() << "Insufficient memory available.";
 		break;
 */		case WSANOTINITIALISED:
-		vipcerr << "Successful WSAStartup not yet performed.";
+		vstr::err() << "Successful WSAStartup not yet performed.";
 		break;
 	case WSANO_DATA:
-		vipcerr << "Valid name, no data record of requested type.";
+		vstr::err() << "Valid name, no data record of requested type.";
 		break;
 	case WSANO_RECOVERY:
-		vipcerr << "This is a non-recoverable error.";
+		vstr::err() << "This is a non-recoverable error.";
 		break;
 /*	case WSAPROVIDERFAILEDINIT:
-		cerr << "Unable to initialize a service provider.";
+		vstr::err() << "Unable to initialize a service provider.";
 		break;
 	case WSASYSCALLFAILURE:
-		cerr << "System call failure.";
+		vstr::err() << "System call failure.";
 		break;
 */		case WSASYSNOTREADY:
-		vipcerr << "Network subsystem is unavailable.";
+		vstr::err() << "Network subsystem is unavailable.";
 		break;
 	case WSATRY_AGAIN:
-		vipcerr << "Non-authoritative host not found.";
+		vstr::err() << "Non-authoritative host not found.";
 		break;
 	case WSAVERNOTSUPPORTED :
-		vipcerr << "WINSOCK.DLL version out of range.";
+		vstr::err() << "WINSOCK.DLL version out of range.";
 		break;
 	case WSAEDISCON:
-		vipcerr << "Graceful shutdown in progress.";
+		vstr::err() << "Graceful shutdown in progress.";
 		break;
 /*		case WSA_OPERATION_ABORTED:
-		cerr << "Overlapped operation aborted.";
+		vstr::err() << "Overlapped operation aborted.";
 		break;
 */	
 	case WSAEWOULDBLOCK:
 		break;
 	default:
-		vipcerr << "Unknown error number." << iErrno;
+		vstr::err() << "Unknown error number." << iErrno;
 		break;
 	}
 #else
@@ -241,28 +242,28 @@ static void TranslateHostResolveError(int iErrno)
 	{
 		case HOST_NOT_FOUND:
 			{
-				vipcerr << "HOST NOT FOUND";
+				vstr::err() << "HOST NOT FOUND";
 				break;
 			}
 		case NO_ADDRESS:
 			{
-				vipcerr << "NO IP ADDRESS";
+				vstr::err() << "NO IP ADDRESS";
 				break;
 			}
 		case NO_RECOVERY:
 		case TRY_AGAIN:
 			{
-				vipcerr << "DNS ERROR? (NO RECOVERY OR TRY AGAIN LATER)";
+				vstr::err() << "DNS ERROR? (NO RECOVERY OR TRY AGAIN LATER)";
 				break;
 			}
 		default:
 			{
-				vipcerr << "UNKNOWN ERROR (" << iErrno << ")";
+				vstr::err() << "UNKNOWN ERROR (" << iErrno << ")";
 				break;
 			}
 	}
 #endif
-	vipcerr << endl;
+	vstr::err() << std::endl;
 }
 
 
@@ -327,7 +328,8 @@ bool VistaIPAddress::ResolveHostName(const string &sHostName)
 
 	if(!pheDetails)
 	{
-		vipcout << "[VistaIpAddress]: gethostbyname failed on " << sHostName.c_str() << endl;
+		vstr::warnp() << "[VistaIpAddress]: gethostbyname failed on " 
+						<< sHostName.c_str() << std::endl;
 		#if !defined(HPUX)
 		/** @todo fix this 'compatibility' feature */
 		TranslateHostResolveError(h_errno);
@@ -356,9 +358,9 @@ void VistaIPAddress::SetHostName(const string &sHostName)
 void VistaIPAddress::SetAddress(const string &sAddress)
 {
 	
-	struct hostent  *pheDetails;
+	struct hostent *pheDetails = gethostbyaddr(sAddress.data(), (int)sAddress.length(), AF_INET);
 
-	if(!(pheDetails = gethostbyaddr(sAddress.data(), (int)sAddress.length(), AF_INET)))
+	if( !pheDetails )
 	{
 		#if !defined(HPUX)
 		/** @todo fix this 'compatibility' feature */

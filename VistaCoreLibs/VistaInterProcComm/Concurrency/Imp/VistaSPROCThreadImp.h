@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSPROCThreadImp.h 23493 2011-09-22 16:12:15Z dr165799 $
 
 #if defined(VISTA_THREADING_SPROC)
 
@@ -49,115 +49,30 @@ class sproc_hlp;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-
-/**
- *
- */
 class VistaSPROCThreadImp : public IVistaThreadImp
 {
-private:
-protected:
-
-	/**
-	 *
-	 */
-	const VistaThread  &m_rThread; /**< @todo think about this */
-
-	/**
-	 *
-	 */
-	VistaThreadEvent *m_pFinalizeEvent;
-
-	/**
-	 *
-	 */
-	sproc_hlp         *m_pHlp;
-
-	/**
-	 *
-	 */
-	bool     m_bIsRunning;
-
-	/**
-	 *
-	 */
-	bool     m_bCanBeCancelled;
-
-
-	/**
-	 *
-	 */
-	long        irixPID;
 public:
-
-	/**
-	 *
-	 */
 	VistaSPROCThreadImp(const VistaThread &);
-
-	/**
-	 *
-	 */
 	virtual ~VistaSPROCThreadImp();
 
-	/**
-	 *
-	 */
-	virtual bool     Run         ( ) ;
+	virtual bool Run( ) ;
+	virtual bool Suspend() ;
+	virtual bool Resume() ;
+	virtual bool Join() ;
+	virtual bool Abort() ;
 
-	/**
-	 *
-	 */
-	virtual bool     Suspend          () ;
-
-
-	/**
-	 *
-	 */
-	virtual bool     Resume      () ;
-
-	/**
-	 *
-	 */
-	virtual bool     Join        () ;
-
-
-	/**
-	 *
-	 */
-	virtual bool     Abort        () ;
-
-	/**
-	 *
-	 */
 	virtual bool     SetPriority   ( const VistaPriority & ) ;
-
-
-	/**
-	 *
-	 */
 	virtual void GetPriority   (VistaPriority &) const ;
 
-	/**
-	 *
-	 */
 	static IVistaThreadImp *CreateThreadImp(const VistaThread &);
 
 	/**
 	 * give the processor away temporarily
 	 */
-	void            YieldThread   ();
+	void YieldThread();
 
-
-	/**
-	 *
-	 */
-	void      SetCancelAbility(const bool bOkToCancel);
-
-	/**
-	 *
-	 */
-	bool      CanBeCancelled() const;
+	void SetCancelAbility(const bool bOkToCancel);
+	bool CanBeCancelled() const;
 
 
 	/**
@@ -172,8 +87,15 @@ public:
 	virtual void PostRun();
 
 	virtual long GetThreadIdentity() const;
+	static long GetCallingThreadIdentity() const;
 
-
+protected:
+	const VistaThread  &m_rThread; /**< @todo think about this */
+	VistaThreadEvent *m_pFinalizeEvent;
+	sproc_hlp         *m_pHlp;
+	bool     m_bIsRunning;
+	bool     m_bCanBeCancelled;
+	long        irixPID;
 };
 
 /*============================================================================*/

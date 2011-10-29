@@ -1,10 +1,15 @@
-# $Id$
+# $Id: CMakeLists.txt 21407 2011-05-20 13:36:52Z dr165799 $
 
 vista_adopt_version( VistaBase VistaCoreLibs )
+
+# set our dependencies to other corelibs
+set( VISTABASE_INTERNAL_DEPENDENCIES )
+set( VISTABASE_INTERNAL_DEPENDENCIES ${VISTABASE_INTERNAL_DEPENDENCIES} PARENT_SCOPE )
 
 if( UNIX AND NOT APPLE )
 	set( LIBRARIES rt )
 endif( UNIX AND NOT APPLE )
+
 
 include( "./_SourceFiles.cmake" )
 

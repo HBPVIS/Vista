@@ -20,13 +20,14 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaIOHandleBasedMultiplexer.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaIOHandleBasedMultiplexer.h" 
 #include <VistaInterProcComm/Concurrency/VistaMutex.h>
 #include <VistaInterProcComm/Concurrency/VistaThreadCondition.h>
 #include <VistaInterProcComm/Concurrency/VistaThreadEvent.h>
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+#
+#include <VistaBase/VistaStreamUtils.h>
 
 
 #include <cassert>
@@ -102,18 +103,18 @@ void VistaIOHandleBasedIOMultiplexer::PrintHandlemap() const
 	for(HANDLEMAP::const_iterator cit = m_mpHandleMap.begin();
 		cit != m_mpHandleMap.end(); ++cit)
 	{
-		vipcout << "[" << (*cit).first << "]: ("
+		vstr::outi() << "[" << (*cit).first << "]: ("
 			<< (*cit).second.first
 			<< ";"
 			<< (*cit).second.second
-			<< ")\n";
+			<< ")" << std::endl;
 	}
 }
 
 
 int VistaIOHandleBasedIOMultiplexer::Demultiplex(unsigned int nTimeout)
 {
-	// cout << "VistaIOHandleBasedIOMultiplexer::Demultiplex()\n";
+	// cout << "VistaIOHandleBasedIOMultiplexer::Demultiplex()" << std::endl;
 	
 	bool bDone = false;
 	while(!bDone)
@@ -163,7 +164,8 @@ int VistaIOHandleBasedIOMultiplexer::Demultiplex(unsigned int nTimeout)
 				FD_SET((*cit).first, &myExSocks);
 			}
 
-			hanMax = hanMax < (*cit).first ? hanMax = (*cit).first : hanMax = hanMax;
+			if( hanMax < (*cit).first )
+				hanMax = (*cit).first;
 		}
 
 		// printf("VistaIOMultiplexerIP::Demultiplex() -- before select, hanMax = %d\n", hanMax);
@@ -198,23 +200,23 @@ int VistaIOHandleBasedIOMultiplexer::Demultiplex(unsigned int nTimeout)
 		else if( iRet == -1 )
 		{
 			perror( "select" );
-			vipcerr << "Call to select failed: ";
+			vstr::errp() << "Call to select failed: ";
 			switch( errno )
 			{
 				case EBADF:
-					vipcerr << "Invalid File Descriptor occured" << std::endl;
+					vstr::err() << "Invalid File Descriptor occured" << std::endl;
 					break;
 				case EINVAL:
-					vipcerr << "Invalid file number or timeout" << std::endl;
+					vstr::err() << "Invalid file number or timeout" << std::endl;
 					break;
 				case EINTR:
-					vipcerr << "System interrupt call" << std::endl;
+					vstr::err() << "System interrupt call" << std::endl;
 					break;
 				case ENOMEM:
-					vipcerr << "Could not allocate internatl memory" << std::endl;
+					vstr::err() << "Could not allocate internatl memory" << std::endl;
 					break;
 				default:
-					vipcerr << "Unknown error" << std::endl;
+					vstr::err() << "Unknown error" << std::endl;
 					break;
 			}			
 		}
@@ -227,7 +229,7 @@ int VistaIOHandleBasedIOMultiplexer::Demultiplex(unsigned int nTimeout)
 		if(bFail)
 		{
 			// failed
-			vipcerr <<  "[VistaIOHandleBasedIOMultiplexer] WAIT FAILED , leave loop" << std::endl;			
+			vstr::errp() <<  "[VistaIOHandleBasedIOMultiplexer] WAIT FAILED , leave loop" << std::endl;			
 			bDone = true; // leave loop
 			PrintHandlemap();
 		}
@@ -238,7 +240,7 @@ int VistaIOHandleBasedIOMultiplexer::Demultiplex(unsigned int nTimeout)
 			case MPC_SHUTDOWN:
 				{
 					// leave loop
-					vipcout <<  ("[VistaIOHandleBasedIOMultiplexer] state SHUTDOWN , leave loop\n");
+					vstr::outi() << "[VistaIOHandleBasedIOMultiplexer] state SHUTDOWN , leave loop" << std::endl;
 					bDone = true;
 					break;
 				}
@@ -248,7 +250,7 @@ int VistaIOHandleBasedIOMultiplexer::Demultiplex(unsigned int nTimeout)
 					// ok, we got signaled by the control event
 					// indicate that we are waiting
 					(*m_pActionMutex).Lock();
-					vipcout << "[VistaIOHandleBasedIOMultiplexer] Got COMMAND " <<  m_eCom << endl;
+					vstr::outi() << "[VistaIOHandleBasedIOMultiplexer] Got COMMAND " <<  m_eCom << std::endl;
 					// wait for action done
 					(*m_pActionMutex).Unlock();
 					break;
@@ -300,13 +302,13 @@ int VistaIOHandleBasedIOMultiplexer::Demultiplex(unsigned int nTimeout)
 					}
 
 					// failed
-					vipcerr << "Could not find handle for fd ["
-						<< iRet << "]\n";
+					vstr::errp()<< "Could not find handle for fd ["
+						<< iRet << "]" << std::endl;
 					return -1;
 #endif
 				}
 			default:
-				printf ("[MultiplexIP] Unknown state, leave loop");
+				vstr::errp() << "[MultiplexIP] Unknown state, leave loop" << std::endl;
 				bDone = true; // leave loop
 				break;
 			}
@@ -405,12 +407,12 @@ int  VistaIOHandleBasedIOMultiplexer::GetTicketForHandle(HANDLE han) const
 	HANDLEMAP::const_iterator cit = m_mpHandleMap.find(han);
 	if(cit == m_mpHandleMap.end())
 	{
-		//std::cerr << "Demultiplexer: handle " <<  han << " not found!\n";
+		//std::cerr << "Demultiplexer: handle " <<  han << " not found!" << std::ednl;
 		return -1;
 	}
 
 	//cout << "Demultiplexer: returning handle ["
-	//        << (*cit).second.first << "]\n";
+	//        << (*cit).second.first << "]" << std::endl;
 
 	return (*cit).second.first; 
 }
@@ -421,8 +423,8 @@ bool VistaIOHandleBasedIOMultiplexer::AddPoint(HANDLE han, int iTicket, eIODir e
 #ifdef WIN32
 	if(m_veHandles.size() + 1 > MAXIMUM_WAIT_OBJECTS)
 	{
-		vipcerr << "[VistaIOHandleBasedIOMultiplexer::AddPoint()]: WIN32 limit of ["
-			<< MAXIMUM_WAIT_OBJECTS << "] reached. Not adding this point!\n";
+		vstr::errp()<< "[VistaIOHandleBasedIOMultiplexer::AddPoint()]: WIN32 limit of ["
+			<< MAXIMUM_WAIT_OBJECTS << "] reached. Not adding this point!" << std::endl;
 		return false;
 	}
 #endif
@@ -432,7 +434,7 @@ bool VistaIOHandleBasedIOMultiplexer::AddPoint(HANDLE han, int iTicket, eIODir e
 		m_veHandles.push_back(han);
 		m_mpTicketMap[iTicket] = han;
 		m_mpHandleMap[han] = pair<int, eIODir>(iTicket, eDir);
-		//cout << "AddPoint(" << han<< "," <<  iTicket << "," << eDir << ")\n";
+		//cout << "AddPoint(" << han<< "," <<  iTicket << "," << eDir << ")" << std::endl;
 		return true;
 	}
 	else
@@ -442,9 +444,6 @@ bool VistaIOHandleBasedIOMultiplexer::AddPoint(HANDLE han, int iTicket, eIODir e
 
 bool VistaIOHandleBasedIOMultiplexer::RemPoint(HANDLE han, int iTicket, eIODir eDir)
 {
-#if 0
-	vipcout << "VistaIOHandleBasedIOMultiplexer::RemPoint() -- \n";
-#endif
 	// remove handle from:
 	//  - m_veHandles
 	//  - m_TicketMap
@@ -452,21 +451,24 @@ bool VistaIOHandleBasedIOMultiplexer::RemPoint(HANDLE han, int iTicket, eIODir e
 	vector<HANDLE>::iterator it = find(m_veHandles.begin(), m_veHandles.end(), han);
 	if(it == m_veHandles.end())
 	{
-		vipcerr << "bogus... do not find handle in handle vector upon remove?\n";
+		vstr::warnp() << "VistaIOHandleBasedIOMultiplexer::RemPoint() - Handle not found in handle vector" 
+				<< std::endl;
 		return false;
 	}
 
 	HANDLEMAP::iterator it1 = m_mpHandleMap.find(han);
 	if(it1 == m_mpHandleMap.end())
 	{
-		vipcerr << "bogus... do not find handle in handle map upon remove?\n";
+		vstr::warnp() << "VistaIOHandleBasedIOMultiplexer::RemPoint() - Handle not found in handle map" 
+				<< std::endl;
 		return false;
 	}
 
 	TICKETMAP::iterator ti = m_mpTicketMap.find((*it1).second.first);
 	if( ti == m_mpTicketMap.end())
 	{
-		vipcerr << "bogus... do not find ticket in ticket map upon remove?\n";
+		vstr::warnp() << "VistaIOHandleBasedIOMultiplexer::RemPoint() - Handle not found in ticket map" 
+				<< std::endl;
 		return false;
 	}
 
@@ -479,9 +481,6 @@ bool VistaIOHandleBasedIOMultiplexer::RemPoint(HANDLE han, int iTicket, eIODir e
 	// remove from m_mpHandleMap
 	m_mpHandleMap.erase(it1);
 
-#if 0
-	vipcout << "REMOVE SUCCESS\n";
-#endif
 	return true;	
 }
 

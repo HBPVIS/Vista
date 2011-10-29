@@ -34,7 +34,7 @@
 /* be held responsible. Basically, don't be a jerk, and remember that         */
 /* anything free comes with no guarantee.                                     */
 /*============================================================================*/
-// $Id: VistaTransformMatrix.cpp 23146 2011-09-05 08:12:31Z dr165799 $
+// $Id$
 
 #include "VistaTransformMatrix.h" 
 
@@ -42,7 +42,8 @@
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
 
-namespace {
+namespace
+{
 
 
 	/**** Decompose.h - Basic declarations ****/
@@ -196,6 +197,12 @@ namespace {
 				caseMacro(x,y,z,Vista::X,Vista::Y,Vista::Z);
 				caseMacro(y,z,x,Vista::Y,Vista::Z,Vista::X);
 				caseMacro(z,x,y,Vista::Z,Vista::X,Vista::Y);
+			default:
+				qu.x = 0; 
+				qu.y = 0;
+				qu.z = 0; 
+				qu.w = 1;
+				break;
 			}
 		}
 		if (mat[Vista::W][Vista::W] != 1.0) qu = Qt_Scale(qu, 1/sqrt(mat[Vista::W][Vista::W]));
@@ -448,13 +455,39 @@ namespace {
 			mag[0] = (double)q.z*q.z+(double)q.w*q.w-0.5f ;
 			mag[1] = (double)q.x*q.z-(double)q.y*q.w;
 			mag[2] = (double)q.y*q.z+(double)q.x*q.w;
-			for (i=0; i<3; i++) if (neg[i] = (mag[i]<0.0)) mag[i] = -mag[i];
-			if (mag[0]>mag[1]) {if (mag[0]>mag[2]) win = 0; else win = 2;}
-			else		   {if (mag[1]>mag[2]) win = 1; else win = 2;}
-			switch (win) {
-		case 0: if (neg[0]) p = q1000; else p = q0001; break;
-		case 1: if (neg[1]) p = qppmm; else p = qpppp; cycle(ka,0) break;
-		case 2: if (neg[2]) p = qmpmm; else p = qpppm; cycle(ka,1) break;
+			for (i=0; i<3; i++)
+			{
+				neg[i] = (mag[i]<0.0);
+				if( neg[i] )
+					mag[i] = -mag[i];
+			}
+			if (mag[0]>mag[1])
+			{
+				if (mag[0]>mag[2])
+					win = 0;
+				else
+					win = 2;
+			}
+			else
+			{
+				if (mag[1]>mag[2])
+					win = 1;
+				else win = 2;
+			}
+			switch (win)
+			{
+				case 0:
+				{
+					if (neg[0]) p = q1000; else p = q0001; break;
+				}
+				case 1:
+				{
+					if (neg[1]) p = qppmm; else p = qpppp; cycle(ka,0) break;
+				}
+				case 2:
+				{
+					if (neg[2]) p = qmpmm; else p = qpppm; cycle(ka,1) break;
+				}
 			}
 			qp = Qt_Mul(q, p);
 			t = sqrt(mag[win]+0.5f );
@@ -467,7 +500,8 @@ namespace {
 			qa[0] = q.x; qa[1] = q.y; qa[2] = q.z; qa[3] = q.w;
 			for (i=0; i<4; i++) {
 				pa[i] = 0.0;
-				if (neg[i] = (qa[i]<0.0)) qa[i] = -qa[i];
+				neg[i] = (qa[i]<0.0);
+				if ( neg[i] ) qa[i] = -qa[i];
 				par ^= neg[i];
 			}
 			/* Find two largest components, indices in hi and lo */
@@ -569,21 +603,21 @@ float VistaTransformMatrix::GetAdjunct( const int iRow, const int iColumn ) cons
 	// negative sign if odd(row + col)
 	if ( (iRow + iColumn) & 1 )
 	{
-		return ( m_a4x4fMatrix[iRowP1][iColP3] * m_a4x4fMatrix[iRowP2][iColP2] * m_a4x4fMatrix[iRowP3][iColP1] -
-				 m_a4x4fMatrix[iRowP1][iColP2] * m_a4x4fMatrix[iRowP2][iColP1] * m_a4x4fMatrix[iRowP3][iColP3] -
-				 m_a4x4fMatrix[iRowP1][iColP1] * m_a4x4fMatrix[iRowP2][iColP3] * m_a4x4fMatrix[iRowP3][iColP2] -
-				 m_a4x4fMatrix[iRowP1][iColP1] * m_a4x4fMatrix[iRowP2][iColP2] * m_a4x4fMatrix[iRowP3][iColP3] +
-				 m_a4x4fMatrix[iRowP1][iColP2] * m_a4x4fMatrix[iRowP2][iColP3] * m_a4x4fMatrix[iRowP3][iColP1] +
-				 m_a4x4fMatrix[iRowP1][iColP3] * m_a4x4fMatrix[iRowP2][iColP1] * m_a4x4fMatrix[iRowP3][iColP2] );
+		return ( operator()( iRowP1, iColP3 ) * operator()( iRowP2, iColP2 ) * operator()( iRowP3, iColP1 ) -
+				 operator()( iRowP1, iColP2 ) * operator()( iRowP2, iColP1 ) * operator()( iRowP3, iColP3 ) -
+				 operator()( iRowP1, iColP1 ) * operator()( iRowP2, iColP3 ) * operator()( iRowP3, iColP2 ) -
+				 operator()( iRowP1, iColP1 ) * operator()( iRowP2, iColP2 ) * operator()( iRowP3, iColP3 ) +
+				 operator()( iRowP1, iColP2 ) * operator()( iRowP2, iColP3 ) * operator()( iRowP3, iColP1 ) +
+				 operator()( iRowP1, iColP3 ) * operator()( iRowP2, iColP1 ) * operator()( iRowP3, iColP2 ) );
 	}
 	else
 	{
-		return ( m_a4x4fMatrix[iRowP1][iColP1] * m_a4x4fMatrix[iRowP2][iColP2] * m_a4x4fMatrix[iRowP3][iColP3] +
-				 m_a4x4fMatrix[iRowP1][iColP2] * m_a4x4fMatrix[iRowP2][iColP3] * m_a4x4fMatrix[iRowP3][iColP1] +
-				 m_a4x4fMatrix[iRowP1][iColP3] * m_a4x4fMatrix[iRowP2][iColP1] * m_a4x4fMatrix[iRowP3][iColP2] -
-				 m_a4x4fMatrix[iRowP1][iColP3] * m_a4x4fMatrix[iRowP2][iColP2] * m_a4x4fMatrix[iRowP3][iColP1] -
-				 m_a4x4fMatrix[iRowP1][iColP2] * m_a4x4fMatrix[iRowP2][iColP1] * m_a4x4fMatrix[iRowP3][iColP3] -
-				 m_a4x4fMatrix[iRowP1][iColP1] * m_a4x4fMatrix[iRowP2][iColP3] * m_a4x4fMatrix[iRowP3][iColP2] );
+		return ( operator()( iRowP1, iColP1 ) * operator()( iRowP2, iColP2 ) * operator()( iRowP3, iColP3 ) +
+				 operator()( iRowP1, iColP2 ) * operator()( iRowP2, iColP3 ) * operator()( iRowP3, iColP1 ) +
+				 operator()( iRowP1, iColP3 ) * operator()( iRowP2, iColP1 ) * operator()( iRowP3, iColP2 ) -
+				 operator()( iRowP1, iColP3 ) * operator()( iRowP2, iColP2 ) * operator()( iRowP3, iColP1 ) -
+				 operator()( iRowP1, iColP2 ) * operator()( iRowP2, iColP1 ) * operator()( iRowP3, iColP3 ) -
+				 operator()( iRowP1, iColP1 ) * operator()( iRowP2, iColP3 ) * operator()( iRowP3, iColP2 ) );
 	}
 }
 
@@ -600,7 +634,7 @@ bool VistaTransformMatrix::Decompose( VistaVector3D& v3Translation,
 	{
 		for(int j=0; j<4; j++)
 		{
-			hmatrix[i][j] = m_a4x4fMatrix[i][j];
+			hmatrix[i][j] = operator()( i, j );
 		}
 	}
 
@@ -648,7 +682,7 @@ bool VistaTransformMatrix::Decompose( VistaVector3D& v3Translation,
 	{
 		for(int j=0; j<4; j++)
 		{
-			hmatrix[i][j] = m_a4x4fMatrix[i][j];
+			hmatrix[i][j] = operator()( i, j );
 		}
 	}
 
@@ -734,12 +768,13 @@ VistaTransformMatrix::VistaTransformMatrix( const VistaVector3D& v3XAxis,
 {
 	for( int i = 0; i < 4; ++i )
 	{
-		m_a4x4fMatrix[i][0] = v3XAxis[i];
-		m_a4x4fMatrix[i][1] = v3YAxis[i];
-		m_a4x4fMatrix[i][2] = v3ZAxis[i];
+		operator()( i, 0 ) = v3XAxis[i];
+		operator()( i, 1 ) = v3YAxis[i];
+		operator()( i, 2 ) = v3ZAxis[i];
 	}
-	m_a4x4fMatrix[0][3] = 0.0f;
-	m_a4x4fMatrix[1][3] = 0.0f;
-	m_a4x4fMatrix[2][3] = 0.0f;
-	m_a4x4fMatrix[3][3] = 1.0f;
+	operator()( 0, 3 ) = 0.0f;
+	operator()( 1, 3 ) = 0.0f;
+	operator()( 2, 3 ) = 0.0f;
+	operator()( 3, 3 ) = 1.0f;
 }
+

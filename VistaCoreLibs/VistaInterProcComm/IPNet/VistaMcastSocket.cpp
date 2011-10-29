@@ -20,8 +20,13 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaMcastSocket.cpp 21315 2011-05-16 13:47:39Z dr165799 $
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+// $Id$
+
+#include "VistaMcastIPAddress.h"
+#include "VistaMcastSocketAddress.h"
+#include "VistaMcastSocket.h"
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #if defined(WIN32)
 	#include <winsock2.h>
@@ -59,9 +64,6 @@
 #include <iostream>
 using namespace std;
 
-#include "VistaMcastIPAddress.h"
-#include "VistaMcastSocketAddress.h"
-#include "VistaMcastSocket.h"
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -159,7 +161,7 @@ bool VistaMcastSocket::ActiveMulticast( int iMode, const string &sIpLocalString,
 {
 	if( !GetIsOpen() )
 	{
-		vipcerr << "VistaMcastSocket::ActiveMulticast() error: OpenSocket() not jet.\n";
+		vstr::errp() << "VistaMcastSocket::ActiveMulticast() error: OpenSocket() not jet" << std::endl;
 		return false;
 	}
 
@@ -171,27 +173,26 @@ bool VistaMcastSocket::ActiveMulticast( int iMode, const string &sIpLocalString,
 		
 		if( !BindToAddress( localSockAddr ) )
 		{
-			vipcerr << "VistaMcastSocket::ActiveMulticast() error: Can't bind to "
-				<< sIpLocalString.c_str()
-				<< ".\n";
+			vstr::errp() << "VistaMcastSocket::ActiveMulticast() error: Can't bind to "
+				<< sIpLocalString.c_str() << std::endl;
 			return false;
 		}
 		
 		if( !SetMulticast(remoteSocketAddr) )
 		{
-			vipcerr << "VistaMcastSocket::ActiveMulticast() error: SetMulticast().\n";
+			vstr::errp() << "VistaMcastSocket::ActiveMulticast() error: SetMulticast()" << std::endl;
 			return false;
 		}
 	
 		if( !SetMulticastTTL(iTTL) )
 		{
-			vipcerr << "VistaMcastSocket::ActiveMulticast() error: SetMulticastTTL().\n";
+			vstr::errp() << "VistaMcastSocket::ActiveMulticast() error: SetMulticastTTL()" << std::endl;
 			return false;
 		}
 
 		if( !SetMulticastLoopBack(bLoop) )
 		{
-			vipcerr << "VistaMcastSocket::ActiveMulticast() error: SetMulticastLoopBack().\n";
+			vstr::errp() << "VistaMcastSocket::ActiveMulticast() error: SetMulticastLoopBack()" << std::endl;
 			return false;
 		}
 
@@ -222,31 +223,31 @@ bool VistaMcastSocket::ActiveMulticast( int iMode, const string &sIpLocalString,
 
 		if( !BindToAddress( bindSockAddr ) )
 		{
-			vipcerr << "VistaMcastSocket::ActiveMulticast() error: Can't bind to "
+			vstr::errp() << "VistaMcastSocket::ActiveMulticast() error: Can't bind to "
 #if defined(WIN32)
 				<< "INADDR_ANY"
 #else
 				<< sIpMultiString.c_str()
 #endif
-				<< ", port " << iPort  << ".\n";
+				<< ", port " << iPort  << std::endl;
 			return false;
 		}
 
 		if( !SetMulticast(remoteSocketAddr) )
 		{
-			vipcerr << "VistaMcastSocket::ActiveMulticast() error: SetMulticast().\n";
+			vstr::errp() << "VistaMcastSocket::ActiveMulticast() error: SetMulticast()" << std::endl;
 			return false;
 		}
 
 		if( !JoinMulticast(localInterface) )
 		{
-			vipcerr << "VistaMcastSocket::ActiveMulticast() error: JoinMulticast().\n";
+			vstr::errp() << "VistaMcastSocket::ActiveMulticast() error: JoinMulticast()" << std::endl;
 			return false;
 		}
 
 	}else{
 
-		vipcerr << "VistaMcastSocket::ActiveMulticast() error: Unknown mode.\n";
+		vstr::errp() << "VistaMcastSocket::ActiveMulticast() error: Unknown mode." << std::endl;
 		return false;
 			
 	}
@@ -260,7 +261,7 @@ bool VistaMcastSocket::SetMulticast(const VistaMcastSocketAddress &sAddr)
 {
 	if ( GetIsJoinedMulticast() )
 	{
-		vipcerr << "VistaMcastSocket::SetMulticast() error: Overset Multicast Group.\n";
+		vstr::errp() << "VistaMcastSocket::SetMulticast() error: Overset Multicast Group" << std::endl;
 		return false;
 	}
 
@@ -276,7 +277,7 @@ int VistaMcastSocket::SendtoMulticast(void *pvBuffer, const int iLength, int fla
 {
 	if ( !GetIsSetMulticast() ){
 
-		vipcerr << "VistaMcastSocket::SendtoMulticast() error: Multicast Group is not set.\n";
+		vstr::errp() << "VistaMcastSocket::SendtoMulticast() error: Multicast Group is not set" << std::endl;
 		return -1;
 	}
 
@@ -287,7 +288,7 @@ int VistaMcastSocket::ReceivefromMulticast(void *pvBuffer, const int iLength, in
 {
 	if ( !GetIsJoinedMulticast() )
 	{
-		vipcerr << "VistaMcastSocket::ReceivefromMulticast() error: Not Join multicast group jet.\n";
+		vstr::errp() << "VistaMcastSocket::ReceivefromMulticast() error: Not Join multicast group jet" << std::endl;
 		return -1;
 	}
 	int iAddrLength = m_multiAddress.GetINAddressLength();
@@ -308,19 +309,19 @@ bool VistaMcastSocket::JoinMulticast( const VistaIPAddress &rNIFAddr  )
 
 	if ( GetIsJoinedMulticast() )
 	{
-		vipcerr << "VistaMcastSocket::MulticastJoin() warn: Joined multicast group already.\n";
+		vstr::errp() << "VistaMcastSocket::MulticastJoin() warn: Joined multicast group already" << std::endl;
 		return true;
 	}
 
 	if ( !GetIsSetMulticast() ){
 
-		vipcerr << "VistaMcastSocket::MulticastJoin() error: Multicast Group is not set.\n";
+		vstr::errp() << "VistaMcastSocket::MulticastJoin() error: Multicast Group is not set" << std::endl;
 		return false;
 	}
 	
 	if ( !GetIsBoundToAddress() ){
 	
-		vipcerr << "VistaMcastSocket::MulticastJoin() error: Socket is not bound.\n";
+		vstr::errp() << "VistaMcastSocket::MulticastJoin() error: Socket is not bound" << std::endl;
 		return false;
 	}
 	
@@ -330,11 +331,11 @@ bool VistaMcastSocket::JoinMulticast( const VistaIPAddress &rNIFAddr  )
 	
 	if (localAddr.GetPortNumber() != m_multiAddress.GetPortNumber())
 	{		
-		cerr << "VistaMcastSocket::MulticastJoin() warn: The bound port ["
+		vstr::errp() << "VistaMcastSocket::MulticastJoin() warn: The bound port ["
 			 << (int)(localAddr.GetPortNumber()) 
 			 << "] is different from multicast group port ["
 			 << (int)(m_multiAddress.GetPortNumber()) 
-			 << "].\n";
+			 << "]." << std::endl;
 		return false;
 	}
 	*/
@@ -364,7 +365,7 @@ bool VistaMcastSocket::JoinMulticast( const VistaIPAddress &rNIFAddr  )
 
 	m_bIsJoin = true;
 	
-	vipcout << "Join multicast!";
+	vstr::debugi() << "Join multicast!" << std::endl;
 	return true;
 }
 
@@ -373,7 +374,7 @@ bool VistaMcastSocket::DropMulticast( )
 	
 	if ( !GetIsJoinedMulticast() )
 	{
-		vipcerr << "VistaUDPSocket::MulticastDrop() error: Not join multicast group jet.\n";
+		vstr::errp() << "VistaUDPSocket::MulticastDrop() error: Not join multicast group jet" << std::endl;
 		return false;
 	}
 

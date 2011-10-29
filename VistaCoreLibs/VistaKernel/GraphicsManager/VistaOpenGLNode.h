@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaOpenGLNode.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTAOPENGLNODE_H
 #define _VISTAOPENGLNODE_H
@@ -48,7 +48,7 @@ class IVistaOpenGLDraw;
 class VISTAKERNELAPI VistaOpenGLNode : public VistaExtensionNode
 {
 	friend class IVistaNodeBridge;
-	friend class VistaSG;
+	friend class VistaSceneGraph;
 public:
 	virtual ~VistaOpenGLNode();
 

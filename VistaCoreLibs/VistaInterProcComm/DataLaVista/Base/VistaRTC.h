@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaRTC.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef IDLVISTARTC_H
 #define IDLVISTARTC_H
@@ -44,36 +44,14 @@
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI IDLVistaRTC
 {
-private:
-	/**
-	 * We prohibit copying
-	 */
-	IDLVistaRTC(IDLVistaRTC &);
-
-	static IDLVistaRTC *m_pSingleton;
-protected:
-	/**
-	 *
-	 */
-	IDLVistaRTC();
-
-	static void SetRTCSingleton(IDLVistaRTC *);
 public:
 
-	/**
-	 *
-	 */
 	virtual ~IDLVistaRTC();
 
 	virtual DLV_INT64 GetTickCount() const = 0;
-
 	virtual DLV_INT32 GetTimeStamp() const = 0;
-
 
 	virtual double GetSystemTime() const = 0;
 
@@ -82,6 +60,18 @@ public:
 	static IDLVistaRTC *GetRTCSingleton();
 
 	static const char *GetPrintfFormatSpecifier();
+
+protected:
+	IDLVistaRTC();
+
+	static void SetRTCSingleton(IDLVistaRTC *);
+private:
+	/**
+	 * We prohibit copying
+	 */
+	IDLVistaRTC(IDLVistaRTC &);
+
+	static IDLVistaRTC *m_pSingleton;
 };
 
 

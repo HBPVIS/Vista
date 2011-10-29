@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaFileSystemFile.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 
 /*============================================================================*/
@@ -38,7 +38,8 @@
 /*============================================================================*/
 
 #include "VistaFileSystemFile.h"
-#include "VistaToolsOut.h"
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -75,7 +76,8 @@ VistaFileSystemFile::~VistaFileSystemFile()
 
 bool VistaFileSystemFile::Delete()
 {
-	vtoolsout << "Delete file "<<GetName()<< endl;
+	vstr::outi() << "VistaFileSystemFile::Delete() -- deleting file ["
+				<< GetName() << "]" <<  std::endl;
 	return (remove(GetName().c_str()) == 0) ? true : false;
 }
 

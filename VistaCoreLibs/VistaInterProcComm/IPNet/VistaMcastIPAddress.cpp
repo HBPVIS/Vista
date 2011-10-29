@@ -20,8 +20,11 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaMcastIPAddress.cpp 21315 2011-05-16 13:47:39Z dr165799 $
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+// $Id$
+
+#include "VistaMcastIPAddress.h"
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #if defined(WIN32)
 #pragma warning(disable: 4996)
@@ -63,7 +66,7 @@
 #include <iostream>
 using namespace std;
 
-#include "VistaMcastIPAddress.h"
+
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
@@ -135,9 +138,10 @@ void VistaMcastIPAddress::SetHostName(const string &sHostName)
 					|| iAddrHl>=iReservedL2 && iAddrHl<=iReservedU2
 					|| iAddrHl>=iReservedL3 && iAddrHl<=iReservedU3 )
 				{
-					vipcerr << "VistaMcastIPAddress::SetHostName() error: ["
+					vstr::err() << "VistaMcastIPAddress::SetHostName() -- ["
 						<< sHostName
-						<< "] is a reserved multicast address, can not be used as a multicast group address.\n";
+						<< "] is a reserved multicast address, can not be used as a multicast group address"
+						<< std::endl;
 					
 					m_bIsValid     = false;
 					return;
@@ -155,9 +159,9 @@ void VistaMcastIPAddress::SetHostName(const string &sHostName)
 				}
 
 			}else {
-				vipcerr << "VistaMcastIPAddress::SetHostName() error: ["
+				vstr::errp() << "VistaMcastIPAddress::SetHostName() error: ["
 					<< sHostName
-					<< "] is not a valid multicast address.\n";
+					<< "] is not a valid multicast address" << std::endl;
 
 				m_bIsValid     = false;
 				return;
@@ -170,9 +174,9 @@ void VistaMcastIPAddress::SetHostName(const string &sHostName)
 		{
 			// this fails! we have a non-number-and-dot notation now
 			// it can not be used in multicast ip address
-			vipcerr << "VistaMcastIPAddress::SetHostName() error: ["
+			vstr::errp() << "VistaMcastIPAddress::SetHostName() error: ["
 				<< sHostName
-				<< "] is not a numbers-and-dots notation address.\n";
+				<< "] is not a numbers-and-dots notation address" << std::endl;
 
 			m_bIsValid     = false;
 			return;
@@ -203,9 +207,10 @@ void VistaMcastIPAddress::SetAddress(const string &sAddress)
 					|| iAddr>=iReservedL2 && iAddr<=iReservedU2
 					|| iAddr>=iReservedL3 && iAddr<=iReservedU3 )
 				{
-					vipcerr << "VistaMcastIPAddress::SetAddress() error: ["
+					vstr::errp() << "VistaMcastIPAddress::SetAddress() error: ["
 						<< sAddress
-						<< "] is a reserved multicast address, can not be used as a multicast group address.\n";
+						<< "] is a reserved multicast address, can not be used as a multicast group address"
+						<< std::endl;
 					
 					m_bIsValid     = false;
 					return;
@@ -225,9 +230,9 @@ void VistaMcastIPAddress::SetAddress(const string &sAddress)
 				}
 
 			}else {
-				vipcerr << "VistaMcastIPAddress::SetAddress() error: ["
+				vstr::errp() << "VistaMcastIPAddress::SetAddress() error: ["
 					<< sAddress
-					<< "] is not a valid multicast address.\n";
+					<< "] is not a valid multicast address" << std::endl;
 
 				m_bIsValid     = false;
 				return;

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenSGTextForeground.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 //---------------------------------------------------------------------------
 //  Includes
@@ -28,12 +28,16 @@
 #include "VistaOpenSGTextForeground.h"
 
 #include <VistaKernel/DisplayManager/Vista2DDrawingObjects.h>
-#include <VistaKernel/VistaKernelOut.h>
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #ifdef WIN32
 // disable warnings from OpenSG
 #pragma warning(push)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4189)
 #pragma warning(disable: 4231)
+#pragma warning(disable: 4267)
 #endif
 
 #include <OpenSG/OSGConfig.h>
@@ -156,10 +160,9 @@ VistaOpenSGTextForegroundBase::_COSGFaceHlp *VistaOpenSGTextForeground::initText
 	}
 	else
 	{
-		vkernerr << "[VistaOpenSGTextForeground::initTextFont] -- could not create TXFFace\n" ;
+		vstr::errp() << "[VistaOpenSGTextForeground::initTextFont] -- could not create TXFFace" << std::endl;
 		return NULL;
 	}
-	return NULL;
 }
 
 VistaOpenSGTextForegroundBase::_COSGFaceHlp *VistaOpenSGTextForeground::getOrGetAndInitTexChunk(UInt32 nFaceType, UInt32 size)

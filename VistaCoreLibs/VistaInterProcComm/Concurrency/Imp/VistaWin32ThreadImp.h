@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaWin32ThreadImp.h 23493 2011-09-22 16:12:15Z dr165799 $
 
 #if defined(VISTA_THREADING_WIN32)
 
@@ -52,109 +52,30 @@ class VistaThread;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI  VistaWin32ThreadImp : public IVistaThreadImp
 {
-private:
-protected:
-
-	/**
-	 *
-	 */
-	HANDLE   win32Handle;
-	DWORD    threadId;
-
-	/**
-	 *
-	 */
-	const VistaThread  &m_rThread; /**< @todo think about this */
-
-	/**
-	 *
-	 */
-	bool     m_bIsRunning;
-
-	/**
-	 *
-	 */
-	bool     m_bCanBeCancelled;
-
-	/**
-	 *
-	 */
-	DWORD    m_dwAffinityMask;
 public:
-
-	/**
-	 *
-	 */
 	VistaWin32ThreadImp(const VistaThread &);
-
-	/**
-	 *
-	 */
 	virtual ~VistaWin32ThreadImp();
 
-	/**
-	 *
-	 */
-	virtual bool     Run         ( ) ;
+	virtual bool Run();
+	virtual bool Suspend();
+	virtual bool Resume();
+	virtual bool Join();
+	virtual bool Abort();
 
-	/**
-	 *
-	 */
-	virtual bool     Suspend          () ;
+	virtual bool SetPriority( const VistaPriority & );
+	virtual void GetPriority(VistaPriority &) const;
 
-
-	/**
-	 *
-	 */
-	virtual bool     Resume      () ;
-
-	/**
-	 *
-	 */
-	virtual bool     Join        () ;
-
-
-	/**
-	 *
-	 */
-	virtual bool     Abort        () ;
-
-	/**
-	 *
-	 */
-	virtual bool     SetPriority   ( const VistaPriority & ) ;
-
-
-	/**
-	 *
-	 */
-	virtual void GetPriority   (VistaPriority &) const ;
-
-	/**
-	 *
-	 */
 	static IVistaThreadImp *CreateThreadImp(const VistaThread &);
 
 	/**
 	 * give the processor away temporarily
 	 */
-	void            YieldThread   ();
+	void YieldThread();
 
-
-	/**
-	 *
-	 */
-	void      SetCancelAbility(const bool bOkToCancel);
-
-	/**
-	 *
-	 */
-	bool      CanBeCancelled() const;
+	void SetCancelAbility(const bool bOkToCancel);
+	bool CanBeCancelled() const;
 
    /**
 	 * Method that is to be performed BEFORE departed fork starts execution
@@ -175,6 +96,15 @@ public:
 	virtual bool SetThreadName(const std::string &sName);
 
 	virtual long GetThreadIdentity() const;
+	static long GetCallingThreadIdentity();
+
+protected:
+	HANDLE   win32Handle;
+	DWORD    threadId;
+	const VistaThread  &m_rThread; /**< @todo think about this */
+	bool     m_bIsRunning;
+	bool     m_bCanBeCancelled;
+	DWORD    m_dwAffinityMask;
 };
 
 #endif // WIN32

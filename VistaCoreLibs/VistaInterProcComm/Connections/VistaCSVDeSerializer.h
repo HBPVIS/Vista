@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaCSVDeSerializer.h 22143 2011-07-01 15:07:00Z dr165799 $
 
 #ifndef _VISTACSVDESERIALIZER_H
 #define _VISTACSVDESERIALIZER_H
@@ -100,35 +100,6 @@ class VISTAINTERPROCCOMMAPI VistaCSVDeSerializer : public IVistaDeSerializer
 	virtual int ReadDelimitedString(std::string &, char cDelim = '\0');
 
   //  virtual int ReadString (string &sString, char cDelim) { return 0;}
-
-
-	virtual int ReadDoubleName( const char *sVarName, double &dDouble);
-
-	virtual int ReadShort16Name( const char *sVarName, VistaType::ushort16 &us16Val);
-
-	virtual int ReadInt32Name( const char *sVarName, VistaType::sint32 &si32Val);
-	virtual int ReadInt32Name( const char *sVarName, VistaType::uint32 &si32Val);
-
-	/**
-	 * @todo fix me: reads only 32 bit ints
-	 */
-	virtual int ReadInt64Name( const char *sVarName, VistaType::sint64 &si64Val) ;
-	virtual int ReadUInt64Name( const char *sVarName, VistaType::uint64 &ui64Val) ;
-
-	virtual int ReadFloat32Name( const char *sVarName, VistaType::float32 &fVal) ;
-
-	virtual int ReadFloat64Name( const char *sVarName, VistaType::float64 &f64Val);
-
-	virtual int ReadStringName(const char *sVarName, std::string &, int iMaxLength) ;
-
-	virtual int ReadStringName(const char *sVarName, std::string &sTarget, char cDelim = '\0');
-
-	virtual int ReadRawBufferName(const char *sVarName, void *pBuffer, int iLen) ;
-
-	virtual int ReadBoolName(const char *sVarName, bool &bVal) ;
-
-//    virtual int ReadStringName (const std::string &sVarName, string &sString, char cDelim) { return 0; }
-
 
 	virtual int ReadSerializable(IVistaSerializable &obj) ;
 

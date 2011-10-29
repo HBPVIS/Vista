@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaWin32MutexImp.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #if defined(VISTA_THREADING_WIN32)
 
@@ -54,49 +54,23 @@
 /*============================================================================*/
 
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI VistaWin32MutexImp : public IVistaMutexImp
 {
-
 public:
-
-	/**
-	 *
-	 */
 	VistaWin32MutexImp  (const std::string &sName, IVistaMutexImp::eScope nScope);
-
-	/**
-	 *
-	 */
 	virtual ~VistaWin32MutexImp ();
 
 
-	/**
-	 *
-	 */
-	virtual void Lock    ();
+	virtual void Lock ();
 
-	/**
-	 *
-	 */
-	virtual bool TryLock ();
+	virtual bool TryLock();
 
-	/**
-	 *
-	 */
-	virtual void Unlock  ();
+	virtual void Unlock();
 
 	HANDLE GetMutex() { return m_Mutex; };
 
 private:
-
-	/**
-	 *
-	 */
 	CRITICAL_SECTION     win32CriticalSection;
-
 	HANDLE m_Mutex;
 };
 

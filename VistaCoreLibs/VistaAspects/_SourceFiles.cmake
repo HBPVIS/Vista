@@ -6,14 +6,16 @@ set( RelativeSourceGroup "Source Files" )
 set( DirFiles
 	VistaGenericFactory.h
 	VistaAspectsConfig.h
-	VistaAspectsOut.cpp
-	VistaAspectsOut.h
 	VistaAspectsUtils.cpp
 	VistaAspectsUtils.h
+	VistaConversion.cpp
+	VistaConversion.h
 	VistaDeSerializer.cpp
 	VistaDeSerializer.h
 	VistaExplicitCallbackInterface.cpp
 	VistaExplicitCallbackInterface.h
+	VistaIniFileParser.cpp
+	VistaIniFileParser.h
 	VistaLocatable.cpp
 	VistaLocatable.h
 	VistaMarshalledObjectFactory.cpp

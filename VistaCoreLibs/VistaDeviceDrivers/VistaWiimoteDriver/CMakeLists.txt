@@ -1,3 +1,4 @@
+vista_find_package( wiiuse REQUIRED )
 		 
 # Transcoder
 

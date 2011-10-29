@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaRandomNumberGenerator.cpp 23018 2011-08-18 15:10:24Z dr165799 $
+// $Id$
 
 /*============================================================================*/
 /* INCLUDES                                                                   */
@@ -75,7 +75,8 @@ VistaRandomNumberGenerator *VistaRandomNumberGenerator::GetSingleton()
 void VistaRandomNumberGenerator::SetSeed(unsigned int s)
 {
 	m_mt[0]= s & 0xffffffff;
-	for (m_mti=1; m_mti<N; m_mti++) {
+	for (m_mti=1; m_mti<N; m_mti++)
+	{
 		m_mt[m_mti] = 
 		(1812433253 * (m_mt[m_mti-1] ^ (m_mt[m_mti-1] >> 30)) + m_mti); 
 		/* See Knuth TAOCP Vol2. 3rd Ed. P.106 for mtiplier. */

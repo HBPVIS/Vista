@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaTeeFilter.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef IDLVISTATEEFILTER_H
 #define IDLVISTATEEFILTER_H
@@ -52,63 +52,30 @@ class VistaThreadEvent;
 
 class VISTAINTERPROCCOMMAPI IDLVistaTeeFilter : public IDLVistaInPlaceFilter
 {
-private:
-	/**
-	 *
-	 */
-	std::deque<IDLVistaPipeComponent *> *m_pOutbounds;
+public:
+	IDLVistaTeeFilter();
+	~IDLVistaTeeFilter();
+
+
+	virtual bool AttachOutputComponent(IDLVistaPipeComponent * pComp);
+	virtual bool DetachOutputComponent(IDLVistaPipeComponent * pComp);
+
+	virtual int GetNumberOfOutbounds() const;
+
+	virtual IDLVistaPipeComponent *GetOutboundByIndex(int iIndex) const;
 
 protected:
-
-	VistaMutex *m_pMutexIn, *m_pMutexOut, *m_pLockEmpty, *m_pModifyOutbounds;
-
-	/**
-	 *
-	 */
-	VistaThreadEvent *m_pRecycleEvent;
-
-protected:
-
-	/**
-	 *
-	 */
 	VistaMutex *GrabMutex(VistaMutex *pMutex, bool bBlock);
 	int GetPacketIndex(IDLVistaDataPacket *) const;
 
 	void UpdatePacketIndex(IDLVistaDataPacket *pPacket, int iIndex);
-public:
 
-	/**
-	 *
-	 */
-	IDLVistaTeeFilter();
+protected:
+	VistaMutex *m_pMutexIn, *m_pMutexOut, *m_pLockEmpty, *m_pModifyOutbounds;
+	VistaThreadEvent *m_pRecycleEvent;
 
-	/**
-	 *
-	 */
-	~IDLVistaTeeFilter();
-
-
-	/**
-	 *
-	 */
-	virtual bool AttachOutputComponent(IDLVistaPipeComponent * pComp);
-
-	/**
-	 *
-	 */
-	virtual bool DetachOutputComponent(IDLVistaPipeComponent * pComp);
-
-	/**
-	 *
-	 */
-	virtual int GetNumberOfOutbounds() const;
-
-	/**
-	 *
-	 */
-	virtual IDLVistaPipeComponent *GetOutboundByIndex(int iIndex) const;
-
+private:
+	std::deque<IDLVistaPipeComponent *> *m_pOutbounds;
 };
 
 

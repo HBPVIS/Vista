@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaByteBufferPacket.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VistaByteBufferPacket.h"
 #include <VistaAspects/VistaSerializer.h>

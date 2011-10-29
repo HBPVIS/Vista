@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnTypeConvertNode.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VDFNTYPECONVERTNODE_H
 #define _VDFNTYPECONVERTNODE_H
@@ -66,7 +66,7 @@ template<class tFrom, class tTo>
 class TVdfnTypeConvertNode : public IVdfnNode
 {
 public:
-	typedef tTo (*CFAssign)(tFrom);
+	typedef tTo (*CFAssign)( const tFrom& );
 	typedef TVdfnPort<tFrom> FromPort;
 	typedef TVdfnPort<tTo>   ToPort;
 
@@ -114,17 +114,20 @@ public:
 	 * @param fct the conversion function to use for all instances created by
 	          this creator.
 	 */
-	VdfnTypeConvertNodeCreate( AssignF fct )
+	VdfnTypeConvertNodeCreate( AssignF fct = NULL )
 		: VdfnNodeFactory::IVdfnNodeCreator(),
-		  m_CFct(fct)
-	{}
+		  m_CFct( fct )
+	{
+		if( m_CFct == NULL )
+			m_CFct = &VistaConversion::ConvertType<tTo, tFrom>;
+	}
 
 	/**
 	 * creates an TVdfnTypeConvertNode, unconditional, no argument.
 	 */
 	virtual IVdfnNode *CreateNode( const VistaPropertyList &oParams ) const
 	{
-		return new TVdfnTypeConvertNode<tFrom, tTo>(m_CFct);
+		return new TVdfnTypeConvertNode<tFrom, tTo>( m_CFct );
 	}
 
 private:

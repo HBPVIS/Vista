@@ -20,49 +20,76 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDfnWindowSourceNode.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaDfnWindowSourceNode.h"
 #include <VistaDataFlowNet/VdfnPort.h>
 
-#include <VistaKernel/EventManager/VistaEventManager.h>
-#include <VistaKernel/EventManager/VistaEventHandler.h>
-#include <VistaKernel/EventManager/VistaDisplayEvent.h>
 #include <VistaKernel/DisplayManager/VistaWindow.h>
 #include <VistaKernel/DisplayManager/VistaViewport.h>
 
 #include <VistaKernel/DisplayManager/VistaDisplayManager.h>
 #include <VistaBase/VistaExceptionBase.h>
 #include <VistaAspects/VistaPropertyAwareable.h>
+#include <VistaAspects/VistaObserver.h>
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
-class VistaDfnWindowSourceNode::WindowObserver : public VistaEventHandler
+
+class VistaDfnWindowSourceNode::WindowObserver : public IVistaObserver
 {
 public:
-	WindowObserver(VistaEventManager *pMgr,
-					VistaWindow *pWindow)
-		: VistaEventHandler(),
-		  m_pMgr(pMgr),
-		  m_bRatioChange(true),
-		  m_pWindow(pWindow)
+	WindowObserver( VistaWindow* pWindow )
+	: IVistaObserver()
+	, m_pWindow( pWindow )
 	{
-		m_pMgr->AddEventHandler(this, VistaDisplayEvent::GetTypeId(), VistaDisplayEvent::VDE_RATIOCHANGE);
+		m_pWindow->GetWindowProperties()->AttachObserver( this );
 	}
 
 	~WindowObserver()
 	{
-		m_pMgr->RemEventHandler(this, VistaDisplayEvent::GetTypeId(), VistaDisplayEvent::VDE_RATIOCHANGE);
+		m_pWindow->GetWindowProperties()->DetachObserver( this );
 	}
 
-	void HandleEvent(VistaEvent *pEvent)
+	virtual bool ObserveableDeleteRequest( IVistaObserveable* pObserveable,
+										int nTicket = IVistaObserveable::TICKET_NONE )
 	{
-		VistaDisplayEvent *pDispEvent = static_cast<VistaDisplayEvent*>(pEvent);
-		if(pDispEvent->GetViewport()->GetWindow() == m_pWindow)
+		return true;
+	}
+
+	virtual void ObserveableDelete( IVistaObserveable* pObserveable,
+										int nTicket = IVistaObserveable::TICKET_NONE )
+	{
+		if( pObserveable == m_pWindow->GetWindowProperties() )
+			m_pWindow = NULL;
+	}
+
+	virtual void ReleaseObserveable( IVistaObserveable* pObserveable,
+										int nTicket = IVistaObserveable::TICKET_NONE )
+	{
+		if( m_pWindow->GetWindowProperties() == pObserveable )
+			m_pWindow = NULL;
+	}
+
+	virtual void ObserverUpdate( IVistaObserveable* pObserveable,
+										int nMsg, int nTicket )
+	{
+		if( nMsg == VistaWindow::VistaWindowProperties::MSG_SIZE_CHANGE )
 		{
 			m_bRatioChange = true;
 		}
+	}
+
+	virtual bool Observes( IVistaObserveable* pObserveable )
+	{
+		return ( pObserveable == m_pWindow->GetWindowProperties() );
+	}
+
+	virtual void Observe( IVistaObserveable* pObserveable, 
+										int nTicket = IVistaObserveable::TICKET_NONE )
+	{
+		// won't happen
 	}
 
 	bool GetRatioChange()
@@ -73,23 +100,20 @@ public:
 	}
 
 private:
-	VistaEventManager *m_pMgr;
-	bool m_bRatioChange;
-	VistaWindow *m_pWindow;
+	bool			m_bRatioChange;
+	VistaWindow*	m_pWindow;
 };
-
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
-VistaDfnWindowSourceNode::VistaDfnWindowSourceNode( VistaEventManager *pMgr,
-										  VistaWindow *pWindow )
+VistaDfnWindowSourceNode::VistaDfnWindowSourceNode( VistaWindow *pWindow )
 										  : IVdfnNode(),
 											m_pX(new TVdfnPort<int>),
 											m_pY(new TVdfnPort<int>),
 											m_pW(new TVdfnPort<int>),
 											m_pH(new TVdfnPort<int>),
 											m_pWindow(pWindow),
-											m_pObs(new WindowObserver(pMgr, pWindow)),
+											m_pObs(new WindowObserver( pWindow )),
 											m_nUpdateCount(0)
 {
 	RegisterOutPort( "win_x", m_pX );
@@ -114,7 +138,7 @@ bool VistaDfnWindowSourceNode::GetIsValid() const
 }
 
 
-bool   VistaDfnWindowSourceNode::DoEvalNode()
+bool VistaDfnWindowSourceNode::DoEvalNode()
 {
 	int nX, nY, nW, nH;
 	m_pWindow->GetWindowProperties()->GetSize(nW, nH);
@@ -128,7 +152,7 @@ bool   VistaDfnWindowSourceNode::DoEvalNode()
 	return true;
 }
 
-unsigned int    VistaDfnWindowSourceNode::CalcUpdateNeededScore() const
+unsigned int VistaDfnWindowSourceNode::CalcUpdateNeededScore() const
 {
 	if(m_pObs->GetRatioChange())
 	{

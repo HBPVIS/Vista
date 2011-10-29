@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPentiumBasedRTC.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #if defined(WIN32) || defined(LINUX) && !defined(ARM)
 #define DLV_IX86
@@ -51,20 +51,11 @@
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI DLVistaPentiumBasedRTC : public IDLVistaRTC
 {
 public:
-	/**
-	 *
-	 */
 	DLVistaPentiumBasedRTC();
 
-	/**
-	 *
-	 */
 	virtual ~DLVistaPentiumBasedRTC();
 
 	virtual DLV_INT64 GetTickCount() const;

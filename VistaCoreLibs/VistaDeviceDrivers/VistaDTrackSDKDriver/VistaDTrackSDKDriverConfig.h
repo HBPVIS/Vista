@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDTrackSDKDriverConfig.h 22143 2011-07-01 15:07:00Z dr165799 $
 
 #ifndef __VISTADTRACKSDKDRIVERCONFIG_H
 #define __VISTADTRACKSDKDRIVERCONFIG_H

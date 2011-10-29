@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaConnectionFile.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #if defined(WIN32)
 #pragma warning( disable: 4996 )
@@ -40,7 +40,7 @@
 
 #include "VistaConnectionFile.h"
 
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 
 VistaConnectionFile::VistaConnectionFile( const std::string& sFilename, 
@@ -106,7 +106,8 @@ void VistaConnectionFile::Close()
 	{
 		if( fclose(m_sStream) != 0 )
 		{
-			vipcerr << "Unable to close file: " << m_sFilename << std::endl;
+			vstr::errp() << "VistaConnectionFile::Close() -- Unable to close file: "
+						<< m_sFilename << std::endl;
 		}
 		m_sStream = NULL;
 	}

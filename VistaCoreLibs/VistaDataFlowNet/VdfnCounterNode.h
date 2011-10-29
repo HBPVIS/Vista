@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnCounterNode.h 22163 2011-07-03 14:11:15Z dr165799 $
 
 #ifndef _VDFNCOUNTERNODE_H
 #define _VDFNCOUNTERNODE_H
@@ -37,7 +37,6 @@
 #include "VdfnPort.h"
 #include "VdfnNodeFactory.h"
 #include "VdfnUtil.h"
-#include "VdfnOut.h"
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -101,12 +100,10 @@ protected:
 		{
 			m_iResetLastChange = m_pReset->GetUpdateCounter();
 			m_oValue = m_pReset->GetValue();
-			vdfnout << "[Counter] Reset"  << std::endl;
 		}
 		else
 			m_oValue += m_pDelta->GetValue();
 		m_pOut->SetValue( m_oValue, GetUpdateTimeStamp() );
-		vdfnout << "[Counter] " << m_oValue << std::endl;
 		return true;
 	}
 protected:

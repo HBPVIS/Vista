@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaMIDIDriver.h 5570 2010-10-26 20:21:11Z ingoassenmacher $
 
 #ifndef _VISTAMIDICOMMONSHARE_H__
 #define _VISTAMIDICOMMONSHARE_H__

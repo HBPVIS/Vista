@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaWin32ProcessImp.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #if defined(VISTA_THREADING_WIN32)
 
@@ -52,72 +52,27 @@ class VistaPriority;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI VistaWin32ProcessImp : public IVistaProcessImp
 {
-private:
-
-	/**
-	 *
-	 */
-	void CleanupProcess();
-protected:
-
-	/**
-	 *
-	 */
-	HANDLE   win32Handle;
 public:
 
-	/**
-	 *
-	 */
 	VistaWin32ProcessImp();
 
-	/**
-	 *
-	 */
 	virtual ~VistaWin32ProcessImp();
 
-	/**
-	 *
-	 */
-	virtual bool     Run         ( const std::string & inCommand );
+	virtual bool Run( const std::string & inCommand );
+	virtual bool Suspend();
+	virtual bool Resume();
+	virtual bool Join();
+	virtual bool Abort();
 
-	/**
-	 *
-	 */
-	virtual bool     Suspend          ();
+	virtual bool SetPriority( const VistaPriority & );
+	virtual void GetPriority( VistaPriority & ) const;
 
-
-	/**
-	 *
-	 */
-	virtual bool     Resume      ();
-
-	/**
-	 *
-	 */
-	virtual bool     Join        ();
-
-
-	/**
-	 *
-	 */
-	virtual bool     Abort        ();
-
-	/**
-	 *
-	 */
-	virtual bool     SetPriority   ( const VistaPriority & );
-
-
-	/**
-	 *
-	 */
-	virtual void GetPriority   ( VistaPriority & ) const;
+private:
+	void CleanupProcess();
+protected:
+	HANDLE   win32Handle;
 };
 
 #endif // WIN32

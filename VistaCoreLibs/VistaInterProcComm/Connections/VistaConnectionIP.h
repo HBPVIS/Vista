@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaConnectionIP.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTACONNECTIONIP_H
 #define _VISTACONNECTIONIP_H
@@ -45,16 +45,9 @@ class VistaThreadEvent;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI VistaConnectionIP : public VistaConnection
 {
 public:
-
-	/**
-	 *
-	 */
 	enum VistaProtocol
 	{
 		CT_NONE = -1,
@@ -62,14 +55,7 @@ public:
 		CT_UDP
 	};
 
-	/**
-	 *
-	 */
 	VistaConnectionIP(IVistaSocket *);
-
-	/**
-	 *
-	 */
 	VistaConnectionIP(IVistaSocket *, const std::string &sPeerName, const int iPeerPort);
 
 	/**
@@ -77,9 +63,6 @@ public:
 	 */
 	VistaConnectionIP(const std::string &sMyHost, const int iMyPort, bool bUDPBroadcast=false);
 
-	/**
-	 *
-	 */
 	VistaConnectionIP(const VistaProtocol type);
 
 	/**
@@ -88,33 +71,15 @@ public:
 	 */
 	VistaConnectionIP(const VistaProtocol type, const std::string &sHost, const int iPort, bool bUDPBroadcast=false);
 
-	/**
-	 *
-	 */
 	virtual ~VistaConnectionIP();
 
-
-	/**
-	 *
-	 */
 	bool Open();
-
-	/**
-	 *
-	 */
-	void Close(  );
+	void Close();
 
 	virtual void Close ( bool bSkipData );
 
 
-	/**
-	 *
-	 */
 	bool Connect(const std::string &sHost, const int iPort, bool bBlockingConnect = true);
-
-	/**
-	 *
-	 */
 	bool Connect(const VistaSocketAddress &, bool bBlockingConnect = true);
 
 	/**
@@ -189,19 +154,10 @@ public:
 	 */
 	int Send    (const void *buffer, const int length);
 
-	/**
-	 *
-	 */
 	VistaProtocol GetProtocol() const;
 
-	/**
-	 *
-	 */
 	bool          SetConnectionType(const VistaProtocol type);
 
-	/**
-	 *
-	 */
 	VistaSocketAddress GetPeerAddress() const;
 
 
@@ -258,14 +214,8 @@ private:
 	int m_iPeerPort;
 	int m_iLingerTime;
 
-	/**
-	 *
-	 */
 	VistaProtocol m_eProtocol;
 
-	/**
-	 *
-	 */
 	bool DoSetConnectionType(const VistaProtocol type);
 	VistaConnectionIP(const VistaConnectionIP &);
 };

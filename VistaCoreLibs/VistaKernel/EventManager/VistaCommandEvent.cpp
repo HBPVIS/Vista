@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaCommandEvent.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaCommandEvent.h"
 #include <VistaAspects/VistaSerializer.h>
@@ -118,14 +118,14 @@ VistaPropertyList VistaCommandEvent::GetPropertyList() const
 }
 void VistaCommandEvent::ClearPropertyList()
 {
-	//cout << "VistaCommandEvent::ClearPropertyList()\n";
+	//cout << "VistaCommandEvent::ClearPropertyList()" << std::endl;
 	m_mpPropertyList.clear();
 }
 
 int VistaCommandEvent::SetProperty(const VistaProperty &rProp)
 {
 /*	cout << "VistaCommandEvent()::SetProperty("
-			 << rProp.GetNameForNameable() << ")\n";
+			 << rProp.GetNameForNameable() << ")" << std::endl;
 			 */
 	m_mpPropertyList[rProp.GetNameForNameable()] = rProp;
 	return 1;
@@ -150,7 +150,7 @@ VistaProperty VistaCommandEvent::GetPropertyByName(const string &sPropName)
 bool VistaCommandEvent::SetPropertyByName(const string &sPropName,
 							   const string &sPropValue)
 {
-	m_mpPropertyList.SetStringValue(sPropName, sPropValue);
+	m_mpPropertyList.SetValue(sPropName, sPropValue);
 	return true;
 }
 
@@ -159,13 +159,13 @@ int VistaCommandEvent::SetPropertiesByList(const VistaPropertyList &rList)
 	m_mpPropertyList.clear();
 	m_mpPropertyList = rList;
 
-	return m_mpPropertyList.size();
+	return (int)m_mpPropertyList.size();
 }
 
 int VistaCommandEvent::GetPropertiesByList(VistaPropertyList &rList)
 {
 	rList = m_mpPropertyList;
-	return rList.size();
+	return (int)rList.size();
 }
 
 

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaMsgChannel.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include <cstdio>
 
@@ -28,7 +28,7 @@
 
 #include <VistaInterProcComm/Connections/VistaConnection.h>
 #include <VistaBase/VistaExceptionBase.h>
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <cstdio>
 #include <iostream>
@@ -65,7 +65,7 @@ VistaMsgChannel::VistaMsgChannel(VistaMsgChannel&rOther)
 /*============================================================================*/
 
 // dummy vector
-static std::vector<unsigned char> s_vEmpty;
+const static std::vector<VistaType::byte> S_vecEmpty;
 
 static int s_iPacketCount=0;
 
@@ -76,21 +76,20 @@ bool VistaMsgChannel::WriteGeneralMsg( VistaMsg &rMsg)
 		if(!m_pConnection)
 			return false;
 		m_rSer.ClearBuffer();
-		rMsg.SetMsgAnswer(s_vEmpty);
+		rMsg.SetMsgAnswer(S_vecEmpty);
 
 		rMsg.Serialize(m_rSer);
 		m_rSer.WriteInt32(++s_iPacketCount);
 		m_pConnection->WriteInt32(m_rSer.GetBufferSize());
-		m_pConnection->WriteRawBufferName("query", m_rSer.GetBuffer(), m_rSer.GetBufferSize());
+		m_pConnection->WriteRawBuffer( m_rSer.GetBuffer(), m_rSer.GetBufferSize());
 		int iLength = 0;
 		m_pConnection->ReadInt32(iLength);
-		//vipcout<<"delay"<<std::endl;
-		if(iLength)
+		if( iLength )
 		{
-			std::vector<char> veTmp(iLength);
+			std::vector<VistaType::byte> vecTmp( iLength );
 
-			m_pConnection->ReadRawBufferName("answer", &veTmp[0], iLength);
-			m_rDeSer.SetBuffer((char*)&veTmp[0], iLength);
+			m_pConnection->ReadRawBuffer( &vecTmp[0], iLength);
+			m_rDeSer.SetBuffer( &vecTmp[0], iLength );
 
 			rMsg.DeSerialize(m_rDeSer);
 #if defined(DEBUG)
@@ -118,7 +117,7 @@ std::string VistaMsgChannel::GetLastErrorString() const
 
 bool VistaMsgChannel::WriteMsg(int iMethodToken, const VistaPropertyList &rList, VistaMsg::MSG *pAnswer)
 {
-	VistaMsg msg;
+	VistaMsg oMsg;
 	
 	m_rSer.ClearBuffer();
 
@@ -126,10 +125,10 @@ bool VistaMsgChannel::WriteMsg(int iMethodToken, const VistaPropertyList &rList,
 	// hmm... we should think of something here
 	// but then: the number depends on the enumeration present
 	// in vistakernel
-	msg.SetMsgType(-3);
+	oMsg.SetMsgType(-3);
 
-	msg.GetThisMsgRef().resize(4096);
-	m_rSer.SetBuffer((char*)&msg.GetThisMsgRef()[0], 4096);
+	oMsg.GetThisMsgRef().resize(4096);
+	m_rSer.SetBuffer( &oMsg.GetThisMsgRef()[0], 4096);
 
 	m_rSer.WriteInt32(iMethodToken);
 	m_rSer.WriteInt32(0);
@@ -139,15 +138,13 @@ bool VistaMsgChannel::WriteMsg(int iMethodToken, const VistaPropertyList &rList,
 	//m_rSer.GetBuffer(msg.GetThisMsgRef());
 	//msg.SetThisMsg(veMsg);
 
-	// vipcout << "PropertyList serialized size= " << m_rSer.GetBufferSize() << endl;
-
 	// RELINK OLD BUFFER!
 	m_rSer.SetBuffer(NULL, 4096);
 
-	bool b=WriteGeneralMsg(msg);
+	bool b=WriteGeneralMsg(oMsg);
 	if(b && pAnswer)
 	{
-		*pAnswer = msg.GetMsgAnswer();
+		*pAnswer = oMsg.GetMsgAnswer();
 	}
 
 	return b;
@@ -161,7 +158,7 @@ bool VistaMsgChannel::WriteMsg(int iMethodToken, const VistaPropertyList &rList,
 		if(!rMsg.empty())
 		{
 			rAnswer.clear();
-			m_rDeSer.SetBuffer((const char*)&rMsg[0], (int)rMsg.size());
+			m_rDeSer.SetBuffer( &rMsg[0], (int)rMsg.size());
 			std::string sAnswer;
 			VistaPropertyList::DeSerializePropertyList(m_rDeSer, rAnswer, sAnswer);
 		}

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaWiimoteDriver.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 #include "VistaWiimoteSensorMeasures.h"
 #include "VistaWiimoteDriver.h"
@@ -136,42 +136,36 @@ namespace
 		"DOESREPORTACCELERATION",
 		SsReflectionName,
 		&VistaWiimoteDriver::CWiiMoteParameters::SetDoesAccelerationReports,
-		&VistaAspectsConversionStuff::ConvertToBool,
 		"enables / disables the reporting of acceleration values from the wiimote"),
 		new TVistaPropertySet<bool, bool,
 		VistaWiimoteDriver::CWiiMoteParameters> (
 		"DOESREPORTIR",
 		SsReflectionName,
 		&VistaWiimoteDriver::CWiiMoteParameters::SetDoesIRReports,
-		&VistaAspectsConversionStuff::ConvertToBool,
 		"enables / disables the reporting of IR values from the wiimote"),
 		new TVistaPropertySet<float, float,
 		VistaWiimoteDriver::CWiiMoteParameters> (
 		"SMOOTHALPHA",
 		SsReflectionName,
 		&VistaWiimoteDriver::CWiiMoteParameters::SetSmoothAlpha,
-		&VistaAspectsConversionStuff::ConvertToFloat1,
 		"sets the smoothing alpha to use for orientation values"),
 		new TVistaPropertySet<int, int,
 		VistaWiimoteDriver::CWiiMoteParameters> (
 		"ACCELERATIONTHRESHOLD",
 		SsReflectionName,
 		&VistaWiimoteDriver::CWiiMoteParameters::SetAccelerationThreshold,
-		&VistaAspectsConversionStuff::ConvertToInt,
 		"sets the threshold for reporting of acceleration changes"),
 		new TVistaPropertySet<int, int,
 		VistaWiimoteDriver::CWiiMoteParameters> (
 		"WAITTIMEOUT",
 		SsReflectionName,
 		&VistaWiimoteDriver::CWiiMoteParameters::SetWaitTimeout,
-		&VistaAspectsConversionStuff::ConvertToInt,
 		"sets the timeout to use for waiting during connect"),
 		new TVistaPropertySet<const std::string&, std::string,
 		VistaWiimoteDriver::CWiiMoteParameters> (
 		"WIIMOTE_ID",
 		SsReflectionName,
 		&VistaWiimoteDriver::CWiiMoteParameters::SetWiiMoteId,
-		&VistaAspectsConversionStuff::ConvertToString,
 		"sets the current wiimote id"),
 		NULL
 	};
@@ -618,11 +612,17 @@ bool VistaWiimoteDriver::Connect()
 
 
 	std::string strWiiMoteId = pParams->GetWiiMoteId();
-	int nIndex = VistaAspectsConversionStuff::ConvertToInt( strWiiMoteId );
+	int nIndex;
+	if( VistaConversion::FromString( strWiiMoteId, nIndex ) == false )
+	{
+		vstr::warnp() << "[WiimoteDriver::Connect]: Wiimote index [" << strWiiMoteId 
+			<< "] does not represent an int" << std::endl;
+		return false;
+	}
 	if( nIndex < 0 || nIndex > found )
 	{
-		std::cout << "[WiimoteDriver::Connect]: Wiimote index " << nIndex 
-					<< " out of range" << std::endl;
+		vstr::warnp() << "[WiimoteDriver::Connect]: Wiimote index [" << nIndex 
+					<< "] out of range" << std::endl;
 		return false;
 	}
 
@@ -845,8 +845,8 @@ bool VistaWiimoteDriver::DoSensorUpdate(VistaType::microtime nTs)
 	if(bDoMoteRecord)
 		RecordMoteEvent( nTs );
 
-	IVistaDriverForceFeedbackAspect::IForceAlgorithm *pFF;
-	if( (pFF=m_pRumble->GetForceAlgorithm()) )
+	IVistaDriverForceFeedbackAspect::IForceAlgorithm *pFF = m_pRumble->GetForceAlgorithm();
+	if( pFF != NULL )
 	{
 		VistaVector3D crPos((float)m_pMote[0]->ir.x, (float)m_pMote[0]->ir.y, (float)m_pMote[0]->ir.z);
 		VistaVector3D crVel = crPos + VistaVector3D( m_pMote[0]->accel.x, m_pMote[0]->accel.y, m_pMote[0]->accel.z );

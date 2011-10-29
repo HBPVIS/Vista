@@ -1,6 +1,6 @@
 /*============================================================================*/
 /*                              ViSTA VR toolkit                              */
-/*               Copyright (c) 1997-2011 RWTH Aachen University               */
+/*               Copyright (c) 1997-2009 RWTH Aachen University               */
 /*============================================================================*/
 /*                                  License                                   */
 /*                                                                            */
@@ -20,10 +20,12 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDeSerializer.cpp 4719 2009-09-10 09:29:58Z tbeer $
+// $Id$
 
 #include "VistaAutoBufferPool.h"
-#include "VistaBaseOut.h"
+
+#include <VistaBase/VistaStreamUtils.h>
+
 #include <algorithm>
 #include <functional>
 
@@ -41,18 +43,20 @@ namespace
 		}
 	};
 
+#ifdef DEBUG
 	class _checkCount : public std::unary_function<const VistaAutoWriteBuffer, void>
 	{
 	public:
 		void operator()( const VistaAutoWriteBuffer &b ) const
 		{
 			if( b.HasOneOwner() == false )
-				VistaBaseOut::log() << "VistaAutoWriteBuffer @ " << &b
-				                    << " seems still to be owned bz someone, "
+				vstr::outi() << "VistaAutoWriteBuffer @ " << &b
+				                    << " seems still to be owned be someone, "
 				                    << "but was create by bufferpool that is destroyed."
 				                    << std::endl;
 		}
 	};
+#endif
 }
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */

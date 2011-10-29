@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaObserver.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTAOBSERVER_H
 #define _VISTAOBSERVER_H
@@ -59,9 +59,6 @@
 class VISTAASPECTSAPI IVistaObserver
 {
 public:
-	/**
-	 * Empty destructor.
-	 */
 	virtual ~IVistaObserver();
 
 
@@ -77,7 +74,8 @@ public:
 	 * @param pObserveable the observeable to be freed
 	 * @return true iff pObserveable can be deleted
 	 */
-	virtual bool ObserveableDeleteRequest(IVistaObserveable *pObserveable, int nTicket = IVistaObserveable::TICKET_NONE) = 0;
+	virtual bool ObserveableDeleteRequest( IVistaObserveable* pObserveable,
+										int nTicket = IVistaObserveable::TICKET_NONE ) = 0;
 
 
 	/**
@@ -93,7 +91,8 @@ public:
 	 * IsObserved(pOberveable) must return false then.
 	 * @param pObserveable the observeable to be deleted
 	 */
-	virtual void ObserveableDelete(IVistaObserveable *pObserveable, int nTicket = IVistaObserveable::TICKET_NONE) = 0;
+	virtual void ObserveableDelete( IVistaObserveable* pObserveable,
+										int nTicket = IVistaObserveable::TICKET_NONE ) = 0;
 
 	/**
 	 * This message is sent when pObserveable shall be released and not be observed anymore.
@@ -102,7 +101,8 @@ public:
 	 * IsObserved(pObserveable) must return false after this message.
 	 * @param pObserveable the observeable to be released.
 	 */
-	virtual void ReleaseObserveable(IVistaObserveable *pObserveable, int nTicket = IVistaObserveable::TICKET_NONE) = 0;
+	virtual void ReleaseObserveable( IVistaObserveable* pObserveable,
+										int nTicket = IVistaObserveable::TICKET_NONE ) = 0;
 
 
 	/**
@@ -114,7 +114,8 @@ public:
 	 * is observed.
 	 * @param pObserveable the observeable that changed its state.
 	 */
-	virtual void ObserverUpdate(IVistaObserveable *pObserveable, int msg, int ticket) = 0;
+	virtual void ObserverUpdate( IVistaObserveable* pObserveable,
+										int nMsg, int nTicket ) = 0;
 
 	/**
 	 * This method can be used to query whether pObserveable is observed by this observer or not.
@@ -122,7 +123,7 @@ public:
 	 * @param pObserveable the observeable to query
 	 * @return true iff this observes pObserveable, else false
 	 */
-	virtual bool Observes(IVistaObserveable *pObserveable) = 0;
+	virtual bool Observes( IVistaObserveable* pObserveable ) = 0;
 
 	/**
 	 * This method can be used to attach an observeable to this observer. A multiple call to Observe
@@ -130,24 +131,20 @@ public:
 	 * IsObserved(pObserveable) must return true after a call to this
 	 * @param pObserveable the observeable to be observed
 	 */
-	virtual void Observe(IVistaObserveable *pObserveable, int eTicket=IVistaObserveable::TICKET_NONE) = 0;
+	virtual void Observe( IVistaObserveable* pObserveable, 
+										int nTicket = IVistaObserveable::TICKET_NONE ) = 0;
 
 
-	void UpdateRequest(IVistaObserveable *pObserveable, int msg, int nTicket);
+	void UpdateRequest( IVistaObserveable* pObserveable, int nMsg, int nTicket );
 
 
 	bool GetIsEnabled() const;
 	virtual void SetIsEnabled(bool bEnabled);
 protected:
-	/**
-	 * Constructor.
-	 * This is an interface class, direct creation is a programm-error.
-	 */
 	IVistaObserver();
 private:
 	/**
-	 * Copy-constructor.
-	 * We prevent copying.
+	 * Copy-constructor. We prevent copying.
 	 */
 	IVistaObserver(IVistaObserver &);
 

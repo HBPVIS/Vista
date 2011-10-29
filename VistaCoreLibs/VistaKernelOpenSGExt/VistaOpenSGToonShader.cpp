@@ -20,9 +20,11 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenSGToonShader.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #if defined(WIN32)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4189)
 #pragma warning(disable: 4231)
 #pragma warning(disable: 4312)
 #pragma warning(disable: 4267)
@@ -41,6 +43,8 @@
 #include <VistaKernel/OpenSG/VistaOpenSGGraphicsBridge.h>
 #include <VistaKernel/OpenSG/VistaOpenSGNodeBridge.h>
 
+#include <VistaBase/VistaStreamUtils.h>
+
 #include <OpenSG/OSGChunkMaterial.h>
 #include <OpenSG/OSGMaterialChunk.h>
 #include <OpenSG/OSGMaterialGroup.h>
@@ -48,8 +52,6 @@
 #include <OpenSG/OSGSHLChunk.h>
 #include <OpenSG/OSGSHLParameterChunk.h>
 #include <OpenSG/OSGNode.h>
-
-#include "VistaKernelOpenSGExtOut.h"
 
 #include <queue>
 
@@ -242,7 +244,7 @@ public:
 			
 			if( m_pShader->ApplyToOSGMaterial( &pOSGMaterial, vecParams ) == false )
 			{
-				vosgextout << "[OSGPhongShader]: Could not apply Phong shader!" << std::endl;
+				vstr::warnp() << "[OSGPhongShader]: Could not apply Phong shader!" << std::endl;
 			}
 			//else
 			//	return osg::Action::Skip;
@@ -274,7 +276,7 @@ public:
 		{			
 			if( m_pShader->RemoveFromOSGMaterial( &pOSGMaterial ) == false )
 			{
-				vosgexterr << "[OSGPhongShader]: Could not remove Phong shader!" << std::endl;
+				vstr::warnp() << "[OSGPhongShader]: Could not remove Phong shader!" << std::endl;
 			}
 			//else
 			//	return osg::Action::Skip;

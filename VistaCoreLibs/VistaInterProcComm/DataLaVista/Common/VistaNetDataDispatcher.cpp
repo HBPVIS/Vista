@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaNetDataDispatcher.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaNetDataDispatcher.h"
 
@@ -30,7 +30,8 @@
 
 #include <VistaInterProcComm/DataLaVista/Base/VistaPipeComponent.h>
 #include <VistaInterProcComm/DataLaVista/Base/VistaDataPacket.h>
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <iostream>
 using namespace std;
@@ -63,10 +64,10 @@ bool DLVistaNetDataDispatcher::ConsumePacket(IDLVistaDataPacket* p)
 	{
 		VistaByteBufferSerializer oSer(p->GetDataSize());
 		oSer.WriteSerializable(*p);
-		char *pBuffer = oSer.GetBuffer();
+		const VistaType::byte* pBuffer = oSer.GetBuffer();
 		const int iSize = oSer.GetBufferSize();
 #ifdef DEBUG
-		vipcout << "*** Dispatching packet" << endl;
+		vstr::outi() << "*** Dispatching packet" << std::endl;
 #endif
 		for(unsigned int i=0; i<m_vecClients.size(); ++i)
 		{
@@ -78,26 +79,39 @@ bool DLVistaNetDataDispatcher::ConsumePacket(IDLVistaDataPacket* p)
 	return bSuccess;
 }
 
-void DLVistaNetDataDispatcher::AddClient(const string& sHost, const int iPort)
+bool DLVistaNetDataDispatcher::AddClient(const string& sHost, const int iPort)
 {
-#ifdef DEBUG
-	vipcout << "[DLVistaNetDataDispatcher::AddClient] Trying to connect to new client @" << sHost << ":" << iPort << "...";
-#endif
 	//try to connect to client 
 	VistaConnectionIP* pNewConn = new VistaConnectionIP(VistaConnectionIP::CT_TCP,sHost,iPort);
-	pNewConn->SetIsBlocking(true);
 	//push connection to the vector
 	if(pNewConn->GetIsConnected())
 	{
-#ifdef DEBUG
-		vipcout << "DONE!" << endl;
-#endif
+		pNewConn->SetIsBlocking(true);
 		m_vecClients.push_back(pNewConn);
+		return true;
 	}
 	else
 	{
-#ifdef DEBUG
-		vipcout << "FAILED!" << endl;
-#endif
+		vstr::warnp() << "DLVistaNetDataDispatcher::AddClient() --"
+				<< "Failed to establish client connecion to IP ["
+				<< sHost << "] - Port [" << iPort << "]" << std::endl;
+		return false;
+	}
+}
+
+bool DLVistaNetDataDispatcher::AddClient( VistaConnectionIP* pConnection )
+{	
+	if( pConnection->GetIsConnected() )
+	{
+		if( pConnection->GetIsBlocking() == false )
+			pConnection->SetIsBlocking( true );
+		m_vecClients.push_back( pConnection );
+		return true;
+	}
+	else
+	{
+		vstr::warnp() << "DLVistaNetDataDispatcher::AddClient() --"
+			<< "Received client connection is not connected" << std::endl;
+		return false;
 	}
 }

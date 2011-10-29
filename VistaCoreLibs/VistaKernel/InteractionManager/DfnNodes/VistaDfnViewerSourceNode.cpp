@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDfnViewerSourceNode.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaDfnViewerSourceNode.h"
 #include <VistaDataFlowNet/VdfnPort.h>
@@ -424,7 +424,8 @@ IVdfnNode *VistaDfnViewerSourceNodeCreate::CreateNode( const VistaPropertyList &
 
 		if(subs.HasProperty("displaysystem"))
 		{
-			std::string strDispSysName = subs.GetStringValue("displaysystem");
+			std::string strDispSysName;
+			subs.GetValue( "displaysystem", strDispSysName );
 			VistaDisplaySystem *pSystem = m_pMgr->GetDisplaySystemByName(strDispSysName);
 			if(pSystem)
 			{

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaVersion.h 22143 2011-07-01 15:07:00Z dr165799 $
 
 #ifndef _VISTAVERSION_H
 #define _VISTAVERSION_H
@@ -36,11 +36,11 @@
  * 		<table border=0>
  * 			<tr>
  * 				<td align="right">API version:</td>
- * 				<td align="left"><b>HEAD</b></td>
+ * 				<td align="left"><b>CLUSTERMODE_TEST</b></td>
  * 			</tr>
  * 			<tr>
  * 				<td align="right">codename:</td>
- * 				<td align="left"><b>ViSTA HEAD</b></td>
+ * 				<td align="left"><b>ViSTA CLUSTERMODE_TEST</b></td>
  * 			</tr>
  * 			<tr>
  * 				<td align="right">API release date:</td>
@@ -53,7 +53,7 @@
  * 			<tr><td colspan=2>&nbsp;</td></tr>
  * 			<tr>
  * 				<td align="right">full version:</td>
- * 				<td align="left"><b>HEAD</b></td>
+ * 				<td align="left"><b>CLUSTERMODE_TEST</b></td>
  * 			</tr>
  * 			<tr>
  * 				<td align="right">release date:</td>
@@ -66,7 +66,7 @@
 
 #define VISTA_HEAD
 
-#define VISTA_RELEASE_NAME "TRUNK $Revision: 23616 $ $Date: 2011-05-16 15:47:39 +0200 (Mo, 16. Mai 2011) $"
+#define VISTA_RELEASE_NAME "CLUSTERMODE_TEST branch $Revision: 22143 $ $Date: 2011-05-16 15:47:39 +0200 (Mo, 16. Mai 2011) $"
 //#define VISTA_RELEASE_NAME "FANCYNAME" 
 #define VISTA_VERSION "1.11.0"
 #define VISTA_MAJOR    1

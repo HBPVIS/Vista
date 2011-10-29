@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSocketAddress.h 22163 2011-07-03 14:11:15Z dr165799 $
 
 #ifndef _VISTASOCKETADDRESS_H
 #define _VISTASOCKETADDRESS_H
@@ -52,13 +52,6 @@ struct sockaddr_in;
  */
 class VISTAINTERPROCCOMMAPI VistaSocketAddress
 {
-private:
-protected:
-	/**
-	 * the bytepattern from bsd-sockets for the storage of ipv4 addresses.
-	 */
-	sockaddr_in     *m_myAddress;
-//protected:
 public:
 
 	/**
@@ -155,6 +148,11 @@ public:
 
 	VistaSocketAddress &operator= (const sockaddr_in &);
 
+protected:
+	/**
+	 * the bytepattern from bsd-sockets for the storage of ipv4 addresses.
+	 */
+	sockaddr_in     *m_myAddress;
 };
 
 

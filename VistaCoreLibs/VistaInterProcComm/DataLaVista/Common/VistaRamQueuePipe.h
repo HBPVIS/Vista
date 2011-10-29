@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaRamQueuePipe.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef DLVISTARAMQUEUEPIPE_H
 #define DLVISTARAMQUEUEPIPE_H
@@ -52,99 +52,24 @@ class VistaThreadEvent;
 
 class VISTAINTERPROCCOMMAPI DLVistaRamQueuePipe : public IDLVistaPipe
 {
-private:
-	/**
-	 *
-	 */
-	std::deque<IDLVistaDataPacket *> *m_pquInQueue;
-	/**
-	 *
-	 */
-	std::deque<IDLVistaDataPacket *> *m_pquRecycleQueue;
-
-	/**
-	 *
-	 */
-	VistaMutex *m_pMutexIn, *m_pMutexOut, *m_pLockEmpty;
-	/**
-	 *
-	 */
-	VistaThreadEvent *m_pRecycleEvent;
-	/*
-	 *
-	 */
-	VistaThreadEvent *m_pQueueNotEmptyEvent;
-	/*
-	 *
-	 */
-	VistaThreadEvent *m_pOutsideEvent;
-
-	/**
-	 *
-	 */
-	VistaMutex *GrabMutex(VistaMutex *pMutex, bool bBlock);
-
-	/**
-	 *
-	 */
-	bool m_bCanRecycle, m_bBlockedPending, m_bDoesBlockOnReturn;
-
-	/**
-	 *
-	 */
-	int m_iNumDownstreamPackets;
-
 public:
 
-	/**
-	 *
-	 */
 	DLVistaRamQueuePipe();
 
-	/**
-	 *
-	 */
 	~DLVistaRamQueuePipe();
 
-	/**
-	 *
-	 */
 	virtual bool AcceptDataPacket(IDLVistaDataPacket *pPacket, IDLVistaPipeComponent *pSender, bool bBlock=false);
 
-	/**
-	 *
-	 */
 	virtual bool RecycleDataPacket(IDLVistaDataPacket *pPacket, IDLVistaPipeComponent *pSender, bool bBlock=false);
 
-	/**
-	 *
-	 */
 	virtual IDLVistaDataPacket * GivePacket(bool bBlock);
-	/**
-	 *
-	 */
 	virtual IDLVistaDataPacket * ReturnPacket();
 
-	/**
-	 *
-	 */
 	bool InitPacketMgmt();
 
-	/**
-	 *
-	 */
 	bool IsFull() const;
-	/**
-	 *
-	 */
 	bool IsEmpty() const;
-	/**
-	 *
-	 */
 	int Capacity() const { return -1; };
-	/**
-	 *
-	 */
 	int OwnerLockEmpty();
 
 	bool GetIsBlockedPending() const;
@@ -155,13 +80,27 @@ public:
 	 * whenever the m_pQueueNotEmptyEvent is signaled.
 	 * This is useful if you do not want to block
 	 * on PullPacket, but on your own event.
-	 *
-	 *
 	 */
 	void SetOutsideThreadEvent (VistaThreadEvent*);
 
 	void SetDoesBlockOnReturnPacket(bool b);
 	bool GetDoesBlockOnReturnPacket() const;
+
+private:
+	std::deque<IDLVistaDataPacket *> *m_pquInQueue;
+	std::deque<IDLVistaDataPacket *> *m_pquRecycleQueue;
+
+	VistaMutex *m_pMutexIn, *m_pMutexOut, *m_pLockEmpty;
+	VistaThreadEvent *m_pRecycleEvent;
+	VistaThreadEvent *m_pQueueNotEmptyEvent;
+	VistaThreadEvent *m_pOutsideEvent;
+
+	VistaMutex *GrabMutex(VistaMutex *pMutex, bool bBlock);
+
+	bool m_bCanRecycle, m_bBlockedPending, m_bDoesBlockOnReturn;
+
+	int m_iNumDownstreamPackets;
+
 };
 
 /*============================================================================*/

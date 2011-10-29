@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaSerialTeeFilter.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VistaSerialTeeFilter.h"
 #include <VistaInterProcComm/DataLaVista/Base/VistaPacketQueue.h>
@@ -143,7 +143,7 @@ IDLVistaDataPacket *DLVistaSerialTeeFilter::FilterPacketL(IDLVistaDataPacket *pP
 	if(iIdx == -1)
 	{
 		// ok, this packet was not sent, yet
-		IDLVistaPipeComponent *pComp = GetOutboundByIndex(0);
+		//IDLVistaPipeComponent *pComp = GetOutboundByIndex(0);
 		if(GrabMutex(m_pMapMutex, true))
 		{        
 			UpdatePacketIndex(pPacket, 0);
@@ -160,8 +160,7 @@ IDLVistaDataPacket *DLVistaSerialTeeFilter::FilterPacketL(IDLVistaDataPacket *pP
 		printf("DLVistaSerialTeeFilter::FilterPacketL(%lx) -- TRYING TO REFILTER A PACKET WITH INDEX (%d)\n", long(pPacket), iIdx);
 #endif
 		throw;
-	}
-	return NULL;        
+	}    
 }
 
 

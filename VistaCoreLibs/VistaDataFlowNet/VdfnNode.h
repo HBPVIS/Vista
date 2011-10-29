@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnNode.h 22873 2011-08-08 10:48:52Z dr165799 $
 
 #ifndef _VDFNNODE_H
 #define _VDFNNODE_H
@@ -31,6 +31,7 @@
 #include "VdfnConfig.h"
 
 #include <VistaAspects/VistaNameable.h>
+#include <VistaAspects/VistaConversion.h>
 
 #include <map>
 #include <string>

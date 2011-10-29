@@ -20,20 +20,20 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaExceptionBase.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaExceptionBase.h"
-#include "VistaBaseOut.h"
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <string>
 #include <vector>
 #include <iostream>
+#include <sstream>
 
 #include <cstdio>
 #include <cmath>
 #include <cstdlib>
-
-using namespace std;
 
 #if defined(LINUX)
 #include <execinfo.h>
@@ -63,12 +63,36 @@ VistaExceptionBase::VistaExceptionBase(const char *pcExMsg,
 	char **symbols = backtrace_symbols(array, nSize);
 	for(int i=0; i < nSize; ++i)
 	{
-		m_sBacktrace = m_sBacktrace + string(symbols[i]) + string("\n");
+		m_sBacktrace = m_sBacktrace + std::string(symbols[i]) + std::string("\n");
 	}
 
 	free(symbols);
 #endif
 }
+
+//VistaExceptionBase::VistaExceptionBase( const std::string& sExMsg,
+//									   const std::string& sExSource,
+//									   int iExLine, int iExNum ) throw()
+//: std::exception(),
+//  m_sExceptionText( sExMsg.c_str() ),
+//  m_sExceptionSource( sExSource.c_str() ),
+//  m_iExceptionLine( iExLine ),
+//  m_iExceptionNumber( iExNum )
+//{
+//#if defined(LINUX)
+//	/// @todo fixme?!
+//	// I do hope, that this is no "OutOfMemory"-Exception ;)
+//	void *array[25]; // we trace 25 levels
+//	int nSize = backtrace(array, 25);
+//	char **symbols = backtrace_symbols(array, nSize);
+//	for(int i=0; i < nSize; ++i)
+//	{
+//		m_sBacktrace = m_sBacktrace + string(symbols[i]) + string("\n");
+//	}
+//
+//	free(symbols);
+//#endif
+//}
 
 
 // PRIVATE!
@@ -96,7 +120,7 @@ int    VistaExceptionBase::GetExceptionNumber() const
 	return m_iExceptionNumber;
 }
 
-string VistaExceptionBase::GetExceptionText() const
+std::string VistaExceptionBase::GetExceptionText() const
 {
 	return m_sExceptionText;
 }
@@ -106,59 +130,69 @@ int    VistaExceptionBase::GetExceptionLine() const
 	return m_iExceptionLine;
 }
 
-string VistaExceptionBase::GetExceptionSource() const
+std::string VistaExceptionBase::GetExceptionSource() const
 {
 	return m_sExceptionSource;
 }
 
 void VistaExceptionBase::PrintException() const
 {
-	vbaseerr << GetPrintStatement() << endl;
+	vstr::err() << GetPrintStatement() << std::endl;
 }
 
-string VistaExceptionBase::GetPrintStatement() const
+std::string VistaExceptionBase::GetPrintStatement() const
 {
-	//char buffer[8192];
-	string sText = GetExceptionText();
-	string sSource = GetExceptionSource();
-	vector<unsigned char> vecString(220     // for the decorative text
-						 +sText.size()          // for the user given text
-						 +sSource.size()        // for the source file text
-						 +(int)ceil(log((float)GetExceptionNumber()+1))+1 // ln(dig) ~ number of digits-1
-						 +(int)ceil(log((float)GetExceptionLine()+1))+1,// ln(dig) ~ number of digits-1
-						 0); // init with 0
-#ifdef WIN32
- #if defined (_MSC_VER)
-  #if ( _MSC_VER >= 1400 )
-	_snprintf_s((char*)&vecString[0], vecString.size(), vecString.size(), "VistaExceptionBase() -- Exception [%d]\n===============================================\n%s\n===============================================\nLocation: %s\nLine:     %d\n===============================================\n",
-		GetExceptionNumber(), GetExceptionText().c_str(), GetExceptionSource().c_str(), GetExceptionLine());
- #else
-	_snprintf((char*)&vecString[0], 8192, "VistaExceptionBase() -- Exception [%d]\n===============================================\n%s\n===============================================\nLocation: %s\nLine:     %d\n===============================================\n",
-		GetExceptionNumber(), GetExceptionText().c_str(), GetExceptionSource().c_str(), GetExceptionLine());
- #endif // _MSC_VER >= 1400
- #else
-	sprintf((char*)&vecString[0], "VistaExceptionBase() -- Exception [%d]\n===============================================\n%s\n===============================================\nLocation: %s\nLine:     %d\n===============================================\n",
-		GetExceptionNumber(), GetExceptionText().c_str(), GetExceptionSource().c_str(), GetExceptionLine());
- #endif // _MSCVER
-#else // WIN32
-	snprintf((char*)&vecString[0], 8192, "VistaExceptionBase() -- Exception [%d]\n===============================================\n%s\n===============================================\nLocation: %s\nLine:     %d\n===============================================\n",
-		GetExceptionNumber(), GetExceptionText().c_str(), GetExceptionSource().c_str(), GetExceptionLine());
-#endif
-#if defined(SUNOS) || _MSC_VER < 1400
-	return string((char*)&vecString[0]);
-#else
-	return string(vecString.begin(), vecString.end());
-#endif
+//	//char buffer[8192];
+//	string sText = GetExceptionText();
+//	string sSource = GetExceptionSource();
+//	vector<unsigned char> vecString(220     // for the decorative text
+//						 +sText.size()          // for the user given text
+//						 +sSource.size()        // for the source file text
+//						 +(int)ceil(log((float)GetExceptionNumber()+1))+1 // ln(dig) ~ number of digits-1
+//						 +(int)ceil(log((float)GetExceptionLine()+1))+1,// ln(dig) ~ number of digits-1
+//						 0); // init with 0
+//#ifdef WIN32
+// #if defined (_MSC_VER)
+//  #if ( _MSC_VER >= 1400 )
+//	_snprintf_s((char*)&vecString[0], vecString.size(), vecString.size(), "VistaExceptionBase() -- Exception [%d]\n===============================================\n%s\n===============================================\nLocation: %s\nLine:     %d\n===============================================\n",
+//		GetExceptionNumber(), GetExceptionText().c_str(), GetExceptionSource().c_str(), GetExceptionLine());
+// #else
+//	_snprintf((char*)&vecString[0], 8192, "VistaExceptionBase() -- Exception [%d]\n===============================================\n%s\n===============================================\nLocation: %s\nLine:     %d\n===============================================\n",
+//		GetExceptionNumber(), GetExceptionText().c_str(), GetExceptionSource().c_str(), GetExceptionLine());
+// #endif // _MSC_VER >= 1400
+// #else
+//	sprintf((char*)&vecString[0], "VistaExceptionBase() -- Exception [%d]\n===============================================\n%s\n===============================================\nLocation: %s\nLine:     %d\n===============================================\n",
+//		GetExceptionNumber(), GetExceptionText().c_str(), GetExceptionSource().c_str(), GetExceptionLine());
+// #endif // _MSCVER
+//#else // WIN32
+//	snprintf((char*)&vecString[0], 8192, "VistaExceptionBase() -- Exception [%d]\n===============================================\n%s\n===============================================\nLocation: %s\nLine:     %d\n===============================================\n",
+//		GetExceptionNumber(), GetExceptionText().c_str(), GetExceptionSource().c_str(), GetExceptionLine());
+//#endif
+//#if defined(SUNOS) || _MSC_VER < 1400
+//	return string((char*)&vecString[0]);
+//#else
+//	return string(vecString.begin(), vecString.end());
+//#endif
+
+	std::stringstream oText;
+	oText << "VistaExceptionBase() -- Exception [" << GetExceptionNumber() << "]\n"
+		<< "===============================================\n"
+		<< m_sExceptionText << "\n"
+		<< "===============================================\n"
+		<< "Location: " << m_sExceptionSource << "\n"
+		<< "Line:     " << m_iExceptionLine << "\n"
+		<< "===============================================\n";
+	return oText.str();
 }
 
-string VistaExceptionBase::GetBacktraceString() const
+std::string VistaExceptionBase::GetBacktraceString() const
 {
 	return m_sBacktrace;
 }
 
 void   VistaExceptionBase::PrintBacktrace() const
 {
-	vbaseerr << m_sBacktrace << endl;
+	vstr::err() << m_sBacktrace << std::endl;
 }
 
 

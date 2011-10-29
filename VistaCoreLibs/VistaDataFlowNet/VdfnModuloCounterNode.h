@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnModuloCounterNode.h 22163 2011-07-03 14:11:15Z dr165799 $
 
 #ifndef _VDFNMODULOCOUNTERNODE_H
 #define _VDFNMODULOCOUNTERNODE_H
@@ -36,8 +36,6 @@
 #include "VdfnPort.h"
 #include "VdfnNodeFactory.h"
 #include "VdfnUtil.h"
-
-#include "VdfnOut.h"
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -95,7 +93,7 @@ protected:
 		{
 			m_oModuloValue = m_pModulo->GetValue();
 			if( m_oModuloValue == 0 )
-				vdfnerr << "[VdfnModuloCounterNode] Error - Encountered Modulo of 0!" << std::endl;
+				vstr::warnp() << "[VdfnModuloCounterNode] Encountered Modulo of 0!" << std::endl;
 				return false;
 		}
 
@@ -104,7 +102,6 @@ protected:
 		{
 			this->m_iResetLastChange = this->m_pReset->GetUpdateCounter();
 			this->m_oValue = this->m_pReset->GetValue();
-			vdfnout << "[Counter] Reset"  << std::endl;
 		}
 		else
 			this->m_oValue += this->m_pDelta->GetValue();
@@ -115,7 +112,6 @@ protected:
 		while( this->m_oValue < 0 )
 			this->m_oValue += m_oModuloValue;
 		this->m_pOut->SetValue( this->m_oValue, TVdfnModuloCounterNode<T>::GetUpdateTimeStamp() );
-		vdfnout << "[ModuloCounter] changed to " << this->m_oValue << std::endl;
 		return true;
 	}
 

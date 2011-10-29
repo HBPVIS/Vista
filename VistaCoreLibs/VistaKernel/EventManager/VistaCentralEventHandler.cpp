@@ -20,24 +20,17 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaCentralEventHandler.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include <VistaKernel/EventManager/VistaCentralEventHandler.h>
 
 // avoid include file dependencies - we don't like excessive compile times, right?! (ms)
 #include <VistaKernel/EventManager/VistaEvent.h>
-#include <VistaKernel/EventManager/VistaDisplayEvent.h>
-#include <VistaKernel/EventManager/VistaGraphicsEvent.h>
-//#include <VistaKernel/EventManager/VistaInputEvent.h>
-#include <VistaKernel/EventManager/VistaPickEvent.h>
 #include <VistaKernel/EventManager/VistaSystemEvent.h>
 #include <VistaKernel/EventManager/VistaCommandEvent.h>
-#include <VistaKernel/VistaKernelOut.h>
-
-//#include <VistaKernel/InteractionManager/VistaKeyboard.h>
-
 #include <VistaKernel/EventManager/VistaEventManager.h>
 
+#include <VistaBase/VistaStreamUtils.h>
 
 /*============================================================================*/
 /*  MAKROS AND DEFINES                                                        */
@@ -66,9 +59,6 @@ VistaCentralEventHandler::VistaCentralEventHandler(VistaEventManager *pMgr)
 
 VistaCentralEventHandler::~VistaCentralEventHandler()
 {
-#ifdef DEBUG
-	vkernout << " [ViEvHandler] >> DESTRUCTOR <<" << endl;
-#endif
 	m_pEvMgr->RemEventHandler(this, VistaEventManager::NVET_ALL,
 							  VistaEventManager::NVET_ALL);
 }
@@ -87,16 +77,8 @@ void VistaCentralEventHandler::HandleEvent(VistaEvent *pEvent)
 	int nTypeID = pEvent->GetType();
 	if(nTypeID == VistaSystemEvent::GetTypeId())
 		DispatchSystemEvent(static_cast<VistaSystemEvent*>(pEvent));
-	//else if(nTypeID == VistaInputEvent::GetTypeId())
-	//	DispatchInputEvent(static_cast<VistaInputEvent*>(pEvent));
-	else if(nTypeID == VistaPickEvent::GetTypeId())
-		DispatchPickEvent(static_cast<VistaPickEvent*>(pEvent));
 	else if(nTypeID == VistaCommandEvent::GetTypeId())
 		DispatchCommandEvent(static_cast<VistaCommandEvent*>(pEvent));
-	else if(nTypeID == VistaDisplayEvent::GetTypeId())
-		DispatchDisplayEvent(static_cast<VistaDisplayEvent*>(pEvent));
-	else if(nTypeID == VistaGraphicsEvent::GetTypeId())
-		DispatchGraphicsEvent(static_cast<VistaGraphicsEvent*>(pEvent));
 	else
 		ExternalEventHandler(pEvent);
 }
@@ -109,32 +91,6 @@ void VistaCentralEventHandler::HandleEvent(VistaEvent *pEvent)
 /*============================================================================*/
 void VistaCentralEventHandler::GeneralEventHandler(VistaEvent *pEvent)
 {
-#ifdef EXCESSIVE_DEBUG
-	vkernout << "ViCeEvHa::GeneralEventHandler - received event type " << *pEvent->GetType() << endl;
-#endif
-}
-
-//============================================================================
-// GRAPHICS Event Handling, i.e. dispatcher and user-defineable(??) callback
-//
-// Order of Calls:
-// 1. GraphicsEventHandler
-//
-// No special Handlers
-//============================================================================
-void VistaCentralEventHandler::DispatchGraphicsEvent(VistaGraphicsEvent *pEvent)
-{
-	if (pEvent->GetId() == VistaGraphicsEvent::VGE_INVALID)
-		return;
-
-	GraphicsEventHandler(pEvent);
-}
-
-void VistaCentralEventHandler::GraphicsEventHandler(VistaGraphicsEvent *pEvent)
-{
-#ifdef EXCESSIVE_DEBUG
-	vkernout << "ViCeEvHa::GraphicsEventHandler - received event type " << *pEvent->GetType() << endl;
-#endif
 }
 
 //============================================================================
@@ -186,16 +142,10 @@ void VistaCentralEventHandler::DispatchSystemEvent(VistaSystemEvent *pEvent)
 
 void VistaCentralEventHandler::SystemEventHandler(VistaSystemEvent *pEvent)
 {
-#ifdef EXCESSIVE_DEBUG
-	vkernout << "ViCeEvHa::SystemEventHandler - received event type " << *pEvent->GetType() << endl;
-#endif
 }
 
 void VistaCentralEventHandler::CommandEventHandler(VistaCommandEvent *pEvent)
 {
-#ifdef EXCESSIVE_DEBUG
-	vkernout << "ViCeEvHa::CommandEventHandler - received event type " << *pEvent->GetType() << endl;
-#endif
 }
 
 void VistaCentralEventHandler::DispatchCommandEvent(VistaCommandEvent *pEvent)
@@ -208,81 +158,31 @@ void VistaCentralEventHandler::DispatchCommandEvent(VistaCommandEvent *pEvent)
 
 void VistaCentralEventHandler::InitVistaEvent(VistaSystemEvent *pEvent)
 {
-#ifdef DEBUG
-	vkernout << "ViCeEvHa::InitVistaEvent - received event:" << endl << *pEvent;
-#endif
-
-	vkernout << "WARNING: Application didn't define a system event handler for initialization!" << endl;
+	vstr::warnp() << "[VistaCentralEventHandler] Application didn't define a system event handler for initialization!" << std::endl;
 }
 
 void VistaCentralEventHandler::QuitVistaEvent(VistaSystemEvent *pEvent)
 {
-#ifdef DEBUG
-	vkernout << "ViCeEvHa::QuitVistaEvent - received event:" << endl << *pEvent;
-#endif
 }
 
 void VistaCentralEventHandler::ExitVistaEvent(VistaSystemEvent *pEvent)
 {
-#ifdef DEBUG
-	vkernout << "ViCeEvHa::ExitVistaEvent - received event:" << endl << *pEvent;
-#endif
 }
 
 void VistaCentralEventHandler::PreDrawGraphicsEvent(VistaSystemEvent *pEvent)
 {
-#ifdef DEBUG
-	// well, better forget the following...
-	// cout << "ViCeEvHa::PreDrawGraphicsEvent - received event:" << endl << *pEvent;
-#endif
 }
 
 void VistaCentralEventHandler::PostDrawGraphicsEvent(VistaSystemEvent *pEvent)
 {
-#ifdef DEBUG
-	// well, better forget the following...
-	// cout << "ViCeEvHa::PostDrawGraphicsEvent - received event:" << endl << *pEvent;
-#endif
 }
 
 void VistaCentralEventHandler::PreAppEventHandler(VistaSystemEvent *pEvent)
 {
-#ifdef DEBUG
-	// well, better forget the following...
-	// cout << "ViCeEvHa::PostDrawGraphicsEvent - received event:" << endl << *pEvent;
-#endif
 }
 
 void VistaCentralEventHandler::PostAppEventHandler(VistaSystemEvent *pEvent)
 {
-#ifdef DEBUG
-	// well, better forget the following...
-	// cout << "ViCeEvHa::PostDrawGraphicsEvent - received event:" << endl << *pEvent;
-#endif
-}
-
-
-//============================================================================
-// DISPLAY Event Handling, i.e. dispatcher and user-defineable(??) callback
-//
-// Call Order:
-// 1. DisplayEventHandler
-// 
-// no special handlers
-//============================================================================
-void VistaCentralEventHandler::DispatchDisplayEvent(VistaDisplayEvent *pEvent)
-{
-	if (pEvent->GetId() == VistaDisplayEvent::VDE_INVALID)
-		return;
-
-	DisplayEventHandler(pEvent);
-}
-
-void VistaCentralEventHandler::DisplayEventHandler(VistaDisplayEvent *pEvent)
-{
-#ifdef DEBUG
-	vkernout << "ViCeEvHa::DisplayEventHandler - received event:" << endl << *pEvent;
-#endif
 }
 
 //============================================================================
@@ -322,52 +222,19 @@ void VistaCentralEventHandler::DisplayEventHandler(VistaDisplayEvent *pEvent)
 //{
 ////#ifdef DEBUG
 //#ifdef EXCESSIVE_DEBUG
-//	cout << "ViCeEvHa::InputEventHandler - received event:" << endl << *pEvent;
+//	cout << "ViCeEvHa::InputEventHandler - received event:" << std::endl << *pEvent;
 //#endif
 //}
 
 bool VistaCentralEventHandler::ProcessKeyPress(int keyCode)
 {
-#ifdef DEBUG
-	vkernout << "ViCeEvHa::ProcessKeyPress - doing nothing..." << endl;
-#endif
-
 	return false;
 }
-
-
-//============================================================================
-// PICK Event Handling, i.e. dispatcher and user-defineable(??) callback
-//
-// Order of Calls:
-// 1. PickEventHandler
-//
-// no special handlers
-//============================================================================
-void VistaCentralEventHandler::DispatchPickEvent(VistaPickEvent *pEvent)
-{
-    if (pEvent->GetId() == VistaPickEvent::VEID_NONE)
-		return;
-
-	// call the user event handler
-	PickEventHandler(pEvent);
-}
-
-void VistaCentralEventHandler::PickEventHandler(VistaPickEvent *pEvent)
-{
-#ifdef EXCESSIVE_DEBUG
-	vkernout << "ViCeEvHa::PickEventHandler - received event:" << endl << *pEvent;
-#endif
-}
-
 
 //============================================================================
 // EXTERNAL Event Handling, i.e. user-defineable(??) callback
 //============================================================================
 void VistaCentralEventHandler::ExternalEventHandler(VistaEvent *pEvent)
 {
-#ifdef EXCESSIVE_DEBUG
-	vkernout << "ViCeEvHa::ExternalEventHandler - received event:" << endl << *pEvent;
-#endif
 }
 

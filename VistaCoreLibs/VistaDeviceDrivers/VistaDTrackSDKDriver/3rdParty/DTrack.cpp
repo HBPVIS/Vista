@@ -34,7 +34,7 @@
  *    - comment '#define OS_UNIX', uncomment '#define OS_WIN' in file 'DTrack.cpp'
  *    - link with 'ws2_32.lib'
  *
- * $Id: DTrack.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+ * $Id$
  */
 
 // usually the following should work; otherwise define OS_* manually:

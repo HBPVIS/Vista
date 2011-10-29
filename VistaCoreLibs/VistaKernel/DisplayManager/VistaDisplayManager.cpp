@@ -20,28 +20,29 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDisplayManager.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaDisplayManager.h"
-#include "VistaDisplaySystem.h"
-#include "VistaDisplayEntity.h"
-#include "VistaDisplay.h"
-#include "VistaProjection.h"
-#include "VistaWindow.h"
-#include "VistaViewport.h"
-#include "VistaDisplayBridge.h"
-#include "VistaVirtualPlatform.h"
 
-#include <VistaKernel/EventManager/VistaEventManager.h>
-#include <VistaKernel/EventManager/VistaDisplayEvent.h>
+#include <VistaKernel/DisplayManager/VistaDisplaySystem.h>
+#include <VistaKernel/DisplayManager/VistaDisplayEntity.h>
+#include <VistaKernel/DisplayManager/VistaDisplay.h>
+#include <VistaKernel/DisplayManager/VistaProjection.h>
+#include <VistaKernel/DisplayManager/VistaWindow.h>
+#include <VistaKernel/DisplayManager/VistaWindowingToolkit.h>
+#include <VistaKernel/DisplayManager/VistaViewport.h>
+#include <VistaKernel/DisplayManager/VistaDisplayBridge.h>
+#include <VistaKernel/DisplayManager/VistaVirtualPlatform.h>
+#include <VistaKernel/Stuff/VistaKernelProfiling.h>
 
-
-#include <VistaTools/VistaProfiler.h>
 #include <VistaAspects/VistaAspectsUtils.h>
+#include <VistaAspects/VistaObserver.h>
+
 #include <VistaBase/VistaExceptionBase.h>
-#include "../VistaKernelOut.h"
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <set>
+#include <algorithm>
 
 /*============================================================================*/
 /*  MAKROS AND DEFINES                                                        */
@@ -51,50 +52,19 @@
 using namespace std;
 
 // forward declaration for helper method
-static int FillPropertyList(VistaPropertyList &refProps, 
-					  const std::string &strIniSection,
-					  const std::string &strIniFile,
-					  bool bConvertKeyToUpper,
-					  bool bSetNameToSectionName);
-static VistaWindow *CreateWindowFromSection(const std::string &strIniSection, 
-									  const std::string &strIniFile,
-									  VistaDisplayManager *pDisplayManager);
-
-static VistaVirtualPlatform *CreateRefFrameFromSection(const std::string &strIniSection,
-												 const std::string &strIniFile);
-
-bool VistaDisplayManager::RegisterEventTypes(VistaEventManager *pEventMgr)
-{
-	
-	//if(pEventMgr->GetEventTypeMapping(VistaEvent::VET_DISPLAY) == -1)
-	//{
-		VistaEventManager::EVENTTYPE eTp = pEventMgr->RegisterEventType("VET_DISPLAY");
-		//pEventMgr->MapEventType(eTp, VistaEvent::VET_DISPLAY);
-		VistaDisplayEvent::SetTypeId(eTp);
-
-		for(int n = VistaDisplayEvent::VDE_UPDATE; n < VistaDisplayEvent::VDE_UPPER_BOUND; ++n)
-			pEventMgr->RegisterEventId(eTp, VistaDisplayEvent::GetIdString(n));
-
-		return true;
-	//}
-
-	//return false;
-}
+static VistaVirtualPlatform *CreateRefFrameFromSection( const std::string& sSectionName,
+												 const VistaPropertyList& oConfig );
 /*============================================================================*/
 /*  CONSTRUCTORS / DESTRUCTOR                                                 */
 /*============================================================================*/
-VistaDisplayManager::VistaDisplayManager (IVistaDisplayBridge *pDisplayBridge)
-: VistaEventHandler(),
-  m_pBridge(pDisplayBridge)
+VistaDisplayManager::VistaDisplayManager( IVistaDisplayBridge *pDisplayBridge )
+: VistaEventHandler()
+, m_pBridge(pDisplayBridge)
 {
 }
 
 VistaDisplayManager::~VistaDisplayManager()
 {
-#ifdef DEBUG
-	vkernout << " [VistaDisplayManager] >> DESTRUCTOR <<" << endl;
-#endif
-
 	ShutdownDisplaySystems();
 
 	/** @todo  <ms> - find a better place to do this... */
@@ -111,240 +81,138 @@ VistaDisplayManager::~VistaDisplayManager()
 /*  IMPLEMENTATION                                                            */
 /*============================================================================*/
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   GetVistaSystem                                              */
-/*                                                                            */
-/*============================================================================*/
+bool VistaDisplayManager::DrawFrame()
+{
+	VistaKernelProfileScope( "DRAW" );
+	return m_pBridge->DrawFrame();
+}
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   GetDisplayBridge                                            */
-/*                                                                            */
-/*============================================================================*/
-IVistaDisplayBridge * VistaDisplayManager::GetDisplayBridge () const
+bool VistaDisplayManager::DisplayFrame()
+{
+	VistaKernelProfileScope( "DISPLAY" );
+	return m_pBridge->DisplayFrame();
+}
+
+bool VistaDisplayManager::SetDisplayUpdateCallback( 
+								IVistaExplicitCallbackInterface* pCallback )
+{
+	return m_pBridge->SetDisplayUpdateCallback( pCallback );
+}
+
+IVistaDisplayBridge* VistaDisplayManager::GetDisplayBridge () const
 {
 	return m_pBridge;
 }
+IVistaWindowingToolkit* VistaDisplayManager::GetWindowingToolkit() const
+{
+	return m_pWindowingToolkit;
+}
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   GetDisplaySystems                                           */
-/*                                                                            */
-/*============================================================================*/
-std::map<std::string, VistaDisplaySystem *> VistaDisplayManager::
+std::map<std::string, VistaDisplaySystem*> VistaDisplayManager::
 												GetDisplaySystems() const
 {
 	return m_mapDisplaySystems;
 }
 
-const std::map<std::string, VistaDisplaySystem *> &VistaDisplayManager::
+const std::map<std::string, VistaDisplaySystem *>& VistaDisplayManager::
 												GetDisplaySystemsConstRef() const
 {
 	return m_mapDisplaySystems;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   GetWindows                                                  */
-/*                                                                            */
-/*============================================================================*/
 std::map<std::string, VistaWindow *> VistaDisplayManager::GetWindows() const
 {
 	return m_mapWindows;
 }
 
-const std::map<std::string, VistaWindow *> &VistaDisplayManager::GetWindowsConstRef() const
+const std::map<std::string, VistaWindow *>& VistaDisplayManager::GetWindowsConstRef() const
 {
 	return m_mapWindows;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   GetViewports                                                */
-/*                                                                            */
-/*============================================================================*/
 std::map<std::string, VistaViewport *> VistaDisplayManager::GetViewports() const
 {
 	return m_mapViewports;
 }
 
-const std::map<std::string, VistaViewport *> &VistaDisplayManager::GetViewportsConstRef() const
+const std::map<std::string, VistaViewport *>& VistaDisplayManager::GetViewportsConstRef() const
 {
 	return m_mapViewports;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   GetProjections                                              */
-/*                                                                            */
-/*============================================================================*/
 std::map<std::string, VistaProjection *> VistaDisplayManager::GetProjections() const
 {
 	return m_mapProjections;
 }
 
-const std::map<std::string, VistaProjection *> &VistaDisplayManager::GetProjectionsConstRef() const
+const std::map<std::string, VistaProjection *>& VistaDisplayManager::GetProjectionsConstRef() const
 {
 	return m_mapProjections;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   CreateDisplaySystem                                         */
-/*                                                                            */
-/*============================================================================*/
-bool VistaDisplayManager::CreateDisplaySystems(const std::string &strIniSection,
-												const std::string &strIniFile)
+bool VistaDisplayManager::CreateDisplaySystems( const std::string& sSectionName,
+												const VistaPropertyList& oConfig )
 {
-	vkernout << "------------------------------------------------------------------------------" << endl;
-	vkernout << " [VistaDisplayManager] - creating display systems from ini file information..." << endl;
-	vkernout << "                         ini section: " << strIniSection << endl;
-	vkernout << "                         ini file:    " << strIniFile << endl;
+	vstr::outi() << "Creating display systems from section ["
+			<< sSectionName << "]" << std::endl;
+	vstr::IndentObject oIndent;
 
-	list<string> liDispSysSects;
-	VistaProfiler oProf;
-	oProf.GetTheProfileList(strIniSection, "DISPLAYSYSTEMS", liDispSysSects, strIniFile);
+	// create WindowingToolkit only in case there is none
+	if( oConfig.HasSubList( sSectionName ) == false )
+	{
+		vstr::errp() << "Could not find section [" 
+			<< sSectionName << "] - DisplaySystem can not be created!" << std::endl;
+		return false;
+	}
+	const VistaPropertyList& oSection = oConfig.GetSubListConstRef( sSectionName );
 
-	if(liDispSysSects.empty())
+	vstr::outi() << "Creating WindowingToolkitAbstraction" << std::endl;
+	{
+		vstr::IndentObject oWtaIndent;
+		std::string sWtaType;
+		if( oSection.GetValue( "WINDOWINGTOOLKIT", sWtaType ) == false )
+		{
+			vstr::outi() << "No WindowingToolkitAbstraction specified, defaulting to [GLUT]" << std::endl;
+			sWtaType = "GLUT";
+		}
+		else
+		{
+			vstr::outi() << "WindowingToolkitAbstraction specified as ["
+					<< sWtaType << "]" << std::endl;
+		}
+		m_pWindowingToolkit = m_pBridge->CreateWindowingToolkit( sWtaType );
+		if( m_pWindowingToolkit == NULL )
+		{
+			vstr::errp() << "Windowing Toolkit could not be created!" << std::endl;
+			return false;
+		}
+	}
+
+	list<string> liDispSysSects;	
+	oSection.GetValue( "DISPLAYSYSTEMS", liDispSysSects );
+
+	if( liDispSysSects.empty() )
 	{
 		// utter a sanity warning here
-		vkernout << "[VistaDisplayManager]\n"
-			 << "<WARNING>\n"
-			 << "\tNo displays given in DISPLAYSYSTEMS or no DISPLAYSYSTEMS section at all.\n"
-			 << "\tMost probably, there will be no window...\n"
-			 << "</WARNING>\n\n";
+		vstr::warnp() << "No displays have been specified" << std::endl;
 		return true;
 	}
 
 	list<string>::iterator itDispSysSect;
 
-	for (itDispSysSect=liDispSysSects.begin(); itDispSysSect!=liDispSysSects.end(); ++ itDispSysSect)
+	for( itDispSysSect = liDispSysSects.begin();
+		itDispSysSect != liDispSysSects.end(); ++itDispSysSect )
 	{
-		VistaPropertyList oProps;
-		string strDisplaySystem = *itDispSysSect;
-		vkernout << " [VistaDisplayManager] - creating display system from section '"
-			<< strDisplaySystem << "'..." << endl;
-
-		if (FillPropertyList(oProps, strDisplaySystem, strIniFile, true, true))
-		{
-			VistaVirtualPlatform *pReferenceFrame = NULL;
-
-			if (oProps.HasProperty("REFERENCE_FRAME"))
-			{
-				string strSection = oProps.GetStringValue("REFERENCE_FRAME");
-
-				pReferenceFrame = CreateRefFrameFromSection(strSection, strIniFile);
-			}
-			if (!pReferenceFrame)
-				pReferenceFrame = new VistaVirtualPlatform;
-			
-			// create the display system
-			VistaDisplaySystem *pDisplaySystem = CreateDisplaySystem(pReferenceFrame, oProps);
-			
-			if (!pDisplaySystem)
-			{
-				vkernout << " [VistaDisplayManager] - ERROR - unable to create display system..." << endl;
-				delete pReferenceFrame;
-				continue;
-			}
-			
-		m_vecRefFrames.push_back(pReferenceFrame);
-
-			vkernout << " [VistaDisplayManager] - display system created..." << endl;
-			
-			// create its viewports
-			list<string> liStrings;
-			oProps.GetStringListValue("VIEWPORTS", liStrings);
-			list<string>::iterator itString;
-			for (itString=liStrings.begin(); itString!=liStrings.end(); ++itString)
-			{
-				vkernout << " [VistaDisplayManager] - working on viewport from section '" 
-					<< *itString << "'..." << endl;
-				
-				VistaPropertyList oViewportProps;
-				if (!FillPropertyList(oViewportProps, *itString, strIniFile, true, true))
-				{
-					vkernout << " [VistaDisplayManager] - ERROR - unable to find viewport section..." << endl;
-					vkernout << "                                 skipping viewport..." << endl;
-					continue;
-				}
-				
-				if (!oViewportProps.HasProperty("WINDOW"))
-				{
-					vkernout << " [VistaDisplayManager] - ERROR - unable to create viewport..." << endl;
-					vkernout << "                                 cannot determine window section..." << endl;
-					continue;
-				}
-				
-				if (!oViewportProps.HasProperty("PROJECTION"))
-				{
-					vkernout << " [VistaDisplayManager] - ERROR - skipping viewport..." << endl;
-					vkernout << "                                 no projection section given..." << endl;
-					continue;
-				}
-				
-				// now, find out, whether we already know about the window...
-				string strWindowSection = oViewportProps.GetStringValue("WINDOW");
-				vkernout << " [VistaDisplayManager] - working on window from section '" 
-					<< strWindowSection << "'..." << endl;
-				
-				VistaWindow *pWindow = CreateWindowFromSection(strWindowSection, 
-					strIniFile, this);
-				if (!pWindow)
-					continue;
-
-				vkernout << " [VistaDisplayManager] - creating viewport..." << endl;
-				VistaViewport *pViewport = CreateViewport(pDisplaySystem, pWindow, oViewportProps);
-				if (!pViewport)
-				{
-					vkernout << " [VistaDisplayManager] - ERROR - unable to create viewport..." << endl;
-					continue;
-				}
-				
-				// finally, create the corresponding projection...
-				string strProjSection = oViewportProps.GetStringValue("PROJECTION");
-				vkernout << " [VistaDisplayManager] - creating projection from section '"
-					<< strProjSection << "'..." << endl;
-				VistaPropertyList oProjectionProps;
-				if (!FillPropertyList(oProjectionProps, strProjSection, strIniFile, true, true))
-				{
-					vkernout << " [VistaDisplayManager] -  ERROR - unable to create projection..." << endl;
-					vkernout << "                                  cannot find corresponding section..." << endl;
-					continue;
-				}
-				
-				VistaProjection *pProjection = CreateProjection(pViewport, oProjectionProps);
-				if (!pProjection)
-				{
-					vkernout << " [VistaDisplayManager] - ERROR - unable to create projection..." << endl;
-				}
-
-				vkernout << endl;
-			}
-			
-		}
-		else
-		{
-			vkernout << " [VistaDisplayManager] - ERROR - unable to create display system..." << endl;
-			vkernout << "                                 unable to find section '" << strDisplaySystem << "'..." << endl;
-			continue;
-		}
+		// create the display system
+		CreateDisplaySystem( (*itDispSysSect), oConfig );				
 	}
-
-	vkernout << " [VistaDisplayManager] - display system creation finished..." << endl << endl;
 
 	return true;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   ShutdownDisplaySystems                                      */
-/*                                                                            */
-/*============================================================================*/
 bool VistaDisplayManager::ShutdownDisplaySystems()
 {
-	vkernout << " [VistaDisplayManager] - shutting down display systems..." << endl;
+	vstr::outi() << "[VistaDisplayManager] - shutting down display systems..." << std::endl;
 
 	while (!m_vecDisplaySystems.empty())
 	{
@@ -392,27 +260,17 @@ bool VistaDisplayManager::ShutdownDisplaySystems()
 			return false;
 	}
 
-	vkernout << " [VistaDisplayManager] - display system shutdown complete..." << endl;
+	vstr::outi() << "[VistaDisplayManager] - display system shutdown complete..." << std::endl;
 
 	return true;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   Update                                                      */
-/*                                                                            */
-/*============================================================================*/
 bool VistaDisplayManager::Update()
 {
 	return m_pBridge->UpdateDisplaySystems(this);
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   GetDisplaySystemByName                                      */
-/*                                                                            */
-/*============================================================================*/
-VistaDisplaySystem *VistaDisplayManager::GetDisplaySystemByName(const std::string &strName) const
+VistaDisplaySystem *VistaDisplayManager::GetDisplaySystemByName(const std::string& strName) const
 {
 	map<string, VistaDisplaySystem *>::const_iterator it = m_mapDisplaySystems.find(strName);
 
@@ -422,12 +280,7 @@ VistaDisplaySystem *VistaDisplayManager::GetDisplaySystemByName(const std::strin
 	return NULL;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   GetDisplayByName                                            */
-/*                                                                            */
-/*============================================================================*/
-VistaDisplay *VistaDisplayManager::GetDisplayByName(const std::string &strName) const
+VistaDisplay *VistaDisplayManager::GetDisplayByName(const std::string& strName) const
 {
 	map<string, VistaDisplay *>::const_iterator it = m_mapDisplays.find(strName);
 
@@ -437,12 +290,7 @@ VistaDisplay *VistaDisplayManager::GetDisplayByName(const std::string &strName) 
 	return NULL;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   GetWindowByName                                             */
-/*                                                                            */
-/*============================================================================*/
-VistaWindow *VistaDisplayManager::GetWindowByName(const std::string &strName) const
+VistaWindow *VistaDisplayManager::GetWindowByName(const std::string& strName) const
 {
 	map<string, VistaWindow *>::const_iterator it = m_mapWindows.find(strName);
 
@@ -452,12 +300,7 @@ VistaWindow *VistaDisplayManager::GetWindowByName(const std::string &strName) co
 	return NULL;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   GetViewportByName                                           */
-/*                                                                            */
-/*============================================================================*/
-VistaViewport *VistaDisplayManager::GetViewportByName(const std::string &strName) const
+VistaViewport *VistaDisplayManager::GetViewportByName(const std::string& strName) const
 {
 	map<string, VistaViewport *>::const_iterator it = m_mapViewports.find(strName);
 
@@ -467,12 +310,7 @@ VistaViewport *VistaDisplayManager::GetViewportByName(const std::string &strName
 	return NULL;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   GetProjectionByName                                         */
-/*                                                                            */
-/*============================================================================*/
-VistaProjection *VistaDisplayManager::GetProjectionByName(const std::string &strName) const
+VistaProjection *VistaDisplayManager::GetProjectionByName(const std::string& strName) const
 {
 	map<string, VistaProjection *>::const_iterator it = m_mapProjections.find(strName);
 
@@ -482,12 +320,7 @@ VistaProjection *VistaDisplayManager::GetProjectionByName(const std::string &str
 	return NULL;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   GetDisplayEntityByName                                      */
-/*                                                                            */
-/*============================================================================*/
-VistaDisplayEntity *VistaDisplayManager::GetDisplayEntityByName(const std::string &strName) const
+VistaDisplayEntity *VistaDisplayManager::GetDisplayEntityByName(const std::string& strName) const
 {
 	
 	VistaDisplayEntity *pDisEntity = NULL;
@@ -511,21 +344,11 @@ VistaDisplayEntity *VistaDisplayManager::GetDisplayEntityByName(const std::strin
 }
 
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   GetNumberOfDisplaySystems                                   */
-/*                                                                            */
-/*============================================================================*/
 int VistaDisplayManager::GetNumberOfDisplaySystems() const
 {
-	return m_vecDisplaySystems.size();
+	return (int)m_vecDisplaySystems.size();
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   GetDisplaySystem                                            */
-/*                                                                            */
-/*============================================================================*/
 VistaDisplaySystem *VistaDisplayManager::GetDisplaySystem(int iIndex) const
 {
 	if (0<=iIndex && iIndex<int(m_vecDisplaySystems.size()))
@@ -533,21 +356,11 @@ VistaDisplaySystem *VistaDisplayManager::GetDisplaySystem(int iIndex) const
 	return NULL;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   GetNumberOfDisplays                                         */
-/*                                                                            */
-/*============================================================================*/
 int VistaDisplayManager::GetNumberOfDisplays() const
 {
-	return m_vecDisplays.size();
+	return (int)m_vecDisplays.size();
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   GetDisplay                                                  */
-/*                                                                            */
-/*============================================================================*/
 VistaDisplay *VistaDisplayManager::GetDisplay(int iIndex) const
 {
 	if (0<=iIndex && iIndex<int(m_vecDisplays.size()))
@@ -555,70 +368,94 @@ VistaDisplay *VistaDisplayManager::GetDisplay(int iIndex) const
 	return NULL;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   CreateDisplaySystem                                         */
-/*                                                                            */
-/*============================================================================*/
-VistaDisplaySystem *VistaDisplayManager::CreateDisplaySystem(VistaVirtualPlatform *pReferenceFrame,
-															   const VistaPropertyList &refProps)
+VistaDisplaySystem *VistaDisplayManager::CreateDisplaySystem( const std::string& sSectionName,
+													const VistaPropertyList& oConfig )
 {
-	if (!m_pBridge)
+	if( !m_pBridge )
 		return NULL;
 
-	VistaDisplaySystem *pDisplaySystem = m_pBridge->CreateDisplaySystem(pReferenceFrame, this, refProps);
+	vstr::outi() << "Creating display system from section [" 
+			<< sSectionName << "]" << std::endl;
+	vstr::IndentObject oDisplaySystemIndent;
 
-	if (pDisplaySystem)
+	if( oConfig.HasSubList( sSectionName ) == false )
 	{
-		// check, whether the display system name is unique...
-		string strDisplaySystemName = pDisplaySystem->GetNameForNameable();
+		vstr::errp() << "Unable to create display system  ["
+				<< sSectionName << "] - no such section found" << std::endl;
+		return NULL;
+	}
+	VistaPropertyList oDisplaySection = oConfig.GetSubListConstRef( sSectionName );
 
-		if (strDisplaySystemName.empty())
-		{
-			strDisplaySystemName = "DISPLAY_SYSTEM_"+pDisplaySystem->GetNameableIdAsString();
-			pDisplaySystem->SetNameForNameable(strDisplaySystemName);
+	VistaVirtualPlatform *pReferenceFrame = NULL;
 
-			vkernout << " [VistaDisplayManager] - WARNING - trying to create unnamed display system..." << endl;
-			vkernout << "                                   setting name to '" << strDisplaySystemName << "'..." << endl;
+	string sReferenceFrame;
+	if( oDisplaySection.GetValue( "REFERENCE_FRAME", sReferenceFrame ) )
+	{
+		pReferenceFrame = CreateRefFrameFromSection( sReferenceFrame, oConfig );
+		// remove to avoid warnign by SetPorpertiesByList
+		oDisplaySection.RemoveProperty( "REFERENCE_FRAME" );
+	}
+	if( pReferenceFrame == NULL )
+		pReferenceFrame = new VistaVirtualPlatform;
 
-		}
+	
+	list<string> liStrings;
+	if( oDisplaySection.GetValue( "VIEWPORTS", liStrings ) == false )
+	{
+		vstr::warnp() << "No VIEWPORTS specified!" << std::endl;
+	}
+	// remove to avoid warnign by SetPorpertiesByList
+	oDisplaySection.RemoveProperty( "VIEWPORTS" );
 
-		if (m_mapDisplaySystems.find(strDisplaySystemName) != m_mapDisplaySystems.end())
-		{
-			vkernout << " [VistaDisplayManager] - WARNING - unable to create display system..." << endl;
-			vkernout << "                                   name '" << strDisplaySystemName << "' not unique..." << endl;
 
-			m_pBridge->DestroyDisplaySystem(pDisplaySystem);
-			return false;
-		}
-		m_mapDisplaySystems[strDisplaySystemName] = pDisplaySystem;
+	VistaDisplaySystem *pDisplaySystem = m_pBridge->CreateDisplaySystem( pReferenceFrame, this, oDisplaySection );
 
-		// memorize display system
-		m_vecDisplaySystems.push_back(pDisplaySystem);
+	if( pDisplaySystem == NULL )
+	{
+		delete pReferenceFrame;
+		return NULL;
+	}
+	
+	// check, whether the display system name is unique...
+	string strDisplaySystemName = pDisplaySystem->GetNameForNameable();
+	if( strDisplaySystemName.empty() )
+	{
+		strDisplaySystemName = sSectionName;
+		pDisplaySystem->SetNameForNameable( sSectionName );
+	}
+
+	if( m_mapDisplaySystems.find( strDisplaySystemName ) != m_mapDisplaySystems.end() )
+	{
+		vstr::errp() << "Unable to create display system ["
+				<< strDisplaySystemName << "] - name not unique" << std::endl;
+
+		m_pBridge->DestroyDisplaySystem( pDisplaySystem );
+		delete pReferenceFrame;
+		return false;
+	}
+	m_mapDisplaySystems[strDisplaySystemName] = pDisplaySystem;
+
+	// memorize display system
+	m_vecDisplaySystems.push_back( pDisplaySystem );
+	m_vecRefFrames.push_back( pReferenceFrame );
+		
+	// create its viewports
+	for( list<string>::iterator itString = liStrings.begin();
+			itString != liStrings.end(); ++itString )
+	{
+		CreateViewport( (*itString), oConfig, pDisplaySystem );
 	}
 
 	return pDisplaySystem;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   DestroyDisplaySystem                                        */
-/*                                                                            */
-/*============================================================================*/
 bool VistaDisplayManager::DestroyDisplaySystem(VistaDisplaySystem *pDisplaySystem)
 {
 	if (!m_pBridge)
 		return false;
 
-	if (!pDisplaySystem)
-	{
-		if (pDisplaySystem->GetNumberOfViewports()>0)
-		{
-			vkernout << " [VistaDisplayManager] - WARNING - unable to destroy display systems..." << endl;
-			vkernout << "                                   disp. sys. still has viewports..." << endl;
-			return false;
-		}
-	}
+	if(!pDisplaySystem)
+		return false;
 
 	// find display system in display system vector
 	std::vector<VistaDisplaySystem *>::iterator itDS;
@@ -639,11 +476,6 @@ bool VistaDisplayManager::DestroyDisplaySystem(VistaDisplaySystem *pDisplaySyste
 	return m_pBridge->DestroyDisplaySystem(pDisplaySystem);
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   CreateDisplay                                               */
-/*                                                                            */
-/*============================================================================*/
 VistaDisplay *VistaDisplayManager::CreateDisplay(const VistaPropertyList &refProps)
 {
 	if (!m_pBridge)
@@ -661,15 +493,15 @@ VistaDisplay *VistaDisplayManager::CreateDisplay(const VistaPropertyList &refPro
 			strDisplayName = string("DISPLAY_")+pDisplay->GetNameableIdAsString();
 			pDisplay->SetNameForNameable(strDisplayName);
 
-			vkernout << " [VistaDisplayManager] - WARNING - trying to create unnamed display..." << endl;
-			vkernout << "                                   setting name to '" << strDisplayName << "'..." << endl;
+			vstr::warnp() << "[VistaDisplayManager] - trying to create unnamed display - dafaulting to " 
+						<< strDisplayName << std::endl;
 
 		}
 		
 		if (m_mapDisplays.find(strDisplayName) != m_mapDisplays.end())
 		{
-			vkernout << " [VistaDisplayManager] - WARNING - unable to create display..." << endl;
-			vkernout << "                                   name '" << strDisplayName << "' not unique..." << endl;
+			vstr::warnp() << "[VistaDisplayManager] - Unable to create display [" 
+						<< strDisplayName << "] - name is not unique!" << std::endl;
 
 			m_pBridge->DestroyDisplay(pDisplay);
 			return false;
@@ -683,11 +515,6 @@ VistaDisplay *VistaDisplayManager::CreateDisplay(const VistaPropertyList &refPro
 	return pDisplay;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   DestroyDisplay                                              */
-/*                                                                            */
-/*============================================================================*/
 bool VistaDisplayManager::DestroyDisplay(VistaDisplay *pDisplay)
 {
 	if (!m_pBridge)
@@ -699,8 +526,8 @@ bool VistaDisplayManager::DestroyDisplay(VistaDisplay *pDisplay)
 	// check, whether we don't have any dependent objects left...
 	if (pDisplay->GetNumberOfWindows()>0)
 	{
-		vkernout << " [VistaDisplayManager] - WARNING - unable to destroy display..." << endl;
-		vkernout << "                                   there are still windows on the display..." << endl;
+		vstr::warnp() << "[VistaDisplayManager] - unable to destroy display [" 
+			<< pDisplay->GetNameForNameable() << "] - still has windows!" << std::endl;
 		return false;
 	}
 
@@ -723,60 +550,97 @@ bool VistaDisplayManager::DestroyDisplay(VistaDisplay *pDisplay)
 	return m_pBridge->DestroyDisplay(pDisplay);
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   CreateVistaWindow                                           */
-/*                                                                            */
-/*============================================================================*/
-VistaWindow *VistaDisplayManager::CreateVistaWindow(VistaDisplay *pParent, 
-													  const VistaPropertyList &refProps)
+VistaWindow *VistaDisplayManager::CreateVistaWindow( const std::string& sSectionName,
+													const VistaPropertyList& oConfig )
 {
 	if (!m_pBridge)
 		return NULL;
 
-	VistaWindow *pWindow = m_pBridge->CreateVistaWindow(pParent, refProps);
-
-	if (pWindow)
+	if( oConfig.HasSubList( sSectionName ) == false )
 	{
-		// check, whether the window name is unique...
-		string strWindowName = pWindow->GetNameForNameable();
-		vkernout << "window @ " << pWindow << " created.\n";
+		vstr::errp() << "Cannot create window - section [" 
+					<< sSectionName << "] does not exist" << std::endl;
+	}
+	const VistaPropertyList& oSection = oConfig.GetSubListConstRef( sSectionName );
 
-		if (strWindowName.empty())
+	string sWindowName;
+	if( oSection.GetValue( "NAME", sWindowName ) == false )
+		sWindowName = sSectionName;
+
+	VistaWindow *pWindow = GetWindowByName( sWindowName) ;
+	if( pWindow != NULL )
+	{
+		vstr::outi() << "Using existing window [" << sWindowName << "]" << std::endl;
+		return pWindow;
+	}
+
+	vstr::outi() << "Creating new window from section [" << sWindowName << "]" << std::endl;
+	vstr::IndentObject oWindowIndent;
+
+	// create display or use existing one
+	VistaDisplay *pDisplay = NULL;
+	string sDisplaySection;
+	if( oSection.GetValue( "DISPLAY", sDisplaySection ) )
+	{
+		vstr::outi() << "Using display from section [" << sDisplaySection << "]" << std::endl;
+		vstr::IndentObject oDisplayIndent;
+
+		if( oConfig.HasSubList( sDisplaySection ) == false )
 		{
-			strWindowName = "WINDOW_"+pWindow->GetNameableIdAsString();
-			pWindow->SetNameForNameable(strWindowName);
-
-			vkernout << " [VistaDisplayManager] - WARNING - trying to create unnamed window..." << endl;
-			vkernout << "                                   setting name to '" << strWindowName << "'..." << endl;
-
+			vstr::errp() << "Cannot create display - section [" 
+						<< sDisplaySection << "] does not exist" << std::endl;
 		}
+		const VistaPropertyList& oDisplaySection = oConfig.GetSubListConstRef( sDisplaySection );
 
-		if (m_mapWindows.find(strWindowName) != m_mapWindows.end())
+
+		string strDisplayName;
+		oDisplaySection.GetValue( "NAME", strDisplayName );
+		pDisplay = GetDisplayByName( strDisplayName );
+		if( !pDisplay )
 		{
-			vkernout << " [VistaDisplayManager] - WARNING - unable to create window..." << endl;
-			vkernout << "                                   name '" << strWindowName << "' not unique..." << endl;
-
-			m_pBridge->DestroyVistaWindow(pWindow);
-			return false;
+			vstr::outi() << "Creating display [" << strDisplayName << "]" << std::endl;
+			pDisplay = CreateDisplay( oDisplaySection );
 		}
-		m_mapWindows[strWindowName] = pWindow;
-
-		if (pParent)
+		else
 		{
-			vector<VistaWindow *> &refWindows = pParent->GetWindows();
-			refWindows.push_back(pWindow);
+			vstr::outi() << "Using existing display [" << strDisplayName << "]" << std::endl;
 		}
+	}
+
+	pWindow = m_pBridge->CreateVistaWindow( pDisplay, oSection );
+
+	if( pWindow == NULL )
+	{
+		vstr::errp() << "[VistaDisplayManager]: Could not create Window" << std::endl;
+		return NULL;
+	}
+
+	// check, whether the window name is unique...
+	string sCurrentWindowName = pWindow->GetNameForNameable();	
+	if( sCurrentWindowName.empty() )
+	{
+		pWindow->SetNameForNameable( sWindowName );
+		sCurrentWindowName = sWindowName;
+	}
+
+	if( m_mapWindows.find( sCurrentWindowName ) != m_mapWindows.end() )
+	{
+		vstr::warnp() << "[VistaDisplayManager]: unable to create window - "
+					<< "Name [" << sCurrentWindowName << "] not unique" << std::endl;
+
+		m_pBridge->DestroyVistaWindow(pWindow);
+		return false;
+	}
+	m_mapWindows[sCurrentWindowName] = pWindow;
+
+	if( pDisplay )
+	{
+		pDisplay->GetWindows().push_back( pWindow );
 	}
 
 	return pWindow;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   DestroyVistaWindow                                          */
-/*                                                                            */
-/*============================================================================*/
 bool VistaDisplayManager::DestroyVistaWindow(VistaWindow *pWindow)
 {
 	if (!m_pBridge)
@@ -787,8 +651,8 @@ bool VistaDisplayManager::DestroyVistaWindow(VistaWindow *pWindow)
 
 	if (pWindow->GetNumberOfViewports()>0)
 	{
-		vkernout << " [VistaDisplayManager] - WARNING - unable to destroy window..." << endl;
-		vkernout << "                                   there are still viewports in window..." << endl;
+		vstr::warnp() << "[VistaDisplayManager] - Unable to destroy window ["
+			<< pWindow->GetNameForNameable() << "] - it still has viewports" << std::endl;
 		return false;
 	}
 
@@ -796,7 +660,7 @@ bool VistaDisplayManager::DestroyVistaWindow(VistaWindow *pWindow)
 	VistaDisplay *pParent = pWindow->GetDisplay();
 	if (pParent)
 	{
-		vector<VistaWindow *> &vecWindows = pParent->GetWindows();
+		vector<VistaWindow *>& vecWindows = pParent->GetWindows();
 		vector<VistaWindow *>::iterator itW;
 		for (itW=vecWindows.begin(); itW!=vecWindows.end(); ++itW)
 		{
@@ -812,70 +676,98 @@ bool VistaDisplayManager::DestroyVistaWindow(VistaWindow *pWindow)
 	if (itMap != m_mapWindows.end())
 		m_mapWindows.erase(itMap);
 
-	vkernout << "Destroying window @ " << pWindow << endl;
+	vstr::outi() << "Destroying window [" << pWindow->GetNameForNameable() << "]" << std::endl;
 	return m_pBridge->DestroyVistaWindow(pWindow);
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   CreateViewport                                              */
-/*                                                                            */
-/*============================================================================*/
-VistaViewport *VistaDisplayManager::CreateViewport(VistaDisplaySystem *pDisplaySystem,
-													 VistaWindow *pWindow,
-													 const VistaPropertyList &refProps)
+VistaViewport *VistaDisplayManager::CreateViewport( const std::string& sSectionName,
+													 const VistaPropertyList& oConfig,
+													 VistaDisplaySystem* pDisplaySystem )
 {
-	if (!m_pBridge)
+	if( m_pBridge == NULL )
 		return NULL;
 
-	VistaViewport *pViewport = m_pBridge->CreateViewport(pDisplaySystem, pWindow, refProps);
-
-	if (pViewport)
+	vstr::outi() << "Creating viewport from section [" << sSectionName << "]" << std::endl;
+	vstr::IndentObject oViewportIndent;
+	
+	if( oConfig.HasSubList( sSectionName ) == false )
 	{
-		// check, whether the viewport name is unique...
-		string strViewportName = pViewport->GetNameForNameable();
+		vstr::errp() << "Unable to find viewport section - skipping viewport" << std::endl;
+		return NULL;
+	}
+	const VistaPropertyList& oViewportProps = oConfig.GetSubListConstRef( sSectionName );
 
-		if (strViewportName.empty())
-		{
-			strViewportName = "VIEWPORT_"+pViewport->GetNameableIdAsString();
-			pViewport->SetNameForNameable(strViewportName);
+	
+	// now, find out, whether we already know about the window...
+	string sWindowSection;
+	if( oViewportProps.GetValue( "WINDOW", sWindowSection ) == false )
+	{
+		vstr::errp() << "No WINDOW specified" << std::endl;
+		return NULL;;
+	}		
+	VistaWindow *pWindow = CreateVistaWindow( sWindowSection, oConfig );
+	if( pWindow == NULL )
+	{
+		vstr::errp() << "Could not create Window - skipping Display" << std::endl;	
+		return NULL;;
+	}
 
-			vkernout << " [VistaDisplayManager] - WARNING - trying to create unnamed viewport..." << endl;
-			vkernout << "                                   setting name to '" << strViewportName << "'..." << endl;
 
-		}
+	VistaViewport *pViewport = m_pBridge->CreateViewport( pDisplaySystem, pWindow, oViewportProps );
+	if( pViewport == NULL )
+	{
+		vstr::errp() << "Viewport Creating failed!";
+		delete pWindow;
+		return NULL;
+	}
 
-		if (m_mapViewports.find(strViewportName) != m_mapViewports.end())
-		{
-			vkernout << " [VistaDisplayManager] - WARNING - unable to create viewport..." << endl;
-			vkernout << "                                   name '" << strViewportName << "' not unique..." << endl;
+	// check, whether the viewport name is unique...
+	string sViewportName = pViewport->GetNameForNameable();
+	if( sViewportName.empty() )
+	{
+		sViewportName = sSectionName;
+		pViewport->SetNameForNameable( sViewportName );
+	}
+	if( m_mapViewports.find(sViewportName) != m_mapViewports.end() )
+	{
+		vstr::errp() << "Unable to create viewport [" 
+				<< sViewportName << "] - Name not unique" << std::endl;
 
-			m_pBridge->DestroyViewport(pViewport);
-			return false;
-		}
-		m_mapViewports[strViewportName] = pViewport;
+		m_pBridge->DestroyViewport(pViewport);
+		delete pWindow;
+		return NULL;
+	}	
+	
+	// finally, create the corresponding projection...
+	string sProjSection;
+	if( oViewportProps.GetValue( "PROJECTION", sProjSection ) == false )
+	{
+		vstr::errp() << "No PROJECTION specified" << std::endl;
+		return NULL;;
+	}		
+	VistaProjection *pProjection = CreateProjection( pViewport, sProjSection, oConfig );
+	if( !pProjection )
+	{
+		vstr::errp() << "Unable to create projection" << std::endl;
+	}
 
-		if (pDisplaySystem)
-		{
-			vector<VistaViewport*> &refViewports = pDisplaySystem->GetViewports();
-			refViewports.push_back(pViewport);
-		}
+	m_mapViewports[sViewportName] = pViewport;
 
-		if (pWindow)
-		{
-			vector<VistaViewport*> &refViewports = pWindow->GetViewports();
-			refViewports.push_back(pViewport);
-		}
+	if( pDisplaySystem )
+	{
+		vector<VistaViewport*>& refViewports = pDisplaySystem->GetViewports();
+		refViewports.push_back(pViewport);
+	}
+
+	if( pWindow )
+	{
+		vector<VistaViewport*>& refViewports = pWindow->GetViewports();
+		refViewports.push_back(pViewport);
 	}
 
 	return pViewport;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   DestroyViewport                                             */
-/*                                                                            */
-/*============================================================================*/
 bool VistaDisplayManager::DestroyViewport(VistaViewport *pViewport)
 {
 	if (!m_pBridge)
@@ -886,15 +778,15 @@ bool VistaDisplayManager::DestroyViewport(VistaViewport *pViewport)
 
 	if (pViewport->GetProjection())
 	{
-		vkernout << " [VistaDisplayManager] - WARNING - unable to destroy viewport..." << endl;
-		vkernout << "                                   there is still a projection..." << endl;
+		vstr::warnp() << "[VistaDisplayManager] - unable to destroy viewport [" 
+			<< pViewport->GetNameForNameable() << "] - it still has a projection" << std::endl;
 		return false;
 	}
 
 	VistaDisplaySystem *pDS = pViewport->GetDisplaySystem();
 	if (pDS)
 	{
-		vector<VistaViewport *> &refViewports = pDS->GetViewports();
+		vector<VistaViewport *>& refViewports = pDS->GetViewports();
 		vector<VistaViewport *>::iterator itVp;
 		for (itVp=refViewports.begin(); itVp!=refViewports.end(); ++itVp)
 		{
@@ -909,7 +801,7 @@ bool VistaDisplayManager::DestroyViewport(VistaViewport *pViewport)
 	VistaWindow *pW = pViewport->GetWindow();
 	if (pW)
 	{
-		vector<VistaViewport *> &refViewports = pW->GetViewports();
+		vector<VistaViewport *>& refViewports = pW->GetViewports();
 		vector<VistaViewport *>::iterator itVp;
 		for (itVp=refViewports.begin(); itVp!=refViewports.end(); ++itVp)
 		{
@@ -928,65 +820,53 @@ bool VistaDisplayManager::DestroyViewport(VistaViewport *pViewport)
 	return m_pBridge->DestroyViewport(pViewport);
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   CreateProjection                                            */
-/*                                                                            */
-/*============================================================================*/
 VistaProjection *VistaDisplayManager::CreateProjection(VistaViewport *pViewport,
-														 const VistaPropertyList &refProps)
+														const std::string& sSectionName,
+														const VistaPropertyList& oConfig )
 {
-	if (!m_pBridge)
+	if( !m_pBridge )
 		return NULL;
 
-	if (pViewport && pViewport->GetProjection())
+	vstr::outi() << "Creating Projection from section [" << sSectionName << "]" << std::endl;
+
+	if( oConfig.HasSubList( sSectionName ) == false )
 	{
-		vkernout << " [VistaDisplayManager] - WARNING - unable to create projection..." << endl;
-		vkernout << "                                   parent viewport already has a projection..." << endl;
+		vstr::warnp() << "Projection cannot be created - section ["
+			<< sSectionName << "] does not exist" << std::endl;
 		return NULL;
 	}
+	const VistaPropertyList& oSection = oConfig.GetSubListConstRef( sSectionName );
 
-	VistaProjection *pProjection = m_pBridge->CreateProjection(pViewport, refProps);
+	VistaProjection *pProjection = m_pBridge->CreateProjection( pViewport, oSection );
+	if( pProjection == NULL )
+		return NULL;
 
-	if (pProjection)
+	// check, whether the projection name is unique...
+	string sProjectionName = pProjection->GetNameForNameable();
+	if( sProjectionName.empty() )
 	{
-		// check, whether the projection name is unique...
-		string strProjectionName = pProjection->GetNameForNameable();
+		sProjectionName = sSectionName;
+		pProjection->SetNameForNameable( sProjectionName );
+	}
 
-		if (strProjectionName.empty())
-		{
-			strProjectionName = "PROJECTION_"+pProjection->GetNameableIdAsString();
-			pProjection->SetNameForNameable(strProjectionName);
+	if( m_mapProjections.find( sProjectionName ) != m_mapProjections.end() )
+	{
+		vstr::warnp() << "[VistaDisplayManager] - Unable to create projection [" << sProjectionName
+			<< "] - name is not unique" << std::endl;
 
-			vkernout << " [VistaDisplayManager] - WARNING - trying to create unnamed projection..." << endl;
-			vkernout << "                                   setting name to '" << strProjectionName << "'..." << endl;
+		m_pBridge->DestroyProjection(pProjection);
+		return false;
+	}
+	m_mapProjections[sProjectionName] = pProjection;
 
-		}
-
-		if (m_mapProjections.find(strProjectionName) != m_mapProjections.end())
-		{
-			vkernout << " [VistaDisplayManager] - WARNING - unable to create projection..." << endl;
-			vkernout << "                                   name '" << strProjectionName << "' not unique..." << endl;
-
-			m_pBridge->DestroyProjection(pProjection);
-			return false;
-		}
-		m_mapProjections[strProjectionName] = pProjection;
-
-		if (pViewport)
-		{
-			pViewport->SetProjection(pProjection);
-		}
+	if( pViewport )
+	{
+		pViewport->SetProjection( pProjection );
 	}
 
 	return pProjection;
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   DestroyProjection                                           */
-/*                                                                            */
-/*============================================================================*/
 bool VistaDisplayManager::DestroyProjection(VistaProjection *pProjection)
 {
 	if (!m_pBridge)
@@ -1009,13 +889,8 @@ bool VistaDisplayManager::DestroyProjection(VistaProjection *pProjection)
 	return m_pBridge->DestroyProjection(pProjection);
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   RenameXXX                                                   */
-/*                                                                            */
-/*============================================================================*/
-bool VistaDisplayManager::RenameDisplaySystem(const std::string &strOldName, 
-											   const std::string &strNewName)
+bool VistaDisplayManager::RenameDisplaySystem(const std::string& strOldName, 
+											   const std::string& strNewName)
 {
 	if (m_mapDisplaySystems.find(strNewName) != m_mapDisplaySystems.end())
 		return false;
@@ -1033,8 +908,8 @@ bool VistaDisplayManager::RenameDisplaySystem(const std::string &strOldName,
 	return true;
 }
 
-bool VistaDisplayManager::RenameViewport(const std::string &strOldName, 
-										  const std::string &strNewName)
+bool VistaDisplayManager::RenameViewport(const std::string& strOldName, 
+										  const std::string& strNewName)
 {
 	if (m_mapViewports.find(strNewName) != m_mapViewports.end())
 		return false;
@@ -1052,8 +927,8 @@ bool VistaDisplayManager::RenameViewport(const std::string &strOldName,
 	return true;
 }
 
-bool VistaDisplayManager::RenameProjection(const std::string &strOldName, 
-											const std::string &strNewName)
+bool VistaDisplayManager::RenameProjection(const std::string& strOldName, 
+											const std::string& strNewName)
 {
 	if (m_mapProjections.find(strNewName) != m_mapProjections.end())
 		return false;
@@ -1071,8 +946,8 @@ bool VistaDisplayManager::RenameProjection(const std::string &strOldName,
 	return true;
 }
 
-bool VistaDisplayManager::RenameWindow(const std::string &strOldName, 
-											   const std::string &strNewName)
+bool VistaDisplayManager::RenameWindow(const std::string& strOldName, 
+											   const std::string& strNewName)
 {
 	if (m_mapWindows.find(strNewName) != m_mapWindows.end())
 		return false;
@@ -1091,8 +966,8 @@ bool VistaDisplayManager::RenameWindow(const std::string &strOldName,
 }
 
 
-bool VistaDisplayManager::RenameDisplay(const std::string &strOldName, 
-											   const std::string &strNewName)
+bool VistaDisplayManager::RenameDisplay(const std::string& strOldName, 
+											   const std::string& strNewName)
 {
 	if (m_mapDisplays.find(strNewName) != m_mapDisplays.end())
 		return false;
@@ -1110,8 +985,8 @@ bool VistaDisplayManager::RenameDisplay(const std::string &strOldName,
 	return true;
 }
 
-bool VistaDisplayManager::MakeScreenshot(const std::string &sWindowName,
-					const std::string &strFilenamePrefix) const
+bool VistaDisplayManager::MakeScreenshot(const std::string& sWindowName,
+					const std::string& strFilenamePrefix) const
 {
 	VistaWindow *pWin = GetWindowByName(sWindowName);
 	if(pWin)
@@ -1122,110 +997,128 @@ bool VistaDisplayManager::MakeScreenshot(const std::string &sWindowName,
 		return false;
 }
 
-bool VistaDisplayManager::AddSceneOverlay(IVistaSceneOverlay *pDraw, 
-										const std::string &strViewportName)
+bool VistaDisplayManager::AddSceneOverlay( IVistaSceneOverlay* pDraw, 
+										const std::string& sViewportName )
 {
-	if(strViewportName.empty())
+	if( sViewportName.empty() )
 	{
-		const std::map<std::string, VistaViewport*> &mp = GetViewportsConstRef();
-		if(mp.size() == 1)
+		if( m_mapViewports.size() == 1 )
 		{
-			return m_pBridge->AddSceneOverlay(pDraw, (*mp.begin()).first);
+			return m_pBridge->AddSceneOverlay( pDraw, (*m_mapViewports.begin()).second );
+		}
+		else
+		{
+			vstr::warnp() << "VistaDisplayManager::AddSceneOverlay() -- "
+				<< "Trying to add Overlay to default viewport, but there is not "
+				<< "exactly one viewport, but " << m_mapViewports.size() << std::endl;
 		}
 		return false;
 	}
 	else
-		return m_pBridge->AddSceneOverlay(pDraw, strViewportName);
+		return m_pBridge->AddSceneOverlay( pDraw, GetViewportByName( sViewportName ) );
 }
 
-bool VistaDisplayManager::RemSceneOverlay(IVistaSceneOverlay *pDraw,
-										const std::string &strVpName)
+bool VistaDisplayManager::AddSceneOverlay( IVistaSceneOverlay* pDraw, 
+										  VistaViewport* pViewport )
 {
-	if(strVpName.empty())
+	if( pViewport == NULL )
+		return false;
+	return m_pBridge->AddSceneOverlay( pDraw, pViewport );
+}
+
+bool VistaDisplayManager::RemSceneOverlay( IVistaSceneOverlay* pDraw,
+										const std::string& sViewportName )
+{
+	if( sViewportName.empty() )
 	{
-		const std::map<std::string, VistaViewport*> &mp = GetViewportsConstRef();
-		if(mp.size() == 1)
+		if( m_mapViewports.size() == 1 )
 		{
-			return m_pBridge->RemSceneOverlay(pDraw, (*mp.begin()).first);
+			return m_pBridge->RemSceneOverlay( pDraw, (*m_mapViewports.begin()).second );
+		}
+		else
+		{
+			vstr::warnp() << "VistaDisplayManager::RemSceneOverlay() -- "
+				<< "Trying to remove Overlay from default viewport, but there is not "
+				<< "exactly one viewport, but " << m_mapViewports.size() << std::endl;
 		}
 		return false;
 	}
 	else
-		return m_pBridge->RemSceneOverlay(pDraw, strVpName);
+		return m_pBridge->RemSceneOverlay( pDraw, GetViewportByName( sViewportName ) );
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   Add2DText                                                   */
-/*                                                                            */
-/*============================================================================*/
-
-Vista2DText* VistaDisplayManager::Add2DText(const std::string &strViewportName)
+bool VistaDisplayManager::RemSceneOverlay( IVistaSceneOverlay *pDraw, 
+										  VistaViewport* pViewport )
 {
-	if(strViewportName.empty())
+	if( pViewport == NULL )
+		return false;
+	return m_pBridge->RemSceneOverlay( pDraw, pViewport );
+}
+
+
+Vista2DText* VistaDisplayManager::New2DText(const std::string& sViewportName)
+{
+	if(sViewportName.empty())
 	{
-		const std::map<std::string, VistaViewport*> &mp = GetViewportsConstRef();
+		const std::map<std::string, VistaViewport*>& mp = GetViewportsConstRef();
 		if(mp.size() == 1)
 		{
-			return m_pBridge->Add2DText((*mp.begin()).first);
+			return m_pBridge->New2DText((*mp.begin()).first);
 		}
-		vkernerr << "[VistaDisplayMgr] Warning: Can not add 2D Text without given viewport name, when more than one viewport is registered." << std::endl;
+		vstr::warnp()
+					<< "[ViDiMa]: Warning: Can not add 2D Text without given viewport name,"
+					<< "when more than one viewport is registered." << std::endl;
 		return NULL;
 	}
 	else
-		return m_pBridge->Add2DText(strViewportName);
+		return m_pBridge->New2DText(sViewportName);
 }
 
-Vista2DBitmap*	VistaDisplayManager::Add2DBitmap	(const std::string &strViewportName )
+Vista2DBitmap*	VistaDisplayManager::New2DBitmap(const std::string& sViewportName )
 {
-	if(strViewportName.empty())
+	if(sViewportName.empty())
 	{
-		const std::map<std::string, VistaViewport*> &mp = GetViewportsConstRef();
+		const std::map<std::string, VistaViewport*>& mp = GetViewportsConstRef();
 		if(mp.size() == 1)
 		{
-			return m_pBridge->Add2DBitmap((*mp.begin()).first);
-		}
-		return NULL;
-	}
-	else
-		return m_pBridge->Add2DBitmap(strViewportName);
-}
-
-Vista2DLine*	VistaDisplayManager::Add2DLine	(const std::string &strViewportName )
-{
-	if(strViewportName.empty())
-	{
-		const std::map<std::string, VistaViewport*> &mp = GetViewportsConstRef();
-		if(mp.size() == 1)
-		{
-			return m_pBridge->Add2DLine((*mp.begin()).first);
+			return m_pBridge->New2DBitmap((*mp.begin()).first);
 		}
 		return NULL;
 	}
 	else
-		return m_pBridge->Add2DLine(strViewportName);
+		return m_pBridge->New2DBitmap(sViewportName);
 }
 
-Vista2DRectangle*	VistaDisplayManager::Add2DRectangle	(const std::string &strViewportName )
+Vista2DLine*	VistaDisplayManager::New2DLine	(const std::string& sViewportName )
 {
-	if(strViewportName.empty())
+	if(sViewportName.empty())
 	{
-		const std::map<std::string, VistaViewport*> &mp = GetViewportsConstRef();
+		const std::map<std::string, VistaViewport*>& mp = GetViewportsConstRef();
 		if(mp.size() == 1)
 		{
-			return m_pBridge->Add2DRectangle((*mp.begin()).first);
+			return m_pBridge->New2DLine((*mp.begin()).first);
 		}
 		return NULL;
 	}
 	else
-		return m_pBridge->Add2DRectangle(strViewportName);
+		return m_pBridge->New2DLine(sViewportName);
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   Debug                                                       */
-/*                                                                            */
-/*============================================================================*/
+Vista2DRectangle*	VistaDisplayManager::New2DRectangle	(const std::string &sViewportName )
+{
+	if(sViewportName.empty())
+	{
+		const std::map<std::string, VistaViewport*> &mp = GetViewportsConstRef();
+		if(mp.size() == 1)
+		{
+			return m_pBridge->New2DRectangle((*mp.begin()).first);
+		}
+		return NULL;
+	}
+	else
+		return m_pBridge->New2DRectangle(sViewportName);
+}
+
 void VistaDisplayManager::Debug ( std::ostream & out ) const
 {
 	unsigned int iDispSysIndex;
@@ -1235,7 +1128,7 @@ void VistaDisplayManager::Debug ( std::ostream & out ) const
 	for (iDispSysIndex=0; iDispSysIndex<m_vecDisplaySystems.size(); ++iDispSysIndex)
 	{
 		VistaDisplaySystem *pDispSys = m_vecDisplaySystems[iDispSysIndex];
-		out << (*pDispSys) << endl;
+		out << (*pDispSys) << std::endl;
 
 		unsigned int iViewportIndex;
 		for (iViewportIndex=0; iViewportIndex<pDispSys->GetNumberOfViewports(); ++iViewportIndex)
@@ -1243,11 +1136,11 @@ void VistaDisplayManager::Debug ( std::ostream & out ) const
 			VistaViewport *pViewport = pDispSys->GetViewport(iViewportIndex);
 			if (pViewport)
 			{
-				out << (*pViewport) << endl;
+				out << (*pViewport) << std::endl;
 				
 				VistaProjection *pProjection = pViewport->GetProjection();
 				if (pProjection)
-					out << (*pProjection) << endl;
+					out << (*pProjection) << std::endl;
 
 				if (pViewport->GetWindow())
 				{
@@ -1260,7 +1153,7 @@ void VistaDisplayManager::Debug ( std::ostream & out ) const
 	set<VistaWindow *>::iterator itWin;
 	for (itWin = setWindows.begin(); itWin != setWindows.end(); ++itWin)
 	{
-		out << (*(*itWin)) << endl;
+		out << (*(*itWin)) << std::endl;
 
 		if ((*itWin)->GetDisplay())
 		{
@@ -1271,49 +1164,15 @@ void VistaDisplayManager::Debug ( std::ostream & out ) const
 	set<VistaDisplay *>::iterator itDisp;
 	for (itDisp = setDisplays.begin(); itDisp != setDisplays.end(); ++itDisp)
 	{
-		out << (*(*itDisp)) << endl;
+		out << (*(*itDisp)) << std::endl;
 	}
 }
 
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   ProcessEvent                                                */
-/*                                                                            */
-/*============================================================================*/
 void VistaDisplayManager::HandleEvent(VistaEvent *pEvent)
 {
-	// we are registered for display type-events!
-	VistaDisplayEvent *pDisp = dynamic_cast<VistaDisplayEvent*>(pEvent);
-	if(pDisp)
-	{
-		switch(pDisp->GetId())
-		{
-		case VistaDisplayEvent::VDE_POSITIONCHANGE:
-			{
-				// notify ;) (window only)
-				pDisp->GetViewport()->GetWindow()->GetWindowProperties()->Notify(
-					VistaWindow::VistaWindowProperties::MSG_POSITION_CHANGE);
-				break;
-			}
-		case VistaDisplayEvent::VDE_RATIOCHANGE:
-			{
-				VistaViewport *pVp = pDisp->GetViewport();
-				pVp->GetViewportProperties()->Notify( VistaViewport::VistaViewportProperties::MSG_SIZE_CHANGE );
-				break;
-			}
-		default:
-			break;
-		}
-	}
 }
 
-
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   operator<<                                                  */
-/*                                                                            */
-/*============================================================================*/
-ostream & operator<< ( std::ostream & out, const VistaDisplayManager & refDisplayManager )
+ostream& operator<< ( std::ostream& out, const VistaDisplayManager& refDisplayManager )
 {
 	refDisplayManager.Debug ( out );
 	return out;
@@ -1322,176 +1181,88 @@ ostream & operator<< ( std::ostream & out, const VistaDisplayManager & refDispla
 /*============================================================================*/
 /*  LOCAL VARS / FUNCTIONS                                                    */
 /*============================================================================*/
-int FillPropertyList(VistaPropertyList &refProps, 
-					  const std::string &strIniSection,
-					  const std::string &strIniFile,
-					  bool bConvertKeyToUpper,
-					  bool bSetNameToSectionName)
+
+VistaVirtualPlatform *CreateRefFrameFromSection( const std::string& sSectionName,
+												 const VistaPropertyList& oConfig )
 {
-	VistaProfiler oProf;
+	vstr::outi() << "Creating virtual platform from section [" << sSectionName << "]" << std::endl;
+	vstr::IndentObject oRefFrameIndent;
 
-	if (!oProf.GetTheProfileSection(strIniSection, strIniFile))
-		return 0;
-
-	refProps.clear();
-
-	list<string> liKeys;
-	oProf.GetTheProfileSectionEntries(strIniSection, liKeys, strIniFile);
-	list<string>::iterator itKey;
-	for (itKey = liKeys.begin(); itKey!=liKeys.end(); ++itKey)
+	if( oConfig.HasSubList( sSectionName ) == false )
 	{
-		string strKey = *itKey;
-		string strValue;
-		oProf.GetTheProfileString(strIniSection, *itKey, "", strValue, strIniFile);
-
-		if (bConvertKeyToUpper)
-			strKey = VistaAspectsConversionStuff::ConvertToUpper(strKey);
-
-		refProps.SetStringValue(strKey, strValue);
-	}
-
-	if (bSetNameToSectionName && !refProps.HasProperty("NAME"))
-		refProps.SetStringValue("NAME", strIniSection);
-
-	return refProps.size();
-}
-
-VistaWindow *CreateWindowFromSection(const std::string &strIniSection, 
-									  const std::string &strIniFile,
-									  VistaDisplayManager *pDisplayManager)
-{
-	VistaPropertyList oWindowProps;
-	if (!FillPropertyList(oWindowProps, strIniSection, strIniFile, true, true))
-	{
-		vkernout << " [VistaDisplayManager] - ERROR - unable to find window section..." << endl;
+		vstr::warnp() << "Cannot create reference frame - section ["
+					<< sSectionName << "] does not exist" << std::endl;
 		return NULL;
 	}
-
-	string strWindowName = oWindowProps.GetStringValue("NAME");
-	VistaWindow *pWindow = pDisplayManager->GetWindowByName(strWindowName);
-	if (!pWindow)
-	{
-		// we don't know about the window, so we have to create it...
-		// but first, we have to check for its display...
-		VistaDisplay *pDisplay = NULL;
-		if (oWindowProps.HasProperty("DISPLAY"))
-		{
-			string strDisplaySection = oWindowProps.GetStringValue("DISPLAY");
-			vkernout << " [VistaDisplaySection] - working on display from section '"
-				<< strDisplaySection << "'..." << endl;
-			VistaPropertyList oDisplayProps;
-
-			if (!FillPropertyList(oDisplayProps, strDisplaySection, strIniFile, true, true))
-			{
-				vkernout << " [VistaDisplaySection] - ERROR - unable to read display data..." << endl;
-				return NULL;
-			}
-
-			string strDisplayName = oDisplayProps.GetStringValue("NAME");
-			pDisplay = pDisplayManager->GetDisplayByName(strDisplayName);
-			if (!pDisplay)
-			{
-				vkernout << " [VistaDisplaySection] - creating display..." << endl;
-				pDisplay = pDisplayManager->CreateDisplay(oDisplayProps);
-			}
-		}
-
-		vkernout << " [VistaDisplayManager] - creating window..." << endl;
-		pWindow = pDisplayManager->CreateVistaWindow(pDisplay, oWindowProps);
-	}
-
-	return pWindow;
-}
-
-VistaVirtualPlatform *CreateRefFrameFromSection(const std::string &strIniSection,
-												 const std::string &strIniFile)
-{
-	VistaPropertyList oFrameProps;
-	if (!FillPropertyList(oFrameProps, strIniSection, strIniFile, true, true))
-	{
-		vkernout << " [VistaDisplayManager] - ERROR - unable to find reference frame section..." << endl;
-		return NULL;
-	}
-
-	vkernout << " [VistaDisplayManager] - creating virtual platform from section '"
-		<< strIniSection << "'..." << endl;
+	const VistaPropertyList& oFrameProps = oConfig.GetSubListConstRef( sSectionName );	
 
 	VistaVirtualPlatform *pPlatform = new VistaVirtualPlatform();
 
-	if (oFrameProps.HasProperty("TRANSLATION"))
+	if( oFrameProps.HasProperty( "TRANSLATION" ) )
 	{
-		list<double> liTrans;
-		string strValue = oFrameProps.GetStringValue("TRANSLATION");
-		if (VistaAspectsConversionStuff::ConvertToList(strValue, liTrans) == 3)
+		VistaVector3D v3Translation;
+		if( oFrameProps.GetValue( "TRANSLATION", v3Translation ) )
 		{
-			list<double>::iterator itTrans = liTrans.begin();
-			VistaVector3D v3Trans;
-			v3Trans[0] = (float) *(itTrans++);
-			v3Trans[1] = (float) *(itTrans++);
-			v3Trans[2] = (float) *(itTrans);
-
-#ifdef DEBUG
-			vkernout << " [VistaDisplayManager] - setting ref frame translation to " << v3Trans << endl;
-#endif
-			pPlatform->SetTranslation(v3Trans);
+			pPlatform->SetTranslation( v3Translation );
+		}
+		else
+		{
+			vstr::warnp() << "Entry for Virtual Platform Translation ["
+					<< oFrameProps.GetValue<std::string>( "TRANSLATION" ) 
+					<< "] does not represent a translation" << std::endl;
 		}
 	}
 
-	if (oFrameProps.HasProperty("ROTATION"))
+	if( oFrameProps.HasProperty( "ROTATION" ) )
 	{
-		list<double> liRot;
-		string strValue = oFrameProps.GetStringValue("ROTATION");
-		if (VistaAspectsConversionStuff::ConvertToList(strValue, liRot) == 4)
+		VistaQuaternion qQuat;
+		VistaEulerAngles oAngles( 0,0,0 );
+		if( oFrameProps.GetValue( "ROTATION", qQuat ) )
 		{
-			list<double>::iterator itRot = liRot.begin();
-			VistaQuaternion qRot;
-			qRot[0] = (float) *(itRot++);
-			qRot[1] = (float) *(itRot++);
-			qRot[2] = (float) *(itRot++);
-			qRot[3] = (float) *itRot;
-
-#ifdef DEBUG
-			vkernout << " [VistaDisplayManager] - setting ref frame rotation to " << qRot << endl;
-#endif
-
-			pPlatform->SetRotation(qRot);
+			pPlatform->SetRotation( qQuat );
 		}
-		if (VistaAspectsConversionStuff::ConvertToList(strValue, liRot) == 3)
+		else if( oFrameProps.GetValue( "ROTATION", oAngles ) )
 		{
-			list<double>::iterator itRot = liRot.begin();
-			VistaQuaternion qRot;
-            float rx,ry,rz;
-            rx = (Vista::Pi/180.0f)*(float) *(itRot++);
-			ry = (Vista::Pi/180.0f)*(float) *(itRot++);
-			rz = (Vista::Pi/180.0f)*(float) *itRot;
-            qRot = VistaQuaternion(VistaEulerAngles(rx,ry,rz));
-
-#ifdef DEBUG
-			vkernout << " [VistaDisplayManager] - setting ref frame rotation to " << qRot << endl;
-#endif
-
-			pPlatform->SetRotation(qRot);
+			pPlatform->SetRotation( VistaQuaternion( oAngles ) );
+		}
+		else
+		{
+			vstr::warnp() << "Entry for Virtual Platform Rotation ["
+					<< oFrameProps.GetValue<std::string>( "ROTATION" ) 
+					<< "] does not represent a rotation" << std::endl;
 		}
 	}
 
-	if (oFrameProps.HasProperty("SCALE"))
+	float fScale;
+	if( oFrameProps.GetValue( "SCALE", fScale ) )
 	{
-		float fScale = (float) oFrameProps.GetDoubleValue("SCALE");
-
-#ifdef DEBUG
-		vkernout << " [VistaDisplayManager] - setting ref frame scale to " << fScale << endl;
-#endif
-
-		if (fScale > 0)
+		if( fScale > 0 )
+		{
 			pPlatform->SetScale(fScale);
+		}
+		else
+		{
+			vstr::warnp() << "Entry for Virtual Platform Scale ["
+				<< fScale << " is not positive!" << std::endl;
+		}
 	}
 
-	if (oFrameProps.HasProperty("NAME"))
+	std::string sName;
+	if( oFrameProps.GetValue( "NAME", sName ) )
 	{
-		pPlatform->SetNameForNameable(oFrameProps.GetStringValue("NAME"));
+		pPlatform->SetNameForNameable( sName );
+	}
+	else
+	{
+		pPlatform->SetNameForNameable( sSectionName );
 	}
 
 	return pPlatform;
+}
+
+IVistaTextEntity* VistaDisplayManager::CreateTextEntity()
+{
+	return m_pWindowingToolkit->CreateTextEntity();
 }
 
 

@@ -5,8 +5,6 @@ set( RelativeSourceGroup "Source Files\\InteractionManager" )
 set( SubDirs DfnNodes )
 
 set( DirFiles
-	VistaDriverWindowAspect.cpp
-	VistaDriverWindowAspect.h
 	VistaIntentionSelect.cpp
 	VistaIntentionSelect.h
 	VistaInteractionContext.cpp

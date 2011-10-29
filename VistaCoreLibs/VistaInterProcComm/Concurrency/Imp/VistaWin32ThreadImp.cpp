@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaWin32ThreadImp.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include <VistaInterProcComm/Concurrency/VistaIpcThreadModel.h>
 
@@ -247,7 +247,13 @@ bool VistaWin32ThreadImp::SetThreadName(const std::string &sName)
 
 long VistaWin32ThreadImp::GetThreadIdentity() const
 {
-	return (long)win32Handle;
+	/** @todo: replace with GetThreadId( win32Handle )? */
+	return (long)GetThreadId( win32Handle );
+}
+
+long VistaWin32ThreadImp::GetCallingThreadIdentity()
+{
+	return (long)GetCurrentThreadId();
 }
 
 /*============================================================================*/

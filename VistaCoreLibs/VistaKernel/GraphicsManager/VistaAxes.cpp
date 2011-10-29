@@ -20,18 +20,18 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaAxes.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaAxes.h"
 
 #include <iostream>
 
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaGeometryFactory.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 #include <VistaKernel/GraphicsManager/VistaGroupNode.h>
-#include "../VistaKernelOut.h"
 
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <cstdio>
 
@@ -45,19 +45,18 @@
 /*============================================================================*/
 
 // CONSTRUCTOR
-VistaAxes::VistaAxes(	VistaSG * pVistaSG,
+VistaAxes::VistaAxes(	VistaSceneGraph * pVistaSceneGraph,
 						float sizeX, float sizeY, float sizeZ )
 {
 	if( sizeX < 0.01f ||
 		sizeY < 0.01f ||
 		sizeZ < 0.01f )
 	{
-		vkernerr << "[VistaAxes] Size to small!" << std::endl;
+		vstr::errp() << "[VistaAxes] Size to small!" << std::endl;
 		return;
 	}
 
-	VistaGroupNode * me = pVistaSG->NewGroupNode( NULL );
-	VistaGeometryFactory geomFactory(pVistaSG);
+	VistaGeometryFactory geomFactory(pVistaSceneGraph);
 
 	// create axes
 	m_axes.push_back(geomFactory.CreateCone(0.05f,0.05f,sizeX-0.1f,32,32,32,VistaColorRGB::RED,true,true,true));
@@ -73,41 +72,41 @@ VistaAxes::VistaAxes(	VistaSG * pVistaSG,
 	m_center = geomFactory.CreateSphere(0.1f,21,VistaColorRGB::GRAY);
 
 	// put all together
-	m_group = pVistaSG->NewGroupNode(NULL);
+	m_group = pVistaSceneGraph->NewGroupNode(NULL);
 
 	// X axis
-	VistaTransformNode *transX = pVistaSG->NewTransformNode(m_group);
+	VistaTransformNode *transX = pVistaSceneGraph->NewTransformNode(m_group);
 	transX->SetRotation( VistaQuaternion( VistaAxisAndAngle( VistaVector3D(0,0,1), Vista::DegToRad(90) ) ) );
 	transX->SetTranslation( VistaVector3D( (sizeX-0.1f) * 0.5f, 0, 0 ) );
-	pVistaSG->NewGeomNode(transX,m_axes[0]);
+	pVistaSceneGraph->NewGeomNode(transX,m_axes[0]);
 	// tip
-	VistaTransformNode *transXtip = pVistaSG->NewTransformNode(transX);
+	VistaTransformNode *transXtip = pVistaSceneGraph->NewTransformNode(transX);
 	transXtip->SetRotation( VistaQuaternion( VistaAxisAndAngle( VistaVector3D(0,0,1), Vista::DegToRad(180) ) ) );
 	transXtip->SetTranslation( VistaVector3D( 0, -sizeX*0.5f, 0 ) );
-	pVistaSG->NewGeomNode(transXtip,m_tips[0]);
+	pVistaSceneGraph->NewGeomNode(transXtip,m_tips[0]);
 
 	// Y axis
-	VistaTransformNode *transY = pVistaSG->NewTransformNode(m_group);
+	VistaTransformNode *transY = pVistaSceneGraph->NewTransformNode(m_group);
 	transY->SetTranslation( VistaVector3D( 0, (sizeY-0.1f) * 0.5f, 0 ) );
-	pVistaSG->NewGeomNode(transY,m_axes[1]);
+	pVistaSceneGraph->NewGeomNode(transY,m_axes[1]);
 	// tip
-	VistaTransformNode *transYtip = pVistaSG->NewTransformNode(transY);
+	VistaTransformNode *transYtip = pVistaSceneGraph->NewTransformNode(transY);
 	transYtip->SetTranslation( VistaVector3D( 0, sizeY*0.5f, 0 ) );
-	pVistaSG->NewGeomNode(transYtip,m_tips[1]);
+	pVistaSceneGraph->NewGeomNode(transYtip,m_tips[1]);
 
 	// Z axis
-	VistaTransformNode *transZ = pVistaSG->NewTransformNode(m_group);
+	VistaTransformNode *transZ = pVistaSceneGraph->NewTransformNode(m_group);
 	transZ->SetRotation( VistaQuaternion( VistaAxisAndAngle( VistaVector3D(1,0,0), Vista::DegToRad(90) ) ) );
 	transZ->SetTranslation( VistaVector3D( 0, 0, (sizeZ-0.1f) * 0.5f ) );
-	pVistaSG->NewGeomNode(transZ,m_axes[2]);
+	pVistaSceneGraph->NewGeomNode(transZ,m_axes[2]);
 	// tip
-	VistaTransformNode *transZtip = pVistaSG->NewTransformNode(transZ);
+	VistaTransformNode *transZtip = pVistaSceneGraph->NewTransformNode(transZ);
 	//transZtip->SetRotation( VistaQuaternion( VistaAxisAndAngle( VistaVector3D(0,0,1), Vista::DegToRad(180) ) ) );
 	transZtip->SetTranslation( VistaVector3D( 0, sizeZ*0.5f, 0 ) );
-	pVistaSG->NewGeomNode(transZtip,m_tips[2]);
+	pVistaSceneGraph->NewGeomNode(transZtip,m_tips[2]);
 
 	// center
-	pVistaSG->NewGeomNode(m_group,m_center);
+	pVistaSceneGraph->NewGeomNode(m_group,m_center);
 
 	m_group->SetName("VistaAxes");
 	//Scale(width, height, length);
@@ -130,11 +129,11 @@ IVistaNode *VistaAxes::GetVistaNode()
 bool VistaAxes::Init()
 {
 	
-	m_pGroup = m_pVistaSG->NewGroupNode(m_pVistaNode);
+	m_pGroup = m_pVistaSceneGraph->NewGroupNode(m_pVistaNode);
 	m_pGroup->SetName("cs_Group");
 
 						// Coordinate System (unit size)
-	m_pOrigin = new VistaSphere(m_pVistaSG, m_pGroup, 0.1f, 10, 10, false);
+	m_pOrigin = new VistaSphere(m_pVistaSceneGraph, m_pGroup, 0.1f, 10, 10, false);
 	m_pOrigin->SetName("cs_Origin");
 	//m_pOrigin->ShowBoundingBox(true);
 
@@ -157,14 +156,14 @@ bool VistaAxes::Init()
 		static char buffer[32];
 		sprintf(buffer, "(%3.1f, %3.1f, %3.1f)-axis", axis[i][0], axis[i][1], axis[i][2]);
 
-		m_pAxis[i] = new VistaCylinder(m_pVistaSG, m_pGroup, 0.81f, 0.05f, 10, false, false);
+		m_pAxis[i] = new VistaCylinder(m_pVistaSceneGraph, m_pGroup, 0.81f, 0.05f, 10, false, false);
 		m_pAxis[i]->SetColor(colors[i]);
 		m_pAxis[i]->SetName(buffer);
 		m_pAxis[i]->SetTranslation(VistaVector3D(0.0f,0.49f,0.0f));
 		if(rotate[i])
 		m_pAxis[i]->Rotate( VistaQuaternion( VistaAxisAndAngle( axis[i], Vista::DegToRad(rotate[i]) )));
 
-		m_pAxisHat[i] = new VistaCone(m_pVistaSG, m_pGroup, 0.2f, 0.1f, 10, true, true);
+		m_pAxisHat[i] = new VistaCone(m_pVistaSceneGraph, m_pGroup, 0.2f, 0.1f, 10, true, true);
 		m_pAxisHat[i]->SetColor(colors[i]);
 		sprintf(buffer, "(%3.1f, %3.1f, %3.1f)-arrow", axis[i][0], axis[i][1], axis[i][2]);
 

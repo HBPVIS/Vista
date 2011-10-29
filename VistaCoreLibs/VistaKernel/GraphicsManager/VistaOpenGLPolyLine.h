@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaOpenGLPolyLine.h 23044 2011-08-23 14:22:37Z dr165799 $
 
 #ifndef _VISTAOPENGLPOLYLINE_H
 #define _VISTAOPENGLPOLYLINE_H
@@ -37,8 +37,9 @@
 /*============================================================================*/
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
+class IVistaNode;
 class VistaGroupNode;
-class VistaSG;
+class VistaSceneGraph;
 class VistaOpenGLNode;
 class IVistaNode;
 /*============================================================================*/
@@ -89,11 +90,11 @@ public:
 	};
 public:
 
-	VistaOpenGLPolyLine(VistaSG* pVistaSG, VistaGroupNode* pParent);
+	VistaOpenGLPolyLine(VistaSceneGraph* pVistaSceneGraph, VistaGroupNode* pParent);
 
 	virtual ~VistaOpenGLPolyLine();
 
-	IVistaNode*  GetVistaNode() const;
+	IVistaNode* GetVistaNode() const;
 
 	void SetLinePoints(const std::vector<float> &vecPoints);
 	bool GetLinePoints(std::vector<float> &vecPoints) const;

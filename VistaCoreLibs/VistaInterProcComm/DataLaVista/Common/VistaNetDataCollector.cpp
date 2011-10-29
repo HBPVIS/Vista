@@ -20,11 +20,10 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaNetDataCollector.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaNetDataCollector.h"
 
-#include <VistaAspects/VistaSerializable.h>
 #include <VistaInterProcComm/Connections/VistaConnectionIP.h>
 
 #include <VistaInterProcComm/DataLaVista/Base/VistaPipeComponent.h>
@@ -33,8 +32,10 @@
 #include <VistaInterProcComm/IPNet/VistaTCPServer.h>
 #include <VistaInterProcComm/IPNet/VistaSocket.h>
 #include <VistaInterProcComm/IPNet/VistaTCPSocket.h>
+
+#include <VistaAspects/VistaSerializable.h>
 #include <VistaBase/VistaExceptionBase.h>
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <cstdio>
 #include <cassert>
@@ -56,18 +57,28 @@ DLVistaNetDataCollector::DLVistaNetDataCollector(const string& sHostName,
 	VistaTCPServer server(sHostName, iPort);
 	if(server.GetIsValid())
 	{
-		vipcout << "[DLVistaNetDataCollector] Connecting to master..." ;
+		vstr::outi() << "[DLVistaNetDataCollector] Connecting to master..." ;
 		// this call will block
 		VistaTCPSocket *serverPlug = server.GetNextClient();
 		m_pMasterConnection = new VistaConnectionIP(serverPlug);
 		m_pMasterConnection->SetIsBlocking(true);
-		vipcout << "DONE!" << endl;
+		vstr::out() << "DONE!" << std::endl;
 	}
 	else
 	{
-		vipcerr << "[DLVistaNetDataCollector] ERROR: Unable to open server socket for incoming connection from MASTER..." << endl;
+		vstr::errp() << "[DLVistaNetDataCollector] ERROR: Unable to open server socket for incoming connection from MASTER..." << std::endl;
 		VISTA_THROW("[DLVistaNetDataCollector] ERROR: Unable to open server socket for incoming connection from MASTER...", 0x00000001);
 	}
+}
+
+DLVistaNetDataCollector::DLVistaNetDataCollector( VistaConnectionIP* pConnection,
+												   IDLVistaDataPacket* pPacketProtoype)
+{
+	 //make a copy to ensure proper deletion
+	m_pPacketPrototype = pPacketProtoype->CreateInstance(this);
+	
+	m_pMasterConnection = pConnection;
+	m_pMasterConnection->SetIsBlocking( true );
 }
 
 

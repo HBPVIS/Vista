@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaObjectRegistry.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include <string>
 using std::string;

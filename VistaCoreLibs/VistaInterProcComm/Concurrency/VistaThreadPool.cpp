@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaThreadPool.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include <cstdio>
 #include <cstdarg>
@@ -35,6 +35,8 @@ using namespace std;
 #include "VistaSemaphore.h"
 
 #include "VistaThreadCondition.h"
+
+#include <VistaBase/VistaStreamUtils.h>
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -203,7 +205,7 @@ void VistaThreadPoolThread::ThreadBody()
 			pWork->m_pFinishCondition->BroadcastCondition();
 		else
 		{
-			printf("???\n");
+			vstr::warnp() << "[VistaThreadPoolThread::ThreadBody]: No Finishing Condition!" << std::endl;
 		}
 
 		pWork->m_pFinishCondition = NULL;
@@ -555,7 +557,7 @@ int VistaThreadPool::AddWork(IVistaThreadPoolWorkInstance *pWork)
 		m_vWorkPool.end(), pWork);
 	if(cit != m_vWorkPool.end())
 	{
-		printf("### BOGUS?\n");
+		vstr::warnp() << "[VistaThreadPool::AddWork]: Work Instance already registered" << std::endl;
 	}
 
 	m_vWorkPool.push_back(pWork);

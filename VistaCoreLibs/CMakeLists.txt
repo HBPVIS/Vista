@@ -25,12 +25,15 @@ else()
 endif( EXISTS "$ENV{VISTA_CMAKE_COMMON}" )
 
 include( VistaCommon )
-require_vistacommon_version( 22650 )
+vista_enable_most_compiler_warnings()
+
+vista_find_package( OpenSG REQUIRED )
+
 # Self include
 include_directories( ${VistaCoreLibs_SOURCE_DIR} )
 
 # the version type can be either HEAD, RELASE, BRANCH, or TAG
-vista_set_version( VistaCoreLibs HEAD HEAD svn_rev )
+vista_set_version( VistaCoreLibs BRANCH CLUSTERMODE_TEST svn_rev )
 
 vista_find_package( OpenGL QUIET )
 vista_find_package( GLUT QUIET )
@@ -56,8 +59,8 @@ set( VISTACORELIBS_CREATE_CONFIG_PER_LIBRARY OFF CACHE BOOL "If set to true, a <
 vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_BASE 				VistaBase				ON ADVANCED   ADD_TO_LIST VISTACORELIBS_COMPONENTS )
 vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_ASPECTS				VistaAspects			ON ADVANCED   ADD_TO_LIST VISTACORELIBS_COMPONENTS )
 vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_MATH 				VistaMath				ON ADVANCED   ADD_TO_LIST VISTACORELIBS_COMPONENTS )
-vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_TOOLS				VistaTools				ON ADVANCED   ADD_TO_LIST VISTACORELIBS_COMPONENTS )
 vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_INTERPROCCOMM		VistaInterProcComm		ON ADVANCED   ADD_TO_LIST VISTACORELIBS_COMPONENTS )
+vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_TOOLS				VistaTools				ON ADVANCED   ADD_TO_LIST VISTACORELIBS_COMPONENTS )
 vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_DEVICEDRIVERSBASE	VistaDeviceDriversBase	ON ADVANCED   ADD_TO_LIST VISTACORELIBS_COMPONENTS )
 vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_DATAFLOWNET			VistaDataFlowNet		ON ADVANCED   ADD_TO_LIST VISTACORELIBS_COMPONENTS )
 vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_KERNEL				VistaKernel				${BUILD_KERNEL_DEFAULT}  ADD_TO_LIST VISTACORELIBS_COMPONENTS )
@@ -65,31 +68,17 @@ vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_KERNELOPENSGEXT		VistaKe
 
 add_subdirectory( VistaDeviceDrivers )
 
+set( VISTACORELIBS_BUILD_TESTS OFF CACHE BOOL "If set to true, tests to verify the correctness of some of the CoreLib's functions will be performed" )
+if( VISTACORELIBS_BUILD_TESTS )
+	enable_testing()
+	add_subdirectory( Tests )
+endif()
+
+
 set( VISTACORELIBS_LIBRARY_OUTDIR "${CMAKE_BINARY_DIR}/lib" "${CMAKE_BINARY_DIR}/lib/DriverPlugins" )
 set( VISTACORELIBS_LIBRARY_INSTALLDIR "${CMAKE_INSTALL_PREFIX}/lib" "${CMAKE_INSTALL_PREFIX}/lib/DriverPlugins" )
 set( VISTACORELIBS_CONFIG_DEFINITIONS "${VISTA_PLATFORM_DEFINE}" )
-# assemble msvc projects
-set( VISTACORELIBS_MSVC_PROJECT_OVERWRITE "" )
-if( MSVC )
-	foreach( _COMP ${VISTACORELIBS_COMPONENTS} )
-		string( TOUPPER "${_COMP}" _COMP_UPPER )
-		set( VISTACORELIBS_MSVC_PROJECT_OVERWRITE "${VISTACORELIBS_MSVC_PROJECT_OVERWRITE}\n\t\tPROJ ${_COMP} \"${${_COMP_UPPER}_TARGET_MSVC_PROJECT}\"" )
-		if( NOT "${_COMP}" STREQUAL "VistaBase" )
-			set( VISTACORELIBS_MSVC_PROJECT_OVERWRITE "${VISTACORELIBS_MSVC_PROJECT_OVERWRITE} DEP VistaBase" )
-			if( "${_COMP}" STREQUAL "VistaInterProcComm" )
-				set( VISTACORELIBS_MSVC_PROJECT_OVERWRITE "${VISTACORELIBS_MSVC_PROJECT_OVERWRITE} VistaAspects VistaTools" )
-			elseif( "${_COMP}" STREQUAL "VistaDeviceDriversBase" )
-				set( VISTACORELIBS_MSVC_PROJECT_OVERWRITE "${VISTACORELIBS_MSVC_PROJECT_OVERWRITE} VistaAspects VistaTools VistaMath VistaInterProcComm" )
-			elseif( "${_COMP}" STREQUAL "VistaDataFlowNet" )
-				set( VISTACORELIBS_MSVC_PROJECT_OVERWRITE "${VISTACORELIBS_MSVC_PROJECT_OVERWRITE} VistaAspects VistaTools VistaMath VistaInterProcComm VistaDeviceDriversBase" )
-			elseif( "${_COMP}" STREQUAL "VistaKernel" )
-				set( VISTACORELIBS_MSVC_PROJECT_OVERWRITE "${VISTACORELIBS_MSVC_PROJECT_OVERWRITE} VistaAspects VistaTools VistaMath VistaInterProcComm VistaDeviceDriversBase VistaDataFlowNet" )
-			elseif( "${_COMP}" STREQUAL "VistaKernelOpenSGExt" )
-				set( VISTACORELIBS_MSVC_PROJECT_OVERWRITE "${VISTACORELIBS_MSVC_PROJECT_OVERWRITE} VistaAspects VistaTools VistaMath VistaInterProcComm VistaDeviceDriversBase VistaDataFlowNet VistaKernel" )
-			endif()
-		endif()
-	endforeach( _COMP VISTACORELIBS_COMPONENTS )
-endif( MSVC )
+
 vista_create_cmake_configs( VistaCoreLibs 
 						"${CMAKE_CURRENT_SOURCE_DIR}/VistaBuild/CMake/VistaCoreLibsConfig-build.cmake_proto"
 						"${CMAKE_CURRENT_SOURCE_DIR}/VistaBuild/CMake/VistaCoreLibsConfig-install.cmake_proto" )
@@ -99,5 +88,4 @@ vista_create_uninstall_target()
 
 # install license files
 install( FILES "${CMAKE_CURRENT_SOURCE_DIR}/VistaBase/LICENSE" "${CMAKE_CURRENT_SOURCE_DIR}/VistaBase/LICENSE.LESSER" DESTINATION "share/VistaCoreLibs" )
-
 

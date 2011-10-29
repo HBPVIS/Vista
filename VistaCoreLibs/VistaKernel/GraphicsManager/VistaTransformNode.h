@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaTransformNode.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTATRANSFORMNODE_H
 #define _VISTATRANSFORMNODE_H
@@ -51,7 +51,7 @@
 
 class VISTAKERNELAPI VistaTransformNode : public VistaGroupNode, public IVistaTransformable
 {
-	friend class VistaSG;
+	friend class VistaSceneGraph;
 	friend class IVistaNodeBridge;
 public:
 	virtual ~VistaTransformNode();

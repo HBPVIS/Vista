@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDfnTextOverlayNode.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTADFNTEXTOVERLAYNODE_H
 #define _VISTADFNTEXTOVERLAYNODE_H
@@ -60,11 +60,8 @@ template<class T>
 class VistaDfnTextOverlayNode : public IVdfnNode
 {
 public:
-	typedef std::string (*ToStringFct)(const T &);
-
-	VistaDfnTextOverlayNode(Vista2DText *pText, ToStringFct fct )
+	VistaDfnTextOverlayNode(Vista2DText *pText )
 		: m_pText(pText),
-		  m_CfFc(fct),
 		  m_pValue(NULL)
 	{
 		RegisterInPortPrototype( "value", new TVdfnPortTypeCompare<TVdfnPort<T> >);
@@ -106,7 +103,7 @@ protected:
 	{
 		const T &value = m_pValue->GetValueConstRef();
 
-		std::string sValue = m_CfFc(value);
+		std::string sValue = VistaConversion::ToString(value);
 		if(!m_strPrefix.empty())
 			sValue = m_strPrefix + sValue;
 
@@ -121,7 +118,6 @@ protected:
 private:
 	TVdfnPort<T> *m_pValue;
 	Vista2DText *m_pText;
-	ToStringFct   m_CfFc;
 
 	std::string m_strPrefix,
 				m_strPostfix;

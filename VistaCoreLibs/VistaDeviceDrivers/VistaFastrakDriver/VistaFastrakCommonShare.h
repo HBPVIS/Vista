@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaFastrakDriver.h 5570 2010-10-26 20:21:11Z ingoassenmacher $
 
 #ifndef _VISTAFASTRAKCOMMONSHARE_H
 #define _VISTAFASTRAKCOMMONSHARE_H

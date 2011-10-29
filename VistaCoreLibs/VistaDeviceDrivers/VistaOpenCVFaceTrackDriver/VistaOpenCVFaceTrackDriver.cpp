@@ -28,7 +28,6 @@
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverInfoAspect.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverThreadAspect.h>
 #include <VistaDeviceDriversBase/VistaDeviceSensor.h>
-#include <VistaDeviceDriversBase/VistaDeviceDriversOut.h>
 
 #include <VistaAspects/VistaAspectsUtils.h>
 
@@ -36,6 +35,7 @@
 
 #include <VistaBase/VistaTimer.h>
 #include <VistaBase/VistaTimeUtils.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <string.h>
 #include <cassert>
@@ -154,56 +154,48 @@ namespace
 						"CAPTUREDEVICE",
 						SsReflectionName,
 						&VistaOpenCVFaceTrackDriver::FaceTrackParameters::SetCaptureDevice,
-						&VistaAspectsConversionStuff::ConvertToInt,
 						"sets the current OpenCV capture device index" ),
 		new TVistaPropertySet<int, int,
 				VistaOpenCVFaceTrackDriver::FaceTrackParameters> (
 						"WIDTH",
 						SsReflectionName,
 						&VistaOpenCVFaceTrackDriver::FaceTrackParameters::SetWidth,
-						&VistaAspectsConversionStuff::ConvertToInt,
 						"sets the desired horizontal resolution" ),
 		new TVistaPropertySet<int, int,
 				VistaOpenCVFaceTrackDriver::FaceTrackParameters> (
 						"HEIGHT",
 						SsReflectionName,
 						&VistaOpenCVFaceTrackDriver::FaceTrackParameters::SetHeight,
-						&VistaAspectsConversionStuff::ConvertToInt,
 						"sets the desired vertical resolution" ),
 		new TVistaPropertySet<float, float,
 				VistaOpenCVFaceTrackDriver::FaceTrackParameters> (
 						"FRAMERATE",
 						SsReflectionName,
 						&VistaOpenCVFaceTrackDriver::FaceTrackParameters::SetFrameRate,
-						&VistaAspectsConversionStuff::ConvertToFloat1,
 						"sets the desired framerate" ),
 		new TVistaPropertySet<float, float,
 				VistaOpenCVFaceTrackDriver::FaceTrackParameters> (
 						"EYEDISTANCE",
 						SsReflectionName,
 						&VistaOpenCVFaceTrackDriver::FaceTrackParameters::SetEyeDistance,
-						&VistaAspectsConversionStuff::ConvertToFloat1,
 						"sets eye distance of user (in m)" ),
 		new TVistaPropertySet<float, float,
 				VistaOpenCVFaceTrackDriver::FaceTrackParameters> (
 						"NORMALIZEDEYEDISTANCE",
 						SsReflectionName,
 						&VistaOpenCVFaceTrackDriver::FaceTrackParameters::SetNormalizedEyeDistance,
-						&VistaAspectsConversionStuff::ConvertToFloat1,
 						"sets normalized eye distance (at 1 m distance)" ),
 		new TVistaPropertySet<bool, bool,
 				VistaOpenCVFaceTrackDriver::FaceTrackParameters> (
 						"SHOWDEBUGWINDOW",
 						SsReflectionName,
 						&VistaOpenCVFaceTrackDriver::FaceTrackParameters::SetShowDebugWindow,
-						&VistaAspectsConversionStuff::ConvertToBool,
 						"sets if a debug window is displayed" ),
 						new TVistaPropertySet<const std::string&, std::string,
 				VistaOpenCVFaceTrackDriver::FaceTrackParameters> (
 						"CLASSIFIERFILE",
 						SsReflectionName,
 						&VistaOpenCVFaceTrackDriver::FaceTrackParameters::SetClassifierFile,
-						&VistaAspectsConversionStuff::ConvertToString,
 						"sets filename of the classifier file" ),
 		NULL
 	};
@@ -480,11 +472,11 @@ bool VistaOpenCVFaceTrackDriver::Connect()
 		delete m_pCascade;
 		m_pCascade = NULL;
 		m_bPreConnect = true;
-		m_pInfo->GetInfoPropsWrite().SetStringValue( "STATE", "ERROR" );
+		m_pInfo->GetInfoPropsWrite().SetValue( "STATE", "ERROR" );
 		return false;
 	}
 	else
-		m_pInfo->GetInfoPropsWrite().SetStringValue( "STATE", "OK" );
+		m_pInfo->GetInfoPropsWrite().SetValue( "STATE", "OK" );
 
 	return true;
 }
@@ -657,15 +649,15 @@ bool VistaOpenCVFaceTrackDriver::DoSensorUpdate(VistaType::microtime nTs)
 			cv::circle( oFrame, cv::Point( (int)fImgPosX, (int)fImgPosY ), 2, oColor, 2 );
 		}
 		std::string sPosText = "Pos: ( "
-			+ VistaAspectsConversionStuff::ConvertToString( fPosX ) + ", "
-			+ VistaAspectsConversionStuff::ConvertToString( fPosY ) + ", "
-			+ VistaAspectsConversionStuff::ConvertToString( fDistance ) + ")";
+			+ VistaConversion::ToString( fPosX ) + ", "
+			+ VistaConversion::ToString( fPosY ) + ", "
+			+ VistaConversion::ToString( fDistance ) + ")";
 		std::string sEyeText = "RelEyeDist: ( "
-			+ VistaAspectsConversionStuff::ConvertToString( fEyeWidth ) + ")";
+			+ VistaConversion::ToString( fEyeWidth ) + ")";
 		std::string sUpdText = "Update Time: "
-			+ VistaAspectsConversionStuff::ConvertToString( 1000 * m_oTimer.GetAverageTime() ) + " ms";
+			+ VistaConversion::ToString( 1000 * m_oTimer.GetAverageTime() ) + " ms";
 		std::string sDetectText = "Detect Time: "
-			+ VistaAspectsConversionStuff::ConvertToString( 1000 * nDetectTime ) + " ms";
+			+ VistaConversion::ToString( 1000 * nDetectTime ) + " ms";
 		int nFont = cv::FONT_HERSHEY_PLAIN;
 		float fScale = 0.8f;
 		cv::putText( oFrame, sPosText, cv::Point( 4, 20 ), nFont, fScale, oTextColor );
@@ -714,21 +706,21 @@ void VistaOpenCVFaceTrackDriver::ConnectToOpenCVDevice()
 			{
 				nResolution = CLEYE_VGA;
 			}
-			else if( nWidth = 320 )
+			else if( nWidth == 320 )
 			{
 				nResolution = CLEYE_QVGA;
 			}
 			else if( nWidth > 480 )
 			{
 				nResolution = CLEYE_VGA;
-				vddout << "[OpenCVFaceTrackDriver]: Requested unsupported Resolution [ "
+				vstr::warnp() << "[OpenCVFaceTrackDriver]: Requested unsupported Resolution [ "
 					<< nWidth << "x" << nHeight << "] for SonyEye - using 640x480"
 					<< std::endl;
 			}
 			else
 			{
 				nResolution = CLEYE_QVGA;
-				vddout << "[OpenCVFaceTrackDriver]: Requested unsupported Resolution [ "
+				vstr::warnp() << "[OpenCVFaceTrackDriver]: Requested unsupported Resolution [ "
 					<< nWidth << "x" << nHeight << "] for SonyEye - using 320x240"
 					<< std::endl;
 			}
@@ -757,7 +749,7 @@ void VistaOpenCVFaceTrackDriver::ConnectToOpenCVDevice()
 					nActualFPS = 100;
 				else
 					nActualFPS = 60;
-				vddout << "[OpenCVFaceTrackDriver]: Requested unsupported Framerate [ "
+				vstr::warnp() << "[OpenCVFaceTrackDriver]: Requested unsupported Framerate [ "
 					<< pParams->GetCaptureDevice() << "] for SonyEye - defaulting to ["
 					<< nActualFPS << "]" << std::endl;
 			}
@@ -766,7 +758,7 @@ void VistaOpenCVFaceTrackDriver::ConnectToOpenCVDevice()
 		m_pCLEyeCamera = CLEyeCreateCamera( iUUID, CLEYE_COLOR_RAW, nResolution, nActualFPS );
 		if( m_pCLEyeCamera == NULL )
 		{
-			vddout << "[OpenCVFaceTrackDriver]: Connecting to Sony Eye failed! - trying normal"
+			vstr::outi() << "[OpenCVFaceTrackDriver]: Connecting to Sony Eye failed! - trying normal"
 					<< " OpenCV cameras" << std::endl;
 		}
 		else
@@ -784,16 +776,16 @@ void VistaOpenCVFaceTrackDriver::ConnectToOpenCVDevice()
 			if( nResolution == CLEYE_QVGA )
 			{
 				m_pImage = cvCreateImage( cvSize( 320, 240 ), IPL_DEPTH_8U, 4 );
-				m_pInfo->GetInfoPropsWrite().SetIntValue( "WIDTH", 320 );
-				m_pInfo->GetInfoPropsWrite().SetIntValue( "HEIGHT", 240 );
+				m_pInfo->GetInfoPropsWrite().SetValue<int>( "WIDTH", 320 );
+				m_pInfo->GetInfoPropsWrite().SetValue<int>( "HEIGHT", 240 );
 			}
 			else
 			{
 				m_pImage = cvCreateImage( cvSize( 640, 480 ), IPL_DEPTH_8U, 4 );
-				m_pInfo->GetInfoPropsWrite().SetIntValue( "WIDTH", 640 );
-				m_pInfo->GetInfoPropsWrite().SetIntValue( "HEIGHT", 480 );
+				m_pInfo->GetInfoPropsWrite().SetValue<int>( "WIDTH", 640 );
+				m_pInfo->GetInfoPropsWrite().SetValue<int>( "HEIGHT", 480 );
 			}
-			m_pInfo->GetInfoPropsWrite().SetDoubleValue( "FPS", nActualFPS );
+			m_pInfo->GetInfoPropsWrite().SetValue<float>( "FPS", nActualFPS );
 			CLEyeCameraStart( m_pCLEyeCamera );
 			CLEyeCameraLED( m_pCLEyeCamera, true );
 			return;
@@ -806,7 +798,7 @@ void VistaOpenCVFaceTrackDriver::ConnectToOpenCVDevice()
 
 	if( !m_pCapture->isOpened() )
 	{
-		vdderr << "[OpenCVFaceTrackDriver]:Connecting to Camera Device [ "
+		vstr::warnp() << "[OpenCVFaceTrackDriver]:Connecting to Camera Device [ "
 					<< pParams->GetCaptureDevice() << "] failed" << std::endl;
 		delete m_pCapture;
 		m_pCapture = NULL;
@@ -821,9 +813,9 @@ void VistaOpenCVFaceTrackDriver::ConnectToOpenCVDevice()
 	pParams->SetWidth( nWidth );
 	pParams->SetHeight( nHeight );
 	
-	m_pInfo->GetInfoPropsWrite().SetIntValue( "WIDTH", nWidth );
-	m_pInfo->GetInfoPropsWrite().SetIntValue( "HEIGHT", nHeight );
-	m_pInfo->GetInfoPropsWrite().SetDoubleValue( "FPS", nFPS );
+	m_pInfo->GetInfoPropsWrite().SetValue( "WIDTH", nWidth );
+	m_pInfo->GetInfoPropsWrite().SetValue( "HEIGHT", nHeight );
+	m_pInfo->GetInfoPropsWrite().SetValue( "FPS", nFPS );
 
 	m_nNormalizeWidth = nWidth;
 	m_nNormalizeHeight = nHeight;
@@ -867,21 +859,21 @@ void VistaOpenCVFaceTrackDriver::ReadCascadeClassifier()
 	std::string sFilename = pParams->GetClassifierFile();
 	if( sFilename.empty() )
 	{
-		vdderr << "[OpenCVFaceTrackDriver]: Loading of classifier file failed - "
+		vstr::errp() << "[OpenCVFaceTrackDriver]: Loading of classifier file failed - "
 			<< "no file specified by CLASSIFIERFILE" << std::endl;
 		return;
 	}
 	VistaFileSystemFile oFile( sFilename );
 	if( oFile.Exists() == false )
 	{
-		vdderr << "[OpenCVFaceTrackDriver]: Loading of classifier file ["
+		vstr::errp() << "[OpenCVFaceTrackDriver]: Loading of classifier file ["
 				<< sFilename << "] failed - file does not exist" << std::endl;
 		return;
 	}
 	m_pCascade = new cv::CascadeClassifier;
 	if( m_pCascade->load( sFilename ) == false )
 	{
-		vdderr << "[OpenCVFaceTrackDriver]: Loading of classifier file ["
+		vstr::errp() << "[OpenCVFaceTrackDriver]: Loading of classifier file ["
 			<< sFilename << "] failed - file does not exist" << std::endl;
 		delete m_pCascade;
 		m_pCascade = NULL;

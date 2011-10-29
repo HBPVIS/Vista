@@ -2,6 +2,13 @@
 
 vista_adopt_version( VistaTools VistaCoreLibs )
 
+set( VISTATOOLS_INTERNAL_DEPENDENCIES 
+			VistaBase
+			VistaAspects
+			VistaInterProcComm
+			VistaMath )
+set( VISTATOOLS_INTERNAL_DEPENDENCIES ${VISTATOOLS_INTERNAL_DEPENDENCIES} PARENT_SCOPE )
+
 if( WIN32 )
 	if( BUILD_SHARED_LIBS )
 		add_definitions( -DVISTATOOLS_EXPORTS )
@@ -17,7 +24,7 @@ include( "./_SourceFiles.cmake" )
 
 add_library( VistaTools ${ProjectSources} )
 target_link_libraries( VistaTools
-	VistaBase
+	${VISTATOOLS_INTERNAL_DEPENDENCIES}
 	${LIBRARIES}
 )
 

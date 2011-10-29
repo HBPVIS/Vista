@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPropertyFunctorRegistry.h 22163 2011-07-03 14:11:15Z dr165799 $
 
 #ifndef _VISTAPROPERTYFUNCTORREGISTRY_H
 #define _VISTAPROPERTYFUNCTORREGISTRY_H
@@ -31,6 +31,9 @@
 /* INCLUDES                                                                   */
 /*============================================================================*/
 #include "VistaReferenceCountable.h"
+
+#include <VistaBase/VistaStreamUtils.h>
+
 #include <map>
 #include <list>
 #include <set>
@@ -45,7 +48,6 @@
 /*============================================================================*/
 class IVistaPropertyGetFunctor;
 class IVistaPropertySetFunctor;
-class VistaAspectsOut;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -95,7 +97,7 @@ class VISTAASPECTSAPI VistaPropertyFunctorRegistry : public IVistaReferenceCount
 	bool GetTalkativeFlag() const;
 	void SetTalkativeFlag(bool bTalkative);
 
-	void Show(VistaAspectsOut &) const;
+	void Print( std::ostream& oStream = vstr::out() ) const;
 
 	protected:
 	private:

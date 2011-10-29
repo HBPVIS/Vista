@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaEventManager.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTAEVENTMANAGER_H
 #define _VISTAEVENTMANAGER_H
@@ -47,6 +47,7 @@ class VistaEventHandler;
 class VistaEventObserver;
 class VistaEvent;
 class VistaTimer;
+class VistaClusterMode;
 
 // prototypes
 class   VistaEventManager;
@@ -219,7 +220,7 @@ public:
 	 * @param   VistaEvent *pEvent must not be NULL
 	 * @RETURN  bool    true=no error / false=invalid event
 	 */
-	bool ProcessEvent(VistaEvent *pEvent);
+	bool ProcessEvent( VistaEvent *pEvent );
 
 	/**
 	 * @param the debug string to printout when the debugging facility
@@ -299,8 +300,8 @@ private:
 	// #################################################################
 	// ProcessEvent internal variables
 	// #################################################################
-	int  m_iProcessRecursionCount,
-		 m_nEventCnt;
+	int m_iProcessRecursionCount;
+	int m_nEventCount;
 	bool m_bResetEventTimeToLocalTime;
 
 	// #################################################################
@@ -309,23 +310,14 @@ private:
 
 	// queues for pending registrations/unregistrations
 	typedef  std::set<std::pair<VistaEventObserver*, int> > OBSSET;
-
-	OBSSET m_stPendingForRegistration;
-	OBSSET m_stPendingForUnregistration;
-
-	VistaTimer *m_pTimer;		// generate timing information for events
-
-	// #################################################################
-	// OBSERVER API
-	// #################################################################
+	bool m_bObserverQueueDirty;
 
 	int  HandleObserverQueueChange();
 	bool DoRegisterObserver(VistaEventObserver*, int);
 	bool DoUnregisterObserver(VistaEventObserver *, int);
 
-
-	bool m_bObserverQueueDirty;
-
+	OBSSET m_stPendingForRegistration;
+	OBSSET m_stPendingForUnregistration;
 };
 
 /*============================================================================*/

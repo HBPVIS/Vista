@@ -41,8 +41,8 @@ set( DirFiles
 	VistaOpenGLNode.h
 	VistaOpenGLPolyLine.cpp
 	VistaOpenGLPolyLine.h
-	VistaSG.cpp
-	VistaSG.h
+	VistaSceneGraph.cpp
+	VistaSceneGraph.h
 	VistaSwitchNode.cpp
 	VistaSwitchNode.h
 	VistaTextNode.cpp

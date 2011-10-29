@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaTimeoutHandler.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTATIMEOUTHANDLER_H
 #define _VISTATIMEOUTHANDLER_H
@@ -48,7 +48,7 @@
 /*============================================================================*/
 class VistaEventManager;
 class VistaTickTimer;
-class VistaClusterAux;
+class VistaClusterMode;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -73,7 +73,7 @@ public:
 
 public:
 	VistaTimeoutHandler(VistaEventManager *pEvMgr,
-						 VistaClusterAux *pAux);
+						 VistaClusterMode *pClusterMode);
 	virtual ~VistaTimeoutHandler();
 
 	// ########################################################################
@@ -170,7 +170,7 @@ private:
 
 protected:
 	VistaEventManager *m_pEventManager; /**< handy pointer to the EvMgr */
-	VistaClusterAux *m_pClusterAux;
+	VistaClusterMode *m_pClusterAux;
 	std::vector<VistaTickTimer *> m_veWatches; /** the current active handle vector */
 
 	/**

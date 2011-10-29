@@ -20,17 +20,17 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDriverUtils.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VistaDriverUtils.h"
-
-#include <VistaTools/VistaFileSystemFile.h>
-#include <VistaTools/VistaFileSystemDirectory.h>
 
 #include "VistaDeviceDriver.h"
 #include "DriverAspects/VistaDriverMeasureHistoryAspect.h"
 
-#include "VistaDeviceDriversOut.h"
+#include <VistaBase/VistaStreamUtils.h>
+
+#include <VistaTools/VistaFileSystemFile.h>
+#include <VistaTools/VistaFileSystemDirectory.h>
 
 #include <cmath>
 
@@ -99,7 +99,7 @@ namespace VddUtil
 			}
 		}
 		else
-			vddout << VistaDLL::GetError() << std::endl;
+			vstr::errp() << VistaDLL::GetError() << std::endl;
 		return false;
 	}
 
@@ -134,7 +134,7 @@ namespace VddUtil
 			}
 		}
 		else
-			vddout << VistaDLL::GetError() << std::endl;
+			vstr::errp() << VistaDLL::GetError() << std::endl;
 
 		return false;
 	}

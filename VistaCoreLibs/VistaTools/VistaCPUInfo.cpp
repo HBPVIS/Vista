@@ -20,13 +20,15 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaCPUInfo.cpp 22570 2011-07-19 07:17:36Z ak449259 $
+// $Id$
 
 #include "VistaCPUInfo.h" 
 
 #if defined(WIN32)
 #include <Windows.h>
 #include <PowrProf.h>
+
+typedef LPTSTR		sString;
 
 #define HIDIGIT(d)	((BYTE)(d>>4))
 #define LODIGIT(d)	((BYTE)(d&0x0F))
@@ -66,6 +68,7 @@ typedef struct _PROCESSOR_POWER_INFORMATION {
 #define CPU_FLAGS_3DNOW 0x0004
 #define CPU_FLAGS_MMX   0x0008
 
+typedef char*		sString;
 
 #endif
 
@@ -101,7 +104,7 @@ public:
 				delete [] sProcessorName;
 			  }
 			  
-			uint64 	dwSpeed;		// in MHz
+			VistaType::uint64 	dwSpeed;		// in MHz
 			sString				sIdentifier;	// eg: x86 Family 6 Model 6 Stepping 2
 			sString				sProcessorName;	// eg: AMD Athlon(tm) XP 1600+
 			std::string 		sVendorName;	// eg: AuthenticAMD
@@ -139,7 +142,7 @@ int VistaCPUInfo::GetProcessorCount()
 	return m_pStat->m_nCpuCount;
 }
 
-VistaCPUInfo::uint64 VistaCPUInfo::GetSpeed() const
+VistaType::uint64 VistaCPUInfo::GetSpeed() const
 {
 	return m_pStat->m_Stats.dwSpeed;
 }
@@ -328,7 +331,6 @@ bool VistaCPUInfo::QueryCPUInfo()
 	if(fp)
 	{
 		char pcLine[MAX_LINE_LENGTH];
-		char pcKey[MAX_LINE_LENGTH];
 	
 		while(!feof(fp))
 		{
@@ -375,7 +377,7 @@ bool VistaCPUInfo::QueryCPUInfo()
 				else if(strstr(pcLeft, "cpu MHz"))
 				{
 					double cpuMHz = strtod( pcRight, NULL );
-					m_pStat->m_Stats.dwSpeed = (uint64)cpuMHz * (1000.0*1000.0);
+					m_pStat->m_Stats.dwSpeed = (VistaType::uint64)cpuMHz * ( 1000 * 1000 );
 				}
 				else if(strstr(pcLeft, "flags"))
 				{
@@ -487,8 +489,8 @@ std::string VistaCPUInfo::GetCPUNameString(  ) const
 					case 7: return "INTEL  Pentium III Katmai";
 					case 8: return "INTEL  Pentium III Coppermine";
 					case 9: return "INTEL  Mobile Pentium III";
-					case 10: return "INTEL  Pentium III (0.18um)";
-					case 11: return "INTEL  Pentium III (0.13um)";
+					case 10: return "INTEL  Pentium III (0.18micron)";
+					case 11: return "INTEL  Pentium III (0.13micron)";
 				}
 			}
 		case 7:	return "INTEL Itanium";
@@ -500,9 +502,9 @@ std::string VistaCPUInfo::GetCPUNameString(  ) const
 					{
 						switch(model_ex)
 						{
-						case 0: case 1: return "INTEL Pentium IV (0.18 �m)";
-						case 2: return "INTEL Pentium IV (0.13 �m)";
-						case 3: return "INTEL Pentium IV (0.09 �m)";
+						case 0: case 1: return "INTEL Pentium IV (0.18micron)";
+						case 2: return "INTEL Pentium IV (0.13micron)";
+						case 3: return "INTEL Pentium IV (0.09micron)";
 						}
 					}
 					break;

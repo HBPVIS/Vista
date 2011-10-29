@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSquareMatrix.h 22873 2011-08-08 10:48:52Z dr165799 $
 
 #ifndef _VISTASQUAREMATRIX_H
 #define _VISTASQUAREMATRIX_H
@@ -29,14 +29,16 @@
 /* INCLUDES                                                                   */
 /*============================================================================*/
 
+#include "VistaMatrix.h"
+#include "VistaPolynomial.h"
+#include "VistaMathConfig.h"
+
+#include <VistaBase/VistaStreamUtils.h>
+
 #include <iostream>
 #include <cmath>     // sin, cos, sqrt ...
 #include <complex>
 
-#include "VistaMatrix.h"
-#include "VistaPolynomial.h"
-#include "VistaMathConfig.h"
-#include "VistaMathOut.h"
 /*============================================================================*/
 /* MACROS AND DEFINES                                                        */
 /*============================================================================*/
@@ -631,14 +633,14 @@ bool VistaSquareMatrix<Type,dim>::CalcEigenValues (std::vector<std::complex<doub
 		VistaMathTools< std::complex<double> >::IsZeroSetZero (*pEV[1]);
 
 #ifdef MATHDEBUG
-		vmathout << "Determinate: " << nDet << std::endl;
-		vmathout << "Eigenvalue 1: (" << pEV[0]->real() << ", " << pEV[0]->imag() << "i)\n";
-		vmathout << "Eigenvalue 2: (" << pEV[1]->real() << ", " << pEV[1]->imag() << "i)\n";
+		vstr::out() << "Determinate: " << nDet << std::endl;
+		vstr::out() << "Eigenvalue 1: (" << pEV[0]->real() << ", " << pEV[0]->imag() << "i)\n";
+		vstr::out() << "Eigenvalue 2: (" << pEV[1]->real() << ", " << pEV[1]->imag() << "i)\n";
 		// Vieta: Sum(eVal)=Sum(a[i][i]), Prod(eVal)=det(A)
 		std::complex<double> sumEVal  = (*pEV[0]) + (*pEV[1]);
 		std::complex<double> prodEVal = (*pEV[0]) * (*pEV[1]);
-		vmathout << "Vieta EVal-Sum:     (" << sumEVal.real() << ", " << sumEVal.imag() << "i)=trace(A)\n";
-		vmathout << "Vieta EVal-Product: (" << prodEVal.real() << ", " << prodEVal.imag() << "i)=det(A)\n";
+		vstr::out() << "Vieta EVal-Sum:     (" << sumEVal.real() << ", " << sumEVal.imag() << "i)=trace(A)\n";
+		vstr::out() << "Vieta EVal-Product: (" << prodEVal.real() << ", " << prodEVal.imag() << "i)=det(A)\n";
 #endif
 		return true;
 	}
@@ -658,18 +660,18 @@ bool VistaSquareMatrix<Type,dim>::CalcEigenValues (std::vector<std::complex<doub
 #ifdef MATHDEBUG
 		// calc determinant (Entwicklungssatz)
 		double nDet = CalcDeterminant();
-		vmathout << "Determinant: " << nDet << std::endl;
+		vstr::out() << "Determinant: " << nDet << std::endl;
 		// the polynomial
 		eValSolver.Debug();
 		// the eigenvalues
-		vmathout << "Eigenvalue 1: (" << pEV[0]->real() << ", " << pEV[0]->imag() << "i)\n";
-		vmathout << "Eigenvalue 2: (" << pEV[1]->real() << ", " << pEV[1]->imag() << "i)\n";
-		vmathout << "Eigenvalue 3: (" << pEV[2]->real() << ", " << pEV[2]->imag() << "i)\n";
+		vstr::out() << "Eigenvalue 1: (" << pEV[0]->real() << ", " << pEV[0]->imag() << "i)\n";
+		vstr::out() << "Eigenvalue 2: (" << pEV[1]->real() << ", " << pEV[1]->imag() << "i)\n";
+		vstr::out() << "Eigenvalue 3: (" << pEV[2]->real() << ", " << pEV[2]->imag() << "i)\n";
 		// check Vieta
 		std::complex<double> sumEVal  = (*pEV[0]) + (*pEV[1]) + (*pEV[2]);
 		std::complex<double> prodEVal = (*pEV[0]) * (*pEV[1]) * (*pEV[2]);
-		vmathout << "Vieta EVal-Sum:     (" << sumEVal.real()  << ", " << sumEVal.imag()  << "i)=trace(A)\n";
-		vmathout << "Vieta EVal-Product: (" << prodEVal.real() << ", " << prodEVal.imag() << "i)=det(A)\n";
+		vstr::out() << "Vieta EVal-Sum:     (" << sumEVal.real()  << ", " << sumEVal.imag()  << "i)=trace(A)\n";
+		vstr::out() << "Vieta EVal-Product: (" << prodEVal.real() << ", " << prodEVal.imag() << "i)=det(A)\n";
 #endif
 		return true;
 	}
@@ -810,7 +812,7 @@ bool VistaSquareMatrix<Type,dim>::CalcEigenVector  (
 			// select arbitray values
 			pEigenVec[sIdx] = sVar;
 			pEigenVec[tIdx] = tVar;
-			vmathout << " [VSM-EVEC] ERROR: DIAGONAL COEFFICIENTS ARE ZERO!\n";
+			vstr::warnp() << "VistaSquareMatrix::CalcEigenVector() -- Diagonal Coefficients are Zero" << std::endl;
 			return false;
 		}
 		VistaMathTools< std::complex<double> >::IsZeroSetZero (pEigenVec[0]);
@@ -892,7 +894,7 @@ bool VistaSquareMatrix<Type,dim>::CalcEigenVector  (
 				pEigenVec[1] = detU01 / detU00;
 				pEigenVec[2] = detU02 / detU00;
 #ifdef MATHDEBUG
-				vmathout << " [VSM-EVEC] EVec(" << eigenVal << ")=["
+				vstr::outi() << " [VSM-EVEC] EVec(" << eigenVal << ")=["
 					<< "t=1," << pEigenVec[1] << "," << pEigenVec[2] << "]\n";
 #endif
 				return true;
@@ -903,7 +905,7 @@ bool VistaSquareMatrix<Type,dim>::CalcEigenVector  (
 				pEigenVec[1] = 1; //t
 				pEigenVec[2] = detU02 / detU01;
 #ifdef MATHDEBUG
-				vmathout << " [VSM-EVEC] EVec(" << eigenVal << ")=["
+				vstr::outi() << " [VSM-EVEC] EVec(" << eigenVal << ")=["
 					<< pEigenVec[0] << "," << "t=1," << pEigenVec[2] << "]\n";
 #endif
 				return true;
@@ -914,12 +916,12 @@ bool VistaSquareMatrix<Type,dim>::CalcEigenVector  (
 				pEigenVec[1] = detU01 / detU02;
 				pEigenVec[2] = 1; //t
 #ifdef MATHDEBUG
-				vmathout << " [VSM-EVEC] EVec(" << eigenVal << ")=["
+				vstr::outi() << " [VSM-EVEC] EVec(" << eigenVal << ")=["
 					<< pEigenVec[0] << "," << pEigenVec[1] << "t=1," << "]\n";
 #endif
 				return true;
 			}
-			vmathout << " [VSM-EVEC] ERROR: COULD NOT BE SOLVED!\n";
+			vstr::warnp() << "VistaSquareMatrix::CalcEigenVector() -- could not be solved" << std::endl;
 			return false;
 		}
 
@@ -1004,7 +1006,7 @@ bool VistaSquareMatrix<Type,dim>::CalcEigenVector  (
 			}
 		}
 #ifdef MATHDEBUG
-		vmathout << " [VSM-EVEC] "
+		vstr::outi() << " [VSM-EVEC] "
 				  << "startFound=" << bStartFound
 				  << "; devPnt=" << devPnt
 				  << "; tPnt=" << tPnt
@@ -1112,7 +1114,7 @@ bool VistaSquareMatrix<Type,dim>::CalcEigenVector  (
 				tIdx = 1;
 			}
 #ifdef MATHDEBUG
-			vmathout << " [VSM-EVEC] "
+			vstr::outi() << " [VSM-EVEC] "
 				  << "startFound=" << bStartFound
 				  << "; fIdx=" << fIdx
 				  << "; sIdx=" << sIdx
@@ -1127,7 +1129,7 @@ bool VistaSquareMatrix<Type,dim>::CalcEigenVector  (
 				pEigenVec[sIdx] = sVar;
 				pEigenVec[tIdx] = tVar;
 #ifdef MATHDEBUG
-				vmathout << " [VSM-EVEC] EVec(" << eigenVal << ")={"
+				vstr::outi() << " [VSM-EVEC] EVec(" << eigenVal << ")={"
 					<< "x[" << fIdx << "]="
 					<< (-eqMat.GetVal(2,sIdx))/eqMat.GetVal(2,fIdx)
 					<< "*s+"
@@ -1139,7 +1141,7 @@ bool VistaSquareMatrix<Type,dim>::CalcEigenVector  (
 #endif
 				return true;
 			}
-			vmathout << " [VSM-EVEC] ERROR: t+s IN 3RD ROW FAILED!\n";
+			vstr::warnp() << "VistaSquareMatrix::CalcEigenVector() --  t+s in 3rd Row failed" << std::endl;
 			return false;
 		}
 
@@ -1159,7 +1161,7 @@ bool VistaSquareMatrix<Type,dim>::CalcEigenSpace (
 {
 	if (GetDimension() == 2)
 	{
-		double invarD;
+		double invarD = 0;
 		CalcDiscriminant (invarD);
 		CalcEigenValues (pEigenVals);
 		CalcEigenVector (*pEigenVals[0], pEigenVecs[0]);
@@ -1177,7 +1179,7 @@ bool VistaSquareMatrix<Type,dim>::CalcEigenSpace (
 
 	if (GetDimension() == 3)
 	{
-		double invarD;
+		double invarD = 0;
 		CalcDiscriminant (invarD);
 		CalcEigenValues (pEigenVals);
 		//double invarD;
@@ -1303,7 +1305,7 @@ VistaSquareMatrix<Type,dim>::ComputeHessenbergEigensystem ()
 		for (int curSub = 0; curSub < matHi.GetDimension() - 1; ++curSub)
 		{
 #if (_MSC_VER >= 1300)
-			if (std::abs(matHi[curSub+1][curSub]) < std::abs(
+			if (std::fabs(matHi[curSub+1][curSub]) < std::fabs(
 					std::numeric_limits<Type>::epsilon() *
 						std::max<Type> (matHi[curSub][curSub], matHi[curSub+1][curSub+1])))
 			{
@@ -1312,7 +1314,7 @@ VistaSquareMatrix<Type,dim>::ComputeHessenbergEigensystem ()
 			if (matHi[curSub+1][curSub] == Type(0))
 				nullSubCount++;
 #else
-			if (abs(matHi[curSub+1][curSub]) < abs(
+			if( fabs(matHi[curSub+1][curSub]) < fabs(
 					std::numeric_limits<Type>::epsilon() *
 					matHi[curSub+1][curSub+1] ?  matHi[curSub][curSub] : matHi[curSub+1][curSub+1] ))
 			{
@@ -1329,7 +1331,7 @@ VistaSquareMatrix<Type,dim>::ComputeHessenbergEigensystem ()
 			bTerminate = true;
 	}
 
-	//cout << " Needed iterations: " << curIteration << endl;
+	//cout << " Needed iterations: " << curIteration << std::endl;
 
 	(*this) = matRi;
 	return matQi;

@@ -13,8 +13,6 @@ set( DirFiles
 	VistaAutoBufferPool.h
 	VistaBaseConfig.h
 	VistaBaseMain.cpp
-	VistaBaseOut.cpp
-	VistaBaseOut.h
 	VistaBaseTypes.h
 	VistaDefaultTimerImp.cpp
 	VistaDefaultTimerImp.h
@@ -29,8 +27,6 @@ set( DirFiles
 	VistaStreamManager.h
 	VistaStreamUtils.cpp
 	VistaStreamUtils.h
-	VistaStreams.cpp
-	VistaStreams.h
 	VistaTimeUtils.cpp
 	VistaTimeUtils.h
 	VistaTimer.cpp

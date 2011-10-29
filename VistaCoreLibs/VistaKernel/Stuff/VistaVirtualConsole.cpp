@@ -20,26 +20,25 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaVirtualConsole.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
+
+#include "VistaVirtualConsole.h"
+
+#include <VistaKernel/EventManager/VistaCommandEvent.h>
+#include <VistaKernel/EventManager/VistaEventManager.h>
+#include <VistaKernel/EventManager/VistaEventHandler.h>
+#include <VistaKernel/EventManager/VistaEventObserver.h>
+#include <VistaKernel/InteractionManager/VistaInteractionContext.h>
+#include <VistaKernel/DisplayManager/VistaViewport.h>
+#include <VistaKernel/DisplayManager/VistaDisplayManager.h>
+#include <VistaKernel/InteractionManager/VistaKeyboardSystemControl.h>
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <VistaKernel/EventManager/VistaCommandEvent.h>
-#include <VistaKernel/EventManager/VistaEventManager.h>
-#include <VistaKernel/EventManager/VistaEventHandler.h>
-#include <VistaKernel/EventManager/VistaEventObserver.h>
-//#include <VistaKernel/EventManager/VistaInputEvent.h>
-#include <VistaKernel/InteractionManager/VistaInteractionEvent.h>
-#include <VistaKernel/InteractionManager/VistaInteractionContext.h>
-#include <VistaKernel/EventManager/VistaDisplayEvent.h>
-#include <VistaKernel/DisplayManager/VistaViewport.h>
-#include <VistaKernel/DisplayManager/VistaDisplayManager.h>
-#include <VistaKernel/InteractionManager/VistaKeyboardSystemControl.h>
-#include "VistaVirtualConsole.h"
-#include "../VistaKernelOut.h"
-
 #include <cassert>
 
 #if defined(WIN32)
@@ -59,7 +58,8 @@
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
 
-namespace {
+namespace
+{
 	/* This is the longest command line that the user can enter @todo : Make dynamic
 	* so that the user can enter any length line */
 	const int MAX_INPUT_LENGTH = 256;
@@ -1603,38 +1603,6 @@ public:
 	VistaVirtualConsole *m_pConsole;
 };
 
-class VistaVirtualConsole::DisplayChangeObserver : public VistaEventObserver
-{
-public:
-	DisplayChangeObserver(VistaVirtualConsole *pConsole)
-		: m_pConsole(pConsole)
-	{
-	}
-
-	virtual ~DisplayChangeObserver()
-	{
-	}
-
-	virtual void Notify(const VistaEvent *pEvent)
-	{
-		// we are registered as observers for display events
-		const VistaDisplayEvent *pEv = static_cast<const VistaDisplayEvent*>(pEvent);
-		if(pEv->GetId() == VistaDisplayEvent::VDE_RATIOCHANGE)
-		{
-			if( m_pConsole->GetFlags() & VistaVirtualConsole::FLG_ADAPTONRESIZE )
-			{
-				VistaViewport *vp = pEv->GetViewport();
-				int w, h;
-				vp->GetViewportProperties()->GetSize(w,h);
-				m_pConsole->UpdateViewportChange(w,h);
-			}
-		}
-	}
-
-private:
-	VistaVirtualConsole *m_pConsole;
-};
-
 class VistaVirtualConsole::ToggleConsoleCommand : public IVistaExplicitCallbackInterface
 {
 public:
@@ -1647,7 +1615,7 @@ public:
 
 	virtual bool Do()
 	{
-		m_pConsole->SetEnabled(!m_pConsole->GetEnabled());
+		m_pConsole->SetIsEnabled(!m_pConsole->GetIsEnabled());
 		return true;
 	}
 
@@ -1663,33 +1631,24 @@ public:
 /*============================================================================*/
 
 
-VistaVirtualConsole::VistaVirtualConsole(VistaEventManager *pMgr,
-										   VistaDisplayManager *pDm,
-										   VistaKeyboardSystemControl *pCtrl,
-										   int iCmdToken,
-										   int nFlags,
-										   int cActivationKey,
-										   int iInitialWidth,
-										   int iInitialHeight,
-										   const std::string &strViewportName)
-: m_bInitDone(false)
+VistaVirtualConsole::VistaVirtualConsole( VistaDisplayManager *pDisplayManager,
+										VistaEventManager* pEventManager,						
+										VistaKeyboardSystemControl *pCtrl,
+										int iCmdToken,
+										int cActivationKey,
+										const std::string &strViewportName )
+: IVistaSceneOverlay( pDisplayManager, strViewportName )
+, m_bInitDone(false)
 , m_bEnabled(false)
-
 , m_glFontHandle(~0)
-
-
-, m_pEvMgr(pMgr)
-, m_pDspMgr(pDm)
 , m_pCtrl(pCtrl)
 , m_nActivationKey(cActivationKey)
 , m_pKeySink(NULL)
 , m_pOldSink(NULL)
-
 , m_nTransparency(0.5f)
 , m_BackgroudColor(0.0f,1.0f,0.0f)
 , m_TextColor(1.0f,1.0f,1.0f)
 , m_CursorColor(1.0f,1.0f,1.0f)
-
 , m_nVpTotalLines(-1)  // is determined on update to viewport
 , m_nVpTotalCols(-1)   // is determined on update to viewport
 , m_nCharWidth(-1.0)   // is determined on update to viewport
@@ -1697,56 +1656,100 @@ VistaVirtualConsole::VistaVirtualConsole(VistaEventManager *pMgr,
 , m_nInputLines(1)      // grows for longer input lines
 , m_nInputCursorPos(0)
 , m_nOutputCursorPos(0)
-, m_nFlags(nFlags)
 {
 	m_pKeySink = new ConsoleKeySink(this);
 
-	bool b = pCtrl->BindAction(m_nActivationKey,
+	bool bKeyBindSuccess = pCtrl->BindAction(m_nActivationKey,
 		new ToggleConsoleCommand(this),
 		"Toggle virtual console");
 
-	assert(b && "Key already registered?");
-
-	m_pDispObserver = new DisplayChangeObserver(this);
-	m_pEvMgr->RegisterObserver(m_pDispObserver, VistaDisplayEvent::GetTypeId());
-
-	if(m_pDspMgr->AddSceneOverlay(this, strViewportName) == false)
+	if( bKeyBindSuccess == false )
 	{
-		vkernerr << "[VistaVirtualConsole]: could not add scene overlay!!"
-			<< std::endl << "\tViewport given: [" << strViewportName << "]\n";
+		vstr::warnp() << "[VistaVirtualConsole]: Could not bind activation key "
+						<< char( m_nActivationKey ) << "( " 
+						<< m_nActivationKey << ")" << std::endl;
 	}
-
 
 	m_pCmdEvent = new VistaCommandEvent;
 	m_pCmdEvent->SetId(VistaCommandEvent::VEIDC_CMD);
 	m_pCmdEvent->SetMethodToken(iCmdToken);
-
-	//	memset(inputLine, 0, MAX_INPUT_LENGTH); // clear input line
-	//	inputLineLength = 0;
-	//	inputCursorPos = 0;
-	//	historyRollOver = 0;
 
 	// -> has to be updated on each change of m_vecOutput!
 	//m_itDrawStart = m_vecOutput.end();  // invalidate output line
 	m_itHistory   = m_vecHistory.end(); // invalidate history line
 	m_itCursor    = m_strInputLine.end();
 
-	UpdateViewportChange(iInitialWidth, iInitialHeight);
+	int iWidth = 640;
+	int iHeight = 480;
+	if( GetAttachedViewport() != NULL )
+	{
+		GetAttachedViewport()->GetViewportProperties()->GetSize( iWidth, iHeight );
+	}	
+	UpdateOnViewportChange( iWidth, iHeight, 0, 0 );
 }
+
+VistaVirtualConsole::VistaVirtualConsole( VistaViewport* pViewport,
+						VistaEventManager* pMgr,
+						VistaKeyboardSystemControl *pCtrl,
+						int iCmdToken,
+						int cActivationKey )
+: IVistaSceneOverlay( pViewport )
+, m_bInitDone(false)
+, m_bEnabled(false)
+, m_glFontHandle(~0)
+, m_pCtrl(pCtrl)
+, m_nActivationKey(cActivationKey)
+, m_pKeySink(NULL)
+, m_pOldSink(NULL)
+, m_nTransparency(0.5f)
+, m_BackgroudColor(0.0f,1.0f,0.0f)
+, m_TextColor(1.0f,1.0f,1.0f)
+, m_CursorColor(1.0f,1.0f,1.0f)
+, m_nVpTotalLines(-1)  // is determined on update to viewport
+, m_nVpTotalCols(-1)   // is determined on update to viewport
+, m_nCharWidth(-1.0)   // is determined on update to viewport
+, m_nCharHeight(-1.0)  // is determined on update to viewport
+, m_nInputLines(1)      // grows for longer input lines
+, m_nInputCursorPos(0)
+, m_nOutputCursorPos(0)
+{
+	m_pKeySink = new ConsoleKeySink(this);
+
+	bool bKeyBindSuccess = pCtrl->BindAction(m_nActivationKey,
+		new ToggleConsoleCommand(this),
+		"Toggle virtual console");
+
+	if( bKeyBindSuccess == false )
+	{
+		vstr::warnp() << "[VistaVirtualConsole]: Could not bind activation key "
+						<< char( m_nActivationKey ) << "( " 
+						<< m_nActivationKey << ")" << std::endl;
+	}
+
+	m_pCmdEvent = new VistaCommandEvent;
+	m_pCmdEvent->SetId(VistaCommandEvent::VEIDC_CMD);
+	m_pCmdEvent->SetMethodToken(iCmdToken);
+
+	// -> has to be updated on each change of m_vecOutput!
+	//m_itDrawStart = m_vecOutput.end();  // invalidate output line
+	m_itHistory   = m_vecHistory.end(); // invalidate history line
+	m_itCursor    = m_strInputLine.end();
+
+	int iWidth = 640;
+	int iHeight = 480;
+	if( GetAttachedViewport() != NULL )
+	{
+		GetAttachedViewport()->GetViewportProperties()->GetSize( iWidth, iHeight );
+	}	
+	UpdateOnViewportChange( iWidth, iHeight, 0, 0 );
+}
+
 
 VistaVirtualConsole::~VistaVirtualConsole()
 {
 	m_pCtrl->SetDirectKeySink(NULL);
 	delete m_pKeySink;
 	m_pCtrl->UnbindAction(m_nActivationKey, true);
-	m_pDspMgr->RemSceneOverlay(this);
-
-	if(m_pDispObserver)
-	{
-		m_pEvMgr->UnregisterObserver(m_pDispObserver, VistaDisplayEvent::GetTypeId());
-	}
-	delete m_pDispObserver;
-
 
 	if(glIsTexture(m_glFontHandle))
 		glDeleteTextures(1, &m_glFontHandle);
@@ -1755,7 +1758,7 @@ VistaVirtualConsole::~VistaVirtualConsole()
 }
 
 
-void VistaVirtualConsole::SetEnabled(bool bEnabled)
+void VistaVirtualConsole::SetIsEnabled(bool bEnabled)
 {
 	m_bEnabled = bEnabled;
 	VistaKeyboardSystemControl::IVistaDirectKeySink *pSink = NULL;
@@ -1774,29 +1777,19 @@ void VistaVirtualConsole::SetEnabled(bool bEnabled)
 	m_pCtrl->SetDirectKeySink( pSink );
 }
 
-bool VistaVirtualConsole::GetEnabled() const
+bool VistaVirtualConsole::GetIsEnabled() const
 {
 	return m_bEnabled;
 }
 
-int VistaVirtualConsole::GetFlags() const
-{
-	return m_nFlags;
-}
-
-void VistaVirtualConsole::SetFlags( int nFlags )
-{
-	m_nFlags = nFlags;
-}
-
 double VistaVirtualConsole::GetInputLineAreaHeight() const
 {
-	return 1.0-(m_nVpTotalLines - (m_nInputLines-1)) * m_nCharHeight;
+	return 1.0 - (m_nVpTotalLines - (m_nInputLines - 1)) * m_nCharHeight;
 }
 
 double VistaVirtualConsole::GetInputLineAreaHeightBack() const
 {
-	return 1.0-(m_nVpTotalLines - (m_nInputLines)) * m_nCharHeight;
+	return 1.0 - (m_nVpTotalLines - (m_nInputLines)) * m_nCharHeight;
 }
 
 double VistaVirtualConsole::GetContentAreaHeight() const
@@ -1836,14 +1829,15 @@ void VistaVirtualConsole::DrawContents()
 
 		double dHeight = 1.0-(((nAvailable-nCurrentLine) - nNumLinesNeeded) * m_nCharHeight);
 
-		int nNeeded = DrawWrapString((*cit).m_strLine.c_str(), (*cit).m_strLine.size(),
-			0, dHeight,
-			m_nCharWidth,
-			m_nCharHeight,
-			0, m_nVpTotalCols);
+		int nNeeded = DrawWrapString( (*cit).m_strLine.c_str(), (int)(*cit).m_strLine.size(),
+										0, dHeight,
+										m_nCharWidth,
+										m_nCharHeight,
+										0, m_nVpTotalCols);
 		if(nNeeded != nNumLinesNeeded)
 		{
-			vkernerr << "bogus?\n";
+			vstr::warnp() << "VistaVirtualConsole::DrawContents() -- "
+					<< "DrawWrapString didn't print expected number of lines" << std::endl;
 		}
 		nCurrentLine += nNumLinesNeeded;
 	}
@@ -1858,11 +1852,11 @@ void VistaVirtualConsole::DrawInputLine()
 			m_TextColor.GetGreen(),
 			m_TextColor.GetBlue());
 
-		DrawWrapString(m_strInputLine.c_str(), m_strInputLine.size(),
-			0, GetInputLineAreaHeight(),
-			m_nCharWidth,
-			m_nCharHeight,
-			0, m_nVpTotalCols);
+		DrawWrapString(m_strInputLine.c_str(), (int)m_strInputLine.size(),
+							0, GetInputLineAreaHeight(),
+							m_nCharWidth,
+							m_nCharHeight,
+							0, m_nVpTotalCols);
 	}
 
 	// draw cursor
@@ -2120,18 +2114,19 @@ bool VistaVirtualConsole::CreateGLFont()
 
 void VistaVirtualConsole::DetermineInputLineSize()
 {
-	int nOldLines = m_nInputLines;
-	m_nInputLines = std::max<int>(1, (int)std::ceil(float(m_strInputLine.size()) / float(m_nVpTotalCols)));
+	int nNewLines = std::max<int>(1, (int)std::ceil(float(m_strInputLine.size()) / float(m_nVpTotalCols)));
 #if defined(DEBUG)
-	if(m_nInputLines != nOldLines)
-		vkernout << "num lines changed from ["
-		<< nOldLines << "]"
-		<< " to ["
-		<< m_nInputLines << "]\n";
+	if(m_nInputLines != nNewLines)
+		vstr::outi() << "[VistaVirtualConsole]: Num lines changed from ["
+					<< m_nInputLines << "]"
+					<< " to ["
+					<< nNewLines << "]" << std::endl;
 #endif
+	m_nInputLines = nNewLines;
 }
 
-bool VistaVirtualConsole::UpdateViewportChange(int iWidth, int iHeight)
+void VistaVirtualConsole::UpdateOnViewportChange( int iWidth, int iHeight,
+												int iPosX, int iPosY )
 {
 	// state the total number of lines/cols for this display
 	m_nVpTotalLines = iHeight / CHAR_PIXEL_H;
@@ -2142,12 +2137,6 @@ bool VistaVirtualConsole::UpdateViewportChange(int iWidth, int iHeight)
 	m_nCharHeight   = 1.0 / m_nVpTotalLines;
 
 	DetermineInputLineSize();
-
-#if defined(DEBUG)
-	DebugPrint();
-#endif
-
-	return true;
 }
 
 bool VistaVirtualConsole::CreateGLConsole()
@@ -2253,8 +2242,6 @@ bool VistaVirtualConsole::Output( const std::string &strOutput, const VistaColor
 {
 	if(strOutput.empty())
 		return false;
-	std::string::size_type end = std::string::npos;
-	std::string::size_type beg  = 0;
 
 	bool bDone = false;
 	std::string::size_type tpos = 0;
@@ -2413,7 +2400,7 @@ bool VistaVirtualConsole::MoveInHistory(eHistoryDir dir)
 	// copy current history line to in line
 	assert(m_itHistory != m_vecHistory.end());
 	m_strInputLine = *m_itHistory;
-	m_nInputCursorPos = m_strInputLine.size();
+	m_nInputCursorPos = (int)m_strInputLine.size();
 	m_itCursor = m_strInputLine.begin() + m_nInputCursorPos;
 	DetermineInputLineSize();
 	return true;
@@ -2468,14 +2455,14 @@ bool VistaVirtualConsole::HandleKeyPress(int keyCode, int nModState, bool bIsKey
 			return MoveInHistory( keyCode == VISTA_KEY_UPARROW ?
 				VistaVirtualConsole::E_HISTORY_UP
 				: VistaVirtualConsole::E_HISTORY_DOWN);
-			return true;
 		}
 	case VISTA_KEY_PAGEUP:
 		{
 			if( (int)m_vecOutput.size() > m_nVpTotalLines)
 			{
 				m_nOutputCursorPos += (m_nVpTotalLines - m_nInputLines);
-				m_nOutputCursorPos = std::min<int>(m_nOutputCursorPos, m_vecOutput.size()-(m_nVpTotalLines - m_nInputLines));
+				m_nOutputCursorPos = std::min<int>( m_nOutputCursorPos, 
+							(int)m_vecOutput.size() - ( m_nVpTotalLines - m_nInputLines ) );
 			}
 			break;
 		}
@@ -2561,17 +2548,16 @@ void VistaVirtualConsole::SetConsoleTransparency( float fTrans )
 
 void VistaVirtualConsole::DebugPrint() const
 {
-	vkernout << "VistaVirtualConsole::DebugPrint() -- \n"
-		<< "\tTotal lines: " << m_nVpTotalLines << std::endl
-		<< "\tTotal cols : " << m_nVpTotalCols  << std::endl
-		<< "\tInput lines: " << m_nInputLines   << std::endl
-		<< "\tChar width : " << m_nCharWidth    << std::endl
-		<< "\tChar height: " << m_nCharHeight   << std::endl
-		<< "\tInput size : " << m_strInputLine.size() << std::endl
-		<< "\tHistory size: " << m_vecHistory.size() << std::endl
-		<< "\tHistory pos: " << (m_itHistory == m_vecHistory.end() ? "<no current>" : "SET") << std::endl
-		<< "\tOutput size: " << m_vecOutput.size() << std::endl
-		//	<< "\tOutput pos: " << (m_itDrawStart == m_vecOutput.end() ? "<no current>" : "SET") << std::endl;
+	vstr::out() << vstr::indent << "VistaVirtualConsole::DebugPrint() -- "
+		<< "\n" << vstr::indent << "\tTotal lines: " << m_nVpTotalLines
+		<< "\n" << vstr::indent << "\tTotal cols : " << m_nVpTotalCols
+		<< "\n" << vstr::indent << "\tInput lines: " << m_nInputLines
+		<< "\n" << vstr::indent << "\tChar width : " << m_nCharWidth
+		<< "\n" << vstr::indent << "\tChar height: " << m_nCharHeight
+		<< "\n" << vstr::indent << "\tInput size : " << m_strInputLine.size()
+		<< "\n" << vstr::indent << "\tHistory size: " << m_vecHistory.size()
+		<< "\n" << vstr::indent << "\tHistory pos: " << (m_itHistory == m_vecHistory.end() ? "<no current>" : "SET")
+		<< "\n" << vstr::indent << "\tOutput size: " << m_vecOutput.size()
 		<< std::endl;
 }
 

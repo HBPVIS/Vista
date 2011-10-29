@@ -20,11 +20,9 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPhantomServerDriver.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 #include "VistaPhantomServerDriver.h"
-
-#include <VistaDeviceDriversBase/VistaDeviceDriversOut.h>
 
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverConnectionAspect.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverMeasureHistoryAspect.h>
@@ -36,6 +34,7 @@
 #include <VistaInterProcComm/Connections/VistaByteBufferSerializer.h>
 
 #include <VistaBase/VistaExceptionBase.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <iostream>
 using namespace std;
@@ -95,7 +94,8 @@ public:
 			pCon->ReadFloat32(m_pDriver->m_maxUsableWorkspaceMax[1]);
 			pCon->ReadFloat32(m_pDriver->m_maxUsableWorkspaceMax[2]);
 
-			vddout << "Found phantom device with vendor: [" << vendor << "], device: [" << deviceType << "]\n";
+			vstr::outi() << "Found phantom device with vendor: [" 
+						<< vendor << "], device: [" << deviceType << "]\n";
 		}
 		catch(VistaExceptionBase &x)
 		{
@@ -219,7 +219,7 @@ bool VistaPhantomServerDriver::DoSensorUpdate(VistaType::microtime dTs)
 
 			if(nReadSize > 0)
 			{
-				std::vector<unsigned char> msg(sizeof(VistaPhantomServerMeasures::sPhantomServerMeasure));
+				std::vector<VistaType::byte> vecMsg(sizeof(VistaPhantomServerMeasures::sPhantomServerMeasure));
 
 				// we assume a packet oriented protocol here
 				// otherwise, we might end up in a state where we read off
@@ -227,7 +227,7 @@ bool VistaPhantomServerDriver::DoSensorUpdate(VistaType::microtime dTs)
 				int nDataRead = 0;
 				for(unsigned int i=0; i < nReadSize; i+=nDataRead)
 				{
-					nDataRead = pIncoming->ReadRawBuffer((void*)&msg[0], sizeof(VistaPhantomServerMeasures::sPhantomServerMeasure));
+					nDataRead = pIncoming->ReadRawBuffer((void*)&vecMsg[0], sizeof(VistaPhantomServerMeasures::sPhantomServerMeasure));
 					if(nDataRead < 0)
 					{
 						// TROUBLE!
@@ -238,7 +238,7 @@ bool VistaPhantomServerDriver::DoSensorUpdate(VistaType::microtime dTs)
 				}
 
 				VistaByteBufferDeSerializer deSer;
-				deSer.SetBuffer( (const char*)&msg[0], sizeof(VistaPhantomServerMeasures::sPhantomServerMeasure) );
+				deSer.SetBuffer( &vecMsg[0], sizeof(VistaPhantomServerMeasures::sPhantomServerMeasure) );
 
 				VistaSensorMeasure *pM = m_pHistoryAspect->GetCurrentSlot(GetSensorByIndex(0));
 				if(pM == NULL)
@@ -292,7 +292,8 @@ bool VistaPhantomServerDriver::DoSensorUpdate(VistaType::microtime dTs)
 					nDataRead = pControl->ReadInt32(nCommand);
 					if( nDataRead <= 0)
 					{
-						vddout << "Read error"<< endl;
+						vstr::warnp() << "VistaPhantomServerDriver::DoSensorUpdate() -- "
+									<< "read error" << endl;
 						pControl->Close();
 						return false;
 					}
@@ -309,7 +310,8 @@ bool VistaPhantomServerDriver::DoSensorUpdate(VistaType::microtime dTs)
 						pControl->ReadInt32(nSize);
 						if(nSize > 0)
 							pControl->ReadString(sErrorMsg, nSize);
-						vddout << "[VistaPhantomServer] Error: " << errorId << " " << sErrorMsg << std::endl;
+						vstr::outi() << "[VistaPhantomServer] Error: " << errorId 
+									<< " " << sErrorMsg << std::endl;
 
 						break;
 					}

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSystem.h 22143 2011-07-01 15:07:00Z dr165799 $
 
 #ifndef _VISTASYSTEM_H
 #define _VISTASYSTEM_H
@@ -35,6 +35,7 @@
 // system includes
 #include <VistaKernel/VistaKernelConfig.h>
 
+#include <VistaAspects/VistaPropertyList.h>
 #include <VistaKernel/EventManager/VistaEventHandler.h>
 
 #include <list>
@@ -60,28 +61,19 @@ class VistaSensor;
 class VistaGraphicsManager;
 class VistaEventManager;
 class VistaDisplayManager;
-//class VistaOldInteractionManager;
 class VistaInteractionManager;
-class VistaPickManager;
+class VistaFrameLoop;
 
-class VistaClusterServer;
-class VistaClusterClient;
-class VistaClusterMaster;
-class VistaClusterSlave;
+class VistaClusterMode;
 
-
-class VistaSystemEvent;
-class VistaGraphicsEvent;
-class VistaTimer;
 class VistaKernelMsgPort;
 class VistaExternalMsgEvent;
 class VistaInputEvent;
 class VistaCommandEvent;
-//class VistaInputDeviceObserver;
 class DLVistaDataSink;
 class IVistaSystemClassFactory;
 class VistaKeyboardSystemControl;
-class VistaClusterAux;
+class VistaClusterMode;
 class VistaDriverMap;
 
 class VistaDriverPropertyConfigurator;
@@ -91,8 +83,6 @@ class VistaDisplaySystem;
 class VistaInteractionContext;
 
 class VdfnGraph;
-
-#include "WindowingToolkit/VistaWindowingToolkit.h"
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -109,38 +99,29 @@ class VdfnGraph;
 class VISTAKERNELAPI VistaSystem : public VistaEventHandler
 {
 public:
-	enum VISTA_CLUSTER_MODE
-	{
-	  VCM_STANDALONE = 0,
-	  VCM_SERVER,
-	  VCM_CLIENT,
-	  VCM_MASTER,
-	  VCM_SLAVE
-	};
-
 	VistaSystem();
 	virtual ~VistaSystem();
 
 	// ############################################################################
 	// USER CONFIGURABLE INI FILE STRUCTURES API
 	// ############################################################################
-	bool        SetIniFile(const std::string &sConfigNew);
+	bool        SetIniFile( const std::string& sConfigNew );
 	std::string GetIniFile() const;
 
-	bool        SetDisplayIniFile(const std::string &sDisplayConfig);
+	bool        SetDisplayIniFile( const std::string& sDisplayConfig );
 	std::string GetDisplayIniFile() const;
 
-	bool        SetGraphicsIniFile(const std::string &sGraphicsConfig);
+	bool        SetGraphicsIniFile( const std::string& sGraphicsConfig );
 	std::string GetGraphicsIniFile() const;
 
-	bool        SetInteractionIniFile(const std::string &sInterConfig);
+	bool        SetInteractionIniFile( const std::string& sInterConfig );
 	std::string GetInteractionIniFile() const;
 
-	bool        SetClusterIniFile(const std::string &sClusterConfig);
+	bool        SetClusterIniFile( const std::string& sClusterConfig );
 	std::string GetClusterIniFile() const;
 
 	const std::list<std::string>& GetIniSearchPaths() const;
-	bool                   SetIniSearchPaths(const std::list<std::string> &liSearchPaths);
+	bool                   SetIniSearchPaths( const std::list<std::string> &liSearchPaths );
 	static std::string     GetSystemSectionName();
 	const std::string&     GetApplicationName() const;
 
@@ -148,17 +129,17 @@ public:
 	// ############################################################################
 	// RUN-TIME USER API
 	// ############################################################################
-	bool IntroMsg (std::ostream * pStream = NULL) const;
-	bool Init (int argc, char *argv[]);
+	bool IntroMsg( std::ostream* pStream = NULL ) const;
+	bool Init( int argc, char *argv[] );
 	bool Run();
 	bool Quit();
 
 	// ##########################################################
 	// GENERAL INTERACTION API
 	// ##########################################################
-	VistaKeyboardSystemControl *GetKeyboardSystemControl() const;
-	VdfnObjectRegistry *GetDfnObjectRegistry() const;
-	VistaUserPlatform *GetPlatformFor( VistaDisplaySystem *pDSys ) const;
+	VistaKeyboardSystemControl* GetKeyboardSystemControl() const;
+	VdfnObjectRegistry* GetDfnObjectRegistry() const;
+	VistaUserPlatform* GetPlatformFor( VistaDisplaySystem *pDisplaySystem ) const;
 
 	// ############################################################################
 	// ACCESS TO INTERNAL STRUCTURES API
@@ -172,55 +153,45 @@ public:
 	 * instance (which is not true for the other manager instances).
 	 * It defines the heart-beat of a ViSTA application.
 	 */
-	VistaEventManager               *GetEventManager() const;
-	VistaGraphicsManager            *GetGraphicsManager () const;
-	VistaDisplayManager             *GetDisplayManager () const;
-	VistaInteractionManager         *GetInteractionManager() const;
-	VistaPickManager                *GetPickManager() const;
-	VistaDriverMap                  *GetDriverMap() const;
-	VistaDriverPropertyConfigurator *GetDriverConfigurator() const;
-	IVistaSystemClassFactory         *GetSystemClassFactory() const;
-	VdfnGraph                       *ProperGraphLoad( const std::string &strGraphFile,
-													   const std::string &strGraphTag ) const;
-	IVistaWindowingToolkit	 *GetWindowingToolkit() const;
-	void SetWindowingToolkit( IVistaWindowingToolkit* toolkit );
+	VistaEventManager* GetEventManager() const;
+	VistaGraphicsManager* GetGraphicsManager () const;
+	VistaDisplayManager* GetDisplayManager () const;
+	VistaInteractionManager* GetInteractionManager() const;
+	VistaDriverMap* GetDriverMap() const;
+	VistaDriverPropertyConfigurator* GetDriverConfigurator() const;
+	IVistaSystemClassFactory* GetSystemClassFactory() const;
 
+	VistaFrameLoop* GetFrameLoop() const;
+	/**
+	 * Replaces the current frame loop with a new one, allowing to change
+	 * the actions/event order. Can be called before or after the
+	 * VistaSystem's initialization. However, if called after VistaSystem
+	 * initialization, it has to be manually initialized, and inconsistencies
+	 * with framecount, framerate, and profiling may arise
+	 */
+	void SetFrameLoop( VistaFrameLoop* pLoop, bool bDeleteExisting );
 
 	// ############################################################################
 	// CLUSTER API
 	// ############################################################################
-	VistaClusterClient  *    GetVistaClusterClient () const;
-	VistaClusterServer  *    GetVistaClusterServer () const;
-	VistaClusterMaster  *    GetVistaClusterMaster () const;
-	VistaClusterSlave   *    GetVistaClusterSlave  () const;
-
-	bool GetIsMaster() const;
-	bool GetIsSlave() const;
-
-
-	bool IsClient() const;
-	bool IsServer() const;
-
-	bool IsStandalone() const;
+	VistaClusterMode* GetClusterMode() const;
+	bool GetIsClusterLeader() const;
+	bool GetIsClusterFollower() const;
 
 	double GetFrameClock() const;
-	int    GenerateRandomNumber(int iLowerBound, int iMaxBound) const;
-	void   SetRandomSeed(int iSeed);
-
-	VistaClusterAux *GetClusterAux() const;
-
+	int GenerateRandomNumber( int iLowerBound, int iMaxBound ) const;
+	void SetRandomSeed( int iSeed );
 
 	// ############################################################################
 	// MSGPORT API
 	// ############################################################################
-
 	/**
 	 * Set the external message port. Returns the formerly set
 	 * message port. By making this call, ownership of the port
-	 * goes to the system, i.e. the port is beind destroyed upon
+	 * goes to the system, i.e. the port is being destroyed upon
 	 * system destruction.
 	 */
-	VistaKernelMsgPort *SetExternalMsgPort(VistaKernelMsgPort *pPort);
+	VistaKernelMsgPort* SetExternalMsgPort( VistaKernelMsgPort *pPort );
 
 	void DisconnectExternalMsgPort();
 	bool HasExternalMsgPort() const;
@@ -235,133 +206,101 @@ public:
 	// USER FEEDBACK PROGRESS API
 	// ############################################################################
 	bool IndicateApplicationProgress(int iAppProgress,
-									 const std::string &sProgressMessage);
+									 const std::string& sProgressMessage);
 
-	// ############################################################################
 	// INHERITED FROM EVENTHANDLER API
-	// ############################################################################
 	virtual void HandleEvent(VistaEvent *pEvent);
 
-	// ############################################################################
-	// DEBUG API
-	// ############################################################################
-	virtual void Debug ( std::ostream & out ) const;
-	bool PrintMsg  ( const std::string &strMsg, std::ostream * pStream = 0 ) const;
-	bool PrintMsg  ( const char *  pMsg,       std::ostream * pStream = 0 ) const;
+	virtual void Debug( std::ostream & out ) const;
+	bool PrintMsg( const std::string& strMsg, std::ostream* pStream = 0 ) const;
+	bool PrintMsg( const char* pMsg, std::ostream* pStream = 0 ) const;
 	
 private:
-	bool ArgParser (int argc, char *argv[]);
-	bool ArgHelpMsg (const std::string &sAppName, std::ostream * pStream = NULL) const;
-	void LoadPlugins( const std::string& sConfigFileName );
+	bool ArgParser( int argc, char *argv[] );
+	bool ArgHelpMsg( const std::string& sAppName, std::ostream * pStream = NULL ) const;
 
-	/**
-	 * @brief	Searches for the first file in ini search path. 
-	 * @param	file	The filename as absoute or relative path.
-	 *                  Absolute path is not searched but only checked
-	 *                  for existance.
-	 * @param   logger	If non-null, the logger (e.g. cerr).
-	 *          In DEBUG mode cout is used if no logger is given. 
-	 * @return	The absolute path of the found file in ini search path.
-	 *          Empty string on failure.
-	 */
-	std::string FindFileInIniSearchPath(const std::string &file,
-										std::ostream *logger = NULL) const;
+	bool DoInit( int argc, char** argv );
 
-
-	IVistaSystemClassFactory    * m_pSystemClassFactory;
-
-	IVistaWindowingToolkit	* m_pWindowingToolkit;
-
-	VistaEventManager          * m_pEventManager;
-	VistaSystemEvent           * m_pSystemEvent;
-	VistaEventHandler          * m_pCentralEventHandler;
-
-	VistaExternalMsgEvent      * m_pExternalMsg;
-	VistaKernelMsgPort         * m_pPort;
-
-	std::list<VistaKernelMsgPort*> m_liAppPorts;
-
-	VistaDisplayManager        * m_pDisplayManager;
-	VistaInteractionManager    * m_pInteractionManager;
-	VistaPickManager           * m_pPickManager;
-	VistaGraphicsManager	    * m_pNewWorld;
-	VistaClusterAux            * m_pClusterAux;
-	VistaTimer         * m_pTimer;
-	VistaCommandEvent          * m_pCommandEvent;
-	VistaKeyboardSystemControl * m_pSystemControl;
-	VistaDriverMap             * m_pDriverMap;
-	VdfnObjectRegistry         * m_pDfnObjects;
-	VistaDriverPropertyConfigurator *m_pConfigurator;
-
-	std::map<VistaDisplaySystem*, VistaUserPlatform*> m_mpUserPlatforms;
-	std::list<VistaInteractionContext*> m_liCreateCtxs;
-
-	struct _dllHlp                *m_pDllHlp;
-
-	bool                          m_bInitialized;
-
-	// store the absolute pathes of the ini-files
-	std::string                   m_strVistaConfigFile,  /**< this is the global file */
-								  m_strGraphicsConfigFile, /**< this is for the graphics */
-								  m_strDisplayConfigFile,  /**< reference for the display */
-								  m_strInteractionConfigFile, /**< reference for interaction, connections etc. */
-								  m_strClusterConfigFile;
-
-	// These are used to flag wether an ini file has been
-	// specified via the command line. In that case the settings
-	// from the main ini will be ignored (commandline has the last word)
-	bool m_bLockGraphicsIni,
-         m_bLockDisplayIni,
-         m_bLockInteractionIni,
-         m_bLockClusterIni;
-
-
-	std::string                   m_strModelFile;
-	std::string                   m_strSystemName;
-	std::string                   m_strApplicationName;
-
-	float                         m_nModelScale;
-	int                           m_iClusterMode;
-
-	// manage some input device / display connection data
-	//std::list<VistaInputDeviceObserver *>  m_liDeviceObservers;
-	//std::list<DLVistaDataSink *>           m_liAdaptors;
-
-private:
-
-	bool SetupEventManager ();
-	bool SetupDisplayManager ();
-	bool SetupCluster (VistaClusterServer *& pServer,
-					   VistaClusterClient *&pClient,
-					   VistaClusterMaster *&pMaster,
-					   VistaClusterSlave  *&pSlave);
-	bool SetupGraphicsManager ();
+	bool LoadIniFiles();
+	bool SetupCluster();
+	bool SetupMessagePort();
+	bool SetupEventManager();
+	bool SetupDisplayManager();
+	bool SetupGraphicsManager();
 	bool SetupInteractionManager();
-	bool SetupPickManager ();
 
 	bool SetupBasicInteraction();
+	VistaInteractionContext* SetupInteractionContext( const std::string& strContextSec );
+	void BindKeyboardActions();
+	void RegisterConfigurators();
+	void CreateDeviceDrivers();
+	bool LoadDriverPlugin( const std::string& sDriverType,
+							const std::string& sPluginName = "",
+							const std::string& sTranscoderName = "" );
 
-	bool LoadDeviceDrivers();
-	bool LoadDriverPlugin( const std::string& sDriverType = 0,
-							const std::string& sPluginName = 0,
-							const std::string& sTranscoderName = 0 );
-
-	bool IndicateSystemProgress(int iProgressStage,
-								const std::string &sProgressMessageText,
-								bool bDone);
-
-	bool LoadPlugin( const std::string &strPathToPlugin );
-
-	bool DoInit (int, char**);
+	bool IndicateSystemProgress( const std::string& sProgressMessageText,
+								bool bDone );
 
 	static void SIGINTHandler(int);
 	static void SIGTERMHandler(int);
 	static void SIGPIPEHandler(int);
 
-	std::list<std::string> m_liSearchPath;
-	bool m_bLockSearchPath;
+	std::string FindFileInIniSearchPath(const std::string& file,
+										std::ostream *logger = NULL) const;
 
-	std::list<std::string>	m_liDriverPluginPathes;
+private:
+	IVistaSystemClassFactory*			m_pSystemClassFactory;
+
+	VistaEventManager*					m_pEventManager;
+	VistaEventHandler*					m_pCentralEventHandler;
+
+	VistaExternalMsgEvent*				m_pExternalMsg;
+	int									m_iInitProgressIndicator;
+	VistaKernelMsgPort*					m_pMessagePort;
+	std::list<VistaKernelMsgPort*>		m_liAppMsgPorts;
+
+	VistaDisplayManager*				m_pDisplayManager;
+	VistaInteractionManager*			m_pInteractionManager;
+	VistaGraphicsManager*				m_pGraphicsManager;
+	VistaCommandEvent*					m_pCommandEvent;
+	VistaKeyboardSystemControl*			m_pKeyboardSystemControl;
+	VistaDriverMap*						m_pDriverMap;
+	VdfnObjectRegistry*					m_pDfnObjects;
+	VistaDriverPropertyConfigurator*	m_pConfigurator;
+	VistaClusterMode*					m_pClusterMode;
+	VistaFrameLoop*						m_pFrameLoop;
+
+	std::map<VistaDisplaySystem*, VistaUserPlatform*> m_mapUserPlatforms;
+	std::list<VistaInteractionContext*> m_liCreateCtxs;
+
+	struct DllHelper*					m_pDllHlp;
+
+	bool								m_bInitialized;
+
+	// store the absolute pathes of the ini-files
+	std::string                 m_sVistaConfigFile;
+	std::string					m_sGraphicsConfigFile;
+	std::string					m_sDisplayConfigFile;
+	std::string					m_sInteractionConfigFile;
+	std::string					m_sClusterConfigFile;
+	
+	std::string					m_sModelFile;
+	float						m_nModelScale;
+
+	int							m_nClusterNodeType;
+	std::string					m_sClusterNodeName;
+	std::string					m_sApplicationName;
+
+	VistaPropertyList			m_oVistaConfig;
+	VistaPropertyList			m_oGraphicsConfig;
+	VistaPropertyList			m_oDisplayConfig;
+	VistaPropertyList			m_oInteractionConfig;
+	VistaPropertyList			m_oClusterConfig;
+
+	std::list<std::string>		m_liSearchPathes;
+	bool						m_bLockSearchPath;
+
+	std::list<std::string>		m_liDriverPluginPathes;
 };
 
 
@@ -369,6 +308,6 @@ private:
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/
 //extern VistaSystem * g_pVistaSystem;
-VISTAKERNELAPI VistaSystem * GetVistaSystem ();
+VISTAKERNELAPI VistaSystem * GetVistaSystem();
 
 #endif // _VISTASYSTEM_H

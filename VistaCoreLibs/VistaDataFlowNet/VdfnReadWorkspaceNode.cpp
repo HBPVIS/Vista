@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnReadWorkspaceNode.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VdfnReadWorkspaceNode.h"
 
@@ -151,11 +151,12 @@ IVdfnNode *VdfnReadWorkspaceNodeCreate::CreateNode(const VistaPropertyList &oPar
 	try
 	{
 		const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
-		std::string strDriverId = subs.GetStringValue("device_id");
-		if(strDriverId.empty())
+		std::string strDriverId;
+		std::string strWorkspaceToken;
+
+		if( subs.GetValue( "device_id", strDriverId ) == false )
 			return NULL;
-		std::string strWorkspaceToken = subs.GetStringValue("workspace");
-		if(strWorkspaceToken.empty())
+		if( subs.GetValue( "workspace", strWorkspaceToken ) == false )
 			return NULL;
 
 		IVistaDeviceDriver *pDriver = m_pMap->GetDeviceDriver( strDriverId );

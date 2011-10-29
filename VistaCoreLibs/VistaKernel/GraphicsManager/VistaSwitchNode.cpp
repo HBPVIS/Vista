@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaSwitchNode.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaKernel/GraphicsManager/VistaSwitchNode.h"
 #include "VistaKernel/GraphicsManager/VistaNodeBridge.h"
@@ -73,7 +73,7 @@ void VistaSwitchNode::Debug(std::ostream& out, int nLevel)
 	VistaGroupNode::Debug(out,nLevel);
 	for(int i=0; i<nLevel; i++)
 		out << "\t";
-	out << "|  Currently active child: " <<  GetActiveChild() << "\n";
+	out << "|  Currently active child: " <<  GetActiveChild() << "" << std::endl;
 }
 */
 // ============================================================================

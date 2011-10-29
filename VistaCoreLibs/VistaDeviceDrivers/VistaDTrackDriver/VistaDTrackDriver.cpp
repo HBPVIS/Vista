@@ -20,12 +20,9 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDTrackDriver.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 #include "VistaDTrackDriver.h"
-
-#include <VistaDeviceDriversBase/VistaDeviceDriversOut.h>
-
 
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverConnectionAspect.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverSensorMappingAspect.h>
@@ -40,6 +37,7 @@
 
 #include <VistaAspects/VistaAspectsUtils.h>
 #include <VistaBase/VistaTimeUtils.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <string>
 #include <iostream>
@@ -57,6 +55,7 @@ namespace
 class IVistaDTrackProtocol
 {
 public:
+	virtual ~IVistaDTrackProtocol() {}
 	virtual bool SendAttachString(VistaConnection *pCon) const = 0;
 	virtual bool SendDetachString(VistaConnection *pCon) const = 0;
 	virtual bool SendEnableString(VistaConnection *pCon) const = 0;
@@ -103,7 +102,8 @@ public:
 
 	virtual bool SendDisableString(VistaConnection *pCon) const
 	{
-		return (pCon->WriteRawBuffer("dtrack 32\0", 10)==10);
+		if( pCon->WriteRawBuffer("dtrack 32\0", 10)==10 == false )
+			return false;
 		VistaTimeUtils::Sleep(100);
 		return true;
 	}
@@ -255,7 +255,9 @@ public:
 		pDeSer->ReadDelimitedString(strFrameCnt, 0x0d);
 		VistaDTrackMeasures::sGlobalMeasure *m = (VistaDTrackMeasures::sGlobalMeasure*)&vecOut[0];
 
-		m->m_nFrameCount = int(VistaAspectsConversionStuff::ConvertToDouble(strFrameCnt));
+		double nRead;
+		VistaConversion::FromString( strFrameCnt, nRead );
+		m->m_nFrameCount = int( nRead );
 		return 1;
 	}
 
@@ -312,7 +314,7 @@ public:
 
 		int iLength = 1;
 		int iLen = 0; /**< measure length */
-		do
+		for(;;)
 		{
 			int iRead=0;
 			if((iRead=pDeSer->ReadRawBuffer((void*)&pcTmp[0], iLength))==iLength)
@@ -329,16 +331,18 @@ public:
 			}
 			else
 			{
-				vdderr << "Should read: " << iLength
-					<< ", but read: " << iRead << endl;
+				vstr::warnp() << "[DTrackDriver]: Should read: " << iLength
+							<< ", but read: " << iRead << endl;
 				break;
 			}
 		}
-		while(true);
 
 
 		// read off number of sensors read
-		unsigned int nNum = VistaAspectsConversionStuff::ConvertToInt(sString);
+		unsigned int nNum = 0;
+		if( VistaConversion::FromString( sString, nNum ) == false )
+			vstr::warnp() << "[DTrackDriver]: could not parse number of sensors ["
+						<< sString << "]" << std::endl;
 		nMarkerType = m_nMarkerType;
 		return nNum;
 
@@ -627,19 +631,19 @@ bool VistaDTrackDriver::DoSensorUpdate(VistaType::microtime dTs)
 
 	if(nRet == -1)
 	{
-		vddout << "GetCommandFailed()\n";
+		vstr::warnp() << "VistaDTrackDriver::DoSensorUpdate() -- GetCommand Failed" << std::endl;
 		return false;
 	}
 
 	if(bTimeout)
 	{
-		vddout << "Timeout()\n";
+		vstr::warnp() << "VistaDTrackDriver::DoSensorUpdate() -- Timeout" << std::endl;
 		return false;
 	}
 
  	//cout << "Read [" << nRet << "] bytes from connection\n";
 
-	(*m_pDeSerializer).SetBuffer((const char*)&m_vecPacketBuffer[0], nRet, false);
+	(*m_pDeSerializer).SetBuffer(&m_vecPacketBuffer[0], nRet, false);
 
 	VistaDriverLoggingAspect *pLog
 		= static_cast<VistaDriverLoggingAspect*>(
@@ -658,7 +662,7 @@ bool VistaDTrackDriver::DoSensorUpdate(VistaType::microtime dTs)
 		}
 
 		//cout << "L: " << strLine << endl;
-		(*m_pLine).SetBuffer(strLine.c_str(), (int)strLine.size(), false);
+		(*m_pLine).SetBuffer( (VistaType::byte*)strLine.c_str(), (int)strLine.size(), false);
 
 		std::string strType;
 		(*m_pLine).ReadDelimitedString(strType, ' ');
@@ -701,7 +705,7 @@ bool VistaDTrackDriver::DoSensorUpdate(VistaType::microtime dTs)
 					assert(pM);
 
 					unsigned int nIdx = 0;
-					int nSize = (*(*it).second).ReadAllBlocksWithOffset(m_pLine, (*pM).m_vecMeasures, nIdx);
+					(*(*it).second).ReadAllBlocksWithOffset(m_pLine, (*pM).m_vecMeasures, nIdx);
 					m_pHistoryAspect->MeasureStop(pSen);
 					pSen->SetUpdateTimeStamp(dTs);
 					bRet = true;
@@ -781,7 +785,7 @@ bool VistaDTrackDriver::DoSensorUpdate(VistaType::microtime dTs)
 							for(unsigned int l=0; l < nIdx; ++l)
 								m->m_anField[l] = dField[l];
 
-							int nSize = (*(*it).second).ReadAllBlocksWithOffset(m_pLine,
+							(*(*it).second).ReadAllBlocksWithOffset(m_pLine,
 															   (*pM).m_vecMeasures,
 															   nIdx);
 
@@ -807,7 +811,7 @@ bool VistaDTrackDriver::DoSensorUpdate(VistaType::microtime dTs)
 							// the rest of the string off and continue
 							VistaSensorMeasure::MEASUREVEC vSkip(32*sizeof(double));
 							unsigned int nIdx = 0;
-							int nSize = (*(*it).second).ReadAllBlocksWithOffset(m_pLine, vSkip, nIdx);
+							(*(*it).second).ReadAllBlocksWithOffset(m_pLine, vSkip, nIdx);
 							char c;
 							m_pLine->ReadRawBuffer(&c, sizeof(char));
 						}

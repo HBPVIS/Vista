@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDriverAbstractWindowAspect.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 #include "VistaDriverAbstractWindowAspect.h" 
 #include "VistaDeviceDriverAspectRegistry.h"
@@ -57,19 +57,19 @@ VistaDriverAbstractWindowAspect::~VistaDriverAbstractWindowAspect()
 /*============================================================================*/
 
 
-bool VistaDriverAbstractWindowAspect::AttachToWindow(WindowHandle *pWindow)
+bool VistaDriverAbstractWindowAspect::AttachToWindow( const WindowHandle& oWindow )
 {
 	if(!m_pTouchSeq)
 		return false;
 
-	return (*m_pTouchSeq).AttachSequence(pWindow);
+	return (*m_pTouchSeq).AttachSequence( oWindow );
 }
 
-bool VistaDriverAbstractWindowAspect::DetachFromWindow(WindowHandle *pWindow)
+bool VistaDriverAbstractWindowAspect::DetachFromWindow( const WindowHandle& oWindow )
 {
 	if(!m_pTouchSeq)
 		return false;
-	return (*m_pTouchSeq).DetachSequence(pWindow);
+	return (*m_pTouchSeq).DetachSequence( oWindow );
 }
 
 
@@ -99,12 +99,12 @@ VistaDriverAbstractWindowAspect::IVistaDriverAbstractWindowTouchSequence *VistaD
 	return m_pTouchSeq;
 }
 
-std::list<VistaDriverAbstractWindowAspect::WindowHandle*> VistaDriverAbstractWindowAspect::GetWindowList() const
+std::list<VistaDriverAbstractWindowAspect::WindowHandle> VistaDriverAbstractWindowAspect::GetWindowList() const
 {
 	if(m_pTouchSeq)
 		return (*m_pTouchSeq).GetWindowList();
 
-	return std::list<WindowHandle*>();
+	return std::list<WindowHandle>();
 }
 
 ///////////////////////////////////////////////////////////////////////////

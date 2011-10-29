@@ -1,5 +1,5 @@
 /*============================================================================*/
-/*                    ViSTA VR toolkit - OpenAL1.1 driver                  */
+/*                    ViSTA VR toolkit - OpenAL1.1 driver                     */
 /*               Copyright (c) 1997-2011 RWTH Aachen University               */
 /*============================================================================*/
 /*                                  License                                   */
@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaOpenALRecordDriver.h 5761 2011-01-17 19:46:22Z ingoassenmacher $
 
 #ifndef __VISTAOPENALRECORDDRIVER_H
 #define __VISTAOPENALRECORDDRIVER_H

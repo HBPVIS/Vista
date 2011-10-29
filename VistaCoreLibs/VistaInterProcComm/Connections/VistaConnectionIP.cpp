@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaConnectionIP.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #if defined(WIN32)
 #define _WINSOCKAPI_
@@ -36,14 +36,13 @@
 #include <VistaInterProcComm/IPNet/VistaUDPSocket.h>
 #include <VistaInterProcComm/IPNet/VistaIPAddress.h>
 #include <VistaInterProcComm/IPNet/VistaIPComm.h>
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
-
 #include <VistaInterProcComm/Concurrency/VistaThreadEvent.h>
 
 #if defined(VISTA_IPC_USE_EXCEPTIONS)
 #include <VistaBase/VistaExceptionBase.h>
 #endif
 #include <VistaAspects/VistaSerializingToolset.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <string>
 using namespace std;
@@ -443,7 +442,7 @@ int VistaConnectionIP::Receive (void *buffer, const int length, int iTimeout  )
 		if(GetProtocol() == CT_TCP && GetIsBlocking())
 		{
 			/* new behavior -> Receive returns iff iLen Bytes have been received*/
-			char* pTempBuffer = (char*) buffer;
+			VistaType::byte* pTempBuffer = (VistaType::byte*) buffer;
 			int iNumBytesRead = 0;
 			int iCurrentNum = 0;
 			int iBytesToRead = length;
@@ -456,10 +455,10 @@ int VistaConnectionIP::Receive (void *buffer, const int length, int iTimeout  )
 					// or socket exception!
 					/** @todo check if this conforms with the */
 					// application expectations!
-					vipcerr << "VistaConnectionIP::Receive("
+					vstr::errp() << "VistaConnectionIP::Receive("
 						<< length << ") -- received ["
 						<< iCurrentNum << "] after ["
-						<< iNumBytesRead << "]\n";
+						<< iNumBytesRead << "]" << std::endl;
 					return -1;
 				}
 
@@ -490,7 +489,6 @@ int VistaConnectionIP::Receive (void *buffer, const int length, int iTimeout  )
 			Close(); // clean exit
 			throw x; // rethrow
 		}
-		return -1;
 #else
 		if(!m_pSocket)
 			return -1;
@@ -520,7 +518,6 @@ int VistaConnectionIP::Send    (const void *buffer, const int length)
 		Close(); // clean exit
 		throw x; // rethrow
 	}
-	return -1;
 #endif
 }
 
@@ -724,7 +721,7 @@ int VistaConnectionIP::ReadRawBuffer(void *pBuffer, int iLen)
 	if(GetProtocol() == CT_TCP && GetIsBlocking())
 	{
 		/* new behavior -> ReadRawBuffer returns iff iLen Bytes have been received*/
-		char* pTempBuffer = (char*) pBuffer;
+		VistaType::byte* pTempBuffer = (VistaType::byte*) pBuffer;
 		int iNumBytesRead = 0;
 		int iCurrentNum = 0;
 		int iBytesToRead = iLen;
@@ -737,10 +734,10 @@ int VistaConnectionIP::ReadRawBuffer(void *pBuffer, int iLen)
 				// or socket exception!
 				/** @todo check if this conforms with the */
 				// application expectations!
-				vipcerr << "VistaConnectionIP::ReadRawBuffer("
+				vstr::errp() << "VistaConnectionIP::ReadRawBuffer("
 					<< iLen << ") -- received ["
 					<< iCurrentNum << "] after ["
-					<< iNumBytesRead << "]\n";
+					<< iNumBytesRead << "]" << std::endl;
 				return -1;
 			}
 

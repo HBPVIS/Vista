@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDriverForceFeedbackAspect.h 23044 2011-08-23 14:22:37Z dr165799 $
 
 #ifndef _VISTADRIVERFORCEFEEDBACKASPECT_H
 #define _VISTADRIVERFORCEFEEDBACKASPECT_H
@@ -249,6 +249,8 @@ public:
 							  const VistaQuaternion &qCurrentOrientation,
 							  VistaVector3D &v3ResultingForce,
 							  VistaVector3D &v3ResultingTorque);
+	// using base class' function to make alternate version of UpdateForce available
+	using IVistaDriverForceFeedbackAspect::IForceAlgorithm::UpdateForce;
 
 
 	/**
@@ -272,7 +274,6 @@ private:
 	// small helper to structure the memory layout of the history.
 	struct _sPlane
 	{
-		_sPlane() {}
 		float m_afPlaneOrigin[4],
 		      m_afPlaneNormal[4];
 		float m_afInternalForce[4];

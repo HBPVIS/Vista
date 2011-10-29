@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDfnNavigationNode.h 21645 2011-05-31 16:23:16Z dr165799 $
 
 #ifndef _VISTADFNNAVIGATIONNODE_H
 #define _VISTADFNNAVIGATIONNODE_H
@@ -60,14 +60,14 @@
  * @inport{navigation_mode,int,optional,navigation mode (0, 1, 2}
  * @inport{linear_velocity,float,optional,angular velocity in meters per second}
  * @inport{angular_velocity,float,optional,angular velocity in rad per soceond}
- * @outport{tramsform,VistaTransformMatrix,transformed ourput matrix}
+ * @outport{transform,VistaTransformMatrix,transformed ourput matrix}
  *
  * The Navigation Node allows a transform with input translation and rotation.
- * To be valid, the node needs al least the dt input and either tranlation or
+ * To be valid, the node needs at least the dt input and either translation or
  * rotation.
  * Linear and Angular Velocities specify the speed of the navigation and are
- * reached when the input translation has a magnitude of 1, and the input rotatiom
- * has a magnitude (rotationangle) of pi.
+ * reached when the input translation has a magnitude of 1, and the input rotation
+ * has a magnitude (rotation angle) of pi.
  * There are three different navigation modes available, which determine how
  * the rotation is applied:
  * mode 0 - Unconstrained rotation - rotation is not modified
@@ -76,7 +76,7 @@
  * mode 2 - LookAround Mode - Only Yaw and Pitch components are retained, and 
  *          all roll (rotation around x-axis) is removed. Thus, one can look
  *          around and up and down, but not "tilt" your head.
- *          Carefull: This node removes all roll from the full rotation, i.e.
+ *          Careful: This node removes all roll from the full rotation, i.e.
  *          it also removes any roll from the input transform. This is necessary
  *          To prevent roll sneaking in by accumulation of smaller rotations.
  *          This mode also prevents gimbal locks by constraining the maximum
@@ -108,7 +108,7 @@ protected:
 						   VistaTransformMatrix& matTransform );
 
 	/**
-	 * Helper functions that take the matric matTransform and rotate it
+	 * Helper functions that take the matrix matTransform and rotate it
 	 * by the rotation on the inport, scaled by angular velocity
 	 * and time difference, and applies the rotation to the input
 	 * matrix. The rotation is constraint differently in

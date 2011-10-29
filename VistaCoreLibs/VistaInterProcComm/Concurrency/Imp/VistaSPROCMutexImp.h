@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSPROCMutexImp.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #if defined(VISTA_THREADING_SPROC)
 
@@ -55,45 +55,16 @@
 
 class VistaSPROCMutexImp : public IVistaMutexImp
 {
-
 public:
-
-	/**
-	 *
-	 */
-	VistaSPROCMutexImp  (const std::string &sName, IVistaMutexImp::eScope nScope);
-
-	/**
-	 *
-	 */
+	VistaSPROCMutexImp(const std::string &sName, IVistaMutexImp::eScope nScope);
 	virtual ~VistaSPROCMutexImp ();
 
-
-	/**
-	 *
-	 */
-	virtual void Lock    ();
-
-	/**
-	 *
-	 */
-	virtual bool TryLock ();
-
-	/**
-	 *
-	 */
-	virtual void Unlock  ();
+	virtual void Lock();
+	virtual bool TryLock();
+	virtual void Unlock();
 
 private:
-
-	/**
-	 *
-	 */
 	static usptr_t *     irixArena;
-
-	/**
-	 *
-	 */
 	ulock_t              irixLock;
 };
 

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaSerializingToolset.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VistaSerializingToolset.h"
 #include <VistaBase/VistaBaseTypes.h>
@@ -48,50 +48,50 @@ VistaSerializingToolset::~VistaSerializingToolset()
 /*============================================================================*/
 void VistaSerializingToolset::Swap4( void* pBuffer )
 {
-  register unsigned char cTmp;
-  register unsigned char* pCharBuffer = (unsigned char*)pBuffer;
+	register VistaType::byte cTmp;
+	register VistaType::byte* pCharBuffer = reinterpret_cast<VistaType::byte*>( pBuffer );
 
-  cTmp = pCharBuffer[0]; 
-  pCharBuffer[0] = pCharBuffer[3];
-  pCharBuffer[3] = cTmp;
+	cTmp = pCharBuffer[0]; 
+	pCharBuffer[0] = pCharBuffer[3];
+	pCharBuffer[3] = cTmp;
 
-  cTmp = pCharBuffer[1];
-  pCharBuffer[1] = pCharBuffer[2];
-  pCharBuffer[2] = cTmp;
+	cTmp = pCharBuffer[1];
+	pCharBuffer[1] = pCharBuffer[2];
+	pCharBuffer[2] = cTmp;
 }
 ;
 
 void VistaSerializingToolset::Swap2( void* pBuffer )
 {
-  register unsigned char cTmp;
-  register unsigned char* pCharBuffer = (unsigned char*)pBuffer;
+	register VistaType::byte cTmp;
+	register VistaType::byte* pCharBuffer = reinterpret_cast<VistaType::byte*>( pBuffer );
 
-  cTmp = pCharBuffer[0];
-  pCharBuffer[0] = pCharBuffer[1];
-  pCharBuffer[1] = cTmp;
+	cTmp = pCharBuffer[0];
+	pCharBuffer[0] = pCharBuffer[1];
+	pCharBuffer[1] = cTmp;
 
 }
 
 void VistaSerializingToolset::Swap8( void* pBuffer )
 {
-  register unsigned char cTmp;
-  register unsigned char* pCharBuffer = (unsigned char*)pBuffer;
+	register VistaType::byte cTmp;
+	register VistaType::byte* pCharBuffer = reinterpret_cast<VistaType::byte*>( pBuffer );
 
-  cTmp  =pCharBuffer[0];
-  pCharBuffer[0] = pCharBuffer[7];
-  pCharBuffer[7] = cTmp;
+	cTmp  =pCharBuffer[0];
+	pCharBuffer[0] = pCharBuffer[7];
+	pCharBuffer[7] = cTmp;
 
-  cTmp = pCharBuffer[1];
-  pCharBuffer[1] = pCharBuffer[6];
-  pCharBuffer[6] = cTmp;
+	cTmp = pCharBuffer[1];
+	pCharBuffer[1] = pCharBuffer[6];
+	pCharBuffer[6] = cTmp;
 
-  cTmp = pCharBuffer[2];
-  pCharBuffer[2] = pCharBuffer[5];
-  pCharBuffer[5]  =cTmp;
+	cTmp = pCharBuffer[2];
+	pCharBuffer[2] = pCharBuffer[5];
+	pCharBuffer[5]  =cTmp;
 
-  cTmp = pCharBuffer[3];
-  pCharBuffer[3] = pCharBuffer[4];
-  pCharBuffer[4] = cTmp;
+	cTmp = pCharBuffer[3];
+	pCharBuffer[3] = pCharBuffer[4];
+	pCharBuffer[4] = cTmp;
 }
 
 VistaSerializingToolset::eEndianess VistaSerializingToolset::GetPlatformEndianess()
@@ -99,7 +99,7 @@ VistaSerializingToolset::eEndianess VistaSerializingToolset::GetPlatformEndianes
 	if(thisMachine == VST_NONEENDIAN)
 	{
 		VistaType::uint32 iVal = 0; // make sure this int is 32bit wide
-		unsigned char ucTmp[4]; // 32bit == 4 byte, unsigned, please
+		VistaType::byte ucTmp[4]; // 32bit == 4 byte, unsigned, please
 		ucTmp[0] = 1; // set the first one to 1
 		ucTmp[1] = ucTmp[2] = ucTmp[3] = 0; // set all others to 0
 
@@ -150,7 +150,7 @@ void VistaSerializingToolset::Swap( void* pBuffer, int iLength )
 			{
 				Swap( pBuffer, 2, iLength/2 );
 			}
-		break;
+			break;
 		}
 	}
 }
@@ -174,18 +174,18 @@ void VistaSerializingToolset::Swap( void* pBuffer, int iLength, int iCount )
 		return;
 	}
 
-	unsigned char *pc = (unsigned char*) pBuffer;
+	VistaType::byte* pc = reinterpret_cast<VistaType::byte*>( pBuffer );
 	for( int j = 0; j < iCount; ++j )
 	{
 		pSwapFunc(pc);
 		pc += iLength;
 	}
 #else
-	unsigned char *pc = (unsigned char*)pBuffer;
+	VistaType::byte* pc = reinterpret_cast<VistaType::byte*>( pBuffer );
 	for(int j=0; j < iCount; ++j)
 	{
 		Swap(pc, iLength);
-//        iCount += iLength;
+		//        iCount += iLength;
 		pc += iLength;
 	}
 #endif

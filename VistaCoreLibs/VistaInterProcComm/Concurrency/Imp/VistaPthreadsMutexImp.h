@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPthreadsMutexImp.h 22873 2011-08-08 10:48:52Z dr165799 $
 
 #if defined(VISTA_THREADING_POSIX)
 
@@ -51,52 +51,20 @@
 /*============================================================================*/
 
 
-/**
- *
- */
 class VistaPthreadsMutexImp : public IVistaMutexImp
 {
-
 public:
-
-	/**
-	 *
-	 */
-	VistaPthreadsMutexImp  (const std::string &sName, const IVistaMutexImp::eScope nScope);
-
-	/**
-	 *
-	 */
+	VistaPthreadsMutexImp(const std::string &sName, const IVistaMutexImp::eScope nScope);
 	virtual ~VistaPthreadsMutexImp ();
 
-
-	/**
-	 *
-	 */
 	virtual void Lock    ();
-
-	/**
-	 *
-	 */
 	virtual bool TryLock ();
-
-	/**
-	 *
-	 */
 	virtual void Unlock  ();
 
 	pthread_mutex_t *GetPthreadMutex() { return pPosixMutex; };
 
 private:
-
-	/**
-	 *
-	 */
 	pthread_mutex_t*     pPosixMutex;
-
-	/**
-	 *
-	 */
 	pthread_mutexattr_t  posixMutexAttr;
 	int m_sharedMem_fd;
 };

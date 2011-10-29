@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaTickTimerEvent.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaTickTimerEvent.h"
 
@@ -70,6 +70,6 @@ void VistaTickTimerEvent::SetTypeId(int nId)
 
 void VistaTickTimerEvent::SetTickEventTime( double dTime )
 {
-	m_dTime = dTime;
+	m_nTime = dTime;
 }
 

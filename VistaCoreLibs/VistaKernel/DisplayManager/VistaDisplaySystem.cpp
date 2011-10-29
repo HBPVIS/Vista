@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDisplaySystem.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaDisplaySystem.h"
 #include "VistaDisplayManager.h"
@@ -102,7 +102,7 @@ VistaVirtualPlatform *VistaDisplaySystem::GetReferenceFrame() const
 /*============================================================================*/
 unsigned int VistaDisplaySystem::GetNumberOfViewports() const
 {
-	return m_vecViewports.size();
+	return (unsigned int)m_vecViewports.size();
 }
 
 /*============================================================================*/
@@ -114,8 +114,7 @@ std::list<std::string> VistaDisplaySystem::GetViewportNames() const
 {
 	list<string> liNames;
 
-	int i, iViewportCount = m_vecViewports.size();
-	for (i=0; i<iViewportCount; ++i)
+	for( int i = 0; i < (int)m_vecViewports.size(); ++i )
 	{
 		liNames.push_back(m_vecViewports[i]->GetNameForNameable());
 	}
@@ -129,7 +128,7 @@ std::list<std::string> VistaDisplaySystem::GetViewportNames() const
 /*============================================================================*/
 VistaViewport *VistaDisplaySystem::GetViewport(unsigned int iIndex) const
 {
-	if (0<=iIndex && iIndex<m_vecViewports.size())
+	if( iIndex < m_vecViewports.size() )
 		return m_vecViewports[iIndex];
 	return NULL;
 }
@@ -155,27 +154,27 @@ void VistaDisplaySystem::Debug(std::ostream &out) const
 
 	VistaVector3D v3Temp, v3Temp2;
 	GetDisplaySystemProperties()->GetViewerPosition(v3Temp);
-	out << " [VistaDisplaySystem] - viewer position:    " << v3Temp << endl;
+	out << " [VistaDisplaySystem] - viewer position:    " << v3Temp << std::endl;
 
 	VistaQuaternion qTemp;
 	GetDisplaySystemProperties()->GetViewerOrientation(qTemp);
-	out << " [VistaDisplaySystem] - viewer orientation: " << qTemp << endl;
+	out << " [VistaDisplaySystem] - viewer orientation: " << qTemp << std::endl;
 
 	GetDisplaySystemProperties()->GetEyeOffsets(v3Temp, v3Temp2);
-	out << " [VistaDisplaySystem] - left eye offset:    " << v3Temp << endl;
-	out << " [VistaDisplaySystem] - right eye offset:   " << v3Temp2 << endl;
+	out << " [VistaDisplaySystem] - left eye offset:    " << v3Temp << std::endl;
+	out << " [VistaDisplaySystem] - right eye offset:   " << v3Temp2 << std::endl;
 
-//    out << " [VistaDisplaySystem] - display manager:    " << m_pDisplayManager << endl;
+//    out << " [VistaDisplaySystem] - display manager:    " << m_pDisplayManager << std::endl;
 
 	out << " [VistaDisplaySystem] - ref. frame name:    ";
 	if (m_pPlatform)
-		out << m_pPlatform->GetNameForNameable() << endl;
+		out << m_pPlatform->GetNameForNameable() << std::endl;
 	else
-		out << "*none* (no reference frame given)" << endl;
+		out << "*none* (no reference frame given)" << std::endl;
 	out << " [VistaDisplaySystem] - local viewer:       "
-		<< (GetDisplaySystemProperties()->GetLocalViewer()?"true":"false") << endl;
+		<< (GetDisplaySystemProperties()->GetLocalViewer()?"true":"false") << std::endl;
 
-	out << " [VistaDisplaySystem] - viewports:          " << m_vecViewports.size() << endl;
+	out << " [VistaDisplaySystem] - viewports:          " << m_vecViewports.size() << std::endl;
 
 	if (m_vecViewports.size())
 	{
@@ -187,11 +186,11 @@ void VistaDisplaySystem::Debug(std::ostream &out) const
 				out << ", ";
 			out << m_vecViewports[i]->GetNameForNameable();
 		}
-		out << endl;
+		out << std::endl;
 	}
 
 	if (m_pPlatform)
-		out << " [VistaDisplaySystem] - reference frame data: " << endl;
+		out << " [VistaDisplaySystem] - reference frame data: " << std::endl;
 	out << (*m_pPlatform);
 }
 
@@ -346,34 +345,32 @@ namespace {
 
 	IVistaPropertySetFunctor *aCsFunctors[] =
 	{
-		new TVistaProperty3ValSet<float, VistaDisplaySystem::VistaDisplaySystemProperties>
-		("VIEWER_POSITION", sSReflectionType,
-		 &VistaDisplaySystem::VistaDisplaySystemProperties::SetViewerPosition,
-		 &VistaAspectsConversionStuff::ConvertStringTo3Float),
-		new TVistaProperty4ValSet<float, VistaDisplaySystem::VistaDisplaySystemProperties>
-		("VIEWER_ORIENTATION", sSReflectionType,
-		 &VistaDisplaySystem::VistaDisplaySystemProperties::SetViewerOrientation,
-		 &VistaAspectsConversionStuff::ConvertStringTo4Float),
-		new TVistaProperty3ValSet<float, VistaDisplaySystem::VistaDisplaySystemProperties>
-		("LEFT_EYE_OFFSET", sSReflectionType,
-		 &VistaDisplaySystem::VistaDisplaySystemProperties::SetLeftEyeOffset,
-		 &VistaAspectsConversionStuff::ConvertStringTo3Float),
-		new TVistaProperty3ValSet<float, VistaDisplaySystem::VistaDisplaySystemProperties>
-		("RIGHT_EYE_OFFSET", sSReflectionType,
-		 &VistaDisplaySystem::VistaDisplaySystemProperties::SetRightEyeOffset,
-		 &VistaAspectsConversionStuff::ConvertStringTo3Float),
-		new TVistaPropertySet<bool, bool, VistaDisplaySystem::VistaDisplaySystemProperties>
-		("LOCAL_VIEWER", sSReflectionType,
-		 &VistaDisplaySystem::VistaDisplaySystemProperties::SetLocalViewer,
-		 &VistaAspectsConversionStuff::ConvertToBool),
-		new TVistaPropertySet<bool, bool, VistaDisplaySystem::VistaDisplaySystemProperties>
-		("HMD_MODE", sSReflectionType,
-		 &VistaDisplaySystem::VistaDisplaySystemProperties::SetHMDModeActive,
-		 &VistaAspectsConversionStuff::ConvertToBool),
-		new TVistaPropertySet<const string &, string,VistaDisplaySystem::VistaDisplaySystemProperties>
-		("NAME", sSReflectionType,
-		 &VistaDisplaySystem::VistaDisplaySystemProperties::SetName,
-		 &VistaAspectsConversionStuff::ConvertToString),
+		new TVistaPropertySet<const VistaVector3D&, VistaVector3D, 
+				VistaDisplaySystem::VistaDisplaySystemProperties>(
+						"VIEWER_POSITION", sSReflectionType,
+						&VistaDisplaySystem::VistaDisplaySystemProperties::SetViewerPosition ),
+		new TVistaPropertySet<const VistaQuaternion&, VistaQuaternion,
+				VistaDisplaySystem::VistaDisplaySystemProperties>(
+						"VIEWER_ORIENTATION", sSReflectionType,
+						&VistaDisplaySystem::VistaDisplaySystemProperties::SetViewerOrientation ),
+		new TVistaProperty3ValSet<float, VistaDisplaySystem::VistaDisplaySystemProperties>(
+						"LEFT_EYE_OFFSET", sSReflectionType,
+						&VistaDisplaySystem::VistaDisplaySystemProperties::SetLeftEyeOffset),
+		new TVistaProperty3ValSet<float, VistaDisplaySystem::VistaDisplaySystemProperties>(
+						"RIGHT_EYE_OFFSET", sSReflectionType,
+						&VistaDisplaySystem::VistaDisplaySystemProperties::SetRightEyeOffset ),
+		new TVistaPropertySet<bool, bool, 
+				VistaDisplaySystem::VistaDisplaySystemProperties>(
+						"LOCAL_VIEWER", sSReflectionType,
+						&VistaDisplaySystem::VistaDisplaySystemProperties::SetLocalViewer ),
+		new TVistaPropertySet<bool, bool, 
+				VistaDisplaySystem::VistaDisplaySystemProperties>(
+						"HMD_MODE", sSReflectionType,
+						&VistaDisplaySystem::VistaDisplaySystemProperties::SetHMDModeActive ),
+		new TVistaPropertySet<const string &, string,
+				VistaDisplaySystem::VistaDisplaySystemProperties>(
+						"NAME", sSReflectionType,
+						&VistaDisplaySystem::VistaDisplaySystemProperties::SetName ),
 		NULL
 	};
 }

@@ -23,6 +23,8 @@
 // $Id: VistaOpenSGParticles.cpp$
 
 #if defined(WIN32)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4189)
 #pragma warning(disable: 4275)
 #pragma warning(disable: 4267)
 #pragma warning(disable: 4251)
@@ -32,12 +34,17 @@
 #include "VistaOpenSGParticles.h"
 
 #include <VistaBase/VistaVersion.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaGroupNode.h>
 #include <VistaKernel/GraphicsManager/VistaExtensionNode.h>
 #include <VistaKernel/GraphicsManager/VistaOpenGLNode.h>
 #include <VistaKernel/GraphicsManager/VistaOpenGLDraw.h>
 #include <VistaKernel/OpenSG/VistaOpenSGNodeBridge.h>
+
+#include <VistaTools/VistaFileSystemFile.h>
+
+#include <VistaBase/VistaStreamUtils.h>
+#include <VistaBase/VistaExceptionBase.h>
 
 #include <OpenSG/OSGNode.h>
 #include <OpenSG/OSGParticles.h>
@@ -54,8 +61,6 @@
 #include <OpenSG/OSGSimpleTexturedMaterialBase.h>
 #include <OpenSG/OSGSHLChunk.h>
 
-#include "VistaKernelOpenSGExtOut.h"
-
 using namespace osg;
 
 
@@ -71,7 +76,7 @@ struct VistaOpenSGParticlesData
 
 	SHLChunkPtr	  mSHLChunk; //for shader quads
 	SimpleTexturedMaterialPtr mParticleTexture; //for shader quads
-	VistaOpenSGParticlesData(ParticlesPtr ptr, const bool &bWithAlpha = false)
+	VistaOpenSGParticlesData(ParticlesPtr ptr, const bool bWithAlpha = false)
 		: ptrParticles(ptr)
 		, pPositionsField(NULL)
 		, pSecPositionsField(NULL)
@@ -117,7 +122,7 @@ struct VistaOpenSGParticlesData
 	}
 
 	bool GetHasAlpha() const {return bHasAlpha;}
-	void SetHasAlpha(const bool &state)
+	void SetHasAlpha(const bool state)
 	{
 		if(state == GetHasAlpha())
 			return;
@@ -146,7 +151,7 @@ struct VistaOpenSGParticlesData
 	}
 };
 
-VistaOpenSGParticles::VistaOpenSGParticles(VistaSG *pSG,
+VistaOpenSGParticles::VistaOpenSGParticles(VistaSceneGraph *pSG,
 						VistaGroupNode *pParentNode,
 						int eParticleMode )
 : m_pParticleNode(NULL)
@@ -191,24 +196,25 @@ void VistaOpenSGParticles::EndEdit() const
 	endEditCP(m_pData->ptrParticles);
 }
 
-void VistaOpenSGParticles::SetColorsWithAlpha(const bool &bWithAlpha) const
+void VistaOpenSGParticles::SetColorsWithAlpha(const bool bWithAlpha) const
 {
 	m_pData->SetHasAlpha(bWithAlpha);
 }
 
-void VistaOpenSGParticles::SetNumParticles(const int &sz, const bool &useSeparateColors, const bool &useSeparateSizes) const
+void VistaOpenSGParticles::SetNumParticles( const int nSize, const bool bUseSeparateColors,
+										   const bool bUseSeparateSizes ) const
 {
 	BeginEdit();
-	m_pData->pPositionsField->resize(sz, Pnt3f  (0, 0, 0));
+	m_pData->pPositionsField->resize(nSize, Pnt3f  (0, 0, 0));
 	//if( m_eParticleMode == PM_VIEWERQUADS ) I THINK I NEED THIS ALWAYS ...
-		m_pData->pSecPositionsField->resize(sz, Pnt3f  (0, 0, 0));
+		m_pData->pSecPositionsField->resize(nSize, Pnt3f  (0, 0, 0));
 
 	if(m_pData->GetHasAlpha())
-		m_pData->pColors4Field   ->resize(useSeparateColors ? sz : 1, Color4f(1.0f, 1.0f, 1.0f, 1.0f));
+		m_pData->pColors4Field   ->resize(bUseSeparateColors ? nSize : 1, Color4f(1.0f, 1.0f, 1.0f, 1.0f));
 	else
-		m_pData->pColors3Field   ->resize(useSeparateColors ? sz : 1, Color3f(1.0f, 1.0f, 1.0f));
+		m_pData->pColors3Field   ->resize(bUseSeparateColors ? nSize : 1, Color3f(1.0f, 1.0f, 1.0f));
 
-	m_pData->pSizesField    ->resize(useSeparateSizes  ? sz : 1, Vec3f  (1.0f, 1.0f, 1.0f));
+	m_pData->pSizesField    ->resize(bUseSeparateSizes  ? nSize : 1, Vec3f  (1.0f, 1.0f, 1.0f));
 	EndEdit();
 }
 
@@ -375,7 +381,7 @@ void VistaOpenSGParticles::SetUseGaussBlobTexture(const int &size, const float &
 
 void VistaOpenSGParticles::SetMaterialTransparency(const float &a)	const
 {
-	vosgexterr << "[VistaOpenSGParticles::SetMaterialTransparency]: Not implemented yet" << std::endl;
+	VISTA_THROW_NOT_IMPLEMENTED
 	//ChunkMaterialPtr ptrChMat	= ChunkMaterialPtr::dcast
 	//	(m_pData->ptrParticles->getMaterial());
 	//assert(ptrChMat);
@@ -458,9 +464,15 @@ void VistaOpenSGParticles::SetDrawOrder(const VistaOpenSGParticles::eDrawOrder &
 	endEditCP  (m_pData->ptrParticles, Particles::DrawOrderFieldMask);
 }
 
-void VistaOpenSGParticles::SetUseSpriteImage(const std::string &strFileName)  const
+bool VistaOpenSGParticles::SetUseSpriteImage(const std::string &strFileName)  const
 {
-
+	VistaFileSystemFile oFile( strFileName );
+	if( oFile.Exists() == false )
+	{
+		vstr::warnp() << "VistaOpenSGParticles::SetUseSpriteImage() -- "
+			<< "File [" << strFileName << "] does not exist!" << std::endl;
+		return false;
+	}
 	if (m_pData->ptrParticles->getMode() == Particles::ShaderQuads)
 	{
 		SetNormal();
@@ -475,6 +487,7 @@ void VistaOpenSGParticles::SetUseSpriteImage(const std::string &strFileName)  co
 					ImageFileHandler::the().read(strFileName.c_str())));
 		endEditCP  (m_pData->ptrParticles,  Particles::MaterialFieldMask);
 	}
+	return true;
 }
 
 void VistaOpenSGParticles::SetMode(const int &mode)

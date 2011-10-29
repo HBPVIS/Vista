@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaStreamManagerExt.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VistaStreamManagerExt.h"
 
@@ -29,8 +29,8 @@
 #include <VistaKernel/VistaSystem.h>
 #include <VistaKernel/EventManager/VistaSystemEvent.h>
 #include <VistaKernel/EventManager/VistaEventManager.h>
-#include <VistaKernel/VistaClusterAux.h>
-#include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
+#include <VistaKernel/Cluster/VistaClusterMode.h>
+#include <VistaKernel/VistaFrameLoop.h>
 
 #include <algorithm>
 
@@ -61,19 +61,18 @@ VistaType::systemtime VistaKernelStreamInfoInterface::GetFrameClock() const
 
 std::string VistaKernelStreamInfoInterface::GetNodeName() const
 {
-	return m_pVistaSystem->GetClusterAux()->GetNodeName();
+	return m_pVistaSystem->GetClusterMode()->GetNodeName();
 }
 
 unsigned int VistaKernelStreamInfoInterface::GetFrameCount() const
 {
-	return m_pVistaSystem->GetGraphicsManager()->GetFrameCount();
+	return m_pVistaSystem->GetFrameLoop()->GetFrameCount();
 }
 
 float VistaKernelStreamInfoInterface::GetFrameRate() const
 {
-	return m_pVistaSystem->GetGraphicsManager()->GetFrameRate();
+	return m_pVistaSystem->GetFrameLoop()->GetFrameRate();
 }
-
 
 
 /*============================================================================*/

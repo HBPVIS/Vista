@@ -20,13 +20,16 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaNode.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include <VistaKernel/GraphicsManager/VistaNode.h>
 #include <VistaKernel/GraphicsManager/VistaGroupNode.h>
 #include <VistaKernel/GraphicsManager/VistaNodeBridge.h>
 
-#include <VistaAspects/VistaAspectsUtils.h>
+
+#include <VistaAspects/VistaConversion.h>
+#include <VistaMath/VistaBoundingBox.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <cassert>
 //#include <iostream.h>
@@ -78,7 +81,7 @@ VistaNode& VistaNode::operator=(const VistaNode&)
 
 VistaNode::~VistaNode()
 {
-  //  cout << "VistaNode::~VistaNode() @ " << this << "[" << GetName() << "]" << endl;
+  //  cout << "VistaNode::~VistaNode() @ " << this << "[" << GetName() << "]" << std::endl;
 	if(m_pParent)
 		m_pParent->DisconnectChild(this); // remove me
 	delete m_pData;
@@ -142,8 +145,9 @@ void VistaNode::SetIsEnabled(bool bEnable)
 void VistaNode::Debug(std::ostream& out, int nLevel) const
 {
 	//Indent line
+	out << vstr::indent;
 	for(int j=0; j<nLevel; j++)
-		out << "\t";
+		out << "  ";
 	out << "|--";
 	out << "Level " << nLevel << ": " ;
 	//Write type
@@ -196,7 +200,7 @@ void VistaNode::Debug(std::ostream& out, int nLevel) const
 			out << "VistaTextNode::";
 			break;
 		default:
-			out << "<###>--[" << VistaAspectsConversionStuff::ConvertToString(typ)
+			out << "<###>--[" << VistaConversion::ToString(typ)
 				 << "]::";
 			break;
 		break;
@@ -214,7 +218,25 @@ void VistaNode::Debug(std::ostream& out, int nLevel) const
 		out << " [ENABLED]";
 	else
 		out << " [DISABLED]";
+
 	out << std::endl;
+
+	if( CanHaveChildren() == false )
+	{
+		VistaVector3D v3Position;
+		GetWorldPosition( v3Position );
+		VistaVector3D v3Min, v3Max;
+		GetBoundingBox( v3Min, v3Max );
+		out << vstr::indent;
+		for(int j=0; j<nLevel; j++)
+			out << "  ";
+		out << "   Leaf Position: "
+			<< v3Position
+			<< " - BoundingBox: ( "
+			<< v3Min[0] << ", " << v3Min[1] << ", " << v3Min[2] << " ) - ( "
+			<< v3Max[0] << ", " << v3Max[1] << ", " << v3Max[2] << " )" << std::endl;
+	}
+	
 }
 
 /*============================================================================*/
@@ -276,7 +298,7 @@ bool VistaNode::GetScale( VistaVector3D& v3Scale ) const
 	// this will fail if the matrix contains a shearing component!
 	if( matTransform.Decompose( v3Translation, qRot, v3Scale ) == false )
 	{
-		std::cerr << "[VistaNode::GetScale]: Trying to retrieve non-uniform, sheared scale!" << std::endl;
+		vstr::warnp() << "[VistaNode::GetScale]: Trying to retrieve non-uniform, sheared scale!" << std::endl;
 		return false;
 	}
 	return true;
@@ -292,7 +314,7 @@ bool VistaNode::GetWorldScale( VistaVector3D& v3Scale ) const
 	// this will fail if the matrix contains a shearing component!
 	if( matTransform.Decompose( v3Translation, qRot, v3Scale ) == false )
 	{
-		std::cerr << "[VistaNode::GetWorldScale]: Trying to retrieve non-uniform, sheared scale!" << std::endl;
+		vstr::warnp() << "[VistaNode::GetWorldScale]: Trying to retrieve non-uniform, sheared scale!" << std::endl;
 		return false;
 	}
 	return true;

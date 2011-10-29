@@ -20,11 +20,9 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaFastrakDriver.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 #include "VistaFastrakDriver.h"
-
-#include <VistaDeviceDriversBase/VistaDeviceDriversOut.h>
 
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverConnectionAspect.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverSensorMappingAspect.h>
@@ -38,7 +36,7 @@
 
 #include <VistaBase/VistaExceptionBase.h>
 #include <VistaBase/VistaTimeUtils.h>
-
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <cstring>
 #include <cstdio>
@@ -255,11 +253,11 @@ public:
 
 			std::string strAnswer;
 			pCon->ReadDelimitedString( strAnswer, 0x0A ); // liberty resets
-			vddout << strAnswer << std::endl;
+			//vstr::outi() << strAnswer << std::endl;
 			pCon->ReadDelimitedString( strAnswer, 0x0A ); // gives an endline
-			vddout << strAnswer << std::endl;
+			//vstr::outi() << strAnswer << std::endl;
 			pCon->ReadDelimitedString( strAnswer, 0x0A ); // says 'liberty restarted'
-			vddout << strAnswer << std::endl;
+			//vstr::outi() << strAnswer << std::endl;
 
 
 			// wait a sec to let the device reset
@@ -285,7 +283,7 @@ public:
 	virtual bool CmdSetPosQuaternionMode()
 	{
 		char buffer[32];
-		sprintf(buffer,"O*,2,7,10,8,9,10,11,1%c\0", 0x0D);
+		sprintf(buffer,"O*,2,7,10,8,9,10,11,1%c", 0x0D);
 		m_pConnection->SendCommand( 0, buffer, (unsigned int)strlen(buffer), 150 );
 
 		if(m_pConnection->GetConnection()->HasPendingData())
@@ -293,7 +291,7 @@ public:
 			// ? error ?
 			std::string sResp;
 			m_pConnection->GetConnection()->ReadDelimitedString( sResp, 0x0A );
-			vddout << sResp << std::endl;
+			vstr::outi() << sResp << std::endl;
 		}
 		return true;
 	}
@@ -373,7 +371,6 @@ public:
 
 	virtual bool CmdSetHemisphere(unsigned int iUnit, float x , float y , float z )
 	{
-		VistaConnection *pCon = m_pConnection->GetConnection(0);
 		char data[25];
 		sprintf(data, "H%d,%+2.3f,%+2.3f,%+2.3f%c", iUnit, x, y, z, 0x0d);
 		return m_pConnection->SendCommand( 0, data, (unsigned int)strlen(data), 100 );
@@ -565,11 +562,11 @@ public:
 			{
 				std::string strAnswer;
 				pCon->ReadDelimitedString( strAnswer, 0x0A ); // liberty resets
-				vddout << "answer : " << strAnswer << std::endl;
+				//vstr::outi() << "answer : " << strAnswer << std::endl;
 				pCon->ReadDelimitedString( strAnswer, 0x0A ); // gives an endline
-				vddout << "answer : " << strAnswer << std::endl;
+				//vstr::outi() << "answer : " << strAnswer << std::endl;
 				pCon->ReadDelimitedString( strAnswer, 0x0A ); // says 'liberty restarted'
-				vddout << "answer : " << strAnswer << std::endl;
+				//vstr::outi() << "answer : " << strAnswer << std::endl;
 
 				// wait a sec to let the device reset
 				//VistaTimeUtils::Sleep(1000);
@@ -583,7 +580,7 @@ public:
 					// ok, we should be in ASCII mode
 					// get the device information to set up the device
 					std::string strAnswer = GetDeviceInfoString(m_vecInfoStrings);
-					vddout << strAnswer << std::endl;
+					//vstr::outi() << strAnswer << std::endl;
 
 				}
 
@@ -591,12 +588,12 @@ public:
 				data[1] = '3'; // set to 120Hz output
 				if(m_pConnection->SendCommand( 0, data, 3, 150 ))
 				{
-					vddout << "switched to 120Hz update rate.\n";
+					vstr::outi() << "[FastrackDriver]: switched to 120Hz update rate." << std::endl;
 				}
 
 				if(CmdEnableMetricMode())
 				{
-					vddout << "switched to metric mode\n";
+					vstr::outi() << "[FastrackDriver]: switched to metric mode" << std::endl;
 				}
 
 				long nMask = CmdGetStationsMask();
@@ -606,7 +603,7 @@ public:
 					if( nMask & (1<<n) )
 						++m_lStations;
 				}
-				vddout << "this device has " << m_lStations << " stations.\n";
+				vstr::outi() << "[FastrackDriver]: this device has " << m_lStations << " stations" << std::endl;
 
 				nMask = CmdGetActiveStationMask();
 				m_lActiveStations = 0;
@@ -616,7 +613,7 @@ public:
 						++m_lActiveStations;
 				}
 
-				vddout << "this device has " << m_lActiveStations << " active stations.\n";
+				vstr::outi() << "[FastrackDriver]:this device has " << m_lActiveStations << " active stations" << std::endl;
 
 				CmdSetPosQuaternionMode();
 
@@ -639,9 +636,9 @@ public:
 				//VistaEulerAngles euang(0,0,0);
 				//if(m_pRefFrame->GetEmitterAlignment(euang))
 				//{
-				//	std::cout << "Set RefFrame to: a[" << VistaRadToDeg(euang.a)
+				//	vstr::outi() << "Set RefFrame to: a[" << VistaRadToDeg(euang.a)
 				//		      << "] ; e[" << VistaRadToDeg(euang.b)
-				//			  << "] ; r[" << VistaRadToDeg(euang.c) << "]\n";
+				//			  << "] ; r[" << VistaRadToDeg(euang.c) << "]" << std::endl;
 				//	CmdSetSourceMountingFrame( VistaRadToDeg(euang.a),
 				//		                       VistaRadToDeg(euang.b),
 				//							   VistaRadToDeg(euang.c) );
@@ -681,8 +678,7 @@ public:
 		char dTmp;
 		while(m_pConnection->GetConnection()->HasPendingData())
 		{
-			m_pConnection->GetCommand(0, &dTmp, sizeof(char) );
-			//std::cout << dTmp << std::endl;
+			m_pConnection->GetCommand(0, &dTmp, sizeof(char) );		
 		}
 	}
 
@@ -723,12 +719,12 @@ public:
 	{
 		if(oTag.m_strProtocolName == "FASTRAK")
 		{
-			vdderr << "Protocol [FASTRAK] known, but not supported...\n";
+			vstr::errp() << "[FastrackDriver]: Protocol [FASTRAK] known, but not supported" << std::endl; 
 			return false;
 		}
 		else if(oTag.m_strProtocolName == "LIBERTY")
 		{
-			vddout << "Fastrak using the LIBERTY protocol.\n";
+			vstr::outi() << "[FastrackDriver]: Using the LIBERTY protocol" << std::endl;
 			VistaDriverConnectionAspect *pConAsp
 				= dynamic_cast<VistaDriverConnectionAspect*>(
 				     m_pDriver->GetAspectById(
@@ -745,7 +741,7 @@ public:
 		}
 		else if(oTag.m_strProtocolName == "PATRIOT")
 		{
-			vdderr << "Protocol [LIBERTY] known, but not supported...\n";
+			vstr::errp() << "[FastrackDriver]: Protocol [PATRIOT] known, but not supported" << std::endl;
 			return false;
 		}
 
@@ -1079,7 +1075,7 @@ bool VistaFastrakDriver::Connect()
 		return false; // no connection, no fun...
 
 	// switch to blocking i/o
-	vddout << pCon->PendingDataSize() << std::endl;
+	//vstr::outi() << pCon->PendingDataSize() << std::endl;
 
 	pCon->SetIsBlocking(true);
 	bool bRet = true;
@@ -1097,7 +1093,7 @@ bool VistaFastrakDriver::Connect()
 			for( std::vector<std::string>::const_iterator cit = strInfoStrings.begin();
 				cit != strInfoStrings.end(); ++cit )
 			{
-				props.SetStringValue(VistaAspectsConversionStuff::ConvertToString( n++ ), *cit);
+				props.SetValue( VistaConversion::ToString( n++ ), *cit );
 			}
 
 

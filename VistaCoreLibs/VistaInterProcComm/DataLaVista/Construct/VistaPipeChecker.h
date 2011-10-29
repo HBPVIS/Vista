@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPipeChecker.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef IDLVISTAPIPECHECKER_H
 #define IDLVISTAPIPECHECKER_H
@@ -48,22 +48,8 @@ class IDLVistaRegistration;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI DLVistaPipeChecker
 {
-private:
-
-	IDLVistaRegistration *m_pPacketRegistration;
-protected:
-
-	DLVistaCheckError CheckInboundReference(IDLVistaPipeComponent *pComp) const;
-	DLVistaCheckError CheckOutboundReference(IDLVistaPipeComponent *pComp) const;
-
-	DLVistaCheckError CheckPacketIntegrity(IDLVistaPipeComponent *pIn, IDLVistaPipeComponent *pOut) const;
-
-	DLVistaCheckError CheckReachability(IDLVistaPipeComponent *pBegin, IDLVistaPipeComponent *pEnd) const;
 public:
 	DLVistaPipeChecker();
 	/**
@@ -77,7 +63,17 @@ public:
 	 */
 	virtual DLVistaCheckError CheckPipe(IDLVistaPipeComponent *pBeginning, IDLVistaPipeComponent *pEnd) const;
 
+protected:
 
+	DLVistaCheckError CheckInboundReference(IDLVistaPipeComponent *pComp) const;
+	DLVistaCheckError CheckOutboundReference(IDLVistaPipeComponent *pComp) const;
+
+	DLVistaCheckError CheckPacketIntegrity(IDLVistaPipeComponent *pIn, IDLVistaPipeComponent *pOut) const;
+
+	DLVistaCheckError CheckReachability(IDLVistaPipeComponent *pBegin, IDLVistaPipeComponent *pEnd) const;
+
+private:
+	IDLVistaRegistration *m_pPacketRegistration;
 };
 
 

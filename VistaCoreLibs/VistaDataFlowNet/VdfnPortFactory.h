@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnPortFactory.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VDFNPORTFACTORY_H
 #define _VDFNPORTFACTORY_H
@@ -75,6 +75,8 @@ public:
 	class VISTADFNAPI CPortCreationMethod
 	{
 	public:
+		virtual ~CPortCreationMethod() {}
+
 		/**
 		 * unconditional and no parameters. subclass and register.
 		 * @return a port of a proper type
@@ -88,6 +90,7 @@ public:
 	class VISTADFNAPI CPortTypeCompareCreationMethod
 	{
 	public:
+		virtual ~CPortTypeCompareCreationMethod() {}
 		/**
 		 * unconditional and no parameters. subclass and register.
 		 * @return a port type compare
@@ -109,6 +112,7 @@ public:
 	class VISTADFNAPI CPortSetFunctor
 	{
 	public:
+		virtual ~CPortSetFunctor() {}
 		/**
 		 * @param pMeasure the measure to use for the set.
 		 * @param pGet the property GET to retrieve a value from
@@ -126,12 +130,11 @@ public:
 					  unsigned int nIndex) = 0;
 	};
 
-	/**
-	 *
-	 */
 	class VISTADFNAPI CPortGetFunctor
 	{
 	public:
+		virtual ~CPortGetFunctor() {}
+
 		virtual bool Set(
 			          IVistaReflectionable *pO,
 			          IVistaPropertySetFunctor *pSet,
@@ -165,6 +168,7 @@ public:
 	class VISTADFNAPI StringGet
 	{
 	public:
+		virtual ~StringGet() {}
 		virtual bool GetStringValue(IVistaPropertyGetFunctor *,
 								const VistaSensorMeasure *pMeasure,
 								std::string &strOut) = 0;

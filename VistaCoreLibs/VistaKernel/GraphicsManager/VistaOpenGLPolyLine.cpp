@@ -20,7 +20,14 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenGLPolyLine.cpp 21315 2011-05-16 13:47:39Z dr165799 $                                                                       
+// $Id$                                                                       
+
+#include "VistaOpenGLPolyLine.h"
+
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
+#include <VistaKernel/GraphicsManager/VistaOpenGLNode.h>
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <iostream>
 #include <cstring>
@@ -36,13 +43,6 @@
 #include <GL/gl.h>
 #endif 
 
-//#include <math.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
-#include <VistaKernel/GraphicsManager/VistaOpenGLNode.h>
-
-#include "VistaOpenGLPolyLine.h"
-#include "../VistaKernelOut.h"
-
 /*============================================================================*/
 /*  MAKROS AND DEFINES                                                        */
 /*============================================================================*/
@@ -51,13 +51,13 @@ using namespace std;
 /*============================================================================*/
 /*  CONSTRUCTORS / DESTRUCTOR                                                 */
 /*============================================================================*/
-VistaOpenGLPolyLine::VistaOpenGLPolyLine(VistaSG * pVistaSG, VistaGroupNode* pParent)
+VistaOpenGLPolyLine::VistaOpenGLPolyLine(VistaSceneGraph * pVistaSceneGraph, VistaGroupNode* pParent)
 : m_pDrawInterface(NULL)
 , m_pOglNode(NULL)
 , m_bRemoveFromSGOnDelete(true)
 {
 	m_pDrawInterface = new COpenGLPolyLineDraw;
-	m_pOglNode = pVistaSG->NewOpenGLNode(pParent, m_pDrawInterface);	
+	m_pOglNode = pVistaSceneGraph->NewOpenGLNode(pParent, m_pDrawInterface);	
 	m_pOglNode->SetName("VistaOpenGLPolyLine");
 }
 
@@ -238,7 +238,7 @@ bool VistaOpenGLPolyLine::COpenGLPolyLineDraw::GetBoundingBox(VistaBoundingBox &
 void VistaOpenGLPolyLine::COpenGLPolyLineDraw::SetLinePoints(const std::vector<float> &vecPoints)
 {
 	if(vecPoints.size() % 3 != 0)
-		vkernout << "COpenGLPolyLineDraw::SetLinePoints() -- vecPoints.size() %3 != 0\n";
+		vstr::outi() << "COpenGLPolyLineDraw::SetLinePoints() -- vecPoints.size() %3 != 0" << std::endl;
 	m_vecPoints = vecPoints;
 	m_bDlistDirty = true;
 }

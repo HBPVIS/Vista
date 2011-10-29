@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaGeometries.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaVector.h"
 #include <VistaBase/VistaVectorMath.h>
@@ -303,7 +303,6 @@ bool VistaLineSegment::ProximityContains(const VistaLineSegment &segment,
 	// Precompute the threshold as we will use squared distances to save
 	// unnecessary sqrt computations by checking actual distances.
 	const float fProximityThreshold = (fProximity + fEpsilon) * (fProximity + fEpsilon);
-	const float fEpsilon2 = fEpsilon * fEpsilon;
 	
 	const float *p1 = &m_StartPoint[0];
 	const float *p2 = &m_EndPoint[0];

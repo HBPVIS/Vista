@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPhantomDriver.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 #include "VistaPhantomDriver.h"
 
@@ -244,14 +244,14 @@ bool VistaPhantomDriver::Connect()
 		HDdouble nFirmware = 0;
 		hdGetDoublev( HD_DEVICE_FIRMWARE_VERSION, &nFirmware );
 
-		oInfo.SetDoubleValue( "FIRMWARE_REVISION", nFirmware );
-		oInfo.SetStringValue( "VENDOR", std::string( (deviceVendor ? deviceVendor : "<none>") ) );
-		oInfo.SetStringValue( "MODEL", std::string( (modelType ? modelType : "<none>") ) );
-		oInfo.SetStringValue( "DRIVERVERSION", std::string( (driverVersion ? driverVersion : "<none>") ) );
-		oInfo.SetStringValue( "SERIALNUMBER", std::string( (serial ? serial : "<none>") ) );
+		oInfo.SetValue<double>( "FIRMWARE_REVISION", nFirmware );
+		oInfo.SetValue( "VENDOR", std::string( (deviceVendor ? deviceVendor : "<none>") ) );
+		oInfo.SetValue( "MODEL", std::string( (modelType ? modelType : "<none>") ) );
+		oInfo.SetValue( "DRIVERVERSION", std::string( (driverVersion ? driverVersion : "<none>") ) );
+		oInfo.SetValue( "SERIALNUMBER", std::string( (serial ? serial : "<none>") ) );
 
 		HDint nCalStyle = 0;
-		HDint calibrationStyle = 0;
+		//HDint calibrationStyle = 0;
 
 		hdGetIntegerv( HD_CALIBRATION_STYLE, &nCalStyle );
 
@@ -263,8 +263,8 @@ bool VistaPhantomDriver::Connect()
 		if(nCalStyle & HD_CALIBRATION_INKWELL )
 			sCalStyle += "INKWELL ";
 
-		oInfo.SetStringValue("CALSTYLES", sCalStyle);
-		oInfo.SetIntValue( "CALFLAGS", nCalStyle );
+		oInfo.SetValue("CALSTYLES", sCalStyle);
+		oInfo.SetValue<int>( "CALFLAGS", nCalStyle );
 
 		if(hdCheckCalibration()==HD_CALIBRATION_NEEDS_UPDATE)
 		{
@@ -274,7 +274,7 @@ bool VistaPhantomDriver::Connect()
 		HDfloat nTableOffset = 0;
 		hdGetFloatv( HD_TABLETOP_OFFSET, &nTableOffset );
 
-		oInfo.SetDoubleValue( "TABLETOP_OFFSET", nTableOffset );
+		oInfo.SetValue<double>( "TABLETOP_OFFSET", nTableOffset );
 
 		float maxStiffness, maxForce, maxDamping;
 
@@ -282,8 +282,8 @@ bool VistaPhantomDriver::Connect()
 		hdGetFloatv(HD_NOMINAL_MAX_FORCE, &maxForce);
         hdGetFloatv(HD_NOMINAL_MAX_DAMPING, &maxDamping);
 
-		oInfo.SetDoubleValue( "MAXSTIFFNESS", double(maxStiffness) );
-		oInfo.SetDoubleValue( "MAXFORCE", double(maxForce) );
+		oInfo.SetValue( "MAXSTIFFNESS", maxStiffness );
+		oInfo.SetValue( "MAXFORCE", maxForce );
 
 		float maxWorkspace[6],
 			  maxUsableWorkspace[6];

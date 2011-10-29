@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaProcessImp.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTAPROCESSIMP_H
 #define _VISTAPROCESSIMP_H
@@ -45,65 +45,21 @@ class VistaPriority;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI IVistaProcessImp
 {
-private:
-protected:
-
-	/**
-	 *
-	 */
-	IVistaProcessImp();
 public:
-
-	/**
-	 *
-	 */
 	virtual ~IVistaProcessImp();
 
-	/**
-	 *
-	 */
 	virtual bool     Run         ( const std::string & inCommand ) = 0;
-
-	/**
-	 *
-	 */
 	virtual bool     Suspend          () = 0;
-
-	/**
-	 *
-	 */
 	virtual bool     Resume      () = 0;
-
-	/**
-	 *
-	 */
 	virtual bool     Join        () = 0;
-
-	/**
-	 *
-	 */
 	virtual bool     Abort        () = 0;
 
-	/**
-	 *
-	 */
 	virtual bool     SetPriority   ( const VistaPriority & ) = 0;
-
-	/**
-	 *
-	 */
 	virtual void GetPriority   (VistaPriority &) const = 0;
 
-	/**
-	 *
-	 */
 	static IVistaProcessImp *CreateProcessImp();
-
 
 	/**
 	 * Method that is to be performed BEFORE departed fork starts execution
@@ -114,6 +70,9 @@ public:
 	 * Method that is to be performed AFTER forked work is done
 	 */
 	virtual void PostRun();
+
+protected:
+	IVistaProcessImp();
 };
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */

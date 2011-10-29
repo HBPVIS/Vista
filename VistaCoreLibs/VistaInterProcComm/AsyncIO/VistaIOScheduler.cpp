@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaIOScheduler.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaIOScheduler.h"
 #include "VistaIORequest.h"
@@ -28,7 +28,7 @@
 #include "VistaIOMultiplexer.h"
 #include <VistaInterProcComm/Concurrency/VistaThreadPool.h>
 #include <VistaBase/VistaExceptionBase.h>
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <cstdio>
 #include <iostream>
@@ -129,13 +129,13 @@ void VistaIOScheduler::StartMultiplexing()
 void VistaIOScheduler::StopMultiplexing()
 {
 	VISTA_THROW("CALLED A NON WORKING API", 0x0000000);
-	if(m_iPlexerId != -1)
-   {
-	   m_pMultiplexer->Shutdown();
-//       (*m_pPool).WaitForJob(m_pPlexer);
-	   //(*m_pPool).WaitForJob(m_iPlexerId); // this should finish, soon!
-	   m_iPlexerId = -1;
-   }
+//	if(m_iPlexerId != -1)
+//   {
+//	   m_pMultiplexer->Shutdown();
+////       (*m_pPool).WaitForJob(m_pPlexer);
+//	   //(*m_pPool).WaitForJob(m_iPlexerId); // this should finish, soon!
+//	   m_iPlexerId = -1;
+//   }
 }
 
 
@@ -230,12 +230,13 @@ void VistaIOScheduler::HandleRequest(int iTicket)
 	REQUESTMAP::iterator it = m_mpRequestMap.find(iTicket);
 	if(it != m_mpRequestMap.end())
 	{
-		printf ("Handle request for ticket %d .\n", iTicket);
+		vstr::outi() << "VistaIOScheduler::HandleRequest() - Handle request for ticket" 
+						<< iTicket << std::endl;
 		(*m_pPool).AddWork((*it).second);
 	}
 	else
 	{
-		vipcout << "No work for this ticket.\n";
+		vstr::outi() << "VistaIOScheduler::HandleRequest() - No work for this ticket." << std::endl;
 	}
 }
 

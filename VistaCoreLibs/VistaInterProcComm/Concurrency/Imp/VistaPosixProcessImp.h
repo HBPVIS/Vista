@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPosixProcessImp.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #if defined(VISTA_THREADING_SPROC) || defined(VISTA_THREADING_POSIX)
 
@@ -50,73 +50,24 @@ class VistaPriority;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-
-/**
- *
- */
 class VistaPosixProcessImp : public IVistaProcessImp
 {
 private:
-
-	/**
-	 *
-	 */
 	void CleanupProcess();
 protected:
-
-	/**
-	 *
-	 */
 	pid_t    unixPID;
 public:
-
-	/**
-	 *
-	 */
 	VistaPosixProcessImp();
-
-	/**
-	 *
-	 */
 	virtual ~VistaPosixProcessImp();
 
-	/**
-	 *
-	 */
-	virtual bool     Run         ( const std::string & inCommand );
+	virtual bool Run( const std::string & inCommand );
+	virtual bool Suspend();
+	virtual bool Resume();
+	virtual bool Join();
+	virtual bool Abort();
 
-	/**
-	 *
-	 */
-	virtual bool     Suspend          ();
-
-
-	/**
-	 *
-	 */
-	virtual bool     Resume      ();
-
-	/**
-	 *
-	 */
-	virtual bool     Join        ();
-
-
-	/**
-	 *
-	 */
-	virtual bool     Abort        ();
-
-	/**
-	 *
-	 */
-	virtual bool     SetPriority   ( const VistaPriority & );
-
-
-	/**
-	 *
-	 */
-	virtual void GetPriority   ( VistaPriority & ) const;
+	virtual bool SetPriority ( const VistaPriority & );
+	virtual void GetPriority ( VistaPriority & ) const;
 };
 
 #endif // defined(VISTA_THREADING_SPROC) || defined(VISTA_THREADING_POSIX)

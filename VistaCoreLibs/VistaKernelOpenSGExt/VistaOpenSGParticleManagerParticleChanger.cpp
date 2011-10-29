@@ -28,15 +28,15 @@
 
 #include <VistaKernel/VistaSystem.h>
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/EventManager/VistaEventManager.h>
 #include <VistaKernel/EventManager/VistaSystemEvent.h>
 
 #include <VistaBase/VistaBaseTypes.h>
 #include <VistaBase/VistaExceptionBase.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <VistaKernelOpenSGExt/VistaOpenSGParticles.h>
-#include <VistaKernelOpenSGExt/VistaKernelOpenSGExtOut.h>
 
 #include <VistaTools/VistaRandomNumberGenerator.h>
 

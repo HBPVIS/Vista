@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaInteractionContext.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTAINTERACTIONCONTEXT_H
 #define _VISTAINTERACTIONCONTEXT_H
@@ -94,13 +94,12 @@ public:
 	void        SetTransformGraph(VdfnGraph *);
 
 	std::string GetGraphSource() const;
-	void        SetGraphSource( const std::string &strGraphFile );
+	void        SetGraphSource( const std::string &sGraphFile );
 
     unsigned int GetUpdateIndex() const;
 
     unsigned int GetRoleId() const;
     void         SetRoleId( unsigned int nRoleId );
-
 
 	// #######################################################################
 	// SERIALIZE API
@@ -114,39 +113,27 @@ public:
 	// ######################################################################
 	// API for server sides contexts, users should not use this
 	// ######################################################################
-	bool                  Update(double dTs);
-	bool                  Evaluate(double nTs);
-protected:
+	bool Update( double dTs );
+	bool Evaluate( double nTs );
+
+private:
+	// prevent copying
+	VistaInteractionContext(const VistaInteractionContext &);
+	VistaInteractionContext &operator=(const VistaInteractionContext &);
 
 private:
 
-	// #######################################################################
-	// COPY CONSTRUCTOR / ASSIGNMENT OPERATOR (private)
-	// #######################################################################
+	bool					m_bEnabled;
+	bool					m_bRegistered;
+	bool					m_bEventSource;
 
-	VistaInteractionContext(const VistaInteractionContext &)
-	{}
+    unsigned int			m_nUpdateIndex;
+	unsigned int			m_nRoleId;
+	std::string             m_sGraphFile;
 
-	VistaInteractionContext &operator=(const VistaInteractionContext &)
-	{
-		return *this;
-	}
-
-	// #######################################################################
-	// MEMBER
-	// #######################################################################
-
-
-	bool                   m_bEnabled,
-		                   m_bRegistered,
-                           m_bEventSource;
-
-    unsigned int           m_nUpdateIndex, m_nRoleId;
-	std::string             m_strGraphFile;
-
-	VdfnGraph *m_pTransformGraph;
-	VistaInteractionEvent *m_pEvent;
-	VistaEventManager     *m_pEvMgr;
+	VdfnGraph*				m_pTransformGraph;
+	VistaInteractionEvent*	m_pEvent;
+	VistaEventManager*		m_pEventManager;
 };
 
 /*============================================================================*/

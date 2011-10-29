@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaMatrix.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTAMATRIX_H
 #define _VISTAMATRIX_H
@@ -37,9 +37,9 @@
 //#include "VistaPolynom.h"
 #include "VistaMathTools.h"
 #include "VistaMathConfig.h"
-#include "VistaMathOut.h"
 
 #include <VistaBase/VistaMathBasics.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                        */
@@ -110,8 +110,6 @@ public:
 	inline Type* operator[]( const int i );
 	inline const Type* operator[]( const int i ) const;
 
-	/**
-	 */
 	VistaMatrix<Type> GivensRotation (int valP, int valQ);
 	bool GivensElimination (Type * vecX, Type * vecB);
 
@@ -218,7 +216,6 @@ inline
 bool VistaMatrix<Type>::AllocCoeff()
 {
 	int row = 0;
-	int col = 0;
 
 	if ( (m_nRowDimension <= 4) && (m_nColDimension <= 4) )
 	{
@@ -609,7 +606,7 @@ bool VistaMatrix<Type>::GivensElimination (Type * vecX, Type * vecB)
 					m_pMat[valP][col] = valHelp;
 				}
 				m_pMat[valQ][valP] = 0;
-				// <<== END OF GIVENS ROTATION.
+				// <<== end OF GIVENS ROTATION.
 
 				// .. but the rotation concerns the solution: Mat * X = B
 				valHelp    = vecB[valP] * valCos - vecB[valQ] * valSin;
@@ -669,13 +666,13 @@ bool VistaMatrix<Type>::Debug ()
 	{
 		for (int col = 0; col < m_nColDimension; ++col)
 		{
-			vmathout
+			vstr::out()
 				// << std::cout.precision(8) << std::cout.width(9)
 				// set fix point notation
 				//std::cout << std::cout.setf ( ios::fixed | ios::showpos )
 					  << m_pMat[row][col] << "  ";
 		}
-		vmathout << std::endl;
+		vstr::out() << std::endl;
 	}
 	return true;
 }
@@ -707,7 +704,7 @@ bool VistaMatrix<Type>::SingularValueDecomposition( VistaMatrix<Type> & matU, Vi
 		( matV.GetRowDimension() != n ) ||
 		( matV.GetColDimension() != n ) )
 	{
-		vmathout << "[VistaMatrix] ERROR SingularValueDecomposition: wrong W and V dimensionality\n";
+		vstr::warnp() << "[VistaMatrix] SingularValueDecomposition: wrong W and V dimensionality" << std::endl;
 		return false;
 	}
 
@@ -907,7 +904,7 @@ bool VistaMatrix<Type>::SingularValueDecomposition( VistaMatrix<Type> & matU, Vi
 			}
 			if( its == 29 )
 			{
-				vmathout << "[VistaMatrix] ERROR SingularValueDecomposition: no convergence in 30 iterations\n";
+				vstr::warnp() << "[VistaMatrix] SingularValueDecomposition: no convergence in 30 iterations" << std::endl;
 				return false;	/** @todo exit here? */
 			}
 			x = matW[l][0];
@@ -1007,7 +1004,7 @@ bool VistaMatrix<Type>::SingularValueDecompositionTest( const VistaMatrix<Type> 
 		( matV.GetRowDimension() != n ) ||
 		( matV.GetColDimension() != n ) )
 	{
-		vmathout << "[VistaMatrix] WARNING SingularValueDecompositionTest: mismatch in A, U, W, V dimensionality..\n";
+		vstr::warnp() << "[VistaMatrix] SingularValueDecompositionTest: mismatch in A, U, W, V dimensionality" << std::endl;
 		return false;
 	}
 
@@ -1058,15 +1055,18 @@ bool VistaMatrix<Type>::SingularValueDecompositionTest( const VistaMatrix<Type> 
 
 	if( !bTest1 )
 	{
-		vmathout << "[VistaMatrix] WARNING SingularValueDecompositionTest: test failed: U * W * V^T != A (epsilon=" << epsilon << ")\n";
+		vstr::warnp() << "[VistaMatrix] SingularValueDecompositionTest: test failed: U * W * V^T != A (epsilon="
+			<< epsilon << ")" << std::endl;
 	}
 	if( !bTest2 )
 	{
-		vmathout << "[VistaMatrix] WARNING SingularValueDecompositionTest: test failed: V^T * V != En (epsilon=" << epsilon << ")\n";
+		vstr::warnp() << "[VistaMatrix] SingularValueDecompositionTest: test failed: V^T * V != En (epsilon="
+					<< epsilon << ")" << std::endl;
 	}
 	if( !bTest3 )
 	{
-		vmathout << "[VistaMatrix] WARNING SingularValueDecompositionTest: test failed: U^T * U != E' (epsilon=" << epsilon << ")\n";
+		vstr::warnp() << "[VistaMatrix] SingularValueDecompositionTest: test failed: U^T * U != E' (epsilon="
+					<< epsilon << ")" << std::endl;
 		//(matTransposedU * matU).PrintMatrix( "U^T * U =", std::cout );
 		//matTest3.PrintMatrix( "U^T * U - E' =", std::cout );
 		//matEn.PrintMatrix( "E'=", std::cout );

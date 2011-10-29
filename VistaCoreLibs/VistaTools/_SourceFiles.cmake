@@ -43,9 +43,9 @@ set( DirFiles
 	VistaRingBuffer.h
 	VistaStackWalker.cpp
 	VistaStackWalker.h
+	VistaStreams.cpp
+	VistaStreams.h
 	VistaToolsConfig.h
-	VistaToolsOut.cpp
-	VistaToolsOut.h
 	VistaToolsStd.h
 	VistaTopologyGraph.h
 	VistaVoxelOctree.h

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaProjection.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaProjection.h"
 #include "VistaDisplayBridge.h"
@@ -28,11 +28,10 @@
 #include "VistaDisplayManager.h"
 #include "VistaDisplaySystem.h"
 
-#include <VistaKernel/VistaKernelOut.h>
-
 #include <VistaAspects/VistaAspectsUtils.h>
 
 #include <VistaBase/VistaVectorMath.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 /*============================================================================*/
 /*  MAKROS AND DEFINES                                                        */
@@ -98,29 +97,29 @@ void VistaProjection::Debug(std::ostream &out) const
 	VistaDisplayEntity::Debug(out);
 	VistaVector3D v3MidPoint, v3NormalVector, v3UpVector;
 	GetProjectionProperties()->GetProjectionPlane(v3MidPoint, v3NormalVector, v3UpVector);
-	out << " [VistaProjection] - plane midpoint:      " << v3MidPoint << endl;
-	out << " [VistaProjection] - plane normal:        " << v3NormalVector << endl;
-	out << " [VistaProjection] - plane up vector:     " << v3UpVector << endl;
+	out << " [VistaProjection] - plane midpoint:      " << v3MidPoint << std::endl;
+	out << " [VistaProjection] - plane normal:        " << v3NormalVector << std::endl;
+	out << " [VistaProjection] - plane up vector:     " << v3UpVector << std::endl;
 
 	double dLeft, dRight, dBottom, dTop, dNear, dFar;
 	GetProjectionProperties()->GetProjPlaneExtents(dLeft, dRight, dBottom, dTop);
-	out << " [VistaProjection] - plane extents (l/r): " << dLeft << " / " << dRight << endl;
-	out << " [VistaProjection] - plane extents (b/t): " << dBottom << " / " << dTop << endl;
+	out << " [VistaProjection] - plane extents (l/r): " << dLeft << " / " << dRight << std::endl;
+	out << " [VistaProjection] - plane extents (b/t): " << dBottom << " / " << dTop << std::endl;
 
 	GetProjectionProperties()->GetClippingRange(dNear, dFar);
-	out << " [VistaProjection] - clipping range:      " << dNear << " / " << dFar << endl;
+	out << " [VistaProjection] - clipping range:      " << dNear << " / " << dFar << std::endl;
 
 	out << " [VistaProjection] - stereo mode:         " 
-		<< GetProjectionProperties()->GetStereoModeString() << endl;
+		<< GetProjectionProperties()->GetStereoModeString() << std::endl;
 
 	out << " [VistaProjection] - viewport name:       ";
 	if(m_pViewport)
 	{
-		out << m_pViewport->GetNameForNameable() << endl;
+		out << m_pViewport->GetNameForNameable() << std::endl;
 	}
 	else
 	{
-		out << "*none* (no viewport given)" << endl;
+		out << "*none* (no viewport given)" << std::endl;
 	}
 }
 
@@ -178,32 +177,25 @@ namespace {
 	{
 		new TVistaProperty3ValSet<float, VistaProjection::VistaProjectionProperties>
 		("PROJ_PLANE_MIDPOINT", sSReflectionType,
-		 &VistaProjection::VistaProjectionProperties::SetProjPlaneMidpoint,
-		 &VistaAspectsConversionStuff::ConvertStringTo3Float),
+		 &VistaProjection::VistaProjectionProperties::SetProjPlaneMidpoint ),
 		new TVistaProperty3ValSet<float, VistaProjection::VistaProjectionProperties>
 		("PROJ_PLANE_NORMAL", sSReflectionType,
-		 &VistaProjection::VistaProjectionProperties::SetProjPlaneNormal,
-		 &VistaAspectsConversionStuff::ConvertStringTo3Float),
+		 &VistaProjection::VistaProjectionProperties::SetProjPlaneNormal ),
 		new TVistaProperty3ValSet<float, VistaProjection::VistaProjectionProperties>
 		("PROJ_PLANE_UP", sSReflectionType,
-		 &VistaProjection::VistaProjectionProperties::SetProjPlaneUp,
-		 &VistaAspectsConversionStuff::ConvertStringTo3Float),
+		 &VistaProjection::VistaProjectionProperties::SetProjPlaneUp ),
 		new TVistaProperty4ValSet<double, VistaProjection::VistaProjectionProperties>
 		("PROJ_PLANE_EXTENTS", sSReflectionType,
-		 &VistaProjection::VistaProjectionProperties::SetProjPlaneExtents,
-		 &VistaAspectsConversionStuff::ConvertStringTo4Double),
+		 &VistaProjection::VistaProjectionProperties::SetProjPlaneExtents ),
 		new TVistaProperty2ValSet<double, VistaProjection::VistaProjectionProperties>
 		("CLIPPING_RANGE", sSReflectionType,
-		 &VistaProjection::VistaProjectionProperties::SetClippingRange,
-		 &VistaAspectsConversionStuff::ConvertStringTo2Double),
+		 &VistaProjection::VistaProjectionProperties::SetClippingRange ),
 		new TVistaPropertySet<const std::string &, std::string, VistaProjection::VistaProjectionProperties>
 		("STEREO_MODE", sSReflectionType,
-		 &VistaProjection::VistaProjectionProperties::SetStereoModeString,
-		 &VistaAspectsConversionStuff::ConvertToString),
+		 &VistaProjection::VistaProjectionProperties::SetStereoModeString ),
 		new TVistaPropertySet<const string &, string,VistaProjection::VistaProjectionProperties>
 		("NAME", sSReflectionType,
-		 &VistaProjection::VistaProjectionProperties::SetName,
-		 &VistaAspectsConversionStuff::ConvertToString),
+		 &VistaProjection::VistaProjectionProperties::SetName ),
 		NULL
 	};
 }
@@ -440,8 +432,8 @@ std::string VistaProjection::VistaProjectionProperties::GetStereoModeString() co
 		return "FULL_STEREO";
 	}
 
-	vkernout << " [VistaProjection] - WARNING - unable to determine stereo mode (" 
-		 << iMode << ")..." << endl;
+	vstr::warnp() << " [VistaProjection] - unable to determine stereo mode [" 
+					<< iMode << "}..." << std::endl;
 
 	return "";
 }
@@ -449,7 +441,7 @@ std::string VistaProjection::VistaProjectionProperties::GetStereoModeString() co
 bool VistaProjection::VistaProjectionProperties::SetStereoModeString(const std::string &strMode)
 {
 	int iMode = SM_MONO;
-	string strModeUpper = VistaAspectsConversionStuff::ConvertToUpper(strMode);
+	string strModeUpper = VistaConversion::StringToUpper(strMode);
 
 	if (strModeUpper == "MONO")
 		iMode = SM_MONO;
@@ -461,8 +453,8 @@ bool VistaProjection::VistaProjectionProperties::SetStereoModeString(const std::
 		iMode = SM_FULL_STEREO;
 	else
 	{
-		vkernout << " [VistaProjection] - WARNING - unknown stereo mode '" << strMode << "'..." << endl;
-		vkernout << "                               defaulting to 'MONO'..." << endl;
+		vstr::warnp() << "[VistaProjection] - Unknown stereo mode ["
+				<< strMode << "] - defaulting to [MONO]" << std::endl;
 		iMode = SM_MONO;
 	}
 

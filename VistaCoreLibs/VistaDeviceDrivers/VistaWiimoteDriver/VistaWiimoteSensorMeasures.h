@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDirectXGamepad.h 5557 2010-10-19 07:54:07Z dominikrausch $
 
 #ifndef __VISTAWIIMOTESENSORMEASURES_H
 #define __VISTAWIIMOTESENSORMEASURES_H

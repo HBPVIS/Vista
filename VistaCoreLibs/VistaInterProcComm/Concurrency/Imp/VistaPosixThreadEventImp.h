@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPosixThreadEventImp.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #if !defined(VISTA_THREADING_WIN32)
 
@@ -36,44 +36,19 @@
 
 class VistaThreadEventImp;
 
-
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI VistaPosixThreadEventImp : public IVistaThreadEventImp
 {
 private:
-	/**
-	 *
-	 */
 	int m_fd[2];
 protected:
 public:
 
-	/**
-	 *
-	 */
 	VistaPosixThreadEventImp( );
-
-	/**
-	 *
-	 */
 	virtual ~VistaPosixThreadEventImp();
 
 
-	/**
-	 *
-	 */
 	void SignalEvent();
-
-	/**
-	 *
-	 */
 	long WaitForEvent(bool bBlock);
-
-	/**
-	 *
-	 */
 	long WaitForEvent(int iBlockTime);
 
 	virtual HANDLE GetEventSignalHandle() const;

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaStreamManagerExt.h 22143 2011-07-01 15:07:00Z dr165799 $
 
 #ifndef _VISTASTREAMMANAGEREXT_H
 #define _VISTASTREAMMANAGEREXT_H

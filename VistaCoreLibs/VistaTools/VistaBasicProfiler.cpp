@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaBasicProfiler.cpp 23136 2011-09-02 11:59:34Z dr165799 $
+// $Id$
 
 #include "VistaBasicProfiler.h"
 
@@ -208,8 +208,7 @@ void VistaBasicProfiler::ProfileTreeNode::Print( std::ostream& oStream, int iDep
 {
 	if( m_mapChildren.empty() )
 	{
-		oStream << std::string( iDepth, ' ' ) << char(200)
-			<< char(205) << char(205)
+		oStream << std::string( iDepth, ' ' ) << "---"
 			<< std::left << std::setw( iMaxNameLength + iMaxDepth - iDepth ) 
 			<< m_sName << std::right
 			<< " || " << std::setw(7) << 1000.0*m_dLastFrame << "ms"
@@ -219,8 +218,7 @@ void VistaBasicProfiler::ProfileTreeNode::Print( std::ostream& oStream, int iDep
 	}
 	else
 	{
-		oStream << std::string( iDepth, ' ' ) << char(200)
-			<< char(203) << char(205)
+		oStream << std::string( iDepth, ' ' ) << "|--"
 			<< std::left << std::setw( iMaxNameLength + iMaxDepth - iDepth ) 
 			<< m_sName << std::right
 			<< " || " << std::setw(7) << 1000.0*m_dLastFrame << "ms"

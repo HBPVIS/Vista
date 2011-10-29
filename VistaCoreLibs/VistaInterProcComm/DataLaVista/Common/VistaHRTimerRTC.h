@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaHRTimerRTC.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #if defined(_USE_HRRTC)
 
@@ -46,28 +46,11 @@
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI DLVistaHRTimerRTC : public IDLVistaRTC
 {
-private:
-	/**
-	 * We prohibit copying
-	 */
-	DLVistaHRTimerRTC(DLVistaHRTimerRTC &);
-protected:
-	DLV_INT64 GetPentiumCounter() const;
-
 public:
-	/**
-	 *
-	 */
 	DLVistaHRTimerRTC();
 
-	/**
-	 *
-	 */
 	virtual ~DLVistaHRTimerRTC();
 
 	virtual DLV_INT64 GetTickCount() const;
@@ -80,6 +63,14 @@ public:
 	virtual double GetSystemTime() const;
 
 	//virtual const char *GetPrintfFormatSpecifier();
+
+private:
+	/**
+	 * We prohibit copying
+	 */
+	DLVistaHRTimerRTC(DLVistaHRTimerRTC &);
+protected:
+	DLV_INT64 GetPentiumCounter() const;
 };
 
 

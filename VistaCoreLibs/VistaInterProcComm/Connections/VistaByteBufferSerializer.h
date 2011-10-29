@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaByteBufferSerializer.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTABYTEBUFFERSERIALIZER_H
 #define _VISTABYTEBUFFERSERIALIZER_H
@@ -46,9 +46,6 @@
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI VistaByteBufferSerializer : public IVistaSerializer
 {
 public:
@@ -88,7 +85,7 @@ public:
 	 * network or file operations that work on byte buffers.
 	 * @return a pointer to the internal buffer of this serializer. Consider it read only.
 	 */
-	char *GetBuffer() const;
+	const VistaType::byte* GetBuffer() const;
 
 	/**
 	 * Returns the size of the _serialized_ buffer, not the total size of the buffer that
@@ -99,10 +96,10 @@ public:
 
 	/**
 	 * A get-by-copy call API to retrieve the serialized buffer. The serialized buffer is
-	 * _copied_ to the argument verctor as unsigned char.
+	 * _copied_ to the argument vector as VistaType::byte.
 	 */
 
-	void  GetBuffer(std::vector<unsigned char> &);
+	void  GetBuffer( std::vector<VistaType::byte>& );
 
 	virtual int WriteShort16(  VistaType::ushort16 us16Val) ;
 	virtual int WriteInt32(  VistaType::sint32 si32Val) ;
@@ -117,18 +114,6 @@ public:
 
 	virtual int WriteString( const std::string &sString) ;
 	virtual int WriteDelimitedString( const std::string &sString, char cDelim = '\0') ;
-
-	virtual int WriteShort16Name( const char *sVarName,  VistaType::ushort16 us16Val) ;
-	virtual int WriteInt32Name( const char *sVarName,  VistaType::sint32 si32Val) ;
-	virtual int WriteInt32Name( const char *sVarName,  VistaType::uint32 si32Val) ;
-	virtual int WriteInt64Name( const char *sVarName,  VistaType::sint64 si64Val) ;
-	virtual int WriteUInt64Name( const char *sVarName,  VistaType::uint64 si64Val) ;
-	virtual int WriteFloat32Name( const char *sVarName,  VistaType::float32 fVal) ;
-	virtual int WriteFloat64Name( const char *sVarName,  VistaType::float64 f64Val);
-	virtual int WriteDoubleName( const char *sVarName,  double ) ;
-	virtual int WriteStringName( const char *sVarName,  const std::string &) ;
-	virtual int WriteRawBufferName(const char *sVarName, const void *pBuffer, const int iLen) ;
-	virtual int WriteBoolName(const char *sVarName,  bool bVal) ;
 
 	virtual int WriteSerializable(const IVistaSerializable &obj);
 
@@ -176,25 +161,25 @@ public:
 	 * of the internal buffer and old content will be overwritten.
 	 * Note that once the buffer is full during write requests, new data will be dropped,
 	 * no automagic memory resizing is done (in contrast to the use of the internal
-	 * management that automagicall reserves new room once the old is fully used).
+	 * management that automatically reserves new room once the old is fully used).
 	 * @param pvBuffer a pointer to a non-volatile memory region with a minimum size of iBufferSize
 	 * @param iBufferSize size to use while deserializing
 	 * @param iWriteHead can be used to pass an offset in the external buffer, where the serializing shall start
 	 */
-	void SetBuffer(char *pvBuffer,
+	void SetBuffer( VistaType::byte* pBuffer,
 				   int iBufferSize,
 				   int iWriteHead = 0);
 
 protected:
-	std::vector<char> m_vecBuffer;
-	int            m_iWriteHead;
-	char *m_pHead;
-	unsigned int   m_uiCapacity;
-	bool           m_bDoSwap,
-				   m_bRetrimSize;
+	std::vector<VistaType::byte>	m_vecBuffer;
+	int					m_iWriteHead;
+	VistaType::byte*	m_pHead;
+	unsigned int		m_uiCapacity;
+	bool				m_bDoSwap;
+	bool				m_bRetrimSize;
 
 	// does it all
-	int WriteValue(char *pcValue, int iLength);
+	int WriteValue( const VistaType::byte* pcValue, int iLength);
 };
 
 

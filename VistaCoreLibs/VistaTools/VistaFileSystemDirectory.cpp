@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaFileSystemDirectory.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 
 /*============================================================================*/
@@ -423,7 +423,7 @@ int VistaFileSystemDirectory::ReadEntries()
 long VistaFileSystemDirectory::GetSize()
 {
 	m_bIsParsed = false;
-	int number = ReadEntries ();
+	ReadEntries();
 
 	long nAccumulatedSize = 0;
 

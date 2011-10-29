@@ -20,12 +20,13 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaTCPServer.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaTCPServer.h"
 #include "VistaTCPServerSocket.h"
 #include "VistaSocketAddress.h"
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <iostream>
 using namespace std;
@@ -59,7 +60,7 @@ VistaTCPServer::~VistaTCPServer()
 {
 	if(m_pServerSocket && m_pServerSocket->GetIsOpen())
 	{
-		vipcout << "VistaTCPServer::~VistaTCPServer() -- CLOSING SOCKET\n";
+		//vstr::debugi() << "VistaTCPServer::~VistaTCPServer() -- CLOSING SOCKET" << std::endl;
 		m_pServerSocket->CloseSocket();
 	}
 		
@@ -88,8 +89,8 @@ void VistaTCPServer::SetupSocket(const VistaSocketAddress &myAdd,
 		}
 		else
 		{
-			vipcerr << "VistaTCPServer::VistaTCPServer(): "
-					"Error opening Server-socket (BIND-TO-ADDRESS-FAILED).\n";
+			vstr::errp() << "VistaTCPServer::VistaTCPServer(): "
+					"Error opening Server-socket (BIND-TO-ADDRESS-FAILED)." << std::endl;
 			(*m_pServerSocket).CloseSocket();
 			m_bValid = false;
 			delete m_pServerSocket;
@@ -98,8 +99,8 @@ void VistaTCPServer::SetupSocket(const VistaSocketAddress &myAdd,
 	}
 	else
 	{
-		vipcerr << "VistaTCPServer::VistaTCPServer(): "
-				"Error opening Server-socket (OPEN-FAILED).\n";
+		vstr::errp() << "VistaTCPServer::VistaTCPServer(): "
+				"Error opening Server-socket (OPEN-FAILED)." << std::endl;
 		(*m_pServerSocket).CloseSocket();
 		m_bValid = false;
 		delete m_pServerSocket;

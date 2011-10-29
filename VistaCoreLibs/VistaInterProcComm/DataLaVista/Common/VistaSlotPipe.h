@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSlotPipe.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef DLVISTASLOTPIPE_H
 #define DLVISTASLOTPIPE_H
@@ -53,87 +53,39 @@ class VistaThreadEvent;
 
 class VISTAINTERPROCCOMMAPI DLVistaSlotPipe : public IDLVistaPipe
 {
-private:
-	/**
-	 *
-	 */
-	IDLVistaDataPacket *m_pInValue;
-
-	/**
-	 *
-	 */
-	std::deque<IDLVistaDataPacket *> *m_pquRecycleQueue;
-
-	/**
-	 *
-	 */
-	VistaMutex *m_pMutexIn, *m_pMutexOut, *m_pLockEmpty;
-	/**
-	 *
-	 */
-	VistaThreadEvent *m_pRecycleEvent;
-
-	/**
-	 *
-	 */
-	VistaMutex *GrabMutex(VistaMutex *pMutex, bool bBlock);
-
 public:
 
-	/**
-	 *
-	 */
 	DLVistaSlotPipe();
 
-	/**
-	 *
-	 */
 	~DLVistaSlotPipe();
 
-	/**
-	 *
-	 */
 	virtual bool AcceptDataPacket(IDLVistaDataPacket *pPacket,
 								  IDLVistaPipeComponent *pSender,
 								  bool bBlock=false);
-	/**
-	 *
-	 */
 	virtual bool RecycleDataPacket(IDLVistaDataPacket *pPacket,
 								   IDLVistaPipeComponent *pSender,
 								   bool bBlock=false);
 
-	/**
-	 *
-	 */
 	virtual IDLVistaDataPacket * GivePacket(bool bBlock);
-	/**
-	 *
-	 */
 	virtual IDLVistaDataPacket * ReturnPacket();
 
-	/**
-	 *
-	 */
 	bool InitPacketMgmt();
 
-	/**
-	 *
-	 */
 	bool IsFull() const;
-	/**
-	 *
-	 */
 	bool IsEmpty() const;
-	/**
-	 *
-	 */
 	int Capacity() const { return -1; };
-	/**
-	 *
-	 */
 	int OwnerLockEmpty();
 
+
+private:
+	IDLVistaDataPacket *m_pInValue;
+
+	std::deque<IDLVistaDataPacket *> *m_pquRecycleQueue;
+
+	VistaMutex *m_pMutexIn, *m_pMutexOut, *m_pLockEmpty;
+	VistaThreadEvent *m_pRecycleEvent;
+
+	VistaMutex *GrabMutex(VistaMutex *pMutex, bool bBlock);
 };
 
 

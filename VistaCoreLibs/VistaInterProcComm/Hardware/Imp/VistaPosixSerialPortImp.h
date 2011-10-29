@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPosixSerialPortImp.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #if defined(LINUX) || defined(IRIX) || defined(HPUX) || defined(SUNOS) || defined(DARWIN)
 #ifndef _VISTAPOSIXSERIALPORTIMP_H
@@ -57,30 +57,33 @@
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-
-/**
- *
- */
 class VistaPosixSerialPortImp : public VistaSerialPortImp
 {
-private:
+public:
 
-	/**
-	 * stores the filehandle for this implementation, -1 indicates an unallocated filehandle
-	 * (state closed)
-	 */
-	int             m_iFileHandle;
+	VistaPosixSerialPortImp();
 
-	/**
-	 * is used during getting/setting information from/to the hardware
-	 */
-	struct termios  m_sTermConf;
+	virtual ~VistaPosixSerialPortImp();
 
-	char            m_cVMIN, /**< defaults to 0 */
-					m_cVTIME; /**< defaults to 20 */
+
+	virtual bool          OpenSerialPort() ;
+
+	virtual bool          CloseSerialPort();
+
+	virtual int           Receive(void *buffer, const int length, int iTimeout = 0) ;
+
+	virtual int           Send(const void *buffer, const int length) ;
+
+	virtual bool          SetBlockingMode ( unsigned long inReadInterval, unsigned long inReadMultiplyer, unsigned long inReadConstant );
+
+	virtual unsigned long WaitForIncomingData(int timeout=0);
+
+	virtual unsigned long PendingDataSize() const;
+	virtual void          SetIsBlocking(bool bBlocking);
+
+	virtual HANDLE GetDescriptor() const;
 
 protected:
-
 	/**
 	 * tries to set the hardware as presented by the internals of this instance. If setting of this
 	 * values fails, it is tried to gain the current state of the hardware by a call to GetHardwareState().
@@ -102,50 +105,22 @@ protected:
 	 * this module to the VistaTools-package
 	 */
 	void Delay(int iMsecs) const;
-public:
+
+private:
 
 	/**
-	 *
+	 * stores the filehandle for this implementation, -1 indicates an unallocated filehandle
+	 * (state closed)
 	 */
-	VistaPosixSerialPortImp();
+	int             m_iFileHandle;
 
 	/**
-	 *
+	 * is used during getting/setting information from/to the hardware
 	 */
-	virtual ~VistaPosixSerialPortImp();
+	struct termios  m_sTermConf;
 
-
-	/**
-	 *
-	 */
-	virtual bool          OpenSerialPort() ;
-
-	/**
-	 *
-	 */
-	virtual bool          CloseSerialPort();
-
-	/**
-	 *
-	 */
-	virtual int           Receive(void *buffer, const int length, int iTimeout = 0) ;
-
-	/**
-	 *
-	 */
-	virtual int           Send(const void *buffer, const int length) ;
-
-	/**
-	 *
-	 */
-	virtual bool          SetBlockingMode ( unsigned long inReadInterval, unsigned long inReadMultiplyer, unsigned long inReadConstant );
-
-	virtual unsigned long WaitForIncomingData(int timeout=0);
-
-	virtual unsigned long PendingDataSize() const;
-	virtual void          SetIsBlocking(bool bBlocking);
-
-	virtual HANDLE GetDescriptor() const;
+	char            m_cVMIN, /**< defaults to 0 */
+					m_cVTIME; /**< defaults to 20 */
 };
 
 

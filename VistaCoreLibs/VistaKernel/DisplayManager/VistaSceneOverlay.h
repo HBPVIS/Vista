@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSceneOverlay.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTASCENEOVERLAY_H
 #define _VISTASCENEOVERLAY_H
@@ -41,6 +41,8 @@
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
 class VistaBoundingBox;
+class VistaDisplayManager;
+class VistaViewport;
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
@@ -51,10 +53,24 @@ public:
 	virtual ~IVistaSceneOverlay();
 
 	// scene overlays do not have a bounding box
-	virtual bool GetBoundingBox(VistaBoundingBox &bb) { return false; }
+	virtual bool GetBoundingBox( VistaBoundingBox &bb );
+
+	virtual bool GetIsEnabled() const = 0;
+	virtual void SetIsEnabled( bool bEnabled ) = 0;
+
+	VistaViewport* GetAttachedViewport() const;
+
 protected:
-	IVistaSceneOverlay();
+	virtual void UpdateOnViewportChange( int iWidth, int iHeight,
+											int iPosX, int iPosY ) = 0;
+
+	IVistaSceneOverlay( VistaDisplayManager* pDisplayManager,
+						const std::string& sViewportName = "" );
+	IVistaSceneOverlay( VistaViewport* pViewport );
+
 private:
+	class ViewportResizeObserver;
+	ViewportResizeObserver*		m_pViewportObserver;
 };
 
 /*============================================================================*/

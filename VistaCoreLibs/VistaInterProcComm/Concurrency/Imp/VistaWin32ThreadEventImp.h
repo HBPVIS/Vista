@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaWin32ThreadEventImp.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #if defined(VISTA_THREADING_WIN32)
 
@@ -41,51 +41,23 @@
 
 class VistaThreadEventImp;
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI VistaWin32ThreadEventImp : public IVistaThreadEventImp
 {
-private:
-
-
-	/**
-	 *
-	 */
-	HANDLE m_EventHandle;
-protected:
 public:
-
-	/**
-	 *
-	 */
 	VistaWin32ThreadEventImp( );
-
-	/**
-	 *
-	 */
 	virtual ~VistaWin32ThreadEventImp();
 
-
-	/**
-	 *
-	 */
 	void SignalEvent();
-
-	/**
-	 *
-	 */
 	long WaitForEvent(bool bBlock);
-
-	/**
-	 *
-	 */
 	long WaitForEvent(int iBlockTime);
 
 	virtual HANDLE GetEventSignalHandle() const;
 	virtual HANDLE GetEventWaitHandle() const;
 
 	virtual bool ResetThisEvent();
+
+private:
+	HANDLE m_EventHandle;
 };
 
 

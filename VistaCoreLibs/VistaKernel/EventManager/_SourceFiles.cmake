@@ -8,8 +8,6 @@ set( DirFiles
 	VistaCentralEventHandler.h
 	VistaCommandEvent.cpp
 	VistaCommandEvent.h
-	VistaDisplayEvent.cpp
-	VistaDisplayEvent.h
 	VistaEvent.cpp
 	VistaEvent.h
 	VistaEventHandler.cpp
@@ -19,10 +17,6 @@ set( DirFiles
 	VistaEventObserver.h
 	VistaExternalMsgEvent.cpp
 	VistaExternalMsgEvent.h
-	VistaGraphicsEvent.cpp
-	VistaGraphicsEvent.h
-	VistaPickEvent.cpp
-	VistaPickEvent.h
 	VistaSystemEvent.cpp
 	VistaSystemEvent.h
 	VistaTickTimer.cpp

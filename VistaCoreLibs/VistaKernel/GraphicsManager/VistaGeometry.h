@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaGeometry.h 22163 2011-07-03 14:11:15Z dr165799 $
 
 #ifndef _VISTAGEOMETRY_H
 #define _VISTAGEOMETRY_H
@@ -33,8 +33,8 @@
 #include <set>
 
 #include <VistaKernel/VistaKernelConfig.h>
-//#include <VistaKernel/VistaSystem.h>
 #include <VistaBase/VistaVectorMath.h>
+#include <VistaBase/VistaBaseTypes.h>
 #include <VistaAspects/VistaObserveable.h>
 
 /*============================================================================*/
@@ -153,7 +153,8 @@ public:
 		DARK_ORANGE             = 0xFF8C00,
 		DARK_ORCHID             = 0x9932CC,
 		DARK_SALMON             = 0xE9967A,
-		DARK_TURQUOISE  		= 0x00CED1
+		DARK_TURQUOISE  		= 0x00CED1,
+		VISTA_BLUE		  		= 0x0066CC,
 	};
 
 	VistaColorRGB (const int color = WHITE);
@@ -298,10 +299,10 @@ public:
 class VISTAKERNELAPI VistaGeometry : public VistaGeometryObservable
 {
 	friend class VistaGeomNode;
-	friend class VistaSG;
+	friend class VistaSceneGraph;
 	friend class IVistaGraphicsBridge;
 public:
-	enum faceType{
+	enum FaceType{
 		VISTA_FACE_TYPE_UNDETERMINED=-1, //<** user code should not use that flag */
 		VISTA_FACE_TYPE_POINTS = 0,
 		VISTA_FACE_TYPE_LINES,
@@ -323,7 +324,7 @@ protected:
 		const std::vector<VistaVector3D>& normals,
 		const std::vector<VistaColorRGB>& colors,
 		const VistaVertexFormat& vFormat,
-		const VistaGeometry::faceType fType);
+		const VistaGeometry::FaceType fType);
 
 	//! Create an indexed geometry.
 	/**
@@ -340,7 +341,7 @@ protected:
 		 const std::vector<float>& normals,
 		 const std::vector<VistaColorRGB>& colors,
 		 const VistaVertexFormat& vFormat,
-		 const VistaGeometry::faceType fType);
+		 const VistaGeometry::FaceType fType);
 
 public:
 	virtual ~VistaGeometry();
@@ -392,7 +393,7 @@ public:
 	//! Which format do the vertices of the geometry have?
 	VistaVertexFormat      GetVertexFormat() const;
 	//! Returns the type of the polygons in the geometry (either triangles or quads).
-	VistaGeometry::faceType        GetFaceType() const;
+	VistaGeometry::FaceType        GetFaceType() const;
 
 	//! Computes the two points defining the geometries bounding box.
 	/** \param pMin The first vertex of the bounding box.
@@ -450,7 +451,7 @@ public:
 			        const int height,
 			        const int bpp,
 			        bool  bHasAlpha,
-			        unsigned char *data);
+			        VistaType::byte* pData);
 
 	bool DeleteTexture();
 	/// @todo what shall this do?
@@ -704,13 +705,6 @@ protected:
 	VistaGeometry();
 
 private:
-	/** Begin edit session
-	 */
-	bool BeginEdit();
-	/** End edit session
-	 */
-	bool EndEdit(bool consistencyCheck = true);
-
 	int GetEdge(const int vertexId0, const int vertexId1) const;
 
 private:

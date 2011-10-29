@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDefSemaphoreImp.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTADEFSEMAPHOREIMP_H
 #define _VISTADEFSEMAPHOREIMP_H
@@ -44,68 +44,36 @@ class VistaSemaphoreImp;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI VistaDefSemaphoreImp : public IVistaSemaphoreImp
 {
-
 public:
-
+	VistaDefSemaphoreImp( unsigned int initial = 1 );
+	virtual ~VistaDefSemaphoreImp() {};	
 
 	/**
-	 *
+	 * if semaphore value is > 0 then decrement it and carry on. If it's
+	 * already 0 then block.
 	 */
-	VistaDefSemaphoreImp  ( unsigned int initial = 1 );
-	virtual ~VistaDefSemaphoreImp() {};
-
-	// if semaphore value is > 0 then decrement it and carry on. If it's
-	// already 0 then block.
+	void Wait    ();	
 
 	/**
-	 *
+	 * if semaphore value is > 0 then decrement it and return true.
+	 * If it's already 0 then return false.
 	 */
-	void Wait    ();
-
-
-	// if semaphore value is > 0 then decrement it and return true.
-	// If it's already 0 then return false.
+	bool TryWait ();	
 
 	/**
-	 *
-	 */
-	bool TryWait ();
-
-
-	// if any threads are blocked in wait(), wake one of them up. Otherwise
-	// increment the value of the semaphore.
-
-	/**
-	 *
+	 * if any threads are blocked in wait(), wake one of them up. Otherwise
+	 * increment the value of the semaphore.
 	 */
 	void Post    ();
 
 private:
-	/**
-	 *
-	 */
 	VistaDefSemaphoreImp ( const VistaDefSemaphoreImp & ) {};
-
-	/**
-	 *
-	 */
 	VistaDefSemaphoreImp & operator=       ( const VistaDefSemaphoreImp & ) { return *this; };
 
-	/**
-	 *
-	 */
-	VistaMutex   counterAccess, wait;
-
-	/**
-	 *
-	 */
-	int           counter;
+	VistaMutex		counterAccess, wait;
+	int				counter;
 
 };
 

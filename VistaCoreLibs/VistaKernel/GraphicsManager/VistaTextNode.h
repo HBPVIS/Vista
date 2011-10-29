@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaTextNode.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTAFONTNODE_H
 #define _VISTAFONTNODE_H
@@ -46,7 +46,7 @@ class IVista3DText;
 /*============================================================================*/
 class VISTAKERNELAPI VistaTextNode : public VistaLeafNode
 {
-	friend class VistaSG;
+	friend class VistaSceneGraph;
 public:
 	virtual ~VistaTextNode();
 

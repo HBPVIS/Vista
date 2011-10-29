@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaProgressBar.h 23313 2011-09-15 10:41:51Z dr165799 $
 
 #if !defined(_VISTAPROGRESSBAR_H)
 #define _VISTAPROGRESSBAR_H
@@ -32,7 +32,6 @@
 #include "VistaToolsConfig.h"
 #include <string>
 #include <iostream>
-#include "VistaToolsOut.h"
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */

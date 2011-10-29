@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaLeafNode.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaKernel/GraphicsManager/VistaLeafNode.h"
 #include "VistaKernel/GraphicsManager/VistaNodeBridge.h"

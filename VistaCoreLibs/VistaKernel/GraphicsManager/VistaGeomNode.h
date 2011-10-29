@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaGeomNode.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTAGEOMNODE_H
 #define _VISTAGEOMNODE_H
@@ -50,7 +50,7 @@ class IVistaNodeData;
 class VISTAKERNELAPI VistaGeomNode : public VistaLeafNode
 	//, public IVistaObserver
 {
-	friend class VistaSG;
+	friend class VistaSceneGraph;
 	friend class IVistaNodeBridge;
 public:
 	/** Retrieve node's geometry

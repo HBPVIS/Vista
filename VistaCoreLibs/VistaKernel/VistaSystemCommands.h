@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSystemCommands.h 22163 2011-07-03 14:11:15Z dr165799 $
 
 #ifndef _VISTASYSTEMCOMMANDS_H
 #define _VISTASYSTEMCOMMANDS_H
@@ -30,8 +30,10 @@
 /* INCLUDES                                                                   */
 /*============================================================================*/
 #include <VistaKernel/VistaKernelConfig.h>
-#include <VistaKernel/VistaKernelOut.h>
+
 #include <VistaAspects/VistaExplicitCallbackInterface.h>
+#include <VistaBase/VistaStreamUtils.h>
+
 #include <map>
 #include <string>
 #include <iostream>
@@ -44,14 +46,14 @@
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
 class VistaSystem;
+class VistaFrameLoop;
 class VistaGraphicsManager;
 class VistaDisplayManager;
-class VistaPickManager;
 class VistaKeyboardSystemControl;
 class VistaEventManager;
 class VistaInteractionManager;
 class VistaInteractionContext;
-class VistaClusterAux;
+class VistaClusterMode;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -70,11 +72,11 @@ public:
 class VISTAKERNELAPI VistaToggleFramerateCommand : public IVistaExplicitCallbackInterface
 {
 public:
-	VistaToggleFramerateCommand(VistaGraphicsManager *pGrMgr);
+	VistaToggleFramerateCommand( VistaFrameLoop* pLoop );
 
 	virtual bool Do();
 
-	VistaGraphicsManager *m_pGrMgr;
+	VistaFrameLoop* m_pLoop;
 };
 
 class VISTAKERNELAPI VistaToggleCursorCommand : public IVistaExplicitCallbackInterface
@@ -108,9 +110,9 @@ public:
 
     virtual bool Do();
 private:
-    VistaInteractionContext    *m_pCtx;
+    VistaInteractionContext    *m_pInteractionContext;
     VistaSystem                *m_pSys;
-    std::string m_strRoleId;
+    std::string m_sRoleId;
     bool m_bDumpGraph,
          m_bWritePorts;
 };
@@ -128,7 +130,7 @@ public:
 
 	bool Do()
 	{
-		(*m_pObj).Debug(vkernout);
+		(*m_pObj).Debug( vstr::out() );
 		return true;
 	}
 
@@ -193,6 +195,7 @@ public:
 private:
 	VistaDisplayManager*	m_pDisplayManager;
 };
+
 
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */

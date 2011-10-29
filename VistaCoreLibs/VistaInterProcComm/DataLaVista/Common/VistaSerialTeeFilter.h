@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSerialTeeFilter.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef DLVISTASERIALTEEFILTER_H
 #define DLVISTASERIALTEEFILTER_H
@@ -53,42 +53,27 @@ class VistaThreadEvent;
 
 class VISTAINTERPROCCOMMAPI DLVistaSerialTeeFilter : public IDLVistaTeeFilter
 {
-private:
-	typedef std::map<IDLVistaDataPacket *, int> PACKETMAP;
-
-	PACKETMAP *m_mpPacketMap;
-
-	VistaMutex *m_pMapMutex;
-
-protected:
-
-
-	int GetPacketIndex(IDLVistaDataPacket *) const;
-
-	void UpdatePacketIndex(IDLVistaDataPacket *pPacket, int iIndex);
 public:
 
-	/**
-	 *
-	 */
 	DLVistaSerialTeeFilter();
 
-	/**
-	 *
-	 */
 	~DLVistaSerialTeeFilter();
 
 	IDLVistaDataPacket *FilterPacketL(IDLVistaDataPacket *);
 
-	/**
-	 *
-	 */
 	virtual bool RecycleDataPacket(IDLVistaDataPacket *pPacket, IDLVistaPipeComponent *pSender, bool bBlock=false);
 
-	/**
-	 *
-	 */
 	virtual IDLVistaDataPacket * ReturnPacket();
+
+
+protected:
+	int GetPacketIndex(IDLVistaDataPacket *) const;
+	void UpdatePacketIndex(IDLVistaDataPacket *pPacket, int iIndex);
+
+private:
+	typedef std::map<IDLVistaDataPacket *, int> PACKETMAP;
+	PACKETMAP *m_mpPacketMap;
+	VistaMutex *m_pMapMutex;
 
 };
 

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaActiveDataConsumer.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 
 /*============================================================================*/
@@ -129,7 +129,7 @@ bool DLVistaActiveDataConsumer::StopComponent(bool bJoin)
 
 bool DLVistaActiveDataConsumer::HaltComponent()
 {
-	//cout << "DLVistaActiveDataConsumer::HaltComponent()\n";
+	//cout << "DLVistaActiveDataConsumer::HaltComponent()" << std::endl;
 	return m_pThreadLoop->Abort();
 }
 
@@ -146,13 +146,13 @@ void DLVistaActiveDataConsumer::IndicateConsumptionEnd()
 
 bool DLVistaActiveDataConsumer::IsComponentRunning() const
 {
-	//cout << "DLVistaActiveDataConsumer::IsComponentRunning()\n";
+	//cout << "DLVistaActiveDataConsumer::IsComponentRunning()" << std::endl;
 	return m_pThreadLoop->IsRunning();
 }
 
 bool DLVistaActiveDataConsumer::IsComponentPausing() const
 {
-	//cout << "DLVistaActiveDataConsumer::IsComponentPausing()\n";
+	//cout << "DLVistaActiveDataConsumer::IsComponentPausing()" << std::endl;
 	return m_pThreadLoop->IsPausing();
 }
 

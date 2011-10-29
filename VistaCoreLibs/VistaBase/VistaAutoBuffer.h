@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDeSerializer.h 4719 2009-09-10 09:29:58Z tbeer $
 
 #ifndef _VISTAAUTOBUFFER_H_
 #define _VISTAAUTOBUFFER_H_
@@ -57,7 +57,7 @@ public:
 	// of vector.
 	// ---------------------------------------------------------------
 
-	typedef unsigned char value_type;
+	typedef VistaType::byte value_type;
 	typedef std::vector<value_type> bufferType;
 	typedef bufferType::size_type size_type;
 
@@ -96,7 +96,7 @@ public:
 	bool HasOneOwner() const;
 	VistaType::sint32 GetCount() const;
 protected:
-	std::vector<unsigned char> *m_vecBuffer;
+	std::vector<VistaType::byte> *m_vecBuffer;
 
 	VistaAutoBuffer();
 	VistaAutoBuffer( bool bValid );

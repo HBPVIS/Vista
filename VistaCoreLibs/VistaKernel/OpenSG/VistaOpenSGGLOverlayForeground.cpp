@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenSGGLOverlayForeground.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 //---------------------------------------------------------------------------
 //  Includes
@@ -34,8 +34,11 @@
 
 #ifdef WIN32
 #pragma warning(push)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4189)
 #pragma warning(disable: 4231)
 #pragma warning(disable: 4244)
+#pragma warning(disable: 4267)
 #endif
 
 #include <OpenSG/OSGConfig.h>

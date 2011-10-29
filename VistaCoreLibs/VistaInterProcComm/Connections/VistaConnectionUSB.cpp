@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaConnectionUSB.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 
 #ifdef WIN32
@@ -57,12 +57,10 @@
 #include <regex.h>
 #endif
 
-//#include <VistaTools/VistaFileSystemDirectory.h>
-
 #include "VistaConnectionFile.h"
 #include "VistaConnectionUSB.h"
 
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 using namespace std;
 /*============================================================================*/
@@ -117,10 +115,10 @@ bool VistaConnectionUSB::Open()
 			if( busid != 0 && devnum != 0 )
 			{
 #ifdef DEBUG
-				vipcout << std::hex << "found USB device with busid " << busid
+			vstr::outi() << std::hex << "found USB device with busid " << busid
 						  << ", device number " << devnum 
 						  << ", vendorid " << vendorid
-						  << ", product id " << productid
+						  << ", product id " << productid << std::dec
 						  << std::endl;
 #endif
 
@@ -131,7 +129,7 @@ bool VistaConnectionUSB::Open()
 					std::string strDevPath( szDevPath );
 					
 #ifdef DEBUG
-					vipcout << "[ConnectionUSB] device with vendorid/productid "
+					vstr::outi() << "[ConnectionUSB] device with vendorid/productid "
 							  << vendorid << "/" << productid
 							  << " found, opening file connection on device path "
 							  << strDevPath << std::endl;
@@ -143,13 +141,13 @@ bool VistaConnectionUSB::Open()
 
 					if( !m_pFileCon->Open() )
 					{
-						vipcerr << "[ConnectionUSB] failed to open file connection!" << std::endl;
+						vstr::erf() << "[ConnectionUSB] failed to open file connection!" << std::endl;
 						return false;
 					}
 					
 					if( ioctl( m_pFileCon->GetConnectionWaitForDescriptor(), USBDEVFS_CLAIMINTERFACE ) )
 					{
-						perror( "[ConnectionUSB] error claiming usb interface" );
+						vstr::errp() <<  "[ConnectionUSB] error claiming usb interface" << std::endl;
 					}
 
 
@@ -234,7 +232,7 @@ bool VistaConnectionUSB::Open()
 				continue;
 
 #ifdef DEBUG
-			vipcout << "[ConnectionUSB] reading device descriptor from " 
+			vstr::outi() << "[ConnectionUSB] reading device descriptor from " 
 					  << (*busit)->GetName() << std::endl;
 #endif
 
@@ -243,27 +241,27 @@ bool VistaConnectionUSB::Open()
 			
 			if( !m_pFileCon->Open() )
 			{
-				vipcerr << "[ConnectionUSB] failed to open fileconnection!" << std::endl;
+				vstr::errp() << "[ConnectionUSB] failed to open fileconnection!" << std::endl;
 			}
 
 			unsigned char device_descriptor[18];
 			if(	m_pFileCon->Receive( device_descriptor, 18, 0 ) != 18 )
 			{
-				vipcout << "[ConnectionUSB] unable to read 18 byte device descriptor" << std::endl;
+				vstr::outi() << "[ConnectionUSB] unable to read 18 byte device descriptor" << std::endl;
 				m_pFileCon->Close();
 				delete m_pFileCon;
 				continue;
 			}
 
 #ifdef DEBUG
-			ios_base::fmtflags format = vipcout.flags();
+			ios_base::fmtflags format = vstr::out().flags();
 			for( int i = 0 ; i < 18 ; i++ )
 			{
-				vipcout << std::hex << std::setfill('0') << std::setw(2)
+			vstr::out() << std::hex << std::setfill('0') << std::setw(2)
 						  << (unsigned int)(device_descriptor[i]) << " " ;
 			}
-			vipcout << std::endl;
-			vipcout.flags(format);			
+			vstr::out() << std::endl;
+			vstr::out().flags(format);			
 #endif
 
 			// bytes come from the USB bus LSB first, thus switch and bitshift
@@ -274,7 +272,7 @@ bool VistaConnectionUSB::Open()
 
 			if( vendorid == m_nVendorID && productid == m_nProductID )
 			{
-				vipcout << std::hex << "device with vendorid/productid "
+				vstr::out() << std::hex << "device with vendorid/productid "
 						  << vendorid << "/" << productid
 						  << " found. keeping fileconnection open." 
 						  << std::endl << std::dec;
@@ -286,9 +284,8 @@ bool VistaConnectionUSB::Open()
 				int config=0;
 				if( ioctl( m_pFileCon->GetConnectionWaitForDescriptor(), USBDEVFS_CLAIMINTERFACE, &config ) )
 				{
-					perror( "[ConnectionUSB] error claiming usb interface" );
-					vipcout << "errno: " << errno << std::endl;
-					vipcout << "ESPIPE: " << ESPIPE << std::endl;
+					vstr::errp() << "[ConnectionUSB] error claiming usb interface" withh errno: "
+						<< errno << std::endl;
 					delete m_pFileCon;
 					continue;
 				}
@@ -303,13 +300,13 @@ bool VistaConnectionUSB::Open()
 */
 #endif
 
-/*	std::cout << std::hex 
+/*	vstr::outi() << std::hex 
 			  << "[ConnectionUSB] no device with vendor/product id " 
 			  << m_nVendorID << "/" << m_nProductID
-			  << " detected. failed to open usb connection." << std::endl;
+			  << " detected. failed to open usb connection." << vstr::dec << std::endl;
 */
 
-	vipcout << "[ConnectionUSB] Open: not implemented on this platform."
+	vstr::errp() << "[ConnectionUSB] Open: not implemented on this platform."
 			  << std::endl;
 
 	SetIsOpen(false);
@@ -357,8 +354,8 @@ int VistaConnectionUSB::Receive(void *buffer, const int length, int iTimeout)
 
 	if( ret < 0 )
 	{
-		perror( "[ConnectionUSB] ioctl error" );
-		vipcerr << "error code: " << ret << std::endl;
+		vstr::errp() << "[ConnectionUSB] ioctl error with error code "
+				<< ret << std::endl;
 		return -1;
 	}	
 #endif	

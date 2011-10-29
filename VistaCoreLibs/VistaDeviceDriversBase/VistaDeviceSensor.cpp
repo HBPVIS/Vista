@@ -20,15 +20,17 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDeviceSensor.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VistaDeviceSensor.h"
+
 #include <VistaAspects/VistaPropertyFunctorRegistry.h>
+
 #include <VistaBase/VistaTimer.h>
 #include <VistaBase/VistaTimeUtils.h>
-#include <VistaTools/VistaCPUInfo.h>
+#include <VistaBase/VistaStreamUtils.h>
 
-#include "VistaDeviceDriversOut.h"
+#include <VistaTools/VistaCPUInfo.h>
 
 //#define VISTA_USE_ATOMICS
 
@@ -216,7 +218,7 @@ const TVistaRingBuffer<VistaSensorMeasure> &VistaMeasureHistory::GetReadBuffer()
 bool IVistaMeasureTranscoderFactory::OnUnload()
 {
 #if defined(DEBUG)
-	vddout << "IVistaMeasureTranscoderFactory::OnUnload("
+	vstr::outi() << "IVistaMeasureTranscoderFactory::OnUnload("
 			<< typeid( *this ).name()
 			<< ")" << std::endl;
 #endif
@@ -452,7 +454,7 @@ VistaDeviceSensor::VistaDeviceSensor()
   m_pParent(NULL)
 {
 #if defined(DEBUG)
-	vddout << "VistaDeviceSensor::VistaDeviceSensor() -- "
+	vstr::outi() << "VistaDeviceSensor::VistaDeviceSensor() -- "
 		 << VistaAtomics::GetAtomicState() << std::endl;
 #endif
 }
@@ -707,7 +709,7 @@ VistaWindowAverageTimer &VistaDeviceSensor::GetWindowTimer() const
 unsigned int VistaDeviceSensor::GetNewMeasureCount( unsigned int &lastRead ) const
 {
 	unsigned int nMIndex = GetMeasureIndex();
-	size_t nNewMeasureCount = std::min<unsigned int>( nMIndex - lastRead,
+	unsigned int nNewMeasureCount = std::min<unsigned int>( nMIndex - lastRead,
 			m_rbSensorHistory.m_nClientReadSize);
 
 	lastRead = nMIndex;

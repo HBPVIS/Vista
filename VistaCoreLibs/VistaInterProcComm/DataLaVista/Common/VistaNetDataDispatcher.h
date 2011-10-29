@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaNetDataDispatcher.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTANETDATADISPATCHER_H
 #define _VISTANETDATADISPATCHER_H
@@ -70,7 +70,12 @@ public:
 	* Add a client to the dispatcher. The dispatcher will try to get a connection to the client
 	* <sHost>, who should have a listening server socket on port <iPort>
 	*/
-	void AddClient(const std::string& sHost, const int iPort);
+	bool AddClient(const std::string& sHost, const int iPort);
+	/**
+	* Add a client using an existing IP connection. The connection will be switched to
+	* blocking, if it isn't already.
+	*/
+	bool AddClient( VistaConnectionIP* pConnection );
 protected:
 private:
 	/**

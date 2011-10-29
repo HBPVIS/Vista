@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaBaseTypes.h 22143 2011-07-01 15:07:00Z dr165799 $
 
 #ifndef _VISTABASETYPES_H
 #define _VISTABASETYPES_H
@@ -59,16 +59,15 @@ namespace VistaType
 	typedef unsigned short		  ushort16;
 	typedef short			      sshort16;
 	typedef float                  float32;
-	typedef unsigned char           ubyte8;
-	typedef char                     byte8;
+	typedef unsigned char             byte;
 	typedef signed long long        sint64;
 	typedef unsigned long long      uint64;
 	typedef double                 float64;
 
-	typedef double  microtime;   /**< sec.msec since arbitrary point in time      */
+	typedef double  microtime;   /**< sec.msec since arbitrary point in time            */
 	typedef double  systemtime;  /**< sec.msec since 01.01.1970
-													 (less precise than VistaType::microtime)*/
-	typedef uint64  microstamp;  /**< rtc or register value                       */
+													 (less precise than microtime)      */
+	typedef uint64  microstamp;  /**< continuous counter without specific time interval */
 
 	/**
 	 * a union datatype of 32 bits width
@@ -80,18 +79,18 @@ namespace VistaType
 	union VISTABASEAPI val32
 	{
 		/// constructor for automatic conversion of float values
-		val32( const VistaType::float32 init ) : asFloat( init ) {};
+		val32( const float32 nInit ) : asFloat( nInit ) {};
 
 		/// constructor for automatic conversion of long values
-		val32( const VistaType::sint32  init ) : asSignedInt( init ) {};
+		val32( const sint32  nInit ) : asSignedInt( nInit ) {};
 
 		/// explicit conversion constructor (only for internal use)
-		val32( const VistaType::uint32  init ) : asUnsignedInt( init ) {};
+		val32( const uint32  nInit ) : asUnsignedInt( nInit ) {};
 
-		VistaType::float32        asFloat;
-		VistaType::sint32         asSignedInt;
-		VistaType::uint32         asUnsignedInt;
-		unsigned char  asBytes[4];
+		float32			asFloat;
+		sint32			asSignedInt;
+		uint32			asUnsignedInt;
+		byte			asBytes[4];
 	};
 
 	/**
@@ -104,19 +103,19 @@ namespace VistaType
 	union VISTABASEAPI val64
 	{
 		/// constructor for automatic conversion of double values
-		val64( const float64 init ) : asFloat( init ) {};
+		val64( const float64 nInit ) : asFloat( nInit ) {};
 
 		/// constructor for automatic conversion of long long values
-		val64( const sint64  init ) : asSignedInt( init ) {};
+		val64( const sint64  nInit ) : asSignedInt( nInit ) {};
 
 		/// explicit conversion constructor (only for internal use)
-		explicit val64( const uint64  init ) : asUnsignedInt( init ) {};
+		explicit val64( const uint64  nInit ) : asUnsignedInt( nInit ) {};
 
 
-		float64        asFloat;
-		sint64         asSignedInt;
-		uint64         asUnsignedInt;
-		unsigned char  asBytes[8];
+		float64			asFloat;
+		sint64			asSignedInt;
+		uint64			asUnsignedInt;
+		byte			asBytes[8];
 	};
 
 } // namespace VistaType

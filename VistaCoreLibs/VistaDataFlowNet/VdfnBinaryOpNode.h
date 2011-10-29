@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnBinaryOpNode.h 21565 2011-05-26 13:22:59Z dr165799 $
 
 #ifndef _VDFNBINARYOPNODE_H
 #define _VDFNBINARYOPNODE_H
@@ -71,6 +71,7 @@ public:
 	class BinOp
 	{
 	public:
+		virtual ~BinOp() {}
 		virtual K operator()(const T&, const T2&) const = 0;
 	};
 

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPipeComponent.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef IDLVISTAPIPECOMPONENT_H
 #define IDLVISTAPIPECOMPONENT_H
@@ -60,7 +60,6 @@ class IDLVistaDataPacket;
  */
 class VISTAINTERPROCCOMMAPI IDLVistaPipeComponent
 {
-private:
 protected:
 	IDLVistaPipeComponent();
 public:
@@ -106,14 +105,8 @@ public:
 	virtual bool AttachInputComponent(IDLVistaPipeComponent * pComp) =0;
 
 
-	/**
-	 *
-	 */
 	virtual IDLVistaPipeComponent *GetOutboundByIndex(int iIndex) const = 0;
 
-	/**
-	 *
-	 */
 	virtual int GetNumberOfOutbounds() const = 0;
 
 	/**
@@ -125,14 +118,8 @@ public:
 	 */
 	virtual bool DetachInputComponent(IDLVistaPipeComponent * pComp) =0;
 
-	/**
-	 *
-	 */
 	virtual int GetNumberOfInbounds() const = 0;
 
-	/**
-	 *
-	 */
 	virtual IDLVistaPipeComponent *GetInboundByIndex(int iIndex) const = 0;
 
 	/**

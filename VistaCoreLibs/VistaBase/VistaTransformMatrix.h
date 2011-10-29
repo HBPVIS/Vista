@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaTransformMatrix.h 23167 2011-09-05 14:08:59Z dr165799 $
 
 #ifndef _VISTATRANSFORMMATRIX_H
 #define _VISTATRANSFORMMATRIX_H
@@ -35,6 +35,7 @@
 #include "VistaQuaternion.h"
 
 #include <cmath>
+#include <cstring>
 #include <iostream>
 
 /*============================================================================*/
@@ -46,8 +47,21 @@
 /*============================================================================*/
 
 
+
 class VISTABASEAPI VistaTransformMatrix
 {
+public:
+	class VISTABASEAPI Row
+	{
+	public:
+		float& operator[]( const int iRowIndex );
+		const float& operator[]( const int iRowIndex ) const;
+	private:
+		friend class VistaTransformMatrix;
+		Row( float* afData );
+		float* m_afData;
+	};
+
 public:
 	VistaTransformMatrix();
 	VistaTransformMatrix(
@@ -74,8 +88,15 @@ public:
 									const VistaVector3D& v3ZAxis );
 	VistaTransformMatrix( const float fScale );
 
-	const float* operator[]( const int iRowIndex ) const;
-	float* operator[]( const int iRowIndex );
+	const float& operator()( const int iRowIndex, const int iColumnIndex ) const;
+	float& operator()( const int iRowIndex, const int iColumnIndex );
+
+	const Row operator[]( const int iRowIndex ) const;
+	Row operator[]( const int iRowIndex );
+
+	// direct access to the internal column-major data storage
+	float* GetData();
+	const float* GetData() const;
 
 	void GetRow( const int iRowIndex, float a4fRow[4] ) const;
 	void GetRow( const int iRowIndex, double a4dRow[4] ) const;
@@ -195,7 +216,7 @@ public:
 	bool operator!=( const VistaTransformMatrix& matOther ) const;
 
 private:
-	float m_a4x4fMatrix[4][4];
+	float m_a16fData[16];
 };
 
 // global operators
@@ -241,22 +262,22 @@ inline VistaTransformMatrix::VistaTransformMatrix(
 	const float fVal20, const float fVal21, const float fVal22, const float fVal23,
 	const float fVal30, const float fVal31, const float fVal32, const float fVal33 )
 {
-	m_a4x4fMatrix[0][0] = fVal00;
-	m_a4x4fMatrix[0][1] = fVal01;
-	m_a4x4fMatrix[0][2] = fVal02;
-	m_a4x4fMatrix[0][3] = fVal03;
-	m_a4x4fMatrix[1][0] = fVal10;
-	m_a4x4fMatrix[1][1] = fVal11;
-	m_a4x4fMatrix[1][2] = fVal12;
-	m_a4x4fMatrix[1][3] = fVal13;
-	m_a4x4fMatrix[2][0] = fVal20;
-	m_a4x4fMatrix[2][1] = fVal21;
-	m_a4x4fMatrix[2][2] = fVal22;
-	m_a4x4fMatrix[2][3] = fVal23;
-	m_a4x4fMatrix[3][0] = fVal30;
-	m_a4x4fMatrix[3][1] = fVal31;
-	m_a4x4fMatrix[3][2] = fVal32;
-	m_a4x4fMatrix[3][3] = fVal33;
+	operator()( 0, 0 ) = fVal00;
+	operator()( 0, 1 ) = fVal01;
+	operator()( 0, 2 ) = fVal02;
+	operator()( 0, 3 ) = fVal03;
+	operator()( 1, 0 ) = fVal10;
+	operator()( 1, 1 ) = fVal11;
+	operator()( 1, 2 ) = fVal12;
+	operator()( 1, 3 ) = fVal13;
+	operator()( 2, 0 ) = fVal20;
+	operator()( 2, 1 ) = fVal21;
+	operator()( 2, 2 ) = fVal22;
+	operator()( 2, 3 ) = fVal23;
+	operator()( 3, 0 ) = fVal30;
+	operator()( 3, 1 ) = fVal31;
+	operator()( 3, 2 ) = fVal32;
+	operator()( 3, 3 ) = fVal33;
 }
 
 inline VistaTransformMatrix::VistaTransformMatrix( const float a4fRow0[4],
@@ -304,10 +325,10 @@ inline VistaTransformMatrix::VistaTransformMatrix ( const VistaQuaternion& qRota
 {
 	SetBasisMatrix( qRotation );
 	SetTranslation( v3Translation );
-	m_a4x4fMatrix[3][0] = 0.0f;
-	m_a4x4fMatrix[3][1] = 0.0f;
-	m_a4x4fMatrix[3][2] = 0.0f;
-	m_a4x4fMatrix[3][3] = 1.0f;
+	operator()( 3, 0 ) = 0.0f;
+	operator()( 3, 1 ) = 0.0f;
+	operator()( 3, 2 ) = 0.0f;
+	operator()( 3, 3 ) = 1.0f;
 }
 
 inline VistaTransformMatrix::VistaTransformMatrix( const VistaAxisAndAngle& aaaRotation )
@@ -326,14 +347,36 @@ inline VistaTransformMatrix::VistaTransformMatrix( const float fScale )
 }
 
 
-inline const float* VistaTransformMatrix::operator[]( const int iRowIndex ) const
+inline const float& VistaTransformMatrix::operator()( const int iRowIndex, const int iColumnIndex ) const
 {
-	return m_a4x4fMatrix[iRowIndex];
+	return m_a16fData[ iRowIndex + 4 * iColumnIndex ];
+}
+inline float& VistaTransformMatrix::operator()( const int iRowIndex, const int iColumnIndex )
+{
+	return m_a16fData[ iRowIndex + 4 * iColumnIndex ];
 }
 
-inline float* VistaTransformMatrix::operator[]( const int iRowIndex )
+inline const VistaTransformMatrix::Row VistaTransformMatrix::operator[]( const int iRowIndex ) const
 {
-	return m_a4x4fMatrix[iRowIndex];
+	// while a const_cast is usually evil, it's okay here: this way, we onyl need one Row
+	// object (not one Row and one ConstRow), and since the returned row is const, it only
+	// allows const access to the data, so all is fine
+	return Row( const_cast<float*>( &m_a16fData[iRowIndex] ) );
+}
+
+inline VistaTransformMatrix::Row VistaTransformMatrix::operator[]( const int iRowIndex )
+{
+	return Row( &m_a16fData[iRowIndex] );
+}
+
+// direct access to the internal column-major data storage
+inline float* VistaTransformMatrix::GetData()
+{
+	return m_a16fData;
+}
+inline const float* VistaTransformMatrix::GetData() const
+{
+	return m_a16fData;
 }
 
 inline bool VistaTransformMatrix::CheckForValidity() const
@@ -342,7 +385,7 @@ inline bool VistaTransformMatrix::CheckForValidity() const
 	{
 		for( int j = 0; j < 4; ++j )
 		{
-			if( Vista::IsValidNumber( m_a4x4fMatrix[i][j] ) == false )
+			if( Vista::IsValidNumber( operator()( i, j ) ) == false )
 				return false;
 		}
 	}
@@ -350,261 +393,261 @@ inline bool VistaTransformMatrix::CheckForValidity() const
 }
 inline void VistaTransformMatrix::GetRow( const int iRowIndex, float a4fRow[4] ) const
 {
-	a4fRow[0] = m_a4x4fMatrix[iRowIndex][0];
-	a4fRow[1] = m_a4x4fMatrix[iRowIndex][1];
-	a4fRow[2] = m_a4x4fMatrix[iRowIndex][2];
-	a4fRow[3] = m_a4x4fMatrix[iRowIndex][3];
+	a4fRow[0] = operator()( iRowIndex, 0 );
+	a4fRow[1] = operator()( iRowIndex, 1 );
+	a4fRow[2] = operator()( iRowIndex, 2 );
+	a4fRow[3] = operator()( iRowIndex, 3 );
 }
 inline void VistaTransformMatrix::GetRow( const int iRowIndex, double a4dRow[4] ) const
 {
-	a4dRow[0] = (double)m_a4x4fMatrix[iRowIndex][0];
-	a4dRow[1] = (double)m_a4x4fMatrix[iRowIndex][1];
-	a4dRow[2] = (double)m_a4x4fMatrix[iRowIndex][2];
-	a4dRow[3] = (double)m_a4x4fMatrix[iRowIndex][3];
+	a4dRow[0] = (double)operator()( iRowIndex, 0 );
+	a4dRow[1] = (double)operator()( iRowIndex, 1 );
+	a4dRow[2] = (double)operator()( iRowIndex, 2 );
+	a4dRow[3] = (double)operator()( iRowIndex, 3 );
 }
 
 inline VistaVector3D VistaTransformMatrix::GetRow( const int iRowIndex ) const
 {
-	return VistaVector3D( m_a4x4fMatrix[iRowIndex][0],
-							m_a4x4fMatrix[iRowIndex][1],
-							m_a4x4fMatrix[iRowIndex][2],
-							m_a4x4fMatrix[iRowIndex][3] );
+	return VistaVector3D( operator()( iRowIndex, 0 ),
+							operator()( iRowIndex, 1 ),
+							operator()( iRowIndex, 2 ),
+							operator()( iRowIndex, 3 ) );
 }
 
 
 inline void VistaTransformMatrix::SetRow( const int iRowIndex, const VistaVector3D& v3Row )
 {
-	m_a4x4fMatrix[iRowIndex][0] = v3Row[0];
-	m_a4x4fMatrix[iRowIndex][1] = v3Row[1];
-	m_a4x4fMatrix[iRowIndex][2] = v3Row[2];
-	m_a4x4fMatrix[iRowIndex][3] = v3Row[3];
+	operator()( iRowIndex, 0 ) = v3Row[0];
+	operator()( iRowIndex, 1 ) = v3Row[1];
+	operator()( iRowIndex, 2 ) = v3Row[2];
+	operator()( iRowIndex, 3 ) = v3Row[3];
 }
 
 inline void VistaTransformMatrix::SetRow( const int iRowIndex, const float a4fRow[4] )
 {
-	m_a4x4fMatrix[iRowIndex][0] = a4fRow[0];
-	m_a4x4fMatrix[iRowIndex][1] = a4fRow[1];
-	m_a4x4fMatrix[iRowIndex][2] = a4fRow[2];
-	m_a4x4fMatrix[iRowIndex][3] = a4fRow[3];
+	operator()( iRowIndex, 0 ) = a4fRow[0];
+	operator()( iRowIndex, 1 ) = a4fRow[1];
+	operator()( iRowIndex, 2 ) = a4fRow[2];
+	operator()( iRowIndex, 3 ) = a4fRow[3];
 }
 inline void VistaTransformMatrix::SetRow( const int iRowIndex, const double a4dRow[4] )
 {
-	m_a4x4fMatrix[iRowIndex][0] = (float)a4dRow[0];
-	m_a4x4fMatrix[iRowIndex][1] = (float)a4dRow[1];
-	m_a4x4fMatrix[iRowIndex][2] = (float)a4dRow[2];
-	m_a4x4fMatrix[iRowIndex][3] =(float) a4dRow[3];
+	operator()( iRowIndex, 0 ) = (float)a4dRow[0];
+	operator()( iRowIndex, 1 ) = (float)a4dRow[1];
+	operator()( iRowIndex, 2 ) = (float)a4dRow[2];
+	operator()( iRowIndex, 3 ) =(float) a4dRow[3];
 }
 
 inline void VistaTransformMatrix::GetColumn( const int iColumnIndex, float a4fColumn[4] ) const
 {
-	a4fColumn[0] = m_a4x4fMatrix[0][iColumnIndex];
-	a4fColumn[1] = m_a4x4fMatrix[1][iColumnIndex];
-	a4fColumn[2] = m_a4x4fMatrix[2][iColumnIndex];
-	a4fColumn[3] = m_a4x4fMatrix[3][iColumnIndex];
+	a4fColumn[0] = operator()( 0, iColumnIndex );
+	a4fColumn[1] = operator()( 1, iColumnIndex );
+	a4fColumn[2] = operator()( 2, iColumnIndex );
+	a4fColumn[3] = operator()( 3, iColumnIndex );
 }
 inline void VistaTransformMatrix::GetColumn( const int iColumnIndex, double a4dColumn[4] ) const
 {
-	a4dColumn[0] = (double)m_a4x4fMatrix[0][iColumnIndex];
-	a4dColumn[1] = (double)m_a4x4fMatrix[1][iColumnIndex];
-	a4dColumn[2] = (double)m_a4x4fMatrix[2][iColumnIndex];
-	a4dColumn[3] = (double)m_a4x4fMatrix[3][iColumnIndex];
+	a4dColumn[0] = (double)operator()( 0, iColumnIndex );
+	a4dColumn[1] = (double)operator()( 1, iColumnIndex );
+	a4dColumn[2] = (double)operator()( 2, iColumnIndex );
+	a4dColumn[3] = (double)operator()( 3, iColumnIndex );
 }
 
 inline VistaVector3D VistaTransformMatrix::GetColumn( const int iColumnIndex ) const
 {
-	return VistaVector3D( m_a4x4fMatrix[0][iColumnIndex],
-							m_a4x4fMatrix[1][iColumnIndex],
-							m_a4x4fMatrix[2][iColumnIndex],
-							m_a4x4fMatrix[3][iColumnIndex] );
+	return VistaVector3D( operator()( 0, iColumnIndex ),
+							operator()( 1, iColumnIndex ),
+							operator()( 2, iColumnIndex ),
+							operator()( 3, iColumnIndex ) );
 }
 
 inline void VistaTransformMatrix::SetColumn( const int iColumnIndex, const float a4fColumn[4] )
 {
-	m_a4x4fMatrix[0][iColumnIndex] = a4fColumn[0];
-	m_a4x4fMatrix[1][iColumnIndex] = a4fColumn[1];
-	m_a4x4fMatrix[2][iColumnIndex] = a4fColumn[2];
-	m_a4x4fMatrix[3][iColumnIndex] = a4fColumn[3];
+	operator()( 0, iColumnIndex ) = a4fColumn[0];
+	operator()( 1, iColumnIndex ) = a4fColumn[1];
+	operator()( 2, iColumnIndex ) = a4fColumn[2];
+	operator()( 3, iColumnIndex ) = a4fColumn[3];
 }
 inline void VistaTransformMatrix::SetColumn( const int iColumnIndex, const double a4dColumn[4] )
 {
-	m_a4x4fMatrix[0][iColumnIndex] = (float)a4dColumn[0];
-	m_a4x4fMatrix[1][iColumnIndex] = (float)a4dColumn[1];
-	m_a4x4fMatrix[2][iColumnIndex] = (float)a4dColumn[2];
-	m_a4x4fMatrix[3][iColumnIndex] = (float)a4dColumn[3];
+	operator()( 0, iColumnIndex ) = (float)a4dColumn[0];
+	operator()( 1, iColumnIndex ) = (float)a4dColumn[1];
+	operator()( 2, iColumnIndex ) = (float)a4dColumn[2];
+	operator()( 3, iColumnIndex ) = (float)a4dColumn[3];
 }
 
 inline void VistaTransformMatrix::SetColumn( const int iColumnIndex, const VistaVector3D& v3Column )
 {
-	m_a4x4fMatrix[0][iColumnIndex] = v3Column[0];
-	m_a4x4fMatrix[1][iColumnIndex] = v3Column[1];
-	m_a4x4fMatrix[2][iColumnIndex] = v3Column[2];
-	m_a4x4fMatrix[3][iColumnIndex] = v3Column[3];
+	operator()( 0, iColumnIndex ) = v3Column[0];
+	operator()( 1, iColumnIndex ) = v3Column[1];
+	operator()( 2, iColumnIndex ) = v3Column[2];
+	operator()( 3, iColumnIndex ) = v3Column[3];
 }
 
 
 inline float VistaTransformMatrix::GetValue( const int iRowIndex, const int iColumnIndex ) const
 {
-	return m_a4x4fMatrix[iRowIndex][iColumnIndex];
+	return m_a16fData[iRowIndex + 4 * iColumnIndex];
 }
 
 inline void VistaTransformMatrix::SetValue( const int iRowIndex, const int iColumnIndex, const float fValue )
 {
-	m_a4x4fMatrix[iRowIndex][iColumnIndex] = fValue;
+	operator()( iRowIndex, iColumnIndex ) = fValue;
 }
 
 inline void VistaTransformMatrix::SetValues( const float a4x4fMatrix[4][4] )
 {
-	m_a4x4fMatrix[0][0] = a4x4fMatrix[0][0];
-	m_a4x4fMatrix[0][1] = a4x4fMatrix[0][1];
-	m_a4x4fMatrix[0][2] = a4x4fMatrix[0][2];
-	m_a4x4fMatrix[0][3] = a4x4fMatrix[0][3];
-	m_a4x4fMatrix[1][0] = a4x4fMatrix[1][0];
-	m_a4x4fMatrix[1][1] = a4x4fMatrix[1][1];
-	m_a4x4fMatrix[1][2] = a4x4fMatrix[1][2];
-	m_a4x4fMatrix[1][3] = a4x4fMatrix[1][3];
-	m_a4x4fMatrix[2][0] = a4x4fMatrix[2][0];
-	m_a4x4fMatrix[2][1] = a4x4fMatrix[2][1];
-	m_a4x4fMatrix[2][2] = a4x4fMatrix[2][2];
-	m_a4x4fMatrix[2][3] = a4x4fMatrix[2][3];
-	m_a4x4fMatrix[3][0] = a4x4fMatrix[3][0];
-	m_a4x4fMatrix[3][1] = a4x4fMatrix[3][1];
-	m_a4x4fMatrix[3][2] = a4x4fMatrix[3][2];
-	m_a4x4fMatrix[3][3] = a4x4fMatrix[3][3];
+	operator()( 0, 0 ) = a4x4fMatrix[0][0];
+	operator()( 0, 1 ) = a4x4fMatrix[0][1];
+	operator()( 0, 2 ) = a4x4fMatrix[0][2];
+	operator()( 0, 3 ) = a4x4fMatrix[0][3];
+	operator()( 1, 0 ) = a4x4fMatrix[1][0];
+	operator()( 1, 1 ) = a4x4fMatrix[1][1];
+	operator()( 1, 2 ) = a4x4fMatrix[1][2];
+	operator()( 1, 3 ) = a4x4fMatrix[1][3];
+	operator()( 2, 0 ) = a4x4fMatrix[2][0];
+	operator()( 2, 1 ) = a4x4fMatrix[2][1];
+	operator()( 2, 2 ) = a4x4fMatrix[2][2];
+	operator()( 2, 3 ) = a4x4fMatrix[2][3];
+	operator()( 3, 0 ) = a4x4fMatrix[3][0];
+	operator()( 3, 1 ) = a4x4fMatrix[3][1];
+	operator()( 3, 2 ) = a4x4fMatrix[3][2];
+	operator()( 3, 3 ) = a4x4fMatrix[3][3];
 }
 inline void VistaTransformMatrix::SetValues( const float a16fMatrix[16] )
 {
-	m_a4x4fMatrix[0][0] = a16fMatrix[0];
-	m_a4x4fMatrix[0][1] = a16fMatrix[1];
-	m_a4x4fMatrix[0][2] = a16fMatrix[2];
-	m_a4x4fMatrix[0][3] = a16fMatrix[3];
-	m_a4x4fMatrix[1][0] = a16fMatrix[4];
-	m_a4x4fMatrix[1][1] = a16fMatrix[5];
-	m_a4x4fMatrix[1][2] = a16fMatrix[6];
-	m_a4x4fMatrix[1][3] = a16fMatrix[7];
-	m_a4x4fMatrix[2][0] = a16fMatrix[8];
-	m_a4x4fMatrix[2][1] = a16fMatrix[9];
-	m_a4x4fMatrix[2][2] = a16fMatrix[10];
-	m_a4x4fMatrix[2][3] = a16fMatrix[11];
-	m_a4x4fMatrix[3][0] = a16fMatrix[12];
-	m_a4x4fMatrix[3][1] = a16fMatrix[13];
-	m_a4x4fMatrix[3][2] = a16fMatrix[14];
-	m_a4x4fMatrix[3][3] = a16fMatrix[15];
+	operator()( 0, 0 ) = a16fMatrix[0];
+	operator()( 0, 1 ) = a16fMatrix[1];
+	operator()( 0, 2 ) = a16fMatrix[2];
+	operator()( 0, 3 ) = a16fMatrix[3];
+	operator()( 1, 0 ) = a16fMatrix[4];
+	operator()( 1, 1 ) = a16fMatrix[5];
+	operator()( 1, 2 ) = a16fMatrix[6];
+	operator()( 1, 3 ) = a16fMatrix[7];
+	operator()( 2, 0 ) = a16fMatrix[8];
+	operator()( 2, 1 ) = a16fMatrix[9];
+	operator()( 2, 2 ) = a16fMatrix[10];
+	operator()( 2, 3 ) = a16fMatrix[11];
+	operator()( 3, 0 ) = a16fMatrix[12];
+	operator()( 3, 1 ) = a16fMatrix[13];
+	operator()( 3, 2 ) = a16fMatrix[14];
+	operator()( 3, 3 ) = a16fMatrix[15];
 }
 inline void VistaTransformMatrix::SetTransposedValues( const float a4x4fMatrix[4][4] )
 {	
-	m_a4x4fMatrix[0][0] = a4x4fMatrix[0][0];
-	m_a4x4fMatrix[0][1] = a4x4fMatrix[1][0];
-	m_a4x4fMatrix[0][2] = a4x4fMatrix[2][0];
-	m_a4x4fMatrix[0][3] = a4x4fMatrix[3][0];
-	m_a4x4fMatrix[1][0] = a4x4fMatrix[0][1];
-	m_a4x4fMatrix[1][1] = a4x4fMatrix[1][1];
-	m_a4x4fMatrix[1][2] = a4x4fMatrix[2][1];
-	m_a4x4fMatrix[1][3] = a4x4fMatrix[3][1];
-	m_a4x4fMatrix[2][0] = a4x4fMatrix[0][2];
-	m_a4x4fMatrix[2][1] = a4x4fMatrix[1][2];
-	m_a4x4fMatrix[2][2] = a4x4fMatrix[2][2];
-	m_a4x4fMatrix[2][3] = a4x4fMatrix[3][2];
-	m_a4x4fMatrix[3][0] = a4x4fMatrix[0][3];
-	m_a4x4fMatrix[3][1] = a4x4fMatrix[1][3];
-	m_a4x4fMatrix[3][2] = a4x4fMatrix[2][3];
-	m_a4x4fMatrix[3][3] = a4x4fMatrix[3][3];	
+	operator()( 0, 0 ) = a4x4fMatrix[0][0];
+	operator()( 0, 1 ) = a4x4fMatrix[1][0];
+	operator()( 0, 2 ) = a4x4fMatrix[2][0];
+	operator()( 0, 3 ) = a4x4fMatrix[3][0];
+	operator()( 1, 0 ) = a4x4fMatrix[0][1];
+	operator()( 1, 1 ) = a4x4fMatrix[1][1];
+	operator()( 1, 2 ) = a4x4fMatrix[2][1];
+	operator()( 1, 3 ) = a4x4fMatrix[3][1];
+	operator()( 2, 0 ) = a4x4fMatrix[0][2];
+	operator()( 2, 1 ) = a4x4fMatrix[1][2];
+	operator()( 2, 2 ) = a4x4fMatrix[2][2];
+	operator()( 2, 3 ) = a4x4fMatrix[3][2];
+	operator()( 3, 0 ) = a4x4fMatrix[0][3];
+	operator()( 3, 1 ) = a4x4fMatrix[1][3];
+	operator()( 3, 2 ) = a4x4fMatrix[2][3];
+	operator()( 3, 3 ) = a4x4fMatrix[3][3];	
 }
 inline void VistaTransformMatrix::SetTransposedValues( const float a16fMatrix[16] )
 {
-	m_a4x4fMatrix[0][0] = a16fMatrix[0];
-	m_a4x4fMatrix[0][1] = a16fMatrix[4];
-	m_a4x4fMatrix[0][2] = a16fMatrix[8];
-	m_a4x4fMatrix[0][3] = a16fMatrix[12];
-	m_a4x4fMatrix[1][0] = a16fMatrix[1];
-	m_a4x4fMatrix[1][1] = a16fMatrix[5];
-	m_a4x4fMatrix[1][2] = a16fMatrix[9];
-	m_a4x4fMatrix[1][3] = a16fMatrix[13];
-	m_a4x4fMatrix[2][0] = a16fMatrix[2];
-	m_a4x4fMatrix[2][1] = a16fMatrix[6];
-	m_a4x4fMatrix[2][2] = a16fMatrix[10];
-	m_a4x4fMatrix[2][3] = a16fMatrix[14];
-	m_a4x4fMatrix[3][0] = a16fMatrix[3];
-	m_a4x4fMatrix[3][1] = a16fMatrix[7];
-	m_a4x4fMatrix[3][2] = a16fMatrix[11];
-	m_a4x4fMatrix[3][3] = a16fMatrix[15];
+	operator()( 0, 0 ) = a16fMatrix[0];
+	operator()( 0, 1 ) = a16fMatrix[4];
+	operator()( 0, 2 ) = a16fMatrix[8];
+	operator()( 0, 3 ) = a16fMatrix[12];
+	operator()( 1, 0 ) = a16fMatrix[1];
+	operator()( 1, 1 ) = a16fMatrix[5];
+	operator()( 1, 2 ) = a16fMatrix[9];
+	operator()( 1, 3 ) = a16fMatrix[13];
+	operator()( 2, 0 ) = a16fMatrix[2];
+	operator()( 2, 1 ) = a16fMatrix[6];
+	operator()( 2, 2 ) = a16fMatrix[10];
+	operator()( 2, 3 ) = a16fMatrix[14];
+	operator()( 3, 0 ) = a16fMatrix[3];
+	operator()( 3, 1 ) = a16fMatrix[7];
+	operator()( 3, 2 ) = a16fMatrix[11];
+	operator()( 3, 3 ) = a16fMatrix[15];
 }
 
 
 inline void VistaTransformMatrix::SetValues( const double a4x4dMatrix[4][4] )
 {
-	m_a4x4fMatrix[0][0] = (float)a4x4dMatrix[0][0];
-	m_a4x4fMatrix[0][1] = (float)a4x4dMatrix[0][1];
-	m_a4x4fMatrix[0][2] = (float)a4x4dMatrix[0][2];
-	m_a4x4fMatrix[0][3] = (float)a4x4dMatrix[0][3];
-	m_a4x4fMatrix[1][0] = (float)a4x4dMatrix[1][0];
-	m_a4x4fMatrix[1][1] = (float)a4x4dMatrix[1][1];
-	m_a4x4fMatrix[1][2] = (float)a4x4dMatrix[1][2];
-	m_a4x4fMatrix[1][3] = (float)a4x4dMatrix[1][3];
-	m_a4x4fMatrix[2][0] = (float)a4x4dMatrix[2][0];
-	m_a4x4fMatrix[2][1] = (float)a4x4dMatrix[2][1];
-	m_a4x4fMatrix[2][2] = (float)a4x4dMatrix[2][2];
-	m_a4x4fMatrix[2][3] = (float)a4x4dMatrix[2][3];
-	m_a4x4fMatrix[3][0] = (float)a4x4dMatrix[3][0];
-	m_a4x4fMatrix[3][1] = (float)a4x4dMatrix[3][1];
-	m_a4x4fMatrix[3][2] = (float)a4x4dMatrix[3][2];
-	m_a4x4fMatrix[3][3] = (float)a4x4dMatrix[3][3];
+	operator()( 0, 0 ) = (float)a4x4dMatrix[0][0];
+	operator()( 0, 1 ) = (float)a4x4dMatrix[0][1];
+	operator()( 0, 2 ) = (float)a4x4dMatrix[0][2];
+	operator()( 0, 3 ) = (float)a4x4dMatrix[0][3];
+	operator()( 1, 0 ) = (float)a4x4dMatrix[1][0];
+	operator()( 1, 1 ) = (float)a4x4dMatrix[1][1];
+	operator()( 1, 2 ) = (float)a4x4dMatrix[1][2];
+	operator()( 1, 3 ) = (float)a4x4dMatrix[1][3];
+	operator()( 2, 0 ) = (float)a4x4dMatrix[2][0];
+	operator()( 2, 1 ) = (float)a4x4dMatrix[2][1];
+	operator()( 2, 2 ) = (float)a4x4dMatrix[2][2];
+	operator()( 2, 3 ) = (float)a4x4dMatrix[2][3];
+	operator()( 3, 0 ) = (float)a4x4dMatrix[3][0];
+	operator()( 3, 1 ) = (float)a4x4dMatrix[3][1];
+	operator()( 3, 2 ) = (float)a4x4dMatrix[3][2];
+	operator()( 3, 3 ) = (float)a4x4dMatrix[3][3];
 }
 inline void VistaTransformMatrix::SetValues( const double a16dMatrix[16] )
 {
-	m_a4x4fMatrix[0][0] = (float)a16dMatrix[0];
-	m_a4x4fMatrix[0][1] = (float)a16dMatrix[1];
-	m_a4x4fMatrix[0][2] = (float)a16dMatrix[2];
-	m_a4x4fMatrix[0][3] = (float)a16dMatrix[3];
-	m_a4x4fMatrix[1][0] = (float)a16dMatrix[4];
-	m_a4x4fMatrix[1][1] = (float)a16dMatrix[5];
-	m_a4x4fMatrix[1][2] = (float)a16dMatrix[6];
-	m_a4x4fMatrix[1][3] = (float)a16dMatrix[7];
-	m_a4x4fMatrix[2][0] = (float)a16dMatrix[8];
-	m_a4x4fMatrix[2][1] = (float)a16dMatrix[9];
-	m_a4x4fMatrix[2][2] = (float)a16dMatrix[10];
-	m_a4x4fMatrix[2][3] = (float)a16dMatrix[11];
-	m_a4x4fMatrix[3][0] = (float)a16dMatrix[12];
-	m_a4x4fMatrix[3][1] = (float)a16dMatrix[13];
-	m_a4x4fMatrix[3][2] = (float)a16dMatrix[14];
-	m_a4x4fMatrix[3][3] = (float)a16dMatrix[15];
+	operator()( 0, 0 ) = (float)a16dMatrix[0];
+	operator()( 0, 1 ) = (float)a16dMatrix[1];
+	operator()( 0, 2 ) = (float)a16dMatrix[2];
+	operator()( 0, 3 ) = (float)a16dMatrix[3];
+	operator()( 1, 0 ) = (float)a16dMatrix[4];
+	operator()( 1, 1 ) = (float)a16dMatrix[5];
+	operator()( 1, 2 ) = (float)a16dMatrix[6];
+	operator()( 1, 3 ) = (float)a16dMatrix[7];
+	operator()( 2, 0 ) = (float)a16dMatrix[8];
+	operator()( 2, 1 ) = (float)a16dMatrix[9];
+	operator()( 2, 2 ) = (float)a16dMatrix[10];
+	operator()( 2, 3 ) = (float)a16dMatrix[11];
+	operator()( 3, 0 ) = (float)a16dMatrix[12];
+	operator()( 3, 1 ) = (float)a16dMatrix[13];
+	operator()( 3, 2 ) = (float)a16dMatrix[14];
+	operator()( 3, 3 ) = (float)a16dMatrix[15];
 }
 inline void VistaTransformMatrix::SetTransposedValues( const double a4x4dMatrix[4][4] )
 {	
-	m_a4x4fMatrix[0][0] = (float)a4x4dMatrix[0][0];
-	m_a4x4fMatrix[0][1] = (float)a4x4dMatrix[1][0];
-	m_a4x4fMatrix[0][2] = (float)a4x4dMatrix[2][0];
-	m_a4x4fMatrix[0][3] = (float)a4x4dMatrix[3][0];
-	m_a4x4fMatrix[1][0] = (float)a4x4dMatrix[0][1];
-	m_a4x4fMatrix[1][1] = (float)a4x4dMatrix[1][1];
-	m_a4x4fMatrix[1][2] = (float)a4x4dMatrix[2][1];
-	m_a4x4fMatrix[1][3] = (float)a4x4dMatrix[3][1];
-	m_a4x4fMatrix[2][0] = (float)a4x4dMatrix[0][2];
-	m_a4x4fMatrix[2][1] = (float)a4x4dMatrix[1][2];
-	m_a4x4fMatrix[2][2] = (float)a4x4dMatrix[2][2];
-	m_a4x4fMatrix[2][3] = (float)a4x4dMatrix[3][2];
-	m_a4x4fMatrix[3][0] = (float)a4x4dMatrix[0][3];
-	m_a4x4fMatrix[3][1] = (float)a4x4dMatrix[1][3];
-	m_a4x4fMatrix[3][2] = (float)a4x4dMatrix[2][3];
-	m_a4x4fMatrix[3][3] = (float)a4x4dMatrix[3][3];	
+	operator()( 0, 0 ) = (float)a4x4dMatrix[0][0];
+	operator()( 0, 1 ) = (float)a4x4dMatrix[1][0];
+	operator()( 0, 2 ) = (float)a4x4dMatrix[2][0];
+	operator()( 0, 3 ) = (float)a4x4dMatrix[3][0];
+	operator()( 1, 0 ) = (float)a4x4dMatrix[0][1];
+	operator()( 1, 1 ) = (float)a4x4dMatrix[1][1];
+	operator()( 1, 2 ) = (float)a4x4dMatrix[2][1];
+	operator()( 1, 3 ) = (float)a4x4dMatrix[3][1];
+	operator()( 2, 0 ) = (float)a4x4dMatrix[0][2];
+	operator()( 2, 1 ) = (float)a4x4dMatrix[1][2];
+	operator()( 2, 2 ) = (float)a4x4dMatrix[2][2];
+	operator()( 2, 3 ) = (float)a4x4dMatrix[3][2];
+	operator()( 3, 0 ) = (float)a4x4dMatrix[0][3];
+	operator()( 3, 1 ) = (float)a4x4dMatrix[1][3];
+	operator()( 3, 2 ) = (float)a4x4dMatrix[2][3];
+	operator()( 3, 3 ) = (float)a4x4dMatrix[3][3];	
 }
 inline void VistaTransformMatrix::SetTransposedValues( const double a16dMatrix[16] )
 {
-	m_a4x4fMatrix[0][0] = (float)a16dMatrix[0];
-	m_a4x4fMatrix[0][1] = (float)a16dMatrix[4];
-	m_a4x4fMatrix[0][2] = (float)a16dMatrix[8];
-	m_a4x4fMatrix[0][3] = (float)a16dMatrix[12];
-	m_a4x4fMatrix[1][0] = (float)a16dMatrix[1];
-	m_a4x4fMatrix[1][1] = (float)a16dMatrix[5];
-	m_a4x4fMatrix[1][2] = (float)a16dMatrix[9];
-	m_a4x4fMatrix[1][3] = (float)a16dMatrix[13];
-	m_a4x4fMatrix[2][0] = (float)a16dMatrix[2];
-	m_a4x4fMatrix[2][1] = (float)a16dMatrix[6];
-	m_a4x4fMatrix[2][2] = (float)a16dMatrix[10];
-	m_a4x4fMatrix[2][3] = (float)a16dMatrix[14];
-	m_a4x4fMatrix[3][0] = (float)a16dMatrix[3];
-	m_a4x4fMatrix[3][1] = (float)a16dMatrix[7];
-	m_a4x4fMatrix[3][2] = (float)a16dMatrix[11];
-	m_a4x4fMatrix[3][3] = (float)a16dMatrix[15];
+	operator()( 0, 0 ) = (float)a16dMatrix[0];
+	operator()( 0, 1 ) = (float)a16dMatrix[4];
+	operator()( 0, 2 ) = (float)a16dMatrix[8];
+	operator()( 0, 3 ) = (float)a16dMatrix[12];
+	operator()( 1, 0 ) = (float)a16dMatrix[1];
+	operator()( 1, 1 ) = (float)a16dMatrix[5];
+	operator()( 1, 2 ) = (float)a16dMatrix[9];
+	operator()( 1, 3 ) = (float)a16dMatrix[13];
+	operator()( 2, 0 ) = (float)a16dMatrix[2];
+	operator()( 2, 1 ) = (float)a16dMatrix[6];
+	operator()( 2, 2 ) = (float)a16dMatrix[10];
+	operator()( 2, 3 ) = (float)a16dMatrix[14];
+	operator()( 3, 0 ) = (float)a16dMatrix[3];
+	operator()( 3, 1 ) = (float)a16dMatrix[7];
+	operator()( 3, 2 ) = (float)a16dMatrix[11];
+	operator()( 3, 3 ) = (float)a16dMatrix[15];
 }
 
 
@@ -668,92 +711,92 @@ inline void VistaTransformMatrix::GetTransposedValues( double a16dMatrix[16] ) c
 
 inline VistaVector3D VistaTransformMatrix::GetTranslation() const
 {
-	return VistaVector3D( m_a4x4fMatrix[0][3], m_a4x4fMatrix[1][3], m_a4x4fMatrix[2][3] );
+	return VistaVector3D( operator()( 0, 3 ), operator()( 1, 3 ), operator()( 2, 3 ) );
 }
 
 inline void VistaTransformMatrix::GetTranslation( VistaVector3D &v3Translation ) const
 {
-	v3Translation[0] = m_a4x4fMatrix[0][3];
-	v3Translation[1] = m_a4x4fMatrix[1][3];
-	v3Translation[2] = m_a4x4fMatrix[2][3];
+	v3Translation[0] = operator()( 0, 3 );
+	v3Translation[1] = operator()( 1, 3 );
+	v3Translation[2] = operator()( 2, 3 );
 }
 
 inline void VistaTransformMatrix::GetBasisMatrix( float a3x3Matrix[3][3] ) const
 {
-	a3x3Matrix[0][0] = m_a4x4fMatrix[0][0];
-	a3x3Matrix[0][1] = m_a4x4fMatrix[0][1];
-	a3x3Matrix[0][2] = m_a4x4fMatrix[0][2];
-	a3x3Matrix[1][0] = m_a4x4fMatrix[1][0];
-	a3x3Matrix[1][1] = m_a4x4fMatrix[1][1];
-	a3x3Matrix[1][2] = m_a4x4fMatrix[1][2];
-	a3x3Matrix[2][0] = m_a4x4fMatrix[2][0];
-	a3x3Matrix[2][1] = m_a4x4fMatrix[2][1];
-	a3x3Matrix[2][2] = m_a4x4fMatrix[2][2];
+	a3x3Matrix[0][0] = operator()( 0, 0 );
+	a3x3Matrix[0][1] = operator()( 0, 1 );
+	a3x3Matrix[0][2] = operator()( 0, 2 );
+	a3x3Matrix[1][0] = operator()( 1, 0 );
+	a3x3Matrix[1][1] = operator()( 1, 1 );
+	a3x3Matrix[1][2] = operator()( 1, 2 );
+	a3x3Matrix[2][0] = operator()( 2, 0 );
+	a3x3Matrix[2][1] = operator()( 2, 1 );
+	a3x3Matrix[2][2] = operator()( 2, 2 );
 }
 inline void VistaTransformMatrix::GetBasisMatrix( float a9fMatrix[9],
 												const bool bTransposed ) const
 {
 	if( bTransposed )
 	{
-		a9fMatrix[0] = m_a4x4fMatrix[0][0];
-		a9fMatrix[3] = m_a4x4fMatrix[0][1];
-		a9fMatrix[6] = m_a4x4fMatrix[0][2];
-		a9fMatrix[1] = m_a4x4fMatrix[1][0];
-		a9fMatrix[4] = m_a4x4fMatrix[1][1];
-		a9fMatrix[7] = m_a4x4fMatrix[1][2];
-		a9fMatrix[2] = m_a4x4fMatrix[2][0];
-		a9fMatrix[5] = m_a4x4fMatrix[2][1];
-		a9fMatrix[8] = m_a4x4fMatrix[2][2];
+		a9fMatrix[0] = operator()( 0, 0 );
+		a9fMatrix[3] = operator()( 0, 1 );
+		a9fMatrix[6] = operator()( 0, 2 );
+		a9fMatrix[1] = operator()( 1, 0 );
+		a9fMatrix[4] = operator()( 1, 1 );
+		a9fMatrix[7] = operator()( 1, 2 );
+		a9fMatrix[2] = operator()( 2, 0 );
+		a9fMatrix[5] = operator()( 2, 1 );
+		a9fMatrix[8] = operator()( 2, 2 );
 	}
 	else
 	{
-		a9fMatrix[0] = m_a4x4fMatrix[0][0];
-		a9fMatrix[1] = m_a4x4fMatrix[0][1];
-		a9fMatrix[2] = m_a4x4fMatrix[0][2];
-		a9fMatrix[3] = m_a4x4fMatrix[1][0];
-		a9fMatrix[4] = m_a4x4fMatrix[1][1];
-		a9fMatrix[5] = m_a4x4fMatrix[1][2];
-		a9fMatrix[6] = m_a4x4fMatrix[2][0];
-		a9fMatrix[7] = m_a4x4fMatrix[2][1];
-		a9fMatrix[8] = m_a4x4fMatrix[2][2];
+		a9fMatrix[0] = operator()( 0, 0 );
+		a9fMatrix[1] = operator()( 0, 1 );
+		a9fMatrix[2] = operator()( 0, 2 );
+		a9fMatrix[3] = operator()( 1, 0 );
+		a9fMatrix[4] = operator()( 1, 1 );
+		a9fMatrix[5] = operator()( 1, 2 );
+		a9fMatrix[6] = operator()( 2, 0 );
+		a9fMatrix[7] = operator()( 2, 1 );
+		a9fMatrix[8] = operator()( 2, 2 );
 	}
 }
 
 inline void VistaTransformMatrix::SetTranslation( const float a3fTranslation[3] )
 {
-	m_a4x4fMatrix[0][3] = a3fTranslation[0];
-	m_a4x4fMatrix[1][3] = a3fTranslation[1];
-	m_a4x4fMatrix[2][3] = a3fTranslation[2];
+	operator()( 0, 3 ) = a3fTranslation[0];
+	operator()( 1, 3 ) = a3fTranslation[1];
+	operator()( 2, 3 ) = a3fTranslation[2];
 }
 inline void VistaTransformMatrix::SetTranslation( const VistaVector3D& v3Translation )
 {
-	m_a4x4fMatrix[0][3] = v3Translation[0];
-	m_a4x4fMatrix[1][3] = v3Translation[1];
-	m_a4x4fMatrix[2][3] = v3Translation[2];
+	operator()( 0, 3 ) = v3Translation[0];
+	operator()( 1, 3 ) = v3Translation[1];
+	operator()( 2, 3 ) = v3Translation[2];
 }
 inline void VistaTransformMatrix::SetBasisMatrix( const float a3x3Matrix[3][3] )
 {
-	m_a4x4fMatrix[0][0] = a3x3Matrix[0][0];
-	m_a4x4fMatrix[0][1] = a3x3Matrix[1][0];
-	m_a4x4fMatrix[0][2] = a3x3Matrix[2][0];
-	m_a4x4fMatrix[1][0] = a3x3Matrix[0][1];
-	m_a4x4fMatrix[1][1] = a3x3Matrix[1][1];
-	m_a4x4fMatrix[1][2] = a3x3Matrix[2][1];
-	m_a4x4fMatrix[2][0] = a3x3Matrix[0][2];
-	m_a4x4fMatrix[2][1] = a3x3Matrix[1][2];
-	m_a4x4fMatrix[2][2] = a3x3Matrix[2][2];
+	operator()( 0, 0 ) = a3x3Matrix[0][0];
+	operator()( 0, 1 ) = a3x3Matrix[1][0];
+	operator()( 0, 2 ) = a3x3Matrix[2][0];
+	operator()( 1, 0 ) = a3x3Matrix[0][1];
+	operator()( 1, 1 ) = a3x3Matrix[1][1];
+	operator()( 1, 2 ) = a3x3Matrix[2][1];
+	operator()( 2, 0 ) = a3x3Matrix[0][2];
+	operator()( 2, 1 ) = a3x3Matrix[1][2];
+	operator()( 2, 2 ) = a3x3Matrix[2][2];
 }
 inline void VistaTransformMatrix::SetBasisMatrix( const float a9fMatrix[9] )
 {
-	m_a4x4fMatrix[0][0] = a9fMatrix[0];
-	m_a4x4fMatrix[0][1] = a9fMatrix[1];
-	m_a4x4fMatrix[0][2] = a9fMatrix[2];
-	m_a4x4fMatrix[1][0] = a9fMatrix[3];
-	m_a4x4fMatrix[1][1] = a9fMatrix[4];
-	m_a4x4fMatrix[1][2] = a9fMatrix[5];
-	m_a4x4fMatrix[2][0] = a9fMatrix[6];
-	m_a4x4fMatrix[2][1] = a9fMatrix[7];
-	m_a4x4fMatrix[2][2] = a9fMatrix[8];
+	operator()( 0, 0 ) = a9fMatrix[0];
+	operator()( 0, 1 ) = a9fMatrix[1];
+	operator()( 0, 2 ) = a9fMatrix[2];
+	operator()( 1, 0 ) = a9fMatrix[3];
+	operator()( 1, 1 ) = a9fMatrix[4];
+	operator()( 1, 2 ) = a9fMatrix[5];
+	operator()( 2, 0 ) = a9fMatrix[6];
+	operator()( 2, 1 ) = a9fMatrix[7];
+	operator()( 2, 2 ) = a9fMatrix[8];
 }
 inline void VistaTransformMatrix::SetBasisMatrix( const VistaQuaternion& qRotation )
 {
@@ -761,15 +804,15 @@ inline void VistaTransformMatrix::SetBasisMatrix( const VistaQuaternion& qRotati
 
 	if( fNorm < Vista::Epsilon )
 	{		
-		m_a4x4fMatrix[0][0] = 1.0f;
-		m_a4x4fMatrix[0][1] = 0.0f;
-		m_a4x4fMatrix[0][2] = 0.0f;
-		m_a4x4fMatrix[1][0] = 0.0f;
-		m_a4x4fMatrix[1][1] = 1.0f;
-		m_a4x4fMatrix[1][2] = 0.0f;
-		m_a4x4fMatrix[2][0] = 0.0f;
-		m_a4x4fMatrix[2][1] = 0.0f;
-		m_a4x4fMatrix[2][2] = 1.0f;
+		operator()( 0, 0 ) = 1.0f;
+		operator()( 0, 1 ) = 0.0f;
+		operator()( 0, 2 ) = 0.0f;
+		operator()( 1, 0 ) = 0.0f;
+		operator()( 1, 1 ) = 1.0f;
+		operator()( 1, 2 ) = 0.0f;
+		operator()( 2, 0 ) = 0.0f;
+		operator()( 2, 1 ) = 0.0f;
+		operator()( 2, 2 ) = 1.0f;
 		return;
 	}
 
@@ -780,59 +823,59 @@ inline void VistaTransformMatrix::SetBasisMatrix( const VistaQuaternion& qRotati
 	const float xx = qRotation[0] * xs,  xy = qRotation[0] * ys,  xz = qRotation[0] * zs;
 	const float yy = qRotation[1] * ys,  yz = qRotation[1] * zs,  zz = qRotation[2] * zs;
 
-	m_a4x4fMatrix[0][0] = 1.0f - (yy + zz);  
-	m_a4x4fMatrix[0][1] = xy - wz;          
-	m_a4x4fMatrix[0][2] = xz + wy;         
+	operator()( 0, 0 ) = 1.0f - (yy + zz);  
+	operator()( 0, 1 ) = xy - wz;          
+	operator()( 0, 2 ) = xz + wy;         
 	
-	m_a4x4fMatrix[1][0] = xy + wz;          
-	m_a4x4fMatrix[1][1] = 1.0f - (xx + zz);  
-	m_a4x4fMatrix[1][2] = yz - wx;          
+	operator()( 1, 0 ) = xy + wz;          
+	operator()( 1, 1 ) = 1.0f - (xx + zz);  
+	operator()( 1, 2 ) = yz - wx;          
 
-	m_a4x4fMatrix[2][0] = xz - wy;	        
-	m_a4x4fMatrix[2][1] = yz + wx;          
-	m_a4x4fMatrix[2][2] = 1.0f - (xx + yy);  
+	operator()( 2, 0 ) = xz - wy;	        
+	operator()( 2, 1 ) = yz + wx;          
+	operator()( 2, 2 ) = 1.0f - (xx + yy);  
 }
 
 
 
 inline void VistaTransformMatrix::SetToIdentity()
 {
-	m_a4x4fMatrix[0][0] = 1.0f;
-	m_a4x4fMatrix[0][1] = 0.0f;
-	m_a4x4fMatrix[0][2] = 0.0f;
-	m_a4x4fMatrix[0][3] = 0.0f;
-	m_a4x4fMatrix[1][0] = 0.0f;
-	m_a4x4fMatrix[1][1] = 1.0f;
-	m_a4x4fMatrix[1][2] = 0.0f;
-	m_a4x4fMatrix[1][3] = 0.0f;
-	m_a4x4fMatrix[2][0] = 0.0f;
-	m_a4x4fMatrix[2][1] = 0.0f;
-	m_a4x4fMatrix[2][2] = 1.0f;
-	m_a4x4fMatrix[2][3] = 0.0f;
-	m_a4x4fMatrix[3][0] = 0.0f;
-	m_a4x4fMatrix[3][1] = 0.0f;
-	m_a4x4fMatrix[3][2] = 0.0f;
-	m_a4x4fMatrix[3][3] = 1.0f;
+	operator()( 0, 0 ) = 1.0f;
+	operator()( 0, 1 ) = 0.0f;
+	operator()( 0, 2 ) = 0.0f;
+	operator()( 0, 3 ) = 0.0f;
+	operator()( 1, 0 ) = 0.0f;
+	operator()( 1, 1 ) = 1.0f;
+	operator()( 1, 2 ) = 0.0f;
+	operator()( 1, 3 ) = 0.0f;
+	operator()( 2, 0 ) = 0.0f;
+	operator()( 2, 1 ) = 0.0f;
+	operator()( 2, 2 ) = 1.0f;
+	operator()( 2, 3 ) = 0.0f;
+	operator()( 3, 0 ) = 0.0f;
+	operator()( 3, 1 ) = 0.0f;
+	operator()( 3, 2 ) = 0.0f;
+	operator()( 3, 3 ) = 1.0f;
 }
 
 inline void VistaTransformMatrix::SetToTranslationMatrix( const VistaVector3D& v3Translation )
 {
-	m_a4x4fMatrix[0][0] = 1.0f;
-	m_a4x4fMatrix[0][1] = 0.0f;
-	m_a4x4fMatrix[0][2] = 0.0f;
-	m_a4x4fMatrix[0][3] = v3Translation[0];
-	m_a4x4fMatrix[1][0] = 0.0f;
-	m_a4x4fMatrix[1][1] = 1.0f;
-	m_a4x4fMatrix[1][2] = 0.0f;
-	m_a4x4fMatrix[1][3] = v3Translation[1];
-	m_a4x4fMatrix[2][0] = 0.0f;
-	m_a4x4fMatrix[2][1] = 0.0f;
-	m_a4x4fMatrix[2][2] = 1.0f;
-	m_a4x4fMatrix[2][3] = v3Translation[2];
-	m_a4x4fMatrix[3][0] = 0.0;
-	m_a4x4fMatrix[3][1] = 0.0;
-	m_a4x4fMatrix[3][2] = 0.0f;
-	m_a4x4fMatrix[3][3] = 1.0f;
+	operator()( 0, 0 ) = 1.0f;
+	operator()( 0, 1 ) = 0.0f;
+	operator()( 0, 2 ) = 0.0f;
+	operator()( 0, 3 ) = v3Translation[0];
+	operator()( 1, 0 ) = 0.0f;
+	operator()( 1, 1 ) = 1.0f;
+	operator()( 1, 2 ) = 0.0f;
+	operator()( 1, 3 ) = v3Translation[1];
+	operator()( 2, 0 ) = 0.0f;
+	operator()( 2, 1 ) = 0.0f;
+	operator()( 2, 2 ) = 1.0f;
+	operator()( 2, 3 ) = v3Translation[2];
+	operator()( 3, 0 ) = 0.0;
+	operator()( 3, 1 ) = 0.0;
+	operator()( 3, 2 ) = 0.0f;
+	operator()( 3, 3 ) = 1.0f;
 }
 
 inline void VistaTransformMatrix::SetTransform( const VistaQuaternion& qRotation,
@@ -840,52 +883,52 @@ inline void VistaTransformMatrix::SetTransform( const VistaQuaternion& qRotation
 {
 	SetBasisMatrix( qRotation );
 	SetTranslation( v3Translation );
-	m_a4x4fMatrix[3][0] = 0.0f;
-	m_a4x4fMatrix[3][1] = 0.0f;
-	m_a4x4fMatrix[3][2] = 0.0f;
-	m_a4x4fMatrix[3][3] = 1.0f;
+	operator()( 3, 0 ) = 0.0f;
+	operator()( 3, 1 ) = 0.0f;
+	operator()( 3, 2 ) = 0.0f;
+	operator()( 3, 3 ) = 1.0f;
 }
 
 inline void VistaTransformMatrix::SetToScaleMatrix( const float fUniformScale )
 {
-	m_a4x4fMatrix[0][0] = fUniformScale;
-	m_a4x4fMatrix[0][1] = 0.0f;
-	m_a4x4fMatrix[0][2] = 0.0f;
-	m_a4x4fMatrix[0][3] = 0.0f;
-	m_a4x4fMatrix[1][0] = 0.0f;
-	m_a4x4fMatrix[1][1] = fUniformScale;
-	m_a4x4fMatrix[1][2] = 0.0f;
-	m_a4x4fMatrix[1][3] = 0.0f;
-	m_a4x4fMatrix[2][0] = 0.0f;
-	m_a4x4fMatrix[2][1] = 0.0f;
-	m_a4x4fMatrix[2][2] = fUniformScale;
-	m_a4x4fMatrix[2][3] = 0.0f;
-	m_a4x4fMatrix[3][0] = 0.0f;
-	m_a4x4fMatrix[3][1] = 0.0f;
-	m_a4x4fMatrix[3][2] = 0.0f;
-	m_a4x4fMatrix[3][3] = 1.0f;
+	operator()( 0, 0 ) = fUniformScale;
+	operator()( 0, 1 ) = 0.0f;
+	operator()( 0, 2 ) = 0.0f;
+	operator()( 0, 3 ) = 0.0f;
+	operator()( 1, 0 ) = 0.0f;
+	operator()( 1, 1 ) = fUniformScale;
+	operator()( 1, 2 ) = 0.0f;
+	operator()( 1, 3 ) = 0.0f;
+	operator()( 2, 0 ) = 0.0f;
+	operator()( 2, 1 ) = 0.0f;
+	operator()( 2, 2 ) = fUniformScale;
+	operator()( 2, 3 ) = 0.0f;
+	operator()( 3, 0 ) = 0.0f;
+	operator()( 3, 1 ) = 0.0f;
+	operator()( 3, 2 ) = 0.0f;
+	operator()( 3, 3 ) = 1.0f;
 }
 
 inline void VistaTransformMatrix::SetToScaleMatrix( const float fXScale,
 												   const float fYScale,
 												   const float fZScale )
 {
-	m_a4x4fMatrix[0][0] = fXScale;
-	m_a4x4fMatrix[0][1] = 0.0f;
-	m_a4x4fMatrix[0][2] = 0.0f;
-	m_a4x4fMatrix[0][3] = 0.0f;
-	m_a4x4fMatrix[1][0] = 0.0f;
-	m_a4x4fMatrix[1][1] = fYScale;
-	m_a4x4fMatrix[1][2] = 0.0f;
-	m_a4x4fMatrix[1][3] = 0.0f;
-	m_a4x4fMatrix[2][0] = 0.0f;
-	m_a4x4fMatrix[2][1] = 0.0f;
-	m_a4x4fMatrix[2][2] = fZScale;
-	m_a4x4fMatrix[2][3] = 0.0f;
-	m_a4x4fMatrix[3][0] = 0.0f;
-	m_a4x4fMatrix[3][1] = 0.0f;
-	m_a4x4fMatrix[3][2] = 0.0f;
-	m_a4x4fMatrix[3][3] = 1.0f;
+	operator()( 0, 0 ) = fXScale;
+	operator()( 0, 1 ) = 0.0f;
+	operator()( 0, 2 ) = 0.0f;
+	operator()( 0, 3 ) = 0.0f;
+	operator()( 1, 0 ) = 0.0f;
+	operator()( 1, 1 ) = fYScale;
+	operator()( 1, 2 ) = 0.0f;
+	operator()( 1, 3 ) = 0.0f;
+	operator()( 2, 0 ) = 0.0f;
+	operator()( 2, 1 ) = 0.0f;
+	operator()( 2, 2 ) = fZScale;
+	operator()( 2, 3 ) = 0.0f;
+	operator()( 3, 0 ) = 0.0f;
+	operator()( 3, 1 ) = 0.0f;
+	operator()( 3, 2 ) = 0.0f;
+	operator()( 3, 3 ) = 1.0f;
 }
 
 inline void VistaTransformMatrix::SetToRotationMatrix( const VistaQuaternion& qRotation )
@@ -897,10 +940,10 @@ inline void VistaTransformMatrix::SetToRotationMatrix( const VistaQuaternion& qR
 
 inline float VistaTransformMatrix::GetDeterminant() const
 {
-	return ( m_a4x4fMatrix[0][0] * GetAdjunct ( 0, 0 )
-		+ m_a4x4fMatrix[0][1] * GetAdjunct ( 0, 1 )
-		+ m_a4x4fMatrix[0][2] * GetAdjunct ( 0, 2 )
-		+ m_a4x4fMatrix[0][3] * GetAdjunct ( 0, 3 ) );
+	return ( operator()( 0, 0 ) * GetAdjunct ( 0, 0 )
+		+ operator()( 0, 1 ) * GetAdjunct ( 0, 1 )
+		+ operator()( 0, 2 ) * GetAdjunct ( 0, 2 )
+		+ operator()( 0, 3 ) * GetAdjunct ( 0, 3 ) );
 }
 
 
@@ -917,11 +960,12 @@ inline bool VistaTransformMatrix::GetInverted( VistaTransformMatrix& matTarget )
 {
 	int a4fIndexC[4], a4fIndexR[4];
 	int a4fPivot[4] = { 0, 0, 0, 0 };
-	int iCol,iRow;
+	int iCol = 0;
+	int iRow = 0;
 
 	float fBig, fDum, fInvPivot, fTmp;
 
-	matTarget.SetValues( m_a4x4fMatrix );
+	memcpy( matTarget.m_a16fData, m_a16fData, 16*sizeof(float) );
 
 	for( register int  i = 0; i < 4; ++i )
 	{
@@ -1003,10 +1047,10 @@ inline bool VistaTransformMatrix::GetInverted( VistaTransformMatrix& matTarget )
 inline VistaTransformMatrix VistaTransformMatrix::GetTranspose() const
 {
 	return VistaTransformMatrix(
-		m_a4x4fMatrix[0][0], m_a4x4fMatrix[1][0], m_a4x4fMatrix[2][0], m_a4x4fMatrix[3][0],
-		m_a4x4fMatrix[0][1], m_a4x4fMatrix[1][1], m_a4x4fMatrix[2][1], m_a4x4fMatrix[3][1],
-		m_a4x4fMatrix[0][2], m_a4x4fMatrix[1][2], m_a4x4fMatrix[2][2], m_a4x4fMatrix[3][2],
-		m_a4x4fMatrix[0][3], m_a4x4fMatrix[1][3], m_a4x4fMatrix[2][3], m_a4x4fMatrix[3][3] );
+		operator()( 0, 0 ), operator()( 1, 0 ), operator()( 2, 0 ), operator()( 3, 0 ),
+		operator()( 0, 1 ), operator()( 1, 1 ), operator()( 2, 1 ), operator()( 3, 1 ),
+		operator()( 0, 2 ), operator()( 1, 2 ), operator()( 2, 2 ), operator()( 3, 2 ),
+		operator()( 0, 3 ), operator()( 1, 3 ), operator()( 2, 3 ), operator()( 3, 3 ) );
 }
 
 inline void VistaTransformMatrix::GetTranspose( VistaTransformMatrix& matTraget ) const
@@ -1014,7 +1058,7 @@ inline void VistaTransformMatrix::GetTranspose( VistaTransformMatrix& matTraget 
 	for( int i = 0; i < 4; ++i )
 	{
 		for( int j = 0; j < 4; ++j )
-			matTraget[i][j] = m_a4x4fMatrix[j][i];
+			matTraget[i][j] = operator()( j, i );
 	}
 }
 
@@ -1032,39 +1076,39 @@ inline void VistaTransformMatrix::Invert()
 
 inline VistaVector3D VistaTransformMatrix::Transform( const VistaVector3D& v3Vector ) const
 {
-	return VistaVector3D( m_a4x4fMatrix[0][0] * v3Vector[0] + m_a4x4fMatrix[0][1] * v3Vector[1]
-						+ m_a4x4fMatrix[0][2] * v3Vector[2] + m_a4x4fMatrix[0][3] * v3Vector[3],
-						m_a4x4fMatrix[1][0] * v3Vector[0] + m_a4x4fMatrix[1][1] * v3Vector[1]
-						+ m_a4x4fMatrix[1][2] * v3Vector[2] + m_a4x4fMatrix[1][3] * v3Vector[3],
-						m_a4x4fMatrix[2][0] * v3Vector[0] + m_a4x4fMatrix[2][1] * v3Vector[1]
-						+ m_a4x4fMatrix[2][2] * v3Vector[2] + m_a4x4fMatrix[2][3] * v3Vector[3],
-						m_a4x4fMatrix[3][0] * v3Vector[0] + m_a4x4fMatrix[3][1] * v3Vector[1]
-						+ m_a4x4fMatrix[3][2] * v3Vector[2] + m_a4x4fMatrix[3][3] * v3Vector[3] );
+	return VistaVector3D( operator()( 0, 0 ) * v3Vector[0] + operator()( 0, 1 ) * v3Vector[1]
+						+ operator()( 0, 2 ) * v3Vector[2] + operator()( 0, 3 ) * v3Vector[3],
+						operator()( 1, 0 ) * v3Vector[0] + operator()( 1, 1 ) * v3Vector[1]
+						+ operator()( 1, 2 ) * v3Vector[2] + operator()( 1, 3 ) * v3Vector[3],
+						operator()( 2, 0 ) * v3Vector[0] + operator()( 2, 1 ) * v3Vector[1]
+						+ operator()( 2, 2 ) * v3Vector[2] + operator()( 2, 3 ) * v3Vector[3],
+						operator()( 3, 0 ) * v3Vector[0] + operator()( 3, 1 ) * v3Vector[1]
+						+ operator()( 3, 2 ) * v3Vector[2] + operator()( 3, 3 ) * v3Vector[3] );
 }
 
 
 inline VistaVector3D VistaTransformMatrix::TransformPoint( const VistaVector3D& v3Point ) const
 {
-	return VistaVector3D( m_a4x4fMatrix[0][0] * v3Point[0] + m_a4x4fMatrix[0][1] * v3Point[1]
-						+ m_a4x4fMatrix[0][2] * v3Point[2] + m_a4x4fMatrix[0][3],
-						m_a4x4fMatrix[1][0] * v3Point[0] + m_a4x4fMatrix[1][1] * v3Point[1]
-						+ m_a4x4fMatrix[1][2] * v3Point[2] + m_a4x4fMatrix[1][3],
-						m_a4x4fMatrix[2][0] * v3Point[0] + m_a4x4fMatrix[2][1] * v3Point[1]
-						+ m_a4x4fMatrix[2][2] * v3Point[2] + m_a4x4fMatrix[2][3],
-						m_a4x4fMatrix[3][0] * v3Point[0] + m_a4x4fMatrix[3][1] * v3Point[1]
-						+ m_a4x4fMatrix[3][2] * v3Point[2] + m_a4x4fMatrix[3][3] );
+	return VistaVector3D( operator()( 0, 0 ) * v3Point[0] + operator()( 0, 1 ) * v3Point[1]
+						+ operator()( 0, 2 ) * v3Point[2] + operator()( 0, 3 ),
+						operator()( 1, 0 ) * v3Point[0] + operator()( 1, 1 ) * v3Point[1]
+						+ operator()( 1, 2 ) * v3Point[2] + operator()( 1, 3 ),
+						operator()( 2, 0 ) * v3Point[0] + operator()( 2, 1 ) * v3Point[1]
+						+ operator()( 2, 2 ) * v3Point[2] + operator()( 2, 3 ),
+						operator()( 3, 0 ) * v3Point[0] + operator()( 3, 1 ) * v3Point[1]
+						+ operator()( 3, 2 ) * v3Point[2] + operator()( 3, 3 ) );
 }
 
 inline VistaVector3D VistaTransformMatrix::TransformVector( const VistaVector3D& v3Vector ) const
 {
-	return VistaVector3D( m_a4x4fMatrix[0][0] * v3Vector[0] + m_a4x4fMatrix[0][1] * v3Vector[1]
-						+ m_a4x4fMatrix[0][2] * v3Vector[2],
-						m_a4x4fMatrix[1][0] * v3Vector[0] + m_a4x4fMatrix[1][1] * v3Vector[1]
-						+ m_a4x4fMatrix[1][2] * v3Vector[2],
-						m_a4x4fMatrix[2][0] * v3Vector[0] + m_a4x4fMatrix[2][1] * v3Vector[1]
-						+ m_a4x4fMatrix[2][2] * v3Vector[2],
-						m_a4x4fMatrix[3][0] * v3Vector[0] + m_a4x4fMatrix[3][1] * v3Vector[1]
-						+ m_a4x4fMatrix[3][2] * v3Vector[2] + m_a4x4fMatrix[3][3] * v3Vector[3] );
+	return VistaVector3D( operator()( 0, 0 ) * v3Vector[0] + operator()( 0, 1 ) * v3Vector[1]
+						+ operator()( 0, 2 ) * v3Vector[2],
+						operator()( 1, 0 ) * v3Vector[0] + operator()( 1, 1 ) * v3Vector[1]
+						+ operator()( 1, 2 ) * v3Vector[2],
+						operator()( 2, 0 ) * v3Vector[0] + operator()( 2, 1 ) * v3Vector[1]
+						+ operator()( 2, 2 ) * v3Vector[2],
+						operator()( 3, 0 ) * v3Vector[0] + operator()( 3, 1 ) * v3Vector[1]
+						+ operator()( 3, 2 ) * v3Vector[2] + operator()( 3, 3 ) * v3Vector[3] );
 }
 
 inline VistaQuaternion VistaTransformMatrix::Transform( const VistaQuaternion& qRotation ) const
@@ -1078,14 +1122,14 @@ inline VistaTransformMatrix VistaTransformMatrix::Transform( const VistaTransfor
 	{
 		for( int j = 0; j < 4; ++j )
 		{
-			matNew[i][j] = m_a4x4fMatrix[i][0] * matTransform[0][j]
-						+ m_a4x4fMatrix[i][1] * matTransform[1][j]
-						+ m_a4x4fMatrix[i][2] * matTransform[2][j]
-						+ m_a4x4fMatrix[i][3] * matTransform[3][j];
-			//matNew[i][j] = m_a4x4fMatrix[0][i] * matTransform[j][0]
-			//			+ m_a4x4fMatrix[1][i] * matTransform[j][1]
-			//			+ m_a4x4fMatrix[2][i] * matTransform[j][2]
-			//			+ m_a4x4fMatrix[3][i] * matTransform[j][3];
+			matNew[i][j] = operator()( i, 0 ) * matTransform[0][j]
+						+ operator()( i, 1 ) * matTransform[1][j]
+						+ operator()( i, 2 ) * matTransform[2][j]
+						+ operator()( i, 3 ) * matTransform[3][j];
+			//matNew[i][j] = operator()( 0, i ) * matTransform[j][0]
+			//			+ operator()( 1, i ) * matTransform[j][1]
+			//			+ operator()( 2, i ) * matTransform[j][2]
+			//			+ operator()( 3, i ) * matTransform[j][3];
 
 		}
 	}
@@ -1095,43 +1139,43 @@ inline VistaTransformMatrix VistaTransformMatrix::Transform( const VistaTransfor
 
 inline VistaTransformMatrix& VistaTransformMatrix::operator+=( const VistaTransformMatrix& matOther )
 {
-	m_a4x4fMatrix[0][0] += matOther[0][0];
-	m_a4x4fMatrix[0][1] += matOther[0][1];
-	m_a4x4fMatrix[0][2] += matOther[0][2];
-	m_a4x4fMatrix[0][3] += matOther[0][3];
-	m_a4x4fMatrix[1][0] += matOther[1][0];
-	m_a4x4fMatrix[1][1] += matOther[1][1];
-	m_a4x4fMatrix[1][2] += matOther[1][2];
-	m_a4x4fMatrix[1][3] += matOther[1][3];
-	m_a4x4fMatrix[2][0] += matOther[2][0];
-	m_a4x4fMatrix[2][1] += matOther[2][1];
-	m_a4x4fMatrix[2][2] += matOther[2][2];
-	m_a4x4fMatrix[2][3] += matOther[2][3];
-	m_a4x4fMatrix[3][0] += matOther[3][0];
-	m_a4x4fMatrix[3][1] += matOther[3][1];
-	m_a4x4fMatrix[3][2] += matOther[3][2];
-	m_a4x4fMatrix[3][3] += matOther[3][3];
+	operator()( 0, 0 ) += matOther[0][0];
+	operator()( 0, 1 ) += matOther[0][1];
+	operator()( 0, 2 ) += matOther[0][2];
+	operator()( 0, 3 ) += matOther[0][3];
+	operator()( 1, 0 ) += matOther[1][0];
+	operator()( 1, 1 ) += matOther[1][1];
+	operator()( 1, 2 ) += matOther[1][2];
+	operator()( 1, 3 ) += matOther[1][3];
+	operator()( 2, 0 ) += matOther[2][0];
+	operator()( 2, 1 ) += matOther[2][1];
+	operator()( 2, 2 ) += matOther[2][2];
+	operator()( 2, 3 ) += matOther[2][3];
+	operator()( 3, 0 ) += matOther[3][0];
+	operator()( 3, 1 ) += matOther[3][1];
+	operator()( 3, 2 ) += matOther[3][2];
+	operator()( 3, 3 ) += matOther[3][3];
 	return (*this);
 }
 
 inline VistaTransformMatrix& VistaTransformMatrix::operator-=( const VistaTransformMatrix& matOther )
 {
-	m_a4x4fMatrix[0][0] -= matOther[0][0];
-	m_a4x4fMatrix[0][1] -= matOther[0][1];
-	m_a4x4fMatrix[0][2] -= matOther[0][2];
-	m_a4x4fMatrix[0][3] -= matOther[0][3];
-	m_a4x4fMatrix[1][0] -= matOther[1][0];
-	m_a4x4fMatrix[1][1] -= matOther[1][1];
-	m_a4x4fMatrix[1][2] -= matOther[1][2];
-	m_a4x4fMatrix[1][3] -= matOther[1][3];
-	m_a4x4fMatrix[2][0] -= matOther[2][0];
-	m_a4x4fMatrix[2][1] -= matOther[2][1];
-	m_a4x4fMatrix[2][2] -= matOther[2][2];
-	m_a4x4fMatrix[2][3] -= matOther[2][3];
-	m_a4x4fMatrix[3][0] -= matOther[3][0];
-	m_a4x4fMatrix[3][1] -= matOther[3][1];
-	m_a4x4fMatrix[3][2] -= matOther[3][2];
-	m_a4x4fMatrix[3][3] -= matOther[3][3];
+	operator()( 0, 0 ) -= matOther[0][0];
+	operator()( 0, 1 ) -= matOther[0][1];
+	operator()( 0, 2 ) -= matOther[0][2];
+	operator()( 0, 3 ) -= matOther[0][3];
+	operator()( 1, 0 ) -= matOther[1][0];
+	operator()( 1, 1 ) -= matOther[1][1];
+	operator()( 1, 2 ) -= matOther[1][2];
+	operator()( 1, 3 ) -= matOther[1][3];
+	operator()( 2, 0 ) -= matOther[2][0];
+	operator()( 2, 1 ) -= matOther[2][1];
+	operator()( 2, 2 ) -= matOther[2][2];
+	operator()( 2, 3 ) -= matOther[2][3];
+	operator()( 3, 0 ) -= matOther[3][0];
+	operator()( 3, 1 ) -= matOther[3][1];
+	operator()( 3, 2 ) -= matOther[3][2];
+	operator()( 3, 3 ) -= matOther[3][3];
 	return (*this);
 }
 
@@ -1144,22 +1188,22 @@ inline VistaTransformMatrix& VistaTransformMatrix::operator*=( const VistaTransf
 
 inline bool VistaTransformMatrix::operator==( const VistaTransformMatrix& matOther ) const
 {
-	return( m_a4x4fMatrix[0][0] == matOther[0][0]
-			&& m_a4x4fMatrix[0][1] == matOther[0][1]
-			&& m_a4x4fMatrix[0][2] == matOther[0][2]
-			&& m_a4x4fMatrix[0][3] == matOther[0][3]
-			&& m_a4x4fMatrix[1][0] == matOther[1][0]
-			&& m_a4x4fMatrix[1][1] == matOther[1][1]
-			&& m_a4x4fMatrix[1][2] == matOther[1][2]
-			&& m_a4x4fMatrix[1][3] == matOther[1][3]
-			&& m_a4x4fMatrix[2][0] == matOther[2][0]
-			&& m_a4x4fMatrix[2][1] == matOther[2][1]
-			&& m_a4x4fMatrix[2][2] == matOther[2][2]
-			&& m_a4x4fMatrix[2][3] == matOther[2][3]
-			&& m_a4x4fMatrix[3][0] == matOther[3][0]
-			&& m_a4x4fMatrix[3][1] == matOther[3][1]
-			&& m_a4x4fMatrix[3][2] == matOther[3][2]
-			&& m_a4x4fMatrix[3][3] == matOther[3][3] );
+	return( operator()( 0, 0 ) == matOther[0][0]
+			&& operator()( 0, 1 ) == matOther[0][1]
+			&& operator()( 0, 2 ) == matOther[0][2]
+			&& operator()( 0, 3 ) == matOther[0][3]
+			&& operator()( 1, 0 ) == matOther[1][0]
+			&& operator()( 1, 1 ) == matOther[1][1]
+			&& operator()( 1, 2 ) == matOther[1][2]
+			&& operator()( 1, 3 ) == matOther[1][3]
+			&& operator()( 2, 0 ) == matOther[2][0]
+			&& operator()( 2, 1 ) == matOther[2][1]
+			&& operator()( 2, 2 ) == matOther[2][2]
+			&& operator()( 2, 3 ) == matOther[2][3]
+			&& operator()( 3, 0 ) == matOther[3][0]
+			&& operator()( 3, 1 ) == matOther[3][1]
+			&& operator()( 3, 2 ) == matOther[3][2]
+			&& operator()( 3, 3 ) == matOther[3][3] );
 
 }
 
@@ -1282,6 +1326,22 @@ std::ostream& operator<<( std::ostream& oStream, const VistaTransformMatrix& mat
 	oStream.flags( iOldflags );
 
 	return oStream;
+}
+
+
+
+// definition of Row functions
+inline VistaTransformMatrix::Row::Row( float* afData )
+: m_afData( afData )
+{
+}
+inline float& VistaTransformMatrix::Row::operator[]( const int iRowIndex )
+{
+	return m_afData[4*iRowIndex];
+}
+inline const float& VistaTransformMatrix::Row::operator[]( const int iRowIndex ) const
+{
+	return m_afData[4*iRowIndex];
 }
 
 

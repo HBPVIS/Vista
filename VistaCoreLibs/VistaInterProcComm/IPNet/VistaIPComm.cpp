@@ -20,11 +20,12 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaIPComm.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaIPComm.h"
 #include <VistaInterProcComm/Concurrency/VistaMutex.h>
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+
+#include <VistaBase/VistaStreamUtils.h>
 
 
 #if !defined(HOST_NAME_MAX)
@@ -90,7 +91,7 @@ int VistaIPComm::UseIPComm()
 
 		if ( WSAStartup ( MAKEWORD (1, 1), & dummyWsaData ) != 0 )
 		{
-			vipcerr << "VistaIPComm::WSAstart() couldn't initialise WinSock." << endl;
+			vstr::errp() << "VistaIPComm::WSAstart() couldn't initialise WinSock." << std::endl;
 			--iRefCount;
 		}
 	}
@@ -116,7 +117,7 @@ string VistaIPComm::GetHostname()
 {
 	char buffer[HOST_NAME_MAX+1];
 	if(gethostname(buffer, HOST_NAME_MAX+1) < 0)
-		vipcerr << "VistaIPComm::GetHostname() -- ERROR! errno = " << errno << endl;
+		vstr::errp() << "VistaIPComm::GetHostname() -- ERROR! errno = " << errno << std::endl;
 	return string(buffer);
 }
 

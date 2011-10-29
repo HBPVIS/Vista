@@ -20,12 +20,14 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDriverLoggingAspect.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 #include "VistaDriverLoggingAspect.h" 
 #include <VistaDeviceDriversBase/VistaDeviceDriver.h>
 #include "VistaDeviceDriverAspectRegistry.h"
-#include <VistaDeviceDriversBase/VistaDeviceDriversOut.h>
+
+#include <VistaBase/VistaStreamUtils.h>
+
 #include <iostream>
 #include <cassert>
 
@@ -94,15 +96,15 @@ bool VistaDriverLoggingAspect::DoLog( VistaType::microtime nTimestamp,
 {
 	if(m_strMnemonic.empty())
 	{
-		vddout << nTimestamp << "\t" << typeid(pDriver).name() << "\t"
-				  << pDriver << "\n";
+		vstr::outi() << nTimestamp << "\t" << typeid(pDriver).name() << "\t"
+			<< pDriver << std::endl;
 	}
 	else
 	{
-		vddout << nTimestamp << "\t" << m_strMnemonic << "\t" << pDriver << "\n";
+		vstr::outi() << nTimestamp << "\t" << m_strMnemonic << "\t" << pDriver << std::endl;
 	}
 
-	vddout << strMsg << std::endl;
+	vstr::outi() << strMsg << std::endl;
 	return true;
 }
 

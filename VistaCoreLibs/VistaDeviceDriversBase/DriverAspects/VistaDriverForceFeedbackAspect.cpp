@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDriverForceFeedbackAspect.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 #include "VistaDriverForceFeedbackAspect.h"
 #include "VistaDeviceDriverAspectRegistry.h"
@@ -204,8 +204,6 @@ bool VistaPlaneConstraint::UpdateForce( double dTs, const VistaVector3D &v3Curre
 		v3ResultingTorque = VistaVector3D(0,0,0,1);
 		return true;
 	}
-
-	return false;
 }
 
 

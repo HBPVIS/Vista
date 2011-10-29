@@ -20,31 +20,25 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaInteractionContext.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VistaInteractionContext.h"
-//#include "VistaCoordTransform.h"
-//#include "VistaCommandTransform.h"
-//#include "VistaSensorTransform.h"
 
-#include "VistaInteractionEvent.h"
-
+#include <VistaKernel/InteractionManager/VistaInteractionEvent.h>
+#include <VistaKernel/EventManager/VistaEventManager.h>
 
 #include <VistaAspects/VistaPropertyAwareable.h>
-
 #include <VistaAspects/VistaSerializer.h>
 #include <VistaAspects/VistaDeSerializer.h>
-#include <VistaBase/VistaExceptionBase.h>
 
+#include <VistaBase/VistaExceptionBase.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <VistaDataFlowNet/VdfnGraph.h>
 #include <VistaDataFlowNet/VdfnNode.h>
 #include <VistaDataFlowNet/VdfnPort.h>
+#include <VistaDataFlowNet/VdfnPersistence.h>
 
-
-#include <VistaKernel/EventManager/VistaEventManager.h>
-
-#include "../VistaKernelOut.h"
 
 #include <iostream>
 using namespace std;
@@ -52,38 +46,39 @@ using namespace std;
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
-static int bDump = 0;
 
-int VistaInteractionContext::SerializeContext(IVistaSerializer &ser,
-											   const VistaInteractionContext &oCtx)
+int VistaInteractionContext::SerializeContext( IVistaSerializer& oSerializer,
+											   const VistaInteractionContext& oContext )
 {
-    ser.WriteInt32( oCtx.m_nUpdateIndex );
+    oSerializer.WriteInt32( oContext.m_nUpdateIndex );
 
-	VdfnGraph *pGraph = oCtx.GetTransformGraph();
+	VdfnGraph *pGraph = oContext.GetTransformGraph();
 	if(pGraph != NULL)
 	{
 		int nRet = 0;
 		unsigned int nCnt = (*pGraph).GetMasterSimCount();
-		ser.WriteInt32( (VistaType::sint32)nCnt );
+		oSerializer.WriteInt32( (VistaType::sint32)nCnt );
 		if(nCnt > 0)
 		{
 			const VdfnGraph::Nodes &nodes = (*pGraph).GetNodes();
 			for(VdfnGraph::Nodes::const_iterator cit = nodes.begin();
 				cit != nodes.end(); ++cit )
 			{
-				std::string strNodeName;
+				std::string sNodeName;
 				if( (*cit)->GetIsMasterSim() )
 				{
 					// we found a node that is master-sim... serialize this
-					strNodeName = (*cit)->GetNameForNameable();
-					if(strNodeName.empty())
+					sNodeName = (*cit)->GetNameForNameable();
+					if( sNodeName.empty() )
 					{
-						vkernerr << "NO NODE NAME... THAT IS BAD!\n";
+						vstr::warnp() 
+									<< "[VistaInteractionContext::SerializeContext]: "
+									<< "found node without name - skipping" << std::endl;
 						continue;
 					}
 
-					nRet += ser.WriteInt32( (VistaType::sint32)strNodeName.size() );
-					nRet += ser.WriteString( strNodeName );
+					nRet += oSerializer.WriteInt32( (VistaType::sint32)sNodeName.size() );
+					nRet += oSerializer.WriteString( sNodeName );
 
 					 std::list<std::string> liOutPorts = (*cit)->GetOutPortNames();
 
@@ -92,7 +87,7 @@ int VistaInteractionContext::SerializeContext(IVistaSerializer &ser,
 					 {
 						 IVdfnPort *pPort = (*cit)->GetOutPort( *lit );
 						 VdfnPortSerializeAdapter *pAdp = pPort->GetSerializeAdapter();
-						 ser.WriteSerializable( *pAdp );
+						 oSerializer.WriteSerializable( *pAdp );
 					 }
 				}
 			}
@@ -102,17 +97,17 @@ int VistaInteractionContext::SerializeContext(IVistaSerializer &ser,
     return 0;
 }
 
-int VistaInteractionContext::DeSerializeContext(IVistaDeSerializer &deSer,
-												 VistaInteractionContext &oCtx)
+int VistaInteractionContext::DeSerializeContext(IVistaDeSerializer& oDeSerializer,
+												 VistaInteractionContext& oContext )
 {
-    deSer.ReadInt32( oCtx.m_nUpdateIndex );
+    oDeSerializer.ReadInt32( oContext.m_nUpdateIndex );
 
-	VdfnGraph *pGraph = oCtx.GetTransformGraph();
+	VdfnGraph *pGraph = oContext.GetTransformGraph();
 	if(pGraph != NULL)
 	{
 		int nRet = 0;
 		unsigned int nCnt = 0;
-		deSer.ReadInt32(nCnt);
+		oDeSerializer.ReadInt32(nCnt);
 		if(nCnt > 0)
 		{
 			std::string strNodeName;
@@ -120,8 +115,8 @@ int VistaInteractionContext::DeSerializeContext(IVistaDeSerializer &deSer,
 			{
 				// read name
 				VistaType::sint32 nLength = 0;
-				deSer.ReadInt32( nLength );
-				deSer.ReadString( strNodeName, nLength );
+				oDeSerializer.ReadInt32( nLength );
+				oDeSerializer.ReadString( strNodeName, nLength );
 
 				IVdfnNode *pNode = pGraph->GetNodeByName( strNodeName );
 				if(pNode)
@@ -132,19 +127,22 @@ int VistaInteractionContext::DeSerializeContext(IVistaDeSerializer &deSer,
 					{
 						 IVdfnPort *pPort = pNode->GetOutPort( *cit );
 						 VdfnPortSerializeAdapter *pAdp = pPort->GetSerializeAdapter();
-						 deSer.ReadSerializable( *pAdp );
+						 oDeSerializer.ReadSerializable( *pAdp );
 					}
 				}
 				else
 				{
-					vkernerr << "NODE [" << strNodeName << "] NOT FOUND -- BAD\nAvailable nodes are:\n";
+					vstr::errp() << "[VistaInteractionContext::DeSerializeContext]: "
+							<< "node [" << strNodeName << "]not available\n";
+					vstr::IndentObject oIndent;
+					vstr::erri() << "Available nodes are:\n";
 					const VdfnGraph::Nodes &nd = pGraph->GetNodes();
 					for( VdfnGraph::Nodes::const_iterator cit = nd.begin(); cit != nd.end(); ++cit)
 					{
-						vkernerr << "[" << (*cit)->GetNameForNameable() << "]\n";
+						vstr::erri() << "[" << (*cit)->GetNameForNameable() << "]\n";
 					}
-
-					VISTA_THROW( "serialization error for dfn graph", 0x00000000);
+					vstr::err().flush();
+					VISTA_THROW( "serialization error for dfn graph", 0x00000000 );
 				}
 			}
 		}
@@ -153,7 +151,6 @@ int VistaInteractionContext::DeSerializeContext(IVistaDeSerializer &deSer,
 	}
     return 0;
 }
-
 
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
@@ -166,12 +163,17 @@ VistaInteractionContext::VistaInteractionContext(VistaInteractionManager *pMgr,
   m_bRegistered(false),
   m_pTransformGraph(NULL),
   m_pEvent(new VistaInteractionEvent(pMgr)),
-  m_pEvMgr(pEvMgr),
+  m_pEventManager(pEvMgr),
   m_nUpdateIndex(0),
   m_nRoleId(~0)
 {
 	m_pEvent->SetInteractionContext(this);
 	m_pEvent->SetId( VistaInteractionEvent::VEID_CONTEXT_GRAPH_UPDATE );
+}
+
+VistaInteractionContext::VistaInteractionContext( const VistaInteractionContext & )
+{
+
 }
 
 VistaInteractionContext::~VistaInteractionContext()
@@ -183,6 +185,12 @@ VistaInteractionContext::~VistaInteractionContext()
 /*============================================================================*/
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
+
+VistaInteractionContext& VistaInteractionContext::operator=(const VistaInteractionContext &)
+{
+	return *this;
+}
+
 bool VistaInteractionContext::GetIsEnabled() const
 {
 	return m_bEnabled;
@@ -206,7 +214,7 @@ VdfnGraph *VistaInteractionContext::GetTransformGraph() const
 	return m_pTransformGraph;
 }
 
-void        VistaInteractionContext::SetTransformGraph(VdfnGraph *pGraph)
+void VistaInteractionContext::SetTransformGraph(VdfnGraph *pGraph)
 {
 	if(compAndAssignFunc<VdfnGraph*>(pGraph,m_pTransformGraph))
 	{
@@ -234,7 +242,7 @@ bool VistaInteractionContext::Evaluate(double nTs)
 		{
 			m_pEvent->SetId(VistaInteractionEvent::VEID_CONTEXT_CHANGE);
 			m_pEvent->SetTime(nTs);
-			m_pEvMgr->ProcessEvent(m_pEvent);
+			m_pEventManager->ProcessEvent(m_pEvent);
 		}
 		return true;
 	}
@@ -248,15 +256,14 @@ unsigned int VistaInteractionContext::GetUpdateIndex() const
 
 std::string VistaInteractionContext::GetGraphSource() const
 {
-	return m_strGraphFile;
+	return m_sGraphFile;
 }
 
 void VistaInteractionContext::SetGraphSource( const std::string &strGraphFile )
 {
-    if(compAndAssignFunc<std::string>(strGraphFile, m_strGraphFile))
+    if( compAndAssignFunc<std::string>(strGraphFile, m_sGraphFile) )
         Notify(MSG_GRAPHSOURCE_CHANGE);
 }
-
 
 bool VistaInteractionContext::GetIsEventSource() const
 {

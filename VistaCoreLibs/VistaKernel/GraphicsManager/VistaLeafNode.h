@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaLeafNode.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTALEAFNODE_H
 #define _VISTALEAFNODE_H
@@ -47,7 +47,7 @@ class IVistaNodeData;
 /*============================================================================*/
 class VISTAKERNELAPI VistaLeafNode : public VistaNode
 {
-	friend class VistaSG;
+	friend class VistaSceneGraph;
 	friend class IVistaNodeBridge;
 public:
 	virtual ~VistaLeafNode();

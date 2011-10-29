@@ -20,10 +20,12 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenGLDebug.cpp 21315 2011-05-16 13:47:39Z dr165799 $
-#include "../VistaKernelOut.h"
+// $Id$
 
 #include "VistaOpenGLDebug.h"
+
+#include <VistaBase/VistaStreamUtils.h>
+
 #if defined(WIN32)
 	#include <Windows.h>
 #endif
@@ -52,7 +54,7 @@ using namespace std;
 
 VistaOpenGLDebug::VistaOpenGLDebug()
 {
-	m_pOutputStream = &(vkernout);
+	m_pOutputStream = &(vstr::out());
 }
 
 VistaOpenGLDebug::~VistaOpenGLDebug()

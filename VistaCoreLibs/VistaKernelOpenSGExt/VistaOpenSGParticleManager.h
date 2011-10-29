@@ -44,7 +44,7 @@
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
 class VistaGroupNode;
-class VistaSG;
+class VistaSceneGraph;
 class VistaRandomNumberGenerator;
 
 /*============================================================================*/
@@ -72,6 +72,7 @@ public:
 			int		m_iParticleID;
 		};
 
+		virtual ~IParticleChanger();
 		IParticleChanger();
 
 		/**
@@ -101,7 +102,7 @@ public:
 public:
 
 
-	VistaOpenSGParticleManager(VistaGroupNode *pParent, VistaSG *pSG);
+	VistaOpenSGParticleManager(VistaGroupNode *pParent, VistaSceneGraph *pSG);
 	virtual ~VistaOpenSGParticleManager();
 
 	void SetMaximumParticles(int iMaxParticles);

@@ -20,9 +20,11 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenSGPerMaterialShader.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #if defined(WIN32)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4189)
 #pragma warning(disable: 4275)
 #pragma warning(disable: 4267)
 #pragma warning(disable: 4251)
@@ -33,14 +35,14 @@
 
 #include <VistaKernel/OpenSG/VistaOpenSGGraphicsBridge.h>
 
+#include <VistaBase/VistaStreamUtils.h>
+
 #include <OpenSG/OSGChunkMaterial.h>
 #include <OpenSG/OSGMaterialChunk.h>
 #include <OpenSG/OSGSHLChunk.h>
 #include <OpenSG/OSGSHLParameterChunk.h>
 
 #include <iostream>
-
-#include "VistaKernelOpenSGExtOut.h"
 
 ////////////////////////////////////
 ////////////////////////////////////
@@ -423,27 +425,29 @@ bool VistaOpenSGPerMaterialShader::SetShadersFromFile(
 	std::ifstream oVertexShader( sVertexShaderFile.c_str() );
 	if( oVertexShader.good() == false )
 	{
-		vosgextout << "Error: could not load vertex shader file \""
-			<< sVertexShaderFile << "\"" << std::endl;
+		vstr::warnp() << "[VistaOpenSGPerMaterialShader]: Could not load vertex shader file ["
+				<< sVertexShaderFile << "]" << std::endl;
 		return false;
 	}
 	std::ifstream oFragmentShader( sFragmentShaderFile.c_str() );
 	if( oFragmentShader.good() == false )
 	{
-		vosgextout << "Error: could not load fragment shader file \""
-			<< sFragmentShaderFile << "\"" << std::endl;
+		vstr::warnp() << "[VistaOpenSGPerMaterialShader]: Could not load fragment shader file ["
+				<< sFragmentShaderFile << "]" << std::endl;
 		return false;
 	}
 	beginEditCP( m_pShaderData->m_pShader, osg::SHLChunk::FragmentProgramFieldMask );
 		if( m_pShaderData->m_pShader->readVertexProgram( oVertexShader ) == false )
 		{
-			vosgexterr << "Error: could not read fragment shader" << std::endl;
+			vstr::warnp() << "[VistaOpenSGPerMaterialShader]: Could not parse vertex shader file ["
+				<< sVertexShaderFile << "]" << std::endl;
 			endEditCP( m_pShaderData->m_pShader, osg::SHLChunk::FragmentProgramFieldMask );
 			return false;
 		}			
 		if( m_pShaderData->m_pShader->readFragmentProgram( oFragmentShader ) == false )
 		{
-			vosgexterr << "Error: could not read fragment shader" << std::endl;
+			vstr::warnp() << "[VistaOpenSGPerMaterialShader]: Could not parse fragment shader file ["
+				<< sFragmentShaderFile << "]" << std::endl;
 			endEditCP( m_pShaderData->m_pShader, osg::SHLChunk::FragmentProgramFieldMask );
 			return false;
 		}

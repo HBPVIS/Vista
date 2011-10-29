@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaEnvironment.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #if !defined(_VISTAENVIRONMENT_H)
 #define _VISTAENVIRONMENT_H
@@ -92,19 +92,10 @@ class VISTATOOLSAPI VistaEnvironment
 		static std::string GetNumberOfProcessors();
 
 
-		/**
-		 *
-		 */
 		static std::string GetMemory();
 
-		/**
-		 *
-		 */
 		static std::string GetCompileFlagSYSTEM();
 
-		/**
-		 *
-		 */
 		static std::string GetCompileTime();
 
 		/**

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaActiveDataProducer.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef IDLVISTAACTIVEDATAPRODUCER_H
 #define IDLVISTAACTIVEDATAPRODUCER_H
@@ -51,83 +51,35 @@ class DLVistaProducerLoop;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI DLVistaActiveDataProducer : public IDLVistaDataProducer, public IDLVistaActiveComponent
 {
 private:
-	/**
-	 *
-	 */
 	DLVistaProducerLoop *m_pThreadLoop;
-	/**
-	 *
-	 */
 	IDLVistaDataProducer *m_pRealProducer;
 
 	bool m_bStopOnDestruct;
 public:
-	/**
-	 *
-	 */
 	DLVistaActiveDataProducer(IDLVistaDataProducer *);
-	/**
-	 *
-	 */
 	virtual ~DLVistaActiveDataProducer();
 
-	/**
-	 *
-	 */
 	virtual IDLVistaDataPacket *ProducePacket() ;
 
-	/**
-	 *
-	 */
 	virtual bool PushPacket(IDLVistaDataPacket *pPacket = 0) ;
 
-	/**
-	 *
-	 */
 	virtual bool HasPacket() const ;
 
-	/**
-	 *
-	 */
 	virtual bool IsDataProducer() const { return true;}
 
-	/**
-	 *
-	 */
 	virtual bool IsDataConsumer() const { return false; }
 
-	/**
-	 *
-	 */
 	virtual bool AttachInputComponent(IDLVistaPipeComponent *pComp);
-	/**
-	 *
-	 */
 	virtual bool AttachOutputComponent(IDLVistaPipeComponent *pComp);
 
-   /**
-	 *
-	 */
 	virtual IDLVistaPipeComponent *GetOutboundByIndex(int iIndex) const;
 
-	/**
-	 *
-	 */
 	virtual IDLVistaPipeComponent *GetInboundByIndex(int iIndex) const;
-	/**
-	 *
-	 */
 	virtual int GetNumberOfOutbounds() const;
 
-	/**
-	 *
-	 */
 	virtual int GetNumberOfInbounds() const;
 
 	virtual int GetInputPacketType() const;
@@ -137,52 +89,22 @@ public:
 	virtual std::list<IDLVistaPipeComponent *> GetOutputComponents() const;
 
 	virtual int TryToReclaimPendingPackets();
-	/**
-	 *
-	 */
 	virtual bool AcceptDataPacket(IDLVistaDataPacket *pPacket, IDLVistaPipeComponent *pSender, bool bBlock=false) ;
-	/**
-	 *
-	 */
 	virtual bool RecycleDataPacket(IDLVistaDataPacket *pPacket, IDLVistaPipeComponent *pSender, bool bBlock=false) ;
 
-	/**
-	 *
-	 */
 	virtual IDLVistaDataPacket *GivePacket(bool bBlock) ;
-	/**
-	 *
-	 */
 	virtual IDLVistaDataPacket *ReturnPacket();
 
-	/**
-	 *
-	 */
 	virtual bool IsActiveComponent() const { return true; }
 
-	/**
-	 *
-	 */
 	virtual bool InitPacketMgmt() ;
 
-	/**
-	 *
-	 */
 	virtual IDLVistaDataPacket *CreatePacket();
 
-	/**
-	 *
-	 */
 	virtual void DeletePacket(IDLVistaDataPacket *pPacket);
 
-	/**
-	 *
-	 */
 	bool StartComponent();
 
-	/**
-	 *
-	 */
 	bool StopComponentGently(bool bJoin);
 
 	/**
@@ -192,28 +114,16 @@ public:
 	 */
 	void IndicateProductionEnd();
 
-	/**
-	 *
-	 */
 	bool PauseComponent(bool bJoin);
 
 	bool UnPauseComponent(bool bJoin);
 
-	/**
-	 *
-	 */
 	bool StopComponent(bool bJoin);
 
-	/**
-	 *
-	 */
 	bool HaltComponent();
 
 
 	int  SetComponentPriority(const VistaPriority &pPrio);
-	/**
-	 *
-	 */
 	bool IsComponentRunning() const;
 
 
@@ -223,14 +133,8 @@ public:
 	void SetWaitTimeout(int iTimeout);
 	int  GetWaitTimeout() const;
 
-	/**
-	 *
-	 */
 	void SetThreadName(const std::string& strName);
 
-	/**
-	 *
-	 */
 	std::string GetThreadName() const;
 
 
@@ -239,9 +143,6 @@ public:
 	bool GetStopOnDestruct() const;
 	void SetStopOnDestruct(bool bStop);
 protected:
-	/**
-	 *
-	 */
 	virtual void FillPacket(IDLVistaDataPacket * pPacket) ;
 };
 

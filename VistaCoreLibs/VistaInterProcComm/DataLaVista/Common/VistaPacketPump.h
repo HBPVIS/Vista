@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPacketPump.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef IDLVISTAPACKETPUMP_H
 #define IDLVISTAPACKETPUMP_H
@@ -47,9 +47,6 @@ class VistaThreadLoop;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI DLVistaPacketPump : public IDLVistaPipe, public IDLVistaActiveComponent
 {
 private:
@@ -124,29 +121,14 @@ public:
 
 	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-	/**
-	 *
-	 */
 	virtual bool IsFull() const ;
 
-	/**
-	 *
-	 */
 	virtual bool IsEmpty() const ;
 
-	/**
-	 *
-	 */
 	virtual int Capacity() const ;
 
-	/**
-	 *
-	 */
 	virtual bool AttachOutputComponent(IDLVistaPipeComponent * pComp);
 
-	/**
-	 *
-	 */
 	virtual bool DetachOutputComponent(IDLVistaPipeComponent * pComp);
 
 	/**

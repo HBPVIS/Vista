@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaAC3DLoader.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTAAC3DLOADER_H
 #define _VISTAAC3DLOADER_H
@@ -42,7 +42,7 @@
 
 class VistaGroupNode;
 class IVistaNode;
-class VistaSG;
+class VistaSceneGraph;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -54,7 +54,7 @@ public:
 	VistaAC3DLoader();
 	virtual ~VistaAC3DLoader();
 
-	IVistaNode *LoadNode(VistaSG *, VistaGroupNode *pParent,
+	IVistaNode *LoadNode(VistaSceneGraph *, VistaGroupNode *pParent,
 						 const std::string &sFileName,
 						 const std::string &sTexturePathPrefix = "");
 protected:

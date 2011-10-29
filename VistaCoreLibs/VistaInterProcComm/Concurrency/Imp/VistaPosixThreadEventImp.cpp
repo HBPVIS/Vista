@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPosixThreadEventImp.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include <VistaInterProcComm/Concurrency/VistaIpcThreadModel.h>
 
@@ -155,7 +155,7 @@ bool VistaPosixThreadEventImp::ResetThisEvent()
 		// loop might be slower, but we avoid dynamic allocation
 		// of an array of pointers to read all results at once
 		// anyway... we expect to be only a few signals in the queue
-		for(int i=0; i < result/sizeof(void*); ++i)
+		for( int i=0; i < result/(int)sizeof(void*); ++i)
 		{
 			read(m_fd[PIPE_R], (void*)&pThis, sizeof(pThis));
 		}

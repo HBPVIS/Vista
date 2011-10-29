@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnActionObject.h 22278 2011-07-06 12:04:40Z dr165799 $
 
 #ifndef _VDFNACTIONOBJECT_H
 #define _VDFNACTIONOBJECT_H
@@ -36,9 +36,6 @@
 
 #include <VistaAspects/VistaReflectionable.h>
 #include "VdfnPortFactory.h"
-
-#include "VdfnOut.h"
-
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -539,7 +536,7 @@ public:
 		TVdfnPort<bool> *pT = dynamic_cast<TVdfnPort<bool>*>(pPort);
 #if defined(DEBUG)
 		if(pT == NULL)
-			vdfnerr << "orig type = " << typeid( *pPort ).name() << std::endl;
+			vstr::errp() << "orig type = " << typeid( *pPort ).name() << std::endl;
 #endif
 		if(pActionSet && pT)
 		{
@@ -553,9 +550,11 @@ public:
 #if defined(DEBUG)
 		else
 		{
-			vdfnerr << "Obj: " << pObj->GetNameForNameable() << "\n";
-			vdfnerr << "pActionSet == " << pActionSet << " ; pT == " << pT << std::endl;
-			vdfnerr << (pActionSet ? pActionSet->GetNameForNameable() : "<none>") << std::endl;
+			vstr::errp() << "Obj: " << pObj->GetNameForNameable() << "\n";
+			vstr::erri() << vstr::singleindent
+					<< "pActionSet == " << pActionSet << " ; pT == " << pT << std::endl;
+			vstr::erri() << vstr::singleindent
+					<< (pActionSet ? pActionSet->GetNameForNameable() : "<none>") << std::endl;
 		}
 #endif
 

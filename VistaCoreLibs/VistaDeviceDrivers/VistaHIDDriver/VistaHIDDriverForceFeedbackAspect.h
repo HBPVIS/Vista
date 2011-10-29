@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaHIDDriverForceFeedbackAspect.h 23044 2011-08-23 14:22:37Z dr165799 $
 
 #ifndef _VISTAHIDDRIVERFORCEFEEDBACKASPECT_H
 #define _VISTAHIDDRIVERFORCEFEEDBACKASPECT_H
@@ -64,6 +64,7 @@ public:
 
 	virtual bool SetForce( const VistaVector3D & force,
 						   const VistaVector3D & v3Ignored);
+	using IVistaDriverForceFeedbackAspect::SetForce; //to make overload available
 
 	int GetNumInputDOF() const;
 	int GetNumOutputDOF() const;

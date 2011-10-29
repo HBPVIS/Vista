@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDriverSensorMappingAspect.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 #include "VistaDriverSensorMappingAspect.h"
 #include "VistaDeviceDriverAspectRegistry.h"
@@ -28,7 +28,7 @@
 #include <VistaDeviceDriversBase/VistaDeviceSensor.h> // needed for the deletion of the factory
 							   // maybe shift the deletion to another instance
 
-#include <VistaDeviceDriversBase/VistaDeviceDriversOut.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <algorithm>
 #include <cassert>
@@ -206,9 +206,9 @@ bool VistaDriverSensorMappingAspect::SetSensorId(unsigned int nSensorType,
 	_sL &l = m_vecTypeMapping[nSensorType];
 	l.m_mapIds[nRawSensorId] = nSensorId;
 
-	vddout << "VistaDriverSensorMappingAspect::SetSensorId("
-		<< nSensorType << " [" << l.m_strTypeName <<  "], "
-		<< nRawSensorId << ", " << nSensorId << ")\n";
+	vstr::outi() << "VistaDriverSensorMappingAspect::SetSensorId("
+				<< nSensorType << " [" << l.m_strTypeName <<  "], "
+				<< nRawSensorId << ", " << nSensorId << ")" << std::endl;
 	return true;
 }
 

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaAspectsUtils.cpp 23036 2011-08-22 08:28:20Z tb552214 $
+// $Id$
 
 #include "VistaAspectsUtils.h"
 
@@ -169,7 +169,9 @@ unsigned int VistaAspectsConversionStuff::ConvertToList(const string &sValue, li
 	string strTemp;
 
 	// split list according to commas (sp?) and remove spaces
-	unsigned int iPos0 = 0, iPos1 = 0, iPos2;
+	unsigned int iPos0 = 0;
+	unsigned int iPos1 = 0;
+	unsigned int iPos2 = 0;
 	while (iPos0<sValue.size())
 	{
 		if (bTrim)
@@ -645,29 +647,65 @@ bool VistaAspectsComparisonStuff::StringCaseInsensitiveLess( const std::string& 
 	#endif
 }
 
-VistaAspectsComparisonStuff::StringCompare::StringCompare( const bool bCaseSensitiveCompare )
-: m_bCaseSensitiveCompare( bCaseSensitiveCompare )
-{
-}	
+/*============================================================================*/
+/* StringCompareObject                                                        */
+/*============================================================================*/
 
-bool VistaAspectsComparisonStuff::StringCompare::operator() (
+VistaAspectsComparisonStuff::StringCompareObject::StringCompareObject( 
+											const bool bCaseSensitive )
+: m_bCaseSensitive( bCaseSensitive )
+{
+}
+
+bool VistaAspectsComparisonStuff::StringCompareObject::operator() (
 						const std::string& sLeft, const std::string& sRight ) const
 {
-	if( m_bCaseSensitiveCompare )
+	if( m_bCaseSensitive )
+		return sLeft == sRight;
+	else
+		return StringCaseInsensitiveEquals( sLeft, sRight );
+}
+
+void VistaAspectsComparisonStuff::StringCompareObject::SetIsCaseSensitive( const bool bSet )
+{
+	m_bCaseSensitive = bSet;
+}
+
+bool VistaAspectsComparisonStuff::StringCompareObject::GetIsCaseSensitive() const
+{
+	return m_bCaseSensitive;
+}
+
+/*============================================================================*/
+/* StringLessObject                                                           */
+/*============================================================================*/
+
+VistaAspectsComparisonStuff::StringLessObject::StringLessObject( 
+											const bool bCaseSensitive )
+: m_bCaseSensitive( bCaseSensitive )
+{
+}
+
+bool VistaAspectsComparisonStuff::StringLessObject::operator() (
+						const std::string& sLeft, const std::string& sRight ) const
+{
+	if( m_bCaseSensitive )
 		return sLeft < sRight;
 	else
 		return StringCaseInsensitiveLess( sLeft, sRight );
 }
 
-void VistaAspectsComparisonStuff::StringCompare::SetIsCaseSensitive( const bool bSet )
+void VistaAspectsComparisonStuff::StringLessObject::SetIsCaseSensitive( const bool bSet )
 {
-	m_bCaseSensitiveCompare = bSet;
+	m_bCaseSensitive = bSet;
 }
 
-bool VistaAspectsComparisonStuff::StringCompare::GetIsCaseSensitive() const
+bool VistaAspectsComparisonStuff::StringLessObject::GetIsCaseSensitive() const
 {
-	return m_bCaseSensitiveCompare;
+	return m_bCaseSensitive;
 }
+
+
 
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */

@@ -20,12 +20,14 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaThreadImp.cpp 21315 2011-05-16 13:47:39Z dr165799 $
-
-#include <VistaInterProcComm/Concurrency/VistaIpcThreadModel.h>
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+// $Id$
 
 #include "VistaThreadImp.h"
+
+#include <VistaInterProcComm/Concurrency/VistaThread.h>
+#include <VistaInterProcComm/Concurrency/VistaIpcThreadModel.h>
+
+#include <VistaBase/VistaStreamUtils.h>
 
 
 #if defined(VISTA_THREADING_WIN32)
@@ -37,8 +39,6 @@
 #else
 #error "PROCESSIMPLEMENTATION UNSUPPORTED FOR THIS PLATFORM!"
 #endif
-
-#include <VistaInterProcComm/Concurrency/VistaThread.h>
 
 #include <iostream>
 
@@ -98,7 +98,8 @@ IVistaThreadImp *IVistaThreadImp::CreateThreadImp(const VistaThread &thread)
 void IVistaThreadImp::RegisterThreadImpFactory(IVistaThreadImpFactory *pFactory)
 {
 	if(m_pSImpFactory)
-		vipcerr << "" << std::endl;
+		vstr::errp() << "IVistaThreadImp::RegisterThreadImpFactory() -- "
+				<< "Factory already registered - overwriting previous one" << std::endl;
 
 	m_pSImpFactory = pFactory;
 }
@@ -137,6 +138,27 @@ std::string IVistaThreadImp::GetThreadName() const
 void IVistaThreadImp::DoSetThreadName(const std::string &sName)
 {
 	m_sThreadName = sName;
+}
+
+long IVistaThreadImp::GetCallingThreadIdentity( bool bBypassFactory )
+{
+	if( m_pSImpFactory && !bBypassFactory )
+	{
+		return m_pSImpFactory->GetCallingThreadIdentity();
+	}
+	else
+	{
+	// factory method
+	#if defined(VISTA_THREADING_WIN32)
+		return VistaWin32ThreadImp::GetCallingThreadIdentity();
+	#elif defined(VISTA_THREADING_POSIX)
+		return VistaPthreadThreadImp::GetCallingThreadIdentity();
+	#elif defined(VISTA_THREADING_SPROC)
+		return VistaSPROCThreadImp::GetCallingThreadIdentity();
+	#else
+		VISTA_THROW_NOT_IMPLEMENTED;
+	#endif
+	}
 }
 
 /*============================================================================*/

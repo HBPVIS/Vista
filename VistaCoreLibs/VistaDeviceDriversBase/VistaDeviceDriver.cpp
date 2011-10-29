@@ -20,24 +20,23 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDeviceDriver.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VistaDeviceDriver.h"
 #include "VistaDeviceSensor.h"
 #include "DriverAspects/VistaDriverMeasureHistoryAspect.h"
 
-#include <algorithm>
-
 #include <VistaInterProcComm/DataLaVista/Base/VistaRTC.h>
 
-#include <VistaBase/VistaExceptionBase.h>
 #include <VistaAspects/VistaPropertyFunctorRegistry.h>
 #include <VistaAspects/VistaPropertyFunctor.h>
-#include <VistaBase/VistaTimer.h>
 
-#include "VistaDeviceDriversOut.h"
+#include <VistaBase/VistaExceptionBase.h>
+#include <VistaBase/VistaTimer.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <cassert>
+#include <algorithm>
 
 #include <math.h>
 /*============================================================================*/
@@ -468,11 +467,6 @@ IVistaMeasureTranscoderFactory *IVistaDriverCreationMethod::GetTranscoderFactory
 
 void IVistaDriverCreationMethod::OnUnload()
 {
-#if defined(DEBUG)
-	vddout << "IVistaDriverCreationMethod::OnUnload("
-	<< typeid( *this ).name()
-	<< ")\n";
-#endif
 	VistaPropertyFunctorRegistry *pReg = VistaPropertyFunctorRegistry::GetSingleton();
 
 	for(TRANTP::const_iterator cit = m_liTranscoderTypes.begin(); cit != m_liTranscoderTypes.end(); ++cit)

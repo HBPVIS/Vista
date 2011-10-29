@@ -5,8 +5,6 @@ set( RelativeSourceGroup "Source Files" )
 
 set( DirFiles
 	VistaKernelOpenSGExtConfig.h
-	VistaKernelOpenSGExtOut.cpp
-	VistaKernelOpenSGExtOut.h
 	VistaOpenSGGeometryTools.cpp
 	VistaOpenSGGeometryTools.h
 	VistaOpenSGNormalMapMaterial.cpp
@@ -28,6 +26,8 @@ set( DirFiles
 	VistaOpenSGSkybox.h
 	VistaOpenSGToonShader.cpp
 	VistaOpenSGToonShader.h
+	VistaOpenSGWebInterface.cpp
+	VistaOpenSGWebInterface.h
 	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )

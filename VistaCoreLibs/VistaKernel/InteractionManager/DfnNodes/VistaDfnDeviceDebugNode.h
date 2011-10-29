@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDfnDeviceDebugNode.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTADFNDEVICEDEBUGNODE_H
 #define _VISTADFNDEVICEDEBUGNODE_H
@@ -45,22 +45,22 @@
 /*============================================================================*/
 
 class VistaDisplayManager;
-class IVistaSimpleTextOverlay;
-class IVistaWindowingToolkit;
+class VistaSimpleTextOverlay;
+class VistaDisplayManager;
 class IVistaTextEntity;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-class VISTAKERNELAPI VdfnDeviceDebugNode : public IVdfnNode
+class VISTAKERNELAPI VistaDfnDeviceDebugNode : public IVdfnNode
 {
 public:
-	VdfnDeviceDebugNode( IVistaWindowingToolkit *wta,
+	VistaDfnDeviceDebugNode( VistaDisplayManager* pDisplayManager,
 			              const std::string &strDriverName,
 			              const std::list<std::string> &strShowList );
 
-	~VdfnDeviceDebugNode();
+	~VistaDfnDeviceDebugNode();
 
 	virtual void OnActivation( double dTs );
 	virtual void OnDeactivation( double dTs );
@@ -82,16 +82,17 @@ private:
 	void UpdateDynamicLabels();
 
 	IVistaTextEntity *CreateText(int nY, const std::string &str) const;
+private:
 
-	HistoryPort           *m_pHistory;
-	IVistaWindowingToolkit *m_pWta;
-	IVistaSimpleTextOverlay *m_pOverlay;
-	std::string            m_strDriverName;
-	bool                   m_bShowType;
+	HistoryPort*				m_pHistory;
+	VistaDisplayManager*		m_pDisplayManager;
+	VistaSimpleTextOverlay*		m_pOverlay;
+	std::string					m_strDriverName;
+	bool						m_bShowType;
 
-	IVistaTextEntity *m_pNewMeasures,
-	                                     *m_pUpdateTime,
-	                                     *m_pFreq;
+	IVistaTextEntity*			m_pNewMeasures;
+	IVistaTextEntity*			m_pUpdateTime;
+	IVistaTextEntity*			m_pFreq;
 
 	typedef std::map<std::string, IVistaTextEntity*> LABMAP;
 	LABMAP m_mpDynamicLabels;

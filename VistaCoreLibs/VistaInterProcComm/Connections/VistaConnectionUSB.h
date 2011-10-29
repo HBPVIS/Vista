@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaConnectionUSB.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTACONNECTIONUSB_H__
 #define _VISTACONNECTIONUSB_H__

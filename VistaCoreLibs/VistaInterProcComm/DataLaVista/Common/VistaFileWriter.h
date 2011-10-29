@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaFileWriter.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef DLVISTAFILEWRITER_H
 #define DLVISTAFILEWRITER_H
@@ -52,83 +52,31 @@ class IDLVistaPacket;
 class VISTAINTERPROCCOMMAPI DLVistaFileWriter : public DLVistaDataSink
 {
 private:
-	/**
-	 *
-	 */
 	FILE * m_pOutputFile;
-	/**
-	 *
-	 */
 	FILE *OpenOutputFile(const char *);
-	/**
-	 *
-	 */
 	int m_iRecordCount;
 
-	/**
-	 *
-	 */
 	bool m_bPutEndline, m_bDBWait;
 
 public:
-
-	/**
-	 *
-	 */
 	DLVistaFileWriter();
-	/**
-	 *
-	 */
 	DLVistaFileWriter(const char *pcFileName);
-	/**
-	 *
-	 */
 	DLVistaFileWriter(const std::string &SFileName);
-	/**
-	 *
-	 */
 	virtual ~DLVistaFileWriter();
 
-	/**
-	 *
-	 */
 	bool ConsumePacket(IDLVistaPacket * );
 
-	/**
-	 *
-	 */
 	bool AcceptDataPacket(IDLVistaDataPacket *pPacket, IDLVistaPipeComponent *pSender, bool bBlock = false);
-	/**
-	 *
-	 */
 	bool RecycleDataPacket(IDLVistaDataPacket *pPacket, IDLVistaPipeComponent *pSender, bool bBlock=false);
-	/**
-	 *
-	 */
 	bool ConsumePacket(IDLVistaDataPacket *);
 
-	/**
-	 *
-	 */
 	IDLVistaDataPacket *GivePacket(bool bBlock);
 
-	/**
-	 *
-	 */
 	IDLVistaDataPacket *CreatePacket();
-	/**
-	 *
-	 */
 	void DeletePacket(IDLVistaDataPacket *pPacket);
 
-	/**
-	 *
-	 */
 	bool InitPacketMgmt();
 
-	/**
-	 *
-	 */
 	virtual int GetInputPacketType() const;
 
 

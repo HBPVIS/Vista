@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaVirtualConsole.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTAVIRTUALCONSOLE_H
 #define _VISTAVIRTUALCONSOLE_H
@@ -56,28 +56,23 @@ class VistaKeyboardSystemControl;
 class VISTAKERNELAPI VistaVirtualConsole : public IVistaSceneOverlay
 {
 public:
-	enum
-	{
-		FLG_NONE = 0,         //**< default */
-		FLG_ADAPTONRESIZE = 1 //**< adapt font size when window resizes */
-	};
-
-	VistaVirtualConsole(VistaEventManager *pMgr,
-						 VistaDisplayManager *pDm,
-						 VistaKeyboardSystemControl *pCtrl,
+	VistaVirtualConsole( VistaDisplayManager *pDisplayManager,
+						VistaEventManager* pEventManager,						
+						VistaKeyboardSystemControl *pCtrl,
 						int iCmdToken,
-						int nFlags = FLG_NONE,
-						int cActivationKey = VISTA_KEY_ESC, //<** KEY_ESC **/
-						int iInitialWidth = 640,
-						int iInitialHeight = 480,
-						const std::string &strViewportName = "");
+						int cActivationKey = VISTA_KEY_ESC,
+						const std::string &strViewportName = "" );
+	VistaVirtualConsole( VistaViewport* pViewport,
+						VistaEventManager* pMgr,
+						VistaKeyboardSystemControl *pCtrl,
+						int iCmdToken,
+						int cActivationKey = VISTA_KEY_ESC );
 	virtual ~VistaVirtualConsole();
 
 	/**
 	 * OpenGL callback. Do not call this on your own, as this calls GL
 	 */
-	virtual bool Do ();
-
+	virtual bool Do();
 
 	/**
 	 * Adds lines to the output buffer. '\t' is escaped by 4 spaces,
@@ -142,19 +137,20 @@ public:
 	/**
 	 * Set enable / disable state for the gl callback
 	 */
-	void SetEnabled(bool bEnabled);
+	void SetIsEnabled(bool bEnabled);
 
 	/**
 	 * retrieve enable/disable state for this console
 	 */
-	bool GetEnabled() const;
+	bool GetIsEnabled() const;
 
 
 	/**
 	 * change viewport size, call this in case you want to re-scale the
 	 * fontsize or adapt to a new vp size manually.
 	 */
-	bool UpdateViewportChange(int iWidth, int iHeight);
+	void UpdateOnViewportChange( int iWidth, int iHeight,
+									int iPosX, int iPosY );
 
 	/**
 	 * query the flags given for this console
@@ -168,7 +164,7 @@ public:
 	const std::string& GetInputLine() const;
 
 	/**
-	 * programmatially process key input
+	 * programmatically process key input
 	 * @param iKeyCode the ANSI key code to be processed
 	 * @param nModState the state of shift/ctrl/alt
 			  see vista keyboard handling for details.
@@ -206,7 +202,6 @@ public:
 private:
 	class ConsoleKeySink;
 	class ToggleConsoleCommand;
-	class DisplayChangeObserver;
 
 	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	// ViSTA stuff
@@ -214,10 +209,6 @@ private:
 	// event stuff
 	VistaEventManager *m_pEvMgr;
 	VistaCommandEvent *m_pCmdEvent;
-
-	// display stuff
-	DisplayChangeObserver *m_pDispObserver;
-	VistaDisplayManager   *m_pDspMgr;
 
 	// key processing
 	VistaKeyboardSystemControl                      *m_pCtrl;
@@ -229,7 +220,6 @@ private:
 	bool m_bEnabled,
 		 m_bInitDone;
 	int  m_nActivationKey; /**< the enable / disable key for the console */
-	int  m_nFlags;
 
 	VistaColorRGB m_BackgroudColor,
 				   m_TextColor,
@@ -316,7 +306,6 @@ private:
 	double GetInputLineAreaHeightBack() const;
 	double GetContentAreaHeight() const;
 	double GetContentAreaHeightBack() const;
-	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 };
 
 /*============================================================================*/

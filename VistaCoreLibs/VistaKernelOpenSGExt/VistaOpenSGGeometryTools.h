@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaOpenSGGeometryTools.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTAOPENSGGEOMETRYTOOLS_H
 #define _VISTAOPENSGGEOMETRYTOOLS_H

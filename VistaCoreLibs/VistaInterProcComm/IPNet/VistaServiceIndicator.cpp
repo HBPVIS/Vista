@@ -20,10 +20,9 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaServiceIndicator.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaServiceIndicator.h"
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
 
 #include "VistaUDPSocket.h"
 #include "VistaSocketAddress.h"
@@ -32,6 +31,8 @@
 #if defined(VISTA_IPC_USE_EXCEPTIONS)
 #include <VistaBase/VistaExceptionBase.h>
 #endif
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -115,8 +116,10 @@ bool VistaServiceIndicator::Init()
 
 void VistaServiceIndicator::PreWork()
 {
-	if(!Init())
-			vipcerr << "VistaServiceIndicator::PreWork() -- Init FAILED\n";
+	if( !Init() )
+	{
+		vstr::errp() << "VistaServiceIndicator::PreWork() -- Init FAILED" << std::endl;
+	}
 }
 
 void VistaServiceIndicator::PostWork()
@@ -126,9 +129,9 @@ void VistaServiceIndicator::PostWork()
 
 void VistaServiceIndicator::DefinedThreadWork()
 {
-	vipcout << "ServiceIndicator::DefinedThreadWork() -- processing.\n";
+	vstr::outi() << "ServiceIndicator::DefinedThreadWork() -- processing" << std::endl;
 	Pong();
-	vipcout << "VistaServiceIndicator::DefinedThreadWork() -- LEAVING.\n";
+	vstr::outi() << "VistaServiceIndicator::DefinedThreadWork() -- LEAVING" << std::endl;
 }
 
 bool VistaServiceIndicator::Ping(const string &sPeerName, int iPeerPort, bool bQuit, int iWaitTime)
@@ -148,10 +151,10 @@ bool VistaServiceIndicator::Ping(const string &sPeerName, int iPeerPort, bool bQ
 	sprintf(&sMsg.m_acPort[0], "%d", (*m_pAdr).GetPortNumber());
 
 	VistaSocketAddress sAdr(sPeerName, iPeerPort);
-/*	cout << "sending Ping to " 
+	/*	vstr::outi() << "sending Ping to " 
 		 << sPeerName << ", P=[" << iPeerPort << "] from "
 		 << sMsg.m_acHost << ", P=[" << (*m_pAdr).GetPortNumber()
-		 << "]\n";
+		 << "]" << std::endl;
 */
 		if(bQuit)
 			sMsg.m_acCtrl = 'q';
@@ -178,12 +181,12 @@ bool VistaServiceIndicator::Ping(const string &sPeerName, int iPeerPort, bool bQ
 
 			if(!strncmp(&sMsg.m_acAck[0], "OK", 2))
 			{
-/*				cout << "Message received:\n Host: " << &sMsg.m_acHost[0]
+				/*	vstr::outi() << "Message received:\n Host: " << &sMsg.m_acHost[0]
 					<< "\n Port: " << &sMsg.m_acPort[0]
 					<< "\n Ack: " << &sMsg.m_acAck[0]
 					<< "\n State: " << &sMsg.m_cState
 					<< "\n Ctrl: " <<	&sMsg.m_acCtrl
-					<<"\n";
+					<< std::endl;
 */
 				
 				VistaIPAddress addressee(&sMsg.m_acHost[0]), addresser(sPeerName);
@@ -191,24 +194,24 @@ bool VistaServiceIndicator::Ping(const string &sPeerName, int iPeerPort, bool bQ
 				addressee.GetAddressString(s_addressee);
 				addresser.GetAddressString(s_addresser);
 
-/*				cout	<< "addressee: "
+/*				vstr::outi()	<< "addressee: "
 						<< s_addressee
 						<< "addresser: "
 						<< s_addresser
-						<<"\n";
+						<< std::endl;
 */
 				if (s_addressee == s_addresser)
 				{
-					//cout<<"got packet from right sender\n";
+					//vstr::outi() <<"got packet from right sender" << std::endl;
 					return (int)sMsg.m_cState>0;
 				}
 				else
 				{
-/*					cout<<"got packet from "
+/*					vstr::outi() <<"got packet from "
 						<<&sMsg.m_acHost[0]
 						<<" but it was send to "
 						<< sPeerName
-						<<"\n";
+						<<"" << std::endl;
 */					
 					//wait for next packets
 					while((*m_pServiceSocket).ReceiveRaw(&sMsg, sizeof(sMsg), 1000)>0);
@@ -216,8 +219,6 @@ bool VistaServiceIndicator::Ping(const string &sPeerName, int iPeerPort, bool bQ
 					return false;
 				}
 			}
-
-			return false;
 		}
 		return false;
 #if defined(VISTA_IPC_USE_EXCEPTIONS)
@@ -249,9 +250,10 @@ bool VistaServiceIndicator::Pong()
 	int iRet = 0;
 	while((iRet=(*m_pServiceSocket).ReceiveRaw(&sMsg, sizeof(sMsg)))>0)
 	{
-		if(iRet < sizeof(sMsg))
+		if(iRet < (int)sizeof(sMsg))
 		{
-			vipcout << "ServiceIndicator: Msg too short (" << iRet << ":" << sizeof(sMsg) << "!\n";
+			vstr::outi() << "ServiceIndicator: Msg too short (" 
+						<< iRet << ":" << sizeof(sMsg) << std::endl;
 			continue;
 		}
 
@@ -265,12 +267,12 @@ bool VistaServiceIndicator::Pong()
 		}
 /*        if(sMsg.m_acCtrl == 'q')
 		{
-			cout << "ServiceIndicator: Quit msg!\n";
+			#include <VistaBase/VistaStreamUtils.h> << "ServiceIndicator: Quit msg!" << std::endl;
 				HandleQuitMessage();
 			break;
 		}
 */		
-//        cout << "ServiceIndicator::DefinedThreadWork() -- ALIVE (OK).\n";
+//        vstr::outi() << "ServiceIndicator::DefinedThreadWork() -- ALIVE (OK)." << std::endl;
 		
 		string s_hostofsender = sMsg.m_acHost;  //keep in mind for answer
 		int iPort = strtol(sMsg.m_acPort, NULL, 10);//keep in mind for answer
@@ -289,10 +291,10 @@ bool VistaServiceIndicator::Pong()
 		sMsg.m_cState = (char)m_cCtrl; // running?
 
 		
-/*		cout << "Sending ACK to "
+/*		vstr::outi() << "Sending ACK to "
 			 << s_hostofsender
 			 << ", P=["
-			 << iPort << "]\n";
+			 << iPort << "]" << std::endl;
 */
 		VistaSocketAddress sAdr(s_hostofsender, iPort);
 

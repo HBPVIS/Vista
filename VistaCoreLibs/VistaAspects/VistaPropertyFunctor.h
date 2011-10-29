@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPropertyFunctor.h 22681 2011-07-27 20:56:47Z dr165799 $
 
 #ifndef _VISTAPROPERTYFUNCTOR_H
 #define _VISTAPROPERTYFUNCTOR_H
@@ -49,66 +49,57 @@ class VistaPropertyFunctorRegistry;
 class VISTAASPECTSAPI IVistaPropertyGetFunctor : public IVistaNameable
 {
 public:
-		virtual ~IVistaPropertyGetFunctor();
+	virtual ~IVistaPropertyGetFunctor();
 
-		virtual bool operator()(const IVistaPropertyAwareable &,
-								VistaProperty &) const = 0;
+	virtual bool operator()(const IVistaPropertyAwareable &,
+							VistaProperty &) const = 0;
 
-		void   SetNameForNameable(const std::string &sFunctorName);
-		std::string GetNameForNameable() const;
+	void   SetNameForNameable(const std::string &sFunctorName);
+	std::string GetNameForNameable() const;
 
-		std::string GetPropertyDescription() const;
+	std::string GetPropertyDescription() const;
 
-		std::string GetPropertyClassName() const;
+	std::string GetPropertyClassName() const;
 protected:
-		IVistaPropertyGetFunctor(const std::string &sPropname,
-								const std::string &sClassName,
-								const std::string &sDescription = "<none>");
+	IVistaPropertyGetFunctor(const std::string &sPropname,
+							const std::string &sClassName,
+							const std::string &sDescription = "<none>");
 
 private:
-		IVistaPropertyGetFunctor()
-		{}
+	IVistaPropertyGetFunctor(const IVistaPropertyGetFunctor &);
+	IVistaPropertyGetFunctor &operator=(const IVistaPropertyGetFunctor &);
 
-		IVistaPropertyGetFunctor(const IVistaPropertyGetFunctor &)
-		: IVistaNameable()
-		{}
-
-		IVistaPropertyGetFunctor &operator=(const IVistaPropertyGetFunctor &)
-		{
-			return *this;
-		}
-
-		VistaPropertyFunctorRegistry *m_pRegistry;
-		std::string m_sFunctorName;
-		std::string m_sFunctorClass;
-		std::string m_sDescription;
+	VistaPropertyFunctorRegistry *m_pRegistry;
+	std::string m_sFunctorName;
+	std::string m_sFunctorClass;
+	std::string m_sDescription;
 };
 
 
 class VISTAASPECTSAPI IVistaPropertySetFunctor : public IVistaNameable
 {
 public:
-		virtual ~IVistaPropertySetFunctor();
+	virtual ~IVistaPropertySetFunctor();
 
-		virtual bool operator()(IVistaPropertyAwareable &, const VistaProperty &) = 0;
+	virtual bool operator()(IVistaPropertyAwareable &, const VistaProperty &) = 0;
 
-		void SetNameForNameable(const std::string &sFunctorName);
-		std::string GetNameForNameable() const;
+	void SetNameForNameable(const std::string &sFunctorName);
+	std::string GetNameForNameable() const;
 
-		std::string GetPropertyDescription() const;
-		std::string GetPropertyClassName() const;
+	std::string GetPropertyDescription() const;
+	std::string GetPropertyClassName() const;
 protected:
-		IVistaPropertySetFunctor(const std::string &sPropname,
-								const std::string &sClassName,
-								const std::string &sDescription = "<none>");
+	IVistaPropertySetFunctor(const std::string &sPropname,
+							const std::string &sClassName,
+							const std::string &sDescription = "<none>");
 private:
-		IVistaPropertySetFunctor() {};
-		IVistaPropertySetFunctor(const IVistaPropertySetFunctor &) {};
+	IVistaPropertySetFunctor(const IVistaPropertySetFunctor &);
+	IVistaPropertySetFunctor &operator=(const IVistaPropertySetFunctor &);
 
-		VistaPropertyFunctorRegistry *m_pRegistry;
-		std::string m_sFunctorName;
-		std::string m_sFunctorClass;
-		std::string m_sDescription;
+	VistaPropertyFunctorRegistry *m_pRegistry;
+	std::string m_sFunctorName;
+	std::string m_sFunctorClass;
+	std::string m_sDescription;
 };
 
 /*============================================================================*/

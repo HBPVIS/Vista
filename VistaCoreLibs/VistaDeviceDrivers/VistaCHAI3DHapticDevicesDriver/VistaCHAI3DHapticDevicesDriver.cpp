@@ -282,18 +282,18 @@ bool VistaCHAI3DHapticDevicesDriver::Connect()
 	//props which are not supported by the CHAI3D API
 
 	//supported properties
-	oInfo.SetStringValue( "VENDOR", std::string( (!(info.m_manufacturerName.empty()) ? info.m_manufacturerName : "<none>") ) );
-	oInfo.SetStringValue( "MODEL", std::string( (!(info.m_modelName.empty()) ? info.m_modelName : "<none>") ) );
-	oInfo.SetDoubleValue( "MAXSTIFFNESS", double(info.m_maxForceStiffness) );
-	oInfo.SetDoubleValue( "MAXFORCE", double(info.m_maxForce) );
+	oInfo.SetValue( "VENDOR", std::string( (!(info.m_manufacturerName.empty()) ? info.m_manufacturerName : "<none>") ) );
+	oInfo.SetValue( "MODEL", std::string( (!(info.m_modelName.empty()) ? info.m_modelName : "<none>") ) );
+	oInfo.SetValue( "MAXSTIFFNESS", double(info.m_maxForceStiffness) );
+	oInfo.SetValue( "MAXFORCE", double(info.m_maxForce) );
 
 	//unsupported properties
-	oInfo.SetDoubleValue( "FIRMWARE_REVISION", 0 );
-	oInfo.SetStringValue("CALSTYLES", std::string("<none>"));
-	oInfo.SetIntValue( "CALFLAGS", 0 );
-	oInfo.SetDoubleValue( "TABLETOP_OFFSET", 0 );
-	oInfo.SetStringValue( "DRIVERVERSION", std::string("<none>"));
-	oInfo.SetStringValue( "SERIALNUMBER", std::string("<none>"));
+	oInfo.SetValue<double>( "FIRMWARE_REVISION", 0 );
+	oInfo.SetValue("CALSTYLES", std::string("<none>"));
+	oInfo.SetValue<int>( "CALFLAGS", 0 );
+	oInfo.SetValue<double>( "TABLETOP_OFFSET", 0 );
+	oInfo.SetValue( "DRIVERVERSION", std::string("<none>"));
+	oInfo.SetValue( "SERIALNUMBER", std::string("<none>"));
 
 	//not directly supported
 	float min[] = {0,0,0};
@@ -334,12 +334,12 @@ namespace
 		#undef max
 
 		float back = (float)val;
-		if(std::numeric_limits<float>::min() < val)
+		if(std::numeric_limits<float>::min() < back)
 			return std::numeric_limits<float>::min();
-		else if(std::numeric_limits<float>::max() > val)
+		else if(std::numeric_limits<float>::max() > back)
 			return std::numeric_limits<float>::max();
 		else
-			return val;
+			return back;
 	}
 }
 
@@ -415,7 +415,7 @@ bool VistaCHAI3DHapticDevicesDriver::DoSensorUpdate(VistaType::microtime nTs)
 	{
 		s->m_nButtonState |= (bitmask & bitmask);
 		bitmask <<=1;
-		switchStatus+=1;
+		switchStatus = !switchStatus;
 	}
 
 	//Not Supported by CHAI3D but still here to remind you that they exist in the phantom driver

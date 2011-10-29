@@ -20,10 +20,11 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPthreadsThreadImp.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include <VistaInterProcComm/Concurrency/VistaIpcThreadModel.h>
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+
+#include <VistaBase/VistaStreamUtils.h>
 
 
 #if defined(VISTA_THREADING_POSIX)
@@ -78,7 +79,7 @@ VistaPthreadThreadImp::~VistaPthreadThreadImp()
 {
 #if defined(DEBUG)
 	if(posixThreadID)
-	  vipcout << "VistaPthreadThreadImp::~VistaPthreadThreadImp() -- deleting non join'ed thread.\n";
+		vstr::outi() << "VistaPthreadThreadImp::~VistaPthreadThreadImp() -- deleting non join'ed thread" << std::endl;
 #endif
 	pthread_attr_destroy(&m_ptAttr);
 }
@@ -100,28 +101,27 @@ bool VistaPthreadThreadImp::Run( )
 	{
 
 		case EAGAIN:
-			vipcerr << "The maximum number of threads has been created [see NOTES, "
-				 << "and setrlimit()] or there is insufficient memory to create the thread.\n";
+			vstr::errp() << "The maximum number of threads has been created [see NOTES, "
+				 << "and setrlimit()] or there is insufficient memory to create the thread" << std::endl;
 			break;
 		case ENOMEM:
-			vipcerr << "The system lacked the necessary resources to create another thread.\n";
+			vstr::errp() << "The system lacked the necessary resources to create another thread" << std::endl;
 			break;
 		case EINVAL:
-			vipcerr << "The value specified by attr is invalid.\n";
+			vstr::errp() << "The value specified by attr is invalid" << std::endl;
 			break;
 		case EPERM:
-			vipcerr << "The caller does not have appropriate permission to set "
-
-				 << "the required scheduling parameters or scheduling policy.\n";
+			vstr::errp() << "The caller does not have appropriate permission to set "
+				 << "the required scheduling parameters or scheduling policy" << std::endl;
 			break;
 		case ENOSYS:
-			vipcerr << "A call to pthread_create() was made from an executable "
+			vstr::errp() << "A call to pthread_create() was made from an executable "
 				 << "which is not linked against the POSIX threads library. "
 				 << "This typically occurs when the argument \"-lpthread\" is "
-				 << "accidentally omitted during compilation of the executable.\n";
+				 << "accidentally omitted during compilation of the executable" << std::endl;
 			break;
 		default:
-			vipcerr << "Unkown Error (" << error << ").\n";
+			vstr::errp() << "Unkown Error (" << error << ")" << std::endl;
 			break;
 	}
 
@@ -156,24 +156,25 @@ bool     VistaPthreadThreadImp::Join()
 		}
 		else
 		{
-			vipcerr << "Fail on join @ thread ["
-				<< m_rThread.GetThreadName() << "]\n";
+			vstr::errp() << "Fail on join @ thread ["
+				<< m_rThread.GetThreadName() << "]" << std::endl;
+			vstr::IndentObject oIndent;
 
 			switch(yeah)
 			{
 			case EDEADLK:
 				{
-					vipcerr << "Deadlock detected, maybe join on meself?\n";
+					vstr::err() << "Deadlock detected, maybe join on meself?" << std::endl;
 					break;
 				}
 			case EINVAL:
 				{
-					vipcerr << "This thread is not joinable, did you detach it?\n";
+					vstr::err() << "This thread is not joinable, did you detach it?" << std::endl;
 					break;
 				}
 			case ESRCH:
 				{
-					vipcerr << "No thread found by that id. Already terminated?.\n";
+					vstr::err() << "No thread found by that id. Already terminated?" << std::endl;
 					posixThreadID = 0;
 					return true;
 				}
@@ -259,9 +260,14 @@ bool VistaPthreadThreadImp::Equals(const IVistaThreadImp &oImp) const
 
 long VistaPthreadThreadImp::GetThreadIdentity() const
 {
-	/** @todo implement me */
+	return (long)posixThreadID;
+}
+
+long VistaPthreadThreadImp::GetCallingThreadIdentity()
+{
 	return (long)pthread_self();
 }
+
 
 bool VistaPthreadThreadImp::SetProcessorAffinity(int iProcessorNum)
 {
@@ -276,7 +282,7 @@ bool VistaPthreadThreadImp::SetProcessorAffinity(int iProcessorNum)
 		// cpu-set for this thread
 		if(pthread_attr_setaffinity_np( &m_ptAttr, sizeof(cpu_set_t), &mask ) != 0)
 		{
-			vipcerr << "could not set thread affinity on attribute.\n";
+			vstr::errp() << "could not set thread affinity on attribute" << std::endl;
 			return false;
 		}
 		else

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaCyberGloveDriver.h 22873 2011-08-08 10:48:52Z dr165799 $
 
 #ifndef _VISTACYBERGLOVEDRIVER_H__
 #define _VISTACYBERGLOVEDRIVER_H__
@@ -271,9 +271,9 @@ IVistaDriverCreationMethod *VistaCyberGloveDriver::GetDriverFactoryMethod()
 										new VistaCyberGloveTranscodeFactory,
 										VistaCyberGloveDriverTranscode::GetTypeString() );
 		 //@todo  20Hz? To be changed! RTFM
-		 //*
-		 //* The above registration tells us that the device is collecting samples
-		 //* of sizeof(VistaCyberGloveDriver::_sCyberGloveSample) bytes at 20Hz at max,
+		 //
+		 // The above registration tells us that the device is collecting samples
+		 // of sizeof(VistaCyberGloveDriver::_sCyberGloveSample) bytes at 20Hz at max,
 		 
 	}
 	return SsCreationMethod;

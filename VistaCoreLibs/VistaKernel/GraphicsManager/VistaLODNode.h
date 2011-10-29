@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaLODNode.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTALODNODE_H
 #define _VISTALODNODE_H
@@ -45,7 +45,7 @@ class IVistaNodeData;
 /*============================================================================*/
 class VISTAKERNELAPI VistaLODNode : public VistaGroupNode
 {
-	friend class VistaSG;
+	friend class VistaSceneGraph;
 	friend class IVistaNodeBridge;
 public:
 

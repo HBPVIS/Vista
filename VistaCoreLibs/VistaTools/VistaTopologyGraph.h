@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaTopologyGraph.h 21548 2011-05-26 07:33:40Z dr165799 $
 
 #ifndef _VISTATOPOLOGYGRAPH_H
 #define _VISTATOPOLOGYGRAPH_H
@@ -182,7 +182,6 @@ public:
 		std::list<Node*> liReturn;
 		std::queue<Node*> queBFSQueue;
 		queBFSQueue.push( pStartNode );
-		int nTime = 0;
 		while( queBFSQueue.empty() == false )
 		{
 			Node* pNode = queBFSQueue.front();

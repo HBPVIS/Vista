@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaCSVSerializer.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VistaCSVSerializer.h"
 #include <VistaAspects/VistaSerializingToolset.h>
@@ -155,63 +155,6 @@ int VistaCSVSerializer::WriteBool( bool bVal)
 {
 	m_streamOutput << bVal << m_cSeparator;
 	return  sizeof(bVal);
-}
-
-
-int VistaCSVSerializer::WriteShort16Name( const char *sVarName,  VistaType::ushort16 us16Val)
-{
-	return WriteShort16(us16Val);
-}
-
-int VistaCSVSerializer::WriteInt32Name( const char *sVarName,  VistaType::sint32 si32Val)
-{
-	return WriteInt32(si32Val);
-}
-
-int VistaCSVSerializer::WriteInt32Name( const char *sVarName,  VistaType::uint32 si32Val)
-{
-	return WriteInt32(si32Val);
-}
-
-int VistaCSVSerializer::WriteInt64Name( const char *sVarName,  VistaType::sint64 si64Val)
-{
-	return WriteInt64(si64Val);
-}
-
-int VistaCSVSerializer::WriteUInt64Name( const char *sVarName,  VistaType::uint64 ui64Val)
-{
-	return WriteUInt64(ui64Val);
-}
-
-
-int VistaCSVSerializer::WriteFloat32Name( const char *sVarName,  VistaType::float32 fVal)
-{
-	return WriteFloat32(fVal);
-}
-
-int VistaCSVSerializer::WriteFloat64Name( const char *sVarName,  VistaType::float64 f64Val)
-{
-	return WriteFloat64(f64Val);
-}
-
-int VistaCSVSerializer::WriteDoubleName( const char *sVarName,  double dVal)
-{
-	return WriteDouble(dVal);
-}
-
-int VistaCSVSerializer::WriteStringName( const char *sVarName,  const string &sVal)
-{
-	return WriteString(sVal);
-}
-
-int VistaCSVSerializer::WriteRawBufferName(const char *sVarName, const void *pBuffer, const int iLen)
-{
-	return WriteRawBuffer(pBuffer, iLen);
-}
-
-int VistaCSVSerializer::WriteBoolName(const char *sVarName,  bool bVal)
-{
-	return WriteBool(bVal);
 }
 
 int VistaCSVSerializer::WriteSerializable(const IVistaSerializable &obj)

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: Vista3DCSpaceNavigatorDriver.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 // include header here
 
@@ -355,7 +355,7 @@ bool Vista3DCSpaceNavigator::DoSensorUpdate(VistaType::microtime dTs)
 			// there does not seem to be a problem...
 			for (long i=1; i<=2; i++)
 			{
-				__int64 mask = (__int64)1<<(i-1);
+				//__int64 mask = (__int64)1<<(i-1);
 				VARIANT_BOOL isPressed;
 				isPressed = m_pPrivate->m_3DKeyboard->IsKeyDown(i);
 				if (isPressed == VARIANT_TRUE)

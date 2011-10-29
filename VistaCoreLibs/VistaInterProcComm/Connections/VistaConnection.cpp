@@ -20,8 +20,17 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaConnection.cpp 22128 2011-07-01 11:30:05Z dr165799 $
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+// $Id$
+
+#include "VistaConnection.h"
+
+#include <VistaAspects/VistaSerializable.h>
+#include <VistaAspects/VistaSerializingToolset.h>
+
+#include <VistaBase/VistaStreamUtils.h>
+
+#include <vector>
+
 
 #if !defined(VISTA_USE_POSIX)
 #   ifndef WIN32
@@ -75,11 +84,6 @@
 #   include <sys/mman.h>
 #endif
 
-#include "VistaConnection.h"
-#include <VistaAspects/VistaSerializable.h>
-#include <VistaAspects/VistaSerializingToolset.h>
-#include <vector>
-
 /*============================================================================*/
 
 // always put this line below your constant definitions
@@ -93,10 +97,12 @@ using namespace std;
 //******************************************************************************
 
 VistaConnection::VistaConnection()
-:m_bIsOpen(false), m_bDoesSwapByteOrder(false)
-{
-	m_bIsBuffering=false;
-	m_bIsBlocking=false;
+: m_bIsOpen( false )
+, m_bDoesSwapByteOrder( false )
+, m_bIsBuffering( false )
+, m_bIsBlocking( false )
+, m_nReadTimeout( 0 )
+{	
 }
 
 VistaConnection::~VistaConnection()
@@ -176,8 +182,8 @@ int VistaConnection::WriteString( const string &sString)
 
 int VistaConnection::WriteDelimitedString( const string &sString, char cDelim)
 {
-	int iSize = Send((void*)sString.data(), (int)sString.length());
-	iSize += Send((unsigned char*)&cDelim, 1);
+	int iSize = Send( (void*)sString.data(), (int)sString.length() );
+	iSize += Send( &cDelim, sizeof(char) );
 	return iSize;
 }
 
@@ -194,63 +200,6 @@ int VistaConnection::WriteBool(bool bVal)
 	return Send(&bVal, sizeof(bool));
 }
 
-int VistaConnection::WriteShort16Name( const char *sVarName,  VistaType::ushort16 us16Val)
-{
-	return WriteShort16(us16Val);
-}
-
-int VistaConnection::WriteInt32Name( const char *sVarName,  VistaType::sint32 si32Val)
-{
-	return WriteInt32(si32Val);
-}
-
-int VistaConnection::WriteInt32Name( const char *sVarName,  VistaType::uint32 si32Val)
-{
-	return WriteInt32(si32Val);
-}
-
-
-int VistaConnection::WriteInt64Name( const char *sVarName,  VistaType::sint64 si64Val)
-{
-	return WriteInt64(si64Val);
-}
-
-
-int VistaConnection::WriteUInt64Name( const char *sVarName,  VistaType::uint64 ui64Val)
-{
-	return WriteUInt64(ui64Val);
-}
-
-int VistaConnection::WriteFloat32Name( const char *sVarName,  VistaType::float32 fVal)
-{
-	return WriteFloat32(fVal);
-}
-
-int VistaConnection::WriteFloat64Name( const char *sVarName,  VistaType::float64 f64Val)
-{
-	return WriteFloat64(f64Val);
-}
-
-int VistaConnection::WriteDoubleName( const char *sVarName,  double dVal)
-{
-	return WriteDouble(dVal);
-}
-
-int VistaConnection::WriteStringName( const char *sVarName,  const string &sVal)
-{
-	return WriteString(sVal);
-}
-
-int VistaConnection::WriteRawBufferName(const char *sVarName, const void *pBuffer, const int iLen)
-{
-	return WriteRawBuffer(pBuffer, iLen);
-}
-
-int VistaConnection::WriteBoolName(const char *sVarName,  bool bVal)
-{
-	return WriteBool(bVal);
-}
-
 int VistaConnection::WriteSerializable(const IVistaSerializable &rObj)
 {
 	return rObj.Serialize(*this);
@@ -258,7 +207,7 @@ int VistaConnection::WriteSerializable(const IVistaSerializable &rObj)
 
 int VistaConnection::ReadShort16( VistaType::ushort16 &us16Val)
 {
-	int iRet = Receive(&us16Val, sizeof(VistaType::ushort16));
+	int iRet = Receive(&us16Val, sizeof(VistaType::ushort16), m_nReadTimeout);
 	if(GetByteorderSwapFlag())
 		VistaSerializingToolset::Swap((void*)&us16Val, sizeof(VistaType::ushort16));
 	return iRet;
@@ -266,7 +215,7 @@ int VistaConnection::ReadShort16( VistaType::ushort16 &us16Val)
 
 int VistaConnection::ReadInt32( VistaType::sint32 &si32Val)
 {
-	int iRet = Receive(&si32Val, sizeof(VistaType::sint32));
+	int iRet = Receive(&si32Val, sizeof(VistaType::sint32), m_nReadTimeout);
 	if(GetByteorderSwapFlag())
 		VistaSerializingToolset::Swap((void*)&si32Val, sizeof(VistaType::sint32));
 	return iRet;
@@ -275,7 +224,7 @@ int VistaConnection::ReadInt32( VistaType::sint32 &si32Val)
 
 int VistaConnection::ReadInt32( VistaType::uint32 &si32Val)
 {
-	int iRet = Receive(&si32Val, sizeof(VistaType::uint32));
+	int iRet = Receive(&si32Val, sizeof(VistaType::uint32), m_nReadTimeout);
 	if(GetByteorderSwapFlag())
 		VistaSerializingToolset::Swap((void*)&si32Val, sizeof(VistaType::uint32));
 	return iRet;
@@ -283,7 +232,7 @@ int VistaConnection::ReadInt32( VistaType::uint32 &si32Val)
 
 int VistaConnection::ReadInt64( VistaType::sint64 &si64Val)
 {
-	int iRet = Receive(&si64Val, sizeof(VistaType::sint64));
+	int iRet = Receive(&si64Val, sizeof(VistaType::sint64), m_nReadTimeout);
 	if(GetByteorderSwapFlag())
 		VistaSerializingToolset::Swap((void*)&si64Val, sizeof(VistaType::sint64));
 	return iRet;
@@ -291,7 +240,7 @@ int VistaConnection::ReadInt64( VistaType::sint64 &si64Val)
 
 int VistaConnection::ReadUInt64( VistaType::uint64 &ui64Val)
 {
-	int iRet = Receive(&ui64Val, sizeof(VistaType::uint64));
+	int iRet = Receive(&ui64Val, sizeof(VistaType::uint64), m_nReadTimeout);
 	if(GetByteorderSwapFlag())
 		VistaSerializingToolset::Swap((void*)&ui64Val, sizeof(VistaType::uint64));
 	return iRet;
@@ -300,7 +249,7 @@ int VistaConnection::ReadUInt64( VistaType::uint64 &ui64Val)
 
 int VistaConnection::ReadFloat32( VistaType::float32 &fVal)
 {
-	int iRet = Receive(&fVal, sizeof(VistaType::float32));
+	int iRet = Receive(&fVal, sizeof(VistaType::float32), m_nReadTimeout);
 	if(GetByteorderSwapFlag())
 		VistaSerializingToolset::Swap((void*)&fVal, sizeof(VistaType::float32));
 	return iRet;
@@ -310,7 +259,7 @@ int VistaConnection::ReadFloat32( VistaType::float32 &fVal)
 
 int VistaConnection::ReadFloat64( VistaType::float64 &f64Val)
 {
-	int iRet = Receive(&f64Val, sizeof(VistaType::float64));
+	int iRet = Receive(&f64Val, sizeof(VistaType::float64), m_nReadTimeout);
 	if(GetByteorderSwapFlag())
 		VistaSerializingToolset::Swap((void*)&f64Val, sizeof(VistaType::float64));
 	return iRet;
@@ -319,24 +268,17 @@ int VistaConnection::ReadFloat64( VistaType::float64 &f64Val)
 
 int VistaConnection::ReadDouble( double &dVal)
 {
-	int iRet = Receive(&dVal, sizeof(double));
+	int iRet = Receive(&dVal, sizeof(double), m_nReadTimeout);
 	if(GetByteorderSwapFlag())
 		VistaSerializingToolset::Swap((void*)&dVal, sizeof(double));
 	return iRet;
 
 }
 
-
-int VistaConnection::ReadDoubleName( const char *sVarName, double &dDouble )
-{
-	return ReadDouble(dDouble);
-}
-
-
 int VistaConnection::ReadString(string &sString, const int iMaxLen)
 {
 	vector<char> ve(iMaxLen);
-	int iRet = Receive(&ve[0], iMaxLen);
+	int iRet = Receive(&ve[0], iMaxLen, m_nReadTimeout);
 	sString.assign(&(ve[0]), iRet);
 	return iRet;
 }
@@ -351,11 +293,11 @@ int VistaConnection::ReadDelimitedString(string &sString, char cDelim)
 	 pcTmp[1] = 0x00;
 
 	 int iLength = 1;
-	 int iLen = 0; /**< measure length */
-	 do
+	 int iReadLength = 0; /**< measure length */
+	 for(;;)
 	 {
-		 int iRead=0;
-		 if((iRead=ReadRawBuffer((void*)&pcTmp[0], iLength))==iLength)
+		 int iRead = ReadRawBuffer( (void*)&pcTmp[0], iLength );
+		 if( iRead == iLength)
 		 {
 			 if(pcTmp[0] == cDelim)
 			 {
@@ -364,92 +306,37 @@ int VistaConnection::ReadDelimitedString(string &sString, char cDelim)
 			 else
 			 {
 				 sString.append(string(&pcTmp[0]));
-				 ++iLen;
+				 ++iReadLength;
 			 }
 		 }
 		 else
 		 {
 			 if(GetIsBlocking())
 			 {
-				 vipcerr << "Should read: " << iLength
+				 vstr::errp() << " VistaConnection::ReadDelimitedString() -- "
+					 << "Should read: " << iLength
 					 << ", but read: " << iRead
 					 << " on a BLOCKING connection?\n"
-					 << endl;
+					 << std::endl;
 				 break;
 			 }
 		 }
 	 }
-	 while(true);
 
-	 return iLen;
+	 return iReadLength;
 }
 
 int VistaConnection::ReadRawBuffer(void *pBuffer, int iLen)
 {
-	return Receive(pBuffer, iLen);
+	return Receive(pBuffer, iLen, m_nReadTimeout);
 }
 
 int VistaConnection::ReadBool(bool &bVal)
 {
-	int iRet = Receive(&bVal, sizeof(bool));
+	int iRet = Receive(&bVal, sizeof(bool), m_nReadTimeout);
 	if(GetByteorderSwapFlag())
 		VistaSerializingToolset::Swap((void*)&bVal, sizeof(bool));
 	return iRet;
-}
-
-int VistaConnection::ReadShort16Name( const char *sVarName, VistaType::ushort16 &us16Val)
-{
-	return ReadShort16(us16Val);
-}
-
-int VistaConnection::ReadInt32Name( const char *sVarName, VistaType::sint32 &si32Val)
-{
-	return ReadInt32(si32Val);
-}
-
-int VistaConnection::ReadInt32Name( const char *sVarName, VistaType::uint32 &si32Val)
-{
-	return ReadInt32(si32Val);
-}
-
-int VistaConnection::ReadInt64Name( const char *sVarName, VistaType::sint64 &si64Val)
-{
-	return ReadInt64(si64Val);
-}
-
-int VistaConnection::ReadUInt64Name( const char *sVarName, VistaType::uint64 &ui64Val)
-{
-	return ReadUInt64(ui64Val);
-}
-
-int VistaConnection::ReadFloat32Name( const char *sVarName, VistaType::float32 &fVal)
-{
-	return ReadFloat32(fVal);
-}
-
-int VistaConnection::ReadFloat64Name( const char *sVarName, VistaType::float64 &f64Val)
-{
-	return ReadFloat64(f64Val);
-}
-
-int VistaConnection::ReadStringName(const char *sVarName, string &sVal, int iMaxLength)
-{
-	return ReadString(sVal, (int)iMaxLength);
-}
-
-int VistaConnection::ReadStringName(const char *sVarName, string &sVal, char cDelim)
-{
-	return ReadString(sVal, (char)cDelim);
-}
-
-int VistaConnection::ReadRawBufferName(const char *sVarName, void *pBuffer, int iLen)
-{
-	return ReadRawBuffer(pBuffer, iLen);
-}
-
-int VistaConnection::ReadBoolName(const char *sVarName, bool &bVal)
-{
-	return ReadBool(bVal);
 }
 
 int VistaConnection::ReadSerializable(IVistaSerializable &rObj)
@@ -497,8 +384,19 @@ bool VistaConnection::GetIsFine() const
 /*============================================================================*/
 void VistaConnection::Debug(ostream & out) const
 {
-	out << " [VistaConnection]  ==BEGIN==>" << endl;
-	out << " [VistaConnection]  <==END==" << endl;
+	out << " [VistaConnection]  ==BEGIN==>" << std::endl;
+	out << " [VistaConnection]  <==END==" << std::endl;
+}
+
+int VistaConnection::GetReadTimeout() const
+{
+	return m_nReadTimeout;
+}
+
+bool VistaConnection::SetReadTimeout( int nReadTimeout )
+{
+	m_nReadTimeout = nReadTimeout;
+	return true;
 }
 
 /*============================================================================*/

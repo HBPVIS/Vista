@@ -20,14 +20,16 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaTicker.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 //#include "ITAStopwatch.h"
 
 #include "VistaTicker.h" 
-#include <VistaBase/VistaExceptionBase.h>
+
 #include <VistaInterProcComm/Concurrency/VistaThreadEvent.h>
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+
+#include <VistaBase/VistaExceptionBase.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <algorithm>
 #include <cassert>

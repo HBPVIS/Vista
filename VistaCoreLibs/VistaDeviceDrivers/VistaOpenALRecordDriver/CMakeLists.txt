@@ -1,3 +1,5 @@
+# the transcoder curently requires OpenAL, too - we might change this
+vista_find_package( OpenAL REQUIRED )
 		 
 # Transcoder
 
@@ -20,7 +22,6 @@ set_target_properties( VistaOpenALRecordTranscoder PROPERTIES FOLDER "Drivers" )
 vista_set_outdir( VistaOpenALRecordTranscoder "${VISTADEVICEDRIVERSBASE_TARGET_OUTDIR}/DriverPlugins" )
 		 
 # since it has third-party dependencies, we only build the driver and plugin if the package is available
-vista_find_package( OpenAL QUIET )
 vista_find_package( ALUT QUIET )
 
 if( NOT OPENAL_FOUND OR NOT ALUT_FOUND )

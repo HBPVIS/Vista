@@ -20,14 +20,12 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnHistoryProjectNode.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VdfnHistoryProjectNode.h"
 #include "VdfnUtil.h"
 
 #include <VistaAspects/VistaAspectsUtils.h>
-
-#include "VdfnOut.h"
 
 namespace
 {
@@ -161,8 +159,9 @@ bool VdfnHistoryProjectNode::DoEvalNode()
 
 			if(pGetFunctor == NULL)
 			{
-				vdfnerr << "node [" << GetNameForNameable() << "] attached to non-existent get-prop ["
-						<< (*itPort).m_strFrom << "]??\n";
+				vstr::warnp() << "VdfnHistoryProjectNode::DoEvalNode() -- node [" << GetNameForNameable() 
+						<< "] attached to non-existent get-prop ["
+						<< (*itPort).m_strFrom << "]" << std::endl;
 				continue;
 			}
 
@@ -196,13 +195,15 @@ void VdfnHistoryProjectNode::UpdateOutPortMap()
 			IVistaMeasureTranscode::ITranscodeGet *pGet = pTrans->GetMeasureProperty(*cit);
 			if(pGet == NULL) // should not happen when user is sane
 			{
-				vdfnerr << " ## NO MEASURE PROPERTY CALLED [" << *cit << "]\n";
+				vstr::warnp() << "VdfnHistoryProjectNode::UpdateOutPortMap() -- Measure property ["
+						<< *cit << "] doesn't exist" << std::endl;
 #if defined(DEBUG)
 				std::set<std::string> oSet = pTrans->GetMeasureProperties();
+				vstr::IndentObject oIndent;
 				for(std::set<std::string>::const_iterator cit1 = oSet.begin();
 				    cit1 != oSet.end(); ++cit1 )
 				{
-					vdfnerr << "[" << *cit1 << "]" << std::endl;
+					vstr::warnp() << vstr::singleindent << "[" << *cit1 << "]" << std::endl;
 				}
 #endif
 				continue;
@@ -233,7 +234,7 @@ void VdfnHistoryProjectNode::UpdateOutPortMap()
 
 						// register outport
 						// note the naming scheme: post-fixed index added to the name
-						std::string sOutPort = ((*cit)+"_"+VistaAspectsConversionStuff::ConvertToString(n));
+						std::string sOutPort = (*cit) + "_" + VistaConversion::ToString( n );
 						liSetOutPort.push_back( _sPortMap(*cit, sOutPort) );
 						RegisterOutPort( sOutPort, pPort );
 

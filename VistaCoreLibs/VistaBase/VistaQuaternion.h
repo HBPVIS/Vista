@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaQuaternion.h 23167 2011-09-05 14:08:59Z dr165799 $
 
 #ifndef _VISTAQUATERNION_H
 #define _VISTAQUATERNION_H
@@ -47,7 +47,11 @@ class VistaTransformMatrix;
 /** @todo where to put these? */
 struct VISTABASEAPI VistaEulerAngles
 {
-	VistaEulerAngles ( const float fRoll, const float fPitch, const float fYaw )
+	VistaEulerAngles()
+	: a( 0 ), b( 0 ), c( 0 )
+	{
+	}
+	VistaEulerAngles( const float fRoll, const float fPitch, const float fYaw )
 	: a( fRoll ), b( fPitch ), c( fYaw )
 	{
 	}
@@ -145,13 +149,14 @@ public:
 	const float& operator[]( const int iAxis ) const;
 	float& operator[]( const int iAxis );
 
-public:
-	// constantQuaternions
-	static const VistaQuaternion UnitQuaternion;
-
 private:
 	float		m_a4fValues[4];
 };
+
+namespace Vista
+{
+	const VistaQuaternion UnitQuaternion = VistaQuaternion();	
+}
 
 inline VistaQuaternion operator*( const float fScale, const VistaQuaternion& qQuat );
 inline VistaQuaternion operator*( const VistaQuaternion& qQuat, const float fScale );
@@ -527,7 +532,7 @@ inline std::ostream& operator<<( std::ostream& oStream,
 			<< ", " << qQuaternion[2]
 			<< " | " << qQuaternion[3] 
 			<< " ) - " 
-			<< Vista::DegToRad( acos( qQuaternion[3] ) ) << "°";
+			<< Vista::DegToRad( acos( qQuaternion[3] ) ) << "deg";
 
 	// restore old stream settings
 	oStream.precision( iOldPrecision );

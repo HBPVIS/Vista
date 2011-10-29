@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaUserPlatform.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTAUSERPLATFORM_H
 #define _VISTAUSERPLATFORM_H
@@ -37,7 +37,7 @@
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
 class VistaTransformNode;
-class VistaSG;
+class VistaSceneGraph;
 class VistaVirtualPlatformAdapter;
 class VistaVirtualPlatform;
 class VistaVector3D;
@@ -63,7 +63,7 @@ class VistaDisplaySystem;
 class VISTAKERNELAPI VistaUserPlatform
 {
 public:
-	VistaUserPlatform(VistaSG *pSG,
+	VistaUserPlatform(VistaSceneGraph *pSG,
 					   VistaDisplaySystem *);
 	virtual ~VistaUserPlatform();
 
@@ -84,7 +84,7 @@ private:
 	UserObserver                *m_pUserObs;
 	VistaVirtualPlatformAdapter *m_pPlatTrans;
 
-	VistaSG            *m_pSG;
+	VistaSceneGraph            *m_pSG;
 	VistaTransformNode *m_pPlatformNode,
 						*m_pUserNode;
 	VistaDisplaySystem *m_pDispSys;

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnObjectRegistry.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VDFNOBJECTREGISTRY_H
 #define _VDFNOBJECTREGISTRY_H

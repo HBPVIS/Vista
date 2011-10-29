@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaGeometryFactory.cpp 23000 2011-08-16 13:58:11Z su691804 $
+// $Id$
 
 /*============================================================================*/
 /* INCLUDES                                                                   */
@@ -29,10 +29,11 @@
 #include "VistaGeometryFactory.h"
 
 #include <VistaKernel/GraphicsManager/VistaGeometry.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 
 #include <VistaAspects/VistaAspectsUtils.h>
 #include <VistaBase/VistaExceptionBase.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <vector>
 using namespace std;
@@ -41,40 +42,15 @@ using namespace std;
 /*  HELPERS                                                                   */
 /*============================================================================*/
 
-bool ReadVistaVector3DFromProplist( const VistaPropertyList& oPropList,
-								   const std::string& sPropName,
-								   VistaVector3D& v3Target )
-{
-	if( oPropList.HasProperty( sPropName ) )
-		return false;
-	std::list<std::string> liResult;
-	oPropList.GetPropertyListValue( sPropName );
-	if( liResult.size() != 3 )
-		return false;
-	std::list<std::string>::const_iterator itEntry = liResult.begin();
-	for( int i = 0;	i < 3; ++itEntry, ++i )
-	{
-		v3Target[i] = (float)VistaAspectsConversionStuff::ConvertToDouble( (*itEntry) );
-	}
-	return true;
-}
-
 bool ReadColorFromProplist( const VistaPropertyList& oPropList,
 								   const std::string& sPropName,
 								   VistaColorRGB& oColorTarget )
 {
 	if( oPropList.HasProperty( sPropName ) )
 		return false;
-	std::list<std::string> liResult;
-	oPropList.GetPropertyListValue( sPropName );
-	if( liResult.size() != 3 )
-		return false;
 	float a3fColorValues[3];
-	std::list<std::string>::const_iterator itEntry = liResult.begin();
-	for( int i = 0;	i < 3; ++itEntry, ++i )
-	{
-		a3fColorValues[i] = (float)VistaAspectsConversionStuff::ConvertToDouble( (*itEntry) );
-	}
+	if( oPropList.GetValueAsArray<3>( sPropName, a3fColorValues ) == false )
+		return false;
 	oColorTarget = VistaColorRGB( a3fColorValues );
 	return true;
 }
@@ -83,7 +59,7 @@ bool ReadColorFromProplist( const VistaPropertyList& oPropList,
 /*============================================================================*/
 /*  CONSTRUCTORS / DESTRUCTOR                                                 */
 /*============================================================================*/
-VistaGeometryFactory::VistaGeometryFactory(VistaSG *pSG)
+VistaGeometryFactory::VistaGeometryFactory(VistaSceneGraph *pSG)
 : m_pSG(pSG)
 {
 }
@@ -96,7 +72,7 @@ VistaGeometryFactory::~VistaGeometryFactory()
 /*  IMPLEMENTATION                                                            */
 /*============================================================================*/
 
-VistaSG* VistaGeometryFactory::GetSG() const
+VistaSceneGraph* VistaGeometryFactory::GetSG() const
 {
 	return m_pSG;
 }
@@ -684,7 +660,7 @@ VistaGeometry* VistaGeometryFactory::CreateCone(
 	}
 
 	// Building the geometry
-	int texSize = textureCoords.size()/2;
+	int texSize = (int)textureCoords.size() / 2;
 	int ind = 1;
 	if(bBottom)
 	{
@@ -894,12 +870,12 @@ VistaGeometry* VistaGeometryFactory::CreateCone(
 	// top circle
 	if(bTop)
 	{
-		ind = coords.size()/3-1-resC*resD;
+		ind = (int)coords.size() / 3 - 1 - resC * resD;
 		ci.SetNormalIndex(2);
 		for(int i = 1; i < resC; i++)
 		{
-			ci.SetCoordinateIndex(coords.size()/3-1);
-			ci.SetTextureCoordinateIndex(coords.size()/3-1);
+			ci.SetCoordinateIndex( (int)coords.size() / 3 - 1 );
+			ci.SetTextureCoordinateIndex( (int)coords.size() / 3 - 1 );
 			ci.SetNormalIndex(1);
 			index.push_back(ci);
 			ci.SetCoordinateIndex(ind);
@@ -913,8 +889,8 @@ VistaGeometry* VistaGeometryFactory::CreateCone(
 			ind++;
 		}
 
-		ci.SetCoordinateIndex(coords.size()/3-1);
-		ci.SetTextureCoordinateIndex(coords.size()/3-1);
+		ci.SetCoordinateIndex( (int)coords.size() /3 - 1 );
+		ci.SetTextureCoordinateIndex( (int)coords.size() / 3 - 1 );
 		ci.SetNormalIndex(1);
 		index.push_back(ci);
 		ci.SetCoordinateIndex(ind);
@@ -1392,141 +1368,88 @@ VistaGeometry* VistaGeometryFactory::CreateTriangle(
 /*                                                                            */
 /*============================================================================*/
 
-VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaPropertyList &props )
+VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaPropertyList &oPropList )
 {
-	std::string strType = props.GetStringValue( "TYPE" );
-
-	if( VistaAspectsComparisonStuff::StringEquals( strType, "PLANE", false ) )
+	std::string sType;
+	if( oPropList.GetValue( "TYPE", sType ) == false )
 	{
-		float sizeX = 1;
-		float sizeZ = 1;
-		int resolutionX = 1;
-		int resolutionZ = 1;
-		int facing = Vista::Y;
-		VistaColorRGB color = VistaColorRGB::WHITE;
-
-		if( props.HasProperty( "SIZEX" ) )
-			sizeX = (float)props.GetDoubleValue( "SIZEX" );
-		if( props.HasProperty( "SIZEZ" ) )
-			sizeZ = (float)props.GetDoubleValue( "SIZEZ" );
-		if( props.HasProperty( "RESOLUTIONX" ) )
-			resolutionX = props.GetIntValue( "RESOLUTIONX" );
-		if( props.HasProperty( "RESOLUTIONZ" ) )
-			resolutionZ = props.GetIntValue( "RESOLUTIONZ" );
-		if( props.HasProperty( "FACEING" ) )
-			facing = props.GetIntValue( "FACEING" );
-		ReadColorFromProplist( props, "COLOR", color );
-		return CreatePlane(sizeX,sizeZ,resolutionX,resolutionZ,facing,color);
+		vstr::warnp() << "[VistaGeometryFactory]: No type specified!" << std::endl;
+		return NULL;
 	}
-	else if( VistaAspectsComparisonStuff::StringEquals( strType, "BOX", false ) )
+
+	if( VistaAspectsComparisonStuff::StringEquals( sType, "PLANE", false ) )
 	{
-		float sizeX = 1.0f;
-		float sizeY = 1.0f;
-		float sizeZ = 1.0f;
-		int resolutionX = 1;
-		int resolutionY = 1;
-		int resolutionZ = 1;
-		VistaColorRGB color = VistaColorRGB::WHITE;
-		if( props.HasProperty( "SIZEX" ) )
-			sizeX = (float)props.GetDoubleValue( "SIZEX" );
-		if( props.HasProperty( "SIZEY" ) )
-			sizeY = (float)props.GetDoubleValue( "SIZEY" );
-		if( props.HasProperty( "SIZEZ" ) )
-			sizeZ = (float)props.GetDoubleValue( "SIZEZ" );
-		if( props.HasProperty( "RESOLUTIONX" ) )
-			resolutionX = props.GetIntValue( "RESOLUTIONX" );
-		if( props.HasProperty( "RESOLUTIONY" ) )
-			resolutionY = props.GetIntValue( "RESOLUTIONY" );
-		if( props.HasProperty( "RESOLUTIONZ" ) )
-			resolutionZ = props.GetIntValue( "RESOLUTIONZ" );
-		ReadColorFromProplist( props, "COLOR", color );
+		float fSizeX = oPropList.GetValueOrDefault<float>( "SIZEX", fSizeX, 1.0f );
+		float fSizeY = oPropList.GetValueOrDefault<float>( "SIZEZ", fSizeY, 1.0f );
+		int iResolutionX = oPropList.GetValueOrDefault<int>( "RESOLUTIONX", iResolutionX, 1 );
+		int iResolutionZ = oPropList.GetValueOrDefault<int>( "RESOLUTIONZ", iResolutionZ, 1 );
+		int nFacing = oPropList.GetValueOrDefault<int>( "FACEING", nFacing, Vista::Y );
+		
+		VistaColorRGB oColor = VistaColorRGB::WHITE;
+		ReadColorFromProplist( oPropList, "COLOR", oColor );
+		return CreatePlane( fSizeX, fSizeY, iResolutionX, iResolutionZ, nFacing, oColor );
+	}
+	else if( VistaAspectsComparisonStuff::StringEquals( sType, "BOX", false ) )
+	{
+		float fSizeX = oPropList.GetValueOrDefault<float>( "SIZEX", 1.0f );
+		float fSizeY = oPropList.GetValueOrDefault<float>( "SIZEY", 1.0f );
+		float fSizeZ = oPropList.GetValueOrDefault<float>( "SIZEZ", 1.0f );
+		int iResolutionX = oPropList.GetValueOrDefault<int>( "RESOLUTIONX", 1 );
+		int iResolutionY = oPropList.GetValueOrDefault<int>( "RESOLUTIONY", 1 );
+		int iResolutionZ = oPropList.GetValueOrDefault<int>( "RESOLUTIONZ", 1 );
+
+		VistaColorRGB oColor = VistaColorRGB::WHITE;
+		ReadColorFromProplist( oPropList, "COLOR", oColor );
 		return CreateBox (
-				sizeX, sizeY, sizeZ,
-				resolutionX, resolutionY, resolutionZ,
-				color );
+				fSizeX, fSizeY, fSizeZ,
+				iResolutionX, iResolutionY, iResolutionZ,
+				oColor );
 	}
-	else if( VistaAspectsComparisonStuff::StringEquals( strType, "DISK", false ) )
+	else if( VistaAspectsComparisonStuff::StringEquals( sType, "DISK", false ) )
 	{
-		float radius = 0.5f;
-		int resolutionC = 16;
-		int resolutionD = 1;
-		int normal = 1;
+		float fRadius = oPropList.GetValueOrDefault<float>( "RADIUS", 0.5f );
+		int iResolutionC = oPropList.GetValueOrDefault<int>( "RESOLUTIONC", 16 );
+		int iResolutionD = oPropList.GetValueOrDefault<int>( "RESOLUTIOND", 16 );
+		int nNormal = oPropList.GetValueOrDefault<int>( "NORMAL", Vista::Y );
+		
 		VistaColorRGB color = VistaColorRGB::WHITE;
+		ReadColorFromProplist( oPropList, "COLOR", color );
 
-		if( props.HasProperty( "RADIUS" ) )
-			radius = (float)props.GetDoubleValue( "RADIUS" );
-		if( props.HasProperty( "RESOLUTIONC" ) )
-			resolutionC = props.GetIntValue( "RESOLUTIONC" );
-		if( props.HasProperty( "RESOLUTIOND" ) )
-			resolutionD = props.GetIntValue( "RESOLUTIOND" );
-		if( props.HasProperty( "NORMAL" ) )
-			normal = props.GetIntValue( "NORMAL" );
-		ReadColorFromProplist( props, "COLOR", color );
-
-
-		return CreateDisk(
-				radius,
-				resolutionC, resolutionD,
-				normal,color
-			);
+		return CreateDisk( fRadius,
+							iResolutionC, iResolutionD,
+							nNormal,color );
 	}
-	else if( VistaAspectsComparisonStuff::StringEquals( strType, "CONE", false ) )
+	else if( VistaAspectsComparisonStuff::StringEquals( sType, "CONE", false ) )
 	{
-		float radiusBottom = 0.5f;
-		float radiusTop = 0.5f;
-		float height = 1.0f;
-		int resolutionC = 16;
-		int resolutionD = 1;
-		int resolutionY = 1;
-		VistaColorRGB color = VistaColorRGB::WHITE;
-		bool bottom = true;
-		bool top = true;
-		bool sides = true;
+		float fRadiusBottom = oPropList.GetValueOrDefault<float>( "RADIUSBOTTOM", 0.5f );
+		float fRadiusTop = oPropList.GetValueOrDefault<float>( "RADIUSTOP", 0.5f );
+		float fHeight = oPropList.GetValueOrDefault<float>( "HEIGHT", 1.0f );
+		int fResolutionC = oPropList.GetValueOrDefault<int>( "RESOLUTIONC", 16 );
+		int fResolutionD = oPropList.GetValueOrDefault<int>( "RESOLUTIOND", 1 );
+		int fResolutionY = oPropList.GetValueOrDefault<int>( "RESOLUTIONY", 1 );
+		bool fBottom = oPropList.GetValueOrDefault<bool>( "BOTTOM", true );
+		bool fTop = oPropList.GetValueOrDefault<bool>( "TOP", true );
+		bool fSsides = oPropList.GetValueOrDefault<bool>( "SIDES", true );
 
-		if( props.HasProperty( "RADIUSBOTTOM" ) )
-			radiusBottom = (float)props.GetDoubleValue( "RADIUSBOTTOM" );
-		if( props.HasProperty( "RADIUSTOP" ) )
-			radiusTop = (float)props.GetDoubleValue( "RADIUSTOP" );
-		if( props.HasProperty( "HEIGHT" ) )
-			height = (float)props.GetDoubleValue( "HEIGHT" );
-		if( props.HasProperty( "RESOLUTIONC" ) )
-			resolutionC = props.GetIntValue( "RESOLUTIONC" );
-		if( props.HasProperty( "RESOLUTIOND" ) )
-			resolutionD = props.GetIntValue( "RESOLUTIOND" );
-		if( props.HasProperty( "RESOLUTIONY" ) )
-			resolutionY = props.GetIntValue( "RESOLUTIONY" );
-		ReadColorFromProplist( props, "COLOR", color );
-		if( props.HasProperty( "BOTTOM" ) )
-			bottom = props.GetBoolValue( "BOTTOM" );
-		if( props.HasProperty( "TOP" ) )
-			top = props.GetBoolValue( "TOP" );
-		if( props.HasProperty( "SIDES" ) )
-			sides = props.GetBoolValue( "SIDES" );
+		VistaColorRGB color = VistaColorRGB::WHITE;
+		ReadColorFromProplist( oPropList, "COLOR", color );
 
 		return CreateCone(
-				radiusBottom, radiusTop, height,
-				resolutionC, resolutionD, resolutionY,
-				color, bottom, top, sides
+				fRadiusBottom, fRadiusTop, fHeight,
+				fResolutionC, fResolutionD, fResolutionY,
+				color, fBottom, fTop, fSsides
 			);
 	}
-	else if( VistaAspectsComparisonStuff::StringEquals( strType, "TORUS", false ) )
+	else if( VistaAspectsComparisonStuff::StringEquals( sType, "TORUS", false ) )
 	{
 
-		float ringRadius = 0.1f;
-		float outerRadius = 0.4f;
-		int resolutionSides = 30;
-		int resolutionRing = 30;
-		VistaColorRGB color = VistaColorRGB::WHITE;
+		float ringRadius = oPropList.GetValueOrDefault<float>( "RINGRADIUS", 0.1f );
+		float outerRadius = oPropList.GetValueOrDefault<float>( "OUTERRADIUS", 0.4f );
+		int resolutionSides = oPropList.GetValueOrDefault<int>( "RESOLUTIONSIDES", 30 );
+		int resolutionRing = oPropList.GetValueOrDefault<int>( "RESOLUTIONRING", 30 );
 
-		if( props.HasProperty( "RINGRADIUS" ) )
-			ringRadius = (float)props.GetDoubleValue( "RINGRADIUS" );
-		if( props.HasProperty( "OUTERRADIUS" ) )
-			outerRadius = (float)props.GetDoubleValue( "OUTERRADIUS" );
-		if( props.HasProperty( "RESOLUTIONSIDES" ) )
-			resolutionSides = props.GetIntValue( "RESOLUTIONSIDES" );
-		if( props.HasProperty( "RESOLUTIONRING" ) )
-			resolutionRing = props.GetIntValue( "RESOLUTIONRING" );
-		ReadColorFromProplist( props, "COLOR", color );
+		VistaColorRGB color = VistaColorRGB::WHITE;
+		ReadColorFromProplist( oPropList, "COLOR", color );
 
 		return CreateTorus(
 			ringRadius, outerRadius,
@@ -1535,64 +1458,47 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 		);
 
 	}
-	else if( VistaAspectsComparisonStuff::StringEquals( strType, "SPHERE", false ) )
+	else if( VistaAspectsComparisonStuff::StringEquals( sType, "SPHERE", false ) )
 	{
 
-		float radius = 0.5f;
-		int resolution = 32;
+		float radius = oPropList.GetValueOrDefault<float>( "RADIUS", 0.5f );
+		int resolution = oPropList.GetValueOrDefault<int>( "RESOLUTION", 32 );
 		VistaColorRGB color = VistaColorRGB::WHITE;
-
-		if( props.HasProperty( "RADIUS" ) )
-			radius = (float)props.GetDoubleValue( "RADIUS" );
-		if( props.HasProperty( "RESOLUTION" ) )
-			resolution = props.GetIntValue( "RESOLUTION" );
-		ReadColorFromProplist( props, "COLOR", color );
+		ReadColorFromProplist( oPropList, "COLOR", color );
 
 		return CreateSphere( radius, resolution, color );
 	}
-	else if( VistaAspectsComparisonStuff::StringEquals( strType, "ELLIPSOID", false ) )
+	else if( VistaAspectsComparisonStuff::StringEquals( sType, "ELLIPSOID", false ) )
 	{
-		float radius_a = 0.5f;
-		float radius_b = 0.5f;
-		float radius_c = 0.5f;
-		int thetaPrecision = 32;
-		int phiPrecision = 32;
-		VistaColorRGB color = VistaColorRGB::WHITE;
+		float radius_a = oPropList.GetValueOrDefault<float>( "RADIUS_A", 0.5f );
+		float radius_b = oPropList.GetValueOrDefault<float>( "RADIUS_B", 0.5f );
+		float radius_c = oPropList.GetValueOrDefault<float>( "RADIUS_C", 0.5f );
+		int thetaPrecision = oPropList.GetValueOrDefault<int>( "THETARESOLUTION", 32 );
+		int phiPrecision = oPropList.GetValueOrDefault<int>( "PHIRESOLUTION", 32 );
 
-		if( props.HasProperty( "RADIUS_A" ) )
-			radius_a = (float)props.GetDoubleValue( "RADIUS_A" );
-		if( props.HasProperty( "RADIUS_B" ) )
-			radius_b = (float)props.GetDoubleValue( "RADIUS_B" );
-		if( props.HasProperty( "RADIUS_C" ) )
-			radius_c = (float)props.GetDoubleValue( "RADIUS_C" );
-		if( props.HasProperty( "THETAPRECISION" ) )
-			thetaPrecision = props.GetIntValue( "THETARESOLUTION" );
-		if( props.HasProperty( "PHIPRECISION" ) )
-			phiPrecision = props.GetIntValue( "PHIRESOLUTION" );
-		ReadColorFromProplist( props, "COLOR", color );
+		VistaColorRGB color = VistaColorRGB::WHITE;
+		ReadColorFromProplist( oPropList, "COLOR", color );
 
 		return CreateEllipsoid( radius_a, radius_b, radius_c, thetaPrecision, phiPrecision, color );
 	}
-	else if( VistaAspectsComparisonStuff::StringEquals( strType, "TRIANGLE", false ) )
+	else if( VistaAspectsComparisonStuff::StringEquals( sType, "TRIANGLE", false ) )
 	{
-		VistaVector3D a = VistaVector3D(-1.0f/2,-1.0f/2,0);
-		VistaVector3D b = VistaVector3D( 1.0f/2,-1.0f/2,0);
-		VistaVector3D c = VistaVector3D(      0, 1.0f/2,0);
-		int resolution = 3;
+		VistaVector3D v3PointA = oPropList.GetValueOrDefault<VistaVector3D>(
+											"POINT_A", VistaVector3D( 0.5f, 0.5f,0 ) );
+		VistaVector3D v3PointB = oPropList.GetValueOrDefault<VistaVector3D>(	
+											"POINT_B", VistaVector3D( 0.5f, -0.5f,0 ) );
+		VistaVector3D v3PointC = oPropList.GetValueOrDefault<VistaVector3D>(
+											"POINT_C", VistaVector3D( 0, 0.5f, 0 ) );
+		int iResolution = oPropList.GetValueOrDefault<int>( "RESOLUTION", 3 );
 		VistaColorRGB color = VistaColorRGB::WHITE;
+		ReadColorFromProplist( oPropList, "COLOR", color );
 
-		
-		ReadVistaVector3DFromProplist( props, "POINT_A", a );
-		ReadVistaVector3DFromProplist( props, "POINT_B", b );
-		ReadVistaVector3DFromProplist( props, "POINT_C", c );
-		if( props.HasProperty( "RESOLUTION" ) )
-			resolution = props.GetIntValue( "RESOLUTION" );
-		ReadColorFromProplist( props, "COLOR", color );
-
-		return CreateTriangle( a, b, c, resolution, color );
+		return CreateTriangle( v3PointA, v3PointB, v3PointC, iResolution, color );
 	}
 	else
 	{
-		VISTA_THROW("[VistaGeometryFactory] No legal TYPE given!",1);
+		vstr::warnp() << "[VistaGeometryFactory]: Given type ["
+					<< sType << "] not valid!" << std::endl;
+		return NULL;
 	}
 }

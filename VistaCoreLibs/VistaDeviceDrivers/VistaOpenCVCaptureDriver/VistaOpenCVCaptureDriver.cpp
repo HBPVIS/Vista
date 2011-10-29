@@ -1,6 +1,6 @@
 /*============================================================================*/
 /*                    ViSTA VR toolkit - OpenCV2 driver                  */
-/*               Copyright (c) 1997-2011 RWTH Aachen University               */
+/*               Copyright (c) 1997-2010 RWTH Aachen University               */
 /*============================================================================*/
 /*                                  License                                   */
 /*                                                                            */
@@ -177,35 +177,30 @@ namespace
 		"CAPTUREDEVICE",
 		SsReflectionName,
 		&VistaOpenCVCaptureDriver::Parameters::SetCaptureDevice,
-		&VistaAspectsConversionStuff::ConvertToInt,
 		"sets the current OpenCV capture device index (causes reset and loss of data)"),
 		new TVistaPropertySet<int, int,
 		VistaOpenCVCaptureDriver::Parameters> (
 		"REQUESTEDWIDTH",
 		SsReflectionName,
 		&VistaOpenCVCaptureDriver::Parameters::SetWidthRequested,
-		&VistaAspectsConversionStuff::ConvertToInt,
 		"sets the width (requested) for OpenCV capture (can cause reset and loss of data)"),
 		new TVistaPropertySet<int, int,
 		VistaOpenCVCaptureDriver::Parameters> (
 		"REQUESTEDHEIGHT",
 		SsReflectionName,
 		&VistaOpenCVCaptureDriver::Parameters::SetHeightRequested,
-		&VistaAspectsConversionStuff::ConvertToInt,
 		"sets the height (requested) for OpenCV capture (can cause reset and loss of data)"),
 		new TVistaPropertySet<const std::string &, std::string,
 		VistaOpenCVCaptureDriver::Parameters> (
 		"FROMFILE",
 		SsReflectionName,
 		&VistaOpenCVCaptureDriver::Parameters::SetFromFile,
-		&VistaAspectsConversionStuff::ConvertToString,
 		"sets the current from file to capture from."),
 		new TVistaPropertySet<bool, bool,
 		VistaOpenCVCaptureDriver::Parameters> (
 		"WANTRGB",
 		SsReflectionName,
 		&VistaOpenCVCaptureDriver::Parameters::SetWantRGB,
-		&VistaAspectsConversionStuff::ConvertToBool,
 		"sets whether the output data is forced to be RGB."),
 		NULL
 	};
@@ -476,11 +471,11 @@ bool VistaOpenCVCaptureDriver::Connect()
 	{
 		delete m_pCapture;
 		m_pCapture = NULL;
-		m_pInfo->GetInfoPropsWrite().SetStringValue("STATE", "ERROR" );
+		m_pInfo->GetInfoPropsWrite().SetValue( "STATE", "ERROR" );
 		return false;
 	}
 	else
-		m_pInfo->GetInfoPropsWrite().SetStringValue("STATE", "OK");
+		m_pInfo->GetInfoPropsWrite().SetValue( "STATE", "OK");
 
 	return true;
 }
@@ -620,10 +615,10 @@ void VistaOpenCVCaptureDriver::OnReconnectCamera()
 	p->SetWidth( (int)(*m_pCapture).get(CV_CAP_PROP_FRAME_WIDTH) );
 	p->SetHeight( (int)(*m_pCapture).get(CV_CAP_PROP_FRAME_HEIGHT) );
 
-	m_pInfo->GetInfoPropsWrite().SetIntValue( "REALWIDTH", p->GetWidth() );
-	m_pInfo->GetInfoPropsWrite().SetIntValue( "REALHEIGHT", p->GetHeight() );
-	m_pInfo->GetInfoPropsWrite().SetIntValue( "FPS", p->GetFrameRate() );
-	m_pInfo->GetInfoPropsWrite().SetIntValue( "FORMAT", (int)p->GetFormat() );
+	m_pInfo->GetInfoPropsWrite().SetValue( "REALWIDTH", p->GetWidth() );
+	m_pInfo->GetInfoPropsWrite().SetValue( "REALHEIGHT", p->GetHeight() );
+	m_pInfo->GetInfoPropsWrite().SetValue( "FPS", p->GetFrameRate() );
+	m_pInfo->GetInfoPropsWrite().SetValue( "FORMAT", (int)p->GetFormat() );
 
 	p->TurnDef(false);
 	OnUpdateMeasureSize();
@@ -632,7 +627,7 @@ void VistaOpenCVCaptureDriver::OnReconnectCamera()
 void VistaOpenCVCaptureDriver::OnUpdateMeasureSize()
 {
 	VistaDeviceSensor *pSensor = GetSensorByIndex(0);
-	unsigned int nHistorySize = pSensor->GetMeasureHistorySize(); // number of slots already assigned
+	//unsigned int nHistorySize = pSensor->GetMeasureHistorySize(); // number of slots already assigned
 	const VistaMeasureHistory &history = pSensor->GetMeasures();
 
 	// here we assume that client read size and driver write size are already pre-given (on user demand)

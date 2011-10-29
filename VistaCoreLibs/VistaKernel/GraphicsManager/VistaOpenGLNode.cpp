@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenGLNode.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaOpenGLNode.h"
 #include "VistaNodeBridge.h"
@@ -70,7 +70,7 @@ bool VistaOpenGLNode::GetBoundingBox(VistaVector3D &pMin, VistaVector3D &pMax) c
 		VistaBoundingBox bb;
 		bool bRet = static_cast<IVistaOpenGLDraw*>(m_pExtension)->GetBoundingBox(bb);
 		bb.GetBounds(&pMin[0], &pMax[0]);		
-		return true;
+		return bRet;
 	}
 	else
 	{

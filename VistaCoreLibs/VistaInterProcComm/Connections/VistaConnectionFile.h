@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaConnectionFile.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTACONNECTIONFILE_H
 #define _VISTACONNECTIONFILE_H
@@ -46,32 +46,13 @@
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI VistaConnectionFile : public VistaConnection
 {
 public:
-
-	/**
-	 *
-	 */
 	VistaConnectionFile( const std::string& sFilename, int iMode ) ;
-
-
-	/**
-	 *
-	 */
 	virtual ~VistaConnectionFile();
 
-	/**
-	 *
-	 */
 	bool Open();
-
-	/**
-	 *
-	 */
 	void Close() ;
 
 	/**
@@ -119,9 +100,6 @@ private:
 
 protected:
 
-	/**
-	 *
-	 */
 	VistaConnectionFile();
 };
 

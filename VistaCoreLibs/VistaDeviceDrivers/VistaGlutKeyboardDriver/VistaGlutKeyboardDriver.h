@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaGlutKeyboardDriver.h 22143 2011-07-01 15:07:00Z dr165799 $
 
 #ifndef _VISTAGLUTKEYBOARDDRIVER_H
 #define _VISTAGLUTKEYBOARDDRIVER_H

@@ -20,16 +20,16 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaConnectionFileTimed.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaConnectionFileTimed.h"
 #include <string>
 using namespace std;
 
 VistaConnectionFileTimed::VistaConnectionFileTimed( const string & sFilename, 
-							  const bool & bPulse,
-							  const float & fFrequency, 
-							  const bool & bIncoming ) :
+							  const bool bPulse,
+							  const float fFrequency, 
+							  const bool bIncoming ) :
 	VistaConnectionFile( sFilename, VistaConnectionFile::READ ),
 	m_bPulse(bPulse), 
 	m_fFrequency(fFrequency),

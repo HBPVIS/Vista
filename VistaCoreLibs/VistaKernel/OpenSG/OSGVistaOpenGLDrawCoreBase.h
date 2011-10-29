@@ -46,7 +46,10 @@
 #ifdef WIN32
 // disable warnings from OpenSG
 #pragma warning(push)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4189)
 #pragma warning(disable: 4231)
+#pragma warning(disable: 4267)
 #endif
 
 #include <OpenSG/OSGConfig.h>
@@ -211,6 +214,6 @@ typedef RefPtr<VistaOpenGLDrawCorePtr> VistaOpenGLDrawCoreRefPtr;
 
 OSG_END_NAMESPACE
 
-#define OSGVistaOpenGLDrawCoreBASE_HEADER_CVSID "@(#)$Id$"
+#define OSGVistaOpenGLDrawCoreBASE_HEADER_CVSID "@(#)$Id: OSGVistaOpenGLDrawCoreBase.h 23493 2011-09-22 16:12:15Z dr165799 $"
 
 #endif /* _OSGVistaOpenGLDrawCoreBASE_H_ */

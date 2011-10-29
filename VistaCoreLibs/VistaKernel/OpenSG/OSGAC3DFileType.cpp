@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: OSGAC3DFileType.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 
 //-------------------------------
@@ -28,12 +28,15 @@
 //-------------------------------
 #include "OSGAC3DFileType.h"
 
-#include <VistaKernel/VistaKernelOut.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #ifdef WIN32
 // disable warnings from OpenSG
 #pragma warning(push)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4189)
 #pragma warning(disable: 4231)
+#pragma warning(disable: 4267)
 #endif
 
 #include <OpenSG/OSGConfig.h>
@@ -841,9 +844,9 @@ static OSG::GeometryPtr createGeometry(ACObject *pObj, ACMaterial *pMatTable,
 
 	if(pObj->num_surf == 0 && pObj->num_vert == 0)
 	{
-        vkernerr << "Degenerated object ["
+		vstr::warnp() << "[AC3DLoader]: Degenerated object ["
             << (pObj->name ? pObj->name : "<no-name>")
-            << "] (no vertices, no surfaces, skipping)\n";
+			<< "] (no vertices, no surfaces, skipping)" << std::endl;
 		return NullFC;
 	}
 
@@ -916,13 +919,11 @@ static OSG::GeometryPtr createGeometry(ACObject *pObj, ACMaterial *pMatTable,
 		{
 			if((pObj->surfaces[j].flags & AC3D_SURFACE_TYPE_CLOSEDLINE) == AC3D_SURFACE_TYPE_CLOSEDLINE)
 			{
-				vkernerr << "CLOSEDLINE";
 				type->addValue(GL_LINE_LOOP);
 				lens->addValue(pObj->surfaces[j].num_vertref);
 			}
 			else if((pObj->surfaces[j].flags & AC3D_SURFACE_TYPE_LINE) == AC3D_SURFACE_TYPE_LINE)
 			{
-				vkernerr << "LINE";
 				type->addValue(GL_LINES);
 				lens->addValue(pObj->surfaces[j].num_vertref);
 			}
@@ -946,7 +947,8 @@ static OSG::GeometryPtr createGeometry(ACObject *pObj, ACMaterial *pMatTable,
 			}
 			else
 			{
-				vkernerr << "<UNKNOWN TYPE (flag=" << pObj->surfaces[j].flags << ")>";
+				vstr::warnp() << "[AC3DLoader]: encountered unknown surface type (flag=" 
+					<< pObj->surfaces[j].flags << ")>" << std::endl;
 			}
 
 			smooth = smooth ? smooth : (pObj->surfaces[j].flags & AC3D_SURFACE_SHADED);
@@ -1020,8 +1022,8 @@ static OSG::GeometryPtr createGeometry(ACObject *pObj, ACMaterial *pMatTable,
 				}
 				else
 				{
-					vkernerr << "OSGAC3DFileType::createGeometry() -- could not read texture \""
-						<< pObj->texture << "\".\n";
+					vstr::warnp() << "[AC3DLoader]:  Could not read texture ["
+						<< pObj->texture << "]" << std::endl;
 				}
 
 			}
@@ -1075,7 +1077,8 @@ static OSG::GeometryPtr createGeometry(ACObject *pObj, ACMaterial *pMatTable,
 		sm->setLit(GL_TRUE);
 		sm->addChunk(p);
 		endEditCP(sm);
-		vkernout << "## no material?`setting default (white plastic).\n";
+		vstr::warnp() << "[AC3DLoader]: No material set"
+				<< " - using default (white plastic)." << std::endl;
 	}
 	else
 	{
@@ -1083,10 +1086,9 @@ static OSG::GeometryPtr createGeometry(ACObject *pObj, ACMaterial *pMatTable,
 
 		if(matSet.size() != 1)
 		{
-			vkernerr << "## WARNING: more than one material in geometry ["
-				<< pObj->name << "] -- assigning first material\n";
+			vstr::warnp() << "[AC3DLoader]: More than one material in geometry ["
+						<< pObj->name << "] -- assigning first material" << std::endl;
 		}
-		//std::cout << "## assigning material [" << nMatIdx << "]\n";
 
 		ACMaterial mat = pMatTable[nMatIdx];
 
@@ -1454,7 +1456,7 @@ const Char8 *OSGAC3DSceneFileType::getName(void) const
 
 namespace
 {
-	static Char8 cvsid_cpp[] = "@(#)$Id: OSGAC3DFileType.cpp 21315 2011-05-16 13:47:39Z dr165799 $";
+	static Char8 cvsid_cpp[] = "@(#)$Id$";
 	static Char8 cvsid_hpp[] = OSGAC3DSCENEFILETYPE_HEADER_CVSID;
 }
 

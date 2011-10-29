@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaTCPSocket.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #if defined(WIN32)
 #include <winsock2.h>
@@ -49,6 +49,8 @@
 	#include <netinet/tcp.h>
 #endif
 #include "VistaTCPSocket.h"
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <cstdio>
 #include <string>
@@ -93,7 +95,7 @@ void VistaTCPSocket::SetIsBuffering(bool bBuffering)
 {
 	if(GetIsValid())
 	{
-		int iBuffering = (bBuffering ? 1 : 0);
+		int iBuffering = (bBuffering ? 0 : 1);
 
 		if(!SetSockOpt(IPPROTO_TCP, TCP_NODELAY, (& iBuffering), sizeof ( int ) ))
 		{
@@ -117,7 +119,8 @@ bool VistaTCPSocket::CloseSocket(bool bSkipRead)
 		return true;
 
 	m_bCloseRecursionFlag = true;
-	printf("VistaTCPSocket[%lx]::CloseSocket(%d)\n",long(this),bSkipRead);
+	//vstr::outi() << "VistaTCPSocket[" << this << "]::CloseSocket(" 
+	//		<< ( bSkipRead ? "true)" : "false" ) << std::endl;
 
 
 	if(GetIsConnected())

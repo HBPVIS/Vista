@@ -20,12 +20,13 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaTimeoutRouter.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaTimeoutRouter.h" 
 #include "VistaTickTimer.h"
 #include "VistaEvent.h"
-#include "../VistaKernelOut.h"
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <iostream>
 
@@ -54,8 +55,8 @@ void VistaTimeoutRouter::CTimedCallback::SetRepeatCount(int nRepeatCount)
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
 VistaTimeoutRouter::VistaTimeoutRouter(VistaEventManager *pEvMgr,
-										 VistaClusterAux *pAux)
-: VistaTimeoutHandler(pEvMgr, pAux),
+										 VistaClusterMode *pClusterMode)
+: VistaTimeoutHandler(pEvMgr, pClusterMode),
   m_dEventTick(0),
   m_bInCallback(false)
 {
@@ -151,7 +152,7 @@ void VistaTimeoutRouter::HandleTimeout(HD_TIMER tim)
 	{
 		if(!CallUpdaters(it->second, tim))
 		{
-			vkernerr << "Error -- update candidate list!\n";
+			vstr::errp() << "[VistaTimeoutRouter::HandleTimeout]: update candidate list!" << std::endl;
 		}
 	}
 

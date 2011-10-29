@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDisplayBridge.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaDisplayBridge.h"
 
@@ -30,8 +30,7 @@
 #include "VistaViewport.h"
 #include "VistaProjection.h"
 
-#include <VistaKernel/VistaKernelOut.h>
-
+#include <VistaBase/VistaStreamUtils.h>
 #include <VistaAspects/VistaPropertyAwareable.h>
 
 /*============================================================================*/
@@ -52,9 +51,6 @@ IVistaDisplayBridge::IVistaDisplayBridge()
 
 IVistaDisplayBridge::~IVistaDisplayBridge()
 {
-#ifdef DEBUG
-	vkernout << " [VistaDisplayBridge] >> DESTRUCTOR <<" << endl;
-#endif
 }
 
 /*============================================================================*/
@@ -66,20 +62,28 @@ IVistaDisplayBridge::~IVistaDisplayBridge()
 /*  NAME      :   UpdateDisplaySystems                                        */
 /*                                                                            */
 /*============================================================================*/
-bool IVistaDisplayBridge::UpdateDisplaySystems(VistaDisplayManager *pDisplayManager)
+bool IVistaDisplayBridge::UpdateDisplaySystems( VistaDisplayManager* pDisplayManager )
 {
 	return true;
 }
 
 /*============================================================================*/
 /*                                                                            */
+/*  NAME      :   UpdateDisplaySystems                                        */
+/*                                                                            */
+/*============================================================================*/
+
+
+
+/*============================================================================*/
+/*                                                                            */
 /*  NAME      :   ObserverUpdate                                              */
 /*                                                                            */
 /*============================================================================*/
-void IVistaDisplayBridge::ObserverUpdate(IVistaObserveable *pObserveable,
-										 int msg,
-										 int ticket,
-										 VistaDisplaySystem *pTarget)
+void IVistaDisplayBridge::ObserverUpdate( IVistaObserveable* pObserveable,
+										int nMsg,
+										int nTicket,
+										VistaDisplaySystem* pTarget )
 {
 	// let the toolkit-specific implementation decide on how to react 
 	// to this...
@@ -92,11 +96,11 @@ void IVistaDisplayBridge::ObserverUpdate(IVistaObserveable *pObserveable,
 /*  NAME      :   NewDisplaySystem                                            */
 /*                                                                            */
 /*============================================================================*/
-VistaDisplaySystem *IVistaDisplayBridge::NewDisplaySystem(VistaVirtualPlatform *pReferenceFrame,
-														   IVistaDisplayEntityData *pData,
-														   VistaDisplayManager *pDisplayManager)
+VistaDisplaySystem* IVistaDisplayBridge::NewDisplaySystem( VistaVirtualPlatform* pReferenceFrame,
+														   IVistaDisplayEntityData* pData,
+														   VistaDisplayManager* pDisplayManager )
 {
-	VistaDisplaySystem *pDS = new VistaDisplaySystem(pDisplayManager, pReferenceFrame, pData, this);
+	VistaDisplaySystem* pDS = new VistaDisplaySystem( pDisplayManager, pReferenceFrame, pData, this );
 	pDS->InitProperties();
 	return pDS;
 }
@@ -106,10 +110,10 @@ VistaDisplaySystem *IVistaDisplayBridge::NewDisplaySystem(VistaVirtualPlatform *
 /*  NAME      :   NewDisplay                                                  */
 /*                                                                            */
 /*============================================================================*/
-VistaDisplay *IVistaDisplayBridge::NewDisplay(IVistaDisplayEntityData *pData,
-											   VistaDisplayManager *pDisplayManager)
+VistaDisplay* IVistaDisplayBridge::NewDisplay( IVistaDisplayEntityData* pData,
+											   VistaDisplayManager* pDisplayManager )
 {
-	VistaDisplay *pD = new VistaDisplay(pDisplayManager, pData, this);
+	VistaDisplay* pD = new VistaDisplay( pDisplayManager, pData, this );
 	pD->InitProperties();
 	return pD;
 }
@@ -119,12 +123,12 @@ VistaDisplay *IVistaDisplayBridge::NewDisplay(IVistaDisplayEntityData *pData,
 /*  NAME      :   NewWindow                                                   */
 /*                                                                            */
 /*============================================================================*/
-VistaWindow *IVistaDisplayBridge::NewWindow(VistaDisplay *pDisplay,
-											 IVistaDisplayEntityData *pData)
+VistaWindow* IVistaDisplayBridge::NewWindow( VistaDisplay* pDisplay,
+											 IVistaDisplayEntityData* pData )
 {
-	VistaWindow *pW = new VistaWindow(pDisplay, pData, this);
-	pW->InitProperties();
-	return pW;
+	VistaWindow* pWindow = new VistaWindow( pDisplay, pData, this );
+	pWindow->InitProperties();
+	return pWindow;
 }
 
 /*============================================================================*/
@@ -132,11 +136,11 @@ VistaWindow *IVistaDisplayBridge::NewWindow(VistaDisplay *pDisplay,
 /*  NAME      :   NewViewport                                                 */
 /*                                                                            */
 /*============================================================================*/
-VistaViewport *IVistaDisplayBridge::NewViewport(VistaDisplaySystem *pDisplaySystem,
-												 VistaWindow *pWindow,
-												 IVistaDisplayEntityData *pData)
+VistaViewport* IVistaDisplayBridge::NewViewport( VistaDisplaySystem* pDisplaySystem,
+												 VistaWindow* pWindow,
+												 IVistaDisplayEntityData* pData )
 {
-	VistaViewport *pV = new VistaViewport(pDisplaySystem, pWindow, pData, this);
+	VistaViewport* pV = new VistaViewport( pDisplaySystem, pWindow, pData, this );
 	pV->InitProperties();
 	return pV;
 }
@@ -146,10 +150,10 @@ VistaViewport *IVistaDisplayBridge::NewViewport(VistaDisplaySystem *pDisplaySyst
 /*  NAME      :   NewProjection                                               */
 /*                                                                            */
 /*============================================================================*/
-VistaProjection *IVistaDisplayBridge::NewProjection(VistaViewport *pViewport,
-													 IVistaDisplayEntityData *pData)
+VistaProjection* IVistaDisplayBridge::NewProjection( VistaViewport* pViewport,
+													 IVistaDisplayEntityData* pData )
 {
-	VistaProjection *pP = new VistaProjection(pViewport, pData, this);
+	VistaProjection* pP = new VistaProjection(pViewport, pData, this);
 	pP->InitProperties();
 	return pP;
 }

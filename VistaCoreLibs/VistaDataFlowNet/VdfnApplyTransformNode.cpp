@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnApplyTransformNode.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VdfnApplyTransformNode.h"
 
@@ -41,14 +41,14 @@ const std::string VdfnApplyTransformNode::STransformInPortName("in");
 
 VdfnApplyTransformNode::VdfnApplyTransformNode(VdfnObjectRegistry *pObjReg,
                                                     const std::string &strKey,
-                                                    const bool &applyLocal)
+                                                    const bool bApplyLocal)
 : IVdfnNode()
 , m_pInTransform(NULL)
 , m_pOutTransform(NULL)
 , m_nTCount(0)
 , m_pObjRegistry(pObjReg)
 , m_strKey(strKey)
-, m_bApplyLocal(applyLocal)
+, m_bApplyLocal(bApplyLocal)
 {
 	RegisterInPrototypes();
 }
@@ -64,12 +64,12 @@ VdfnApplyTransformNode::VdfnApplyTransformNode()
 }
 
 VdfnApplyTransformNode::VdfnApplyTransformNode(IVistaTransformable *pObj,
-													const bool &applyLocal)
+													const bool bApplyLocal)
 : IVdfnNode()
 , m_pInTransform(NULL)
 , m_pOutTransform(pObj)
 , m_pObjRegistry(NULL)
-, m_bApplyLocal(applyLocal)
+, m_bApplyLocal(bApplyLocal)
 {
 	RegisterInPrototypes();
 }

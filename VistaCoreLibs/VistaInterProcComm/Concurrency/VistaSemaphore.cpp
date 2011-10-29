@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaSemaphore.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaSemaphore.h"
 #include "VistaDefSemaphoreImp.h"
@@ -54,10 +54,12 @@ VistaSemaphore::VistaSemaphore ( unsigned int inStart, eSemType eType )
 		break;
 	}
 
-
-	if(!(m_pImp = IVistaSemaphoreImp::CreateSemaphoreImp(inStart, eTp )))
+	m_pImp = IVistaSemaphoreImp::CreateSemaphoreImp( inStart, eTp );
+	if( m_pImp == NULL )
+	{
 		// this failed, create default
 		m_pImp = new VistaDefSemaphoreImp(inStart);
+	}
 }
 
 

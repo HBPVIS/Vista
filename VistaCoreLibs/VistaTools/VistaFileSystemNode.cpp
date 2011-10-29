@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaFileSystemNode.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 /*============================================================================*/
 /* DEFINITIONS                                                                */
@@ -91,9 +91,9 @@ string VistaFileSystemNode::GetLocalName() const
 void VistaFileSystemNode::SetName(const string &strName)
 {
 	m_sName = strName;
-	int iPos = m_sName.rfind( "/" );
+	std::size_t iPos = m_sName.rfind( "/" );
 #ifdef WIN32
-	int iPos2 = m_sName.rfind( "\\" );
+	std::size_t iPos2 = m_sName.rfind( "\\" );
 	if( iPos2 > iPos )
 		iPos = iPos2;
 #endif

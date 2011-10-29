@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaGroupNode.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaGroupNode.h"
 #include "VistaNodeBridge.h"
@@ -54,21 +54,21 @@ VistaGroupNode::VistaGroupNode(VistaGroupNode*			pParent,
 
 VistaGroupNode::~VistaGroupNode()
 {
-	//cout << "m_vecChildren.size() = " << m_vecChildren.size() << endl;
+	//cout << "m_vecChildren.size() = " << m_vecChildren.size() << std::endl;
 	// as the children might tend to disconnect upon destruction
 	// which will alter the parent pointer while we are traversing the child vector.
 	/** @todo remove shadow graph!! */
-	//cout << "-- ENTER --\n";
+	//cout << "-- ENTER --" << std::endl;
 	for(unsigned int i=0; i < m_vecChildren.size(); ++i)
 	{
-	   // cout << "deleting: " << i << " @ " << m_vecChildren[i] << endl;
+	   // cout << "deleting: " << i << " @ " << m_vecChildren[i] << std::endl;
 		//<< " ("
-		//     << m_vecChildren[i]->GetName() << "\n";
+		//     << m_vecChildren[i]->GetName() << "" << std::endl;
 		//m_pBridge->DisconnectChild(i, m_pData);
 		static_cast<VistaNode*>(m_vecChildren[i])->m_pParent = NULL;
 		delete m_vecChildren[i];
 	}
-	//cout << "-- LEAVE -- \n";
+	//cout << "-- LEAVE -- " << std::endl;
 }
 
 // ============================================================================
@@ -101,7 +101,7 @@ bool VistaGroupNode::HasChildren() const
 // ============================================================================
 unsigned int VistaGroupNode::GetNumChildren() const
 {
-	return m_vecChildren.size();
+	return (unsigned int)m_vecChildren.size();
 }
 
 bool VistaGroupNode::GetIsChild( const IVistaNode *pNode ) const
@@ -147,7 +147,7 @@ bool VistaGroupNode::CanAddChild(IVistaNode* pChild) const
 // ============================================================================
 bool VistaGroupNode::AddChild(IVistaNode* pChild)
 {
-	//cout << "VistaGroupNode::AddChild(" << pChild << ")\n";
+	//cout << "VistaGroupNode::AddChild(" << pChild << ")" << std::endl;
 
 	VistaNode* pVistaChild = dynamic_cast<VistaNode*>(pChild);
 	if(pVistaChild && CanAddChild(pChild))
@@ -176,7 +176,7 @@ bool VistaGroupNode::InsertChild(IVistaNode* pChild, unsigned int nIndex)
 		return false;
 	//check for enough memory
 	if( (m_vecChildren.size()<m_vecChildren.max_size()) &&
-		(CanAddChild(pChild)) && (nIndex>=0) && (nIndex<=m_vecChildren.size()))
+		(CanAddChild(pChild)) && (nIndex<=m_vecChildren.size()))
 	{
 		if(m_pBridge->InsertChild(pVistaChild->GetData(), nIndex, m_pData))
 		{
@@ -201,7 +201,7 @@ bool VistaGroupNode::InsertChild(IVistaNode* pChild, unsigned int nIndex)
 
 bool VistaGroupNode::IsValidIndex(unsigned int iIndex) const
 {
-	return (m_vecChildren.size() >= 0) && (iIndex < m_vecChildren.size());
+	return ( iIndex < m_vecChildren.size() );
 }
 
 // ============================================================================
@@ -305,7 +305,7 @@ void VistaGroupNode::Debug(std::ostream& out, int nLevel)
 	VistaNode::Debug(out,nLevel);
 	for(int i=0; i<nLevel; i++)
 		out << "\t";
-	out << "|  Current ChildCount: " <<  m_nNumChildren << "\n";
+	out << "|  Current ChildCount: " <<  m_nNumChildren << "" << std::endl;
 }
 */
 // ============================================================================

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaCyberGloveDriver.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 /*============================================================================*/
 /* INCLUDES                                                                   */
@@ -33,7 +33,7 @@
 #include <VistaInterProcComm/Connections/VistaConnectionSerial.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverMeasureHistoryAspect.h>
 
-#include <VistaDeviceDriversBase/VistaDeviceDriversOut.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <cstring>
 #include <iostream>
@@ -62,8 +62,8 @@ public:
 			return false;
 
 #ifdef _DEBUG
-		vddout << "[VistaCyberGlove] CyberGloveInfo:" << endl;
-		vddout << pInfoText << endl;
+		vstr::outi() << "[VistaCyberGlove] CyberGloveInfo:" << endl;
+		vstr::outi() << pInfoText << endl;
 #endif
 
 		return true;
@@ -91,8 +91,8 @@ public:
 		if(pResponse[1] != 'G')
 		{
 #ifdef _DEBUG
-			vdderr << "[VistaCyberGlove] Trashed Response Received (CmdGetConnectionInfo)" << endl;
-			vdderr << "                  Command Bytes: " << pResponse[0] << pResponse[1] << endl;
+			vstr::errp() << "[VistaCyberGlove] Trashed Response Received (CmdGetConnectionInfo)" << endl;
+			vstr::erri() << vstr::singleindent << "Command Bytes: " << pResponse[0] << pResponse[1] << endl;
 #endif
 			return -1;
 		}
@@ -102,7 +102,7 @@ public:
 
 #ifdef _DEBUG
 		if(nReturn > 3)
-			vdderr << "[VistaCyberGlove] Connection Info Byte Corrupted" << endl;
+			vstr::errp() << "[VistaCyberGlove] Connection Info Byte Corrupted" << endl;
 #endif
 
 		return nReturn;
@@ -393,7 +393,8 @@ public:
 		if(pResponse[1] != 'M')
 		{
 #ifdef _DEBUG
-			vdderr << "[VistaCyberGlove] CmdGetSensorMask received invalid packet (id " << pResponse[1] << ")" << endl;
+			vstr::warnp() << "[VistaCyberGlove] CmdGetSensorMask received invalid packet (id "
+					<< pResponse[1] << ")" << endl;
 #endif
 			return false;
 		}
@@ -403,8 +404,8 @@ public:
 		cResult[2] = pResponse[4];
 
 #ifdef _DEBUG
-		vdderr << "[VistaCyberGlove] SensorMask : " << (int)pResponse[2] << " " << (int)pResponse[3];
-		vdderr << " "<< (int)pResponse[4] << endl;
+		vstr::outi() << "[VistaCyberGlove] SensorMask : " << (int)pResponse[2] << " " << (int)pResponse[3]
+					 << " "  << (int)pResponse[4] << endl;
 #endif
 
 		return true;
@@ -442,9 +443,8 @@ public:
 
 		if( pResponse[1] != 'S' )
 		{
-#ifdef _DEBUG
-			vddout << "[VistaCyberGlove] CmdGetMaxNumberOfSensors received invalid packet (id " << pResponse[1] << ")" << endl;
-#endif
+			vstr::warnp() << "[VistaCyberGlove] CmdGetMaxNumberOfSensors received invalid packet (id " 
+					<< pResponse[1] << ")" << endl;
 			return -1;
 		}
 
@@ -467,9 +467,8 @@ public:
 
 		if( pResponse[1] != 'N' )
 		{
-#ifdef _DEBUG
-			vddout << "[VistaCyberGlove] CmdGetNumberOfSensors received invalid packet (id " << pResponse[1] << ")" << endl;
-#endif
+			vstr::warnp() << "[VistaCyberGlove] CmdGetNumberOfSensors received invalid packet (id " 
+							<< pResponse[1] << ")" << endl;
 			return -1;
 		}
 
@@ -563,7 +562,7 @@ bool VistaCyberGloveDriver::Connect()
 	VistaConnection* pCon = m_pConnectionAspect->GetConnection(0);
 	if (!pCon) // could not get connection. Possibly no serial port present.
 	{
-		vdderr << "[VistaCyberGlove] Error opening connection.\n";
+		vstr::errp() << "[VistaCyberGlove] Error opening connection" << std::endl;
 		return false;
 	}
 
@@ -571,7 +570,7 @@ bool VistaCyberGloveDriver::Connect()
 	{
 		if(!pCon->Open())
 		{
-			vdderr << "[VistaCyberGlove] Error opening connection.\n";
+			vstr::errp() << "[VistaCyberGlove] Error opening connection" << std::endl;
 			return false;
 		}
 	}
@@ -587,14 +586,15 @@ bool VistaCyberGloveDriver::Connect()
 	pCon->SetIsBuffering(true);
 	pCon->SetIsBlocking(true);
 
-	vddout << "[VistaCyberGlove] Connecting to CyberGlove... ";
+	vstr::outi() << "[VistaCyberGlove] Connecting to CyberGlove... ";
 
 	// do max three retries for RestartFirmware
 	int nTries = 3;
 
 	while ( (nTries>0) && (!VistaCyberGloveProtocol::CmdRestartFirmware(m_pConnectionAspect)) )
 	{
-		vddout << "FAILED" << endl;
+		vstr::out().flush();
+		vstr::warn() << "FAILED" << endl;
 		nTries--;
 
 		// on fail: disconnect, reconnect and try again
@@ -605,17 +605,17 @@ bool VistaCyberGloveDriver::Connect()
 
 		if (nTries > 0)
 		{
-			vddout << "[VistaCyberGlove] CyberGlove connection retry... ";
+			vstr::outi() << "[VistaCyberGlove] CyberGlove connection retry... ";
 		}
 	}
 
 	if (nTries > 0)
 	{
-		vddout << "SUCCESS" << endl;
+		vstr::out() << "SUCCESS" << endl;
 	}
 	else
 	{
-		vddout << "[VistaCyberGlove] Unable to connect to CyberGlove." << endl;
+		vstr::warnp() << "[VistaCyberGlove] Unable to connect to CyberGlove." << endl;
 		return false;
 	}
 
@@ -626,10 +626,10 @@ bool VistaCyberGloveDriver::Connect()
 	VistaCyberGloveProtocol::CmdGetCyberGloveInfo(pInfoText, m_pConnectionAspect);
 	if(!strstr(pInfoText,"CyberGlove"))
 	{
-		vdderr << "[VistaCyberGlove] No CyberGlove found on this connection" << endl;
+		vstr::warnp() << "[VistaCyberGlove] No CyberGlove found on this connection" << endl;
 		return false;
 	}
-	vddout << "[VistaCyberGlove] CyberGlove detected" << endl;
+	vstr::outi() << "[VistaCyberGlove] CyberGlove detected" << endl;
 
 	// Check if the equipment is properly connected
 	// Returned Value: bit0 - CyberGlove initialized?
@@ -637,7 +637,8 @@ bool VistaCyberGloveDriver::Connect()
 	nConInfo = VistaCyberGloveProtocol::CmdGetConnectionInfo(m_pConnectionAspect);
 	if(nConInfo != 3)
 	{
-		vdderr << "[VistaCyberGlove] Connection error (code " << nConInfo << "): Make sure the glove is properly connected to the CyberGlove Interface Unit." << endl;
+		vstr::warnp() << "[VistaCyberGlove] Connection error (code "
+				<< nConInfo << "): Make sure the glove is properly connected to the CyberGlove Interface Unit." << endl;
 		return false;
 	}
 
@@ -648,12 +649,12 @@ bool VistaCyberGloveDriver::Connect()
 	m_nMaxSensors = GetMaxNumberOfSensors();
 	if(m_nMaxSensors == -1)
 	{
-		vdderr << "[VistaCyberGlove] Could not retrieve number of sensors in Glove." << endl;
+		vstr::warnp() << "[VistaCyberGlove] Could not retrieve number of sensors in Glove." << endl;
 		m_nMaxSensors = 18;
 	}
 	else
 	{
-		vddout << "[VistaCyberGlove] The device has " << m_nMaxSensors << " sensors." << endl;
+		vstr::outi() << "[VistaCyberGlove] The device has " << m_nMaxSensors << " sensors." << endl;
 	}
 
 	// set configuration to driver default
@@ -690,7 +691,7 @@ bool VistaCyberGloveDriver::RestoreDefaultSettings()
 	m_nSampleW2 = 0;
 
 	// Configure CyberGlove
-	vddout << "[VistaCyberGlove] Setting CyberGlove configuration to driver default... ";
+	vstr::outi() << "[VistaCyberGlove] Setting CyberGlove configuration to driver default... ";
 
 #ifdef WIN32
 	_preCommunicate();
@@ -711,12 +712,13 @@ bool VistaCyberGloveDriver::RestoreDefaultSettings()
 
 	if (noError)
 	{
-		vddout << "SUCCESS" << endl;
+		vstr::out() << "SUCCESS" << endl;
 		return true;
 	}
 	else
 	{
-		vdderr << "FAILED" << endl;
+		vstr::out().flush();
+		vstr::warn() << "FAILED" << endl;
 		return false;
 	}
 }
@@ -1126,17 +1128,17 @@ bool VistaCyberGloveDriver::Reset()
 #ifdef WIN32
 	_preCommunicate();
 #endif
-	vddout << "[VistaCyberGlove] Resetting Cyberglove Hardware... ";
+	vstr::outi() << "[VistaCyberGlove] Resetting Cyberglove Hardware... " << std::flush;
 	bool bReturn = VistaCyberGloveProtocol::CmdRestartFirmware(m_pConnectionAspect);
 
 	if (bReturn)
 	{
-		vddout << "SUCCESS" << endl;
+		vstr::out() << "SUCCESS" << endl;
 		bReturn = RestoreDefaultSettings();
 	}
 	else
 	{
-		vddout << "FAILED" << endl;
+		vstr::warn() << "FAILED" << endl;
 	}
 
 #ifdef WIN32
@@ -1372,17 +1374,13 @@ bool VistaCyberGloveDriver::DoSensorUpdate( VistaType::microtime nTs )
 				char cErrorCode = s->m_cRecord[nRecordSize - 1];
 				if (cErrorCode == 'g')
 				{
-#ifdef _DEBUG
-					vdderr << "[VistaCyberGlove] Error: Glove not plugged in." << endl;
-#endif
+					vstr::warnp() << "[VistaCyberGlove] Glove not plugged in." << endl;
 					s->m_eErrorCode = VistaCyberGloveCommonShare::VCG_ERROR_GLOVE;
 					return false;
 				}
 				else if (cErrorCode == 's')
 				{
-#ifdef _DEBUG
-					vdderr << "[VistaCyberGlove] Warning: Sampling rate too fast." << endl;
-#endif
+					vstr::warnp() << "[VistaCyberGlove] Sampling rate too fast." << endl;
 					s->m_eErrorCode = VistaCyberGloveCommonShare::VCG_ERROR_SAMPLING;
 					return false;
 				}

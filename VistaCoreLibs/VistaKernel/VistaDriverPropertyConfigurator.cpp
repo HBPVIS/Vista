@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDriverPropertyConfigurator.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaDriverPropertyConfigurator.h" 
 #include <VistaDeviceDriversBase/VistaDeviceDriver.h>
@@ -34,36 +34,22 @@ using namespace std;
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
 
-std::string VistaDriverPropertyConfigurator::IConfigurator::SsReflectionType("VistaDriverPropertyConfigurator::IConfigurator");
-
 VistaDriverPropertyConfigurator::IConfigurator::IConfigurator()
-		: m_pDriver(NULL)
+: m_pDriver(NULL)
 {}
 
 VistaDriverPropertyConfigurator::IConfigurator::~IConfigurator() 
 {}
 
-bool VistaDriverPropertyConfigurator::IConfigurator::Configure(IVistaDeviceDriver *pDriver, const VistaPropertyList &props)
+bool VistaDriverPropertyConfigurator::IConfigurator::Configure( IVistaDeviceDriver* pDriver,
+															const VistaPropertyList& oDriverSection,
+															const VistaPropertyList& oConfig )
 {
 	m_pDriver = pDriver;
-	SetPropertiesByList(props);
+	SetPropertiesByList( oDriverSection );
 	m_pDriver = NULL;
 	return true;
-}
-	
-
-string VistaDriverPropertyConfigurator::IConfigurator::GetReflectionableType() const
-{
-	return SsReflectionType;
-}
-
-
-int VistaDriverPropertyConfigurator::IConfigurator::AddToBaseTypeList(list<string> &rBtList) const
-{
-	int nRet = IVistaReflectionable::AddToBaseTypeList(rBtList);
-	rBtList.push_back(SsReflectionType);
-	return nRet + 1;
-}
+}	
 
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
@@ -84,12 +70,6 @@ VistaDriverPropertyConfigurator::~VistaDriverPropertyConfigurator()
 	for(std::set<IConfigurator*>::iterator sit = st.begin();
 		sit != st.end(); ++sit)
 			delete (*sit);
-}
-
-bool VistaDriverPropertyConfigurator::IConfigurator::GeneratePropertyListFromInifile(const std::string &strFile,
-		const std::string &sRootSection, VistaPropertyList &)
-{
-	return false;
 }
 
 /*============================================================================*/

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaTimer.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id: VistaTimer.cpp 21463 2011-05-24 08:20:37Z dr165799 $
 
 #include "VistaTimer.h"
 
@@ -66,8 +66,8 @@ namespace
 /*============================================================================*/
 VistaTimer::VistaTimer( IVistaTimerImp *pImp )
 {
-	if(pImp == NULL)
-		m_pImp = IVistaTimerImp::GetSingleton();
+	if( pImp == NULL )
+		m_pImp = IVistaTimerImp::GetSingleton( true );
 	else
 		m_pImp = pImp;
 

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnGetTransformNode.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VDFNGETTRANSFORMNODE_H
 #define _VDFNGETTRANSFORMNODE_H

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: OSGAC3DFileType.h 23493 2011-09-22 16:12:15Z dr165799 $
 
 #ifndef _AC3DSCENEFILETYPE_H_
 #define _AC3DSCENEFILETYPE_H_
@@ -33,7 +33,10 @@
 #ifdef WIN32
 // disable warnings from OpenSG
 #pragma warning(push)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4189)
 #pragma warning(disable: 4231)
+#pragma warning(disable: 4267)
 #endif
 
 #include <OpenSG/OSGBaseTypes.h>
@@ -126,7 +129,7 @@ typedef OSGAC3DSceneFileType* OSGAC3DSceneFileTypeP;
 
 OSG_END_NAMESPACE
 
-#define OSGAC3DSCENEFILETYPE_HEADER_CVSID "@(#)$Id$"
+#define OSGAC3DSCENEFILETYPE_HEADER_CVSID "@(#)$Id: OSGAC3DFileType.h 23493 2011-09-22 16:12:15Z dr165799 $"
 
 #endif // _AC3DSCENEFILETYPE_H_
 

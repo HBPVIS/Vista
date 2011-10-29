@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaUserPlatform.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaUserPlatform.h" 
 #include "VistaVirtualPlatformAdapter.h"
@@ -28,7 +28,7 @@
 
 #include <VistaKernel/DisplayManager/VistaVirtualPlatform.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/DisplayManager/VistaDisplaySystem.h>
 
 /*============================================================================*/
@@ -205,7 +205,7 @@ public:
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
-//VistaUserPlatform::VistaUserPlatform(VistaSG *pSG)
+//VistaUserPlatform::VistaUserPlatform(VistaSceneGraph *pSG)
 //: m_pPlatTrans(new VistaVirtualPlatformAdapter),
 //  m_pPlatformNode(NULL),
 //  m_pUserNode(NULL),
@@ -220,7 +220,7 @@ public:
 //	m_pUserNode->SetName("Platform-User-Node");
 //}
 
-VistaUserPlatform::VistaUserPlatform(VistaSG *pSG,
+VistaUserPlatform::VistaUserPlatform(VistaSceneGraph *pSG,
 									  VistaDisplaySystem *pDispSys)
 : m_pPlatTrans(new VistaVirtualPlatformAdapter),
   m_pPlatformNode(NULL),

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaObjectSetMove.h 21565 2011-05-26 13:22:59Z dr165799 $
 
 #ifndef _VISTAOBJECTSETMOVE_H
 #define _VISTAOBJECTSETMOVE_H
@@ -74,6 +74,7 @@ public:
 	class IMoveFilter
 	{
 	public:
+		virtual ~IMoveFilter() {}
 		virtual bool Move( const VistaVector3D &startPos,
 				   const VistaQuaternion &startOri,
 				   const VistaVector3D &plannedPos,

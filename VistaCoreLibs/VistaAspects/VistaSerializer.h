@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSerializer.h 22143 2011-07-01 15:07:00Z dr165799 $
 
 #ifndef _VISTASERIALIZER_H
 #define _VISTASERIALIZER_H
@@ -185,103 +185,6 @@ public:
 	virtual int WriteBool( bool bVal) = 0;
 
 	/**
-	 * This method is to write 16bit short integer that is assigned to a name.
-	 * @param us16Val the value to be serialized
-	 * @param sVarName the name that is assigned to the 16-bit short value
-	 * @return the number of bytes serialized (should be 4) or -1 on failure
-	 */
-	virtual int WriteShort16Name( const char *sVarName,  VistaType::ushort16 us16Val) = 0;
-
-	/**
-	 * This method is to write an 32bit-integer that is assigned to a name.
-	 * @param si32val the value to be serialized
-	 * @param sVarName the name that is assigned to the 32-bit int-value
-	 * @return the number of bytes serialized (should be 4) or -1 on failure
-	 */
-	virtual int WriteInt32Name( const char *sVarName,  VistaType::sint32 si32Val) = 0;
-
-	/**
-	 * This method is to write an unsigned 32bit-integer that is assigned to a name.
-	 * @param si32val the value to be serialized
-	 * @param sVarName the name that is assigned to the 32-bit int-value
-	 * @return the number of bytes serialized (should be 4) or -1 on failure
-	 */
-	virtual int WriteInt32Name( const char *sVarName,  VistaType::uint32 si32Val) = 0;
-
-	/**
-	 * This method is to write an 64bit-integer that is assigned to a name.
-	 * @param si64val the value to be serialized
-	 * @param sVarName the name that is assigned to the 64-bit int-value
-	 * @return the number of bytes serialized (should be 8) or -1 on failure
-	 */
-	virtual int WriteInt64Name( const char *sVarName,  VistaType::sint64 si64Val) = 0;
-
-	/**
-	 * This method is to write an 64bit-integer that is assigned to a name.
-	 * @param si64val the value to be serialized
-	 * @param sVarName the name that is assigned to the 64-bit int-value
-	 * @return the number of bytes serialized (should be 8) or -1 on failure
-	 */
-	virtual int WriteUInt64Name( const char *sVarName,  VistaType::uint64 ui64Val) = 0;
-
-	/**
-	 * This method is to write an 32bit-float that is assigned to a name.
-	 * @param fVal the value to be serialized
-	 * @param sVarName the name that is assigned to the float-value
-	 * @return the number of bytes serialized (should be 4) or -1 on failure
-	 */
-	virtual int WriteFloat32Name( const char *sVarName,  VistaType::float32 fVal) = 0;
-
-	/**
-	 * This method is to write an 64bit-float that is assigned to a name.
-	 * @param f64Val the value to be serialized
-	 * @param sVarName the name that is assigned to the 64-bit float-value
-	 * @return the number of bytes serialized (should be 8) or -1 on failure
-	 */
-	virtual int WriteFloat64Name( const char *sVarName,  VistaType::float64 f64Val) = 0;
-
-	/**
-	 * This method is to write a double that is assigned to a name.
-	 * @param dVal the value to be serialized
-	 * @param sVarName the name that is assigned to the double-value
-	 * @return the number of bytes serialized (should be sizeof(double)) or -1 on failure
-	 */
-	virtual int WriteDoubleName( const char *sVarName,  double dVal ) = 0;
-
-	/**
-	 * This method is to write a std::string, without forcing its encoding for the
-	 * transport layer. Some implementations may chose to send the length as 32bit-int
-	 * first prepended by the byte field itself, some may totally ignore the length or chose
-	 * a very different approach. The std::string sent is assigned to the name sVarName for the peer.
-	 * @param sValue the std::string to be written
-	 * @param sVarName the name to assign to this std::string
-	 * @return the number of bytes written or -1 on failure
-	 */
-	virtual int WriteStringName( const char *sVarName,  const std::string &sValue) = 0;
-
-	/**
-	 * This method is to write a binary byte field of length iLen, without forcing its encoding for the
-	 * transport layer. Some implementations may chose to send the length as 32bit-int
-	 * first prepended by the byte field itself, some may totally ignore the length or chose
-	 * a very different approach
-	 * @param pBuffer the buffer to be written
-	 * @param sVarName the name that is assigned to the value to be sent.
-	 * @param iLen the number of byte to be written beginning at pBuffer
-	 * @return the number of bytes written or -1 on failure
-	 */
-	virtual int WriteRawBufferName(const char *sVarName, const void *pBuffer, const int iLen) = 0;
-
-	/**
-	 * This method is to write a bool value, without enforcing anything about the structure
-	 * of the bool (bools may be 1-bit values on some systems); the value is assigned to the name
-	 * given in sVarName.
-	 * @param bVal the bool value to be written
-	 * @param sVarName the name to be assigned to this value
-	 * @return the number of bytes used for serializing or -1 on failure
-	 */
-	virtual int WriteBoolName(const char *sVarName,  bool bVal) = 0;
-
-	/**
 	 * This method is called on the root-object of an serializable-object-graph that is to
 	 * be serialized. The effect of calling this method should resolve in the one-by-one traversal
 	 * of the object-graph, where every node has the chance to serialize itself with the
@@ -297,34 +200,34 @@ public:
 	 * @param val16 the value to be serialized
 	 * @return *this
 	 */
-	virtual IVistaSerializer &operator<< (  VistaType::ushort16 val16 );
+	virtual IVistaSerializer &operator<< (  VistaType::ushort16 nVal16 );
 
 	/**
 	 * Convenience operator, calls WriteInt32
-	 * @param val32 the value to be serialized
+	 * @param VistaType::val32 the value to be serialized
 	 * @return *this
 	 */
-	virtual IVistaSerializer &operator<< (  VistaType::sint32 val32 );
+	virtual IVistaSerializer &operator<< (  VistaType::sint32 nVal32 );
 
 	/**
 	 * Convenience operator, calls WriteInt32
-	 * @param val32 the value to be serialized
+	 * @param VistaType::val32 the value to be serialized
 	 * @return *this
 	 */
-	virtual IVistaSerializer &operator<< (  VistaType::uint32 val32 );
+	virtual IVistaSerializer &operator<< (  VistaType::uint32 nVal64 );
 
 	/**
 	 * Convenience operator, calls WriteInt32
-	 * @param val32 the value to be serialized
+	 * @param VistaType::val32 the value to be serialized
 	 * @return *this
 	 */
-	virtual IVistaSerializer &operator<< (  VistaType::uint64 val64 );
+	virtual IVistaSerializer &operator<< (  VistaType::uint64 nVal64 );
 	/**
 	 * Convenience operator, calls WriteInt64
-	 * @param val64 the value to be serialized
+	 * @param VistaType::val64 the value to be serialized
 	 * @return *this
 	 */
-	virtual IVistaSerializer &operator<< (  VistaType::sint64 val64 );
+	virtual IVistaSerializer &operator<< (  VistaType::sint64 nVal64 );
 
 	/**
 	 * Convenience operator, calls WriteFloat32

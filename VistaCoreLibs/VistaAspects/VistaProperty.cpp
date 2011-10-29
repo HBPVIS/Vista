@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaProperty.cpp 21316 2011-05-16 14:01:03Z dr165799 $
+// $Id$
 
 #include "VistaProperty.h"
 
@@ -30,32 +30,18 @@
 #include "VistaDeSerializer.h"
 
 #include <VistaBase/VistaExceptionBase.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <cstdlib>
 #include <string>
 #include <list>
 #include <iostream>
 
-#include "VistaAspectsOut.h"
-using namespace std;
-
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
-static const char *spccTypeNames[] =
-{
-	"NIL",
-	"STRING",
-	"INT",
-	"BOOL",
-	"DOUBLE",
-	"LIST",
-	"ID",
-	"PROPERTYLIST",
-	NULL
-};
 
-string VistaProperty::GetPropTypeName( VistaProperty::ePropType eTypeId )
+std::string VistaProperty::GetPropTypeName( VistaProperty::ePropType eTypeId )
 {
 	switch( eTypeId )
 	{
@@ -115,7 +101,7 @@ VistaProperty::VistaProperty()
 {
 }
 
-VistaProperty::VistaProperty(const string &sName)
+VistaProperty::VistaProperty(const std::string &sName)
 : m_sName( sName ),
   m_ePropType( PROPT_NIL ),
   m_eListSubType( PROPT_NIL ),
@@ -124,8 +110,8 @@ VistaProperty::VistaProperty(const string &sName)
 }
 
 
-VistaProperty::VistaProperty(const string &sName,
-				   const string &sValue,
+VistaProperty::VistaProperty(const std::string &sName,
+				   const std::string &sValue,
 				   ePropType eTp,
 				   ePropType eListTp)
 : m_sName(sName),
@@ -188,24 +174,28 @@ VistaProperty &VistaProperty::operator=(const VistaProperty &rProp)
 /*============================================================================*/
 
 
-string VistaProperty::GetNameForNameable() const
+std::string VistaProperty::GetNameForNameable() const
 {
 	return m_sName;
 }
 
-string VistaProperty::GetValue() const
+std::string VistaProperty::GetValue() const
+{
+	return m_sValue;
+}
+const std::string& VistaProperty::GetValueConstRef() const
 {
 	return m_sValue;
 }
 
-void VistaProperty::SetValue(const string &sValue)
+void VistaProperty::SetValue(const std::string &sValue)
 {
 	m_sValue = sValue;
 	if(m_ePropType == PROPT_NIL)
-		m_ePropType = PROPT_STRING; // switch to string-value
+		m_ePropType = PROPT_STRING; // switch to std::string-value
 }
 
-void VistaProperty::SetNameForNameable(const string &sNewName)
+void VistaProperty::SetNameForNameable(const std::string &sNewName)
 {
 	m_sName = sNewName;
 }
@@ -285,7 +275,7 @@ const VistaPropertyList &VistaProperty::GetPropertyListConstRef() const
 	return *m_pSubProps;
 }
 
-bool VistaProperty::operator==(const string &rValue) const
+bool VistaProperty::operator==(const std::string &rValue) const
 {
 	return (m_sValue == rValue);
 }
@@ -302,9 +292,9 @@ bool VistaProperty::operator==(const VistaProperty &rProp) const
 {
 	if(m_ePropType != rProp.GetPropertyType())
 	{
-		vasperr << "VistaProperty::operator==(const VistaProperty &) -- WARNING\n"
-			 << "Comparing on values of different types ("
-			 << GetPropertyType() << ") vs. (" << rProp.GetPropertyType() << ")\n";
+		vstr::warnp() << "VistaProperty::operator==(const VistaProperty &) -- "
+					<< "Comparing on values of different types ("
+					<< GetPropertyType() << ") vs. (" << rProp.GetPropertyType() << ")" << std::endl;;
 	}
 
 	if((m_ePropType == VistaProperty::PROPT_PROPERTYLIST)
@@ -317,15 +307,6 @@ bool VistaProperty::operator==(const VistaProperty &rProp) const
 	}
 
 	return (m_sValue == rProp.m_sValue);
-}
-
-VistaProperty VistaPropertyList::operator()(const string &sName) const
-{
-	VistaPropertyList::const_iterator cit = (*this).find(sName);
-	if(cit == end())
-		return VistaProperty();
-	else
-		return (*cit).second;
 }
 
 /*============================================================================*/

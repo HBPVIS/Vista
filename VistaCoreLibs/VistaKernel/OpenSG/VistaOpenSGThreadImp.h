@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaOpenSGThreadImp.h 23493 2011-09-22 16:12:15Z dr165799 $
 
 #ifndef _VISTAOPENSGTHREADIMP_H
 #define _VISTAOPENSGTHREADIMP_H
@@ -91,64 +91,25 @@ public:
 	 */
 	VistaOSGThreadImp(const std::string &sName, VistaThread *pThread,
 					   int nAspect = 0);
-
-
 	virtual ~VistaOSGThreadImp();
 
-	/**
-	 *
-	 */
-	virtual bool     Run         ( );
-
-	/**
-	 *
-	 */
-	virtual bool     Suspend          ();
+	virtual bool Run( );
+	virtual bool Suspend();
+	virtual bool Resume();
+	virtual bool Join();
+	virtual bool Abort();
 
 
-	/**
-	 *
-	 */
-	virtual bool     Resume      ();
+	virtual bool SetPriority( const VistaPriority & );
+
+	virtual void GetPriority( VistaPriority & ) const;
 
 
-	/**
-	 *
-	 */
-	virtual bool     Join        ();
-
-	/**
-	 *
-	 */
-	virtual bool     Abort        ();
+	virtual void YieldThread();
 
 
-	/**
-	 *
-	 */
-	virtual bool     SetPriority   ( const VistaPriority & );
-
-	/**
-	 *
-	 */
-	virtual void GetPriority   (VistaPriority &) const;
-
-
-	/**
-	 *
-	 */
-	virtual void            YieldThread   ();
-
-
-	/**
-	 *
-	 */
-	virtual void      SetCancelAbility(const bool bOkToCancel) ;
-	/**
-	 *
-	 */
-	virtual bool      CanBeCancelled() const;
-
+	virtual void SetCancelAbility(const bool bOkToCancel) ;
+	virtual bool CanBeCancelled() const;
 
 	/**
 	 * Method that is to be performed BEFORE departed fork starts execution
@@ -178,7 +139,9 @@ public:
 		VistaOSGThreadImpFactory();
 		virtual ~VistaOSGThreadImpFactory();
 
-		virtual IVistaThreadImp *CreateThread(const VistaThread &);
+		virtual IVistaThreadImp* CreateThread(const VistaThread &);
+		virtual long GetCallingThreadIdentity() const;
+
 	private:
 		int m_nCount;
 	};

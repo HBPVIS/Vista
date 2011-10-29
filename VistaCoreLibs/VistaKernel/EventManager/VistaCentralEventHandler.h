@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaCentralEventHandler.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTACENTRALEVENTHANDLER_H
 #define _VISTACENTRALEVENTHANDLER_H
@@ -40,9 +40,6 @@
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
 class VistaEvent;
-class VistaDisplayEvent;
-class VistaGraphicsEvent;
-class VistaPickEvent;
 class VistaSystemEvent;
 class VistaCommandEvent;
 class VistaEventManager;
@@ -82,10 +79,6 @@ protected:
 
 	// Handlers for different Event Types
 	virtual void SystemEventHandler(VistaSystemEvent *pEvent);
-	//virtual void InputEventHandler(VistaInputEvent *pEvent);
-	virtual void GraphicsEventHandler(VistaGraphicsEvent *pEvent);
-	virtual void DisplayEventHandler(VistaDisplayEvent *pEvent);
-	virtual void PickEventHandler(VistaPickEvent *pEvent);
 	virtual void CommandEventHandler(VistaCommandEvent *pEvent);
 	virtual void ExternalEventHandler(VistaEvent *pEvent);
 
@@ -140,10 +133,6 @@ protected:
 private:
 	// Event Dispatchers. They pipe the events to the right local handlers
 	void DispatchSystemEvent(VistaSystemEvent *pEvent);
-	//void DispatchInputEvent(VistaInputEvent *pEvent);
-	void DispatchGraphicsEvent(VistaGraphicsEvent *pEvent);
-	void DispatchDisplayEvent(VistaDisplayEvent *pEvent);
-	void DispatchPickEvent(VistaPickEvent *pEvent);
 	void DispatchCommandEvent(VistaCommandEvent *pEvent);
 
 	VistaEventManager *m_pEvMgr;

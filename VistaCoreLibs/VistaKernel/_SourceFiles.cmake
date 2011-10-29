@@ -2,38 +2,17 @@
 
 set( RelativeDir "." )
 set( RelativeSourceGroup "Source Files" )
-set( SubDirs DisplayManager EventManager GraphicsManager InteractionManager OpenSG PickManager Stuff WindowingToolkit )
+set( SubDirs Cluster DisplayManager EventManager GraphicsManager InteractionManager OpenSG Stuff )
 
 set( DirFiles
-	VistaClientDataTunnel.cpp
-	VistaClientDataTunnel.h
-	VistaClusterAux.cpp
-	VistaClusterAux.h
-	VistaClusterClient.cpp
-	VistaClusterClient.h
-	VistaClusterMaster.cpp
-	VistaClusterMaster.h
-	VistaClusterServer.cpp
-	VistaClusterServer.h
-	VistaClusterSlave.cpp
-	VistaClusterSlave.h
-	VistaDataTunnel.cpp
-	VistaDataTunnel.h
-	VistaDataTunnelFactory.cpp
-	VistaDataTunnelFactory.h
 	VistaDriverPropertyConfigurator.cpp
 	VistaDriverPropertyConfigurator.h
-	VistaErrorMsgHandler.h
+	VistaFrameLoop.cpp
+	VistaFrameLoop.h
 	VistaKernelConfig.h
 	VistaKernelMsgPort.cpp
 	VistaKernelMsgPort.h
 	VistaKernelMsgTab.h
-	VistaKernelOut.cpp
-	VistaKernelOut.h
-	VistaMasterDataTunnel.cpp
-	VistaMasterDataTunnel.h
-	VistaStandaloneDataTunnel.cpp
-	VistaStandaloneDataTunnel.h
 	VistaSystem.cpp
 	VistaSystem.h
 	VistaSystemClassFactory.h

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaActiveFilter.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 
 /*============================================================================*/
@@ -103,7 +103,7 @@ DLVistaActiveFilter::~DLVistaActiveFilter()
 IDLVistaDataPacket *DLVistaActiveFilter::FilterPacketL(IDLVistaDataPacket * pPacket)
 {
 	//cout << "DLVistaActiveFilter::FilterPacketL("
-	//	 << pPacket << ")\n";
+	//	 << pPacket << ")" << std::endl;
 
 	return m_pRealFilter->FilterPacketL(pPacket);
 }
@@ -111,7 +111,7 @@ IDLVistaDataPacket *DLVistaActiveFilter::FilterPacketL(IDLVistaDataPacket * pPac
 void DLVistaActiveFilter::ConsumePacket(IDLVistaDataPacket * pPacket)
 {
 	//cout << "DLVistaActiveFilter::ConsumePacket( "
-	//	 <<  pPacket << ")\n";
+	//	 <<  pPacket << ")" << std::endl;
 	m_pRealFilter->ConsumePacket(pPacket);
 }
 
@@ -124,7 +124,7 @@ IDLVistaDataPacket *DLVistaActiveFilter::PullPacket(bool bBlock)
 bool DLVistaActiveFilter::AttachInputComponent(IDLVistaPipeComponent * pComp)
 {
 	//cout << "DLVistaActiveFilter::AttachInputComponent("
-	//	 << pComp << ")\n";
+	//	 << pComp << ")" << std::endl;
 
 	return m_pRealFilter->AttachInputComponent(pComp);
 }
@@ -153,7 +153,7 @@ bool DLVistaActiveFilter::AcceptDataPacket(IDLVistaDataPacket *pPacket, IDLVista
 
 bool DLVistaActiveFilter::StartComponent()
 {
-	//cout << "DLVistaActiveFilter::StartComponent()\n";
+	//cout << "DLVistaActiveFilter::StartComponent()" << std::endl;
 	return m_pThread->Run();
 }
 
@@ -173,7 +173,7 @@ bool DLVistaActiveFilter::UnPauseComponent(bool bJoin)
 bool DLVistaActiveFilter::StopComponent(bool bJoin)
 {
 	//cout << "DLVistaActiveFilter::StopComponent("
-	//	 <<  bJoin << ")\n";
+	//	 <<  bJoin << ")" << std::endl;
 	m_pThread->Suspend();
 	if(bJoin)
 		m_pThread->Join(); // this could be a deadlock!
@@ -182,7 +182,7 @@ bool DLVistaActiveFilter::StopComponent(bool bJoin)
 
 bool DLVistaActiveFilter::HaltComponent()
 {
-	//cout << "DLVistaActiveFilter::HaltComponent()\n";
+	//cout << "DLVistaActiveFilter::HaltComponent()" << std::endl;
 	return m_pThread->Abort();
 }
 
@@ -199,20 +199,20 @@ void DLVistaActiveFilter::IndicateFilteringEnd()
 
 bool DLVistaActiveFilter::IsComponentRunning() const
 {
-	//cout << "DLVistaActiveFilter::IsComponentRunning()\n";
+	//cout << "DLVistaActiveFilter::IsComponentRunning()" << std::endl;
   return m_pThread->IsRunning();
 }
 
 
 IDLVistaDataPacket *DLVistaActiveFilter::CreatePacket()
 {
-	//cout << "DLVistaActiveFilter::CreatePacket()\n";
+	//cout << "DLVistaActiveFilter::CreatePacket()" << std::endl;
 	return m_pRealFilter->CreatePacket();
 }
 
 void DLVistaActiveFilter::DeletePacket(IDLVistaDataPacket *pPacket)
 {
-	//cout << "DLVistaActiveFilter::DeletePacket(pPacket)\n";
+	//cout << "DLVistaActiveFilter::DeletePacket(pPacket)" << std::endl;
 	m_pRealFilter->DeletePacket(pPacket);
 }
 
@@ -226,7 +226,7 @@ bool DLVistaActiveFilter::InitPacketMgmt()
 IDLVistaDataPacket *DLVistaActiveFilter::GivePacket(bool bBlock)
 {
 	//cout << "DLVistaActiveFilter::GivePacket("
-	//	 << bBlock << ")\n";
+	//	 << bBlock << ")" << std::endl;
 	return m_pRealFilter->GivePacket(bBlock);
 }
 

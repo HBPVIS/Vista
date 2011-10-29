@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSwitchNode.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTASWITCHNODE_H
 #define _VISTASWITCHNODE_H
@@ -50,7 +50,7 @@ class IVistaNodeData;
  */
 class VISTAKERNELAPI VistaSwitchNode : public VistaGroupNode
 {
-	friend class VistaSG;
+	friend class VistaSceneGraph;
 	friend class IVistaNodeBridge;
 public:
 	/** Set child to be rendered

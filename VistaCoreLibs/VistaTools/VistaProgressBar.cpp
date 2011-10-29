@@ -20,10 +20,11 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaProgressBar.cpp 23279 2011-09-13 11:41:23Z dr165799 $
+// $Id$
 
 #include "VistaProgressBar.h"
 
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <VistaBase/VistaTimer.h>
 
@@ -77,7 +78,7 @@ bool VistaProgressBar::Start()
 {
 	if (m_bRunning)
 	{
-		vtoolserr << " [VistaProgressBar] - WARNING!!! Unable to start progress bar - it's already running..." << endl;		
+		vstr::warnp() << "[VistaProgressBar]: Unable to start progress bar - it's already running..." << endl;		
 		return false;
 	}
 
@@ -88,7 +89,7 @@ bool VistaProgressBar::Start()
 
 	// make sure, we're starting in a clean line...
 //	if (!m_bSilent)
-//		cout << endl;
+//		cout << std::endl;
 
 	// and draw...
 	Draw();
@@ -109,7 +110,7 @@ bool VistaProgressBar::Finish(bool bComplete)
 {
 	if (!m_bRunning)
 	{
-		vtoolserr << " [VistaProgressBar] - WARNING!!! Unable to finish progress bar - it's not running..." << endl;
+		vstr::warnp() << "[VistaProgressBar]: Unable to finish progress bar - it's not running..." << endl;
 		return false;
 	}
 
@@ -132,7 +133,7 @@ bool VistaProgressBar::Finish(bool bComplete)
 
 	// advance a line
 	if (!m_bSilent)
-		vtoolsout << endl;
+		vstr::out() << std::endl;
 
 	// that's it...
 	m_bRunning = false;
@@ -149,13 +150,13 @@ bool VistaProgressBar::Reset(double fCountMax, double fCountInc)
 {
 	if (m_bRunning)
 	{
-		vtoolserr << " [VistaProgressBar] - WARNING!!! Unable to reset bar while it's running..." << endl;
+		vstr::warnp() << "[VistaProgressBar]: Unable to reset bar while it's running..." << endl;
 		return false;
 	}
 
 	if (fCountMax <= 0 || fCountInc <= 0)
 	{
-		vtoolserr << " [VistaProgessBar] - WARNING!!! Unable to set count maximum and/or increment to negative values..." << endl;
+		vstr::warnp() << "[VistaProgressBar]: Unable to set count maximum and/or increment to negative values..." << endl;
 		return false;
 	}
 
@@ -184,7 +185,7 @@ bool VistaProgressBar::SetPrefixString(std::string strPrefix)
 {
 	if (m_bRunning)
 	{
-		vtoolserr << " [VistaProgressBar] - WARNING!!! Unable to set prefix string while bar is running..." << endl;
+		vstr::warnp() << "[VistaProgressBar]: Unable to set prefix string while bar is running..." << endl;
 		return false;
 	}
 
@@ -208,7 +209,7 @@ bool VistaProgressBar::SetDisplayPrefix(bool bDisplayPrefix)
 {
 	if (m_bRunning)
 	{
-		vtoolserr << " [VistaProgressBar] - WARNING!!! Unable to set prefix display while bar is running..." << endl;
+		vstr::warnp() << "[VistaProgressBar]: Unable to set prefix display while bar is running..." << endl;
 		return false;
 	}
 
@@ -226,7 +227,7 @@ bool VistaProgressBar::SetDisplayBar(bool bDisplayBar)
 {
 	if (m_bRunning)
 	{
-		vtoolserr <<	" [VistaProgressBar] - WARNING!!! Unable to set bar display while bar is running..." << endl;
+		vstr::warnp() << "[VistaProgressBar]: Unable to set bar display while bar is running..." << endl;
 		return false;
 	}
 
@@ -244,7 +245,7 @@ bool VistaProgressBar::SetDisplayPercentage(bool bDisplayPercentage)
 {
 	if (m_bRunning)
 	{
-		vtoolserr << " [VistaProgressBar] - WARNING!!! Unable to set percentage display while bar is running..." << endl;
+		vstr::warnp() << "[VistaProgressBar]: Unable to set percentage display while bar is running..." << endl;
 		return false;
 	}
 
@@ -262,7 +263,7 @@ bool VistaProgressBar::SetBarTicks(int iBarTicks)
 {
 	if (m_bRunning)
 	{
-		vtoolserr << " [VistaProgressBar] - WARNING!!! Unable to set bar ticks while bar is running..." << endl;
+		vstr::warnp() << "[VistaProgressBar]: Unable to set bar ticks while bar is running..." << endl;
 		return false;
 	}
 

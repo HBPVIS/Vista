@@ -2,6 +2,15 @@
 
 vista_adopt_version( VistaDeviceDriversBase VistaCoreLibs )
 
+# set our dependencies to other corelibs
+set( VISTADEVICEDRIVERSBASE_INTERNAL_DEPENDENCIES 
+			VistaBase
+			VistaAspects
+			VistaInterProcComm
+			VistaTools
+			VistaMath )
+set( VISTADEVICEDRIVERSBASE_INTERNAL_DEPENDENCIES ${VISTADEVICEDRIVERSBASE_INTERNAL_DEPENDENCIES} PARENT_SCOPE )
+
 if( WIN32 )
 	set( LIBRARIES setupapi )
 endif( WIN32 )
@@ -20,10 +29,7 @@ endif( VISTADEVICEDRIVERS_USE_ATOMICS )
 
 add_library( VistaDeviceDriversBase ${ProjectSources} )
 target_link_libraries( VistaDeviceDriversBase
-    VistaAspects
-	VistaMath
-    VistaInterProcComm
-    VistaTools
+    ${VISTADEVICEDRIVERSBASE_INTERNAL_DEPENDENCIES}
 	${LIBRARIES}
 )
 

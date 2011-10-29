@@ -20,11 +20,11 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPosixProcessImp.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include <VistaInterProcComm/Concurrency/VistaIpcThreadModel.h>
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
 
+#include <VistaBase/VistaStreamUtils.h>
 
 #if defined(VISTA_THREADING_POSIX) || defined(VISTA_THREADING_SPROC)
 
@@ -74,7 +74,7 @@ bool     VistaPosixProcessImp::Run(const string &inCommand)
 
 	unixPID = getpid();
 
-	//cout << "getpid process ID : " << unixPID << endl;
+	//vstr::outi() << "getpid process ID : " << unixPID << std::endl;
 
 	vector<char *> argv;
 	char *pch;
@@ -82,7 +82,7 @@ bool     VistaPosixProcessImp::Run(const string &inCommand)
 	tempStr = new char[inCommand.length()+1];
 	if(tempStr == NULL)
 	{
-	   printf("Memoryfail...\n");
+		vstr::errp() << "Memoryfail..." << std::endl;
 	   return false;
 	}
 	strcpy(tempStr, inCommand.c_str());
@@ -90,37 +90,37 @@ bool     VistaPosixProcessImp::Run(const string &inCommand)
 	while (pch != NULL)
 	{
 		argv.push_back(pch);
-		vipcerr << "found argument [" << pch << "]\n";
+		vstr::outi() << "found argument [" << pch << "]" << std::endl;
 		pch = strtok (NULL, " ");
 	}
 		argv.push_back((char *)0);
 
-	vipcerr << "calling [" << argv[0] << "] with "
-			  << argv.size() << " arguments.\n";
+		vstr::outi() << "calling [" << argv[0] << "] with "
+					<< argv.size() << " arguments" << std::endl;
 		  
 	if(execvp (argv[0], &argv[0]) == -1) //execlp (inCommand.c_str(),  inCommand.c_str(), "-xa", (char *)0)
 	{
 		int ierr = errno;
-		vipcout << "error = " << ierr << endl;
+		vstr::errp() << "error = " << ierr << std::endl;
 		switch(ierr)
 		{
 		  case EACCES:
 		  {
-			vipcout << "EACCES \n";
+			  vstr::errp() << "EACCES" << std::endl;
 			break;
 		  }
 		  case ENOEXEC:
 		  {
-			vipcout << "ENOEXEC\n";
+			vstr::errp() << "ENOEXEC" << std::endl;
 			break;
 		  }
 		  case ENOENT:
 		  {
-			vipcout << "No such file or directory\n";
+			vstr::errp() << "No such file or directory" << std::endl;
 			break;
 		  }
 		}
-			vipcerr << "execl failed to execute... ";
+		vstr::errp() << "execl failed to execute... " << std::endl;
 	}
 
   delete [] tempStr;
@@ -160,7 +160,7 @@ bool     VistaPosixProcessImp::Abort()
 		return true;
 
 	bool yeah = ( kill ( unixPID , SIGKILL ) == 0 );
-	//cout << "Kill process ID : " << unixPID << endl;
+	//cout << "Kill process ID : " << unixPID << std::endl;
 	if(yeah)
 		CleanupProcess();
 	return yeah;

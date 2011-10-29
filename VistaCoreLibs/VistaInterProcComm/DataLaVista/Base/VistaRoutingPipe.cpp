@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaRoutingPipe.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 
 /*============================================================================*/
@@ -46,16 +46,10 @@ IDLVistaRoutingPipe::~IDLVistaRoutingPipe()
 /*============================================================================*/
 /*  IMPLEMENTATION                                                            */
 /*============================================================================*/
-/**
-*
-*/
 int IDLVistaRoutingPipe::Capacity() const 
 {
 	return numeric_limits<int>::max();
 }
-/**
-*
-*/
 bool IDLVistaRoutingPipe::IsOutputComponent(IDLVistaPipeComponent *pComp) const
 {
 	VistaMutexLock l(*m_pOutputLock);
@@ -64,25 +58,16 @@ bool IDLVistaRoutingPipe::IsOutputComponent(IDLVistaPipeComponent *pComp) const
 			return true;
 	return false;
 }
-/**
-*
-*/
 IDLVistaPipeComponent *IDLVistaRoutingPipe::GetOutboundByIndex(int iIndex) const
 {
 	VistaMutexLock l(*m_pOutputLock);
 	return m_vecOutputs.at(iIndex);
 }
-/**
-*
-*/
 int IDLVistaRoutingPipe::GetNumberOfOutbounds() const
 {
 	VistaMutexLock l(*m_pOutputLock);
 	return (int)m_vecOutputs.size();
 }
-/**
-*
-*/
 bool IDLVistaRoutingPipe::AttachOutputComponent(IDLVistaPipeComponent *pComp )
 {
 	VistaMutexLock l(*m_pOutputLock);
@@ -90,9 +75,6 @@ bool IDLVistaRoutingPipe::AttachOutputComponent(IDLVistaPipeComponent *pComp )
 	m_pOutput = m_vecOutputs[0];
 	return true;
 }
-/**
-*
-*/
 bool IDLVistaRoutingPipe::DetachAllOuputs()
 {
 	VistaMutexLock l(*m_pOutputLock);
@@ -101,9 +83,6 @@ bool IDLVistaRoutingPipe::DetachAllOuputs()
 	m_pOutput = NULL;
 	return true;
 }
-/**
-*
-*/
 bool IDLVistaRoutingPipe::AcceptDataPacket(IDLVistaDataPacket *pPacket, IDLVistaPipeComponent *pSender, bool bBlock/*=false*/)
 {
 	m_pOutputLock->Lock();
@@ -123,16 +102,10 @@ bool IDLVistaRoutingPipe::AcceptDataPacket(IDLVistaDataPacket *pPacket, IDLVista
 		return false;
 	}
 }
-/**
-*
-*/
 bool IDLVistaRoutingPipe::RecycleDataPacket(IDLVistaDataPacket *pPacket, IDLVistaPipeComponent *pSender, bool bBlock/*=false*/)
 {
 	return m_pInput->RecycleDataPacket(pPacket, this, bBlock);
 }
-/**
-*	 
-*/
 IDLVistaDataPacket * IDLVistaRoutingPipe::GivePacket(bool bBlock)
 {
 	/*
@@ -146,9 +119,6 @@ IDLVistaDataPacket * IDLVistaRoutingPipe::GivePacket(bool bBlock)
 	this->AcceptDataPacket(pPacket, this, bBlock);
 	return NULL;
 }
-/**
-*
-*/
 IDLVistaDataPacket *IDLVistaRoutingPipe::ReturnPacket()
 {
 	IDLVistaDataPacket *pPacket = NULL;
@@ -162,16 +132,10 @@ IDLVistaDataPacket *IDLVistaRoutingPipe::ReturnPacket()
 	}
 	return pPacket;
 }
-/**
-*
-*/
 bool IDLVistaRoutingPipe::InitPacketMgmt()
 {
 	return true;
 }
-/**
-*     
-*/
 list<IDLVistaPipeComponent *> IDLVistaRoutingPipe::GetOutputComponents() const
 {
 	VistaMutexLock l(*m_pOutputLock);

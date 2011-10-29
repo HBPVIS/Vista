@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaWin32PriorityImp.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #if defined(VISTA_THREADING_WIN32)
 
@@ -44,24 +44,11 @@
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI VistaWin32PriorityImp : public IVistaPriorityImp
 {
-protected:
-
 public:
-
-	/**
-	 *
-	 */
 	VistaWin32PriorityImp();
 
-
-	/**
-	 *
-	 */
 	virtual ~VistaWin32PriorityImp();
 };
 

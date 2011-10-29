@@ -20,24 +20,23 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenSGGraphicsBridge.cpp 23000 2011-08-16 13:58:11Z su691804 $
+// $Id$
 
 #if defined(WIN32)
 #pragma warning(disable: 4996)
+#pragma warning(disable: 4267)
 #endif
 
 #include "VistaOpenSGGraphicsBridge.h"
 
 #include <VistaKernel/VistaSystem.h>
-#include <VistaKernel/VistaKernelOut.h>
 
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaGeometry.h>
 #include <VistaKernel/GraphicsManager/VistaNode.h>
 #include <VistaKernel/GraphicsManager/VistaGroupNode.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 #include <VistaKernel/GraphicsManager/VistaOpenGLNode.h>
-
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
 
 #include <VistaKernel/DisplayManager/VistaWindow.h>
@@ -47,9 +46,13 @@
 #include <VistaKernel/OpenSG/VistaOpenSGNodeBridge.h>
 #include <VistaKernel/OpenSG/VistaOpenSGDisplayBridge.h>
 
+#include <VistaBase/VistaStreamUtils.h>
+
 #ifdef WIN32
 // disable warnings from OpenSG
 #pragma warning(push)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4189)
 #pragma warning(disable: 4231)
 #endif
 
@@ -92,7 +95,7 @@ VistaOpenSGGeometryData::VistaOpenSGGeometryData()
 : m_nCachedFaceType(VistaGeometry::VISTA_FACE_TYPE_UNDETERMINED)
 {
 	m_ptrGeometry     = Geometry::create();
-//	addRefCP(m_pGeometry);
+	//addRefCP( m_ptrGeometry );
 	m_ptrAttrChunk    = NullFC;
 }
 
@@ -131,18 +134,19 @@ private:
 };
 ///////////////////
 
+
 VistaOpenSGGeometryData::~VistaOpenSGGeometryData()
 {
 
-//	subRefCP(m_pGeometry);
+	//subRefCP( m_ptrGeometry );
 //	if(m_pAttrChunk != osg::NullFC)
 //		subRefCP(m_pAttrChunk);
 
 #if 0
 	if(m_pGeometry->getParents().size())
 	{
-		vkernerr << "WARNING: possibly dangling OpenSG Geometry core detected!!!!" << std::endl;
-		vkernerr << "parents: " << m_pGeometry->getParents().size() << std::endl;
+		vstr::warnp() << "possibly dangling OpenSG Geometry core detected!!!!" << std::endl;
+		vstr::warnp() << "parents: " << m_pGeometry->getParents().size() << std::endl;
 		for(int i = 0; i < m_pGeometry->getParents().size(); ++i)
 		{
 			osg::NodePtr node = m_pGeometry->getParents()[i];
@@ -157,7 +161,7 @@ VistaOpenSGGeometryData::~VistaOpenSGGeometryData()
 			//std::cerr << nn << std::endl;
 
 			// this is ok
-			vkernerr << "\t" << node.getCPtr() << ": "
+			vstr::errp() << "\t" << node.getCPtr() << ": "
 					  << (osg::getName(node)
 							? osg::getName(node)
 							: "[NO NAME]")
@@ -169,8 +173,8 @@ VistaOpenSGGeometryData::~VistaOpenSGGeometryData()
 			FindOSGNode finder;
 
 			finder.find(node, root)
-				? vkernout << "FOUND NODE IN SCENEGRAPH" << endl
-				: vkernout << "DID NOT FIND NODE IN SCENEGRAPH...WE HAVE A ZOMBIE HERE!!!" << endl;
+				? vstr::outi() << "FOUND NODE IN SCENEGRAPH" << std::endl
+				: vstr::outi() << "DID NOT FIND NODE IN SCENEGRAPH...WE HAVE A ZOMBIE HERE!!!" << std::endl;
 
 		}
 	}
@@ -189,7 +193,7 @@ bool VistaOpenSGGeometryData::SetAttrChunk(osg::PolygonChunkPtr ptr)
 	osg::ChunkMaterialPtr mt = osg::ChunkMaterialPtr::dcast(GetGeometry()->getMaterial());
 	if( mt == osg::NullFC )
 	{
-		vkernerr << " ERROR VistaOpenSGGraphicsBridge::SetAttrChunk(): unknown material type." << endl;
+		vstr::errp() << "VistaOpenSGGraphicsBridge::SetAttrChunk(): unknown material type." << std::endl;
 		return false;
 	}
 
@@ -264,12 +268,12 @@ bool VistaOpenSGGeometryData::SetRenderingAttributes( const VistaRenderingAttrib
 }
 
 
-osg::UInt32 VistaOpenSGGeometryData::GetOsgFaceType() const
+osg::Int32 VistaOpenSGGeometryData::GetOsgFaceType() const
 {
 	return m_nCachedFaceType;
 }
 
-void VistaOpenSGGeometryData::SetOsgFaceType(osg::UInt32 nType)
+void VistaOpenSGGeometryData::SetOsgFaceType(osg::Int32 nType)
 {
 	m_nCachedFaceType = nType;
 }
@@ -284,6 +288,11 @@ VistaOpenSGGraphicsBridge::VistaOpenSGGraphicsBridge(
 : m_pRenderAction(pRenderAction)
 , m_pFactory(pFactory)
 {
+}
+
+VistaOpenSGGraphicsBridge::~VistaOpenSGGraphicsBridge()
+{
+
 }
 
 /*============================================================================*/
@@ -313,13 +322,13 @@ bool VistaOpenSGGraphicsBridge::CalcFaceNormals(IVistaGeometryData* pData)
 	return true;
 }
 
-bool VistaOpenSGGraphicsBridge::GetCullingEnabled() const
+bool VistaOpenSGGraphicsBridge::GetFrustumCullingEnabled() const
 {
 	assert(GetRenderAction());
 	return GetRenderAction()->getFrustumCulling();
 }
 
-void VistaOpenSGGraphicsBridge::SetCullingEnabled(bool bCullingEnabled)
+void VistaOpenSGGraphicsBridge::SetFrustumCullingEnabled(bool bCullingEnabled)
 {
 	assert(GetRenderAction());
 	GetRenderAction()->setFrustumCulling(bCullingEnabled);
@@ -393,7 +402,7 @@ VistaColorRGB VistaOpenSGGraphicsBridge::GetBackgroundColor() const
 {
 	if( GetVistaSystem()->GetDisplayManager()->GetViewports().empty() )
 	{
-		vkernout << " Warning VistaOpenSGGraphicsBridge::GetBackgroundColor(): no viewports defined yet " << endl;
+		vstr::warnp() << " VistaOpenSGGraphicsBridge::GetBackgroundColor(): no viewports defined yet " << std::endl;
 		return VistaColorRGB(0,0,0); // returning BLACK
 	}
 
@@ -402,45 +411,19 @@ VistaColorRGB VistaOpenSGGraphicsBridge::GetBackgroundColor() const
 													  ->GetOpenSGViewport()->getBackground()));
 	if( bg.get() == osg::NullFC )
 	{
-		vkernout << " Warning VistaOpenSGGraphicsBridge::GetBackgroundColor(): background is not solid " << endl;
+		vstr::warnp() << "VistaOpenSGGraphicsBridge::GetBackgroundColor(): background is not solid " << std::endl;
 		return VistaColorRGB(0,0,0); // returning BLACK if the background isn't solid
 	}
 
 	return VistaColorRGB(bg->getColor()[0], bg->getColor()[1], bg->getColor()[2]);
 }
 
-
-//This is the function that will be called when a node
-//is entered during traversal.
-static osg::Action::ResultE enter(osg::NodePtr& node)
-{
-	vkernout << (char*)node->getCore()->getTypeName() << " ";
-	getName(node) ?  vkernout << (char*)getName(node) : vkernout << "has no name";
-	node->getActive() ? vkernout << ": ON " : vkernout << ": OFF ";
-	vkernout << node->getNChildren() << endl;
-/*
-  if( node->getCore()->getClassTypeId() == Geometry::getClassTypeId() )
-  {
-  cout << "FOUND GEOMETRYNODE" << endl;
-  }
-  else if( node->getCore()->getClassTypeId() == Group::getClassTypeId() )
-  {
-  cout << "FOUND GROUPNODE" << endl;
-  }
-  else
-  {
-//              cout << "Not yet reconstructable nodetype" << endl;
-}
-*/
-	return osg::Action::Continue;
-}
-
 void VistaOpenSGGraphicsBridge::DebugOSG()
 {
 
-	//      cout << endl << endl;
+	//      cout << std::endl << std::endl;
 //      cout << "OpenSG nodes:";
-//      cout << endl << endl;
+//      cout << std::endl << std::endl;
 
 	// unfortunately we have to go over the scene graph afterwards
 	// to check if the same texture wasn't already loaded
@@ -460,7 +443,7 @@ void VistaOpenSGGraphicsBridge::DebugOSG()
 // failed with segfault on cluster-linux32, temporarily commented out
 //      traverse( m_pRenderAction->getViewport()->getRoot(),
 //              osgTypedFunctionFunctor1CPtrRef<Action::ResultE, NodePtr>(enter) );
-//      cout << endl << endl;
+//      cout << std::endl << std::endl;
 }
 
 
@@ -473,39 +456,47 @@ void VistaOpenSGGraphicsBridge::SetBackgroundColor(const VistaColorRGB & color)
 	bg->setColor( osg::Color3f(col[0],col[1],col[2]) );
 	endEditCP(bg);
 
-	if( GetVistaSystem()->GetDisplayManager()->GetViewports().empty() )
+	if( GetVistaSystem()->GetDisplayManager() == NULL
+		|| GetVistaSystem()->GetDisplayManager()->GetViewports().empty() )
 	{
-		vkernout << " Warning VistaOpenSGGraphicsBridge::SetBackgroundColor() no viewports yet " << endl;
+		vstr::warnp() 
+			<< "VistaOpenSGGraphicsBridge::SetBackgroundColor() no viewports yet " << std::endl;
 		return;
 	}
 
-	unsigned int viewport_index;
+	unsigned int iViewportIndex;
 	osg::ViewportPtr viewport;
 	std::map<std::string,VistaWindow*> windows = GetVistaSystem()->GetDisplayManager()->GetWindows();
 	std::map<std::string,VistaWindow*>::iterator infoIter = windows.begin();
 	for( ; infoIter != windows.end(); ++infoIter )
-		for( viewport_index = 0; viewport_index < infoIter->second->GetNumberOfViewports(); ++viewport_index )
+	{
+		for( iViewportIndex = 0; iViewportIndex < infoIter->second->GetNumberOfViewports(); ++iViewportIndex )
 		{
-			viewport = ((VistaOpenSGDisplayBridge::ViewportData *)infoIter->second->GetViewport(viewport_index)->GetData())->GetOpenSGViewport();
+			VistaOpenSGDisplayBridge::ViewportData* pData = static_cast<VistaOpenSGDisplayBridge::ViewportData*>(
+													infoIter->second->GetViewport( iViewportIndex )->GetData() );
+			viewport = pData->GetOpenSGViewport();
 			beginEditCP(viewport);
 			viewport->setBackground(bg);
 			endEditCP(viewport);
 
-			if( ((VistaOpenSGDisplayBridge::WindowData *)infoIter->second->GetData())->GetStereo() )
+			/** CLUSTERTODO: verify that this stereo is correct! */
+			if( pData->GetStereo() )
 			{
-				viewport = ((VistaOpenSGDisplayBridge::ViewportData *)infoIter->second->GetViewport(viewport_index)->GetData())->GetOpenSGRightViewport();
+				viewport = pData->GetOpenSGRightViewport();
 				beginEditCP(viewport);
 				viewport->setBackground(bg);
 				endEditCP(viewport);
 			}
 		}
+	}
 
 	DebugOSG();
 }
 
-VistaVertexFormat VistaOpenSGGraphicsBridge::GetVertexFormat(IVistaGeometryData* pData) const
+VistaVertexFormat VistaOpenSGGraphicsBridge::GetVertexFormat(const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 
 	VistaVertexFormat  vFormat;
 	osg::GeometryPtr geo = pOpenSGData->GetGeometry();
@@ -530,9 +521,10 @@ VistaVertexFormat VistaOpenSGGraphicsBridge::GetVertexFormat(IVistaGeometryData*
 	return vFormat;
 }
 
-VistaGeometry::faceType VistaOpenSGGraphicsBridge::GetFaceType(IVistaGeometryData* pData) const
+VistaGeometry::FaceType VistaOpenSGGraphicsBridge::GetFaceType(const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::GeometryPtr geo = pOpenSGData->GetGeometry();
 
 	if(geo->getTypes()->size() > 1)
@@ -540,7 +532,7 @@ VistaGeometry::faceType VistaOpenSGGraphicsBridge::GetFaceType(IVistaGeometryDat
 		if(pOpenSGData->GetOsgFaceType() == -1)
 		{
 			// try to resolve the face types
-			//vkernout << "Geometry possibly mixes different primitive types." << endl;
+			//vstr::outi() << "Geometry possibly mixes different primitive types." << std::endl;
 			std::set<osg::UInt32> sTypes;
 			osg::GeometryPtr geo = pOpenSGData->GetGeometry();
 
@@ -552,7 +544,7 @@ VistaGeometry::faceType VistaOpenSGGraphicsBridge::GetFaceType(IVistaGeometryDat
 
 			if(sTypes.size() == 1)
 			{
-				pOpenSGData->SetOsgFaceType(*sTypes.begin()); // cache type
+				const_cast<VistaOpenSGGeometryData*>( pOpenSGData )->SetOsgFaceType(*sTypes.begin()); // cache type
 			}
 			else
 				return VistaGeometry::VISTA_FACE_TYPE_UNKNOWN;
@@ -601,9 +593,10 @@ VistaGeometry::faceType VistaOpenSGGraphicsBridge::GetFaceType(IVistaGeometryDat
 	}
 }
 
-int VistaOpenSGGraphicsBridge::GetNumberOfVertices(IVistaGeometryData* pData) const
+int VistaOpenSGGraphicsBridge::GetNumberOfVertices(const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::GeometryPtr    geo = pOpenSGData->GetGeometry();
 
 	if(geo->getLengths()->size() == 1)
@@ -613,9 +606,10 @@ int VistaOpenSGGraphicsBridge::GetNumberOfVertices(IVistaGeometryData* pData) co
 }
 
 
-int  VistaOpenSGGraphicsBridge::GetNumberOfFaces(IVistaGeometryData* pData) const
+int  VistaOpenSGGraphicsBridge::GetNumberOfFaces(const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::UInt32      idxSize = pOpenSGData->GetGeometry()->getIndices()->size();
 	osg::UInt32      mappingSize = pOpenSGData->GetGeometry()->getIndexMapping().size();
 
@@ -647,33 +641,38 @@ int  VistaOpenSGGraphicsBridge::GetNumberOfFaces(IVistaGeometryData* pData) cons
 	}
 }
 
-int  VistaOpenSGGraphicsBridge::GetNumberOfColors(IVistaGeometryData* pData) const
+int  VistaOpenSGGraphicsBridge::GetNumberOfColors(const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	return pOpenSGData->GetGeometry()->getColors() == NULL ? 0 : pOpenSGData->GetGeometry()->getColors()->size();
 }
 
-int  VistaOpenSGGraphicsBridge::GetNumberOfCoords(IVistaGeometryData* pData) const
+int  VistaOpenSGGraphicsBridge::GetNumberOfCoords(const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	return pOpenSGData->GetGeometry()->getPositions() == NULL ? 0 : pOpenSGData->GetGeometry()->getPositions()->size();
 }
 
-int  VistaOpenSGGraphicsBridge::GetNumberOfNormals(IVistaGeometryData* pData) const
+int  VistaOpenSGGraphicsBridge::GetNumberOfNormals(const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	return pOpenSGData->GetGeometry()->getNormals() == NULL ? 0 : pOpenSGData->GetGeometry()->getNormals()->size();
 }
 
-int  VistaOpenSGGraphicsBridge::GetNumberOfTextureCoords(IVistaGeometryData* pData) const
+int  VistaOpenSGGraphicsBridge::GetNumberOfTextureCoords(const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	return pOpenSGData->GetGeometry()->getTexCoords() == NULL ? 0 : pOpenSGData->GetGeometry()->getTexCoords()->size();
 }
 
-int  VistaOpenSGGraphicsBridge::GetCoordinateIndex(const int idx, IVistaGeometryData* pData) const
+int  VistaOpenSGGraphicsBridge::GetCoordinateIndex(const int idx, const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 
 	osg::GeometryPtr geo = pOpenSGData->GetGeometry();
 	osg::UInt32 stride = geo->getIndexMapping().size();
@@ -685,16 +684,18 @@ int  VistaOpenSGGraphicsBridge::GetCoordinateIndex(const int idx, IVistaGeometry
 		return pOpenSGData->GetGeometry()->getIndices()->getValue(idx*stride + inc);
 }
 
-VistaVector3D VistaOpenSGGraphicsBridge::GetCoordinate(const int idx, IVistaGeometryData* pData) const
+VistaVector3D VistaOpenSGGraphicsBridge::GetCoordinate(const int idx, const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::Pnt3f p(pOpenSGData->GetGeometry()->getPositions()->getValue(idx));
 	return VistaVector3D(p[0], p[1], p[2]);
 }
 
-bool VistaOpenSGGraphicsBridge::GetCoordinate(const int idx, float fCoord[3], IVistaGeometryData* pData) const
+bool VistaOpenSGGraphicsBridge::GetCoordinate(const int idx, float fCoord[3], const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::Pnt3f p(pOpenSGData->GetGeometry()->getPositions()->getValue(idx));
 	fCoord[0] = p[0];
 	fCoord[1] = p[1];
@@ -702,9 +703,10 @@ bool VistaOpenSGGraphicsBridge::GetCoordinate(const int idx, float fCoord[3], IV
 	return true;
 }
 
-int  VistaOpenSGGraphicsBridge::GetNormalIndex(const int idx, IVistaGeometryData* pData) const
+int  VistaOpenSGGraphicsBridge::GetNormalIndex(const int idx, const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 
 	osg::GeometryPtr geo = pOpenSGData->GetGeometry();
 	osg::UInt32 stride = geo->getIndexMapping().size();
@@ -717,16 +719,18 @@ int  VistaOpenSGGraphicsBridge::GetNormalIndex(const int idx, IVistaGeometryData
 }
 
 
-VistaVector3D VistaOpenSGGraphicsBridge::GetNormal(const int idx, IVistaGeometryData* pData) const
+VistaVector3D VistaOpenSGGraphicsBridge::GetNormal(const int idx, const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::Vec3f normal(pOpenSGData->GetGeometry()->getNormals()->getValue(idx));
 	return VistaVector3D(normal[0],normal[1],normal[2]);
 }
 
-bool VistaOpenSGGraphicsBridge::GetNormal(const int idx, float fNormal[3], IVistaGeometryData* pData) const
+bool VistaOpenSGGraphicsBridge::GetNormal(const int idx, float fNormal[3], const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::Vec3f p(pOpenSGData->GetGeometry()->getNormals()->getValue(idx));
 	fNormal[0] = p[0];
 	fNormal[1] = p[1];
@@ -735,9 +739,10 @@ bool VistaOpenSGGraphicsBridge::GetNormal(const int idx, float fNormal[3], IVist
 }
 
 
-int  VistaOpenSGGraphicsBridge::GetColorIndex(const int idx, IVistaGeometryData* pData) const
+int  VistaOpenSGGraphicsBridge::GetColorIndex(const int idx, const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 
 	osg::GeometryPtr geo = pOpenSGData->GetGeometry();
 	osg::UInt32 stride = geo->getIndexMapping().size();
@@ -750,9 +755,10 @@ int  VistaOpenSGGraphicsBridge::GetColorIndex(const int idx, IVistaGeometryData*
 }
 
 
-VistaColorRGB VistaOpenSGGraphicsBridge::GetColor(const int idx, IVistaGeometryData* pData) const
+VistaColorRGB VistaOpenSGGraphicsBridge::GetColor(const int idx, const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 
 	if(pOpenSGData->GetGeometry()->getColors() == NULL)
 	{
@@ -762,7 +768,8 @@ VistaColorRGB VistaOpenSGGraphicsBridge::GetColor(const int idx, IVistaGeometryD
 		if(!ptrMat)
 		{
 #ifdef DEBUG
-			vkernerr << "[VistaOpenSGGraphicsBridge] ERROR in GetColor(): found no ChunkMaterial in OpenSG Geometry-Core!? MultiPassMaterial?" << endl;
+			vstr::errp() << "VistaOpenSGGraphicsBridge::GetColor() -- "
+					<< "found no ChunkMaterial in OpenSG Geometry-Core!? MultiPassMaterial?" << std::endl;
 #endif
 			return VistaColorRGB(VistaColorRGB::RED);
 		}
@@ -780,9 +787,10 @@ VistaColorRGB VistaOpenSGGraphicsBridge::GetColor(const int idx, IVistaGeometryD
 	return VistaColorRGB(color[0],color[1],color[2]);
 }
 
-int  VistaOpenSGGraphicsBridge::GetTextureCoordIndex(const int idx, IVistaGeometryData* pData) const
+int  VistaOpenSGGraphicsBridge::GetTextureCoordIndex(const int idx, const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 
 	osg::GeometryPtr geo = pOpenSGData->GetGeometry();
 	osg::UInt32 stride = geo->getIndexMapping().size();
@@ -795,10 +803,11 @@ int  VistaOpenSGGraphicsBridge::GetTextureCoordIndex(const int idx, IVistaGeomet
 }
 
 bool VistaOpenSGGraphicsBridge::GetTextureCoord(const int idx, float fTexCoord[3],
-							IVistaGeometryData* pData) const
+							const IVistaGeometryData* pData) const
 {
 	/** @todo vec3f? */
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::GeoTexCoordsPtr pTexCoords = pOpenSGData->GetGeometry()->getTexCoords();
 	if( pTexCoords != osg::NullFC && (unsigned int)idx < pTexCoords->getContainerSize() )
 	{
@@ -817,9 +826,10 @@ bool VistaOpenSGGraphicsBridge::GetTextureCoord(const int idx, float fTexCoord[3
 	}
 }
 
-VistaVector3D VistaOpenSGGraphicsBridge::GetTextureCoord(const int idx, IVistaGeometryData* pData) const
+VistaVector3D VistaOpenSGGraphicsBridge::GetTextureCoord(const int idx, const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::GeoTexCoordsPtr pTexCoords = pOpenSGData->GetGeometry()->getTexCoords();
 	if( pTexCoords != osg::NullFC && (unsigned int)idx < pTexCoords->getContainerSize() )
 	{
@@ -1529,13 +1539,13 @@ bool VistaOpenSGGraphicsBridge::SetTexture(const int id,
 		                                    const int width,
 		                                    const int height,
 		                                    const int bpp,
-		                                    unsigned char *cBuffer,
+		                                    VistaType::byte* pBuffer,
 		                                    bool bHasAlpha,
 		                                    IVistaGeometryData* pData)
 {
 	if(bpp!=8 && bpp != 32)
 	{
-		vkernout << "[VistaOpenSGGraphicsBridge::SetTexture] only 8/32bits per color channel supported atm\n";
+		vstr::warnp() << "[VistaOpenSGGraphicsBridge::SetTexture] only 8/32bits per color channel supported atm" << std::endl;
 		return false;
 	}
 
@@ -1545,7 +1555,7 @@ bool VistaOpenSGGraphicsBridge::SetTexture(const int id,
 			    width,
 			    height,
 			    1, 1, 1, 0,
-			    cBuffer,
+			    pBuffer,
 			    (bpp == 8 ? osg::Image::OSG_UINT8_IMAGEDATA : osg::Image::OSG_UINT32_IMAGEDATA), true);
 	endEditCP(image);
 
@@ -1694,9 +1704,11 @@ bool VistaOpenSGGraphicsBridge::ScaleGeometry(const float sx, const float sy, co
 }
 
 
-bool VistaOpenSGGraphicsBridge::GetBoundingBox(VistaVector3D& pMin, VistaVector3D& pMax, IVistaGeometryData* pData) const
+bool VistaOpenSGGraphicsBridge::GetBoundingBox(VistaVector3D& pMin, VistaVector3D& pMax,
+										const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	int i, n(pOpenSGData->GetGeometry()->getPositions()->size());
 	if( n == 0 ) return false;
 	osg::Pnt3f coordinate( pOpenSGData->GetGeometry()->getPositions()->getValue(0) );
@@ -1719,9 +1731,12 @@ bool VistaOpenSGGraphicsBridge::GetBoundingBox(VistaVector3D& pMin, VistaVector3
 	return true;
 }
 
-bool VistaOpenSGGraphicsBridge::GetFaceBoundingBox(const int idx, VistaVector3D& pmin, VistaVector3D& pmax, IVistaGeometryData* pData) const
+bool VistaOpenSGGraphicsBridge::GetFaceBoundingBox(
+							const int idx, VistaVector3D& pmin, VistaVector3D& pmax, 
+							const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData * pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::GeometryPtr geo = pOpenSGData->GetGeometry();
 	osg::UInt32 mappingSize = geo->getIndexMapping().size();
 	osg::GeoIndicesPtr       indices = geo->getIndices();
@@ -1751,7 +1766,7 @@ bool VistaOpenSGGraphicsBridge::GetFaceBoundingBox(const int idx, VistaVector3D&
 		{
 			if(it.isAtEnd())
 			{
-				vkernout << "[VistaOpenSGGraphicsBridge::GetFaceBoundingBox] Could not find face " << idx << endl;
+				vstr::warnp() << "[VistaOpenSGGraphicsBridge::GetFaceBoundingBox] Could not find face " << idx << std::endl;
 				return false;
 			}
 		}
@@ -1776,7 +1791,7 @@ bool VistaOpenSGGraphicsBridge::GetFaceBoundingBox(const int idx, VistaVector3D&
 		return true;
 	}
 	default:
-		vkernout << "[VistaOpenSGGraphicsBridge::GetFaceBoundingBox] Unknown face type." << endl;
+		vstr::warnp() << "[VistaOpenSGGraphicsBridge::GetFaceBoundingBox] Unknown face type." << std::endl;
 		return false;
 		break;
 	}
@@ -1808,9 +1823,12 @@ bool VistaOpenSGGraphicsBridge::GetFaceBoundingBox(const int idx, VistaVector3D&
 	return true;
 }
 
-bool VistaOpenSGGraphicsBridge::GetFaceCoords(const int idx, VistaVector3D& a,VistaVector3D& b,VistaVector3D& c, IVistaGeometryData* pData) const
+bool VistaOpenSGGraphicsBridge::GetFaceCoords(const int idx, VistaVector3D& a,
+											VistaVector3D& b,VistaVector3D& c,
+											const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData * pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::GeometryPtr geo = pOpenSGData->GetGeometry();
 
 
@@ -1823,12 +1841,13 @@ bool VistaOpenSGGraphicsBridge::GetFaceCoords(const int idx, VistaVector3D& a,Vi
 	return true;
 }
 
-bool  VistaOpenSGGraphicsBridge::GetFaces(vector<int>& faces, IVistaGeometryData* pData) const
+bool  VistaOpenSGGraphicsBridge::GetFaces(vector<int>& faces, const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData * pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 
 	unsigned int nFaceSize = 0;
-	unsigned int nFaces = -1;
+	int nFaces = -1;
 	switch(GetFaceType(pData))
 	{
 	case VistaGeometry::VISTA_FACE_TYPE_QUADS:
@@ -1850,7 +1869,7 @@ bool  VistaOpenSGGraphicsBridge::GetFaces(vector<int>& faces, IVistaGeometryData
 		}
 	default:
 		{
-			vkernout << "[VistaOpenSGGraphicsBridge::GetFaces] does not work for this face-type." << endl;
+			vstr::warnp() << "[VistaOpenSGGraphicsBridge::GetFaces] does not work for this face-type." << std::endl;
 			return false;
 		}
 	}
@@ -1876,10 +1895,10 @@ bool  VistaOpenSGGraphicsBridge::GetFaces(vector<int>& faces, IVistaGeometryData
 
 bool  VistaOpenSGGraphicsBridge::GetTrianglesVertexIndices(
 										vector<int>& vecVertexIndices,
-										IVistaGeometryData* pData) const
+										const IVistaGeometryData* pData) const
 {
-    VistaOpenSGGeometryData *pOpenSGData =
-							static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::GeometryPtr pGeom = pOpenSGData->GetGeometry();
 	osg::TriangleIterator pTriIter = pGeom->beginTriangles();
 	int iLength = pTriIter.getLength();
@@ -1914,10 +1933,10 @@ bool  VistaOpenSGGraphicsBridge::GetTrianglesVertexIndices(
 
 bool  VistaOpenSGGraphicsBridge::GetTrianglesNormalIndices(
 										vector<int>& vecNormalIndices,
-										IVistaGeometryData* pData) const
+										const IVistaGeometryData* pData) const
 {
-    VistaOpenSGGeometryData *pOpenSGData =
-							static_cast<VistaOpenSGGeometryData*>(pData);
+    const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::GeometryPtr pGeom = pOpenSGData->GetGeometry();
 	osg::TriangleIterator pTriIter = pGeom->beginTriangles();
 	int iLength = pTriIter.getLength();
@@ -1953,10 +1972,10 @@ bool  VistaOpenSGGraphicsBridge::GetTrianglesNormalIndices(
 bool  VistaOpenSGGraphicsBridge::GetTrianglesVertexAndNormalIndices(
 										vector<int>& vecVertexIndices,
 										vector<int>& vecNormalIndices,
-										IVistaGeometryData* pData) const
+										const IVistaGeometryData* pData) const
 {
-    VistaOpenSGGeometryData *pOpenSGData =
-							static_cast<VistaOpenSGGeometryData*>(pData);
+   const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::GeometryPtr pGeom = pOpenSGData->GetGeometry();
 	osg::TriangleIterator pTriIter = pGeom->beginTriangles();
 	int iLength = pTriIter.getLength();
@@ -2001,9 +2020,11 @@ bool  VistaOpenSGGraphicsBridge::GetTrianglesVertexAndNormalIndices(
     return true;
 }
 
-bool VistaOpenSGGraphicsBridge::GetCoordinates(vector<float>& coords, IVistaGeometryData* pData) const
+bool VistaOpenSGGraphicsBridge::GetCoordinates(vector<float>& coords, 
+											const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData * pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::GeometryPtr geo = pOpenSGData->GetGeometry();
 
 	osg::GeoPositionsPtr     pos = geo->getPositions();
@@ -2027,9 +2048,10 @@ bool VistaOpenSGGraphicsBridge::GetCoordinates(vector<float>& coords, IVistaGeom
 }
 
 bool VistaOpenSGGraphicsBridge::GetCoordinates(vector<VistaVector3D>& coords,
-					IVistaGeometryData* pData) const
+					const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData * pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::GeometryPtr geo = pOpenSGData->GetGeometry();
 
 	osg::GeoPositionsPtr     pos = geo->getPositions();
@@ -2053,10 +2075,11 @@ bool VistaOpenSGGraphicsBridge::GetCoordinates(vector<VistaVector3D>& coords,
 }
 
 bool VistaOpenSGGraphicsBridge::GetTextureCoords2D(vector<VistaVector3D>& textureCoords2D,
-					IVistaGeometryData* pData) const
+					const IVistaGeometryData* pData) const
 {
 	/** @todo why 2D TexCoords into VistaVector3D? */
-	VistaOpenSGGeometryData * pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::GeometryPtr geo = pOpenSGData->GetGeometry();
 
 	osg::GeoTexCoordsPtr tex = geo->getTexCoords();
@@ -2080,9 +2103,10 @@ bool VistaOpenSGGraphicsBridge::GetTextureCoords2D(vector<VistaVector3D>& textur
 }
 
 bool VistaOpenSGGraphicsBridge::GetNormals(vector<VistaVector3D>& normals,
-					IVistaGeometryData* pData) const
+					const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData * pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::GeometryPtr geo = pOpenSGData->GetGeometry();
 
 	osg::GeoNormalsPtr norm = geo->getNormals();
@@ -2106,9 +2130,10 @@ bool VistaOpenSGGraphicsBridge::GetNormals(vector<VistaVector3D>& normals,
 }
 
 bool VistaOpenSGGraphicsBridge::GetNormals(vector<float>& normals,
-					IVistaGeometryData* pData) const
+					const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData * pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::GeometryPtr geo = pOpenSGData->GetGeometry();
 
 	osg::GeoNormalsPtr norm = geo->getNormals();
@@ -2132,9 +2157,10 @@ bool VistaOpenSGGraphicsBridge::GetNormals(vector<float>& normals,
 }
 
 bool VistaOpenSGGraphicsBridge::GetColors(vector<VistaColorRGB>& colorsRGB,
-					IVistaGeometryData* pData) const
+					const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData * pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::GeometryPtr geo = pOpenSGData->GetGeometry();
 
 	osg::GeoColorsPtr col = geo->getColors();
@@ -2161,7 +2187,7 @@ bool VistaOpenSGGraphicsBridge::AddFace(const int vertexId0, const int vertexId1
 
 	if(GetFaceType(pData) != VistaGeometry::VISTA_FACE_TYPE_TRIANGLES)
 	{
-		vkernout << "[VistaOpenSGGraphicsBridge::GetFaceCoords] only works for triangles." << endl;
+		vstr::warnp() << "[VistaOpenSGGraphicsBridge::GetFaceCoords] only works for triangles." << std::endl;
 		return false;
 	}
 
@@ -2268,13 +2294,15 @@ bool VistaOpenSGGraphicsBridge::DeleteVertex(const int vertexId, IVistaGeometryD
 	return false;
 }
 
-bool VistaOpenSGGraphicsBridge::GetFaceVertices(const int idx, int& vertexId0, int& vertexId1, int& vertexId2, IVistaGeometryData* pData) const
+bool VistaOpenSGGraphicsBridge::GetFaceVertices(const int idx, int& vertexId0, int& vertexId1, int& vertexId2,
+							const IVistaGeometryData* pData) const
 {
-	VistaOpenSGGeometryData * pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 
 	if(GetFaceType(pData) != VistaGeometry::VISTA_FACE_TYPE_TRIANGLES)
 	{
-		vkernout << "[VistaOpenSGGraphicsBridge::GetFaceCoords] only works for triangles." << endl;
+		vstr::warnp() << "[VistaOpenSGGraphicsBridge::GetFaceCoords] only works for triangles." << std::endl;
 		return false;
 	}
 
@@ -2288,9 +2316,11 @@ bool VistaOpenSGGraphicsBridge::GetFaceVertices(const int idx, int& vertexId0, i
 	return true;
 }
 
-bool VistaOpenSGGraphicsBridge::GetFaceCoords(const int idx, std::vector<int> &coords, int &nMod, IVistaGeometryData *pData) const
+bool VistaOpenSGGraphicsBridge::GetFaceCoords(const int idx, std::vector<int> &coords, int &nMod, 
+							const IVistaGeometryData *pData) const
 {
-	VistaOpenSGGeometryData * pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 
 	int verticesPerFace = -1;
 	switch (GetFaceType(pOpenSGData))
@@ -2332,9 +2362,11 @@ bool VistaOpenSGGraphicsBridge::GetFaceCoords(const int idx, std::vector<int> &c
 	return true;
 }
 
-bool VistaOpenSGGraphicsBridge::GetRenderingAttributes(VistaRenderingAttributes & attr, IVistaGeometryData * pData) const
+bool VistaOpenSGGraphicsBridge::GetRenderingAttributes(VistaRenderingAttributes & attr,
+													const IVistaGeometryData * pData) const
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	return pOpenSGData->GetRenderingAttributes(attr);
 }
 
@@ -2411,7 +2443,8 @@ bool VistaOpenSGGraphicsBridge::SetRenderingAttributes(const VistaRenderingAttri
 	osg::ChunkMaterialPtr stm = osg::ChunkMaterialPtr::dcast(pOpenSGData->GetGeometry()->getMaterial());
 	if( stm.getCPtr() == NULL )
 	{
-		vkernerr << " Warning VistaOpenSGGraphicsBridge::SetRenderingAttributes(): unknown material type -> omitting texture mode. " << endl;
+		vstr::warnp() << "VistaOpenSGGraphicsBridge::SetRenderingAttributes() -- "
+					<< "unknown material type -> omitting texture mode. " << std::endl;
 		return_state &= false;
 	}
 	else
@@ -2421,7 +2454,7 @@ bool VistaOpenSGGraphicsBridge::SetRenderingAttributes(const VistaRenderingAttri
 		stateChunk = stm->find(osg::TextureChunk::getClassType());
 		if(stateChunk==osg::NullFC)
 		{
-//                      cerr << " Warning VistaOpenSGGraphicsBridge::SetRenderingAttributes(): no texture found. " << endl;
+//                      cerr << " Warning VistaOpenSGGraphicsBridge::SetRenderingAttributes(): no texture found. " << std::endl;
 //                      return_state &= false;
 		}
 		else
@@ -2457,7 +2490,8 @@ bool VistaOpenSGGraphicsBridge::SetRenderingAttributes(const VistaRenderingAttri
 			break;
 			default:
 			{
-				vkernerr << " Warning VistaOpenSGGraphicsBridge::SetRenderingAttributes(): unknown texture mode -> swithing to linear interpolation. " << endl;
+				vstr::warnp() << "VistaOpenSGGraphicsBridge::SetRenderingAttributes() -- "
+						<< "unknown texture mode -> swithing to linear interpolation. " << std::endl;
 				texchunk->setMinFilter(GL_LINEAR);
 				texchunk->setMagFilter(GL_LINEAR);
 				return_state &= false;
@@ -2473,9 +2507,10 @@ bool VistaOpenSGGraphicsBridge::SetRenderingAttributes(const VistaRenderingAttri
 	return return_state;
 }
 
-float VistaOpenSGGraphicsBridge::GetTransparency(IVistaGeometryData *pData) const
+float VistaOpenSGGraphicsBridge::GetTransparency(const IVistaGeometryData *pData) const
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::ChunkMaterialPtr stm = osg::ChunkMaterialPtr::dcast(pOpenSGData->GetGeometry()->getMaterial());
 
 	/** @todo think about this */
@@ -2492,7 +2527,7 @@ float VistaOpenSGGraphicsBridge::GetTransparency(IVistaGeometryData *pData) cons
 	return float(blendchunk->getAlphaValue());
 }
 
-bool VistaOpenSGGraphicsBridge::SetTransparency(const float& transparency, IVistaGeometryData* pData)
+bool VistaOpenSGGraphicsBridge::SetTransparency(const float transparency, IVistaGeometryData* pData)
 {
 	if( transparency < 0 || 1 < transparency )
 		return false;
@@ -2608,7 +2643,7 @@ bool VistaOpenSGGraphicsBridge::CreateIndexedGeometry
  const vector<VistaVector3D>& normals,
  const vector<VistaColorRGB>& colorsRGB,
  const VistaVertexFormat& vFormat,
- const VistaGeometry::faceType fType,
+ const VistaGeometry::FaceType fType,
  IVistaGeometryData* pData)
 {
 	/*
@@ -2655,6 +2690,8 @@ bool VistaOpenSGGraphicsBridge::CreateIndexedGeometry
 	case VistaGeometry::VISTA_FACE_TYPE_QUADS:
 		type->addValue(GL_QUADS);
 		break;
+	case VistaGeometry::VISTA_FACE_TYPE_TRIANGLE_STRIP:
+		type->addValue(GL_TRIANGLE_STRIP);
 		break;
 	}
 	lens->addValue(vertices.size());
@@ -2738,8 +2775,8 @@ bool VistaOpenSGGraphicsBridge::CreateIndexedGeometry
 			for( i = 0; i < n; ++i )
 			{
 				//osg::osg::Vec3f v(normals[i][0], normals[i][1], normals[i][2]);
-				//cout << "normal [" << i << "] = " << normals[i] << endl;
-				//cout << "vec = [" << v[0] << ", " << v[1] << ", " << v[2] << endl;
+				//cout << "normal [" << i << "] = " << normals[i] << std::endl;
+				//cout << "vec = [" << v[0] << ", " << v[1] << ", " << v[2] << std::endl;
 
 				norms->push_back(osg::Vec3f(normals[i][0],normals[i][1],normals[i][2]));
 			}
@@ -2869,7 +2906,7 @@ bool VistaOpenSGGraphicsBridge::CreateIndexedGeometry
  const vector<float>& normals,
  const vector<VistaColorRGB>& colorsRGB,
  const VistaVertexFormat& vFormat,
- const VistaGeometry::faceType fType,
+ const VistaGeometry::FaceType fType,
  IVistaGeometryData * pData)
 {
 	/*
@@ -2917,6 +2954,8 @@ bool VistaOpenSGGraphicsBridge::CreateIndexedGeometry
 	case VistaGeometry::VISTA_FACE_TYPE_QUADS:
 		type->addValue(GL_QUADS);
 		break;
+	case VistaGeometry::VISTA_FACE_TYPE_TRIANGLE_STRIP:
+		type->addValue(GL_TRIANGLE_STRIP);
 		break;
 	}
 	lens->addValue(vertices.size());
@@ -2963,8 +3002,8 @@ bool VistaOpenSGGraphicsBridge::CreateIndexedGeometry
 	*/
 	n = coords.size();
 	if(n%3 != 0)
-		vkernerr << "[VistaOpenSGGraphicsBridge::CreateIndexedGeometry] - Bad size"
-				"of coordinates vector!" << endl;
+		vstr::errp() << "[VistaOpenSGGraphicsBridge::CreateIndexedGeometry] - Bad size"
+				"of coordinates vector!" << std::endl;
 	osg::RefPtr<osg::GeoPositions3fPtr> pnts(osg::GeoPositions3f::create());
 	if( vFormat.coordinate == VistaVertexFormat::COORDINATE )
 	{
@@ -3119,18 +3158,6 @@ bool VistaOpenSGGraphicsBridge::DeleteGeometryData(IVistaGeometryData* pData)
 }
 
 // ============================================================================
-
-float VistaOpenSGGraphicsBridge::GetFrameRate() const
-{
-	return m_pFactory->GetLastFPS();
-}
-
-unsigned int VistaOpenSGGraphicsBridge::GetFrameCount() const
-{
-	return m_pFactory->GetFrameCount();
-}
-
-
 
 IVistaGeometryData * VistaOpenSGGraphicsBridge::NewGeometryData()
 {
@@ -3296,8 +3323,7 @@ bool VistaOpenSGGraphicsBridge::SetMaterial(const VistaMaterial & material, IVis
 
 bool VistaOpenSGGraphicsBridge::SetMaterialIndex(const int& materialIndex, IVistaGeometryData* pData)
 {
-
-	return false;
+	VISTA_THROW_NOT_IMPLEMENTED
 
 	// IAR: to be renewed
 
@@ -3395,9 +3421,10 @@ bool VistaOpenSGGraphicsBridge::SetMaterialIndex(const int& materialIndex, IVist
 }
 
 
-bool VistaOpenSGGraphicsBridge::GetIsStatic(IVistaGeometryData *pData)
+bool VistaOpenSGGraphicsBridge::GetIsStatic(const IVistaGeometryData *pData)
 {
-	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
+	const VistaOpenSGGeometryData* pOpenSGData 
+					= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::GeometryPtr p = pOpenSGData->GetGeometry();
 	return p->getDlistCache();
 }
@@ -3411,4 +3438,101 @@ void VistaOpenSGGraphicsBridge::SetIsStatic(bool bIsStatic, IVistaGeometryData *
 	p->setDlistCache(bIsStatic);
 	endEditCP(p, osg::Geometry::DlistCacheFieldMask);
 }
+
+bool VistaOpenSGGraphicsBridge::CreateMaterialTable( void )
+{
+	m_vMaterialTable.clear();
+	return true;
+}
+
+bool VistaOpenSGGraphicsBridge::GetVertices( 
+	std::vector<VistaIndexedVertex>& vertices,
+	const IVistaGeometryData* ) const
+{
+	VISTA_THROW_NOT_IMPLEMENTED; /** @todo implment...or not...gonna cut the graphics-backend abstraction down anyway!*/
+}
+
+
+int VistaOpenSGGraphicsBridge::AddMaterial( const VistaMaterial & material )
+{
+	// get material properties from ViSTA object
+	float amb[3], dif[3], spe[3], emi[3], opa, shi, alpha;
+	material.GetAmbientColor(amb);
+	material.GetDiffuseColor(dif);
+	material.GetSpecularColor(spe);
+	material.GetEmissionColor(emi);
+	material.GetOpacity(opa);
+	material.GetShininess(shi);
+	alpha = opa;
+
+	osg::MaterialChunkPtr matchunk = osg::MaterialChunk::create();
+	beginEditCP(matchunk);
+	{
+		matchunk->setAmbient(osg::Color4f(amb[0],amb[1],amb[2],alpha));
+		matchunk->setDiffuse(osg::Color4f(dif[0],dif[1],dif[2],alpha));
+		matchunk->setSpecular(osg::Color4f(spe[0],spe[1],spe[2],alpha));
+		matchunk->setEmission(osg::Color4f(emi[0],emi[1],emi[2],alpha));
+		matchunk->setShininess(shi);
+		matchunk->setLit(true);
+	}
+	endEditCP(matchunk);
+
+
+	// store the retrieved Information in an OpenSG object
+	osg::ChunkMaterialPtr stm = osg::ChunkMaterial::create();
+	beginEditCP(stm);
+	{
+		stm->addChunk(matchunk);
+	}
+	endEditCP(stm);
+
+	// cache all OpenSG data to prevent inefficient material-merge-scene-graph-operations
+	m_vOSGMatTab.push_back(stm);
+
+	m_vMaterialTable.push_back(material);
+	m_vMaterialTable.back().SetMaterialIndex( (int)m_vMaterialTable.size() - 1 );
+	return (int)m_vMaterialTable.size() - 1;
+}
+
+
+bool VistaOpenSGGraphicsBridge::SetCoordIndices( 
+									const int startIdx,
+									const std::vector<int>& indices,
+									IVistaGeometryData* )
+{
+	VISTA_THROW_NOT_IMPLEMENTED; /** @todo */
+}
+
+bool VistaOpenSGGraphicsBridge::SetTextureCoordsIndices(
+									const int startIdx,
+									const std::vector<int>& indices, 
+									IVistaGeometryData* )
+{
+	VISTA_THROW_NOT_IMPLEMENTED; /** @todo */
+}
+
+bool VistaOpenSGGraphicsBridge::SetNormalIndices( const int startIdx,
+									const std::vector<int>& indices,
+									IVistaGeometryData* )
+{
+	VISTA_THROW_NOT_IMPLEMENTED; /** @todo */
+}
+
+bool VistaOpenSGGraphicsBridge::SetColorIndices( const int startIdx,
+									const std::vector<int>& indices,
+									IVistaGeometryData* )
+{
+	VISTA_THROW_NOT_IMPLEMENTED; /** @todo */
+}
+
+int VistaOpenSGGraphicsBridge::GetNumberOfMaterials()
+{
+	return (int)m_vMaterialTable.size();
+}
+
+bool VistaOpenSGGraphicsBridge::BindToVistaMaterialTable( IVistaGeometryData* pData )
+{
+	return true;
+}
+
 

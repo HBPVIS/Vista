@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaRandomNumberGenerator.h 23568 2011-09-27 12:35:29Z dr165799 $
 
 #ifndef _VISTARANDOMNUMBERGENERATOR_H
 #define _VISTARANDOMNUMBERGENERATOR_H
@@ -99,7 +99,7 @@ private:
 	//MEMBERS
 	//unsigned long m_mt[N]; /* the array for the state vector  */
 	unsigned int *m_mt;
-	int m_mti; //=N+1; /* mti==N+1 means mt[N] is not initialized */
+	unsigned int m_mti; //=N+1; /* mti==N+1 means mt[N] is not initialized */
 
 	static VistaRandomNumberGenerator *s_pSingleton;
 };

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDisplay.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaDisplay.h"
 #include "VistaDisplayManager.h"
@@ -92,7 +92,7 @@ std::list<std::string> VistaDisplay::GetWindowNames() const
 /*============================================================================*/
 unsigned int VistaDisplay::GetNumberOfWindows() const
 {
-	return m_vecWindows.size();
+	return (unsigned int)m_vecWindows.size();
 }
 
 /*============================================================================*/
@@ -102,7 +102,7 @@ unsigned int VistaDisplay::GetNumberOfWindows() const
 /*============================================================================*/
 VistaWindow *VistaDisplay::GetWindow(unsigned int iIndex) const
 {
-	if (iIndex<m_vecWindows.size())
+	if( iIndex < m_vecWindows.size() )
 		return m_vecWindows[iIndex];
 	return NULL;
 }
@@ -127,9 +127,9 @@ void VistaDisplay::Debug(std::ostream &out) const
 	VistaDisplayEntity::Debug(out);
 
 	out << " [VistaDisplay] - display string:  " << GetDisplayProperties()->GetDisplayString() 
-		<< endl;
+		<< std::endl;
 	out << " [VistaDisplay] - windows:         " << GetNumberOfWindows() 
-		<< endl;
+		<< std::endl;
 
 	if (m_vecWindows.size())
 	{
@@ -141,7 +141,7 @@ void VistaDisplay::Debug(std::ostream &out) const
 				out << ", ";
 			out << m_vecWindows[i]->GetNameForNameable();
 		}
-		out << endl;
+		out << std::endl;
 	}
 }
 
@@ -187,12 +187,10 @@ namespace {
 	{
 		new TVistaPropertySet<const string &, string,VistaDisplay::VistaDisplayProperties>
 		("NAME", sSReflectionType,
-		 &VistaDisplay::VistaDisplayProperties::SetName,
-		 &VistaAspectsConversionStuff::ConvertToString),
+		 &VistaDisplay::VistaDisplayProperties::SetName ),
 		new TVistaPropertySet<const std::string &, std::string, VistaDisplay::VistaDisplayProperties>
 		("DISPLAY_STRING", sSReflectionType,
-		 &VistaDisplay::VistaDisplayProperties::SetDisplayString,
-		 &VistaAspectsConversionStuff::ConvertToString),
+		 &VistaDisplay::VistaDisplayProperties::SetDisplayString ),
 		NULL
 	};
 }

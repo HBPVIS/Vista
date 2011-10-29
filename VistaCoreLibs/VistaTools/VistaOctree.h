@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaOctree.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef CVISTAOCTREE_H
 #define CVISTAOCTREE_H

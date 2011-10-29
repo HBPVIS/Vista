@@ -20,24 +20,170 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaSceneOverlay.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
-#include "VistaSceneOverlay.h" 
+#include "VistaSceneOverlay.h"
+
+#include <VistaAspects/VistaObserver.h>
+#include <VistaBase/VistaStreamUtils.h>
+
+#include <VistaKernel/DisplayManager/VistaViewport.h>
+#include <VistaKernel/DisplayManager/VistaDisplayManager.h>
+#include <VistaKernel/DisplayManager/VistaDisplaySystem.h>
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
 
+
+/**
+ * Internal EventHandler to handle VDE_RATIOCHANGE events.
+ * Those are fired, when window size changes.
+ * This Handler is not in the interface cause there maybe some
+ * other handling on the events.
+ */
+class IVistaSceneOverlay::ViewportResizeObserver : public IVistaObserver
+{
+public:
+	ViewportResizeObserver( IVistaSceneOverlay *pOverlay, VistaViewport* pViewport )
+	: IVistaObserver()
+	, m_pViewportProps( pViewport->GetViewportProperties() )
+	, m_pOverlay( pOverlay )
+	{
+		m_pViewportProps->AttachObserver( this );
+	}
+
+	~ViewportResizeObserver()
+	{
+		m_pViewportProps->DetachObserver( this );
+	}
+
+	virtual bool ObserveableDeleteRequest( IVistaObserveable* pObserveable,
+										int nTicket = IVistaObserveable::TICKET_NONE )
+	{
+		return true;
+	}
+
+	virtual void ObserveableDelete( IVistaObserveable* pObserveable,
+										int nTicket = IVistaObserveable::TICKET_NONE )
+	{
+		if( pObserveable == m_pViewportProps )
+			m_pViewportProps = NULL;
+	}
+
+	virtual void ReleaseObserveable( IVistaObserveable* pObserveable,
+										int nTicket = IVistaObserveable::TICKET_NONE )
+	{
+		if( m_pViewportProps == pObserveable )
+			m_pViewportProps = NULL;
+	}
+
+	virtual void ObserverUpdate( IVistaObserveable* pObserveable,
+										int nMsg, int nTicket )
+	{
+		if( nMsg == VistaViewport::VistaViewportProperties::MSG_SIZE_CHANGE )
+		{
+			int iPosX, iPosY, iWidth, iHeight;
+			m_pViewportProps->GetSize( iWidth, iHeight );
+			m_pViewportProps->GetPosition( iPosX, iPosY );
+			m_pOverlay->UpdateOnViewportChange( iWidth, iHeight, iPosX, iPosY );
+		}
+		else if( nMsg == VistaViewport::VistaViewportProperties::MSG_POSITION_CHANGE )
+		{
+			int iPosX, iPosY, iWidth, iHeight;
+			m_pViewportProps->GetSize( iWidth, iHeight );
+			m_pViewportProps->GetPosition( iPosX, iPosY );
+			m_pOverlay->UpdateOnViewportChange( iWidth, iHeight, iPosX, iPosY );
+		}
+	}
+
+	virtual bool Observes( IVistaObserveable* pObserveable )
+	{
+		return ( pObserveable == m_pViewportProps );
+	}
+
+	virtual void Observe( IVistaObserveable* pObserveable, 
+										int nTicket = IVistaObserveable::TICKET_NONE )
+	{
+		// won't happen
+	}
+
+	VistaViewport* GetViewport()
+	{
+		return static_cast<VistaViewport*>( m_pViewportProps->GetParent() );
+	}
+
+private:
+	IVistaSceneOverlay*		m_pOverlay;
+	VistaViewport::VistaViewportProperties*	m_pViewportProps;
+};
+
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
-IVistaSceneOverlay::~IVistaSceneOverlay()
+IVistaSceneOverlay::IVistaSceneOverlay( VistaDisplayManager* pDisplayManager,
+										const std::string& sViewportName )
+: m_pViewportObserver( NULL )
 {
+	if( sViewportName.empty() )
+	{
+		if( pDisplayManager->GetViewportsConstRef().size() == 1 )
+		{
+			VistaViewport* pViewport = pDisplayManager->GetViewportsConstRef().begin()->second;
+			m_pViewportObserver = new ViewportResizeObserver( this, pViewport );
+			pDisplayManager->AddSceneOverlay( this, pViewport );
+		}
+		else
+		{
+			vstr::warnp() << "[IVistaSceneOverlay]: "
+					<< "Trying to add Overlay to default viewport, but there is not "
+					<< "exactly one viewport, but "
+					<< pDisplayManager->GetViewportsConstRef().size()
+					<< " - Overlay will not be displayed! " << std::endl;
+		}
+	}
+	else
+	{
+		VistaViewport* pViewport = pDisplayManager->GetViewportByName( sViewportName );
+		if( pViewport != NULL )
+		{
+			m_pViewportObserver = new ViewportResizeObserver( this, pViewport );
+			pDisplayManager->AddSceneOverlay( this, pViewport );
+		}
+		else
+		{
+			vstr::warnp() << "[IVistaSceneOverlay]: "
+					<< "Trying to add Overlay to non-existant viewport ["
+					<< sViewportName << "] - Overlay will not be displayed! " << std::endl;
+		}
+	}
 }
 
-
-IVistaSceneOverlay::IVistaSceneOverlay()
+IVistaSceneOverlay::IVistaSceneOverlay( VistaViewport* pViewport )
 {
+	pViewport->GetDisplaySystem()->GetDisplayManager()->AddSceneOverlay( this, pViewport );
+	m_pViewportObserver = new ViewportResizeObserver( this, pViewport );
+}
+
+IVistaSceneOverlay::~IVistaSceneOverlay()
+{
+	if( m_pViewportObserver )
+	{
+		m_pViewportObserver->GetViewport()->GetDisplaySystem()
+					->GetDisplayManager()->RemSceneOverlay( 
+								this, m_pViewportObserver->GetViewport() );
+		delete m_pViewportObserver;
+	}
+}
+
+VistaViewport* IVistaSceneOverlay::GetAttachedViewport() const
+{
+	return m_pViewportObserver->GetViewport();
+}
+
+bool IVistaSceneOverlay::GetBoundingBox( VistaBoundingBox &bb )
+{
+	return false;
 }
 
 /*============================================================================*/

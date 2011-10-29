@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPipe.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef IDLVISTAPIPE_H
 #define IDLVISTAPIPE_H
@@ -50,35 +50,15 @@ class IDLVistaDataPacket;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI IDLVistaPipe : public IDLVistaPipeComponent
 {
 protected:
-	/**
-	 *
-	 */
 	IDLVistaPipe();
 public:
-	/**
-	 *
-	 */
 	virtual ~IDLVistaPipe();
 
-	/**
-	 *
-	 */
 	virtual bool IsFull() const =0;
-
-	/**
-	 *
-	 */
 	virtual bool IsEmpty() const =0;
-
-	/**
-	 *
-	 */
 	virtual int Capacity() const =0;
 
 	/**
@@ -94,34 +74,16 @@ public:
 	 * @return true if pComp is a valid input to this component.
 	 */
 	virtual bool IsOutputComponent(IDLVistaPipeComponent *pComp) const;
-	/**
-	 *
-	 */
 	virtual bool AttachInputComponent(IDLVistaPipeComponent * pComp);
 
-	/**
-	 *
-	 */
 	virtual bool AttachOutputComponent(IDLVistaPipeComponent * pComp);
 
-	/**
-	 *
-	 */
 	virtual bool DetachInputComponent(IDLVistaPipeComponent * pComp);
 
-	/**
-	 *
-	 */
 	virtual bool DetachOutputComponent(IDLVistaPipeComponent * pComp);
 
-	/**
-	 *
-	 */
 	virtual IDLVistaDataPacket *CreatePacket() { /** we de not create packets **/ return 0; };
 
-	/**
-	 *
-	 */
 	virtual void DeletePacket(IDLVistaDataPacket *pPacket) {/** we do not delete packets **/ };
 
 	virtual std::list<IDLVistaPipeComponent *> GetInputComponents() const;
@@ -142,36 +104,18 @@ public:
 	 */
 	virtual int GetOutputPacketType() const;
 
-	/**
-	 *
-	 */
 	virtual IDLVistaPipeComponent *GetOutboundByIndex(int iIndex) const ;
 
-	/**
-	 *
-	 */
 	virtual int GetNumberOfOutbounds() const ;
 
 
-	/**
-	 *
-	 */
 	virtual int GetNumberOfInbounds() const;
 
-	/**
-	 *
-	 */
 	virtual IDLVistaPipeComponent *GetInboundByIndex(int iIndex) const ;
 
 protected:
-	/**
-	 *
-	 */
 	IDLVistaPipeComponent * m_pInput;
 
-	/**
-	 *
-	 */
 	IDLVistaPipeComponent * m_pOutput;
 };
 

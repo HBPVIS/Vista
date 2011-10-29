@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaBoundingSphere.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef VISTABOUNDINGSPHERE_H
 #define VISTABOUNDINGSPHERE_H

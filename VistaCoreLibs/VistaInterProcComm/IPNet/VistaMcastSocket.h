@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaMcastSocket.h 22163 2011-07-03 14:11:15Z dr165799 $
 
 #ifndef _VISTAMCASTSOCKET_H
 #define _VISTAMCASTSOCKET_H
@@ -97,7 +97,7 @@ public:
 	/**
 	 * @return "MULTICAST-UDP"
 	 */
-	string GetSocketTypeString() const;
+	std::string GetSocketTypeString() const;
 
 
 	bool GetIsJoinedMulticast() const;

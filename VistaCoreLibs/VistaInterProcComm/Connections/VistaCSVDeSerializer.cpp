@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaCSVDeSerializer.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VistaCSVDeSerializer.h"
 #include <VistaAspects/VistaSerializingToolset.h>
@@ -252,67 +252,6 @@ int VistaCSVDeSerializer::ReadRawBuffer(void *pBuffer, int iLen)
 	else
 		return sizeof(bool);
 
-}
-
- int VistaCSVDeSerializer::ReadDoubleName( const char*sVarName, double &dDouble)
-{
-	 return ReadDouble(dDouble);
-}
-
- int VistaCSVDeSerializer::ReadShort16Name( const char *sVarName, VistaType::ushort16 &us16Val)
-{
-	 return ReadShort16(us16Val);
-}
-
- int VistaCSVDeSerializer::ReadInt32Name( const char*sVarName, VistaType::sint32 &si32Val)
-{
-	 return ReadInt32(si32Val);
- }
-
- int VistaCSVDeSerializer::ReadInt32Name( const char*sVarName, VistaType::uint32 &si32Val)
-{
-	 return ReadInt32(si32Val);
-}
-
-
- int VistaCSVDeSerializer::ReadInt64Name( const char*sVarName, VistaType::sint64 &si64Val)
-{
-	return ReadInt64(si64Val);
-}
-
- int VistaCSVDeSerializer::ReadUInt64Name( const char*sVarName, VistaType::uint64 &ui64Val)
-{
-	return ReadUInt64(ui64Val);
-}
-
- int VistaCSVDeSerializer::ReadFloat32Name( const char*sVarName, VistaType::float32 &fVal)
-{
-	return ReadFloat32(fVal);
-}
-
- int VistaCSVDeSerializer::ReadFloat64Name( const char*sVarName, VistaType::float64 &f64Val)
-{
-	return ReadFloat64(f64Val);
-}
-
- int VistaCSVDeSerializer::ReadStringName(const char*sVarName, string &sVal, int iMaxLength)
-{
-	return ReadString(sVal, iMaxLength);
-}
-
-int VistaCSVDeSerializer::ReadStringName(const char*sVarName, string &sVal, char cDelim)
-{
-	return ReadString(sVal, (char)cDelim);
-}
-
- int VistaCSVDeSerializer::ReadRawBufferName(const char *sVarName, void *pBuffer, int iLen)
-{
-	return ReadRawBuffer(pBuffer, iLen);
-}
-
- int VistaCSVDeSerializer::ReadBoolName(const char*sVarName, bool &bVal)
-{
-	return ReadBool(bVal);
 }
 
  int VistaCSVDeSerializer::ReadSerializable(IVistaSerializable &obj)

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaExtensionNode.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTAEXTENSIONNODE_H
 #define _VISTAEXTENSIONNODE_H
@@ -50,7 +50,7 @@ class IVistaExplicitCallbackInterface;
 /*============================================================================*/
 class VISTAKERNELAPI VistaExtensionNode : public VistaLeafNode
 {
-	friend class VistaSG;
+	friend class VistaSceneGraph;
 public:
 	virtual ~VistaExtensionNode();
 

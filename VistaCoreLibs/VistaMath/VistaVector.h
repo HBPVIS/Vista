@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaVector.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTAVECTOR_H
 #define _VISTAVECTOR_H
@@ -31,10 +31,7 @@
 #include "VistaMathConfig.h"
 
 #include <VistaBase/VistaMathBasics.h>
-
-#include "VistaMathOut.h"
-
-#include <VistaBase/VistaMathBasics.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 //#include <iostream>
 //#include <cmath>     // sin, cos, sqrt ...
@@ -177,6 +174,9 @@ protected:
 	//Type *      m_pVec;
 	Type        m_pVec[dim];
 };
+
+template <class Type, int dim>
+std::ostream& operator<< ( std::ostream& oStream, VistaVector<Type, dim> oVector );
 
 /*============================================================================*/
 /* IMPLEMENTATION                                                             */
@@ -623,14 +623,14 @@ bool VistaVector<Type,dim>::Debug ()
 {
 	for (int idx = 0; idx < dim; ++idx)
 	{
-		vmathout << m_pVec[idx];
+		vstr::out() << m_pVec[idx];
 		if (m_bTransposed)
-			vmathout << "  ";
+			vstr::out() << "  ";
 		else
-			vmathout << std::endl;
+			vstr::out() << std::endl;
 	}
 	if (m_bTransposed)
-		vmathout << std::endl;
+		vstr::out() << std::endl;
 
 	return true;
 }
@@ -660,6 +660,30 @@ bool VecExample ()
 	return true;
 }
 #endif
+
+
+template <class Type, int dim>
+inline std::ostream& operator<< ( std::ostream& oStream, VistaVector<Type, dim> oVector )
+{
+	const std::streamsize iOldPrecision( oStream.precision( 3 ) );
+	const std::ios::fmtflags iOldflags( oStream.flags() );
+
+	// set fix point notation
+	oStream.setf( std::ios::fixed | std::ios::showpos );
+
+	// write to the stream
+	oStream << "( " << oVector[0];
+	for( int i = 1; i < dim; ++i )
+		oStream << ", " << oVector[1];
+	oStream << " )";
+	oStream.unsetf( std::ios::fixed | std::ios::showpos );	
+
+	// restore old stream settings
+	oStream.precision( iOldPrecision );
+	oStream.flags( iOldflags );
+
+	return oStream;
+}
 
 
 #endif //_VISTAVECTOR_H

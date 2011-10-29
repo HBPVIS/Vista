@@ -20,9 +20,10 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaNetworkSync.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
-#include <VistaInterProcComm/Connections/VistaNetworkSync.h>
+#include "VistaNetworkSync.h"
+
 /*============================================================================*/
 /*  MAKROS AND DEFINES                                                        */
 /*============================================================================*/
@@ -30,57 +31,23 @@
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
-VistaNetworkSync::VistaNetworkSync()
-: m_iSyncMode(SYNCMODE_STATEREACHED)
+IVistaNetworkSync::IVistaNetworkSync()
 {
 }
 
-VistaNetworkSync::VistaNetworkSync(const VistaNetworkSync&)
+IVistaNetworkSync::IVistaNetworkSync( const IVistaNetworkSync& )
 {
-}
-	
+}	
 
-VistaNetworkSync::~VistaNetworkSync()
+IVistaNetworkSync::~IVistaNetworkSync()
 {
 }
 /*============================================================================*/
 /*  IMPLEMENTATION                                                            */
 /*============================================================================*/
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :   SetSyncMode                                                 */
-/*                                                                            */
-/*============================================================================*/
-void VistaNetworkSync::SetSyncMode(const int i)
-{
-	m_iSyncMode = i;
-}
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :    GetSyncMode                                                */
-/*                                                                            */
-/*============================================================================*/
-int VistaNetworkSync::GetSyncMode() const
-{
-	return m_iSyncMode;
-}
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :    Sync                                                       */
-/*                                                                            */
-/*============================================================================*/
-bool VistaNetworkSync::Sync(int iTimeOut)
-{
-	return true;
-}
-/*============================================================================*/
-/*                                                                            */
-/*  NAME      :    operator=                                                  */
-/*                                                                            */
-/*============================================================================*/
-VistaNetworkSync& VistaNetworkSync::operator=(const VistaNetworkSync&)
-{
-	return *this;
-}
 
+IVistaNetworkSync& IVistaNetworkSync::operator= ( const IVistaNetworkSync& )
+{
+	return (*this);
+}
 

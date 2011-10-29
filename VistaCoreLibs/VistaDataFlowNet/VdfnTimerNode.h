@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnTimerNode.h 21565 2011-05-26 13:22:59Z dr165799 $
 
 #ifndef _VDFNTIMERNODE_H
 #define _VDFNTIMERNODE_H
@@ -72,6 +72,7 @@ public:
 	class VISTADFNAPI CGetTime
 	{
 	public:
+		virtual ~CGetTime() {}
 		/**
 		 * get the current time (abstract the timing interface).
 		 * the API is not const on purpose, as implementations may need

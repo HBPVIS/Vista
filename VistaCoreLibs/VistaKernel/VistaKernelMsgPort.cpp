@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaKernelMsgPort.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VistaKernelMsgPort.h"
 
@@ -30,9 +30,10 @@
 using namespace std;
 
 #include <VistaKernel/VistaSystem.h>
-#include <VistaKernel/VistaKernelOut.h>
+#include <VistaKernel/Cluster/VistaClusterMode.h>
 
 #include <VistaBase/VistaVersion.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #if defined(WIN32)
 #include <winsock2.h>
@@ -55,8 +56,6 @@ using namespace std;
 #include <VistaInterProcComm/Connections/VistaByteBufferDeSerializer.h>
 #include <VistaInterProcComm/Connections/VistaProgressMessage.h>
 
-
-#include <VistaTools/VistaProfiler.h>
 #include <VistaBase/VistaTimerImp.h>
 #include <VistaTools/VistaEnvironment.h>
 
@@ -68,7 +67,7 @@ using namespace std;
 #include <VistaKernel/DisplayManager/VistaDisplaySystem.h>
 
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 
 #include "VistaKernelMsgTab.h"
@@ -172,7 +171,7 @@ void        VistaKernelMsgPacket::SetPacketMessage(VistaMsg *pMsg)
 
 string VistaKernelMsgPacket::GetSignature() const
 {
-		return "VistaKernelMsgPacket";
+	return "VistaKernelMsgPacket";
 }
 
 IDLVistaDataPacket* VistaKernelMsgPacket::CreateInstance(IDLVistaPipeComponent*pProd) const
@@ -198,7 +197,7 @@ class VistaMsgSource : public DLVistaDataSource
 {
 public:
 	VistaMsgSource();
-	 ~VistaMsgSource();
+	~VistaMsgSource();
 
 	void SetIncomingConnection(VistaConnectionIP *pIp);
 	VistaConnectionIP *GetIncomingConnection();
@@ -221,7 +220,7 @@ public:
 		}
 		else if(uiRet == 0)
 		{
-				VISTA_THROW("Blocking connection with bytes ready 0", 0x00000002);
+			VISTA_THROW("Blocking connection with bytes ready 0", 0x00000002);
 		}
 		return true;
 	}
@@ -232,17 +231,17 @@ private:
 	VistaMutex         m_rIncoming;
 
 	VistaByteBufferDeSerializer m_deSer;
-	vector<unsigned char> m_veTmp;
+	vector<VistaType::byte> m_vecTmp;
 };
 
 class VistaAcceptWork : public IVistaAcceptor
 {
 public:
 	VistaAcceptWork(VistaMsgSource *pSrc,
-					 DLVistaActiveDataProducer *pActivator,
-					 const string &sInterfaceName,
-					 int iPort,
-					 const string &strIniFileName);
+		DLVistaActiveDataProducer *pActivator,
+		const string &sInterfaceName,
+		int iPort,
+		const string &strIniFileName);
 	virtual ~VistaAcceptWork();
 protected:
 
@@ -258,14 +257,14 @@ private:
 };
 
 VistaAcceptWork::VistaAcceptWork(VistaMsgSource *pSrc,
-								   DLVistaActiveDataProducer *pActivator,
-								   const string &sInterfaceName,
-								   int iPort,
-								   const string &strIniFileName)
-: IVistaAcceptor(sInterfaceName, iPort),
-  m_pSource(pSrc),
-  m_pActivator(pActivator),
-  m_strIniFileName(strIniFileName)
+								 DLVistaActiveDataProducer *pActivator,
+								 const string &sInterfaceName,
+								 int iPort,
+								 const string &strIniFileName)
+								 : IVistaAcceptor(sInterfaceName, iPort),
+								 m_pSource(pSrc),
+								 m_pActivator(pActivator),
+								 m_strIniFileName(strIniFileName)
 {
 }
 
@@ -276,20 +275,12 @@ VistaAcceptWork::~VistaAcceptWork()
 
 bool VistaAcceptWork::HandleIncomingClient(VistaTCPSocket *pSocket)
 {
-// this should be true!
+	// this should be true!
 	VistaConnectionIP *pConnection = NULL;
 	try
 	{
 		pSocket->SetIsBlocking(true);
 		pConnection = new VistaConnectionIP(pSocket);
-
-		VistaProfiler locP;
-		bool bShowSendAndReceive = locP.GetTheProfileBool("SYSTEM",
-			"MSGPORTDEBUG", false, m_strIniFileName);
-
-
-		pConnection->SetShowRawSendAndReceive(bShowSendAndReceive);
-
 
 		//pConnection->SetLingerTime(25);
 		m_pSource->SetIncomingConnection(pConnection);
@@ -360,8 +351,8 @@ void VistaMsgSource::FillPacket(IDLVistaDataPacket *pPacket)
 	if(iRet < 4)
 	{
 #if defined(DEBUG)
-		vkernerr << "should read size (int32) -- but can not read enough bytes ["
-			 << iRet << "] possible.\n";
+		vstr::errp() << "[VistaMsgSource::FillPacket]: should read size (int32) -- but can not read enough bytes ["
+			<< iRet << "] possible." << std::endl;
 #endif
 		goto error_onRet;
 	}
@@ -370,14 +361,14 @@ void VistaMsgSource::FillPacket(IDLVistaDataPacket *pPacket)
 	//printf("VistaMsgSource::FillPacket() -- msg lenght is [%d]\n", iMsgLength);
 
 
-	m_veTmp.resize(iMsgLength);
+	m_vecTmp.resize(iMsgLength);
 	//printf("-- bytes pending: %d\n", m_pIncomingConnection->PendingDataSize());
 	ulReady = m_pIncomingConnection->WaitForIncomingData();
 
 
 	//printf("-- bytes pending: %d\n", bReady);
 
-	iRet = (*m_pIncomingConnection).ReadRawBufferName("msg", &m_veTmp[0], iMsgLength);
+	iRet = (*m_pIncomingConnection).ReadRawBuffer( &m_vecTmp[0], iMsgLength);
 
 	//printf("VistaMsgSource::FillPacket() -- read [%d] bytes from stream\n", iRet);
 	if(iRet<0)
@@ -385,7 +376,7 @@ void VistaMsgSource::FillPacket(IDLVistaDataPacket *pPacket)
 
 
 	// SetBuffer calls ClearBuffer!
-	m_deSer.SetBuffer((const char*)&m_veTmp[0], iMsgLength);
+	m_deSer.SetBuffer( &m_vecTmp[0], iMsgLength );
 
 	if(pMsg->DeSerialize(m_deSer)>0) // read from stream
 	{
@@ -402,7 +393,7 @@ error_onRet:
 
 bool VistaMsgSource::HasPacket() const
 {
-//    return true;
+	//    return true;
 	if(!m_pIncomingConnection)
 		return false; // we do not deliver when we do not have a connection
 	return m_pIncomingConnection->HasPendingData();
@@ -418,7 +409,7 @@ bool VistaMsgSource::RecycleDataPacket(IDLVistaDataPacket *pPacket, IDLVistaPipe
 		pMsg->Serialize(ser);
 		//printf("VistaMsgSource::RecycleDataPacket([%d]) -- writing %d bytes\n", pMsg->GetPacketNumber(), ser.GetBufferSize());
 		m_pIncomingConnection->WriteInt32(ser.GetBufferSize());
-		m_pIncomingConnection->WriteRawBufferName("answer", ser.GetBuffer(), ser.GetBufferSize());
+		m_pIncomingConnection->WriteRawBuffer( ser.GetBuffer(), ser.GetBufferSize());
 
 		m_pIncomingConnection->WaitForSendFinish();
 		lock.Unlock(); // release
@@ -433,7 +424,7 @@ class VistaMsgSink : public DLVistaDataSink
 {
 public:
 	VistaMsgSink();
-	 ~VistaMsgSink();
+	~VistaMsgSink();
 
 	bool ConsumePacket(IDLVistaDataPacket *p);
 	VistaKernelMsgPacket *GetCurrentPacket();
@@ -547,19 +538,19 @@ void  VistaMsgSink::AnswerQuery(VistaKernelMsgPacket *pPacket)
 //		m_pProgressConnection = NULL;
 //}
 
-VistaKernelMsgPort::VistaKernelMsgPort(VistaSystem &rSystem,
-										 const string &sHost,
-										 int iPort,
-										 const string &sApplicationName,
-										 bool bCreateIndicator,
-										 const string &sIndicatorHost,
-										 int iIndicatorPort,
-										 IDLVistaPipeComponent *pFrontPipe)
+VistaKernelMsgPort::VistaKernelMsgPort( VistaSystem* pVistaSystem,
+									   const string &sHost,
+									   int iPort,
+									   const string &sApplicationName,
+									   bool bCreateIndicator,
+									   const string &sIndicatorHost,
+									   int iIndicatorPort,
+									   IDLVistaPipeComponent *pFrontPipe)
 {
 	m_sApplicationName = sApplicationName;
 	m_pMsg = new VistaProgressMessage;
 	(*m_pMsg).SetApplicationName(m_sApplicationName);
-	m_pSystem = &rSystem;
+	m_pSystem = pVistaSystem;
 
 	m_bRescheduleFlag = false;
 	m_pPool = new VistaThreadPool(1);
@@ -590,7 +581,7 @@ VistaKernelMsgPort::VistaKernelMsgPort(VistaSystem &rSystem,
 		m_pQueue->AttachInputComponent(m_pSource);
 
 		m_pAcceptWork = new VistaAcceptWork(m_pSource, m_pProducer, sHost, iPort,
-			rSystem.GetIniFile());
+			pVistaSystem->GetIniFile());
 		m_pPool->AddWork(m_pAcceptWork);
 
 		m_pPool->StartPoolWork();
@@ -601,8 +592,8 @@ VistaKernelMsgPort::VistaKernelMsgPort(VistaSystem &rSystem,
 		try
 		{
 			m_pProgressConnection = new VistaConnectionIP(VistaConnectionIP::CT_UDP,
-														   sIndicatorHost,
-														   iIndicatorPort);
+				sIndicatorHost,
+				iIndicatorPort);
 		}
 		catch(VistaExceptionBase &x)
 		{
@@ -639,9 +630,9 @@ VistaKernelMsgPort::~VistaKernelMsgPort()
 	delete m_pAcceptWork;
 
 
-   if(m_pProgressConnection)
-	   m_pProgressConnection->Close(); // just to make sure....
-   delete m_pProgressConnection;
+	if(m_pProgressConnection)
+		m_pProgressConnection->Close(); // just to make sure....
+	delete m_pProgressConnection;
 }
 
 int VistaKernelMsgPort::HasMessage()
@@ -701,7 +692,7 @@ bool VistaKernelMsgPort::PutQuery(VistaMsg *pMsg)
 
 void VistaKernelMsgPort::Disconnect()
 {
-	vkernerr << "VistaKernelMsgPort::Disconnect() -- \n";
+	vstr::outi() << "VistaKernelMsgPort::Disconnect()" << std::endl;
 	if(m_pProducer && m_pProducer->IsComponentRunning())
 	{
 		// we will stop to watch connection
@@ -721,7 +712,7 @@ void VistaKernelMsgPort::Disconnect()
 
 	if(m_pAcceptWork && m_pAcceptWork->GetIsDone())
 	{
-		vkernerr << "-- Rescheduling accept job.\n";
+		vstr::outi() << "-- Rescheduling accept job." << std::endl;
 		m_pPool->RemoveDoneJob(m_pAcceptWork->GetJobId()); // remove
 		m_pPool->AddWork(m_pAcceptWork);
 	}
@@ -747,35 +738,35 @@ bool VistaKernelMsgPort::WriteProgress(eProgressType eType, int iProg, const str
 		VistaByteBufferSerializer ser;
 		// we should serialize the message now
 		/** @todo */
-				switch(eType)
-				{
-					case PRG_APP:
-					{
-						(*m_pMsg).SetSubtaskProgressLabel(sProgMessage);
-						(*m_pMsg).SetSubtaskProgress(iProg);
-						break;
-					}
-					case PRG_DONE:
-					{
-						(*m_pMsg).SetHideFlag(true);
-					}
-					case PRG_SYSTEM:
-					{
-						(*m_pMsg).SetTotalProgress(iProg);
-						(*m_pMsg).SetTotalProgressLabel(sProgMessage);
-						break;
-					}
+		switch(eType)
+		{
+		case PRG_APP:
+			{
+				(*m_pMsg).SetSubtaskProgressLabel(sProgMessage);
+				(*m_pMsg).SetSubtaskProgress(iProg);
+				break;
+			}
+		case PRG_DONE:
+			{
+				(*m_pMsg).SetHideFlag(true);
+			}
+		case PRG_SYSTEM:
+			{
+				(*m_pMsg).SetTotalProgress(iProg);
+				(*m_pMsg).SetTotalProgressLabel(sProgMessage);
+				break;
+			}
 
-					default:
-						break;
-				}
+		default:
+			break;
+		}
 
-			   (*m_pMsg).Serialize(ser);
+		(*m_pMsg).Serialize(ser);
 
-		if(m_pProgressConnection->WriteRawBufferName("progress", ser.GetBuffer(), ser.GetBufferSize())== -1)
+		if(m_pProgressConnection->WriteRawBuffer( ser.GetBuffer(), ser.GetBufferSize())== -1)
 			return false; // something went wrong, but no exception...
 
-				//VistaTimeUtils::Sleep(2000);
+		//VistaTimeUtils::Sleep(2000);
 		// we could send the message.
 		return true;
 	}
@@ -788,8 +779,6 @@ bool VistaKernelMsgPort::WriteProgress(eProgressType eType, int iProg, const str
 		m_pProgressConnection = NULL; // clear pointer,
 		return false;
 	}
-
-	return false; // net implemented yet...
 }
 
 
@@ -797,10 +786,10 @@ bool VistaKernelMsgPort::DispatchKernelMsg(VistaMsg &rMsg)
 {
 	VistaMsg *pMsg = &rMsg;
 
-//	cout << "*********** HandleKernelMsg ************" << endl;
+	//	cout << "*********** HandleKernelMsg ************" << std::endl;
 	VistaByteBufferDeSerializer dsSer;
 	VistaMsg::MSG vecMsg = pMsg->GetThisMsg();
-	dsSer.FillBuffer( (const char*)&vecMsg[0], (int)vecMsg.size() );
+	dsSer.FillBuffer( &vecMsg[0], (int)vecMsg.size() );
 
 	int iKernelTarget=0;
 
@@ -902,126 +891,122 @@ bool VistaKernelMsgPort::DispatchSystemMsg(int iMsgType, VistaMsg *pMsg, VistaBy
 {
 	switch(iMsgType)
 	{
-		case GETVISTAVERSION:
-			{
-				string answer = string(VistaVersion::GetVersion()) + string(" ")+string(VistaVersion::GetBuildDateString());
-					VistaMsg::MSG veAnswer;
-					VistaMsg::AssignMsgByString(answer, veAnswer);
-					//veAnswer.assign(answer.begin(), answer.end());
-					pMsg->SetMsgAnswer(veAnswer);
-				break;
-			}
-		case GETAPPLICATIONNAME:
-			{
-				string answer = m_pSystem->GetApplicationName();
-				VistaMsg::MSG veAnswer;
-				VistaMsg::AssignMsgByString(answer, veAnswer);
-				//veAnswer.assign(answer.begin(), answer.end());
-				pMsg->SetMsgAnswer(veAnswer);
-				break;
-			}
-		case GETOSTYPE:
-			{
-				string answer = VistaEnvironment::GetOSystem();
-				VistaMsg::MSG veAnswer;
-				VistaMsg::AssignMsgByString(answer, veAnswer);
-				//veAnswer.assign(answer.begin(), answer.end());
-				pMsg->SetMsgAnswer(veAnswer);
-				break;
-			}
-		case GETCPUTYPE:
-			{
-				string answer = VistaEnvironment::GetCPUType();
-				VistaMsg::MSG veAnswer;
-				VistaMsg::AssignMsgByString(answer, veAnswer);
-				//veAnswer.assign(answer.begin(), answer.end());
-				pMsg->SetMsgAnswer(veAnswer);
-				break;
-			}
-		case GETNUMBEROFPROCESSORS:
-			{
-				string answer = VistaEnvironment::GetNumberOfProcessors();
-				VistaMsg::MSG veAnswer;
-				VistaMsg::AssignMsgByString(answer, veAnswer);
-				//veAnswer.assign(answer.begin(), answer.end());
-				pMsg->SetMsgAnswer(veAnswer);
-				break;
-			}
-		case GETMEMORY:
-			{
-				string answer = VistaEnvironment::GetMemory();
-				VistaMsg::MSG veAnswer;
-				VistaMsg::AssignMsgByString(answer, veAnswer);
-				//veAnswer.assign(answer.begin(), answer.end());
-				pMsg->SetMsgAnswer(veAnswer);
-				break;
-			}
-		case QUITAPP:
-			{
-				m_pSystem->Quit();
-				break;
-			}
-		case DISCONNECT:
-			{
-				Disconnect();
-				break;
-			}
-		case ISCLIENT:
-			{
-                string answer = ( (m_pSystem->IsClient() || m_pSystem->GetIsSlave()) ? "true" : "false");
-				VistaMsg::MSG veAnswer;
-				VistaMsg::AssignMsgByString(answer, veAnswer); //(answer.begin(), answer.end());
-				//veAnswer.assign((unsigned char*)answer.begin(), (unsigned char*)answer.end());
-				pMsg->SetMsgAnswer(veAnswer);
-				break;
-			}
-		case ISSERVER:
-			{
-				string answer = (m_pSystem->IsServer() ? "true" : "false");
-				VistaMsg::MSG veAnswer; //(answer.begin(), answer.end());
-				VistaMsg::AssignMsgByString(answer,veAnswer);
-				//veAnswer.assign((unsigned char*)answer.begin(), (unsigned char*)answer.end());
-				pMsg->SetMsgAnswer(veAnswer);
-				break;
-			}
-		case ISSTANDALONE:
-			{
-				string answer = (m_pSystem->IsStandalone() ? "true" : "false");
-				VistaMsg::MSG veAnswer; //(answer.begin(), answer.end());
-				VistaMsg::AssignMsgByString(answer,veAnswer);
-				//veAnswer.assign((unsigned char*)answer.begin(), (unsigned char*)answer.end());
-				pMsg->SetMsgAnswer(veAnswer);
-				break;
-			}
-		case GETINIFILE:
-			{
-				string answer = m_pSystem->GetIniFile();
-				VistaMsg::MSG veAnswer; //(answer.begin(), answer.end());
-				VistaMsg::AssignMsgByString(answer, veAnswer);
-				//veAnswer.assign((unsigned char*)answer.begin(), (unsigned char*)answer.end());
-				pMsg->SetMsgAnswer(veAnswer);
-				break;
-			}
-		case SETINIFILE:
-			{
-				vector<unsigned char> vec = pMsg->GetThisMsg();
-                                #if defined(LINUX) || (defined(WIN32) && (_MSC_VER>=1300)) || defined(DARWIN)
-				string sIniFile(vec.begin(), vec.begin()+vec.size());
-				#else
-				string sIniFile((char*)vec.begin(), (char*)vec.begin()+vec.size());
-				#endif
-				//sIniFile.assign((const char*)vec.begin(), (const char*)vec.end());
-				m_pSystem->SetIniFile(sIniFile);
-				sIniFile = "OK";
-				VistaMsg::MSG veAnswer; //(sIniFile.begin(), sIniFile.end());
-				VistaMsg::AssignMsgByString(sIniFile, veAnswer);
-				//veAnswer.assign((unsigned char*)sIniFile.begin(), (unsigned char *)sIniFile.end());
-				pMsg->SetMsgAnswer(veAnswer);
-				break;
-			}
-		default:
-			pMsg->SetMsgSuccess(false);
+	case GETVISTAVERSION:
+		{
+			string answer = string(VistaVersion::GetVersion()) + string(" ")+string(VistaVersion::GetBuildDateString());
+			VistaMsg::MSG veAnswer;
+			VistaMsg::AssignMsgByString(answer, veAnswer);
+			//veAnswer.assign(answer.begin(), answer.end());
+			pMsg->SetMsgAnswer(veAnswer);
 			break;
+		}
+	case GETAPPLICATIONNAME:
+		{
+			string answer = m_pSystem->GetApplicationName();
+			VistaMsg::MSG veAnswer;
+			VistaMsg::AssignMsgByString(answer, veAnswer);
+			//veAnswer.assign(answer.begin(), answer.end());
+			pMsg->SetMsgAnswer(veAnswer);
+			break;
+		}
+	case GETOSTYPE:
+		{
+			string answer = VistaEnvironment::GetOSystem();
+			VistaMsg::MSG veAnswer;
+			VistaMsg::AssignMsgByString(answer, veAnswer);
+			//veAnswer.assign(answer.begin(), answer.end());
+			pMsg->SetMsgAnswer(veAnswer);
+			break;
+		}
+	case GETCPUTYPE:
+		{
+			string answer = VistaEnvironment::GetCPUType();
+			VistaMsg::MSG veAnswer;
+			VistaMsg::AssignMsgByString(answer, veAnswer);
+			//veAnswer.assign(answer.begin(), answer.end());
+			pMsg->SetMsgAnswer(veAnswer);
+			break;
+		}
+	case GETNUMBEROFPROCESSORS:
+		{
+			string answer = VistaEnvironment::GetNumberOfProcessors();
+			VistaMsg::MSG veAnswer;
+			VistaMsg::AssignMsgByString(answer, veAnswer);
+			//veAnswer.assign(answer.begin(), answer.end());
+			pMsg->SetMsgAnswer(veAnswer);
+			break;
+		}
+	case GETMEMORY:
+		{
+			string answer = VistaEnvironment::GetMemory();
+			VistaMsg::MSG veAnswer;
+			VistaMsg::AssignMsgByString(answer, veAnswer);
+			//veAnswer.assign(answer.begin(), answer.end());
+			pMsg->SetMsgAnswer(veAnswer);
+			break;
+		}
+	case QUITAPP:
+		{
+			m_pSystem->Quit();
+			break;
+		}
+	case DISCONNECT:
+		{
+			Disconnect();
+			break;
+		}
+	case ISCLUSTERLEADER:
+		{
+			string answer = ( m_pSystem->GetClusterMode()->GetIsLeader() ? "true" : "false");
+			VistaMsg::MSG veAnswer;
+			VistaMsg::AssignMsgByString(answer, veAnswer);
+			pMsg->SetMsgAnswer(veAnswer);
+			break;
+		}
+	case ISCLUSTERFOLLOWER:
+		{
+			string answer = ( m_pSystem->GetClusterMode()->GetIsFollower() ? "true" : "false");
+			VistaMsg::MSG veAnswer;
+			VistaMsg::AssignMsgByString(answer,veAnswer);
+			pMsg->SetMsgAnswer(veAnswer);
+			break;
+		}
+	case GETCLUSTERMODE:
+		{
+			string answer = m_pSystem->GetClusterMode()->GetClusterModeName();
+			VistaMsg::MSG veAnswer;
+			VistaMsg::AssignMsgByString(answer,veAnswer);
+			pMsg->SetMsgAnswer(veAnswer);
+			break;
+		}
+	case GETINIFILE:
+		{
+			string answer = m_pSystem->GetIniFile();
+			VistaMsg::MSG veAnswer;
+			VistaMsg::AssignMsgByString(answer, veAnswer);
+			pMsg->SetMsgAnswer(veAnswer);
+			break;
+		}
+	case SETINIFILE:
+		{
+			vector<VistaType::byte> vecMsg = pMsg->GetThisMsg();
+#if defined(LINUX) || (defined(WIN32) && (_MSC_VER>=1300)) || defined(DARWIN)
+			string sIniFile(vecMsg.begin(), vecMsg.begin()+vecMsg.size());
+#else
+			string sIniFile((char*)vecMsg.begin(), (char*)vecMsg.begin()+vecMsg.size());
+#endif
+			//sIniFile.assign((const char*)vec.begin(), (const char*)vec.end());
+			m_pSystem->SetIniFile(sIniFile);
+			sIniFile = "OK";
+			VistaMsg::MSG veAnswer; //(sIniFile.begin(), sIniFile.end());
+			VistaMsg::AssignMsgByString(sIniFile, veAnswer);
+			//veAnswer.assign((VistaType::byte*)sIniFile.begin(), (unsigned char *)sIniFile.end());
+			pMsg->SetMsgAnswer(veAnswer);
+			break;
+		}
+	default:
+		pMsg->SetMsgSuccess(false);
+		break;
 	}
 	return pMsg->GetMsgSuccess();
 }
@@ -1030,59 +1015,59 @@ bool VistaKernelMsgPort::DispatchDisplayMsg(int iMsgType, VistaMsg *pMsg, VistaB
 {
 	switch(iMsgType)
 	{
-		case GETROOT:
-			{
-				VistaByteBufferSerializer ser;
-				VistaMsg::MSG veAnswer;
-				//ser.SetBufferByReference(veAnswer);
+	case GETROOT:
+		{
+			VistaByteBufferSerializer ser;
+			VistaMsg::MSG veAnswer;
+			//ser.SetBufferByReference(veAnswer);
 
-				VistaSG *pSG = m_pSystem->GetGraphicsManager()->GetSceneGraph();
-				VistaTransformMatrix trans;
-				/**
-				 * @todo think about the protokoll
-				 * pSG->GetRoot()->GetTransform(trans);
-				 */
-				for(int i=0; i < 4; ++i)
-					for(int j=0; j < 4; ++j)
-						ser.WriteFloat32(trans.GetValue(i,j));
+			//VistaSceneGraph *pSG = m_pSystem->GetGraphicsManager()->GetSceneGraph();
+			VistaTransformMatrix trans;
+			/**
+			* @todo think about the protokoll
+			* pSG->GetRoot()->GetTransform(trans);
+			*/
+			for(int i=0; i < 4; ++i)
+				for(int j=0; j < 4; ++j)
+					ser.WriteFloat32(trans.GetValue(i,j));
 
-				//printf("veAnswer size=%d\n", veAnswer.size());
-				ser.GetBuffer(veAnswer);
-				pMsg->SetMsgAnswer(veAnswer);
-				//vector<unsigned char> vec = pMsg->GetMsgAnswer();
-				//for(int k=0; k < vec.size(); ++k)
-				//    printf("%x ", vec[k]);
+			//printf("veAnswer size=%d\n", veAnswer.size());
+			ser.GetBuffer(veAnswer);
+			pMsg->SetMsgAnswer(veAnswer);
+			//vector<VistaType::byte> vec = pMsg->GetMsgAnswer();
+			//for(int k=0; k < vec.size(); ++k)
+			//    printf("%x ", vec[k]);
 
-				break;
-			}
-		case GETDISPLAYSYSTEM:
-			{
-				VistaByteBufferSerializer ser;
-				VistaMsg::MSG veAnswer;
+			break;
+		}
+	case GETDISPLAYSYSTEM:
+		{
+			VistaByteBufferSerializer ser;
+			VistaMsg::MSG veAnswer;
 
-//                VistaDisplayManager *pDispMan = m_pSystem->GetDisplayManager();
-//                VistaDisplaySystem  *pDispSys = pDispMan->GetCurDisplaySystem();
-//                ser.WriteSerializable(*pDispSys);
-//                ser.GetBuffer(veAnswer);
-//                pMsg->SetMsgAnswer(veAnswer);
-				break;
-			}
-		case SETDISPLAYSYSTEM:
-			{
-				VistaMsg::MSG veAnswer;
-//                VistaDisplayManager *pDispMan = m_pSystem->GetDisplayManager();
-//                VistaDisplaySystem  *pDispSys = pDispMan->GetCurDisplaySystem();
-//                dsSer.ReadSerializable(*pDispSys);
+			//                VistaDisplayManager *pDispMan = m_pSystem->GetDisplayManager();
+			//                VistaDisplaySystem  *pDispSys = pDispMan->GetCurDisplaySystem();
+			//                ser.WriteSerializable(*pDispSys);
+			//                ser.GetBuffer(veAnswer);
+			//                pMsg->SetMsgAnswer(veAnswer);
+			break;
+		}
+	case SETDISPLAYSYSTEM:
+		{
+			VistaMsg::MSG veAnswer;
+			//                VistaDisplayManager *pDispMan = m_pSystem->GetDisplayManager();
+			//                VistaDisplaySystem  *pDispSys = pDispMan->GetCurDisplaySystem();
+			//                dsSer.ReadSerializable(*pDispSys);
 
-//                pDispSys->UpdateViewPoint();
+			//                pDispSys->UpdateViewPoint();
 
-				veAnswer.push_back('O');
-				veAnswer.push_back('K');
-				pMsg->SetMsgAnswer(veAnswer);
-				break;
-			}
-		default:
-			pMsg->SetMsgSuccess(false);
+			veAnswer.push_back('O');
+			veAnswer.push_back('K');
+			pMsg->SetMsgAnswer(veAnswer);
+			break;
+		}
+	default:
+		pMsg->SetMsgSuccess(false);
 
 	}
 	return pMsg->GetMsgSuccess();
@@ -1094,45 +1079,45 @@ bool VistaKernelMsgPort::DispatchInteractionDeviceMsg(int iMsgType, VistaMsg *pM
 	{
 	case GETDEVICE:
 		//{
-	//		VistaMsg::MSG veAnswer;
-	//		int iLength = 0;
-	//		string sDevRole;
+		//		VistaMsg::MSG veAnswer;
+		//		int iLength = 0;
+		//		string sDevRole;
 
-	//		dsSer.ReadInt32(iLength);
-	//		dsSer.ReadString(sDevRole, iLength);
-	//		VistaInputDevice *pDevice = m_pSystem->GetOldInteractionManager()->GetInputDeviceByRole(sDevRole);
-	//		if(pDevice)
-	//		{
-	//			VistaByteBufferSerializer ser;
-	//			(*pDevice).Serialize(ser);
+		//		dsSer.ReadInt32(iLength);
+		//		dsSer.ReadString(sDevRole, iLength);
+		//		VistaInputDevice *pDevice = m_pSystem->GetOldInteractionManager()->GetInputDeviceByRole(sDevRole);
+		//		if(pDevice)
+		//		{
+		//			VistaByteBufferSerializer ser;
+		//			(*pDevice).Serialize(ser);
 
-	//			ser.GetBuffer(veAnswer);
-	//			pMsg->SetMsgAnswer(veAnswer);
-	//		}
-	//		else
-	//			pMsg->SetMsgSuccess(false);
-	//		break;
-	//	}
-	//case SETDEVICE:
-	//	{
-	//		VistaMsg::MSG veAnswer;
-	//		int iLength = 0;
-	//		string sDevRole;
+		//			ser.GetBuffer(veAnswer);
+		//			pMsg->SetMsgAnswer(veAnswer);
+		//		}
+		//		else
+		//			pMsg->SetMsgSuccess(false);
+		//		break;
+		//	}
+		//case SETDEVICE:
+		//	{
+		//		VistaMsg::MSG veAnswer;
+		//		int iLength = 0;
+		//		string sDevRole;
 
-	//		dsSer.ReadInt32(iLength);
-	//		dsSer.ReadString(sDevRole, iLength);
-	//		VistaInputDevice *pDevice = m_pSystem->GetOldInteractionManager()->GetInputDeviceByRole(sDevRole);
-	//		if(pDevice)
-	//		{
-	//			VistaByteBufferDeSerializer deSer;
-	//			(*pDevice).DeSerialize(deSer);
+		//		dsSer.ReadInt32(iLength);
+		//		dsSer.ReadString(sDevRole, iLength);
+		//		VistaInputDevice *pDevice = m_pSystem->GetOldInteractionManager()->GetInputDeviceByRole(sDevRole);
+		//		if(pDevice)
+		//		{
+		//			VistaByteBufferDeSerializer deSer;
+		//			(*pDevice).DeSerialize(deSer);
 
-	//			pMsg->SetMsgSuccess(true);
-	//		}
-	//		else
-	//			pMsg->SetMsgSuccess(false);
-	//		break;
-	//	}
+		//			pMsg->SetMsgSuccess(true);
+		//		}
+		//		else
+		//			pMsg->SetMsgSuccess(false);
+		//		break;
+		//	}
 	default:
 		pMsg->SetMsgSuccess(false);
 		break;

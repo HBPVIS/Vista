@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaHapticDeviceEmulatorDriver.h 23044 2011-08-23 14:22:37Z dr165799 $
 
 #ifndef _VistaHapticDeviceEmulatorDRIVER_H
 #define _VistaHapticDeviceEmulatorDRIVER_H

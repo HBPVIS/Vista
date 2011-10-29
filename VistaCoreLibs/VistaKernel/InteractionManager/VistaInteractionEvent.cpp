@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaInteractionEvent.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VistaInteractionEvent.h"
 #include <VistaDeviceDriversBase/VistaDeviceSensor.h>
@@ -105,7 +105,7 @@ void VistaInteractionEvent::SetEventNode(IVdfnNode *pNode)
 
 void VistaInteractionEvent::SetTime(double dTs)
 {
-	m_dTime = dTs; // set protected member.
+	m_nTime = dTs; // set protected member.
 }
 
 
@@ -133,7 +133,7 @@ int VistaInteractionEvent::Serialize(IVistaSerializer &ser) const
 	for( PortList::const_iterator it = m_mpPortChangeMap.begin();
 		it != m_mpPortChangeMap.end(); ++it )
 	{
-		VistaType::sint32 nLength = (*it).length();
+		VistaType::sint32 nLength = (int)(*it).length();
 		nRet += ser.WriteInt32( nLength );
 		nRet += ser.WriteString( *it );
 	}
@@ -150,7 +150,7 @@ int VistaInteractionEvent::DeSerialize(IVistaDeSerializer &deSer)
 	nRet += deSer.ReadInt32(m_nUpdateMsg);
 	nRet += deSer.ReadBool(bContext);
 
-	if(bContext)
+	if( bContext )
 	{
 		int nRoleId = 0;
 		nRet += deSer.ReadInt32(nRoleId);
@@ -162,14 +162,15 @@ int VistaInteractionEvent::DeSerialize(IVistaDeSerializer &deSer)
 
 		bool bNode = false;
 		nRet += deSer.ReadBool( bNode );
-		if(bNode)
+		if( bNode )
 		{
 			VistaType::sint32 size = 0;
 			deSer.ReadInt32( size );
 			std::string strName;
 			deSer.ReadString( strName, size );
 
-			m_pEventNode = m_pContext->GetTransformGraph()->GetNodeByName( strName );
+			if( bNode && m_pContext->GetTransformGraph() != NULL )
+				m_pEventNode = m_pContext->GetTransformGraph()->GetNodeByName( strName );
 		}
 		else
 			m_pEventNode = NULL; // can, but should not happen
@@ -230,7 +231,7 @@ void VistaInteractionEvent::Debug(std::ostream & out) const
 	out << " [ViIn]     event signature: " << GetSignature() << "\n";
 	//out << " [ViIn]     event role     : [" << m_pMgr->GetRoleForId(m_pContext->GetRoleId())
 		//<< "]\n";
-	out << " [ViIn]     event id       : [" << GetIdString(GetId()) << "]" << endl;
+	out << " [ViIn]     event id       : [" << GetIdString(GetId()) << "]" << std::endl;
 }
 
 /*============================================================================*/

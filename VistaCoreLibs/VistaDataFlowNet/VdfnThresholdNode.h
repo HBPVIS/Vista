@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnThresholdNode.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VDFNTHRESHOLDNODE
 #define _VDFNTHRESHOLDNODE
@@ -114,15 +114,28 @@ protected:
 			m_oThresholdValue = m_pThreshold->GetValueConstRef();
 
 		const T& oValue = m_pIn->GetValueConstRef();
-		if( oValue >= m_oThresholdValue
-			|| ( m_bTestAbsoluteValue && -oValue >= m_oThresholdValue ) )
+		
+		if( oValue >= m_oThresholdValue )		
 		{
-			//std::cout << oValue << " < " << m_oThresholdValue << " : true" << std::endl;
-			m_pOut->SetValue( oValue, GetUpdateTimeStamp() );
+			m_pOut->SetValue( oValue, GetUpdateTimeStamp() );			
 		}
+		// this second line may look a little strange, but is necessary for unsigned
+		// types: for them, y=-x is greater than zero, which may lead to wrong results.
+		// Thus, we verify that the negation is actually negative
+		// Since negating an unsigned type triggers a warning, we disable it
+#ifdef WIN32
+#pragma warning( push )
+#pragma warning( disable: 4146 )
+#endif
+		else if( m_bTestAbsoluteValue && -oValue >= m_oThresholdValue && -oValue < T(0) )
+		{
+			m_pOut->SetValue( oValue, GetUpdateTimeStamp() );			
+		}
+#ifdef WIN32
+#pragma warning( push )
+#endif
 		else
 		{
-			//std::cout << oValue << " < " << m_oThresholdValue << " : false" << std::endl;
 			switch( m_iMode )
 			{
 			case BTHM_BLOCK:
@@ -137,9 +150,7 @@ protected:
 				m_pOut->SetValue( T(0), GetUpdateTimeStamp() );
 				break;
 			default: 
-				return false;
-
-				
+				return false;				
 			}
 		}
 

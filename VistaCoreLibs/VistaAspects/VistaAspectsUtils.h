@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaAspectsUtils.h 22873 2011-08-08 10:48:52Z dr165799 $
 
 #ifndef _VISTAASPECTSUTILS_H
 #define _VISTAASPECTSUTILS_H
@@ -159,17 +159,27 @@ public:
 	/**
 	 * Utility Functor for case-sensitive or -insensitive string comparison
 	 */
-	class StringCompare
+	class VISTAASPECTSAPI StringCompareObject
 	{
 	public:
-		StringCompare( const bool bCaseSensitiveCompare = true );
-		virtual ~StringCompare() {};
-		virtual bool operator() ( const std::string& sLeft, const std::string& sRight ) const;
+		StringCompareObject( const bool bCaseSensitive = true );
+		bool operator() ( const std::string& sLeft, const std::string& sRight ) const;
 
 		void SetIsCaseSensitive( const bool bSet );
 		bool GetIsCaseSensitive() const;
 	private:
-		bool m_bCaseSensitiveCompare;
+		bool m_bCaseSensitive;
+	};
+	class VISTAASPECTSAPI StringLessObject
+	{
+	public:
+		StringLessObject( const bool bCaseSensitive = true );
+		bool operator() ( const std::string& sLeft, const std::string& sRight ) const;
+
+		void SetIsCaseSensitive( const bool bSet );
+		bool GetIsCaseSensitive() const;
+	private:
+		bool m_bCaseSensitive;
 	};
 };
 

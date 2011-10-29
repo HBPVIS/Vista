@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaConnectionPipe.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #if !defined(WIN32)
 #include <poll.h>
@@ -36,7 +36,8 @@
 
 #include <iostream>
 #include "VistaConnectionPipe.h"
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+
+#include <VistaBase/VistaExceptionBase.h>
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -114,10 +115,7 @@ int VistaConnectionPipe::Receive (void *buffer, const int length, int iTimeout  
 	/**
 	 * @todo implement
 	 */
-#ifdef DEBUG
-	vipcerr << "[VistaConnectionPipe::Receive] - NOT IMPLEMENTED for this platform!" << std::endl;
-#endif
-	return 0;
+	VISTA_THROW_NOT_IMPLEMENTED
 #endif
 }
 
@@ -138,10 +136,7 @@ int VistaConnectionPipe::Send    (const void *buffer, const int length)
 	/**
 	 * @todo implement
 	 */
-#ifdef DEBUG
-	vipcerr << "[VistaConnectionPipe::Send] - NOT IMPLEMENTED for this platform!" << std::endl;
-#endif
-	return 0;
+	VISTA_THROW_NOT_IMPLEMENTED
 #endif
 }
 
@@ -162,10 +157,7 @@ bool VistaConnectionPipe::HasPendingData() const
 	/**
 	 * @todo implement
 	 */
-#ifdef DEBUG
-	vipcerr << "[VistaConnectionPipe::HasPendingData] - NOT IMPLEMENTED for this platform!" << std::endl;
-#endif
-	return false;
+	VISTA_THROW_NOT_IMPLEMENTED
 #endif
 }
 
@@ -184,10 +176,7 @@ unsigned long VistaConnectionPipe::PendingDataSize() const
 	else
 		return 0;
 #else
-#ifdef DEBUG
-	vipcerr << "[VistaConnectionPipe::HasPendingData] - NOT IMPLEMENTED for this platform!" << std::endl;
-#endif
-	return 0;
+	VISTA_THROW_NOT_IMPLEMENTED
 #endif
 }
 
@@ -196,10 +185,7 @@ HANDLE VistaConnectionPipe::GetConnectionDescriptor() const
 #if !defined(WIN32)
 	return m_fd[PIPE_W];
 #else
-	/**
-	 * @todo is this valid?
-	 */
-	return HANDLE(~0);
+	VISTA_THROW_NOT_IMPLEMENTED
 #endif
 }
 
@@ -208,10 +194,7 @@ HANDLE VistaConnectionPipe::GetConnectionWaitForDescriptor()
 #if !defined(WIN32)
 	return m_fd[PIPE_R];
 #else
-	/**
-	 * @todo is this valid?
-	 */
-	return HANDLE(~0);
+	VISTA_THROW_NOT_IMPLEMENTED
 #endif
 }
 

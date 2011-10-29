@@ -20,15 +20,15 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaProfiler.cpp 23279 2011-09-13 11:41:23Z dr165799 $
+// $Id$
 
 #include "VistaToolsStd.h"
 #include "VistaProfiler.h"
 #include "VistaFileSystemDirectory.h"
 #include "VistaFileSystemFile.h"
-#include "VistaToolsOut.h"
 
 #include <VistaBase/VistaTimeUtils.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #ifdef WIN32
 	#pragma warning(disable: 4996)
@@ -116,7 +116,7 @@ VistaProfiler::~VistaProfiler()
 {
 	if(GetIsLoggingEnabled())
 	{
-		m_logStream << "[Destructor]" << endl;
+		m_logStream << "[Destructor]" << std::endl;
 	}
   if( m_logStream.is_open() )
   {
@@ -128,7 +128,7 @@ bool VistaProfiler::GetTheProfileSections ( list<string> &liStrResult, const str
 {
 	if(GetIsLoggingEnabled())
 	{
-		m_logStream << "[GetTheProfileSections] " << IniFileName << endl;
+		m_logStream << "[GetTheProfileSections] " << IniFileName << std::endl;
 	}
 
 	// Sektionsueberschrift generieren
@@ -142,12 +142,12 @@ bool VistaProfiler::GetTheProfileSections ( list<string> &liStrResult, const str
 
 	set<string> sSectionSet;
 
-	ifstream *pFile = NULL;
+	ifstream *pFile = OpenIniFile(IniFileName);
 
-	vtoolsout << "[VistaProfiler]: opening file [" << IniFileName << "]\n";
-	if(!(pFile = OpenIniFile(IniFileName)))
+	if( pFile == NULL )
 	{
-		vtoolsout << "[VistaProfiler]: NOT FOUND.\n";
+		vstr::warnp() << "[VistaProfiler]: File [" << IniFileName
+				<< "] could not be opened for reading" << std::endl;
 	}
 	else
 	{
@@ -181,7 +181,7 @@ bool VistaProfiler::GetTheProfileSections ( list<string> &liStrResult, const str
 	{
 
 		liStrResult.push_back(*cit2);
-		vtoolsout << "adding [" << *cit2 << "]\n";
+		//vstr::outf << "adding [" << *cit2 << "]\n";
 	}
 
 	// I would rather do it like this...
@@ -200,12 +200,11 @@ bool VistaProfiler::GetTheProfileSection ( const string &IniSectionName,
 {
 	if(GetIsLoggingEnabled())
 	{
-		m_logStream << "[GetTheProfileSection] " << IniFileName << " -> " << IniSectionName << endl;
+		m_logStream << "[GetTheProfileSection] " << IniFileName << " -> " << IniSectionName << std::endl;
 	}
 
 	//	cout << "[VistaProfiler]: GetTheProfileSection("
-//		 << IniSectionName << ", " << IniFileName << ")" << endl;
-	ifstream	*pFile = NULL;
+//		 << IniSectionName << ", " << IniFileName << ")" << std::endl;
 	string	SectionBuffer; //[ProfilerMaxBufferLength];
 	bool        bSectionFound = false;
 
@@ -213,10 +212,11 @@ bool VistaProfiler::GetTheProfileSection ( const string &IniSectionName,
 	// Sektionsueberschrift generieren
 	SectionBuffer = "[" + IniSectionName + "]";
 
-
-	if(!(pFile = OpenIniFile(IniFileName)))
+	ifstream	*pFile = OpenIniFile(IniFileName);
+	if( pFile == NULL )
 	{
-		vtoolsout << "[VistaProfiler]: " << IniFileName << " NOT FOUND.\n";
+		vstr::warnp() << "[VistaProfiler]: File [" << IniFileName
+			<< "] could not be opened for reading" << std::endl;
 	}
 	else
 	{
@@ -254,7 +254,7 @@ bool VistaProfiler::GetTheProfileList (const string &iniSectionName,
 	 * @todo log the read value, not the default one.
 	 */
 	if(GetIsLoggingEnabled())
-		m_logStream << "[GetTheProfileList] " << iniFileName << " -> " << iniSectionName << " -> " << entryName << " no default" << endl;
+		m_logStream << "[GetTheProfileList] " << iniFileName << " -> " << iniSectionName << " -> " << entryName << " no default" << std::endl;
 
 	string resultStr; //[ProfilerMaxBufferLength];
 	if (GetTheProfileString (iniSectionName, entryName,"", resultStr, iniFileName)
@@ -315,7 +315,7 @@ bool VistaProfiler::GetTheProfileList (	      const string &IniSectionName,
  * @todo log the read value, not the default one.
  */
 	if(GetIsLoggingEnabled())
-		m_logStream << "[GetTheProfileList] " << IniFileName << " -> " << EntryName << " " << DefaultString << endl;
+		m_logStream << "[GetTheProfileList] " << IniFileName << " -> " << EntryName << " " << DefaultString << std::endl;
 
 	string resultStr; //[ProfilerMaxBufferLength];
 	string configString;
@@ -381,7 +381,7 @@ bool VistaProfiler::GetTheProfileList (
  * @todo log the read value, not the default one.
  */
 	if(GetIsLoggingEnabled())
-		m_logStream << "[GetTheProfileList] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << DefaultString << endl;
+		m_logStream << "[GetTheProfileList] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << DefaultString << std::endl;
 
 	string resultStr; //[ProfilerMaxBufferLength];
 	string configString;
@@ -439,7 +439,7 @@ int VistaProfiler::GetTheProfileSectionEntries  ( const string &IniSectionName,
 									   const string &IniFileName)
 {
 	if(GetIsLoggingEnabled())
-		m_logStream << "[GetTheProfileSectionEntries] " << IniFileName << " -> " << IniSectionName << endl;
+		m_logStream << "[GetTheProfileSectionEntries] " << IniFileName << " -> " << IniSectionName << std::endl;
 
 	ifstream	*pFile = NULL;
 	char		LineBuffer[ProfilerMaxBufferLength];
@@ -453,9 +453,11 @@ int VistaProfiler::GetTheProfileSectionEntries  ( const string &IniSectionName,
 		return ProfilerPointerIsNull;
 
 	//		cout << "[VistaProfiler]: searching for file [" << sTmpName << "]\n";
-	if(!(pFile = OpenIniFile(IniFileName)))
+	pFile = OpenIniFile(IniFileName);
+	if( pFile == NULL )
 	{
-		vtoolsout << "[VistaProfiler]: " << IniFileName << " NOT FOUND.\n";
+		vstr::warnp() << "[VistaProfiler]: File [" << IniFileName
+				<< "] could not be opened for reading" << std::endl;
 	}
 	else
 	{
@@ -512,7 +514,7 @@ string VistaProfiler::GetTheProfileString(const string &iniSectionName,
  * @todo log the read value, not the default one.
  */
 	if(GetIsLoggingEnabled())
-		m_logStream << "[GetTheProfileString] " << sIniFileName << " -> " << iniSectionName << " -> " << sEntryName << " " << sDefaultString << endl;
+		m_logStream << "[GetTheProfileString] " << sIniFileName << " -> " << iniSectionName << " -> " << sEntryName << " " << sDefaultString << std::endl;
 
 	string sTmp;
 	GetTheProfileString(iniSectionName, sEntryName, sDefaultString, sTmp, sIniFileName);
@@ -528,7 +530,7 @@ bool VistaProfiler::GetTheProfileString (	      const string &IniSectionName,
 
 //	cout << "[VistaProfiler]: GetTheProfileString("
 //		 << IniSectionName << ", " << EntryName << ", " << DefaultString
-//		 << ", " << IniFileName << ")" << endl;
+//		 << ", " << IniFileName << ")" << std::endl;
 
 	ifstream	*pFile = NULL;
 	bool		SectionFound = false;
@@ -551,9 +553,11 @@ bool VistaProfiler::GetTheProfileString (	      const string &IniSectionName,
 
 
 	//		cout << "[VistaProfiler]: searching for file [" << sTmpName << "]\n";
-	if(!(pFile = OpenIniFile(IniFileName)))
+	pFile = OpenIniFile(IniFileName);
+	if( pFile == NULL )
 	{
-		vtoolsout << "[VistaProfiler]: " << IniFileName << " NOT FOUND.\n";
+		vstr::warnp() << "[VistaProfiler]: File [" << IniFileName
+				<< "] could not be opened for reading" << std::endl;
 	}
 	else
 	{
@@ -657,7 +661,7 @@ int	VistaProfiler::GetTheProfileInt      (		      const string &IniSectionName,
  * @todo log the read value, not the default one.
  */
 	if(GetIsLoggingEnabled())
-		m_logStream << "[GetTheProfileInt] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << DefaultInt << endl;
+		m_logStream << "[GetTheProfileInt] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << DefaultInt << std::endl;
 
 	string LineBuffer; //[ProfilerMaxBufferLength];
 	int	Result;
@@ -716,7 +720,7 @@ bool VistaProfiler::GetTheProfileBool (	      const string &IniSectionName,
 		m_logStream
 		<< "[GetTheProfileLong] " << IniFileName << " -> "
 		<< IniSectionName << " -> " << EntryName << " "
-		<< boolalpha << retVal << endl;
+		<< boolalpha << retVal << std::endl;
 
 	return retVal;
 }
@@ -731,7 +735,7 @@ long	VistaProfiler::GetTheProfileLong (	      const string &IniSectionName,
  * @todo log the read value, not the default one.
  */
 	if(GetIsLoggingEnabled())
-		m_logStream << "[GetTheProfileLong] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << DefaultLong << endl;
+		m_logStream << "[GetTheProfileLong] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << DefaultLong << std::endl;
 
 	string LineBuffer; //[ProfilerMaxBufferLength];
 	long	Result;
@@ -762,7 +766,7 @@ unsigned int	VistaProfiler::GetTheProfileUInt (   const string &IniSectionName,
  * @todo log the read value, not the default one.
  */
 	if(GetIsLoggingEnabled())
-		m_logStream << "[GetTheProfileUInt] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << DefaultUInt << endl;
+		m_logStream << "[GetTheProfileUInt] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << DefaultUInt << std::endl;
 
 	string		LineBuffer; //[ProfilerMaxBufferLength];
 	unsigned int	Result;
@@ -808,7 +812,7 @@ unsigned long	VistaProfiler::GetTheProfileULong (  const string &IniSectionName,
  * @todo log the read value, not the default one.
  */
 	if(GetIsLoggingEnabled())
-		m_logStream << "[GetTheProfileULong] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << DefaultULong << endl;
+		m_logStream << "[GetTheProfileULong] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << DefaultULong << std::endl;
 
 	string		LineBuffer;//[ProfilerMaxBufferLength];
 	unsigned long	Result;
@@ -856,7 +860,7 @@ float	VistaProfiler::GetTheProfileFloat (	      const string &IniSectionName,
  * @todo log the read value, not the default one.
  */
 	if(GetIsLoggingEnabled())
-		m_logStream << "[GetTheProfileFloat] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << DefaultFloat << endl;
+		m_logStream << "[GetTheProfileFloat] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << DefaultFloat << std::endl;
 
 	string	LineBuffer; //[ProfilerMaxBufferLength];
 	float	Result;
@@ -888,7 +892,7 @@ int	VistaProfiler::SetTheProfileString (	      const string &IniSectionName,
  * @todo log the read value, not the default one.
  */
 	if(GetIsLoggingEnabled())
-		m_logStream << "[SetTheProfileString] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << ValueString << endl;
+		m_logStream << "[SetTheProfileString] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << ValueString << std::endl;
 
 #ifdef WIN32
 	char *TmpFileName;
@@ -1066,7 +1070,7 @@ int	VistaProfiler::SetTheProfileInt (	      const string &IniSectionName,
  * @todo log the read value, not the default one.
  */
 	if(GetIsLoggingEnabled())
-		m_logStream << "[SetTheProfileInt] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << ValueInt << endl;
+		m_logStream << "[SetTheProfileInt] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << ValueInt << std::endl;
 
 	char	LineBuffer[ProfilerMaxBufferLength];
 
@@ -1087,7 +1091,7 @@ int	VistaProfiler::SetTheProfileLong (	      const string &IniSectionName,
  * @todo log the read value, not the default one.
  */
 	if(GetIsLoggingEnabled())
-		m_logStream << "[SetTheProfileLong] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << ValueLong << endl;
+		m_logStream << "[SetTheProfileLong] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << ValueLong << std::endl;
 
 	char	LineBuffer[ProfilerMaxBufferLength];
 
@@ -1108,7 +1112,7 @@ int	VistaProfiler::SetTheProfileUInt (	      const string &IniSectionName,
  * @todo log the read value, not the default one.
  */
 	if(GetIsLoggingEnabled())
-		m_logStream << "[SetTheProfileUInt] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << ValueUInt << endl;
+		m_logStream << "[SetTheProfileUInt] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << ValueUInt << std::endl;
 
 	char	LineBuffer[ProfilerMaxBufferLength];
 
@@ -1129,7 +1133,7 @@ int	VistaProfiler::SetTheProfileULong (	      const string &IniSectionName,
  * @todo log the read value, not the default one.
  */
 	if(GetIsLoggingEnabled())
-		m_logStream << "[SetTheProfileULong] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << ValueULong << endl;
+		m_logStream << "[SetTheProfileULong] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << " " << ValueULong << std::endl;
 
 	char	LineBuffer[ProfilerMaxBufferLength];
 
@@ -1150,7 +1154,7 @@ int	VistaProfiler::SetTheProfileFloat (	      const string &IniSectionName,
  * @todo log the real value, not the default one.
  */
 	if(GetIsLoggingEnabled())
-		m_logStream << "[SetTheProfileFloat] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << ValueFloat << endl;
+		m_logStream << "[SetTheProfileFloat] " << IniFileName << " -> " << IniSectionName << " -> " << EntryName << ValueFloat << std::endl;
 
 	char	LineBuffer[ProfilerMaxBufferLength];
 
@@ -1332,7 +1336,7 @@ bool  VistaProfiler::TestForIniFileReadAccess(const string &sFileName)
 		else
 		{
 			// file exists, but no read access, we utter a warning
-			cerr << "[VistaProfiler] File [" << sFileName << "] exists, "
+			vstr::warnp() << "[VistaProfiler] File [" << sFileName << "] exists, "
 					  << "but no read access.\n";
 			return false;
 		}
@@ -1368,7 +1372,7 @@ bool  VistaProfiler::TestForIniFileWriteAccess(const string &sFileName)
 		else
 		{
 			// file exists, but no read access, we utter a warning
-			cerr << "[VistaProfiler] File [" << sFileName << "] exists, "
+			vstr::warnp() << "[VistaProfiler] File [" << sFileName << "] exists, "
 					  << "but no write access.\n";
 			return false;
 		}

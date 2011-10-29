@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaThreadEventImp.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTATHREADEVENTIMP_H
 #define _VISTATHREADEVENTIMP_H
@@ -34,39 +34,14 @@
 
 #include <VistaBase/VistaBaseTypes.h>
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI IVistaThreadEventImp
 {
-private:
-protected:
 public:
-
-	/**
-	 *
-	 */
 	IVistaThreadEventImp( );
-
-	/**
-	 *
-	 */
 	virtual ~IVistaThreadEventImp();
 
-
-	/**
-	 *
-	 */
 	virtual void SignalEvent() = 0;
-
-	/**
-	 *
-	 */
 	virtual long WaitForEvent(bool bBlock) = 0;
-
-	/**
-	 *
-	 */
 	virtual long WaitForEvent(int iBlockTime) = 0;
 
 	virtual HANDLE GetEventSignalHandle() const = 0;
@@ -74,9 +49,6 @@ public:
 
 	virtual bool ResetThisEvent() = 0;
 
-	/**
-	 *
-	 */
 	static IVistaThreadEventImp *CreateThreadEventImp(bool bCreatePosix=false);
 };
 

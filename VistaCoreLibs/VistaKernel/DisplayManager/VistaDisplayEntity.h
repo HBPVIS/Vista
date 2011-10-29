@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDisplayEntity.h 22681 2011-07-27 20:56:47Z dr165799 $
 
 #if !defined _VISTADISPLAYENTITY_H
 #define _VISTADISPLAYENTITY_H
@@ -186,7 +186,7 @@ public:
 		P *parent = static_cast<P*>(
 			static_cast<const VistaDisplayEntity::IVistaDisplayEntityProperties&>(rObj).GetParent() );
 		R rTmp = (parent->*m_pfn)();
-		rProp.SetValue(VistaAspectsConversionStuff::ConvertToString(rTmp));
+		rProp.SetValue( VistaConversion::ToString( rTmp ));
 		rProp.SetPropertyType(nPropType);
 		return !rProp.GetIsNilProperty();
 	}
@@ -198,66 +198,6 @@ public:
 	TVistaDisplayEntityParentPropertyGet(const std::string &sPropName,
 										 const std::string &sClassType) {}
 };
-
-#if 0
-/**
- * P - parent type
- * A - ref type
- * usage, e.g. : bool Get(float &, float &) const;
- * -> TVistaProperty2RefGet<float, TYPE>("name", "type", &type::Get)
- */
-template<class A, class P, VistaProperty::ePropType nSubType = VistaProperty::PROPT_DOUBLE>
-		 class TVistaDisplayEntityParentProperty3RefGet : public IVistaPropertyGetFunctor
-{
-	public:
-	/**
-	* This constructor takes all the necessary parameters for creating a
-	* functor which gets a single property from a IVistaReflectionable
-	*
-	* @param	sPropName	string encoding of property's name (i.e. key)
-	* @param	sClassType	reflectionable's type name as encoded in the base type list
-	* @param	pfm			pointer to the reflectionable's get method to be used
-	*/
-	TVistaDisplayEntityParentProperty3RefGet(const std::string &sPropName,
-											 const std::string &sClassType,
-											 bool (P::*pfm)(A&, A&, A&) const,
-											 const std::string &sDescription = "")
-	: IVistaPropertyGetFunctor(sPropName, sClassType, sDescription),
-	m_pfn(pfm)
-	{
-
-	}
-	~TVistaDisplayEntityParentProperty3RefGet()
-	{
-	}
-
-	virtual bool operator()(const IVistaPropertyAwareable &rObj,
-							VistaProperty &rProp) const
-	{
-		A a,b,c;
-		if((static_cast<const VistaDisplayEntity&>(rObj).*m_pfn)(a,b,c))
-		{
-			std::string sA, sB, sC;
-			sA = VistaAspectsConversionStuff::ConvertToString(a);
-			sB = VistaAspectsConversionStuff::ConvertToString(b);
-			sC = VistaAspectsConversionStuff::ConvertToString(c);
-
-			rProp.SetValue(sA + string(", ") + sB + string(", ") + sC);
-			rProp.SetPropertyType(VistaProperty::PROPT_LIST);
-			rProp.SetPropertyListSubType(nSubType);
-		}
-
-		return !rProp.GetIsNilProperty();
-	}
-
-	protected:
-	bool (P::*m_pfn)(A&, A&, A&) const;
-	private:
-	TVistaDisplayEntityParentProperty3RefGet() {}
-	TVistaDisplayEntityParentProperty3RefGet(const std::string &sPropName,
-											 const std::string &sClassType) {}
-};
-#endif
 
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */

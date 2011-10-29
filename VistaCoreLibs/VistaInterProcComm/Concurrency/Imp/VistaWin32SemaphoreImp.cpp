@@ -20,14 +20,17 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaWin32SemaphoreImp.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include <VistaInterProcComm/Concurrency/VistaIpcThreadModel.h>
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
 
 #if defined(VISTA_THREADING_WIN32)
 #define _WIN32_WINNT 0x0500 // we need this for the try call
+
 #include "VistaWin32SemaphoreImp.h" 
+
+#include <VistaBase/VistaStreamUtils.h>
+
 #include <iostream>
 
 /*============================================================================*/
@@ -77,8 +80,8 @@ void VistaWin32SemaphoreImp::Wait    ()
 		DWORD hr = WaitForSingleObject(m_hs, INFINITE);
 		if(hr == WAIT_ABANDONED)
 		{
-			vipcerr << "[VSemWin32]: Semaphore @ " << this
-					  << ", wait was abandoned.\n";
+			vstr::errp() << "[VSemWin32]: Semaphore @ " << this
+				<< ", wait was abandoned" << std::endl;
 		}
 	}
 }
@@ -94,15 +97,13 @@ bool VistaWin32SemaphoreImp::TryWait ()
 		DWORD hr = WaitForSingleObject(m_hs, 0);
 		if(hr == WAIT_ABANDONED)
 		{
-			vipcerr << "[VSemWin32]: Semaphore @ " << this
-					  << ", trywait was abandoned.\n";
+			vstr::errp() << "[VSemWin32]: Semaphore @ " << this
+					<< ", trywait was abandoned" << std::endl;
 			return false;
 		}
 		
 		return (hr == WAIT_OBJECT_0);
 	}
-
-	return false;
 }
 
 void VistaWin32SemaphoreImp::Post    ()

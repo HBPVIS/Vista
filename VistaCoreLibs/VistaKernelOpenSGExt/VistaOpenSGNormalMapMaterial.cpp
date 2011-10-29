@@ -20,9 +20,11 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenSGNormalMapMaterial.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #if defined(WIN32)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4189)
 #pragma warning(disable: 4275)
 #pragma warning(disable: 4267)
 #pragma warning(disable: 4251)
@@ -32,13 +34,13 @@
 #include "VistaKernelOpenSGExtConfig.h"
 #include "VistaOpenSGNormalMapMaterial.h"
 
-#include <VistaBase/VistaVersion.h>
 #include <VistaKernel/OpenSG/VistaOpenSGGraphicsBridge.h>
 
 #include <VistaKernel/EventManager/VistaEventManager.h>
 #include <VistaKernel/GraphicsManager/VistaLightNode.h>
 
 #include <VistaTools/VistaRandomNumberGenerator.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #ifdef WIN32
 #pragma
@@ -56,8 +58,6 @@
 #include <OpenSG/OSGVerifyGeoGraphOp.h>
 #include <OpenSG/OSGVerifyGraphOp.h>
 #include <OpenSG/OSGNode.h>
-
-#include "VistaKernelOpenSGExtOut.h"
 
 using namespace OSG;
 static int iBaseMapUnit   = 2;
@@ -289,7 +289,7 @@ void VistaOpenSGNormalMapMaterial::ApplyToGeometry(VistaGeometry *pGeo, bool gen
 		{
 			// create single indexed geometry, as calculating binormals for
 			// multi-indexed geo is non-trivial and not implemented for OpenSG
-			Int32 rv = createSingleIndex(ptrGeo);
+			createSingleIndex(ptrGeo);
 			// calculate vertex tangents and binormals and sort them as
 			// secondary and tertiary texture coordinates
 			// -> as OpenSG does not support generic vertex attributes in 1.8
@@ -297,7 +297,7 @@ void VistaOpenSGNormalMapMaterial::ApplyToGeometry(VistaGeometry *pGeo, bool gen
 		}
 		else
 		{
-			vosgexterr << "[VistaOpenSGNormalMapMaterial] - ERROR: invalid geometry detected, cannot generate vertex tangents for normal mapping!" << std::endl;
+			vstr::errp() << "[VistaOpenSGNormalMapMaterial] - invalid geometry detected, cannot generate vertex tangents for normal mapping!" << std::endl;
 		}
 	}
 
@@ -409,7 +409,7 @@ void VistaOpenSGNormalMapMaterial::SetVistaLight(VistaLightNode *pObj)
 {
 	if(m_pEvMgr == NULL)
 	{
-		vosgexterr << "[VistaOpenSGNormalMapMaterial]: trying to register light node, but no event manager registered.\n";
+		vstr::warnp() << "[VistaOpenSGNormalMapMaterial]: trying to register light node, but no event manager registered" << std::endl;
 		return;
 	}
 

@@ -87,3 +87,5 @@ extern "C" VISTAMIDIPLUGINAPI const char *GetDeviceClassName()
 {
 	return "VISTAMIDI";
 }
+
+

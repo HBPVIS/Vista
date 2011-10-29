@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaNullError.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef IDLVISTANULLERROR_H
 #define IDLVISTANULLERROR_H
@@ -45,16 +45,8 @@
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI DLVistaNullError : public DLVistaCheckError
 {
-
-private:
-
-protected:
-
 public:
 	DLVistaNullError();
 	/**

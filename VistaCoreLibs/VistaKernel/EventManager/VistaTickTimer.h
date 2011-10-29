@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaTickTimer.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTATICKTIMER_H
 #define _VISTATICKTIMER_H
@@ -46,7 +46,7 @@
 class VistaEventManager;
 class VistaEventHandler;
 class VistaTickTimerEvent;
-class VistaClusterAux;
+class VistaClusterMode;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -91,7 +91,7 @@ public:
 	 * @param han a special handler for TickTimerEvents thrown from this TickTimer
 	 */
 	VistaTickTimer(VistaEventManager *pEvMa,
-					VistaClusterAux *pClusterAux,
+					VistaClusterMode *pClusterAux,
 					VistaEventHandler *han = 0, int iEvType = -1);
 
 	/**
@@ -177,7 +177,7 @@ protected:
 	/**
 	 * Needed for the global timing in a vista frame (frame clock)
 	 */
-	VistaClusterAux *m_pClusterAux;
+	VistaClusterMode *m_pClusterAux;
 
 private:
 	/**

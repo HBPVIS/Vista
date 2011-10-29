@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaRoutingPipe.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef IDLVISTAROUTINGPIPE_H
 #define IDLVISTAROUTINGPIPE_H
@@ -71,49 +71,20 @@ public:
 	 * we got a whole lot of space
 	 */
 	virtual int Capacity() const;
-	/**
-	 *
-	 */
+
 	virtual bool IsOutputComponent(IDLVistaPipeComponent *pComp) const;
-	/**
-	 *
-	 */
 	virtual IDLVistaPipeComponent *GetOutboundByIndex(int iIndex) const;
-	/**
-	 *
-	 */
 	virtual int GetNumberOfOutbounds() const;
-	/**
-	 *
-	 */
 	virtual bool AttachOutputComponent(IDLVistaPipeComponent *pComp );
 	/**
 	 *  Detach all output at once
 	 */
 	virtual bool DetachAllOuputs();
-	/**
-	*
-	*/
 	virtual bool AcceptDataPacket(IDLVistaDataPacket *pPacket, IDLVistaPipeComponent *pSender, bool bBlock=false);
-	/**
-	 *
-	 */
 	virtual bool RecycleDataPacket(IDLVistaDataPacket *pPacket, IDLVistaPipeComponent *pSender, bool bBlock=false);
-	/**
-	 *
-	 */
 	virtual IDLVistaDataPacket * GivePacket(bool bBlock);
-	/**
-	 *
-	 */
 	virtual IDLVistaDataPacket *ReturnPacket();
-	/**
-	 *
-	 */
 	virtual bool InitPacketMgmt();
-	/**
-	  *
-	  */
 	virtual std::list<IDLVistaPipeComponent *> GetOutputComponents() const;
 
 protected:
@@ -133,9 +104,6 @@ protected:
 	* Output ports
 	*/
 	std::vector<IDLVistaPipeComponent*> m_vecOutputs;
-	/**
-	*
-	*/
 	VistaMutex *m_pOutputLock;
 };
 

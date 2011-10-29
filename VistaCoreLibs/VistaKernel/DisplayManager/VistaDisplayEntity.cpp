@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDisplayEntity.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #if defined(WIN32)
 #pragma warning(disable: 4996)
@@ -83,10 +83,10 @@ IVistaDisplayEntityData *VistaDisplayEntity::GetData() const
 /*============================================================================*/
 void VistaDisplayEntity::Debug(std::ostream &out) const
 {
-	out << " [VistaDisplayEntity] - name:         " << GetNameForNameable() << endl;
-	out << " [VistaDisplayEntity] - id:           " << GetNameableId() << endl;
-	out << " [VistaDisplayEntity] - data pointer: " << m_pData << endl;
-	out << " [VistaDisplayEntity] - bridge:       " << m_pBridge << endl;
+	out << " [VistaDisplayEntity] - name:         " << GetNameForNameable() << std::endl;
+	out << " [VistaDisplayEntity] - id:           " << GetNameableId() << std::endl;
+	out << " [VistaDisplayEntity] - data pointer: " << m_pData << std::endl;
+	out << " [VistaDisplayEntity] - bridge:       " << m_pBridge << std::endl;
 }
 
 /*============================================================================*/
@@ -117,7 +117,7 @@ void VistaDisplayEntity::SetNameForNameable(const std::string &strNewName)
 std::string VistaDisplayEntity::GetNameableIdAsString() const
 {
 	char buf[128];
-	sprintf(buf, "%lx\0", long(GetNameableId()));
+	sprintf(buf, "%lx", long(GetNameableId()));
 	return string(buf);
 }
 
@@ -153,10 +153,10 @@ namespace {
 	};
 
 
-	IVistaPropertySetFunctor *aCsFunctors[] =
+/*	IVistaPropertySetFunctor *aCsFunctors[] =
 	{
 		NULL
-	};
+	};*/
 }
 
 std::string VistaDisplayEntity::IVistaDisplayEntityProperties::GetName() const

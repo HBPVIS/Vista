@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaMutex.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTAMUTEX_H
 #define _VISTAMUTEX_H
@@ -46,30 +46,15 @@ class IVistaMutexImp;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI VistaMutex
 {
-
 public:
-
-	/**
-	 *
-	 */
 	VistaMutex  ();
-
 	VistaMutex (const std::string &sName);
 
-	/**
-	 *
-	 */
 	virtual ~VistaMutex();
 
-	/**
-	 *
-	 */
-	void Lock    ();
+	void Lock();
 
 	/**
 	 * Tries to access the lock on this mutex, if it is already gained by some other
@@ -83,39 +68,17 @@ public:
 	 */
 	bool TryLock ();
 
-
-	/**
-	 *
-	 */
 	void Unlock  ();
 
 	IVistaMutexImp *GetImplementation() const { return m_pImp; };
 private:
-
-	/**
-	 *
-	 */
 	VistaMutex ( const VistaMutex & );
-
-
-	/**
-	 *
-	 */
 	VistaMutex & operator=   ( const VistaMutex & );
-
-
-	/**
-	 *
-	 */
 	IVistaMutexImp  *m_pImp;
 };
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI VistaMutexLock
 {
-
 public:
 	/**
 	 * Constructor, locks the mutex. Always create mutex-locks
@@ -123,20 +86,17 @@ public:
 	 * (even after throwing an exception)
 	 */
 	inline VistaMutexLock  ( VistaMutex & inMutex )
-		: mutex( inMutex ), m_bLocked(false)
-		{
-			Lock();
-		}
+	: mutex( inMutex ), m_bLocked(false)
+	{
+		Lock();
+	}
 
 
-	/**
-	 *
-	 */
 	inline ~VistaMutexLock ()
-		{
-			if(m_bLocked)
-				Unlock();
-		}
+	{
+		if(m_bLocked)
+			Unlock();
+	}
 
 	void Lock()
 	{
@@ -151,10 +111,6 @@ public:
 	}
 
 private:
-
-	/**
-	 *
-	 */
 	VistaMutexLock & operator=       ( const VistaMutexLock & );
 
 

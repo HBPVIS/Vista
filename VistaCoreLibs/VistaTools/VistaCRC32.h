@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaCRC32.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTACRC32_H
 #define _VISTACRC32_H
@@ -30,6 +30,8 @@
 /* INCLUDES                                                                   */
 /*============================================================================*/
 #include "VistaToolsConfig.h"
+
+#include <VistaBase/VistaBaseTypes.h>
 
 #include <string>
 
@@ -83,20 +85,20 @@ public:
 	unsigned long	ProcessString	(const std::string &sText);
 	/// Computes and returns checksum
 
-	unsigned long	ProcessByteBuffer(unsigned char *cByteBuffer, int iLength);
+	unsigned long	ProcessByteBuffer(VistaType::byte* pByteBuffer, int iLength);
 
 	/// Adds successively to checksum
 	void			AddString		(const std::string &sText);
 
 	/// Adds successively to checksum
-	void			AddByteBuffer	(unsigned char *cByteBuffer, int iLength);
+	void			AddByteBuffer	(VistaType::byte* pByteBuffer, int iLength);
 
 	/// Returns accumulated checksum and resets internal checksum
 	unsigned long	GetResult		();
 
 private:
 	void			Init			(unsigned long ulKey);
-	void			AddByte			(unsigned char cByte);
+	void			AddByte			(VistaType::byte cByte);
 
 	unsigned long m_ulKey;	// really 33-bit key, counting implicit 1 top-bit
 	unsigned long m_ulLUTElements[256];

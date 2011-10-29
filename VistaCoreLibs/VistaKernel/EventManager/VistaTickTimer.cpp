@@ -20,13 +20,13 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaTickTimer.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaTickTimer.h"
 
 #include <VistaKernel/EventManager/VistaEventManager.h>
 #include <VistaKernel/EventManager/VistaSystemEvent.h>
-#include <VistaKernel/VistaClusterAux.h>
+#include <VistaKernel/Cluster/VistaClusterMode.h>
 
 
 #include "VistaTickTimerEvent.h"
@@ -36,7 +36,7 @@
 //int VistaTickTimer::m_iTickTimerEventType = -1;
 
 VistaTickTimer::VistaTickTimer(VistaEventManager *evMa, 
-								 VistaClusterAux *pClusterAux,
+								 VistaClusterMode *pClusterAux,
 								 VistaEventHandler *pHandler, 
 								 int iEvType)
 : VistaEventObserver(),

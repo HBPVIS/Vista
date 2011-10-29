@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaCheckError.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef DLVISTACHECKERROR_H
 #define DLVISTACHECKERROR_H
@@ -44,9 +44,6 @@
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI DLVistaCheckError
 {
 

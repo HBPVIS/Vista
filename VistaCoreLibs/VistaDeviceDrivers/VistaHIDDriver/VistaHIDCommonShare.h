@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaHIDDriver.h 5570 2010-10-26 20:21:11Z ingoassenmacher $
 
 #ifndef _VISTAHIDDRIVERCOMMONSHARE_H__
 #define _VISTAHIDDRIVERCOMMONSHARE_H__

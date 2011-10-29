@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaHIDDriverForceFeedbackAspect.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 #if defined(LINUX)
 
@@ -84,7 +84,8 @@ bool VistaHIDDriverForceFeedbackAspect::SetForce( const VistaVector3D & force,
 	start_ff.code = 0;
 	start_ff.value = 1;
 
-	m_pCon->Send( &start_ff, sizeof(start_ff) );
+	int nRet = m_pCon->Send( &start_ff, sizeof(start_ff) );
+	return ( nRet == sizeof(start_ff) );
 }
 
 int VistaHIDDriverForceFeedbackAspect::GetNumInputDOF() const

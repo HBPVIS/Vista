@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaKernelMsgPort.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTAKERNELMSGPORT_H
 #define _VISTAKERNELMSGPORT_H
@@ -103,9 +103,6 @@ public:
 
 	std::string GetSignature() const;
 
-   /**
-	*
-	*/
 	virtual IDLVistaDataPacket* CreateInstance(IDLVistaPipeComponent*) const;
 
 
@@ -128,7 +125,7 @@ public:
 	//                    const std::string &sApplicationName,
 				//		IDLVistaPipeComponent *pFrontPipe = NULL);
 
-	VistaKernelMsgPort(VistaSystem &,
+	VistaKernelMsgPort( VistaSystem* pVistaSystem,
 						const std::string &sHost,
 						int iPort,
 						const std::string &sApplicationName,

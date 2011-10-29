@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaIOMultiplexerIP.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #ifdef WIN32
 #include <winsock2.h>
@@ -32,7 +32,8 @@
 #include <VistaInterProcComm/Concurrency/VistaMutex.h>
 #include <VistaInterProcComm/Connections/VistaConnection.h>
 #include <VistaInterProcComm/Concurrency/VistaThreadEvent.h>
-#include <VistaInterProcComm/VistaInterProcCommOut.h>
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <cassert>
 #include <algorithm>
@@ -83,7 +84,7 @@ VistaIOMultiplexerIP::~VistaIOMultiplexerIP()
 
 int VistaIOMultiplexerIP::Demultiplex(unsigned int nTimeout)
 {
-	vipcout << "VistaIOMultiplexerIP::Demultiplex()\n";
+	vstr::debug() << "VistaIOMultiplexerIP::Demultiplex()" << std::endl;
 #ifdef WIN32
 	bool bDone = false;
 	while(!bDone)
@@ -308,7 +309,10 @@ bool VistaIOMultiplexerIP::RemPoint(HANDLE han, int iTicket)
 		return true;
 	}
 	else
-		vipcerr << "HANDLE NOT FOUND\n";
+	{
+		vstr::errp() << "VistaIOMultiplexerIP::RemPoint() - Handle not found" 
+				<< std::endl;
+	}
 
 	return false;
 }
@@ -355,7 +359,6 @@ HANDLE VistaIOMultiplexerIP::CreateHandleForDescriptor(int iDesc,eIODir eDir)
 	// no prob on unix, return iDesc
 	return iDesc;
 #endif
-	return (HANDLE)0;
 }
 
 bool   VistaIOMultiplexerIP::DeleteHandleForDescriptor(int iDesc, HANDLE han, eIODir eDir)

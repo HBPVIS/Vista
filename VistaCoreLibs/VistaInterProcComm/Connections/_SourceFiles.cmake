@@ -26,8 +26,6 @@ set( DirFiles
 	VistaConnectionSerial.h
 	VistaConnectionUSB.cpp
 	VistaConnectionUSB.h
-	VistaMasterNetworkSync.cpp
-	VistaMasterNetworkSync.h
 	VistaMsg.cpp
 	VistaMsg.h
 	VistaMsgChannel.cpp
@@ -36,8 +34,6 @@ set( DirFiles
 	VistaNetworkSync.h
 	VistaProgressMessage.cpp
 	VistaProgressMessage.h
-	VistaSlaveNetworkSync.cpp
-	VistaSlaveNetworkSync.h
 	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )

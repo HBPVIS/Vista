@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPthreadThreadEventImp.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #if defined(VISTA_THREADING_POSIX)
 
@@ -37,51 +37,27 @@
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VistaPthreadThreadEventImp : public IVistaThreadEventImp
 {
-private:
-	/**
-	 *
-	 */
-	pthread_mutex_t mtx;
-	pthread_cond_t cond;
-	int state;
-	bool autoreset;
-protected:
 public:
-
-	/**
-	 *
-	 */
 	VistaPthreadThreadEventImp( );
-
-	/**
-	 *
-	 */
 	virtual ~VistaPthreadThreadEventImp();
 
-
-	/**
-	 *
-	 */
 	void SignalEvent();
 
-	/**
-	 *
-	 */
 	long WaitForEvent(bool bBlock);
 
-	/**
-	 *
-	 */
 	long WaitForEvent(int iBlockTime);
 	virtual HANDLE GetEventSignalHandle() const;
 	virtual HANDLE GetEventWaitHandle() const;
 
 	bool ResetThisEvent();
+
+private:
+	pthread_mutex_t mtx;
+	pthread_cond_t cond;
+	int state;
+	bool autoreset;
 };
 
 

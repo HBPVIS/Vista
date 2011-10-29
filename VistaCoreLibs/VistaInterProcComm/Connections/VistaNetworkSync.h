@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaNetworkSync.h 22173 2011-07-03 21:12:57Z ingoassenmacher $
 
 #ifndef _VISTANETWORKSYNC_H
 #define _VISTANETWORKSYNC_H
@@ -30,75 +30,73 @@
 /*============================================================================*/
 #include <VistaInterProcComm/VistaInterProcCommConfig.h>
 
-// Standard C++ includes
+#include <VistaBase/VistaBaseTypes.h>
+
 #include <string>
 #include <iostream>
 
 /*============================================================================*/
 /* FORWARD DECLERATIONS                                                       */
 /*============================================================================*/
+class VistaPropertyList;
+class IVistaSerializable;
+
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 /**
  * VistaNetworkSync is an abstract base class for synchronizing several computers
- * int a network (e.g. a bunch of cluster nodes). Basically one of these nodes
+ * in a network (e.g. a bunch of cluster nodes). Basically one of these nodes
  * takes on the role of a master whereas the others are mere "slaves".
- * Two different sync-modes are available:
- *
- * SYNCMODE_STATEREACHED   :	Slave nodes simply signal that they have reached
- *								a specific state and proceed immediately.
- * SYNCMODE_BARRIER			:	Slave nodes ack that they have reached a specific
- *								state but continue only after the master node has
- *								sent back a continue token.
- *
- * per default SYNCMODE_STATEREACHED will be used.
- *
- * Two concrete implementations are available for the master computer and slave
- * nodes, respectively.
- *
  */
-class VISTAINTERPROCCOMMAPI VistaNetworkSync
+class VISTAINTERPROCCOMMAPI IVistaNetworkSync
 {
 public:
+	virtual ~IVistaNetworkSync();
+
 	/**
-	*
-	*/
-	enum{
-		SYNCMODE_STATEREACHED,
-		SYNCMODE_BARRIER
-	};
+	 * Call this routine to wait until all nodes reach the sync
+	 * The network leader will wait until all nodes passed the sync call,
+	 * but all follower nodes will return and continue immediately
+	 * @return true if sync went on without problems
+	 *         false if something went wrong (e.g. timeout was hit)
+	 */
+	virtual bool Sync( int iTimeOut = 0 ) = 0;
 	/**
-	*
-	*/
-	VistaNetworkSync();
+	  * Call this routine to wait until all nodes reach the sync
+	 * The network leader as well as all nodes will wait until all
+	 * nodes reach the sync, so that all return at about the
+	 * same time
+	 * @return true if sync went on without problems
+	 *         false if something went wrong (e.g. timeout was hit)
+	 */
+	virtual bool BarrierWait( int iTimeOut = 0 ) = 0;
+
 	/**
-	*
-	*/
-	virtual ~VistaNetworkSync();
+	 * Call this routine to get a synchronized time that corresponds
+	 * to the time instance on the leader node
+	 */
+	virtual VistaType::systemtime GetSyncTime() = 0;
 	/**
-	*
-	*/
-	void SetSyncMode(const int i);
-	/**
-	*
-	*/
-	int GetSyncMode() const;
-	/**
-	* Call this routine to sync all registered nodes according
-	* to the selected sync-mode.
-	*
-	* @return true iff sync went on without probs
-	*         false if something went wrong (e.g. timeout was hit)
-	*/
-	virtual bool Sync(int iTimeOut=0);
+	 * Call this routine to sync data on all clients
+	 * If the call returns false, Syncing failed and the data remains untouched
+	 * Otherwise, the data is the same on all nodes
+	 */
+	virtual bool SyncTime( VistaType::systemtime& nTime ) = 0;
+	virtual bool SyncData( VistaPropertyList& oList ) = 0;
+	virtual bool SyncData( IVistaSerializable& oSerializable ) = 0;
+	virtual bool SyncData( VistaType::byte* pData, 
+							const int iDataSize ) = 0;
+	virtual bool SyncData( VistaType::byte* pDataBuffer, 
+							const int iBufferSize,
+							int& iDataSize ) = 0;
 
 protected:
-	VistaNetworkSync(const VistaNetworkSync&);
-	VistaNetworkSync& operator=(const VistaNetworkSync&);
-
+	IVistaNetworkSync();
+	// prevent copying
 private:
-	int m_iSyncMode;
+	IVistaNetworkSync( const IVistaNetworkSync& );
+	IVistaNetworkSync& operator= ( const IVistaNetworkSync& );
 };
 
 /*============================================================================*/

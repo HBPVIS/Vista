@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaIntentionSelect.h 21565 2011-05-26 13:22:59Z dr165799 $
 
 #ifndef _VISTAINTENTIONSELECT_H
 #define _VISTAINTENTIONSELECT_H
@@ -57,6 +57,7 @@ class IVistaNode;
 class VISTAKERNELAPI IVistaIntentionSelectAdapter
 {
 public:
+	virtual ~IVistaIntentionSelectAdapter() {}
 	IVistaIntentionSelectAdapter ()
 	: m_bSelectionEnabled(true)
 	{}

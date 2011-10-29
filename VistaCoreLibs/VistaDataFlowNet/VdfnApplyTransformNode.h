@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnApplyTransformNode.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VDFNAPPLYTRANSFORMNODE_H
 #define _VDFAPPLYTRANSFORMNODE_H
@@ -85,14 +85,14 @@ public:
 	 * @param strKey the name to look for in the registry, case sensitive
 	 * @param applyLocal set true if you want to apply the changes in local coordsystem (right hand side)
 	 */
-	VdfnApplyTransformNode( VdfnObjectRegistry *, const std::string &strKey, const bool &applyLocal = false );
+	VdfnApplyTransformNode( VdfnObjectRegistry *, const std::string &strKey, const bool bApplyLocal = false );
 
 	/**
 	 * use when the transformable is known already.
 	 * @param pObj the transformable
 	 * @param applyLocal set true if you want to apply the changes in local coordsystem (right hand side)
 	 */
-	VdfnApplyTransformNode(IVistaTransformable *pObj, const bool &applyLocal = false );
+	VdfnApplyTransformNode(IVistaTransformable *pObj, const bool bApplyLocal = false );
 
 	/**
 	 * does nothing.

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaMemoryInfo.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTAMEMORYINFO_H
 #define _VISTAMEMORYINFO_H

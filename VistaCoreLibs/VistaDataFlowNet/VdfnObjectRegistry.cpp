@@ -20,14 +20,14 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnObjectRegistry.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VdfnObjectRegistry.h" 
 #include <VistaAspects/VistaNameable.h>
 
-#include <iostream>
+#include <VistaBase/VistaStreamUtils.h>
 
-#include "VdfnOut.h"
+#include <iostream>
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
@@ -92,12 +92,12 @@ bool VdfnObjectRegistry::SetObject( const std::string &strName,
 	{
 		if( pObj->GetNameForNameable().empty() )
 		{
-			vdfnout << "[VdfnObjectRegistry]: Registering <unnamed> as ["
+			vstr::outi() << "[VdfnObjectRegistry]: Registering <unnamed> as ["
 						<< strName << "]" << std::endl;
 		}
 		else
 		{
-			vdfnout << "[VdfnObjectRegistry]: Registering [" 
+			vstr::outi() << "[VdfnObjectRegistry]: Registering [" 
 						<< pObj->GetNameForNameable() << "] as [" 
 						<< strName << "]" << std::endl;
 		}

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaOpenCVFaceTrackDriver.h 5761 2011-01-17 19:46:22Z ingoassenmacher $
 
 #ifndef __VISTAOPENCVFACETRACKDRIVER_H
 #define __VISTAOPENCVFACETRACKDRIVER_H

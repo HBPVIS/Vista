@@ -20,14 +20,13 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaObserveable.cpp 21432 2011-05-23 06:27:58Z ak449259 $
+// $Id$
 
 #include "VistaObserveable.h"
 #include "VistaObserver.h"
 #include <algorithm>
 #include <cstdio>
 #include <list>
-using namespace std;
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -79,22 +78,23 @@ IVistaObserveable &IVistaObserveable::operator=(const IVistaObserveable &oOther)
 
 int IVistaObserveable::AttachObserver(IVistaObserver *pObserver, int eTicket)
 {
-	m_lIVistaObservers.push_back(OBSERVER_INFO(pObserver, eTicket));
+	m_liVistaObservers.push_back(OBSERVER_INFO(pObserver, eTicket));
 	//Notify(MSG_ATTACH);
-	return int(m_lIVistaObservers.size());
+	return int(m_liVistaObservers.size());
 }
 
 int IVistaObserveable::DetachObserver(IVistaObserver *pObserver)
 {
 	// locate suitable observer
-	list<OBSERVER_INFO>::iterator it= std::remove(m_lIVistaObservers.begin(), m_lIVistaObservers.end(), pObserver);
-	if(it != m_lIVistaObservers.end())
+	std::list<OBSERVER_INFO>::iterator it = std::remove(
+			m_liVistaObservers.begin(), m_liVistaObservers.end(), pObserver );
+	if(it != m_liVistaObservers.end())
 	{
-		m_lIVistaObservers.erase(it, m_lIVistaObservers.end());
+		m_liVistaObservers.erase(it, m_liVistaObservers.end());
 		//Notify(MSG_DETACH);
 	}
 
-	return int(m_lIVistaObservers.size());
+	return int(m_liVistaObservers.size());
 }
 
 bool IVistaObserveable::SendDeleteRequest()
@@ -105,9 +105,9 @@ bool IVistaObserveable::SendDeleteRequest()
 	 * We will make a copy of the observerlist on which we will
 	 * progress and afterwards forget about it
 	 */
-	list<OBSERVER_INFO> liCp = m_lIVistaObservers; // we use a copy to traverse this list
+	std::list<OBSERVER_INFO> liCp = m_liVistaObservers; // we use a copy to traverse this list
 
-	for(list<OBSERVER_INFO>::const_iterator it = liCp.begin(); it != liCp.end(); ++it)
+	for( std::list<OBSERVER_INFO>::const_iterator it = liCp.begin(); it != liCp.end(); ++it )
 	{
 		if(!(*it).m_pObserver->ObserveableDeleteRequest(this, (*it).m_eTicket))
 			return false;
@@ -125,23 +125,23 @@ void IVistaObserveable::SendDeleteMessage()
 	 * We will make a copy of the observerlist on which we will
 	 * progress and afterwards forget about it
 	 */
-	list<OBSERVER_INFO> m_liCopy = m_lIVistaObservers;
+	std::list<OBSERVER_INFO> m_liCopy = m_liVistaObservers;
 
-	for(list<OBSERVER_INFO>::const_iterator it = m_liCopy.begin(); it != m_liCopy.end(); ++it)
+	for(std::list<OBSERVER_INFO>::const_iterator it = m_liCopy.begin(); it != m_liCopy.end(); ++it)
 	{
 		// command to release me!
 		(*it).m_pObserver->ObserveableDelete(static_cast<IVistaObserveable *>(this), (*it).m_eTicket);
 	}
 
-	m_lIVistaObservers.clear();
+	m_liVistaObservers.clear();
 }
 
 bool IVistaObserveable::GetIsObservedBy(IVistaObserver *pObs) const
 {
-	list<OBSERVER_INFO>::const_iterator cit = std::find(m_lIVistaObservers.begin(),
-		m_lIVistaObservers.end(), pObs);
+	std::list<OBSERVER_INFO>::const_iterator cit = std::find(m_liVistaObservers.begin(),
+		m_liVistaObservers.end(), pObs);
 
-	return (cit != m_lIVistaObservers.end());
+	return (cit != m_liVistaObservers.end());
 }
 
 
@@ -151,7 +151,7 @@ void IVistaObserveable::Notify(int msg)
 	// do no work ;)
 	// this, too, avoids piling of changes in
 	// the change set!
-	if(m_lIVistaObservers.empty())
+	if(m_liVistaObservers.empty())
 		return;
 
 
@@ -167,8 +167,8 @@ void IVistaObserveable::Notify(int msg)
 		return; // NO NOTIFICATION (disabled on user request)!!
 	}
 
-	list<OBSERVER_INFO>::const_iterator it;
-	for(it = m_lIVistaObservers.begin(); it != m_lIVistaObservers.end(); ++it)
+	std::list<OBSERVER_INFO>::const_iterator it;
+	for(it = m_liVistaObservers.begin(); it != m_liVistaObservers.end(); ++it)
 	{
 		(*it).m_pObserver->UpdateRequest(this, msg, (*it).m_eTicket);
 	}
@@ -191,7 +191,7 @@ bool IVistaObserveable::GetNotificationFlag() const
 	return m_bNotificationFlag;
 }
 
-const set<int> &IVistaObserveable::GetChangedSetConstRef() const
+const std::set<int> &IVistaObserveable::GetChangedSetConstRef() const
 {
 	return m_sChangedSet;
 }

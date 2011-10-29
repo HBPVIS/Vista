@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaHIDDriver.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 /* The Windows-specific code (especially the InitDriver routine) has been 
  * copied from the VRPN toolkit, which is released in the public domain.
@@ -40,9 +40,6 @@
 #include <cstdio>
 
 #include <VistaDeviceDriversBase/VistaDeviceSensor.h>
-
-#include <VistaDeviceDriversBase/VistaDeviceDriversOut.h>
-
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverMeasureHistoryAspect.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverConnectionAspect.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverSensorMappingAspect.h>
@@ -52,6 +49,8 @@
 
 #include <VistaInterProcComm/Connections/VistaConnection.h>
 #include <VistaInterProcComm/Connections/VistaConnectionFile.h>
+
+#include <VistaBase/VistaStreamUtils.h>
 
 #include "VistaHIDDriver.h"
 
@@ -522,7 +521,7 @@ bool VistaHIDDriver::DoSensorUpdate(VistaType::microtime dTs)
 				// this is.
 				char  report_type = report[0];
 				VistaType::sshort16 *bufptr = reinterpret_cast<VistaType::sshort16*>(&report[1]);
-				const float scale = static_cast<float>(1.0/400.0);
+				//const float scale = static_cast<float>(1.0/400.0);
 				switch (report_type)  {
 					// Report types 1 and 2 come one after the other.  Each seems
 					// to change when the puck is moved.  It looks like each pair
@@ -566,7 +565,7 @@ bool VistaHIDDriver::DoSensorUpdate(VistaType::microtime dTs)
 				}
 
 				default:
-					vddout << "[HIDDriver] Unknown report type encountered!" << std::endl;
+					vstr::warnp() << "[HIDDriver] Unknown report type encountered!" << std::endl;
 				}
 			}
 
@@ -581,12 +580,12 @@ bool VistaHIDDriver::DoSensorUpdate(VistaType::microtime dTs)
 			// mark sensor dirty
 			pSensor->SetUpdateTimeStamp(dTs);
 #if 0
-			vddout << "[HIDDriver] number of bytes transferred: " << numBytes << std::endl;
+			vstr::outi() << "[HIDDriver] number of bytes transferred: " << numBytes << std::endl;
 			for( int i = 0 ; i < numBytes ; i++ )
 			{
-				vddout << "byte " << i << ": " <<
-					hex << setw(2) << setfill('0') << (unsigned int)(m_readBuffer[i]) <<
-					std::endl;
+				vstr::outi() << vstr::singleindent << "byte " << i << ": " <<
+					hex << setw(2) << setfill('0') << (unsigned int)(m_readBuffer[i]) 
+					<< std::dec << std::endl;
 			}
 #endif
 
@@ -595,7 +594,7 @@ bool VistaHIDDriver::DoSensorUpdate(VistaType::microtime dTs)
 		{
 			if (GetLastError() == ERROR_DEVICE_NOT_CONNECTED)
 			{
-				vdderr << "[HIDDriver] Device removed unexpectedly\n";
+				vstr::warnp() << "[HIDDriver] Device removed unexpectedly" << std::endl;
 				ResetEvent(m_hReadEvent);
 				return false;
 			}
@@ -616,17 +615,17 @@ bool VistaHIDDriver::DoSensorUpdate(VistaType::microtime dTs)
 	}
 	case WAIT_ABANDONED:
 	{
-		vdderr << "WAIT_ABANDONED\n";
+		vstr::warnp() << "[HIDDriver]: WAIT_ABANDONED" << std::endl;
 		break;
 	}
 	case WAIT_TIMEOUT:
 	{
-		//std::cerr << "WAIT_TIMEOUT\n";
+		//vstr::warnp() << "[HIDDriver]: WAIT_TIMEOUT" << std::endl;
 		break;
 	}
 	default:
 	{
-		vdderr << "[HIDDriver] wait for object returned (" << rv << ")\n";
+		vstr::warnp() << "[HIDDriver] wait for object returned (" << rv << ")" << std::endl;
 	}
 	}
 #endif
@@ -670,7 +669,7 @@ bool VistaHIDDriver::InitDriver(int nVendor, int nDevId)
 	devInfoSet = SetupDiGetClassDevs(&hidGuid, NULL, NULL, DIGCF_PRESENT | DIGCF_PROFILE | DIGCF_DEVICEINTERFACE);
 	if (devInfoSet == INVALID_HANDLE_VALUE)
 	{
-		vdderr << "[HIDDriver] Unable to open device information set, GLE:"
+		vstr::warnp() << "[HIDDriver] Unable to open device information set, GLE:"
 				  << GetLastError() << std::endl;
 		return false;
 	}
@@ -697,19 +696,19 @@ bool VistaHIDDriver::InitDriver(int nVendor, int nDevId)
 		// Ensure we can retrieve the device path
 		if (!SetupDiGetDeviceInterfaceDetail(devInfoSet, &ifData, detailData, neededSize, NULL, &infoData))
 		{
-			vdderr << "[HIDDriver] Unable to get device path!" << std::endl;
+			vstr::warnp() << "[HIDDriver] Unable to get device path!" << std::endl;
 			LocalFree(detailData);
 			continue;
 		}
 
 		// Try to open the device; if we can't, skip it
-		vddout << "[HIDDriver] trying to open device at path "
+		vstr::outi() << "[HIDDriver] trying to open device at path "
 				  <<  detailData->DevicePath << "..." << std::endl;
 		m_hDevice = CreateFile(detailData->DevicePath, GENERIC_WRITE | GENERIC_READ,
 							   FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
 		if (!m_hDevice || (m_hDevice == INVALID_HANDLE_VALUE))
 		{
-			vdderr << "[HIDDriver] Unable to open device at path "
+			vstr::warnp() << "[HIDDriver] Unable to open device at path "
 					  << detailData->DevicePath << std::endl;
 			LocalFree(detailData);
 			continue;
@@ -718,7 +717,7 @@ bool VistaHIDDriver::InitDriver(int nVendor, int nDevId)
 		// Get the HID-specific attributes
 		if (!HidD_GetAttributes(m_hDevice, &hidAttrs))
 		{
-			vdderr << "[HIDDriver] Unable to get HID attributes!" << std::endl;
+			vstr::warnp() << "[HIDDriver] Unable to get HID attributes!" << std::endl;
 			CloseHandle(m_hDevice);
 			m_hDevice = NULL;
 			LocalFree(detailData);
@@ -728,7 +727,7 @@ bool VistaHIDDriver::InitDriver(int nVendor, int nDevId)
 		// Use the Windows preparsed data to find the usage page info
 		if (!HidD_GetPreparsedData(m_hDevice, &preparsed) || !preparsed)
 		{
-			vdderr << "[HIDDriver] Unable to get windows preparsed data!" << std::endl;
+			vstr::warnp() << "[HIDDriver] Unable to get windows preparsed data!" << std::endl;
 			CloseHandle(m_hDevice);
 			m_hDevice = NULL;
 			LocalFree(detailData);
@@ -756,7 +755,7 @@ bool VistaHIDDriver::InitDriver(int nVendor, int nDevId)
 	DIR *devdir = opendir((char*)sDir.data());
 	dirent *entry = 0;
 
-	while( entry = readdir(devdir) )
+	while( ( entry = readdir(devdir) ) )
 	{
 		// enumerate all event* files in /dev/input
 		if( strncmp( entry->d_name, "event", 5 ) == 0 )
@@ -780,10 +779,11 @@ bool VistaHIDDriver::InitDriver(int nVendor, int nDevId)
 
 			if( device_info.vendor == nVendor && device_info.product == nDevId )
 			{
-				std::cout << std::hex
+				vstr::outi() << std::hex
 						  << "[HIDDriver] device with vendor/product id "
 						  << nVendor << "/" << nDevId
-						  << " detected. keeping fileconnection open." << std::endl;
+						  << " detected. keeping fileconnection open." 
+						  << std::dec << std::endl;
 				return true;
 			}
 
@@ -810,10 +810,10 @@ bool VistaHIDDriver::StartWinRead()
 			//break;
 			return true;
 		case ERROR_DEVICE_NOT_CONNECTED:
-			vdderr << "VistaHIDDriver: Device removed unexpectedly" << std::endl;
+			vstr::warnp() << "VistaHIDDriver: Device removed unexpectedly" << std::endl;
 			return false;
 		default:
-			vdderr << "VistaHIDDriver: ReadFile couldn't start async input (GLE "
+			vstr::warnp() << "VistaHIDDriver: ReadFile couldn't start async input (GLE "
 					  << GetLastError() << ")" << std::endl;
 			return false;
 		}

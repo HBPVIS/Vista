@@ -20,15 +20,15 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPropertyFunctorRegistry.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VistaPropertyFunctorRegistry.h"
 #include "VistaPropertyFunctor.h"
 
+#include <VistaBase/VistaStreamUtils.h>
+
 #include <algorithm>
 #include <iostream>
-
-#include "VistaAspectsOut.h"
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -54,9 +54,9 @@ class CleanupHelper
 		{
 			if(m_pSingleton->GetTalkativeFlag())
 			{
-				vasperr << "CCleanupHelper::~CCleanupHelper() --"
-						  << "refcount > 1! (" << m_pSingleton->getcount()
-						  << ")\n";
+				vstr::warnp() << "CCleanupHelper::~CCleanupHelper() --"
+						<< "refcount > 1! (" << m_pSingleton->getcount()
+						<< ")" << std::endl;
 			}
 			bForce = true;
 		}
@@ -166,12 +166,13 @@ bool VistaPropertyFunctorRegistry::RegisterGetter(const std::string &sPropertyNa
 			if(m_bTalkative)
 			{
 				// utter a warning
-				vasperr << "VistaPropertyFunctorRegistry::RegisterGetter("
-						  << sPropertyName << ", "
-						  << sClassType << ", "
-						  << pFunctor << ", "
-						  << (bForce ? "TRUE" : "FALSE")
-						  << ") -- functor for prop and class already registered\n";
+				vstr::warnp() << "VistaPropertyFunctorRegistry::RegisterGetter("
+							<< sPropertyName << ", "
+							<< sClassType << ", "
+							<< pFunctor << ", "
+							<< (bForce ? "TRUE" : "FALSE")
+							<< ") -- functor for prop and class already registered" 
+							<< std::endl;
 			}
 		}
 	}
@@ -216,10 +217,12 @@ bool VistaPropertyFunctorRegistry::UnregisterGetter(
 		}
 
 		if( m_bTalkative )
-			vaspout << "VistaPropertyFunctorRegistry::UnregisterGetter("
+		{
+			vstr::outi() << "VistaPropertyFunctorRegistry::UnregisterGetter("
 					  << sPropName << ", "
 					  << sClassType << ")"
 					  << std::endl;
+		}
 
 		m_mpGetterCache.clear(); // clear cache map
 		return true;
@@ -246,10 +249,11 @@ IVistaPropertyGetFunctor *VistaPropertyFunctorRegistry::GetGetFunctor(
 		if(m_bTalkative)
 		{
 			// we can abort the search here
-			vasperr << "VistaPropertyFunctorRegistry::GetGetFunctor("
-					  << sPropName << ", "
-					  << sClassType
-					  << ") -- no prop for this name defined\n";
+			vstr::warnp() << "VistaPropertyFunctorRegistry::GetGetFunctor("
+					<< sPropName << ", "
+					<< sClassType
+					<< ") -- no prop for this name defined" 
+					<< std::endl;
 		}
 		return NULL;
 	}
@@ -275,10 +279,11 @@ IVistaPropertyGetFunctor *VistaPropertyFunctorRegistry::GetGetFunctor(
 			if(m_bTalkative)
 			{
 				// weird error
-				vasperr << "VistaPropertyFunctorRegistry::GetGetFunctor("
-					  << sPropName << ", "
-					  << sClassType
-					  << ") -- no functor for class (should not happen!)\n";
+				vstr::warnp() << "VistaPropertyFunctorRegistry::GetGetFunctor("
+						<< sPropName << ", "
+						<< sClassType
+						<< ") -- no functor for class (should not happen!)"
+						<< std::endl;
 			}
 			return NULL;
 		}
@@ -354,12 +359,13 @@ bool VistaPropertyFunctorRegistry::RegisterSetter(const std::string &sPropertyNa
 			if(m_bTalkative)
 			{
 				// utter a warning
-				vasperr << "VistaPropertyFunctorRegistry::RegisterSetter("
-						  << sPropertyName << ", "
-						  << sClassType << ", "
-						  << pFunctor << ", "
-						  << (bForce ? "TRUE" : "FALSE")
-						  << ") -- functor for prop and class already registered\n";
+				vstr::warnp() << "VistaPropertyFunctorRegistry::RegisterSetter("
+							<< sPropertyName << ", "
+							<< sClassType << ", "
+							<< pFunctor << ", "
+							<< (bForce ? "TRUE" : "FALSE")
+							<< ") -- functor for prop and class already registered"
+							<< std::endl;
 			}
 		}
 	}
@@ -403,10 +409,10 @@ bool VistaPropertyFunctorRegistry::UnregisterSetter(const std::string &sPropName
 		m_mpSetterCache.clear(); // clear cache map
 		if( m_bTalkative )
 		{
-			vaspout << "VistaPropertyFunctorRegistry::UnregisterSetter("
-		          << sPropName << ", "
-		          << sClassType << ")"
-		          << std::endl;
+			vstr::outi() << "VistaPropertyFunctorRegistry::UnregisterSetter("
+						<< sPropName << ", "
+						<< sClassType << ")"
+						<< std::endl;
 		}
 		return true;
 	}
@@ -431,10 +437,11 @@ IVistaPropertySetFunctor *VistaPropertyFunctorRegistry::GetSetFunctor(const std:
 		if(m_bTalkative)
 		{
 			// we can abort the search here
-			vasperr << "VistaPropertyFunctorRegistry::GetSetFunctor("
-					  << sPropName << ", "
-					  << sClassType
-					  << ") -- no prop for this name defined\n";
+			vstr::warnp() << "VistaPropertyFunctorRegistry::GetSetFunctor("
+					<< sPropName << ", "
+					<< sClassType
+					<< ") -- no prop for this name defined"
+					<< std::endl;
 		}
 		return NULL;
 	}
@@ -461,10 +468,11 @@ IVistaPropertySetFunctor *VistaPropertyFunctorRegistry::GetSetFunctor(const std:
 			if(m_bTalkative)
 			{
 				// weird error
-				vasperr << "VistaPropertyFunctorRegistry::GetSetFunctor("
-					  << sPropName << ", "
-					  << sClassType
-					  << ") -- no functor for class (should not happen!)\n";
+				vstr::warnp() << "VistaPropertyFunctorRegistry::GetSetFunctor("
+						<< sPropName << ", "
+						<< sClassType
+						<< ") -- no functor for class (should not happen!)"
+						<< std::endl;
 			}
 			return NULL;
 		}
@@ -569,16 +577,14 @@ template<class T>
 class _printElement //: public std::unary_function<std::map<std::pair<std::string, std::string>, typename T*>::value_type, void>
 {
 public:
-	_printElement( VistaAspectsOut &out )
-	: m_out(out) {}
-
-	VistaAspectsOut &m_out;
-
+	_printElement( std::ostream& oStream )
+	: m_oStream( oStream ) {}
+	
 	typedef std::pair<std::string, std::string> STRINGPAIR;
 	typedef std::map<STRINGPAIR, T*> MAPTYPE;
 	void operator()( const typename MAPTYPE::value_type &value )
 	{
-		m_out.out() << "[" << value.first.first << " ; " << value.first.second << "] -- "
+		m_oStream << "[" << value.first.first << " ; " << value.first.second << "] -- "
 				    << (value.second ? value.second->GetNameForNameable() : "<NONE>?")
 				    << std::endl;
 	}
@@ -586,32 +592,38 @@ public:
 
 	void operator()( const typename STRINGMAP::value_type &value )
 	{
-		m_out.out() << "[" << value.first <<  "] -- " << std::endl;
+		m_oStream << "[" << value.first <<  "] -- " << std::endl;
 
 		const STRINGSET &v = value.second;
-		std::for_each( v.begin(), v.end(), _printElement<std::string>( m_out ) );
+		std::for_each( v.begin(), v.end(), _printElement<std::string>( m_oStream ) );
 	}
 
 	void operator() ( const std::string &element )
 	{
-		m_out.out() << "\t" << element << std::endl;
+		m_oStream << "\t" << element << std::endl;
 	}
+private:
+	std::ostream& m_oStream;
 
 };
 
-void VistaPropertyFunctorRegistry::Show(VistaAspectsOut &out) const
+void VistaPropertyFunctorRegistry::Print( std::ostream& oStream ) const
 {
-	out.out() << "[GETTERS]" << std::endl;
-	std::for_each( m_mpGetters.begin(), m_mpGetters.end(), _printElement<IVistaPropertyGetFunctor>(out) );
+	oStream << "[GETTERS]" << std::endl;
+	std::for_each( m_mpGetters.begin(), m_mpGetters.end(),
+					_printElement<IVistaPropertyGetFunctor>( oStream ) );
 
-	out.out() << "[SETTERS]" << std::endl;
-	std::for_each( m_mpSetters.begin(), m_mpSetters.end(), _printElement<IVistaPropertySetFunctor>(out) );
+	oStream << "[SETTERS]" << std::endl;
+	std::for_each( m_mpSetters.begin(), m_mpSetters.end(),
+					_printElement<IVistaPropertySetFunctor>( oStream ) );
 
-	out.out() << "[GetPMaps]" << std::endl;
-	std::for_each( m_mpGProps.begin(), m_mpGProps.end(), _printElement<STRINGMAP>( out ) );
+	oStream << "[GetPMaps]" << std::endl;
+	std::for_each( m_mpGProps.begin(), m_mpGProps.end(),
+					_printElement<STRINGMAP>( oStream ) );
 
-	out.out() << "[GetSMaps]" << std::endl;
-	std::for_each( m_mpSProps.begin(), m_mpSProps.end(), _printElement<STRINGMAP>( out ) );
+	oStream << "[GetSMaps]" << std::endl;
+	std::for_each( m_mpSProps.begin(), m_mpSProps.end(),
+					_printElement<STRINGMAP>( oStream ) );
 }
 
 /*============================================================================*/

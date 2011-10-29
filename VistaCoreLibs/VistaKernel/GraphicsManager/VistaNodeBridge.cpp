@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaNodeBridge.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaNodeBridge.h" 
 #include "VistaGeomNode.h"
@@ -30,7 +30,6 @@
 #include "VistaSwitchNode.h"
 #include "VistaExtensionNode.h"
 #include "VistaTransformNode.h"
-
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
@@ -45,7 +44,7 @@ IVistaNodeData::~IVistaNodeData()
 
 IVistaNodeBridge::IVistaNodeBridge()
 {
-	m_pSG = NULL;
+	m_pSceneGraph = NULL;
 }
 
 
@@ -55,24 +54,24 @@ IVistaNodeBridge::~IVistaNodeBridge()
 	//REFMAP::iterator it = m_mpGeomRefs.begin();
 	//while(it != m_mpGeomRefs.end())
 	//{
-	//	std::cerr << it->first << ": " << it->second << endl;
+	//	std::cerr << it->first << ": " << it->second << std::endl;
 	//	++it;
 	//}
 	//std::cerr << "DONE" << std::endl;
 }
 
-VistaSG    *IVistaNodeBridge::GetVistaSG() const
+VistaSceneGraph    *IVistaNodeBridge::GetVistaSceneGraph() const
 {
-	return m_pSG;
+	return m_pSceneGraph;
 }
 
 
-bool IVistaNodeBridge::Init(VistaSG* pSG)
+bool IVistaNodeBridge::Init(VistaSceneGraph* pSG)
 { 
-	if(m_pSG)
+	if(m_pSceneGraph)
 		return false;
 
-	m_pSG = pSG; 
+	m_pSceneGraph = pSG; 
 	return true; 
 }
 
@@ -82,7 +81,7 @@ bool IVistaNodeBridge::Init(VistaSG* pSG)
 
 int IVistaNodeBridge::RegisterGeometry(VistaGeometry *pGeom)
 {
-	REFMAP::iterator it = m_mpGeomRefs.find(pGeom);
+	GeomRefMap::iterator it = m_mpGeomRefs.find(pGeom);
 	
 	if(it != m_mpGeomRefs.end())
 	{
@@ -91,13 +90,13 @@ int IVistaNodeBridge::RegisterGeometry(VistaGeometry *pGeom)
 		return (*it).second;
 	}
 
-	m_mpGeomRefs.insert(REFMAP::value_type(pGeom, 1)); // register
+	m_mpGeomRefs.insert(GeomRefMap::value_type(pGeom, 1)); // register
 	return 1;
 }
 
 bool IVistaNodeBridge::UnregisterGeometry(VistaGeometry *pGeom)
 {
-	REFMAP::iterator it = m_mpGeomRefs.find(pGeom);
+	GeomRefMap::iterator it = m_mpGeomRefs.find(pGeom);
 	
 	if(it != m_mpGeomRefs.end())
 	{
@@ -234,12 +233,7 @@ VistaOpenGLNode* IVistaNodeBridge::NewOpenGLNode(VistaGroupNode* pParent,
 {
 	return new VistaOpenGLNode(pParent, pDI, this, pData, strName);
 }
-// ============================================================================
-// ============================================================================
-VistaGeometry* IVistaNodeBridge::NewGeometry(IVistaGeometryData* pData)
-{
-	return m_pSG->NewGeometry(pData);
-}
+
 // ============================================================================
 // ============================================================================
 void IVistaNodeBridge::DeleteNode(IVistaNode* pNode)

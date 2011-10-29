@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaJswJoystickDriver.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 #include "VistaJswJoystickDriver.h"
 
@@ -134,9 +134,9 @@ bool VistaJswJoystickDriver::Connect()
 	}
 
 	VistaPropertyList &oWrite = m_pInfo->GetInfoPropsWrite();
-	oWrite.SetStringValue("NAME", (m_jsd.name ? std::string(m_jsd.name) : "<none>"));
-	oWrite.SetStringValue("DEVICENAME", (m_jsd.device_name ? std::string(m_jsd.device_name) : "<none>"));
-	oWrite.SetStringValue("CALIBRATIONFILE", (m_jsd.calibration_file ? std::string(m_jsd.calibration_file) : "<none>"));
+	oWrite.SetValue("NAME", (m_jsd.name ? std::string(m_jsd.name) : "<none>"));
+	oWrite.SetValue("DEVICENAME", (m_jsd.device_name ? std::string(m_jsd.device_name) : "<none>"));
+	oWrite.SetValue("CALIBRATIONFILE", (m_jsd.calibration_file ? std::string(m_jsd.calibration_file) : "<none>"));
 
 	for(unsigned int n=0; n < 16; ++n)
 	{

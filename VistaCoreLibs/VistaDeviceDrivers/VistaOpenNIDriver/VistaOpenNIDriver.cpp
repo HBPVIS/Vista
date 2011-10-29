@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenNIDriver.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 #include "VistaOpenNIDriver.h"
 
@@ -30,10 +30,10 @@
 
 #include <VistaDeviceDriversBase/VistaDeviceSensor.h>
 #include <VistaDeviceDriversBase/VistaDriverUtils.h>
-#include <VistaDeviceDriversBase/VistaDeviceDriversOut.h>
 
 #include <VistaAspects/VistaAspectsUtils.h>
 #include <VistaBase/VistaTimeUtils.h>
+#include <VistaBase/VistaStreamUtils.h>
 #include <VistaInterProcComm/Concurrency/VistaMutex.h>
 
 #include <stdio.h>

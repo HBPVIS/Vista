@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaGraphicsManager.h 20766 2011-04-05 09:30:14Z dr165799 $
 
 #ifndef _VISTANNEWGRAPHICSMANAGER_H
 #define _VISTANNEWGRAPHICSMANAGER_H
@@ -40,7 +40,7 @@
 /*============================================================================*/
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
-class VistaSG;
+class VistaSceneGraph;
 class IVistaNodeBridge;
 class VistaGroupNode;
 class VistaLightNode;
@@ -48,9 +48,10 @@ class VistaVector3D;
 class VistaQuaternion;
 class VistaTransformMatrix;
 class VistaEventObserver;
+class VistaPropertyList;
 
 class VistaEventManager;
-class VistaDisplayManager;
+class VistaFrameLoop;
 
 
 // prototypes
@@ -64,89 +65,34 @@ VISTAKERNELAPI std::ostream & operator<< ( std::ostream &, const VistaGraphicsMa
 class VISTAKERNELAPI VistaGraphicsManager : public VistaEventHandler
 {
 public:
-	VistaGraphicsManager(VistaEventManager *pEvMgr);
+	VistaGraphicsManager( VistaEventManager *pEvMgr, VistaFrameLoop* pLoop );
 	virtual ~VistaGraphicsManager();
 
+	bool Init( IVistaNodeBridge* pNodeBridge,
+	               IVistaGraphicsBridge* pGraphicsBridge );
 
-	bool InitScene(IVistaNodeBridge* pNodeBridge,
-	               IVistaGraphicsBridge* pGraphicsBridge,
-	                const std::string &strIniFile);
-
-	VistaDisplayManager *GetDisplayManager() const;
-	void                  SetDisplayManager(VistaDisplayManager *pDispManager);
+	bool SetupScene( const std::string& sIniSection,
+					const VistaPropertyList& oConfig );
 
 	//** access functions
-	VistaSG* GetSceneGraph() const;
+	VistaSceneGraph* GetSceneGraph() const;
 
 	float GetFrameRate() const;
-	unsigned int GetFrameCount() const;
-
-#if 0
-	//** transformation functions
-	/** Move the whole scene by pTrans. This call has the same effect as
-	* GetSceneGraph()->GetRoot()->Translate(pTrans)
-	* @todo fix const-cast here
-	*/
-	bool MoveScene(const VistaVector3D & pTrans);
-
-
-	/** Rotate the whole scene by pRot. This call has the same effect as
-	*	GetSceneGraph()->GetRoot()->Rotate(pRot)
-	*/
-	bool RotateScene(const VistaQuaternion &pRot);
-
-
-	/** Transform the whole scene by pMat. This call has the same effect as
-	*	GetSceneGraph()->GetRoot()->SetTransform(pMat)
-	* @todo fix const cast here
-	*/
-	bool TransformScene(const VistaTransformMatrix &pMat);
-
-	/** Get the RCS -> WCS Transformation
-	*/
-	VistaTransformMatrix GetRealToWorldTransform() const;
-
-	/** Get the WCS -> RCS Transformation
-	*/
-	VistaTransformMatrix GetWorldToRealTransform() const;
-
-	/** Transform the given position and orientation from the real coordinate system to
-	*   the world coordinate system
-	*/
-	void TransformToWorld(const VistaVector3D &posIn, const VistaQuaternion &orientIn,
-	                      VistaVector3D &posOut, VistaQuaternion &orientOut) const;
-
-	/** Transform the given position and orientation from the world coordinate system to
-	*   the real coordinate system
-	*/
-	void TransformToReal(const VistaVector3D &posIn, const VistaQuaternion &orientIn,
-	                     VistaVector3D &posOut, VistaQuaternion &orientOut) const;
-
-#endif
-
-	//** misc
-	/** Reset default scene state (yet to be specified)
-	* @todo specify default scene-state
-	*/
-	bool            ResetScene();
-	void            Debug ( std::ostream & out ) const;
-
-	bool            GetShowInfo() const;
-	void            SetShowInfo(bool bInfo);
+	int GetFrameCount() const;
 	/**
 	 * Get/set background color
 	 */
 	VistaColorRGB  GetBackgroundColor() const;
-	void            SetBackgroundColor(const VistaColorRGB & color);
+	void SetBackgroundColor(const VistaColorRGB & color);
 
 	/**
-	 * @return returns true if culling is enabled globally, false otherwise
+	 * @return returns true if frustum culling is enabled globally, false otherwise
 	 */
-	bool GetCullingEnabled() const;
+	bool GetFrustumCullingEnabled() const;
 	/**
-	 * @param enables global culling if true, disables otherwise
+	 * @param enables global frustum culling if true, disables otherwise
 	 */
-	void SetCullingEnabled(bool bCullingEnabled);
+	void SetFrustumCullingEnabled(bool bCullingEnabled);
 
 	/**
 	 * @return returns true if occlusion culling is enabled globally,
@@ -184,30 +130,22 @@ public:
 	static bool RegisterEventTypes(VistaEventManager*);
 
 	void CreateDefaultLights();
+
+	void Debug( std::ostream& oOut ) const;
 protected:
 
-	VistaSG*               m_pSceneGraph;
-	VistaGroupNode*        m_pModelRoot;
+	VistaSceneGraph*				m_pSceneGraph;
+	VistaGroupNode*			m_pModelRoot;
 	IVistaGraphicsBridge*   m_pGraphicsBridge;
 	IVistaNodeBridge*       m_pNodeBridge;
+	VistaFrameLoop*			m_pLoop;
 private:
-	bool                    m_bShowInfo;
-	VistaEventObserver    *m_pFrameRateText;
-	std::string             m_strIniFile;
-	VistaDisplayManager   *m_pDispMgr;
-	VistaEventManager     *m_pEvMgr;
+	VistaEventManager*		m_pEventManager;
 };
 
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/
-inline float VistaGraphicsManager::GetFrameRate() const
-{
-	return m_pGraphicsBridge->GetFrameRate();
-}
-inline unsigned int VistaGraphicsManager::GetFrameCount() const
-{
-	return m_pGraphicsBridge->GetFrameCount();
-}
+
 #endif //_VISTANNEWGRAPHICSMANAGER_H
 

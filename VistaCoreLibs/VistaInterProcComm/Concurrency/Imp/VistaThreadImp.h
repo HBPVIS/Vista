@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaThreadImp.h 23493 2011-09-22 16:12:15Z dr165799 $
 
 #ifndef _VISTATHREADIMP_H
 #define _VISTATHREADIMP_H
@@ -46,78 +46,25 @@ class IVistaThreadImpFactory;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI IVistaThreadImp
 {
 public:
-
-	/**
-	 *
-	 */
 	virtual ~IVistaThreadImp();
 
+	virtual bool Run() = 0;
+	virtual bool Suspend() = 0;
+	virtual bool Resume() = 0;
+	virtual bool Join() = 0;
+	virtual bool Abort() = 0;
+	virtual bool SetPriority( const VistaPriority & ) = 0;
 
-	/**
-	 *
-	 */
-	virtual bool     Run         ( ) = 0;
-
-	/**
-	 *
-	 */
-	virtual bool     Suspend          () = 0;
-
-
-	/**
-	 *
-	 */
-	virtual bool     Resume      () = 0;
-
-	/**
-	 *
-	 */
-	virtual bool     Join        () = 0;
-
-
-	/**
-	 *
-	 */
-	virtual bool     Abort        () = 0;
-
-	/**
-	 *
-	 */
-	virtual bool     SetPriority   ( const VistaPriority & ) = 0;
-
-
-	/**
-	 *
-	 */
 	virtual void GetPriority   (VistaPriority &) const = 0;
-
-	/**
-	 *
-	 */
 	static IVistaThreadImp *CreateThreadImp(const VistaThread &);
 
-	/**
-	 *
-	 */
-	virtual void            YieldThread   () = 0;
+	virtual void YieldThread() = 0;
 
-
-	/**
-	 *
-	 */
-	virtual void      SetCancelAbility(const bool bOkToCancel) = 0;
-
-	/**
-	 *
-	 */
-	virtual bool      CanBeCancelled() const = 0;
+	virtual void SetCancelAbility(const bool bOkToCancel) = 0;
+	virtual bool CanBeCancelled() const = 0;
 
 	/**
 	 * Method that is to be performed BEFORE departed fork starts execution
@@ -149,6 +96,13 @@ public:
 	virtual std::string GetThreadName() const;
 
 	virtual long GetThreadIdentity() const = 0;
+	/**
+	 * returns the Id of the calling threat (not a specific VistaThread Instance)
+	 * Note that this Id may vary from the Id format that an Instance's GetThreadIdentity()
+	 * may return
+	 * @todo: make sure GetCallingThreadIdentity and GetThreadIdentity return same Id type
+	 */
+	static long GetCallingThreadIdentity( bool bBypassFactory = false );
 
 
 	/**
@@ -159,11 +113,10 @@ public:
 	{
 	public:
 		virtual ~IVistaThreadImpFactory();
-		virtual IVistaThreadImp *CreateThread(const VistaThread &) = 0;
+		virtual IVistaThreadImp* CreateThread(const VistaThread &) = 0;
+		virtual long GetCallingThreadIdentity() const = 0;
 	protected:
 		IVistaThreadImpFactory();
-
-	private:
 	};
 
 	static void RegisterThreadImpFactory(IVistaThreadImpFactory *);
@@ -171,9 +124,6 @@ public:
 
 
 protected:
-	/**
-	 *
-	 */
 	IVistaThreadImp();
 	void DoSetThreadName(const std::string &sName);
 private:

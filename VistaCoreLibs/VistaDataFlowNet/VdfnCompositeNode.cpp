@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnCompositeNode.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 
 /*============================================================================*/
@@ -35,8 +35,6 @@
 #include <VistaAspects/VistaPropertyAwareable.h>
 
 #include "VdfnCompositeNode.h"
-
-#include "VdfnOut.h"
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
@@ -98,8 +96,7 @@ bool VdfnCompositeNode::SetInPort(const std::string &sName, IVdfnPort *pPort)
 	NAMEMAP::const_iterator cit = m_InportMap.find( sName );
 	if( cit == m_InportMap.end() )
 	{
-		vdfnerr << "port [" << sName << "] NOT FOUND\n";
-
+		vstr::warnp() << "[VdfnCompositeNode::SetInPort]: Port [" << sName << "] not found" << std::endl;
 		return false;
 	}
 

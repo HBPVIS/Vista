@@ -18,8 +18,6 @@ set( DirFiles
 	VistaLeastSquaresPlane.cpp
 	VistaLeastSquaresPlane.h
 	VistaMathConfig.h
-	VistaMathOut.cpp
-	VistaMathOut.h
 	VistaMathTools.h
 	VistaMatrix.h
 	VistaPolynomial.cpp

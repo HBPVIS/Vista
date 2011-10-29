@@ -21,7 +21,7 @@
 /* Ingo Assenmacher (2008), Patric Schmitz (2010)                             */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnDelayNode.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VDFNDELAYNODE_H
 #define _VDFNDELAYNODE_H
@@ -105,23 +105,19 @@ class VdfnDelayNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
 public:
 	virtual IVdfnNode *CreateNode( const VistaPropertyList &oParams ) const
 	{
-		unsigned int delay = 1;
-
 		try
 		{
 			const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
+			unsigned int delay = subs.GetValueOrDefault<int>( "delay", 1 );
 			
-			if(subs.HasProperty("delay"))
-			{
-				delay = subs.GetIntValue("delay");
-			}
+			return new VdfnDelayNode<T>(delay);
 		}
 		catch(VistaExceptionBase &x)
 		{
 			x.PrintException();
 		}
+		return NULL;
 		
-		return new VdfnDelayNode<T>(delay);
 	}
 };
 

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPriority.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTAPRIORITY_H
 #define _VISTAPRIORITY_H
@@ -45,28 +45,10 @@ class IVistaPriorityImp;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- *
- */
 class VISTAINTERPROCCOMMAPI VistaPriority
 {
-private:
-
-	/**
-	 *
-	 */
-	IVistaPriorityImp *m_pPriorityImp;
-
-
-	/**
-	 *
-	 */
-	int m_iVistaPriority;
 public:
 
-	/**
-	 *
-	 */
 	enum PRIORITY_RANGE
 	{
 		VISTA_MIN_PRIORITY  =     0,
@@ -75,45 +57,24 @@ public:
 	};
 
 
-	/**
-	 *
-	 */
 	VistaPriority(int iPrio=VISTA_MID_PRIORITY);
-
-	/**
-	 *
-	 */
 	VistaPriority(const VistaPriority &);
-
-
-	/**
-	 *
-	 */
 	virtual ~VistaPriority();
 
 
-	/**
-	 *
-	 */
 	int GetVistaPriority() const;
-
-	/**
-	 *
-	 */
 	void SetVistaPriority(int);
 
 
-	/**
-	 *
-	 */
 	int GetSystemPriority() const;
 
-	/**
-	 *
-	 */
 	int GetVistaPriorityForSystemPriority( int iSysPrio ) const;
 
 	VistaPriority &operator=(const VistaPriority &);
+
+private:
+	IVistaPriorityImp *m_pPriorityImp;
+	int m_iVistaPriority;
 };
 
 

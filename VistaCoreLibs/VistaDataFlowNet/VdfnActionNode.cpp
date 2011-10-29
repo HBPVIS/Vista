@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnActionNode.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VdfnActionNode.h"
 
@@ -29,7 +29,6 @@
 #include <VistaAspects/VistaObserver.h>
 #include <set>
 #include <algorithm>
-#include "VdfnOut.h"
 
 class VdfnActionNode::_cActObserver : public IVistaObserver
 {
@@ -114,6 +113,7 @@ VdfnActionNode::VdfnActionNode( VdfnObjectRegistry *pReg,
 	if( pActionObject )
 	{
 		m_pObs->Observe( m_pActionObject );
+		m_sReflectionableType = m_pActionObject->GetReflectionableType();
 		UpdatePorts();
 	}
 }
@@ -177,6 +177,7 @@ bool VdfnActionNode::PreparePorts()
 			{
 				m_pObs->ReleaseObserveable( m_pActionObject );
 				m_pActionObject = NULL;
+				m_sReflectionableType = "";
 			}
 		}
 		else if( pNewObject == m_pActionObject )
@@ -188,6 +189,7 @@ bool VdfnActionNode::PreparePorts()
 			if(m_pActionObject != NULL)
 				m_pObs->ReleaseObserveable( m_pActionObject );				
 			m_pActionObject = pNewObject;
+			m_sReflectionableType = m_pActionObject->GetReflectionableType();
 			m_pObs->Observe(m_pActionObject);
 			return UpdatePorts();
 		}
@@ -198,15 +200,50 @@ bool VdfnActionNode::PreparePorts()
 		{
 			m_pObs->ReleaseObserveable( m_pActionObject );
 			m_pActionObject = NULL;
+			m_sReflectionableType = "";
 		}
 	}
 
 	return false;
 }
 
+bool VdfnActionNode::ReloadActionObject()
+{
+	if( m_pReg == NULL )
+		return false;
+	
+	IVdfnActionObject* pNewObject = dynamic_cast<IVdfnActionObject*>(m_pReg->GetObject( m_strKey ));
+	if( pNewObject == NULL )
+	{
+		return false;
+	}
+	else if( pNewObject == m_pActionObject )
+	{
+		return true;
+	}
+	
+	// ensure that the ActionObjects are of the same type! Otherwise, the getter/setter wont work
+	if( pNewObject->GetReflectionableType() != m_sReflectionableType )
+	{
+		vstr::warnp() << "[VdfnActionNode::ReloadActionObject]: Reloading failed - new object's type ["
+					<< pNewObject->GetReflectionableType() << "] differs from old ["
+					<< m_sReflectionableType << "]" << std::endl;
+		return false;
+	}
+
+	if( m_pActionObject != NULL )
+		m_pObs->ReleaseObserveable( m_pActionObject );				
+	m_pActionObject = pNewObject;
+	m_pObs->Observe( m_pActionObject);
+
+	/** @todo ensure correct actionobject setter/getter exist*/
+
+	return true;
+}
+
 void print_node_name( const std::string &strName )
 {
-	vdfnout << "\t[" << strName << "]\n";
+	vstr::outi() << "\t[" << strName << "]" << std::endl;
 }
 
 bool VdfnActionNode::PrepareEvaluationRun()
@@ -224,11 +261,11 @@ bool VdfnActionNode::PrepareEvaluationRun()
 		//	// this is for debugging, in case you have trouble
 		//	//else
 		//	//{
-		//	//	std::cerr << "[VdfnActionNode]: could not find port named [" << (*cit).first << "]\n";
+		//	//	std::cerr << "[VdfnActionNode]: could not find port named [" << (*cit).first << "]" << std::endl;
 		//	//	std::list<std::string> liNames = GetInPortNames();
 		//	//	std::for_each( liNames.begin(), liNames.end(), print_node_name );
 
-		//	//	std::cerr << "\nConnected ports:\n";
+		//	//	std::cerr << "\nConnected ports:" << std::endl;
 		//	//	liNames = GetConnectedInPortNames();
 		//	//	std::for_each( liNames.begin(), liNames.end(), print_node_name );
 		//	//}
@@ -245,12 +282,17 @@ bool VdfnActionNode::PrepareEvaluationRun()
 			}
 			else
 			{
-				vdfnerr << "[VdfnActionNode]: Failed to set inport [" << (*itInPort).first
+				vstr::warnp() << "[VdfnActionNode]: Failed to set inport [" << (*itInPort).first
 						<< "] on ActionObject [" << m_pActionObject->GetNameForNameable()
 						<< "] - no matching Setter exists!" << std::endl;
 			}
 		}
 		return true; //even if one (or all) ports could not be set... we might use the outports
+	}
+	else
+	{
+		vstr::warnp() << "[VdfnActionNode]: No valid action object found for name [" 
+				<< m_strKey << "]" << std::endl;
 	}
 	return false;
 }
@@ -318,20 +360,20 @@ bool VdfnActionNode::UpdatePorts()
 				RegisterInPortPrototype( *cit, pComp );
 				m_mpBuildMap[*cit] = _sHlp(NULL, pFunc->m_pGetFunctor, pSet); // for later use in prepare evaluation run
 //				std::cout << "[VdfnActionNode::UpdatePorts()] -- adding set for ["
-//				          << *cit << "]\n";
+//				          << *cit << "]" << std::endl;
 			}
 			else
 			{
-				vdfnerr << "[VdfnActionNode::UpdatePorts()] -- not adding ["
+				vstr::warnp() << "[VdfnActionNode::UpdatePorts()] -- not adding ["
 				          <<  *cit << "] with type [" << pSet->GetSetterType().name()
-				          << "] -- no functor access defined\n";
+						  << "] -- no functor access defined" << std::endl;
 			}
 		}
 //#ifdef DEBUG
 //		else
 //		{
 //			std::cerr << "[VdfnActionNode::UpdatePorts()] -- no action set for ["
-//			          << *cit << "]\n";
+//			          << *cit << "]" << std::endl;
 //		}
 //#endif
 
@@ -349,15 +391,15 @@ bool VdfnActionNode::UpdatePorts()
 				}
 				else
 				{
-					vdfnerr << "[VdfnActionNode::UpdatePorts()] -- could not create port for ["
-					          << *cit << "]\n";
+					vstr::warnp() << "[VdfnActionNode::UpdatePorts()] -- could not create port for ["
+						<< *cit << "]" << std::endl;
 				}
 			}
 			else
 			{
-				vdfnerr << "[VdfnActionNode::UpdatePorts()] -- not creating out port for ["
+				vstr::warnp() << "[VdfnActionNode::UpdatePorts()] -- not creating out port for ["
 				          << *cit << "] -- no functor access found for type ["
-				          << pGet->GetGetterType().name() << "]\n";
+						  << pGet->GetGetterType().name() << "]" << std::endl;
 			}
 		}
 
@@ -377,12 +419,18 @@ VdfnActionNodeCreate::VdfnActionNodeCreate( VdfnObjectRegistry *pReg )
 IVdfnNode *VdfnActionNodeCreate::CreateNode( const VistaPropertyList &oParams ) const
 {
 	const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
-	std::string strObj = subs.GetStringValue("object");
-	IVdfnActionObject *pObj = dynamic_cast<IVdfnActionObject*>(m_pReg->GetObject( strObj ));
+	std::string strObject;
+	if( subs.GetValue( "object", strObject ) == false )
+	{
+		vstr::warnp() << "VdfnActionNodeCreate::CreateNode() -- "
+			<< "no parameter for [object] has been specified!" << std::endl;
+		return NULL;
+	}
+	IVdfnActionObject *pObj = dynamic_cast<IVdfnActionObject*>(m_pReg->GetObject( strObject ));
 	if(!pObj)
-		return new VdfnActionNode(m_pReg, strObj);
+		return new VdfnActionNode( m_pReg, strObject );
 	else
-		return new VdfnActionNode(m_pReg, strObj, pObj);
+		return new VdfnActionNode( m_pReg, strObject, pObj );
 }
 
 

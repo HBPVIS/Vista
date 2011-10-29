@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaSerializable.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTASERIALIZABLE_H
 #define _VISTASERIALIZABLE_H
@@ -54,18 +54,7 @@ class IVistaDeSerializer;
  */
 class VISTAASPECTSAPI IVistaSerializable
 {
-private:
-protected:
-
-	/**
-	 *
-	 */
-	IVistaSerializable();
-
 public:
-	/**
-	 *
-	 */
 	virtual ~IVistaSerializable();
 
 	/**
@@ -89,6 +78,9 @@ public:
 	 * @return the unique identifier, can be per instance, or per class
 	 */
 	virtual std::string GetSignature() const = 0;
+
+protected:
+	IVistaSerializable();
 };
 
 

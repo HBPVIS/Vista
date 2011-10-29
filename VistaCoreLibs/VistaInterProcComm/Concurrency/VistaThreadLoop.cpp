@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaThreadLoop.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VistaThreadLoop.h"
 #include "VistaMutex.h"
@@ -74,8 +74,6 @@ bool VistaThreadLoop::PauseThread(bool bBlock)
 	{
 		return (*m_pPausing).TryLock();
 	}
-
-	return false;
 }
 
 bool VistaThreadLoop::UnpauseThread()

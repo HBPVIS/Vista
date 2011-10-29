@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaCRC32.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaCRC32.h" 
 
@@ -81,25 +81,25 @@ unsigned long VistaCRC32::ProcessString(const std::string &sText)
 	return GetResult();
 }
 
-void VistaCRC32::AddByteBuffer(unsigned char *cByteBuffer, int iLength)
+void VistaCRC32::AddByteBuffer(VistaType::byte* pByteBuffer, int iLength)
 {
 	for (int i = 0; i < iLength; ++i)
 	{
-		AddByte (*cByteBuffer);
-		++cByteBuffer;
+		AddByte (*pByteBuffer);
+		++pByteBuffer;
 	}
 }
 
-unsigned long VistaCRC32::ProcessByteBuffer(unsigned char *cByteBuffer, int iLength)
+unsigned long VistaCRC32::ProcessByteBuffer(VistaType::byte* pByteBuffer, int iLength)
 {
 	m_ulRegister = 0;
-	AddByteBuffer (cByteBuffer, iLength);
+	AddByteBuffer (pByteBuffer, iLength);
 	return GetResult();
 }
 	
-void VistaCRC32::AddByte (unsigned char cByte)
+void VistaCRC32::AddByte (VistaType::byte cByte)
 {
-	unsigned char cTop = (unsigned char)(m_ulRegister >> 24);
+	VistaType::byte cTop = (VistaType::byte)(m_ulRegister >> 24);
 	cTop ^= cByte;
 	m_ulRegister = (m_ulRegister << 8) ^ m_ulLUTElements [cTop];
 }

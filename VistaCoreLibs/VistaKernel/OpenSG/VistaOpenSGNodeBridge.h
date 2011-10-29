@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaOpenSGNodeBridge.h 23493 2011-09-22 16:12:15Z dr165799 $
 
 #ifndef _VISTAOPENSGNODEBRIDGE_H
 #define _VISTAOPENSGNODEBRIDGE_H
@@ -41,7 +41,10 @@
 #ifdef WIN32
 // disable warnings from OpenSG
 #pragma warning(push)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4189)
 #pragma warning(disable: 4231)
+#pragma warning(disable: 4267)
 #endif
 
 #include <OpenSG/OSGMatrix.h>
@@ -220,162 +223,188 @@ public:
 	virtual ~VistaOpenSGNodeBridge();
 
 	//###################################################
-	//Node construction
+	// local utility methods
 	//###################################################
-	IVistaNodeData *       NewRootNodeData();
-	IVistaNodeData *       NewGroupNodeData();
-	IVistaNodeData *       NewSwitchNodeData();
-	IVistaNodeData *       NewLODNodeData();
-	IVistaNodeData *       NewGeomNodeData( IVistaGeometryData * );
-	IVistaNodeData *       NewLightNodeData( VISTA_LIGHTTYPE t = VISTA_AMBIENT_LIGHT );
-	IVistaNodeData *       NewOpenGLNodeData();
-	IVistaNodeData *       NewExtensionNodeData();
-	IVistaNodeData *       NewTextNodeData(IVista3DText *);
-	IVistaNodeData *       NewTransformNodeData();
-	void	               DeleteNode(IVistaNode* pNode);
-	//###################################################
-
-	//###################################################
-	//General purpose functions
-	//###################################################
-	bool    SetName        (const std::string &, IVistaNodeData*);
-	bool    GetName        (std::string & strName, IVistaNodeData* pData) const;
-	bool    GetIsEnabled    (IVistaNodeData*) const;
-	void    SetIsEnabled    (bool, IVistaNodeData*);
-
-
-	//###################################################
-	// deprecated
-	bool    Enable         (IVistaNodeData*);
-	bool    Disable        (IVistaNodeData*);
-	bool    IsEnabled      (IVistaNodeData*) const;
-	//###################################################
-
-	bool    GetBoundingBox (VistaVector3D& pMin, VistaVector3D& pMax, IVistaNodeData*) const;
-	//###################################################
-
-	//###################################################
-	//Transformation functions
-	//###################################################
-	bool    SetTranslation      (const VistaVector3D& t,               IVistaNodeData*);
-	bool    GetTranslation      (VistaVector3D&,                       IVistaNodeData*) const;
-	bool    Translate           (const VistaVector3D& pos,             IVistaNodeData*);	
-	bool    SetRotation         (const VistaTransformMatrix& matrix,   IVistaNodeData*);
-	bool    SetRotation         (const VistaQuaternion& q,             IVistaNodeData*);
-	bool    GetRotation         (VistaQuaternion&,                     IVistaNodeData*) const;
-	bool    Rotate              (float x, float y, float z,            IVistaNodeData*);
-	bool    Rotate              (const VistaQuaternion& q,             IVistaNodeData*);
-	bool    GetRotation         (VistaTransformMatrix&,                IVistaNodeData*) const;
-	bool    SetTransform        (const VistaTransformMatrix& trans,    IVistaNodeData*);
-	bool    GetTransform        (VistaTransformMatrix&,                IVistaNodeData*) const;
-	bool    GetWorldPosition	(VistaVector3D&,                       IVistaNodeData*) const;
-	bool    GetWorldOrientation (VistaQuaternion&,                     IVistaNodeData*) const;
-	bool    GetWorldTransform	(VistaTransformMatrix&,			       IVistaNodeData*) const;	
-	
-	//###################################################
-
-	//###################################################
-	// SPECIAL NODE FUNCTIONALITY
-	//++++++++++++++++++++++++++++++++++++++++++++++++++
-	//GroupNode functions
-	//++++++++++++++++++++++++++++++++++++++++++++++++++
-	bool    CanAddChild         (IVistaNodeData* pChildData,            IVistaNodeData*) const;
-	bool    AddChild            (IVistaNodeData* pChildData,            IVistaNodeData*);
-	bool    InsertChild         (IVistaNodeData* pChildData, int index, IVistaNodeData*);
-	bool    DisconnectChild     (int nChildindex,                       IVistaNodeData*);
-	//++++++++++++++++++++++++++++++++++++++++++++++++++
-	//SwitchNode functions
-	//++++++++++++++++++++++++++++++++++++++++++++++++++
-	bool    SetActiveChild    (int i, IVistaNodeData*);
-	int     GetActiveChild    (       IVistaNodeData*) const;
-
-	//++++++++++++++++++++++++++++++++++++++++++++++++++
-	// LOD Node functions (Level Of Detail)
-	//++++++++++++++++++++++++++++++++++++++++++++++++++
-	bool SetCenter(const VistaVector3D& center,IVistaNodeData*);
-	bool GetCenter(VistaVector3D& center,IVistaNodeData*) const;
-	bool SetRange(const std::vector<float>& rangeList,IVistaNodeData*);
-	bool GetRange(std::vector<float>& rangeList,IVistaNodeData*) const;
-
-	//++++++++++++++++++++++++++++++++++++++++++++++++++
-	// LightNode functions
-	//++++++++++++++++++++++++++++++++++++++++++++++++++
-	virtual bool    SetLightColor(VISTA_LIGHTTYPE t, float, float, float, IVistaNodeData*)     ;
-	virtual bool	SetLightAmbientColor(VISTA_LIGHTTYPE t, float, float, float, IVistaNodeData*);
-	virtual bool	SetLightDiffuseColor(VISTA_LIGHTTYPE t, float, float, float, IVistaNodeData*);
-	virtual bool	SetLightSpecularColor(VISTA_LIGHTTYPE t, float, float, float, IVistaNodeData*);
-
-	virtual bool	SetLightAttenuation(VISTA_LIGHTTYPE t, const VistaVector3D&, IVistaNodeData*);
-
-	virtual bool	SetLightPosition(VISTA_LIGHTTYPE t, const VistaVector3D&, IVistaNodeData*);
-	virtual bool	SetLightDirection(VISTA_LIGHTTYPE t, const VistaVector3D&, IVistaNodeData*);
-
-	virtual bool	GetLightAmbientColor(VISTA_LIGHTTYPE t, float&, float&, float&, IVistaNodeData*);
-	virtual bool	GetLightDiffuseColor(VISTA_LIGHTTYPE t, float&, float&, float&, IVistaNodeData*);
-	virtual bool	GetLightSpecularColor(VISTA_LIGHTTYPE t, float&, float&, float&, IVistaNodeData*);
-
-	virtual bool	GetLightAttenuation	(VISTA_LIGHTTYPE t, VistaVector3D&, IVistaNodeData*);
-
-	virtual bool	GetLightPosition(VISTA_LIGHTTYPE t, VistaVector3D&, IVistaNodeData*) const ;
-	virtual bool	GetLightDirection(VISTA_LIGHTTYPE t, VistaVector3D&, IVistaNodeData*);
-
-	float   GetLightIntensity   (       IVistaNodeData*) const;
-	bool    SetLightIntensity   (float, IVistaNodeData*);
-
-	//float   GetLightShadowIntensity   (       IVistaNodeData*) const;
-	//bool    SetLightShadowIntensity   (float, IVistaNodeData*);
-
-	bool    SetSpotCharacter(float eCharacter, IVistaNodeData *);
-	float   GetSpotCharacter(IVistaNodeData *) const;
-
-	bool    SetSpotDistribution(int nExponent, IVistaNodeData *);
-	int     GetSpotDistribution(IVistaNodeData *);
-
-	bool    GetLightIsEnabled(IVistaNodeData*) const;
-	void    SetLightIsEnabled(bool bEnabled, IVistaNodeData*);
-
-	//++++++++++++++++++++++++++++++++++++++++++++++++++
-	// GEOMETRY
-	//++++++++++++++++++++++++++++++++++++++++++++++++++
-	bool    SetGeometry     (IVistaGeometryData*, IVistaNodeData*);
-
-
-	//++++++++++++++++++++++++++++++++++++++++++++++++++
-	// OPENGL CALLBACK NODES
-	//++++++++++++++++++++++++++++++++++++++++++++++++++
-	bool    InitOpenGLNode  (IVistaNodeData*, VistaOpenGLNode*);
-
-	//++++++++++++++++++++++++++++++++++++++++++++++++++
-	// 3D-TEXT NODES
-	//++++++++++++++++++++++++++++++++++++++++++++++++++
-	IVista3DText *CreateFontRepresentation(const std::string &sFontName);
-	bool          DestroyFontRepresentation(IVista3DText *);
-
-	bool InitExtensionNode(VistaExtensionNode *pNode, IVistaNodeData*);
-
-
-	//###################################################
-	// Storage functions
-	//###################################################
-	IVistaNode *    LoadNode(const std::string &strFileName,
-				 float fScale = 1.0f,
-				 IVistaNodeBridge::eOptFlags = OPT_NONE);
-	bool            SaveNode(std::string strFileName, VistaNode* pNode);
-
-	virtual bool        ApplyOptimizationToNode(IVistaNode *pNode,
-			eOptFlags eFlags );
-	//###################################################
-
-	/** clears the geometry node's core */
-	void ClearGeomNodeData(VistaGeomNode *pNode) const;
-
-
-	//###################################################
-	// utility methods
-	//###################################################
-	osg::TransformPtr GetTransformCore(IVistaNodeData*) const;
+	osg::TransformPtr GetTransformCore(const IVistaNodeData*) const;
 
 	bool GetAmbientLightState() const;
+
+
+	//###################################################
+	// NodeBridge API Implementation
+	//###################################################
+	
+	/*******************************************/
+	/* Node Construction                       */
+	/*******************************************/
+	virtual bool GetName( std::string& sName, const IVistaNodeData* pData ) const;
+	virtual bool SetName( const std::string& sName, IVistaNodeData* pData );
+	virtual bool GetIsEnabled( const IVistaNodeData* pData ) const;
+	virtual void SetIsEnabled( bool bEnabled, IVistaNodeData* pData );
+
+	virtual bool GetBoundingBox( VistaVector3D& v3Min, VistaVector3D& v3Max,
+								const IVistaNodeData* pData ) const;
+
+	/*******************************************/
+	/* Node Construction                       */
+	/*******************************************/
+
+	virtual IVistaNodeData* NewRootNodeData();
+	virtual IVistaNodeData* NewGroupNodeData();
+	virtual IVistaNodeData* NewSwitchNodeData();
+	virtual IVistaNodeData*	NewLODNodeData();
+	virtual IVistaNodeData*	NewGeomNodeData( IVistaGeometryData* pData );
+
+	virtual IVistaNodeData*	NewLightNodeData( VISTA_LIGHTTYPE nLightType );
+
+	virtual IVistaNodeData*	NewOpenGLNodeData();
+	virtual IVistaNodeData* NewExtensionNodeData();
+	virtual IVistaNodeData* NewTransformNodeData();
+
+	virtual IVistaNodeData* NewTextNodeData( IVista3DText* pText );
+
+	virtual void DeleteNode( IVistaNode* pNode );
+
+	/*******************************************/
+	/* Node Transformation                     */
+	/*******************************************/
+
+	virtual bool GetTranslation( VistaVector3D& v3Trans, const IVistaNodeData* pData ) const;
+	virtual bool SetTranslation( const VistaVector3D& v3Trans, IVistaNodeData* pData );
+	virtual bool GetRotation( VistaTransformMatrix& matRotation, const IVistaNodeData* pData ) const;
+	virtual bool SetRotation( const VistaTransformMatrix& matRotation, IVistaNodeData* pData );
+	virtual bool GetRotation( VistaQuaternion& qRotation, const IVistaNodeData* pData ) const;
+	virtual bool SetRotation( const VistaQuaternion& qRotation, IVistaNodeData* pData );
+	virtual bool GetTransform( VistaTransformMatrix& matTrans, const IVistaNodeData* pData ) const;
+	virtual bool SetTransform( const VistaTransformMatrix& matTrans, IVistaNodeData* pData );
+
+	virtual bool Rotate( float nEulerX, float nEulerY, float nEulerZ, IVistaNodeData* pData );
+	virtual bool Rotate( const VistaQuaternion& qRotation, IVistaNodeData* pData );
+	virtual bool Translate( const VistaVector3D& v3Trans, IVistaNodeData* pData );
+
+	virtual bool GetWorldTransform( VistaTransformMatrix& matTransform, const IVistaNodeData* pData ) const;
+	virtual bool GetWorldPosition( VistaVector3D& v3Position, const IVistaNodeData* pData ) const;
+	virtual bool GetWorldOrientation( VistaQuaternion& qOrientation, const IVistaNodeData* pData ) const;
+	
+	/*******************************************/
+	/* Node Hioerarchy                         */
+	/*******************************************/
+
+	virtual bool CanAddChild( IVistaNodeData* pChildData, const IVistaNodeData* pData ) const;
+	virtual bool AddChild( IVistaNodeData* pChildData, IVistaNodeData* pData );
+	virtual bool InsertChild( IVistaNodeData* pChildData, int nIndex, IVistaNodeData* pData );
+	virtual bool DisconnectChild( int nChildindex, IVistaNodeData* pData );
+
+
+	/*******************************************/
+	/* SwitchNodes                             */
+	/*******************************************/
+
+	virtual int GetActiveChild( const IVistaNodeData* pData ) const ;
+	virtual bool SetActiveChild( int nChildIndex, IVistaNodeData* pData );
+
+	/*******************************************/
+	/* LOD Nodes                               */
+	/*******************************************/
+
+	virtual bool GetRange( std::vector<float>& vecRanges, const IVistaNodeData* pData ) const;
+	virtual bool SetRange( const std::vector<float>& vecRanges, IVistaNodeData* pData );
+	virtual bool GetCenter( VistaVector3D& v3Center, const IVistaNodeData* pData ) const;
+	virtual bool SetCenter( const VistaVector3D& v3Center, IVistaNodeData* pData );
+
+	/*******************************************/
+	/* Light Nodes                             */
+	/*******************************************/
+	virtual bool GetLightAmbientColor( VISTA_LIGHTTYPE nType,
+								float& nRed, float& nGreen, float& nBlue,
+								const IVistaNodeData* pData ) const;
+	virtual bool SetLightAmbientColor( VISTA_LIGHTTYPE nType,
+								float nRed, float nGreen, float nBlue,
+								IVistaNodeData* pData );
+	virtual bool GetLightDiffuseColor( VISTA_LIGHTTYPE nType,
+								float& nRed, float& nGreen, float& nBlue,
+								const IVistaNodeData* pData ) const;
+	virtual bool SetLightDiffuseColor( VISTA_LIGHTTYPE nType,
+								float nRed, float nGreen, float nBlue,
+								IVistaNodeData* pData );
+	virtual bool GetLightSpecularColor( VISTA_LIGHTTYPE nType,
+								float& nRed, float& nGreen, float& nBlue,
+								const IVistaNodeData* pData ) const;	
+	virtual bool SetLightSpecularColor( VISTA_LIGHTTYPE nType,
+								float nRed, float nGreen, float nBlue,
+								IVistaNodeData* pData );
+	virtual bool SetLightColor( VISTA_LIGHTTYPE nType,
+								float nRed, float nGreen, float nBlue,
+								IVistaNodeData* pData );
+
+	virtual bool GetLightAttenuation( VISTA_LIGHTTYPE nType,
+								VistaVector3D& v3Attenuation,
+								const IVistaNodeData* pData ) const;
+	virtual bool SetLightAttenuation( VISTA_LIGHTTYPE nType,
+								const VistaVector3D& v3Attenuation,
+								IVistaNodeData* pData );
+
+	virtual bool GetLightPosition( VISTA_LIGHTTYPE nType,
+								VistaVector3D&,
+								const IVistaNodeData* pData ) const;
+	virtual bool SetLightPosition( VISTA_LIGHTTYPE nType,
+								const VistaVector3D& v3Position,
+								IVistaNodeData* pData );
+	virtual bool GetLightDirection( VISTA_LIGHTTYPE nType,
+								VistaVector3D&,
+								const IVistaNodeData* pData ) const;
+	virtual bool SetLightDirection( VISTA_LIGHTTYPE nType,
+								const VistaVector3D& v3Driection,
+								IVistaNodeData* pData );
+
+	virtual float GetLightIntensity( const IVistaNodeData* pData ) const ;
+	virtual bool SetLightIntensity( float fIntensity, IVistaNodeData* pData );
+
+	virtual float GetSpotCharacter( const IVistaNodeData* pData ) const;
+	virtual bool SetSpotCharacter( float fCharacter, IVistaNodeData* pData );
+
+	virtual int GetSpotDistribution( const IVistaNodeData* pData ) const;
+	virtual bool SetSpotDistribution( int nExponent, IVistaNodeData* pData );
+
+	virtual bool GetLightIsEnabled( const IVistaNodeData* pData ) const;
+	virtual void SetLightIsEnabled( bool bEnabled, IVistaNodeData* pData );
+
+	/*******************************************/
+	/* 3D Text Nodes                           */
+	/*******************************************/
+	virtual IVista3DText* CreateFontRepresentation( const std::string& sFontName );
+	virtual bool DestroyFontRepresentation( IVista3DText* pText );
+
+	/*******************************************/
+	/* Extension/OpenGL Nodes                  */
+	/*******************************************/
+
+	virtual bool InitExtensionNode( VistaExtensionNode *pNode, IVistaNodeData* pData );
+	virtual bool InitOpenGLNode( IVistaNodeData* pData, VistaOpenGLNode* );	
+
+	/*******************************************/
+	/* Geometry Nodes                          */
+	/*******************************************/
+	
+	virtual bool SetGeometry( IVistaGeometryData* pGeomData, IVistaNodeData* pNodeData );
+	virtual void ClearGeomNodeData( VistaGeomNode* pNodeData ) const;
+
+	/*******************************************/
+	/* Node Loading/Saving/Optimization        */
+	/*******************************************/
+
+	virtual IVistaNode* LoadNode( const std::string& strFileName,
+								float fScale = 1.0f,
+								VistaSceneGraph::eOptFlags = VistaSceneGraph::OPT_NONE,
+								const bool bVerbose = false );
+
+	virtual bool SaveNode( const std::string& sFileName,
+								VistaNode* pNode );
+
+	virtual bool ApplyOptimizationToNode( IVistaNode *pNode,
+								VistaSceneGraph::eOptFlags eFlags,
+								const bool bVerbose = false );
+
 private:
 	osg::Color4f m_afAmbientLight;
 	bool         m_bAmbientLightState;

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaMsg.h 22143 2011-07-01 15:07:00Z dr165799 $
 
 #ifndef _VISTAMSG_H
 #define _VISTAMSG_H
@@ -28,6 +28,7 @@
 /*============================================================================*/
 /* INCLUDES                                                                   */
 /*============================================================================*/
+#include <VistaBase/VistaBaseTypes.h>
 #include <VistaAspects/VistaSerializable.h>
 #include <VistaInterProcComm/VistaInterProcCommConfig.h>
 
@@ -50,7 +51,7 @@
 class VISTAINTERPROCCOMMAPI VistaMsg : public IVistaSerializable
 {
 public:
-	typedef std::vector<unsigned char> MSG;
+	typedef std::vector<VistaType::byte> MSG;
 
 	VistaMsg();
 	VistaMsg(const VistaMsg &);

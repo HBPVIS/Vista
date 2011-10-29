@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaInteractionHandlerBase.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTAINTERACTIONHANDLERBASE_H
 #define _VISTAINTERACTIONHANDLERBASE_H

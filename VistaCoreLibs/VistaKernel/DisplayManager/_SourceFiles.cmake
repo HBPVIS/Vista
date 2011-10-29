@@ -2,10 +2,13 @@
 
 set( RelativeDir "./DisplayManager" )
 set( RelativeSourceGroup "Source Files\\DisplayManager" )
+set( SubDirs GlutWindowImp )
 
 set( DirFiles
 	Vista2DDrawingObjects.cpp
 	Vista2DDrawingObjects.h
+	Vista3DTextOverlay.cpp
+	Vista3DTextOverlay.h
 	VistaDisplay.cpp
 	VistaDisplay.h
 	VistaDisplayBridge.cpp
@@ -20,12 +23,18 @@ set( DirFiles
 	VistaProjection.h
 	VistaSceneOverlay.cpp
 	VistaSceneOverlay.h
+	VistaSimpleTextOverlay.cpp
+	VistaSimpleTextOverlay.h
+	VistaTextEntity.cpp
+	VistaTextEntity.h
 	VistaViewport.cpp
 	VistaViewport.h
 	VistaVirtualPlatform.cpp
 	VistaVirtualPlatform.h
 	VistaWindow.cpp
 	VistaWindow.h
+	VistaWindowingToolkit.cpp
+	VistaWindowingToolkit.h
 	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
@@ -36,4 +45,13 @@ foreach( File ${DirFiles} )
 	list( APPEND ProjectSources "${RelativeDir}/${File}" )
 endforeach()
 source_group( ${DirFiles_SourceGroup} FILES ${LocalSourceGroupFiles} )
+
+set( SubDirFiles "" )
+foreach( Dir ${SubDirs} )
+	list( APPEND SubDirFiles "${RelativeDir}/${Dir}/_SourceFiles.cmake" )
+endforeach()
+
+foreach( SubDirFile ${SubDirFiles} )
+	include( ${SubDirFile} )
+endforeach()
 

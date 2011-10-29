@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDfnReferenceFrameTransformNode.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaDfnReferenceFrameTransformNode.h" 
 
@@ -30,6 +30,7 @@
 #include <VistaKernel/DisplayManager/VistaDisplaySystem.h>
 #include <VistaKernel/DisplayManager/VistaDisplayManager.h>
 #include <VistaKernel/DisplayManager/VistaVirtualPlatform.h>
+#include <VistaAspects/VistaConversion.h>
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
@@ -54,11 +55,10 @@ VistaDfnReferenceFrameTransformNode::VistaDfnReferenceFrameTransformNode(
 	for( int i = 0; i < iNrPositionPorts; ++i )
 	{
 		m_vecOutPortsPos[i] = new TVdfnPort<VistaVector3D>;
-		RegisterInPortPrototype( "in_position" 
-						+ VistaAspectsConversionStuff::ConvertToString( i ), 
+		RegisterInPortPrototype( "in_position" + VistaConversion::ToString( i ), 
 						new TVdfnPortTypeCompare<TVdfnPort<VistaVector3D> > );
 		RegisterOutPort( "out_position" 
-						+ VistaAspectsConversionStuff::ConvertToString( i ),
+						+ VistaConversion::ToString( i ),
 						m_vecOutPortsPos[i] );
 	}
 
@@ -68,10 +68,10 @@ VistaDfnReferenceFrameTransformNode::VistaDfnReferenceFrameTransformNode(
 	{
 		m_vecOutPortsOri[i] = new TVdfnPort<VistaQuaternion>;
 		RegisterInPortPrototype( "in_orientation" 
-						+ VistaAspectsConversionStuff::ConvertToString( i ), 
+						+ VistaConversion::ToString( i ), 
 						new TVdfnPortTypeCompare<TVdfnPort<VistaQuaternion> > );
 		RegisterOutPort( "out_orientation" 
-						+ VistaAspectsConversionStuff::ConvertToString( i ),
+						+ VistaConversion::ToString( i ),
 						m_vecOutPortsOri[i] );
 	}
 
@@ -81,10 +81,10 @@ VistaDfnReferenceFrameTransformNode::VistaDfnReferenceFrameTransformNode(
 	{
 		m_vecOutPortsMat[i] = new TVdfnPort<VistaTransformMatrix>;
 		RegisterInPortPrototype( "in_matrix"
-						+ VistaAspectsConversionStuff::ConvertToString( i ), 
+						+ VistaConversion::ToString( i ), 
 						new TVdfnPortTypeCompare<TVdfnPort<VistaTransformMatrix> > );
 		RegisterOutPort( "out_matrix" 
-						+ VistaAspectsConversionStuff::ConvertToString( i ),
+						+ VistaConversion::ToString( i ),
 						m_vecOutPortsMat[i] );
 	}
 }
@@ -111,7 +111,7 @@ bool VistaDfnReferenceFrameTransformNode::PrepareEvaluationRun()
 	{
 		(*itPortPos) = VdfnUtil::GetInPortTyped<TVdfnPort<VistaVector3D>*>(
 						"in_position" 
-						+ VistaAspectsConversionStuff::ConvertToString( i ),
+						+ VistaConversion::ToString( i ),
 						this );
 	}	
 	for( int i = (int)m_vecInPortsPos.size() - 1; i >= 0; --i )
@@ -130,7 +130,7 @@ bool VistaDfnReferenceFrameTransformNode::PrepareEvaluationRun()
 	{
 		(*itPortOri) = VdfnUtil::GetInPortTyped<TVdfnPort<VistaQuaternion>*>(
 						"in_orientation"
-						+ VistaAspectsConversionStuff::ConvertToString( i ),
+						+ VistaConversion::ToString( i ),
 						this );
 	}	
 	for( int i = (int)m_vecInPortsOri.size() - 1; i >= 0; --i )
@@ -149,7 +149,7 @@ bool VistaDfnReferenceFrameTransformNode::PrepareEvaluationRun()
 	{
 		(*itPortMat) = VdfnUtil::GetInPortTyped<TVdfnPort<VistaTransformMatrix>*>(
 							"in_matrix"
-							+ VistaAspectsConversionStuff::ConvertToString( i ),
+							+ VistaConversion::ToString( i ),
 							this );
 	}	
 	for( int i = (int)m_vecInPortsMat.size() - 1; i >= 0; --i )

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaVRPNDriver.h 22143 2011-07-01 15:07:00Z dr165799 $
 
 #ifndef __VISTAVRPNRIVER_H
 #define __VISTAVRPNRIVER_H

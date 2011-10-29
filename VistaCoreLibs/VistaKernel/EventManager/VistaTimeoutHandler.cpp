@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaTimeoutHandler.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaTimeoutHandler.h"
 
@@ -39,10 +39,10 @@
 
 
 VistaTimeoutHandler::VistaTimeoutHandler(VistaEventManager *pEvMgr,
-						 VistaClusterAux *pAux)
+						 VistaClusterMode *pClusterMode)
 : VistaEventHandler(),
   m_pEventManager(pEvMgr),
-  m_pClusterAux(pAux),
+  m_pClusterAux(pClusterMode),
   m_nEvId(-1)
 {
 }

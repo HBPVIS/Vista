@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDriverPropertyConfigurator.h 20766 2011-04-05 09:30:14Z dr165799 $
 
 #ifndef _VISTADRIVERPROPERTYCONFIGURATOR_H
 #define _VISTADRIVERPROPERTYCONFIGURATOR_H
@@ -54,20 +54,13 @@ public:
 	{
 	public:
 		virtual ~IConfigurator();
-		virtual bool Configure(IVistaDeviceDriver *pDriver,
-							   const VistaPropertyList &props);
+		virtual bool Configure( IVistaDeviceDriver* pDriver,
+								const VistaPropertyList& oDriverSection,
+								const VistaPropertyList& oConfig );
 
-
-		virtual bool GeneratePropertyListFromInifile(const std::string &strFile,
-			const std::string &sRootSection,
-			VistaPropertyList &);
-
-
-		virtual std::string GetReflectionableType() const;
+		REFL_INLINEIMP( VistaDriverPropertyConfigurator::IConfigurator, IVistaReflectionable );
 	protected:
 		IConfigurator();
-		virtual int AddToBaseTypeList(std::list<std::string> &rBtList) const;
-
 		IVistaDeviceDriver *m_pDriver;
 	private:
 		static std::string SsReflectionType;

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaKernelDfnNodeCreators.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTAKERNELDFNNODECREATORSS_H
 #define _VISTAKERNELDFNNODECREATORSS_H
@@ -45,8 +45,7 @@ class VistaSystem;
 class VistaDisplayManager;
 class VistaEventManager;
 class VistaInteractionManager;
-class VistaClusterAux;
-class IVistaWindowingToolkit;
+class VistaClusterMode;
 class VistaKeyboardSystemControl;
 
 /*============================================================================*/
@@ -76,25 +75,25 @@ public:
 class VISTAKERNELAPI VdfnClusterNodeInfoNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
 {
 public:
-	VdfnClusterNodeInfoNodeCreate( VistaClusterAux *pDm );
+	VdfnClusterNodeInfoNodeCreate( VistaClusterMode *pDm );
 	virtual IVdfnNode *CreateNode( const VistaPropertyList &oParams ) const;
-	VistaClusterAux *m_pAux;
+	VistaClusterMode *m_pClusterMode;
 };
 
-class VISTAKERNELAPI VdfnDeviceDebugNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+class VISTAKERNELAPI VistaDfnDeviceDebugNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
 {
 public:
-	VdfnDeviceDebugNodeCreate(IVistaWindowingToolkit *wta);
+	VistaDfnDeviceDebugNodeCreate( VistaDisplayManager* pDisplayManager );
 	virtual IVdfnNode *CreateNode( const VistaPropertyList &oParams ) const;
-	IVistaWindowingToolkit *m_pWta;
+	VistaDisplayManager* m_pDisplayManager;
 };
 
 class VISTAKERNELAPI VdfnDumpHistoryNodeClusterCreate : public VdfnNodeFactory::IVdfnNodeCreator
 {
 public:
-	VdfnDumpHistoryNodeClusterCreate( VistaClusterAux *pAux );
+	VdfnDumpHistoryNodeClusterCreate( VistaClusterMode *pClusterMode );
 	IVdfnNode *CreateNode( const VistaPropertyList &oParams ) const;
-	VistaClusterAux *m_pAux;
+	VistaClusterMode *m_pClusterMode;
 };
 
 class VISTAKERNELAPI VistaDfnEventSourceNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
@@ -119,13 +118,11 @@ private:
 class VISTAKERNELAPI VistaDfnWindowSourceNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
 {
 public:
-	VistaDfnWindowSourceNodeCreate( VistaEventManager *pEgMgr,
-							   VistaDisplayManager *pMgr );
+	VistaDfnWindowSourceNodeCreate( VistaDisplayManager *pMgr );
 	virtual IVdfnNode *CreateNode( const VistaPropertyList &oParams ) const;
 
 private:
 	VistaDisplayManager *m_pMgr;
-	VistaEventManager *m_pEvMgr;
 };
 
 class VISTAKERNELAPI VistaDfnViewportSourceNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
@@ -162,13 +159,9 @@ private:
 template<class T>
 class VISTAKERNELAPI VistaDfnTextOverlayNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
 {
-
 public:
-	typedef typename VistaDfnTextOverlayNode<T>::ToStringFct StringFct;
-	VistaDfnTextOverlayNodeCreate( VistaDisplayManager *pDm,
-					 StringFct fct )
-		: m_CFct(fct),
-		  m_pDm(pDm)
+	VistaDfnTextOverlayNodeCreate( VistaDisplayManager *pDm )
+	: m_pDm(pDm)
 	{
 	}
 
@@ -178,41 +171,43 @@ public:
 		{
 			const VistaPropertyList &oSubs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
 
-			float nX = float(oSubs.GetDoubleValue("x_pos"));
-			float nY = float(oSubs.GetDoubleValue("y_pos"));
+			float nX = oSubs.GetValueOrDefault<float>( "x_pos", 0.1f );
+			float nY = oSubs.GetValueOrDefault<float>( "y_pos", 0.1f );
 
-			int nR = int(oSubs.GetIntValue("red"));
-			int nG = int(oSubs.GetIntValue("green"));
-			int nB = int(oSubs.GetIntValue("blue"));
+			float nR = oSubs.GetValueOrDefault<float>( "red", 1.0f );
+			float nG = oSubs.GetValueOrDefault<float>( "green", 1.0f );
+			float nB = oSubs.GetValueOrDefault<float>( "blue", 0.0f );
 
-			int nSize = 20; // is default from InitText()
-			if(oSubs.HasProperty("size"))
-				nSize = int(oSubs.GetIntValue("size"));
+			int nSize = oSubs.GetValueOrDefault<int>( "size", 20 );
 
-			std::string sIniText = oSubs.GetStringValue("value");
+			std::string sIniText;
+			oSubs.GetValue( "value", sIniText );
 
 
 			Vista2DText::Vista2DTextFontFamily eFamily = Vista2DText::SANS;
 
-			if(oSubs.HasProperty("font"))
+			std::string strFont;
+			if( oSubs.GetValue( "font", strFont ) )
 			{
-				std::string strFont = oSubs.GetStringValue("font");
-				if(strFont.compare("TYPEWRITER") == 0)
+				if( strFont.compare("TYPEWRITER") == 0 )
 					eFamily = Vista2DText::TYPEWRITER;
-				else if(strFont.compare("SERIF") == 0)
+				else if( strFont.compare("SERIF") == 0 )
 					eFamily = Vista2DText::SERIF;
 			}
 
-			Vista2DText *pText = m_pDm->Add2DText(oSubs.GetStringValue("viewport"));
+			std::string sViewport =	oSubs.GetValueOrDefault<std::string>( "viewport", "" );
+			Vista2DText *pText = m_pDm->New2DText( sViewport );
 			if(pText)
 			{
-				pText->Init( sIniText, nX, nY,  nR, nG, nB, nSize, eFamily );
+				pText->Init( sIniText, nX, nY,
+							int( 255 * nR ), int( 255 * nG ), int( 255 * nB ),
+							nSize, eFamily );
 
 				VistaDfnTextOverlayNode<T> *pSink
-					= new VistaDfnTextOverlayNode<T>( pText, m_CFct );
+					= new VistaDfnTextOverlayNode<T>( pText );
 
-				std::string sPostfix = oSubs.GetStringValue("postfix");
-				std::string sPrefix = oSubs.GetStringValue("prefix");
+				std::string sPostfix = oSubs.GetValueOrDefault<std::string>( "postfix", "" );
+				std::string sPrefix = oSubs.GetValueOrDefault<std::string>( "prefix", "" );
 
 				pSink->SetPostfix(sPostfix);
 				pSink->SetPrefix(sPrefix);
@@ -228,7 +223,6 @@ public:
 		return NULL;
 	}
 private:
-	StringFct m_CFct;
 	VistaDisplayManager *m_pDm;
 };
 
@@ -270,12 +264,12 @@ class VistaFrameclockNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
 public:
 	class TimerNodeFrameclockGet;
 
-	VistaFrameclockNodeCreate( VistaClusterAux* pClusterAux );
+	VistaFrameclockNodeCreate( VistaClusterMode* pClusterAux );
 
 	virtual IVdfnNode* CreateNode( const VistaPropertyList &oParams ) const;
 	
 private:
-	VistaClusterAux* m_pClusterAux;
+	VistaClusterMode* m_pClusterAux;
 };
 
 

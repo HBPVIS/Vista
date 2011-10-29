@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDTrackDriver.h 22143 2011-07-01 15:07:00Z dr165799 $
 
 #ifndef _VISTADTRACKDRIVER_H
 #define _VISTADTRACKDRIVER_H
@@ -104,8 +104,8 @@ private:
 	VistaDTrackProtocolAspect       *m_pProtocol;
 	VistaDriverSensorMappingAspect  *m_pSensors;
 	VistaByteBufferDeSerializer     *m_pDeSerializer,
-									 *m_pLine;
-	std::vector<unsigned char> m_vecPacketBuffer;
+									*m_pLine;
+	std::vector<VistaType::byte>	m_vecPacketBuffer;
 
 
 	typedef std::map<std::string, ILineDecode*> DECODEMAP;

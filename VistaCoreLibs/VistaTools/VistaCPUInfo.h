@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaCPUInfo.h 22143 2011-07-01 15:07:00Z dr165799 $
 
 #ifndef _VISTACPUINFO_H
 #define _VISTACPUINFO_H
@@ -30,6 +30,8 @@
 #endif
 
 #include "VistaToolsConfig.h"
+
+#include <VistaBase/VistaBaseTypes.h>
 
 /*============================================================================*/
 /* INCLUDES                                                                   */
@@ -54,20 +56,10 @@ class VISTATOOLSAPI VistaCPUInfo
 public:
 	VistaCPUInfo();
 	~VistaCPUInfo();
-#if defined(WIN32)
-	// visual doesn't know 'long long'
-	typedef signed __int64      sint64;
-	typedef unsigned __int64    uint64;
-	typedef LPTSTR              sString;
-#else
-	typedef signed long long    sint64;
-	typedef unsigned long long  uint64;
-	typedef char *        sString;
-#endif
 
 	int GetProcessorCount();
 
-	 uint64 GetSpeed() const;
+	 VistaType::uint64 GetSpeed() const;
 	 unsigned int GetSpeedMHz() const;
 
 	 std::string GetCPUName() const;

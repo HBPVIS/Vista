@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaNodeInterface.h 22143 2011-07-01 15:07:00Z dr165799 $
 
 #ifndef _VISTANODEINTERFACE_H
 #define _VISTANODEINTERFACE_H
@@ -75,7 +75,7 @@ class VISTAKERNELAPI IVistaNode : virtual public IVistaLocatable
 {
 public:
 	/**
-	 * virtual destructor, note that you should use the VistaSG interface
+	 * virtual destructor, note that you should use the VistaSceneGraph interface
 	 * to delete nodes and not delete them by calling delete on this node
 	 * unless you know what you are doing.
 	 */

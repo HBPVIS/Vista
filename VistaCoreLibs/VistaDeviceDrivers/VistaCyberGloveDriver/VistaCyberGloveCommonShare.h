@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaCyberGloveDriver.h 20121 2011-01-29 20:42:19Z ingoassenmacher $
 
 #ifndef _VISTACYBERGLOVECOMMONSHARE_H__
 #define _VISTACYBERGLOVECOMMONSHARE_H__

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDemux.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _DLVISTADEMUX_H
 #define _DLVISTADEMUX_H
@@ -54,13 +54,7 @@
 class VISTAINTERPROCCOMMAPI DLVistaDemux : public IDLVistaTransformFilter
 {
 public:
-	/**
-	 *
-	 */
 	DLVistaDemux();
-	/**
-	 *
-	 */
 	virtual ~DLVistaDemux();
 	/**
 	 * attach another input to this filter
@@ -97,9 +91,6 @@ public:
 protected:
 
 private:
-	/**
-	 *
-	 */
 	DLVistaDemux(const DLVistaDemux &);
 	/**
 	 * handle multiple inputs

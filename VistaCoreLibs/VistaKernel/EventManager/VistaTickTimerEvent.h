@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaTickTimerEvent.h 20730 2011-03-30 15:56:24Z dr165799 $
 
 #ifndef _VISTATICKTIMEREVENT_H
 #define _VISTATICKTIMEREVENT_H

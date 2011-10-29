@@ -20,15 +20,18 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaEventManager.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
-#include <VistaKernel/EventManager/VistaEventManager.h>
+#include "VistaEventManager.h"
+
+#include <VistaKernel/Cluster/VistaClusterMode.h>
 #include <VistaKernel/EventManager/VistaEventHandler.h>
 #include <VistaKernel/EventManager/VistaEventObserver.h>
 #include <VistaKernel/EventManager/VistaEvent.h>
-#include <VistaBase/VistaTimer.h>
-#include "../VistaKernelOut.h"
 
+#include <VistaBase/VistaTimer.h>
+#include <VistaBase/VistaTimeUtils.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <cassert>
 #include <algorithm>
@@ -53,31 +56,20 @@ bool VistaEventManager::HANDLER::operator==(const HANDLER &other)
 }
 
 /*============================================================================*/
-
-// always put this line below your constant definitions
-// to avoid problems with HP's compiler
-using namespace std;
-
-/*============================================================================*/
 /*  CONSTRUCTORS / DESTRUCTOR                                                 */
 /*============================================================================*/
 VistaEventManager::VistaEventManager()
-: m_bObserverQueueDirty(false),
-  m_iProcessRecursionCount(0),
-  m_nEventCnt(0)
+: m_bObserverQueueDirty( false )
+, m_iProcessRecursionCount( 0 )
+, m_nEventCount( 0 )
+, m_bResetEventTimeToLocalTime( true )
 {
-	m_pTimer = new VistaTimer;
-	m_bResetEventTimeToLocalTime = true;
+
 }
 
 VistaEventManager::~VistaEventManager()
 {
 	CleanupHandlerMapping();
-#ifdef DEBUG
-	vkernout << " [ViEvHandler] >> DESTRUCTOR <<" << endl;
-#endif
-
-	delete m_pTimer;
 }
 
 /*============================================================================*/
@@ -99,15 +91,12 @@ bool VistaEventManager::Init()
 /*  NAME      :   ProcessEvent                                                */
 /*                                                                            */
 /*============================================================================*/
-bool VistaEventManager::ProcessEvent(VistaEvent *pEvent)
+bool VistaEventManager::ProcessEvent( VistaEvent *pEvent )
 {
-
 	// make sure, we do have a valid event
-	if (!pEvent)
+	if( pEvent == NULL )
 	{
-#ifdef DEBUG
-		vkernout << " [ViEvMa] WARNING - received NULL event pointer" << endl;
-#endif
+		vstr::warnp() << "[ViEvMa] received NULL event pointer" << std::endl;
 		return false;
 	}
 
@@ -115,25 +104,23 @@ bool VistaEventManager::ProcessEvent(VistaEvent *pEvent)
 	int iEventType = pEvent->GetType();
 
 	// Is the event itself valid?
-	if (!IsValidEventType(iEventType))
+	if( !IsValidEventType( iEventType ) )
 	{
-#ifdef DEBUG
-		vkernout << " [ViEvMa] WARNING - received invalid event - event type: "
-			<< pEvent->GetType() << endl;
-#endif
+		vstr::debugi() << "[ViEvMa] received invalid event - event type: "
+					<< pEvent->GetType() << std::endl;
 		return false;
 	}
 
 	// increase recursion counter
 	++m_iProcessRecursionCount;
 	
-	pEvent->m_nCnt = ++m_nEventCnt;
+	pEvent->m_nCount = ++m_nEventCount;
 
 	// set some data members of the event
 	pEvent->m_bHandled = false;
 
 	if( m_bResetEventTimeToLocalTime )
-		pEvent->m_dTime = (*m_pTimer).GetSystemTime();
+		pEvent->m_nTime = VistaTimeUtils::GetStandardTimer().GetSystemTime();
 
 	// find event handler for this type
 	HANP &hp = m_veHandlerMapping[iEventType];
@@ -142,8 +129,8 @@ bool VistaEventManager::ProcessEvent(VistaEvent *pEvent)
 
 	// notify observers first
 	OBSQUEUE *pO = hp.second.second;
-	for(OBSQUEUE::const_iterator cit = (*pO).begin();
-		cit != (*pO).end(); ++cit)
+	for( OBSQUEUE::const_iterator cit = (*pO).begin();
+		cit != (*pO).end(); ++cit )
 	{
 		if(!(*cit)->m_bIsDef)
 			(*cit)->Notify(pEvent);
@@ -229,7 +216,7 @@ bool VistaEventManager::RegisterObserver(VistaEventObserver *pObserver, int iEve
 	if(m_iProcessRecursionCount == 0)
 	{
 #ifdef DEBUG
-		vkernout << " [ViEvMa] currently not processing -- registering observer directly..." << endl;
+		vstr::outi() << "[ViEvMa] currently not processing -- registering observer directly..." << std::endl;
 #endif
 		return DoRegisterObserver(pObserver, iEventType);
 	}
@@ -237,7 +224,7 @@ bool VistaEventManager::RegisterObserver(VistaEventObserver *pObserver, int iEve
 	{
 
 #ifdef DEBUG
-		vkernout << " [ViEvMa] queuing observer for registration..." << endl;
+		vstr::outi() << "[ViEvMa] queuing observer for registration..." << std::endl;
 #endif
 		m_stPendingForRegistration.insert(std::pair<VistaEventObserver*,int>(pObserver, iEventType));
 		m_bObserverQueueDirty = true;
@@ -248,10 +235,10 @@ bool VistaEventManager::RegisterObserver(VistaEventObserver *pObserver, int iEve
 
 bool VistaEventManager::DoRegisterObserver(VistaEventObserver *pObserver, int iEventType)
 {
-
 #ifdef DEBUG
-	vkernout << " [ViEvMa] registering observer for event type " << iEventType << endl;
+	vstr::outi() << "[ViEvMa] registering observer for event type " << iEventType << std::endl;
 #endif
+
 	if(iEventType == VistaEvent::VET_ALL)
 	{
 		for(std::vector<HANP>::size_type n=0; n < m_veHandlerMapping.size(); ++n)
@@ -272,7 +259,7 @@ bool VistaEventManager::DoRegisterObserver(VistaEventObserver *pObserver, int iE
 bool VistaEventManager::DoUnregisterObserver(VistaEventObserver *pObserver, int iEventType)
 {
 #ifdef DEBUG
-	vkernout << " [ViEvMa] unregistering observer for event type " << iEventType << endl;
+	vstr::outi() << "[ViEvMa] unregistering observer for event type " << iEventType << std::endl;
 #endif
 
 	if(iEventType == VistaEvent::VET_ALL)
@@ -304,14 +291,13 @@ bool VistaEventManager::UnregisterObserver(VistaEventObserver *pObserver,
 		return  false;
 
 #ifdef DEBUG
-		vkernout << " [ViEvMa] queuing observer for unregistration..." << endl;
-
+		vstr::outi() << "[ViEvMa] queuing observer for unregistration..." << std::endl;
 #endif
 
 #ifdef DEBUG
 		if(!GetIsObserver(pObserver, iEventType))
 		{
-			vkernout << " [ViEvMa]: requesting to unregister an non-registered observer.\n";
+			vstr::outi() << "[ViEvMa]: requesting to unregister an non-registered observer." << std::endl;
 		}
 #endif
 		m_stPendingForUnregistration.insert(std::pair<VistaEventObserver*, int>(pObserver, iEventType));
@@ -329,17 +315,10 @@ bool VistaEventManager::GetIsObserver(VistaEventObserver *pObserver, int iEventT
 	return false;
 }
 
-/*============================================================================*/
-
 void VistaEventManager::SetResetEventTimeToLocalTime( bool bRETTLT )
 {
 	m_bResetEventTimeToLocalTime = bRETTLT;
 }
-
-/*============================================================================*/
-/*============================================================================*/
-/*============================================================================*/
-
 bool VistaEventManager::AddEventHandler(VistaEventHandler *pHan,
 										 EVENTTYPE nEventType,
 										 EVENTID nEventId,
@@ -372,8 +351,6 @@ bool VistaEventManager::AddEventHandler(VistaEventHandler *pHan,
 		}
 		return bRet;
 	}
-
-	return false;
 }
 
 bool VistaEventManager::AddToIdList(HANP &idmap, EVENTID nEventId, int nPrio, VistaEventHandler *pHan)
@@ -420,8 +397,6 @@ bool VistaEventManager::AddToIdList(HANP &idmap, EVENTID nEventId, int nPrio, Vi
 		}
 		return true;
 	}
-
-	return true;
 }
 
 bool VistaEventManager::RemoveFromIdList(HANP &idmap,
@@ -505,9 +480,9 @@ int VistaEventManager::AddEventType(const std::string &sDebugString)
 {
 	m_veHandlerMapping.push_back(HANP(sDebugString, HOPAIR(std::vector<HQUEUE>(), new OBSQUEUE)));
 //#if defined(DEBUG)
-//	std::cout << " [ViEvMa]: VistaEventManager::AddEventType(["
+//	std::cout << "[ViEvMa]: VistaEventManager::AddEventType(["
 //			  << sDebugString << "]) -- returning type: "
-//			  << int(m_veHandlerMapping.size()-1) << "\n";
+//			  << int(m_veHandlerMapping.size()-1) << "" << std::endl;
 //#endif
 	return int(m_veHandlerMapping.size()-1);
 }
@@ -523,11 +498,11 @@ int VistaEventManager::AddEventId(int nEventType, const std::string &sDebugStrin
 	hq.push_back(HQUEUE(sDebugString, pL));
 
 //#if defined(DEBUG)
-//	std::cout << " [ViEvMa]: VistaEventManager::AddEventId(["
+//	std::cout << "[ViEvMa]: VistaEventManager::AddEventId(["
 //		<< m_veHandlerMapping[nEventType].first << ", "
 //		      << nEventType << "]; ["
 //			  << sDebugString << "]) -- returning id: "
-//			  << int(hq.size()-1) << "\n";
+//			  << int(hq.size()-1) << "" << std::endl;
 //#endif
 	return int(hq.size()-1);
 }
@@ -626,25 +601,25 @@ bool VistaEventManager::SetPriority(VistaEventHandler *pHandler,
 /*============================================================================*/
 void VistaEventManager::Debug(std::ostream &out) const
 {
-	out << " [ViEvMa]: number of registered event types: "
+	out << "[ViEvMa]: number of registered event types: "
 		<< m_veHandlerMapping.size()
-		<< endl;
+		<< std::endl;
 	for(std::vector<HANP>::size_type n = 0; n < m_veHandlerMapping.size(); ++n)
 	{
 		const std::vector<HQUEUE> &hq = m_veHandlerMapping[n].second.first;
 		out << "  [\"" << m_veHandlerMapping[n].first << "\", "
 			<< n
 			<< "] has " << hq.size()
-			<< " ids registered.\n";
+			<< " ids registered." << std::endl;
 
 		const OBSQUEUE *pO = m_veHandlerMapping[n].second.second;
 		out << "  Observers: " << (*pO).size()
-			<< endl;
+			<< std::endl;
 		for(OBSQUEUE::const_iterator kit = (*pO).begin();
 			kit != (*pO).end(); ++kit)
 		{
 			out << "\t[" << (*kit) << "]"
-				<< endl;
+				<< std::endl;
 		}
 
 		for(std::vector<HQUEUE>::size_type k = 0;
@@ -653,7 +628,7 @@ void VistaEventManager::Debug(std::ostream &out) const
 			HANQUEUE *pL = hq[k].second;
 			out << "\t[\"" << hq[k].first << "\", " << k << "] has ("
 				<< (*pL).size() << ") handlers registered."
-				<< endl;
+				<< std::endl;
 			for(HANQUEUE::const_iterator cit = (*pL).begin();
 				cit != (*pL).end(); ++cit)
 			{
@@ -661,7 +636,7 @@ void VistaEventManager::Debug(std::ostream &out) const
 					<< (*cit).m_nPrio
 					<< "\t(" << ((*cit).m_pHandler->GetIsEnabled() ? "enabled" : "disabled")
 					<< ")\t["
-					<< (*cit).m_pHandler->GetHandlerToken() << "]" << endl;
+					<< (*cit).m_pHandler->GetHandlerToken() << "]" << std::endl;
 			}
 		}
 	}
@@ -672,10 +647,10 @@ void VistaEventManager::Debug(std::ostream &out) const
 /*  NAME      :   operator<<                                                  */
 /*                                                                            */
 /*============================================================================*/
-ostream & operator<< ( ostream & out, const VistaEventManager & device )
+std::ostream & operator<< ( std::ostream& oStream, const VistaEventManager& oDevice )
 {
-	device.Debug ( out );
-	return out;
+	oDevice.Debug ( oStream );
+	return oStream;
 }
 
 

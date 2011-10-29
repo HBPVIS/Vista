@@ -20,10 +20,11 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaMemoryInfo.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaMemoryInfo.h"
-#include "VistaToolsOut.h"
+
+#include <VistaBase/VistaExceptionBase.h>
 
 #include <cstdlib>
 #include <cstdio>
@@ -84,40 +85,40 @@ long VistaMemoryInfo::GetWorkingSet()
 
 	// read stat from /proc interface
     	char filename[256];
-	int rv = sprintf(filename, "/proc/%d/stat", getpid());
-	FILE *file = fopen(filename, "r");
-	char linebuffer[1024];
-	int nReadBytes = fread(linebuffer, 1, 1024, file);
-	fclose(file);
+    	sprintf(filename, "/proc/%d/stat", getpid());
+    	FILE *file = fopen(filename, "r");
+    	char linebuffer[1024];
+    	int nReadBytes = fread(linebuffer, 1, 1024, file);
+    	fclose(file);
 
-	// tokenize
-	std::vector<std::string> tokens(1);
-	std::string cur;
-	int idx = 0;
-	while(idx < nReadBytes)
-	{
-	    char c = linebuffer[idx++];
-	    if(isspace(c))
-	    {
-		// token finished
-		tokens.push_back(cur);
-		cur.clear();
-		continue;
-	    }
-	    cur.push_back(c);
-	}
+		// tokenize
+		std::vector<std::string> tokens(1);
+		std::string cur;
+		int idx = 0;
+		while(idx < nReadBytes)
+		{
+			char c = linebuffer[idx++];
+			if(isspace(c))
+			{
+			// token finished
+			tokens.push_back(cur);
+			cur.clear();
+			continue;
+			}
+			cur.push_back(c);
+		}
 
-//		// debug output
-//		for(int i = 0; i < tokens.size(); ++i)
-//		{
-//			std::cout << i << ": " << tokens[i] << std::endl;
-//		}
-//
-//		std::cout << "vsize: " << tokens[tokens.size()-20] << std::endl;
+	//		// debug output
+	//		for(int i = 0; i < tokens.size(); ++i)
+	//		{
+	//			std::cout << i << ": " << tokens[i] << std::endl;
+	//		}
+	//
+	//		std::cout << "vsize: " << tokens[tokens.size()-20] << std::endl;
 
-	// get the token containing vsize and make a number out of it
-	mem = strtol(tokens[tokens.size()-20].c_str(), NULL, 10);
-	return mem;
+		// get the token containing vsize and make a number out of it
+		mem = strtol(tokens[tokens.size()-20].c_str(), NULL, 10);
+		return mem;
     }
 #else
     vtoolserr << "[VistaMemoryInfo] GetWorkingSet() not implemented for this platform!" << std::endl;
@@ -140,7 +141,7 @@ long VistaMemoryInfo::GetPeakWorkingSet()
 		}
     }
 #else
-    vtoolserr << "[VistaMemoryInfo] GetPeakWorkingSet() not implemented for this platform :(" << std::endl;
+    VISTA_THROW_NOT_IMPLEMENTED
 #endif
 
     // error

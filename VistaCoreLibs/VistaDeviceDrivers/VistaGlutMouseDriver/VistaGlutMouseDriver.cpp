@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaGlutMouseDriver.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 #include "VistaGlutMouseDriver.h"
 #include <map>
@@ -28,7 +28,6 @@
 #include <algorithm>
 #include <VistaDeviceDriversBase/VistaDeviceSensor.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverAbstractWindowAspect.h>
-#include <VistaKernel/DisplayManager/VistaWindow.h>
 
 #if defined(USE_NATIVE_GLUT)
   #if defined(DARWIN) // we use the mac os GLUT framework on darwin
@@ -179,60 +178,60 @@ public:
 
 	}
 
-	bool AttachSequence(VistaDriverAbstractWindowAspect::WindowHandle *wid)
+	bool AttachSequence( const VistaDriverAbstractWindowAspect::WindowHandle& oWindow )
 	{
-		int windowId;
-
 		// check whether this driver is already registered with the window
-		WINMAP::const_iterator cit = m_mapWindows.find(wid);
-		if(cit == m_mapWindows.end())
-		{
-			// ugly workaround
-			windowId = wid->GetID();
-
-			// ok, register with the window is in the statics
-			// section
-			S_mapMouseMap.RegisterMouseWithWindow(windowId, m_pMouseDriver);
-
-			int nCurWindow = glutGetWindow();
-
-			// create a sensor for this window
-			VistaDeviceSensor *pSensor = new VistaDeviceSensor;
-			unsigned int nIdx = m_pMouseDriver->AddDeviceSensor(pSensor);
-			// create new entry in the sensor map to attach the
-			// sensor id to the glut window id
-			m_mapSensor[windowId] = _sSensorState(nIdx);
-
-			// register this window with the instance variable
-			m_mapWindows[wid] = windowId;
-			glutSetWindow(windowId);
-
-			// it should be ok to register these functions more
-			// than once. The interaction stuff from the implementation
-			// layer _has_ to be initialized *after* the display stuff anyways
-			// and we always set the same function points. Sad that there is
-			// no way to actually get the current value of the callbacks in glut.
-			// note that, however, these functions are not unregistered, as there
-			// may be more than one mouse.
-			glutMouseFunc(&VistaGlutMouseDriver::MouseFunction);
-			glutMotionFunc(&VistaGlutMouseDriver::MotionFunction);
-			glutPassiveMotionFunc(&VistaGlutMouseDriver::MotionFunction);
-#if !defined(USE_NATIVE_GLUT)
-			glutMouseWheelFunc( &VistaGlutMouseDriver::MouseWheelFunction);
-#endif
-			glutSetWindow(nCurWindow); // reset old window
-			return true;
-		}
-		return false;
-	}
-
-	bool DetachSequence(VistaDriverAbstractWindowAspect::WindowHandle *wid)
-	{
-		WINMAP::iterator cit = m_mapWindows.find(wid);
+		WINMAP::const_iterator cit = m_mapWindows.find(oWindow);
 		if(cit != m_mapWindows.end())
 		{
+			vstr::warnp() << "[GlutMouseDriver]: Trying to attach "
+					<< "to Window which is already registered for a mouse!" << std::endl;
+			return false;
+		}
+
+		int nWindowId = oWindow.GetID();
+
+		// ok, register with the window is in the statics
+		// section
+		S_mapMouseMap.RegisterMouseWithWindow( nWindowId, m_pMouseDriver);
+
+		int nCurWindow = glutGetWindow();
+
+		// create a sensor for this window
+		VistaDeviceSensor *pSensor = new VistaDeviceSensor;
+		unsigned int nIdx = m_pMouseDriver->AddDeviceSensor(pSensor);
+		// create new entry in the sensor map to attach the
+		// sensor id to the glut window id
+		m_mapSensor[nWindowId] = _sSensorState(nIdx);
+
+		// register this window with the instance variable
+		m_mapWindows[oWindow] = nWindowId;
+		glutSetWindow(nWindowId);
+
+		// it should be ok to register these functions more
+		// than once. The interaction stuff from the implementation
+		// layer _has_ to be initialized *after* the display stuff anyways
+		// and we always set the same function points. Sad that there is
+		// no way to actually get the current value of the callbacks in glut.
+		// note that, however, these functions are not unregistered, as there
+		// may be more than one mouse.
+		glutMouseFunc(&VistaGlutMouseDriver::MouseFunction);
+		glutMotionFunc(&VistaGlutMouseDriver::MotionFunction);
+		glutPassiveMotionFunc(&VistaGlutMouseDriver::MotionFunction);
+#if !defined(USE_NATIVE_GLUT)
+		glutMouseWheelFunc( &VistaGlutMouseDriver::MouseWheelFunction);
+#endif
+		glutSetWindow(nCurWindow); // reset old window
+		return true;		
+	}
+
+	bool DetachSequence( const VistaDriverAbstractWindowAspect::WindowHandle& oWindow )
+	{
+		WINMAP::iterator cit = m_mapWindows.find( oWindow );
+		if( cit != m_mapWindows.end() )
+		{
 			SENMAP::iterator it = m_mapSensor.find( (*cit).second );
-			if(it != m_mapSensor.end())
+			if( it != m_mapSensor.end() )
 			{
 				unsigned int nSensorIdx = (*it).second.m_nIndex;
 				// remove sensor from driver
@@ -249,24 +248,24 @@ public:
 			// erase from window map
 
 			m_mapWindows.erase(cit);
-			// ugly workaround
-			S_mapMouseMap.UnregisterMouseFromWindow( wid->GetID(), m_pMouseDriver);
+			
+			S_mapMouseMap.UnregisterMouseFromWindow( oWindow.GetID() , m_pMouseDriver );
 			return true;
 		}
 		return false;
 	}
 
 
-	typedef std::map<VistaDriverAbstractWindowAspect::WindowHandle*, int> WINMAP;
+	typedef std::map<VistaDriverAbstractWindowAspect::WindowHandle, int> WINMAP;
 
 
 	class _copyIn : public std::unary_function< const WINMAP::value_type &, void>
 	{
 	public:
-		_copyIn( std::list<VistaDriverAbstractWindowAspect::WindowHandle*> &list )
+		_copyIn( std::list<VistaDriverAbstractWindowAspect::WindowHandle> &list )
 		: m_list(list) {}
 
-		std::list<VistaDriverAbstractWindowAspect::WindowHandle*> &m_list;
+		std::list<VistaDriverAbstractWindowAspect::WindowHandle> &m_list;
 
 		void operator()( const WINMAP::value_type &p )
 		{
@@ -275,9 +274,9 @@ public:
 	};
 
 
-	virtual std::list<VistaDriverAbstractWindowAspect::WindowHandle*> GetWindowList() const
+	virtual std::list<VistaDriverAbstractWindowAspect::WindowHandle> GetWindowList() const
 	{
-		std::list<VistaDriverAbstractWindowAspect::WindowHandle*> list;
+		std::list<VistaDriverAbstractWindowAspect::WindowHandle> list;
 
 		std::for_each( m_mapWindows.begin(), m_mapWindows.end(), _copyIn(list) );
 		return list;

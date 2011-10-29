@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPthreadsThreadImp.h 23568 2011-09-27 12:35:29Z dr165799 $
 
 #if defined(VISTA_THREADING_POSIX)
 
@@ -50,102 +50,28 @@ class VistaThread;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-
-/**
- *
- */
 class VistaPthreadThreadImp : public IVistaThreadImp
 {
-private:
-protected:
-
-	/**
-	 *
-	 */
-	const VistaThread  &m_rThread; /**< @todo think about this */
-
-
-	/**
-	 *
-	 */
-	bool     m_bCanBeCancelled;
-
-	/**
-	 *
-	 */
-	pthread_t   posixThreadID;
-	pthread_attr_t m_ptAttr;
-
 public:
-
-	/**
-	 *
-	 */
 	VistaPthreadThreadImp(const VistaThread &);
 
-	/**
-	 *
-	 */
 	virtual ~VistaPthreadThreadImp();
+	virtual bool Run( ) ;
+	virtual bool Suspend() ;
+	virtual bool Resume() ;
+	virtual bool Join() ;
+	virtual bool Abort() ;
 
-	/**
-	 *
-	 */
-	virtual bool     Run         ( ) ;
+	virtual bool SetPriority( const VistaPriority & ) ;
+	virtual void GetPriority( VistaPriority & ) const ;
 
-	/**
-	 *
-	 */
-	virtual bool     Suspend          () ;
+	static IVistaThreadImp *CreateThreadImp( const VistaThread & );
 
-
-	/**
-	 *
-	 */
-	virtual bool     Resume      () ;
-
-	/**
-	 *
-	 */
-	virtual bool     Join        () ;
+	void YieldThread();
 
 
-	/**
-	 *
-	 */
-	virtual bool     Abort        () ;
-
-	/**
-	 *
-	 */
-	virtual bool     SetPriority   ( const VistaPriority & ) ;
-
-
-	/**
-	 *
-	 */
-	virtual void GetPriority   (VistaPriority &) const ;
-
-	/**
-	 *
-	 */
-	static IVistaThreadImp *CreateThreadImp(const VistaThread &);
-
-	/**
-	 *
-	 */
-	void            YieldThread   ();
-
-
-	/**
-	 *
-	 */
-	void      SetCancelAbility(const bool bOkToCancel);
-
-	/**
-	 *
-	 */
-	bool      CanBeCancelled() const;
+	void SetCancelAbility( const bool bOkToCancel );
+	bool CanBeCancelled() const;
 
 	/**
 	 * Method that is to be performed BEFORE departed fork starts execution
@@ -162,9 +88,17 @@ public:
 	virtual bool Equals(const IVistaThreadImp &) const;
 
 	virtual long GetThreadIdentity() const;
+	static long GetCallingThreadIdentity();
 
 	virtual bool SetProcessorAffinity(int iProcessorNum);
 	virtual int  GetCpu() const;
+
+
+protected:
+	const VistaThread  &m_rThread; /**< @todo think about this */
+	bool     m_bCanBeCancelled;
+	pthread_t   posixThreadID;
+	pthread_attr_t m_ptAttr;
 
 };
 

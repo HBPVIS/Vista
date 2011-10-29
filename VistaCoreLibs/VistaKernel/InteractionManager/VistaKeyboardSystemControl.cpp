@@ -20,16 +20,17 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaKeyboardSystemControl.cpp 22128 2011-07-01 11:30:05Z dr165799 $
+// $Id$
 
 #include "VistaKeyboardSystemControl.h"
 
 #include <VistaKernel/EventManager/VistaEventManager.h>
+
 #include <VistaAspects/VistaExplicitCallbackInterface.h>
-#include <VistaBase/VistaExceptionBase.h>
 #include <VistaAspects/VistaAspectsUtils.h>
 
-#include "VistaKernel/VistaKernelOut.h"
+#include <VistaBase/VistaExceptionBase.h>
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <cassert>
 #include <algorithm>
@@ -74,6 +75,13 @@ VistaKeyboardSystemControl::VistaKeyboardSystemControl( const bool bCheckForKeyR
 
 VistaKeyboardSystemControl::~VistaKeyboardSystemControl()
 {
+	for( CommandMap::iterator it = m_mapCommandMap.begin();
+			it != m_mapCommandMap.end(); ++it)
+	{
+		if( (*it).second.m_bManageDeletion )
+			delete (*it).second.m_pCallback;
+	}
+
 	for( int i = 0; i < (int)m_vecModdedCommandMaps.size(); ++i )
 	{
 		for( CommandMap::iterator it = m_vecModdedCommandMaps[i].begin();
@@ -238,7 +246,7 @@ bool VistaKeyboardSystemControl::BindAction( int nKeyCode,
 		}
 		else
 		{
-			vkernout << "[KeyboardSysControl::BindAction]: Cannot bind Callback - Key ["
+			vstr::warnp() << "[KeyboardSysControl::BindAction]: Cannot bind Callback - Key ["
 					<< GetModifiersName(nModifiers) << GetKeyName(nKeyCode) 
 					<< "] already in use!" << std::endl;
 			return false;

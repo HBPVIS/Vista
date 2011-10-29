@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaPriorityImp.h 22867 2011-08-07 15:29:00Z dr165799 $
 
 #ifndef _VISTAPRIORITYIMP_H
 #define _VISTAPRIORITYIMP_H
@@ -42,11 +42,6 @@
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-
-/**
- *
- */
-
 class VISTAINTERPROCCOMMAPI IVistaPriorityImp
 {
 private:
@@ -57,9 +52,6 @@ private:
 
 protected:
 
-	/**
-	 *
-	 */
    enum PRIORITY_RANGE
 	{
 		VISTA_MIN_PRIORITY  =     0,
@@ -67,9 +59,6 @@ protected:
 		VISTA_MAX_PRIORITY  = 32767
 	};
 
-	/**
-	 *
-	 */
 	int GetSystemPriorityMax();
 	int GetSystemPriorityMin();
 	int GetSystemPriorityInterval();
@@ -82,32 +71,11 @@ protected:
 
 public:
 
-	/**
-	 *
-	 */
 	IVistaPriorityImp();
-
-
-	/**
-	 *
-	 */
 	virtual ~IVistaPriorityImp();
 
-
-	/**
-	 *
-	 */
 	virtual int ScalePriorityToSystemPriority(int) const;
-
-	/**
-	 *
-	 */
 	virtual int ScaleSystemPriorityToPriority(int) const;
-
-
-	/**
-	 *
-	 */
 	static IVistaPriorityImp *CreatePriorityImp();
 };
 

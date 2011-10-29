@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaGlutKeyboardDriver.cpp 23585 2011-09-28 07:44:46Z dr165799 $
+// $Id$
 
 #include "VistaGlutKeyboardDriver.h"
 #include <map>
@@ -277,21 +277,21 @@ public:
 	{
 	}
 
-	bool AttachSequence(VistaDriverAbstractWindowAspect::WindowHandle *pWindow)
+	bool AttachSequence( const VistaDriverAbstractWindowAspect::WindowHandle& oWindow)
 	{
 		// check whether this driver is already registered with the window
-		WINMAP::const_iterator cit = m_mapWindows.find(pWindow);
+		WINMAP::const_iterator cit = m_mapWindows.find(oWindow);
 		if(cit == m_mapWindows.end())
 		{
 			// ugly workaround
-			int windowId = pWindow->GetID();
+			int windowId = oWindow.GetID();
 
 			// ok, register with the window is in the statics
 			// section
 			if(S_mapKeyboardMap.RegisterKeyboardWithWindow(windowId, m_pKeyboardDriver))
 			{
 				// register this window with the instance variable
-				m_mapWindows[pWindow] = windowId;
+				m_mapWindows[oWindow] = windowId;
 
 				// set the "current" window in glut
 				int nCurWindow = glutGetWindow();
@@ -314,27 +314,27 @@ public:
 		return false;
 	}
 
-	bool DetachSequence(VistaDriverAbstractWindowAspect::WindowHandle *pWindow)
+	bool DetachSequence( const VistaDriverAbstractWindowAspect::WindowHandle& oWindow)
 	{
-		WINMAP::iterator cit = m_mapWindows.find(pWindow);
+		WINMAP::iterator cit = m_mapWindows.find(oWindow);
 		if(cit != m_mapWindows.end())
 		{
 			// erase from map
 			m_mapWindows.erase(cit);
-			return S_mapKeyboardMap.UnregisterKeyboardFromWindow( pWindow->GetID(), m_pKeyboardDriver );
+			return S_mapKeyboardMap.UnregisterKeyboardFromWindow( oWindow.GetID(), m_pKeyboardDriver );
 		}
 		return false;
 	}
 
-	typedef std::map<VistaDriverAbstractWindowAspect::WindowHandle*, int> WINMAP;
+	typedef std::map<VistaDriverAbstractWindowAspect::WindowHandle, int> WINMAP;
 
 	class _copyIn : public std::unary_function< const WINMAP::value_type &, void>
 	{
 	public:
-		_copyIn( std::list<VistaDriverAbstractWindowAspect::WindowHandle*> &list )
+		_copyIn( std::list<VistaDriverAbstractWindowAspect::WindowHandle> &list )
 		: m_list(list) {}
 
-		std::list<VistaDriverAbstractWindowAspect::WindowHandle*> &m_list;
+		std::list<VistaDriverAbstractWindowAspect::WindowHandle> &m_list;
 
 		void operator()( const WINMAP::value_type &p )
 		{
@@ -342,9 +342,9 @@ public:
 		}
 	};
 
-	virtual std::list<VistaDriverAbstractWindowAspect::WindowHandle*> GetWindowList() const
+	virtual std::list<VistaDriverAbstractWindowAspect::WindowHandle> GetWindowList() const
 	{
-		std::list<VistaDriverAbstractWindowAspect::WindowHandle*> list;
+		std::list<VistaDriverAbstractWindowAspect::WindowHandle> list;
 
 		std::for_each( m_mapWindows.begin(), m_mapWindows.end(), _copyIn(list) );
 		return list;

@@ -20,14 +20,13 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDfn3DMouseTransformNode.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #include "VistaDfn3DMouseTransformNode.h"
 #include <VistaDataFlowNet/VdfnPort.h>
 
 #include <VistaKernel/EventManager/VistaEventManager.h>
 
-#include <VistaKernel/EventManager/VistaDisplayEvent.h>
 #include <VistaKernel/DisplayManager/VistaWindow.h>
 #include <VistaKernel/DisplayManager/VistaViewport.h>
 #include <VistaKernel/DisplayManager/VistaProjection.h>

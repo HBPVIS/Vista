@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaBoundingBox.cpp 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 
 //============================================================================
@@ -32,7 +32,7 @@
 #include "VistaBoundingBox.h"
 
 #include <VistaBase/VistaVectorMath.h>
-#include "VistaMathOut.h"
+#include <VistaBase/VistaStreamUtils.h>
 
 #if !defined(WIN32) || defined(_MSC_VER) && _MSC_VER > 1300
 using namespace std;
@@ -332,7 +332,8 @@ bool VistaBoundingBox::Intersects(const float origin[3],
 		}
 	}
 
-	float tmin, tmax;
+	float tmin = 0;
+	float tmax = 0;
 	bool init = true;
 	// Check all three axis one by one.
 	for(int i=0; i<3; ++i)
@@ -504,18 +505,12 @@ bool VistaBoundingBox::IntersectsBox
 								fTransformation[11] };
 
 	// compute the axis of the rotated box
-	float fHisAxis[3][3] = {	fTransformation[ 0],
-								fTransformation[ 4],
-								fTransformation[ 8],
-								fTransformation[ 1],
-								fTransformation[ 5],
-								fTransformation[ 9],
-								fTransformation[ 2],
-								fTransformation[ 6],
-								fTransformation[10] };
-	float fMyAxis[3][3] = {		1.0f, 0.0f, 0.0f,
-								0.0f, 1.0f, 0.0f,
-								0.0f, 0.0f, 1.0f };
+	float fHisAxis[3][3] = {{ fTransformation[ 0], fTransformation[ 4], fTransformation[ 8] },
+							{ fTransformation[ 1], fTransformation[ 5], fTransformation[ 9] },
+							{ fTransformation[ 2], fTransformation[ 6], fTransformation[10] } };
+	float fMyAxis[3][3] = {	{ 1.0f, 0.0f, 0.0f },
+							{ 0.0f, 1.0f, 0.0f },
+							{ 0.0f, 0.0f, 1.0f } };
 	// determine the bounding box of the rotated box
 	float fMin[3] = { fHisCenter[0], fHisCenter[1], fHisCenter[2] },
 		  fMax[3] = { fHisCenter[0], fHisCenter[1], fHisCenter[2] };
@@ -539,14 +534,14 @@ bool VistaBoundingBox::IntersectsBox
 	if(!(m_min[1] <= fMax[1] && fMin[1] <= m_max[1])) return false;
 	if(!(m_min[2] <= fMax[2] && fMin[2] <= m_max[2])) return false;
 
-	const float fMyPoints[8][3] = {	m_min[0], m_min[1], m_min[2],
-									m_min[0], m_min[1], m_max[2],
-									m_min[0], m_max[1], m_min[2],
-									m_min[0], m_max[1], m_max[2],
-									m_max[0], m_min[1], m_min[2],
-									m_max[0], m_min[1], m_max[2],
-									m_max[0], m_max[1], m_min[2],
-									m_max[0], m_max[1], m_max[2] };
+	const float fMyPoints[8][3] = { { m_min[0], m_min[1], m_min[2] },
+									{ m_min[0], m_min[1], m_max[2] },
+									{ m_min[0], m_max[1], m_min[2] },
+									{ m_min[0], m_max[1], m_max[2] },
+									{ m_max[0], m_min[1], m_min[2] },
+									{ m_max[0], m_min[1], m_max[2] },
+									{ m_max[0], m_max[1], m_min[2] },
+									{ m_max[0], m_max[1], m_max[2] } };
 
 	for(iCtrAxis = 0; iCtrAxis < 3; ++iCtrAxis)
 	{
@@ -556,48 +551,57 @@ bool VistaBoundingBox::IntersectsBox
 			return false;
 	}
 
-	float fExtendedAxis[3][3] = {	fTransformation[ 0]*fHisExtend[0],
+	float fExtendedAxis[3][3] = { {	fTransformation[ 0]*fHisExtend[0],
 									fTransformation[ 4]*fHisExtend[0],
-									fTransformation[ 8]*fHisExtend[0],
-									fTransformation[ 1]*fHisExtend[1],
+									fTransformation[ 8]*fHisExtend[0] },
+								  { fTransformation[ 1]*fHisExtend[1],
 									fTransformation[ 5]*fHisExtend[1],
-									fTransformation[ 9]*fHisExtend[1],
-									fTransformation[ 2]*fHisExtend[2],
+									fTransformation[ 9]*fHisExtend[1] },
+								  { fTransformation[ 2]*fHisExtend[2],
 									fTransformation[ 6]*fHisExtend[2],
-									fTransformation[10]*fHisExtend[2] };
+									fTransformation[10]*fHisExtend[2] } };
 
 	const float fHisPoints[8][3] = {
+		{
 			fHisCenter[0]+fExtendedAxis[0][0]+fExtendedAxis[1][0]+fExtendedAxis[2][0],
 			fHisCenter[1]+fExtendedAxis[0][1]+fExtendedAxis[1][1]+fExtendedAxis[2][1],
 			fHisCenter[2]+fExtendedAxis[0][2]+fExtendedAxis[1][2]+fExtendedAxis[2][2],
-			
+		},
+		{
 			fHisCenter[0]+fExtendedAxis[0][0]+fExtendedAxis[1][0]-fExtendedAxis[2][0],
 			fHisCenter[1]+fExtendedAxis[0][1]+fExtendedAxis[1][1]-fExtendedAxis[2][1],
 			fHisCenter[2]+fExtendedAxis[0][2]+fExtendedAxis[1][2]-fExtendedAxis[2][2],
-		
+		},
+		{
 			fHisCenter[0]+fExtendedAxis[0][0]-fExtendedAxis[1][0]+fExtendedAxis[2][0],
 			fHisCenter[1]+fExtendedAxis[0][1]-fExtendedAxis[1][1]+fExtendedAxis[2][1],
 			fHisCenter[2]+fExtendedAxis[0][2]-fExtendedAxis[1][2]+fExtendedAxis[2][2],
-	
+		},
+		{
 			fHisCenter[0]+fExtendedAxis[0][0]-fExtendedAxis[1][0]-fExtendedAxis[2][0],
 			fHisCenter[1]+fExtendedAxis[0][1]-fExtendedAxis[1][1]-fExtendedAxis[2][1],
 			fHisCenter[2]+fExtendedAxis[0][2]-fExtendedAxis[1][2]-fExtendedAxis[2][2],
-
+		},
+		{
 			fHisCenter[0]-fExtendedAxis[0][0]+fExtendedAxis[1][0]+fExtendedAxis[2][0],
 			fHisCenter[1]-fExtendedAxis[0][1]+fExtendedAxis[1][1]+fExtendedAxis[2][1],
 			fHisCenter[2]-fExtendedAxis[0][2]+fExtendedAxis[1][2]+fExtendedAxis[2][2],
-
+		},
+		{
 			fHisCenter[0]-fExtendedAxis[0][0]+fExtendedAxis[1][0]-fExtendedAxis[2][0],
 			fHisCenter[1]-fExtendedAxis[0][1]+fExtendedAxis[1][1]-fExtendedAxis[2][1],
 			fHisCenter[2]-fExtendedAxis[0][2]+fExtendedAxis[1][2]-fExtendedAxis[2][2],
-
+		},
+		{
 			fHisCenter[0]-fExtendedAxis[0][0]-fExtendedAxis[1][0]+fExtendedAxis[2][0],
 			fHisCenter[1]-fExtendedAxis[0][1]-fExtendedAxis[1][1]+fExtendedAxis[2][1],
 			fHisCenter[2]-fExtendedAxis[0][2]-fExtendedAxis[1][2]+fExtendedAxis[2][2],
-
+		},
+		{
 			fHisCenter[0]-fExtendedAxis[0][0]-fExtendedAxis[1][0]-fExtendedAxis[2][0],
 			fHisCenter[1]-fExtendedAxis[0][1]-fExtendedAxis[1][1]-fExtendedAxis[2][1],
-			fHisCenter[2]-fExtendedAxis[0][2]-fExtendedAxis[1][2]-fExtendedAxis[2][2] };
+			fHisCenter[2]-fExtendedAxis[0][2]-fExtendedAxis[1][2]-fExtendedAxis[2][2] 
+		} };
 
 	for(int iCtrAxisA = 0; iCtrAxisA < 3; ++iCtrAxisA)
 		for(int iCtrAxisB = 0; iCtrAxisB < 3; ++iCtrAxisB)
@@ -622,7 +626,7 @@ bool VistaBoundingBox::IntersectsBox
 				ProjectBoxToAxis(fMyCenter, fAxis, fHisPoints, fMin[1], fMax[1]);
 				if(!(fMin[0] <= fMax[1] && fMin[1] <= fMax[0]))
 				{
-					vmathout << fMin[0] << " " << fMax[0] << "|" << fMin[1] << " " << fMax[1] << std::endl;
+					vstr::outi() << fMin[0] << " " << fMax[0] << "|" << fMin[1] << " " << fMax[1] << std::endl;
 					return false;
 				}
 			}
@@ -705,7 +709,8 @@ int VistaBoundingBox::Intersection(const float origin[3],
 		}
 	}
 
-	float tmin, tmax;
+	float tmin = 0;
+	float tmax = 0;
 	bool init = true;
 	// Check all three axis one by one.
 	for(int i=0; i<3; ++i)
@@ -804,5 +809,5 @@ int VistaBoundingBox::Intersection(const float origin[3],
 }
 
 //============================================================================
-//  END OF FILE VistaBoundingBox.cpp
+//  end OF FILE VistaBoundingBox.cpp
 //============================================================================

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaStreamUtils.h 21315 2011-05-16 13:47:39Z dr165799 $
 
 #ifndef _VISTASTREAMUTILS_H
 #define _VISTASTREAMUTILS_H
@@ -51,35 +51,32 @@
 
 namespace vstr
 {
-	//////////////////////////////////////////////
-	////  COLORS
-	//////////////////////////////////////////////
-	enum VISTABASEAPI CONSOLE_COLOR
-	{
-		CC_FIRST_COLOR = 0,
-		CC_BLACK = 0,
-		CC_DARK_GRAY,
-		CC_LIGHT_GRAY,
-		CC_WHITE,
-		CC_RED,
-		CC_DARK_RED,
-		CC_GREEN,
-		CC_DARK_GREEN,
-		CC_BLUE,	
-		CC_DARK_BLUE,
-		CC_YELLOW,
-		CC_DARK_YELLOW,
-		CC_MAGENTA,
-		CC_DARK_MAGENTA,
-		CC_CYAN,	
-		CC_DARK_CYAN,
-		CC_DEFAULT,
-		CC_NUM_COLORS,
-	};
+	// general outstreams as they are used by Vista
+	VISTABASEAPI std::ostream& out();
+	VISTABASEAPI std::ostream& warn();
+	VISTABASEAPI std::ostream& err();
+	VISTABASEAPI std::ostream& debug();
 
-	VISTABASEAPI const std::string& GetConsoleColorName( const CONSOLE_COLOR oColor );
-	VISTABASEAPI void SetStdConsoleTextColor( const CONSOLE_COLOR oColor );
-	VISTABASEAPI void SetStdConsoleBackgroundColor( const CONSOLE_COLOR oColor );
+	// outstreams with prefixed vstr::indent
+	VISTABASEAPI std::ostream& outi();
+	VISTABASEAPI std::ostream& warni();
+	VISTABASEAPI std::ostream& erri();
+	VISTABASEAPI std::ostream& debugi();
+
+	// outstreams with prefixed vstr::indent and vstr::warnprefix or vstr::errprefix
+	VISTABASEAPI std::ostream& warnp();
+	VISTABASEAPI std::ostream& errp();
+
+	/**
+	 * The following functions set the different standard streams.
+	 * Note that, since these may be used concurrently, these streams should be thread-safe
+	 * (if in doubt, use VistaTools' function VistaStreams::MakeStreamThreadSafe)
+	 * @see VistaStreams::MakeStreamThreadSafe
+	 */
+	VISTABASEAPI void SetOutStream( std::ostream* oStream );
+	VISTABASEAPI void SetWarnStream( std::ostream* oStream  );
+	VISTABASEAPI void SetErrStream( std::ostream* oStream  );
+	VISTABASEAPI void SetDebugStream( std::ostream* oStream  );
 
 	//////////////////////////////////////////////
 	////  STREAM MANAGER
@@ -95,6 +92,11 @@ namespace vstr
 	 * Returns the Stream with the specified name from the StreamManager Singleton;
 	 */
 	VISTABASEAPI std::ostream& Stream( const std::string& sName = "" );
+
+	//////////////////////////////////////////////
+	////  NULL STREAM SINGLETON
+	//////////////////////////////////////////////
+	VISTABASEAPI std::ostream& GetNullStream();
 
 	//////////////////////////////////////////////
 	////  STREAM MANIPULATOR
@@ -139,6 +141,45 @@ namespace vstr
 	 * only works if the StreamManagers InfoInterface was set (returns 0 otherwise)
 	 */
 	VISTABASEAPI std::ostream& framerate( std::ostream& oStream );
+	/**
+	 * stream manipulators that indents by string that
+	 * correspond to the indentation level of the stream manager
+	 */
+	VISTABASEAPI std::ostream& indent( std::ostream& oStream );
+	/**
+	 * stream manipulators that indents by string that
+	 * correspond to one single indentation level
+	 */
+	VISTABASEAPI std::ostream& singleindent( std::ostream& oStream );
+	/**
+	 * stream manipulators that indents by string that
+	 * correspond to the indentation prefix
+	 */
+	VISTABASEAPI std::ostream& indentprefix( std::ostream& oStream );
+	/**
+	 * stream manipulators that indents by string that
+	 * correspond to the indentation postfix
+	 */
+	VISTABASEAPI std::ostream& indentpostfix( std::ostream& oStream );
+	/**
+	 * Object that increases the intentation by 1 until it goes out of scope
+	 */
+	class VISTABASEAPI IndentObject
+	{
+	public:
+		IndentObject();
+		~IndentObject();
+	};
+	/**
+	 * stream manipulators that outputs the default warning prefix
+	 * that is configurable in the VistaStreamManager
+	 */
+	VISTABASEAPI std::ostream& warnprefix( std::ostream& oStream );
+	/**
+	 * stream manipulators that outputs the default error prefix
+	 * that is configurable in the VistaStreamManager
+	 */
+	VISTABASEAPI std::ostream& errprefix( std::ostream& oStream );
 
 
 	/**
@@ -154,50 +195,9 @@ namespace vstr
 		double m_dTime;
 		int	m_nPrecision;
 	};
-	/**
-	 * stream coloring, only works with VistaColorStream or cout/cerr
-	 */
-	class VISTABASEAPI color
-	{
-	public:
-		color( const CONSOLE_COLOR iTextColor,
-				const CONSOLE_COLOR iBackgroundColor );		
-		std::ostream& operator()( std::ostream& oStream ) const;
-	private:
-		vstr::CONSOLE_COLOR m_iTextColor, m_iBackgroundColor;
-	};
-	class VISTABASEAPI textcolor
-	{
-	public:
-		textcolor( const CONSOLE_COLOR iTextColor );		
-		std::ostream& operator()( std::ostream& oStream ) const;
-	private:
-		vstr::CONSOLE_COLOR m_iTextColor;
-	};
-	class VISTABASEAPI bgcolor
-	{
-	public:
-		bgcolor( const CONSOLE_COLOR iBackgroundColor );		
-		std::ostream& operator()( std::ostream& oStream ) const;
-	private:
-		vstr::CONSOLE_COLOR m_iBackgroundColor;
-	};
 };
 
 inline VISTABASEAPI std::ostream& operator<< ( std::ostream& oStream, const vstr::formattime& oObj )
-{
-	return oObj( oStream );
-}
-
-inline VISTABASEAPI std::ostream& operator<< ( std::ostream& oStream, const vstr::color& oObj )
-{
-	return oObj( oStream );
-}
-inline VISTABASEAPI std::ostream& operator<< ( std::ostream& oStream, const vstr::textcolor& oObj )
-{
-	return oObj( oStream );
-}
-inline VISTABASEAPI std::ostream& operator<< ( std::ostream& oStream, const vstr::bgcolor& oObj )
 {
 	return oObj( oStream );
 }

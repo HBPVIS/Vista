@@ -442,7 +442,7 @@ namespace
 
 			// normalize index
 			VistaDTrackMeasures::sStickMeasure *m = (VistaDTrackMeasures::sStickMeasure*)&(*pMeasure).m_vecMeasures[0];
-			if(nIndex >= 0 && nIndex < 8)
+			if( nIndex < 8)
 			{
 				// trying to retrieve virtual button state
 				// note that we map the virtual scalar index 5 .. 5+nNumberOfButtons

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaReferenceFrame.h 21548 2011-05-26 07:33:40Z dr165799 $
 
 #ifndef _VISTAREFERENCEFRAME_H
 #define _VISTAREFERENCEFRAME_H
@@ -60,6 +60,7 @@ public:
 	VistaReferenceFrame( const VistaVector3D& v3RefTranslation,
 						  const VistaQuaternion& qRefRotation,
 						  const float fScale = 1.0f );
+	virtual ~VistaReferenceFrame();
 
 	virtual bool SetTranslation( const VistaVector3D &v3RefTranslation );
 	bool GetTranslation( VistaVector3D &v3RefTranslation ) const;
@@ -132,7 +133,7 @@ inline VistaReferenceFrame::VistaReferenceFrame()
   m_bRefreshXform(true),
   m_bRefreshXformInv(true)
 {
-};
+}
 
 inline VistaReferenceFrame::VistaReferenceFrame(const VistaVector3D &refTranslation,
 										   const VistaQuaternion &refRotation,
@@ -143,7 +144,11 @@ inline VistaReferenceFrame::VistaReferenceFrame(const VistaVector3D &refTranslat
   m_bRefreshXform(true),
   m_bRefreshXformInv(true)
 {
-};
+}
+
+inline VistaReferenceFrame::~VistaReferenceFrame()
+{
+}
 
 inline void VistaReferenceFrame::RefreshXformMatrix()
 {

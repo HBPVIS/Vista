@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaDriverAbstractWindowAspect.h 22238 2011-07-04 14:30:59Z dr165799 $
 
 #ifndef _VISTADRIVERABSTRACTWINDOWASPECT_H
 #define _VISTADRIVERABSTRACTWINDOWASPECT_H
@@ -102,6 +102,18 @@ public:
 
 		OSHANDLE GetOSHandle() const;
 		int GetID() const;
+
+		bool operator< ( const WindowHandle& oOther ) const
+		{
+			if( m_iID == oOther.m_iID )
+				return ( m_pHandle < oOther.m_pHandle );
+			else
+				return ( m_iID < oOther.m_iID );
+		}
+		bool operator== ( const WindowHandle& oOther ) const
+		{
+			return( m_iID == oOther.m_iID && m_pHandle == oOther.m_pHandle );
+		}
 	private:
 		int			m_iID;
 		OSHANDLE	m_pHandle;
@@ -128,13 +140,13 @@ public:
 	 * @return true if this call went through good, false else
 	 * @see IVistaDriverAbstractWindowTouchSequence()
 	 */
-	bool AttachToWindow(WindowHandle *);
-	bool DetachFromWindow(WindowHandle *);
+	bool AttachToWindow( const WindowHandle& oWindow );
+	bool DetachFromWindow( const WindowHandle& oWindow );
 
 	/**
 	 * return a list of window handles to which the aspect is attached to.
 	 */
-	std::list<WindowHandle*> GetWindowList() const;
+	std::list<WindowHandle> GetWindowList() const;
 
 	// #########################################
 	// OVERWRITE IN SUBCLASSES
@@ -145,9 +157,10 @@ public:
 	class VISTADEVICEDRIVERSAPI IVistaDriverAbstractWindowTouchSequence
 	{
 	public :
-		virtual bool AttachSequence(WindowHandle *) = 0;
-		virtual bool DetachSequence(WindowHandle *) = 0;
-		virtual std::list<WindowHandle*> GetWindowList() const = 0;
+		virtual ~IVistaDriverAbstractWindowTouchSequence() {}
+		virtual bool AttachSequence( const WindowHandle& oWindow ) = 0;
+		virtual bool DetachSequence( const WindowHandle& oWindow ) = 0;
+		virtual std::list<WindowHandle> GetWindowList() const = 0;
 	};
 
 	/**

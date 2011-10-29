@@ -1,6 +1,7 @@
+
 /*============================================================================*/
 /*                    ViSTA VR toolkit - OpenAL1.1 driver                  */
-/*               Copyright (c) 1997-2011 RWTH Aachen University               */
+/*               Copyright (c) 1997-2010 RWTH Aachen University               */
 /*============================================================================*/
 /*                                  License                                   */
 /*                                                                            */
@@ -171,28 +172,24 @@ namespace
 		"MINBUFFERTIME",
 		SsReflectionName,
 		&VistaOpenALRecordDriver::Parameters::SetMinimumBufferTime,
-		&VistaAspectsConversionStuff::ConvertToInt,
 		"set the minimum buffer time (>0) that can be used for OpenAL capture."),
 		new TVistaPropertySet<int, int,
 		VistaOpenALRecordDriver::Parameters> (
 		"FREQUENCY",
 		SsReflectionName,
 		&VistaOpenALRecordDriver::Parameters::SetRecordingFrequency,
-		&VistaAspectsConversionStuff::ConvertToInt,
 		"sets the recording frequency, should be one of the usual suspects of what sound cards can record."),
 		new TVistaPropertySet<int, int,
 		VistaOpenALRecordDriver::Parameters> (
 		"BUFFERTIME",
 		SsReflectionName,
 		&VistaOpenALRecordDriver::Parameters::SetBufferTime,
-		&VistaAspectsConversionStuff::ConvertToInt,
 		"sets time to record for a single measure."),
 		new TVistaPropertySet<const std::string &, std::string,
 		VistaOpenALRecordDriver::Parameters> (
 		"FORMAT",
 		SsReflectionName,
 		&VistaOpenALRecordDriver::Parameters::SetRecordingFormat,
-		&VistaAspectsConversionStuff::ConvertToString,
 		"sets the recording format (one of: MONO8, MONO16, STEREO8, STEREO16)."),
 		NULL
 	};
@@ -460,7 +457,7 @@ VistaOpenALRecordDriver::VistaOpenALRecordDriver(IVistaDriverCreationMethod *crm
 	VistaPropertyList devs;
 	for( std::list<std::string>::const_iterator cit = l.begin(); cit != l.end(); ++cit, ++n )
 	{
-		devs.SetProperty( VistaProperty( VistaAspectsConversionStuff::ConvertToString(n), *cit ) );
+		devs.SetProperty( VistaProperty( VistaConversion::ToString(n), *cit ) );
 	}
 	m_pInfo->GetInfoPropsWrite().SetPropertyListValue( "CAPTUREDEVICES", devs );
 	m_pInfo->GetInfoPropsWrite().SetProperty(
@@ -520,8 +517,6 @@ bool VistaOpenALRecordDriver::Connect()
 	m_pInfo->GetInfoPropsWrite().SetProperty( VistaProperty("VERSION", m_pContext->GetVersion() ) );
 	m_pInfo->GetInfoPropsWrite().SetProperty( VistaProperty("RENDERER", m_pContext->GetRenderer() ) );
 	m_pInfo->GetInfoPropsWrite().SetProperty( VistaProperty("EXTENSIONS", m_pContext->GetExtensions() ) );
-
-	m_pInfo->GetInfoProps().PrintPropertyList();
 
 	return true;
 }
@@ -651,7 +646,7 @@ void VistaOpenALRecordDriver::OnChangeRecordingParameters()
 void VistaOpenALRecordDriver::OnUpdateMeasureSize()
 {
 	VistaDeviceSensor *pSensor = GetSensorByIndex(0);
-	unsigned int nHistorySize = pSensor->GetMeasureHistorySize(); // number of slots already assigned
+	//unsigned int nHistorySize = pSensor->GetMeasureHistorySize(); // number of slots already assigned
 	const VistaMeasureHistory &history = pSensor->GetMeasures();
 
 	// here we assume that client read size and driver write size are already pre-given (on user demand)

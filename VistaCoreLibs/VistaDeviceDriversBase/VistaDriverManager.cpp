@@ -1,6 +1,6 @@
 /*============================================================================*/
 /*                              ViSTA VR toolkit                              */
-/*               Copyright (c) 1997-2011 RWTH Aachen University               */
+/*               Copyright (c) 1997-2009 RWTH Aachen University               */
 /*============================================================================*/
 /*                                  License                                   */
 /*                                                                            */
@@ -20,17 +20,19 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaMouseDriver.cpp 4717 2009-09-09 17:43:13Z tbeer $
+// $Id$
 
 #include "VistaDriverManager.h"
 #include <VistaTools/VistaEnvironment.h>
 #include <VistaTools/VistaFileSystemDirectory.h>
 #include "VistaDeviceDriver.h"
 #include "VistaConnectionUpdater.h"
-#include <VistaDeviceDriversBase/VistaDeviceDriversOut.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverConnectionAspect.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverThreadAspect.h>
+
 #include <VistaAspects/VistaExplicitCallbackInterface.h>
+#include <VistaBase/VistaStreamUtils.h>
+
 #include <iostream>
 
 namespace
@@ -50,7 +52,7 @@ namespace
 		virtual bool Do()
 		{
 			m_pDriver->PreUpdate();
-			bool bPostUpdate = m_pDriver->Update();
+			m_pDriver->Update();
 			m_pDriver->PostUpdate();
 
 			return true;
@@ -135,12 +137,13 @@ IVistaDeviceDriver *VistaDriverManager::CreateAndRegisterDriver( const std::stri
 		}
 		else
 		{
-			std::cerr << "could not load driver ["
-					  << strDriverName
-					  << "] using factory ["
-					  << strDriverClassName
-					  << "]"
-					  << std::endl;
+			vstr::errp() << "VistaDriverManager::CreateAndRegisterDriver() -- "
+					<< "could not load driver ["
+					<< strDriverName
+					<< "] using factory ["
+					<< strDriverClassName
+					<< "]"
+					<< std::endl;
 		}
 	}
 	return NULL;
@@ -197,7 +200,7 @@ int VistaDriverManager::InitPlugins()
 					+ std::string(VistaEnvironment::GetOSystem());
 
 
-	vddout << "plug path resolved to: " << strPlugPath << std::endl;
+	vstr::outi() << "plug path resolved to: " << strPlugPath << std::endl;
 
 
 	VistaFileSystemDirectory plugs(strPlugPath);
@@ -207,13 +210,13 @@ int VistaDriverManager::InitPlugins()
 	plugs.SetPattern("*PluginD*"); // force debug version
 #endif
 
-	vddout << "found [" << plugs.GetNumberOfEntries()
+	vstr::outi() << "found [" << plugs.GetNumberOfEntries()
 			  << "] plugins."
 			  << std::endl;
 	for( VistaFileSystemDirectory::iterator it = plugs.begin();
 			 it != plugs.end(); ++it )
 	{
-		vddout << "[" << (*it)->GetName() << "]" << std::endl;
+		vstr::outi() << "[" << (*it)->GetName() << "]" << std::endl;
 		VddUtil::VistaDriverPlugin plg;
 
 		// find default transcoder for this time...
@@ -233,13 +236,13 @@ int VistaDriverManager::InitPlugins()
 #endif
 		if( !VddUtil::LoadTranscoderFromPlugin(transcoderName, &plg ) )
 		{
-			vdderr << "Could not load transcoder by name: [" << transcoderName << "]" << std::endl;
+			vstr::errp() << "Could not load transcoder by name: [" << transcoderName << "]" << std::endl;
 			continue;
 		}
 
 		if( VddUtil::LoadCreationMethodFromPlugin( (*it)->GetName(), &plg ) )
 		{
-			vddout << "Loaded factory from ["
+			vstr::outi() << "Loaded factory from ["
 					  << (*it)->GetName()
 					  << "] @ "
 					  << plg.m_pMethod
@@ -252,14 +255,14 @@ int VistaDriverManager::InitPlugins()
 		}
 		else
 		{
-			std::cerr << "Failed to load factory from ["
+			vstr::errp() << "Failed to load factory from ["
 					  << (*it)->GetName()
 					  << "]"
 					  << std::endl;
 			VddUtil::DisposeTranscoderFromPlugin( &plg );
 		}
 	}
-	return m_vecDriverPlugins.size();
+	return (int)m_vecDriverPlugins.size();
 }
 
 void VistaDriverManager::RegisterDriverPlugin( const VddUtil::VistaDriverPlugin & plug )
@@ -274,7 +277,7 @@ int VistaDriverManager::DisposePlugins()
 	for( std::vector<VddUtil::VistaDriverPlugin>::iterator vit = m_vecDriverPlugins.begin();
 		 vit != m_vecDriverPlugins.end(); ++vit )
 	{
-		vddout << "close plugin for ["
+		vstr::outi() << "close plugin for ["
 				  << (*vit).m_strDriverClassName
 				  << "]: ";
 
@@ -286,11 +289,14 @@ int VistaDriverManager::DisposePlugins()
 
 		if(VddUtil::DisposePlugin( &(*vit), true ))
 		{
-			vddout << " -- SUCCESS" << std::endl;
+			vstr::out() << " -- SUCCESS" << std::endl;
 			++n;
 		}
 		else
-			std::cerr << " -- ERROR" << std::endl;
+		{
+			vstr::out().flush();
+			vstr::err() << " -- ERROR" << std::endl;
+		}
 
 		VddUtil::DisposeTranscoderFromPlugin( &(*vit) );
 	}
@@ -392,3 +398,4 @@ void VistaDriverManager::StopThreadedDevices()
 	}
 
 }
+
