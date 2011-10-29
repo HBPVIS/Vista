@@ -54,7 +54,7 @@ int main()
 	// This PropertyList contains the data you want to send
 	// here it is only a simple bool
 	VistaPropertyList  oPropList;
-	oPropList.SetBoolValue("someValue",true);
+	oPropList.SetValue<bool>( "someValue", true );
 	while( true )
 	{
 		char c[256];

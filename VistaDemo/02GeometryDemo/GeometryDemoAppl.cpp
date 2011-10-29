@@ -27,7 +27,7 @@
 #include "GeometryDemoAppl.h"
 
 #include <VistaKernel/VistaSystem.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaGeometryFactory.h>
 #include <VistaKernel/GraphicsManager/VistaGeometry.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
@@ -79,7 +79,7 @@ bool GeometryDemoAppl::Init( int argc, char  *argv[] )
 		VISTA_THROW( "No DisplaySystem found", 1 );
 
 	// Get the scenegraph, which manages the drawable objects 
-	VistaSG *pSceneGraph = m_pVistaSystem->GetGraphicsManager()->GetSceneGraph();
+	VistaSceneGraph *pSceneGraph = m_pVistaSystem->GetGraphicsManager()->GetSceneGraph();
 
 	// First, we need some geometry to draw. For simple shapes, we can
 	// use the VistaGeometryFactory to create them.

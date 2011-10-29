@@ -36,7 +36,7 @@
 
 #include <VistaKernel/InteractionManager/VistaKeyboardSystemControl.h>
 
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 #include <VistaKernel/GraphicsManager/VistaNode.h>
 

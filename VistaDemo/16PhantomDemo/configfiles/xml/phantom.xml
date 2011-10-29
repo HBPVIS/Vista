@@ -5,7 +5,7 @@
 	
 	<!-- Getting the data from the device -->
 	<node name="phantom-source" type="DriverSensor">
-		<param name="sensor" value="0"/>
+		<param name="sensor_index" value="0"/>
 		<param name="driver" value="PHANTOM"/>
 	</node>
 

@@ -25,14 +25,14 @@
  */
 #include "BoundingboxGeometry.h"
 
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaGeometry.h>
 #include <VistaKernel/GraphicsManager/VistaGeometryFactory.h>
 #include <VistaKernel/GraphicsManager/VistaGroupNode.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 #include <VistaKernel/GraphicsManager/VistaGeomNode.h>
 
-BoundingboxGeometry::BoundingboxGeometry( VistaSG * vistaSG, VistaBoundingBox &bb )
+BoundingboxGeometry::BoundingboxGeometry( VistaSceneGraph * vistaSG, VistaBoundingBox &bb )
 {
 	float * min = bb.m_min;
 	float * max = bb.m_max;
@@ -107,7 +107,7 @@ VistaGroupNode* BoundingboxGeometry::getVistaNode()
 /**
  * Little helper to connect two points with an cone
  */
-VistaTransformNode* BoundingboxGeometry::createLine( VistaSG * vistaSG, const VistaVector3D &a, const VistaVector3D &b )
+VistaTransformNode* BoundingboxGeometry::createLine( VistaSceneGraph * vistaSG, const VistaVector3D &a, const VistaVector3D &b )
 {
 
 	VistaTransformNode *trans = vistaSG->NewTransformNode(NULL);

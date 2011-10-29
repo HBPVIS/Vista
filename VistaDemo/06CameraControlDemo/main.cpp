@@ -37,7 +37,7 @@
 
 
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 
 #include <VistaBase/VistaVectorMath.h>
@@ -144,7 +144,7 @@ int main(int argc, char **argv)
 			// a ''room-like'' model is more nice than an object
 			// like model.
 			VistaGraphicsManager *pMgr = pVistaSystem->GetGraphicsManager();
-			VistaSG *pSG = pMgr->GetSceneGraph();
+			VistaSceneGraph *pSG = pMgr->GetSceneGraph();
 
 			IVistaNode *pNode = pSG->LoadNode( "../data/hippo.ac" );
 

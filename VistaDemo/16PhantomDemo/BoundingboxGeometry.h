@@ -32,19 +32,19 @@
 
 class VistaGroupNode;
 class VistaTransformNode;
-class VistaSG;
+class VistaSceneGraph;
 
 class BoundingboxGeometry
 {
 public:
-	BoundingboxGeometry( VistaSG *, VistaBoundingBox & );
+	BoundingboxGeometry( VistaSceneGraph *, VistaBoundingBox & );
 	virtual ~BoundingboxGeometry();
 
 	VistaGroupNode *getVistaNode();
 
 private:
 
-	VistaTransformNode* createLine( VistaSG *, const VistaVector3D &, const VistaVector3D & );
+	VistaTransformNode* createLine( VistaSceneGraph *, const VistaVector3D &, const VistaVector3D & );
 
 	VistaGroupNode * pNode;
 };

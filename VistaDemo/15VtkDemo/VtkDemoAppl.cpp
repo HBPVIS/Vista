@@ -29,7 +29,7 @@
 
 // new graphics manager stuff
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaGroupNode.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 #include <VistaKernel/GraphicsManager/VistaOpenGLNode.h>
@@ -39,7 +39,7 @@
 
 
 // old graphics manager stuff
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
 
 #include <vtkActorCollection.h>
@@ -109,7 +109,7 @@ bool VtkDemoAppl::CreateScene ()
 	std::cout << "VtkDemoAppl - using new graphics manager..." << std::endl;
 
 	VistaGraphicsManager *pGraphicsManager = mVistaSystem.GetGraphicsManager();
-	VistaSG *pSG = pGraphicsManager->GetSceneGraph();
+	VistaSceneGraph *pSG = pGraphicsManager->GetSceneGraph();
 
 	m_pVtkDrawObj = new VtkDrawObject;
 	pSG->GetRoot()->SetName("ViSTA-ROOT");

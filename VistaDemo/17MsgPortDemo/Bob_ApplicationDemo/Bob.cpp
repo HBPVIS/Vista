@@ -39,7 +39,7 @@
 
 
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 
 #include <VistaBase/VistaVectorMath.h>
@@ -67,7 +67,7 @@ Bob::Bob(VistaSystem *pVistaSystem)
 
 	//Loading Scene content
 	VistaGraphicsManager *pMgr = pVistaSystem->GetGraphicsManager();
-	VistaSG *pSG = pMgr->GetSceneGraph();
+	VistaSceneGraph *pSG = pMgr->GetSceneGraph();
 
 	IVistaNode *pNode = pSG->LoadNode( "hippo.ac");
 

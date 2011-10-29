@@ -37,7 +37,7 @@
 
 #include "DebuggingToolsDemo.h"
 
-#include <VistaBase/VistaStreams.h>
+#include <VistaTools/VistaStreams.h>
 #include <VistaBase/VistaStreamManager.h>
 #include <VistaBase/VistaStreamUtils.h>
 #include <VistaBase/VistaTimeUtils.h>
@@ -51,7 +51,6 @@
 #include <VistaKernel/EventManager/VistaSystemEvent.h>
 #include <VistaKernel/InteractionManager/VistaKeyboardSystemControl.h>
 #include <VistaKernel/Stuff/VistaStreamManagerExt.h>
-#include <VistaKernel/VistaKernelOut.h>
 #include <VistaKernel/VistaSystem.h>
 
 #include <VistaTools/VistaRandomNumberGenerator.h>
@@ -158,22 +157,22 @@ public:
 		// outstream colors to them (text+background), and print the
 		// names of the colors
 		VistaColorOutstream oStream;
-		for( vstr::CONSOLE_COLOR nBackground = vstr::CC_FIRST_COLOR; 
-			nBackground <vstr:: CC_NUM_COLORS; )
+		for( VistaColorOutstream::CONSOLE_COLOR nBackground = VistaColorOutstream::CC_FIRST_COLOR; 
+			nBackground < VistaColorOutstream::CC_NUM_COLORS; )
 		{
 			oStream.SetBackgroundColor( nBackground );
-			for( vstr::CONSOLE_COLOR nText = vstr::CC_FIRST_COLOR; 
-				nText < vstr::CC_NUM_COLORS; )
+			for( VistaColorOutstream::CONSOLE_COLOR nText = VistaColorOutstream::CC_FIRST_COLOR; 
+				nText < VistaColorOutstream::CC_NUM_COLORS; )
 			{
 				oStream.SetTextColor( nText );
-				oStream << std::setw(13) << vstr::GetConsoleColorName( nText ) 
-						<< "  on " << std::setw(13) << vstr::GetConsoleColorName( nBackground )
+				oStream << std::setw(13) << VistaColorOutstream::GetConsoleColorName( nText ) 
+						<< "  on " << std::setw(13) << VistaColorOutstream::GetConsoleColorName( nBackground )
 						<< std::endl;
 				// increment
-				nText = (vstr::CONSOLE_COLOR)( (int)nText + 1 );
+				nText = (VistaColorOutstream::CONSOLE_COLOR)( (int)nText + 1 );
 			}
 			oStream << std::endl;
-			nBackground = (vstr::CONSOLE_COLOR)( (int)nBackground + 1 );
+			nBackground = (VistaColorOutstream::CONSOLE_COLOR)( (int)nBackground + 1 );
 		}
 		return true;
 	}
@@ -208,9 +207,14 @@ DebuggingToolsDemoAppl::DebuggingToolsDemoAppl( int argc, char  *argv[] )
 	// streams, or use cout/cerr inbetween, the output may be fragmented! To avoid this, either
 	// disable the color streams buffering, or use std::endl or flush the stream manually
 	// when finished writing to it. This should become good practice anyway!
-	VistaColorOutstream* pRedStream = new VistaColorOutstream( vstr::CC_YELLOW, vstr::CC_RED, 1 );
+	VistaColorOutstream* pRedStream = new VistaColorOutstream(
+									VistaColorOutstream::CC_YELLOW,
+									VistaColorOutstream::CC_RED, 1 );
+	// we make the stream thread-safe, so that concurrent threads can write to it and
+	// do not fragment the output
+	VistaStreams::MakeStreamThreadSafe( pRedStream );
 	//now, we can tell ViSTA to print all internal errors to this stream
-	VistaKernelOut::SetAllErrorStreams( pRedStream );
+	vstr::SetErrStream( pRedStream );
 
 	// To check if this worked, we will now call run on the VistaSystem
 	// This will fail since we are not yet initialized, and will output a warning
@@ -254,7 +258,7 @@ DebuggingToolsDemoAppl::DebuggingToolsDemoAppl( int argc, char  *argv[] )
 	/////  COLOR-, LOG-, SPLITSTREAM USAGE   /////
 	//////////////////////////////////////////////
 	// For our own output, we first create a new colorstream
-	VistaColorOutstream* pGreenStream = new VistaColorOutstream( vstr::CC_GREEN, vstr::CC_DEFAULT );
+	VistaColorOutstream* pGreenStream = new VistaColorOutstream( VistaColorOutstream::CC_GREEN, VistaColorOutstream::CC_DEFAULT );
 	// we now register the red and green streams with the StreamManager. It gains access to all streams
 	// registered with it, independent of their type. Since it is a singleton, we can access it from
 	// anywhere - this gives us the option to write to a common output, without having to know the actual

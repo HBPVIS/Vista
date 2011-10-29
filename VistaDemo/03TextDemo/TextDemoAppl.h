@@ -41,8 +41,9 @@
 
 #include <VistaKernel/VistaSystem.h>
 
-class IVistaSimpleTextOverlay;
+class VistaSimpleTextOverlay;
 class IVistaTextEntity;
+class Vista3DTextOverlay;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -58,11 +59,11 @@ public:
 
 private:
 	VistaSystem*				m_pVistaSystem;
-	IVistaSimpleTextOverlay		*m_pSimpleTextOverlay;
+	VistaSimpleTextOverlay		*m_pSimpleTextOverlay;
 	IVistaTextEntity 			*m_pTextEntity1;
 	IVistaTextEntity			*m_pTextEntity2;
 	IVistaTextEntity			*m_pTextEntity3;
-	IVista3DTextOverlay			*m_pOverlay3D;
+	Vista3DTextOverlay			*m_pOverlay3D;
 };
 
 

@@ -30,7 +30,6 @@
 #include <VistaTools/VistaMemoryInfo.h>
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
 
-#include <VistaKernel/EventManager/VistaGraphicsEvent.h>
 #include <VistaKernel/EventManager/VistaSystemEvent.h>
 #include <VistaKernel/EventManager/VistaCentralEventHandler.h>
 #include <VistaKernel/EventManager/VistaEventManager.h>
@@ -65,12 +64,6 @@ bool ProcessCallback::Do()
 	{
 	case NULL_EVENT:
 		m_pEventManager->ProcessEvent( NULL );
-		break;
-	case GRAPHICS_EVENT:
-		m_pEvent = new VistaGraphicsEvent();
-		m_pEventManager->ProcessEvent( m_pEvent );
-		delete m_pEvent;
-		m_pEvent = NULL;
 		break;
 	case DEMO_EVENT:
 		m_pEvent = new DemoEvent();

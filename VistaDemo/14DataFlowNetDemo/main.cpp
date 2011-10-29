@@ -30,7 +30,7 @@
 #include "SetPositionActionObject.h"
 
 #include <VistaKernel/VistaSystem.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaGeometryFactory.h>
 #include <VistaKernel/GraphicsManager/VistaGeometry.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
@@ -104,7 +104,7 @@ int	main (int argc, char *argv[])
 		/**
 		 * First, we create our scene - consisting of a simple sphere
 		 */
-		VistaSG* pSceneGraph = pVistaSystem->GetGraphicsManager()->GetSceneGraph();
+		VistaSceneGraph* pSceneGraph = pVistaSystem->GetGraphicsManager()->GetSceneGraph();
 
 		VistaTransformNode* pGeomTrans = pSceneGraph->NewTransformNode( pSceneGraph->GetRoot() );
 		

@@ -35,7 +35,7 @@
 #include <VistaKernel/DisplayManager/VistaVirtualPlatform.h>
 
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 #include <VistaKernel/GraphicsManager/VistaAxes.h>
 #include <VistaBase/VistaExceptionBase.h>
@@ -83,7 +83,7 @@ int main(int argc, char **argv)
 		if(pVistaSystem->Init(argc, argv))
 		{
 			// load a model, so we have something to look at
-			VistaSG *pSG = pVistaSystem->GetGraphicsManager()->GetSceneGraph();
+			VistaSceneGraph *pSG = pVistaSystem->GetGraphicsManager()->GetSceneGraph();
 
 			std::string filename = "../data/cow.obj";
 

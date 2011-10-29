@@ -31,7 +31,7 @@
 #include <VistaKernel/DisplayManager/VistaWindow.h>
 
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaTextNode.h>
 #include <VistaKernel/GraphicsManager/VistaSwitchNode.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
@@ -222,7 +222,7 @@ int main( int argc, char **argv )
 			VistaGraphicsManager *pGrMgr = oVistaSystem.GetGraphicsManager();
 
 			// get a pointer to the scene graph and root
-			VistaSG *pSceneGraph = pGrMgr->GetSceneGraph();
+			VistaSceneGraph *pSceneGraph = pGrMgr->GetSceneGraph();
 			VistaGroupNode *pRoot = pSceneGraph->GetRoot();
 
 			// setup a node first for the callbacks later on

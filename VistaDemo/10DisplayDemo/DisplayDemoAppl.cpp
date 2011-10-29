@@ -28,7 +28,7 @@
 #include "DisplayDemoAppl.h"
 
 // Vista stuff
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaGeometry.h>
 #include <VistaKernel/GraphicsManager/VistaGeometryFactory.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
@@ -125,7 +125,7 @@ void DisplayDemoAppl::CreateScene ()
 	{
 		std::cout << "DisplayDemoAppl - using new graphics manager..." << std::endl;
 
-		VistaSG *pSG = pGraphicsMananager->GetSceneGraph();
+		VistaSceneGraph *pSG = pGraphicsMananager->GetSceneGraph();
 		// Get root...
 		VistaGroupNode *pRoot = pSG->GetRoot();
 		// ... and attach a new groupnode
@@ -165,13 +165,13 @@ void DisplayDemoAppl::CreateScene ()
 		pBoxTrans->SetTranslation(v3Temp);
 		pSG->NewGeomNode( pBoxTrans, pBox );
 
-		Vista2DText *pText2D = m_vistaSystem.GetDisplayManager()->Add2DText( "MOVEABLE_VIEWPORT" );
+		Vista2DText *pText2D = m_vistaSystem.GetDisplayManager()->New2DText( "MOVEABLE_VIEWPORT" );
 		// !!!IMPORTANT!!!
 		// Call init here and do NOT set text and position seperately
 		if( pText2D )
 			pText2D->Init( "MOVEABLE", 0, 0 );
 
-		pText2D = m_vistaSystem.GetDisplayManager()->Add2DText( "MAIN_VIEWPORT" );
+		pText2D = m_vistaSystem.GetDisplayManager()->New2DText( "MAIN_VIEWPORT" );
 		// !!!IMPORTANT!!!
 		// Call init here and do NOT set text and position seperately
 		if( pText2D )

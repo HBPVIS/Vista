@@ -75,17 +75,17 @@ void CommandHandler::HandleEvent(VistaEvent *pEvent)
 	case Bob::CMD_RESOLUTION:
 		std::cout << "Received a ChangeResolutionEvent! Adjusting properties as \
 			 follows:" << std::endl;
-		oProps.PrintPropertyList();
+		oProps.Print();
 
 		// set up a nonsensical message to Alice.
-		oAnswer.SetStringValue("message", "Hello Alice!");
+		oAnswer.SetValue<std::string>("message", "Hello Alice!");
 
 		// try to change the resolution - we have a function for this
 		// return false if the value is lower then 3
 		if (!m_pBob->OnCmdAction( Bob::CMD_RESOLUTION,
-							static_cast<float>(oProps.GetIntValue("resolution"))))
+							(float)(oProps.GetValue<int>("resolution"))))
 		{
-			oAnswer.SetIntValue("resolution", 3);
+			oAnswer.SetValue<int>("resolution", 3);
 		}
 
 		// send the message to Alice. Just to see how it's done...
@@ -103,7 +103,7 @@ void CommandHandler::HandleEvent(VistaEvent *pEvent)
 		m_pBob->OnCmdAction( Bob::CMD_ZOOM_IN, -1.0f );
 
 		// send a nonsensical message to Alice. Just to see how it's done...
-		oAnswer.SetStringValue("message", "Hello Alice, ZoomIn Event executed!");
+		oAnswer.SetValue<std::string>("message", "Hello Alice, ZoomIn Event executed!");
 		pCmdEv->SetPropertiesByList( oAnswer );
 
 		pEvent->SetHandled( true );
@@ -114,7 +114,7 @@ void CommandHandler::HandleEvent(VistaEvent *pEvent)
 		m_pBob->OnCmdAction( Bob::CMD_ZOOM_OUT, 1.0f );
 		
 		// send a nonsensical message to Alice. Just to see how it's done...
-		oAnswer.SetStringValue("message", "Hello Alice, ZoomOut Event executed!");
+		oAnswer.SetValue<std::string>("message", "Hello Alice, ZoomOut Event executed!");
 		
 		pCmdEv->SetPropertiesByList( oAnswer );
 
@@ -127,7 +127,7 @@ void CommandHandler::HandleEvent(VistaEvent *pEvent)
 		m_pBob->OnCmdAction( Bob::CMD_TURN_LEFT );
 		
 		// send a nonsensical message to Alice. Just to see how it's done...
-		oAnswer.SetStringValue("message", "Hello Alice, TurnLeft Event executed!");
+		oAnswer.SetValue<std::string>("message", "Hello Alice, TurnLeft Event executed!");
 		pCmdEv->SetPropertiesByList( oAnswer );
 
 		pEvent->SetHandled( true );
@@ -139,7 +139,7 @@ void CommandHandler::HandleEvent(VistaEvent *pEvent)
 		m_pBob->OnCmdAction( Bob::CMD_TURN_RIGHT );
 		
 		// send a nonsensical message to Alice. Just to see how it's done...
-		oAnswer.SetStringValue("message", "Hello Alice, TurnRight Event executed!");
+		oAnswer.SetValue<std::string>("message", "Hello Alice, TurnRight Event executed!");
 		pCmdEv->SetPropertiesByList( oAnswer );
 
 		pEvent->SetHandled( true );
@@ -150,7 +150,7 @@ void CommandHandler::HandleEvent(VistaEvent *pEvent)
 		m_pBob->OnCmdAction( Bob::CMD_MOVE_LEFT );
 		
 		// send a nonsensical message to Alice. Just to see how it's done...
-		oAnswer.SetStringValue("message", "Hello Alice, MoveLeft Event executed!");
+		oAnswer.SetValue<std::string>("message", "Hello Alice, MoveLeft Event executed!");
 		pCmdEv->SetPropertiesByList( oAnswer );
 
 		pEvent->SetHandled( true );
@@ -161,7 +161,7 @@ void CommandHandler::HandleEvent(VistaEvent *pEvent)
 		m_pBob->OnCmdAction( Bob::CMD_MOVE_RIGHT );
 		
 		// send a nonsensical message to Alice. Just to see how it's done...
-		oAnswer.SetStringValue("message", "Hello Alice, MoveRight Event executed!");
+		oAnswer.SetValue<std::string>("message", "Hello Alice, MoveRight Event executed!");
 		pCmdEv->SetPropertiesByList( oAnswer );
 
 		pEvent->SetHandled( true );
@@ -172,7 +172,7 @@ void CommandHandler::HandleEvent(VistaEvent *pEvent)
 		m_pBob->OnCmdAction( Bob::CMD_MOVE_UP );
 		
 		// send a nonsensical message to Alice. Just to see how it's done...
-		oAnswer.SetStringValue("message", "Hello Alice, MoveUp Event executed!");
+		oAnswer.SetValue<std::string>("message", "Hello Alice, MoveUp Event executed!");
 		pCmdEv->SetPropertiesByList( oAnswer );
 
 		pEvent->SetHandled( true );
@@ -183,7 +183,7 @@ void CommandHandler::HandleEvent(VistaEvent *pEvent)
 		m_pBob->OnCmdAction( Bob::CMD_MOVE_DOWN );
 		
 		// send a nonsensical message to Alice. Just to see how it's done...
-		oAnswer.SetStringValue("message", "Hello Alice, MoveDown Event executed!");
+		oAnswer.SetValue<std::string>("message", "Hello Alice, MoveDown Event executed!");
 		pCmdEv->SetPropertiesByList( oAnswer );
 
 		pEvent->SetHandled( true );
@@ -199,6 +199,6 @@ void CommandHandler::HandleEvent(VistaEvent *pEvent)
 		break;
 	}
 
-	std::cout<< "Message for Alice: " << oAnswer.GetStringValue( "message" ) << std::endl;
+	std::cout<< "Message for Alice: " << oAnswer.GetValue<std::string>( "message" ) << std::endl;
 }
 

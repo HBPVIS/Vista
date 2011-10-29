@@ -56,7 +56,7 @@ For further details see the implementation and comments in there.
 
 // needed for the scene
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 #include <VistaKernel/GraphicsManager/VistaGeometryFactory.h>
 
@@ -257,7 +257,7 @@ public:
 
     const int m_iNumberOfParticles;
 
-    GrindingSparks(VistaGroupNode *pParent, VistaSG *pSG)
+    GrindingSparks(VistaGroupNode *pParent, VistaSceneGraph *pSG)
 		: m_iTexSize(32)
 		, m_dSigma(5)
 		, m_dM(12)
@@ -454,7 +454,7 @@ private:
 class LightSaber : public VistaEventHandler
 {
 public:
-	LightSaber(VistaGroupNode *pParent, VistaSG *pSG)
+	LightSaber(VistaGroupNode *pParent, VistaSceneGraph *pSG)
 		: m_iTexSize(32)
 		, m_dSigma(5)
 		, m_dM(12)
@@ -591,7 +591,7 @@ void CreateScene(VistaSystem *pSystem)
 	VistaGraphicsManager *pGraphicsManager = pSystem->GetGraphicsManager();
 
 	// claim sg
-	VistaSG *pSG = pGraphicsManager->GetSceneGraph();
+	VistaSceneGraph *pSG = pGraphicsManager->GetSceneGraph();
 
 	// claim root, we want to attach then in world space
 	VistaGroupNode *pRoot = pSG->GetRoot();

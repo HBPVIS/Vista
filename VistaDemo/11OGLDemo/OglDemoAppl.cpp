@@ -28,7 +28,7 @@
 #include "OglDrawObject.h"
 
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 #include <VistaKernel/GraphicsManager/VistaOpenGLNode.h>
 
@@ -101,7 +101,7 @@ void OglDemoAppl::CreateScene ()
 	
 	assert(pGraphicsManager && "You have to have a graphics manager here!");
 
-	VistaSG* pSG = pGraphicsManager->GetSceneGraph();
+	VistaSceneGraph* pSG = pGraphicsManager->GetSceneGraph();
 
 	pSG->GetRoot()->SetName("ViSTA-ROOT");
 	

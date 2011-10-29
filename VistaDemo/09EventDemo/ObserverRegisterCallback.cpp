@@ -28,7 +28,6 @@
 #include <VistaTools/VistaMemoryInfo.h>
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
 
-#include <VistaKernel/EventManager/VistaGraphicsEvent.h>
 #include <VistaKernel/EventManager/VistaSystemEvent.h>
 #include <VistaKernel/EventManager/VistaCentralEventHandler.h>
 #include <VistaKernel/EventManager/VistaEventManager.h>

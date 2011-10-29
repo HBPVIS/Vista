@@ -45,7 +45,7 @@
 #include <VistaKernel/DisplayManager/Vista2DDrawingObjects.h>
 
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 #include <VistaKernel/GraphicsManager/VistaGeometryFactory.h>
 #include <VistaKernel/GraphicsManager/VistaGeometry.h>
@@ -53,9 +53,8 @@
 #include <VistaKernel/EventManager/VistaEventManager.h>
 #include <VistaKernel/EventManager/VistaSystemEvent.h>
 
-#include <VistaKernel/WindowingToolkit/VistaWindowingToolkit.h>
-#include <VistaKernel/WindowingToolkit/Vista3DTextOverlay.h>
-#include <VistaKernel/WindowingToolkit/VistaTextEntity.h>
+#include <VistaKernel/DisplayManager//Vista3DTextOverlay.h>
+#include <VistaKernel/DisplayManager/VistaTextEntity.h>
 
 #include <VistaAspects/VistaExplicitCallbackInterface.h>
 #include <VistaBase/VistaExceptionBase.h>
@@ -137,16 +136,18 @@ private:
 class YawIndicatorOverlay : public IVistaSceneOverlay
 {
 public:
-	YawIndicatorOverlay(VistaVirtualPlatform *pPlatform)
-		: m_pPlatform(pPlatform)
+	YawIndicatorOverlay( VistaVirtualPlatform *pPlatform,
+							VistaDisplayManager* pDispManager,
+							const std::string sViewportName = "")
+	: IVistaSceneOverlay( pDispManager, sViewportName )
+	, m_pPlatform(pPlatform)
 	{
 	}
 
 	virtual bool Do()
 	{
-		/**
-		@todo think about usage of OpenSG instead of OpenGL
-		*/
+		if( m_bEnabled == false )
+			return false;
 
 		//////////////////////////////////////////
 		// draw a small camera rotation-indicator
@@ -207,8 +208,24 @@ public:
 		return true;
 	}
 
+	virtual void UpdateOnViewportChange( int iWidth, int iHeight, int iPosX, int iPosY ) 
+	{
+		return;
+	}
+
+	virtual bool GetIsEnabled() const
+	{
+		return m_bEnabled;
+	}
+
+	virtual void SetIsEnabled( bool bEnabled ) 
+	{
+		m_bEnabled = bEnabled;
+	}
+
 private:
 	VistaVirtualPlatform *m_pPlatform;
+	bool m_bEnabled;
 };
 
 /*============================================================================*/
@@ -231,7 +248,7 @@ int main(int argc, char **argv)
 		{
 			// add a cube, so we have something to look at
 			VistaGraphicsManager *pMgr = pVistaSystem->GetGraphicsManager();
-			VistaSG *pSG = pMgr->GetSceneGraph();
+			VistaSceneGraph *pSG = pMgr->GetSceneGraph();
 			VistaGeometryFactory geometryFactory( pSG );
 
 			VistaGeometry *box = geometryFactory.CreateBox ();
@@ -267,20 +284,19 @@ int main(int argc, char **argv)
 			// add overlays
 
 			// 1st: a 3D text overlay - 2D text hooked to a 3D position in the scene.
-			IVistaWindowingToolkit* pWindowingToolkit = pVistaSystem->GetWindowingToolkit();
-			IVista3DTextOverlay *oTextOverlay3D = pWindowingToolkit->Create3DTextOverlay();
-			IVistaTextEntity* pTextEntity = pWindowingToolkit->CreateTextEntity();
+			Vista3DTextOverlay *oTextOverlay3D = new Vista3DTextOverlay( pDispMgr );
+			IVistaTextEntity* pTextEntity = pDispMgr->CreateTextEntity();
 			pTextEntity->SetText("overlay text hooked to a 3D position");
 			pTextEntity->SetColor(VistaColorRGB::RED);
 			pTextEntity->SetYPos(1.2f);
 			oTextOverlay3D->AddText(pTextEntity);
 
 			// 2nd: a 2D text overlay
-			Vista2DText *p2DText= pDispMgr->Add2DText();
+			Vista2DText *p2DText= pDispMgr->New2DText();
 			p2DText->Init("use [i] and [t] to toggle overlays!", 0.16f, 0.01f, 0, 0, 0, 18);
 
 			// 3rd: a self drawn overlay
-			YawIndicatorOverlay oYawIndicator(pVirtualPlatform);
+			YawIndicatorOverlay oYawIndicator( pVirtualPlatform, pDispMgr );
 			pDispMgr->AddSceneOverlay(&oYawIndicator);
 
 			////////////////////////////////////////////////////////////////////////////

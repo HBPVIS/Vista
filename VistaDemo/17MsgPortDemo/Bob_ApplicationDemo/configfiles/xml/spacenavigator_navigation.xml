@@ -4,7 +4,7 @@
 	<nodespace></nodespace>
 	<graph>
 		<node name="spacenavigator" type="DriverSensor">
-			<param name="sensor" value="0" />
+			<param name="sensor_index" value="0" />
 			<param name="driver" value="SPACENAVIGATOR" />
 		</node>
 		<node name="project_spacenav" type="HistoryProject">

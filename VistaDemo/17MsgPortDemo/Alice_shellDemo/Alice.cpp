@@ -120,10 +120,16 @@ bool AliceInitiateAction::Do()
 	bool MessageSuccessful = m_pChannel->WriteMsg(m_eExecuteCommand,oProps, oAnswer);
 
 	// Bob must have sent us a reply. Let's see...
-	if(MessageSuccessful) 
-		std::cout << "Got a message from Bob: " << oAnswer.GetStringValue("message") << std::endl;
+	if(MessageSuccessful)
+	{
+		std::cout << "Got a message from Bob: " 
+					<< oAnswer.GetValue<std::string>("message") 
+					<< std::endl;
+	}
 	else
+	{
 		std::cout << "Oops! Didn't get response from Bob!" << std::endl;
+	}
 
 	return 1;
 }

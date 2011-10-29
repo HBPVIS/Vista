@@ -39,7 +39,7 @@
 
 // neeeded for the scene
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 #include <VistaKernel/GraphicsManager/VistaGeometryFactory.h>
 
@@ -81,7 +81,7 @@ class SelectionHandler : public IVistaInteractionHandlerBase
 public:
     SelectionHandler( VistaEventManager *pEvMgr,
                        unsigned int nRoleId,
-                       VistaSG *pSG)
+                       VistaSceneGraph *pSG)
                        : IVistaInteractionHandlerBase(pEvMgr, nRoleId, false),
                        m_pSelection(new VistaIntentionSelect),
 					   m_pSG(pSG)
@@ -212,7 +212,7 @@ public:
 private:
     VistaIntentionSelect *m_pSelection;
     VistaTransformNode *m_pHighlightTransform;
-	VistaSG *m_pSG;
+	VistaSceneGraph *m_pSG;
 
     /**
      * A helper routine to collect all geom nodes of the scene
@@ -251,7 +251,7 @@ void CreateScene(VistaSystem &vistaSystem)
     VistaGraphicsManager *pGraphicsManager = vistaSystem.GetGraphicsManager();
 
     // claim sg
-    VistaSG *pSG = pGraphicsManager->GetSceneGraph();
+    VistaSceneGraph *pSG = pGraphicsManager->GetSceneGraph();
 
     // claim root, we want to attach then in world space
     VistaGroupNode *pRoot = pSG->GetRoot();
@@ -300,7 +300,7 @@ void CreateInteraction(VistaSystem &vistaSystem)
 	// Getting the GraphicsManager
 	VistaGraphicsManager *pMgr = vistaSystem.GetGraphicsManager();
 	// Get the Vista Scenegraph from the GraphicsManager
-	VistaSG *pSG = pMgr->GetSceneGraph();
+	VistaSceneGraph *pSG = pMgr->GetSceneGraph();
 	// Get the root as GroupNode
 	VistaGroupNode *pRoot = pSG->GetRoot();
 	// No Name is a bad name, so give a name to the root

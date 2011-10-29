@@ -28,7 +28,7 @@
 
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
 #include <VistaKernel/GraphicsManager/VistaNodeBridge.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 #include <VistaKernel/GraphicsManager/VistaTextNode.h>
 
@@ -36,10 +36,9 @@
 #include <VistaKernel/DisplayManager/VistaDisplayManager.h>
 #include <VistaKernel/DisplayManager/VistaWindow.h>
 
-#include <VistaKernel/WindowingToolkit/VistaWindowingToolkit.h>
-#include <VistaKernel/WindowingToolkit/VistaSimpleTextOverlay.h>
-#include <VistaKernel/WindowingToolkit/Vista3DTextOverlay.h>
-#include <VistaKernel/WindowingToolkit/VistaTextEntity.h>
+#include <VistaKernel/DisplayManager/VistaSimpleTextOverlay.h>
+#include <VistaKernel/DisplayManager/Vista3DTextOverlay.h>
+#include <VistaKernel/DisplayManager/VistaTextEntity.h>
 
 #include <VistaBase/VistaExceptionBase.h>
 
@@ -65,7 +64,7 @@ TextDemoAppl::TextDemoAppl( int argc, char  *argv[] )
 	if(!m_pVistaSystem->Init(argc, argv))
 		VISTA_THROW("ViSTA System init failed.",1);
 	
-	VistaSG* pSceneGraph = m_pVistaSystem->GetGraphicsManager()->GetSceneGraph();
+	VistaSceneGraph* pSceneGraph = m_pVistaSystem->GetGraphicsManager()->GetSceneGraph();
 	// Add node to scenegraph
 	VistaTransformNode* pTransform = pSceneGraph->NewTransformNode( pSceneGraph->GetRoot() );
 	pTransform->SetTranslation( -1, 0, -2 );
@@ -80,12 +79,12 @@ TextDemoAppl::TextDemoAppl( int argc, char  *argv[] )
 	else
 		std::cerr << "3D Text cannot be initialized" << std::endl;
 
-	IVistaWindowingToolkit* pWindowingToolkit = m_pVistaSystem->GetWindowingToolkit();
+	VistaDisplayManager* pDispManager = m_pVistaSystem->GetDisplayManager();
 
-	//you can create the IVistaSimpleTextOverlay as a local or global Variable!
+	//you can create the VistaSimpleTextOverlay as a local or global Variable!
 	//DO NOT forget to set the Position.
-	IVistaSimpleTextOverlay* pSimpleTOverlay = pWindowingToolkit->CreateSimpleTextOverlay();
-	m_pTextEntity1 = pWindowingToolkit->CreateTextEntity();
+	VistaSimpleTextOverlay* pSimpleTOverlay = new VistaSimpleTextOverlay( pDispManager );
+	m_pTextEntity1 = pDispManager->CreateTextEntity();
 
 	m_pTextEntity1->SetText( "Hello World 1!" );
 	m_pTextEntity1->SetXPos( 1.5f );
@@ -98,9 +97,9 @@ TextDemoAppl::TextDemoAppl( int argc, char  *argv[] )
 	// All methods which start with "Create" will return a pointer
 	// note the the method's caller is responsible for this pointer
 	// and have to clean up those by themselves!
-	m_pSimpleTextOverlay = pWindowingToolkit->CreateSimpleTextOverlay();
+	m_pSimpleTextOverlay = new VistaSimpleTextOverlay( pDispManager );
 
-	m_pTextEntity2 = pWindowingToolkit->CreateTextEntity();
+	m_pTextEntity2 = pDispManager->CreateTextEntity();
 	m_pTextEntity2->SetText( "Hello World 2!" );
 	m_pTextEntity2->SetXPos( 3.0f );
 	m_pTextEntity2->SetYPos( 3.0f );
@@ -110,7 +109,7 @@ TextDemoAppl::TextDemoAppl( int argc, char  *argv[] )
 
 
 	//"Hello World 3!" is there, too! Can you find it?
-	m_pTextEntity3 = pWindowingToolkit->CreateTextEntity();
+	m_pTextEntity3 = pDispManager->CreateTextEntity();
 
 	m_pTextEntity3->SetText( "Hello World 3!" );
 	m_pTextEntity3->SetFont( "SERIF", 30 );
@@ -119,13 +118,13 @@ TextDemoAppl::TextDemoAppl( int argc, char  *argv[] )
 	m_pTextEntity3->SetYPos( 1.0f );
 	m_pTextEntity3->SetZPos( 0.0f );
 
-	m_pOverlay3D = pWindowingToolkit->Create3DTextOverlay();
+	m_pOverlay3D = new Vista3DTextOverlay( pDispManager );
 	m_pOverlay3D->AddText( m_pTextEntity3 );
 
 	if (!m_pVistaSystem->GetDisplayManager()->GetDisplaySystem())
 		VISTA_THROW("No DisplaySystem found", 1);
 
-	m_pVistaSystem->GetDisplayManager()->GetWindowByName("MAIN_WINDOW")->GetWindowProperties()->SetTitle( argv[0] );
+	pDispManager->GetWindowByName("MAIN_WINDOW")->GetWindowProperties()->SetTitle( argv[0] );
 }
 
 TextDemoAppl::~TextDemoAppl()

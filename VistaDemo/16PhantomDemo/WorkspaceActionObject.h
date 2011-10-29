@@ -32,13 +32,13 @@
 #include <VistaBase/VistaVectorMath.h>
 
 class VistaGroupNode;
-class VistaSG;
+class VistaSceneGraph;
 class IVistaTransformable;
 
 class WorkspaceActionObject : public IVdfnActionObject
 {
 public:
-	WorkspaceActionObject( VistaGroupNode *, IVistaTransformable *, VistaSG * );
+	WorkspaceActionObject( VistaGroupNode *, IVistaTransformable *, VistaSceneGraph * );
 	virtual ~WorkspaceActionObject();
 
 	bool SetMinXPort( const float & );
@@ -68,7 +68,7 @@ private:
 	float m_scale;
 
 	VistaGroupNode 	*m_pParent;
-	VistaSG			*m_pVistaSG;
+	VistaSceneGraph			*m_pVistaSceneGraph;
 	IVistaTransformable	*m_pHandle;
 
 	// insert reflectionable code via macro here

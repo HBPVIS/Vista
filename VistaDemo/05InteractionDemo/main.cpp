@@ -39,7 +39,7 @@
 #include <VistaKernel/DisplayManager/VistaWindow.h>
 
 //Only for warning needed:
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 #include <VistaKernel/GraphicsManager/VistaTextNode.h>
 
@@ -99,7 +99,7 @@ int	main (int argc, char *argv[])
 
 			//To visualize the output from the CallStack we proceed in creating a visual CallStack :D
 			//Therefore get the SceneGraph
-			VistaSG *pSG = pVistaSystem->GetGraphicsManager()->GetSceneGraph();
+			VistaSceneGraph *pSG = pVistaSystem->GetGraphicsManager()->GetSceneGraph();
 
 			//Setting the scene a bit away so we can see everything from start screen :)
 			VistaTransformNode *pTrans = pSG->NewTransformNode(pSG->GetRoot());

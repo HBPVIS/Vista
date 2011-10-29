@@ -151,7 +151,7 @@ private:
 class RollingBalls : public VistaEventHandler
 {
 public:
-	RollingBalls(VistaGroupNode *pParent, VistaSG *pSG, const int &nParticles = 50)
+	RollingBalls(VistaGroupNode *pParent, VistaSceneGraph *pSG, const int &nParticles = 50)
 		: m_fWidth(4)
 		, m_fDepth(10)
 		, m_dLastT(-1)

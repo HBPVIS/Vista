@@ -25,13 +25,12 @@
  */
 
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaGeomNode.h>
 #include <VistaKernel/GraphicsManager/VistaGroupNode.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 #include <VistaKernel/GraphicsManager/VistaGeometryFactory.h>
 
-#include <VistaKernel/EventManager/VistaGraphicsEvent.h>
 #include <VistaKernel/EventManager/VistaSystemEvent.h>
 #include <VistaKernel/EventManager/VistaCentralEventHandler.h>
 #include <VistaKernel/EventManager/VistaEventObserver.h>
@@ -155,7 +154,7 @@ void EventDemoAppl::CreateScene ()
 	if (pGrMng != NULL)
     {
 		// creating something to be displayed...
-        VistaSG* pSG = pGrMng->GetSceneGraph();
+        VistaSceneGraph* pSG = pGrMng->GetSceneGraph();
 		pSG->GetRoot()->SetName( "ViSTA-root-node" );
 
 		VistaGeometryFactory oGeometryFactory(pSG);

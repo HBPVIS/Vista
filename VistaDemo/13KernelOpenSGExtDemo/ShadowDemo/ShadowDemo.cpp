@@ -29,7 +29,7 @@
 //#include <VistaKernel/VistaVersion.h>
 #include <VistaKernel/VistaSystem.h>
 
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaGeometry.h>
 #include <VistaKernel/GraphicsManager/VistaGroupNode.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
@@ -179,7 +179,7 @@ bool ShadowDemo::Run ()
 
 bool ShadowDemo::CreateScene()
 {
-	VistaSG *pSG = mVistaSystem.GetGraphicsManager()->GetSceneGraph();
+	VistaSceneGraph *pSG = mVistaSystem.GetGraphicsManager()->GetSceneGraph();
 
 	VistaTransformNode *pRootNode = pSG->NewTransformNode(pSG->GetRoot());
 
@@ -261,7 +261,7 @@ static VistaGeometry* createFloor(const float &fExtents, const int &iTess)
 {
 	VistaGeometry *pGeo = NULL;
 	VistaVertexFormat oVertexFormat;
-	VistaGeometry::faceType fType;
+	VistaGeometry::FaceType fType;
 	std::vector<VistaIndexedVertex> vVerts;
 	std::vector<float> vCoords;
 	std::vector<float> vNormals;
@@ -333,7 +333,7 @@ static VistaGeometry* createFloor(const float &fExtents, const int &iTess)
 		vVerts.push_back(oIndexedVertex);
 	}
 
-	VistaSG *pSG = GetVistaSystem()->GetGraphicsManager()->GetSceneGraph();
+	VistaSceneGraph *pSG = GetVistaSystem()->GetGraphicsManager()->GetSceneGraph();
 	pGeo = pSG->NewIndexedGeometry(
 		vVerts, vCoords, vTexCoords,
 		vNormals, vColors, oVertexFormat,

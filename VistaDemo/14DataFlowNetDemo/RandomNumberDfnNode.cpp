@@ -108,24 +108,20 @@ RandomNumberDfnNodeCreate::~RandomNumberDfnNodeCreate()
 IVdfnNode* RandomNumberDfnNodeCreate::CreateNode( const VistaPropertyList& oParams ) const
 {
 	/**
-	 * Here, we configure the node from the parameters given in the params list
-	 * Here, we're looking for entries called 'min' and 'max'. If those are not
-	 * found, we default to 0 and 1.
-	 */
-	float fMin = 0.0f;
-	float fMax = 1.0f;
-
-	/**
 	 * The passed parameter list oParams contains all xml parameters given for the
 	 * node. However, we are only interersted in those tagget 'param', thus we
 	 * extract the sub-PropList for these
 	 */
-	const VistaPropertyList& oSubParams = oParams.GetPropertyConstRef ("param" ).GetPropertyListConstRef();
+	const VistaPropertyList& oSubParams = oParams.GetSubListConstRef ("param" );
 
-	if( oSubParams.HasProperty( "min" ) )
-		fMin = (float)oSubParams.GetDoubleValue( "min" );
-	if( oSubParams.HasProperty( "max" ) )
-		fMax = (float)oSubParams.GetDoubleValue( "max" );
+	/**
+	 * Here, we configure the node from the parameters given in the params list
+	 * Here, we're looking for entries called 'min' and 'max'. If those are not
+	 * found, we default to 0 and 1.
+	 */
+	float fMin = oSubParams.GetValueOrDefault<float>( "min", 0.0f );
+	float fMax = oSubParams.GetValueOrDefault<float>( "max", 1.0f );
+
 	return new RandomNumberDfnNode( fMin, fMax );
 }
 

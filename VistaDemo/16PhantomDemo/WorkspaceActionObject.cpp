@@ -30,7 +30,7 @@
 #include <VistaKernel/GraphicsManager/VistaGroupNode.h>
 #include <VistaKernel/GraphicsManager/VistaGeometry.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 
 #include <VistaAspects/VistaReflectionable.h>
 
@@ -40,9 +40,9 @@
 // insert reflectionable code via macro here again
 REFL_IMPLEMENT_FULL(WorkspaceActionObject, IVdfnActionObject);
 
-WorkspaceActionObject::WorkspaceActionObject( VistaGroupNode * pParent, IVistaTransformable* pHandle, VistaSG * pSG )
+WorkspaceActionObject::WorkspaceActionObject( VistaGroupNode * pParent, IVistaTransformable* pHandle, VistaSceneGraph * pSG )
 : m_pParent( pParent )
-, m_pVistaSG( pSG )
+, m_pVistaSceneGraph( pSG )
 , m_pHandle( pHandle )
 {
 }
@@ -61,7 +61,7 @@ void WorkspaceActionObject::updateBB(  )
 	float a[3] = {minx*m_scale,miny*m_scale,minz*m_scale};
 	float b[3] = {maxx*m_scale,maxy*m_scale,maxz*m_scale};
 	bb.SetBounds(a,b);
-	BoundingboxGeometry geom(m_pVistaSG,bb);
+	BoundingboxGeometry geom(m_pVistaSceneGraph,bb);
 	VistaGroupNode *pBox = geom.getVistaNode();
 	pBox->SetName("WAO_BB");
 

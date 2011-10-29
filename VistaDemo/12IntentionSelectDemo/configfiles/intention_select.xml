@@ -4,7 +4,7 @@
 	<graph>
 		<!-- data source... a mouse -->
 		<node name="mouse" type="DriverSensor">
-			<param name="sensor" value="0"/>
+			<param name="sensor_index" value="0"/>
 			<param name="driver" value="MOUSE"/>
 		</node>
 		

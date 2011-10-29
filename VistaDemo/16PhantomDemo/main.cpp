@@ -26,7 +26,7 @@
 
 #include <VistaKernel/VistaSystem.h>
 
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
 #include <VistaKernel/GraphicsManager/VistaGeometryFactory.h>
 #include <VistaKernel/GraphicsManager/VistaGeometry.h>
@@ -142,7 +142,7 @@ int main( int argc, char ** argv )
 void CreateScene( VistaSystem &vistaSystem )
 {
 	// getting the scenegraph
-	VistaSG *vistaSG = vistaSystem.GetGraphicsManager()->GetSceneGraph();
+	VistaSceneGraph *vistaSG = vistaSystem.GetGraphicsManager()->GetSceneGraph();
 
 	// factory to create geometries
 	VistaGeometryFactory gf( vistaSG );
@@ -150,7 +150,7 @@ void CreateScene( VistaSystem &vistaSystem )
 	// create handle to move around
 	// note: This node is attached to the root but it will get transformed
 	// in the PhantomWorkspaceHandler cause the cam is not part of the
-	// VistaSG.
+	// VistaSceneGraph.
 	// @todo as soon as possible hang this node under the cam
 	m_pHandleParent = vistaSG->NewTransformNode(vistaSG->GetRoot());
 	//m_pHandleParent->SetTranslation(0,0,10);
@@ -205,9 +205,9 @@ void CreateCallbacks( VistaSystem &vistaSystem )
 	m_pWorkspaceHandler = new PhantomWorkspaceHandler( vistaSystem.GetDfnObjectRegistry(), m_pHandleParent );
 	eventMgr->AddEventHandler( m_pWorkspaceHandler, VistaSystemEvent::GetTypeId(), VistaSystemEvent::VSE_PREGRAPHICS );
 
-	VistaSG *pVistaSG = vistaSystem.GetGraphicsManager()->GetSceneGraph();
+	VistaSceneGraph *pVistaSceneGraph = vistaSystem.GetGraphicsManager()->GetSceneGraph();
 	// create a new WorkspaceActionObject with all needed data
-	m_pWorkspaceActionObject = new WorkspaceActionObject( m_pHandleParent, m_pHandle, pVistaSG );
+	m_pWorkspaceActionObject = new WorkspaceActionObject( m_pHandleParent, m_pHandle, pVistaSceneGraph );
 	// set the name for the nameableinterface
 	// This is not the name to reference it in the DFN
 	m_pWorkspaceActionObject->SetNameForNameable("WorkspaceActionObject");

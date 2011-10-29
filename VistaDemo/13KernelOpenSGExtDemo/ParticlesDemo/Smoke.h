@@ -31,7 +31,7 @@
 class Smoke : public VistaEventHandler
 {
 public:
-	Smoke(VistaGroupNode *pParent, VistaSG *pSG)
+	Smoke(VistaGroupNode *pParent, VistaSceneGraph *pSG)
 		: m_pParticles(NULL)
 		, m_dLastT(-1)
 	{
