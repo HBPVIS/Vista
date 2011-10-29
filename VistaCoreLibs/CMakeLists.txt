@@ -33,7 +33,7 @@ vista_find_package( OpenSG REQUIRED )
 include_directories( ${VistaCoreLibs_SOURCE_DIR} )
 
 # the version type can be either HEAD, RELASE, BRANCH, or TAG
-vista_set_version( VistaCoreLibs BRANCH CLUSTERMODE_TEST svn_rev )
+vista_set_version( VistaCoreLibs HEAD HEAD svn_rev )
 
 vista_find_package( OpenGL QUIET )
 vista_find_package( GLUT QUIET )
