@@ -25,7 +25,6 @@ else()
 endif( EXISTS "$ENV{VISTA_CMAKE_COMMON}" )
 
 include( VistaCommon )
-vista_enable_most_compiler_warnings()
 
 vista_find_package( OpenSG REQUIRED )
 
