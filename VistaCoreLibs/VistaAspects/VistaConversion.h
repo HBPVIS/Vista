@@ -39,6 +39,7 @@
 
 #include <string>
 #include <string.h> // intel icpc needs this for memcpy
+#include <algorithm>
 #include <sstream>
 #include <list>
 #include <vector>
