@@ -121,7 +121,7 @@ bool VistaStreamManager::AddStream( const std::string& sName,
 										bool bReplaceExistingStream  )
 {
 	std::map<std::string, std::ostream*>::iterator itStream = m_mapStreams.find( sName );
-	if( itStream != m_mapStreams.end() || bReplaceExistingStream == false )
+	if( itStream != m_mapStreams.end() && bReplaceExistingStream == false )
 	{
 		return false;
 	}
