@@ -160,6 +160,7 @@ inline VistaVector3D& VistaVector3D::operator=( const VistaVector3D& v3Other )
 		m_a4fValues[0] = v3Other.m_a4fValues[0];
 		m_a4fValues[1] = v3Other.m_a4fValues[1];
 		m_a4fValues[2] = v3Other.m_a4fValues[2];
+		m_a4fValues[3] = v3Other.m_a4fValues[3];
 	}
 	return (*this);
 }

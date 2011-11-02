@@ -1267,8 +1267,8 @@ VistaInteractionContext* VistaSystem::SetupInteractionContext( const std::string
 		}
 		else
 		{
-			bool bDumpGraphs = m_oInteractionConfig.GetValueOrDefault( "DUMPDFNGRAPHS", false );
-			bool bWritePorts = m_oInteractionConfig.GetValueOrDefault( "WRITEDFNPORTS", false );
+			bool bDumpGraphs = m_oInteractionConfig.GetValueInSubListOrDefault( "DUMPDFNGRAPHS", "SYSTEM", false );
+			bool bWritePorts = m_oInteractionConfig.GetValueInSubListOrDefault( "WRITEDFNPORTS", "SYSTEM", false );
 
 			m_pKeyboardSystemControl->BindAction( nTrigger, new VistaReloadContextGraphCommand( this, pContext,
 																			sRole, bDumpGraphs, bWritePorts ),
@@ -1392,8 +1392,8 @@ bool VistaSystem::Run()
 		GetInteractionManager()->InitializeGraphContexts( m_pClusterMode->GetNodeName() );
 
 		// for servers / master nodes, we will offer a dump on the graphs as a feature
-		bool bDumpGraphs = m_oInteractionConfig.GetValueOrDefault( "DUMPDFNGRAPHS", false );
-		bool bWritePorts = m_oInteractionConfig.GetValueOrDefault( "WRITEDFNPORTS", false );	
+		bool bDumpGraphs = m_oInteractionConfig.GetValueInSubListOrDefault( "DUMPDFNGRAPHS", "SYSTEM", false );
+		bool bWritePorts = m_oInteractionConfig.GetValueInSubListOrDefault( "WRITEDFNPORTS", "SYSTEM", false );	
 		if( m_pClusterMode->GetIsLeader() && bDumpGraphs )
 		{
 			GetInteractionManager()->DumpGraphsToDot( bWritePorts );

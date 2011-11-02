@@ -708,6 +708,7 @@ bool RegisterBasicNodeCreators(VistaDriverMap *pDrivers,
 
 	pFac->SetNodeCreator( "TypeConvert[VistaVector3D,string]", new VdfnTypeConvertNodeCreate<VistaVector3D,std::string>() );
  	pFac->SetNodeCreator( "TypeConvert[VistaQuaternion,string]", new VdfnTypeConvertNodeCreate<VistaQuaternion,std::string>() );
+	pFac->SetNodeCreator( "TypeConvert[VistaTransformMatrix,string]", new VdfnTypeConvertNodeCreate<VistaTransformMatrix,std::string>() );
 
 	pFac->SetNodeCreator( "TypeConvert[VistaVector3D,VistaTransformMatrix]",   new VdfnTypeConvertNodeCreate<VistaVector3D,VistaTransformMatrix>() );
  	pFac->SetNodeCreator( "TypeConvert[VistaQuaternion,VistaTransformMatrix]", new VdfnTypeConvertNodeCreate<VistaQuaternion,VistaTransformMatrix>() );
