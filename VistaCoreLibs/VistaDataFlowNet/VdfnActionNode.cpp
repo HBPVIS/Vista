@@ -248,53 +248,51 @@ void print_node_name( const std::string &strName )
 
 bool VdfnActionNode::PrepareEvaluationRun()
 {
-	if(GetIsValid())
-	{
-		//for(std::map<std::string, _sHlp>::const_iterator cit = m_mpBuildMap.begin();
-		//	cit != m_mpBuildMap.end(); ++cit )
-		//{
-		//	IVdfnPort *pPort = GetInPort( (*cit).first );
-		//	if(pPort)
-		//	{
-		//		m_liPortSets.push_back( _sHlp( pPort, (*cit).second.m_pSet, (*cit).second.m_pFunctor ) );
-		//	}
-		//	// this is for debugging, in case you have trouble
-		//	//else
-		//	//{
-		//	//	std::cerr << "[VdfnActionNode]: could not find port named [" << (*cit).first << "]" << std::endl;
-		//	//	std::list<std::string> liNames = GetInPortNames();
-		//	//	std::for_each( liNames.begin(), liNames.end(), print_node_name );
-
-		//	//	std::cerr << "\nConnected ports:" << std::endl;
-		//	//	liNames = GetConnectedInPortNames();
-		//	//	std::for_each( liNames.begin(), liNames.end(), print_node_name );
-		//	//}
-		//}
-		//return true; // unconditional validity
-
-		for( std::map<std::string, IVdfnPort*>::iterator itInPort = m_mpInPorts.begin();
-				itInPort != m_mpInPorts.end(); ++itInPort )
-		{
-			std::map<std::string, _sHlp>::const_iterator itRequest = m_mpBuildMap.find( (*itInPort).first );
-			if( itRequest != m_mpBuildMap.end() )
-			{
-				m_liPortSets.push_back( _sHlp( (*itInPort).second, (*itRequest).second.m_pSet, (*itRequest).second.m_pFunctor ) );
-			}
-			else
-			{
-				vstr::warnp() << "[VdfnActionNode]: Failed to set inport [" << (*itInPort).first
-						<< "] on ActionObject [" << m_pActionObject->GetNameForNameable()
-						<< "] - no matching Setter exists!" << std::endl;
-			}
-		}
-		return true; //even if one (or all) ports could not be set... we might use the outports
-	}
-	else
+	if( GetIsValid() == false )
 	{
 		vstr::warnp() << "[VdfnActionNode]: No valid action object found for name [" 
 				<< m_strKey << "]" << std::endl;
+		return false;
 	}
-	return false;
+
+	//for(std::map<std::string, _sHlp>::const_iterator cit = m_mpBuildMap.begin();
+	//	cit != m_mpBuildMap.end(); ++cit )
+	//{
+	//	IVdfnPort *pPort = GetInPort( (*cit).first );
+	//	if(pPort)
+	//	{
+	//		m_liPortSets.push_back( _sHlp( pPort, (*cit).second.m_pSet, (*cit).second.m_pFunctor ) );
+	//	}
+	//	// this is for debugging, in case you have trouble
+	//	//else
+	//	//{
+	//	//	std::cerr << "[VdfnActionNode]: could not find port named [" << (*cit).first << "]" << std::endl;
+	//	//	std::list<std::string> liNames = GetInPortNames();
+	//	//	std::for_each( liNames.begin(), liNames.end(), print_node_name );
+
+	//	//	std::cerr << "\nConnected ports:" << std::endl;
+	//	//	liNames = GetConnectedInPortNames();
+	//	//	std::for_each( liNames.begin(), liNames.end(), print_node_name );
+	//	//}
+	//}
+	//return true; // unconditional validity
+
+	for( std::map<std::string, IVdfnPort*>::iterator itInPort = m_mpInPorts.begin();
+			itInPort != m_mpInPorts.end(); ++itInPort )
+	{
+		std::map<std::string, _sHlp>::const_iterator itRequest = m_mpBuildMap.find( (*itInPort).first );
+		if( itRequest != m_mpBuildMap.end() )
+		{
+			m_liPortSets.push_back( _sHlp( (*itInPort).second, (*itRequest).second.m_pSet, (*itRequest).second.m_pFunctor ) );
+		}
+		else
+		{
+			vstr::warnp() << "[VdfnActionNode]: Failed to set inport [" << (*itInPort).first
+					<< "] on ActionObject [" << m_pActionObject->GetNameForNameable()
+					<< "] - no matching Setter exists!" << std::endl;
+		}
+	}
+	return true; //even if one (or all) ports could not be set... we might use the outports
 }
 
 bool VdfnActionNode::DoEvalNode()

@@ -84,7 +84,7 @@ extern "C" VISTAVRPNPLUGINAPI IVistaDriverCreationMethod *GetCreationMethod(IVis
 
 extern "C" VISTAVRPNPLUGINAPI const char *GetDeviceClassName()
 {
-	return "VRPN-GENERIC";
+	return "VRPN";
 }
 
 extern "C" VISTAVRPNPLUGINAPI void UnloadCreationMethod(IVistaDriverCreationMethod *)
