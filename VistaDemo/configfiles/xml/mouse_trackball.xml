@@ -30,7 +30,7 @@
 				 node, a value of "0" means "LAZY" while a value of "1"
 				 means "HOT". There is no other sampling value currently -->
 		<node name="project_mode" type="ConstantValue[int]">
-			<param name="mode" value="0"/>
+			<param name="value" value="0"/>
 		</node>
 		<!-- DONE -->
 

@@ -11,10 +11,10 @@
 			<param name="project">POSITION, ORIENTATION, BUTTON_1, BUTTON_2</param>
 		</node>
 		<node name="sampling_mode" type="ConstantValue[int]">
-			<param name="mode" value="0" />
+			<param name="value" value="0" />
 		</node>
 		<node name="navigation_mode" type="ConstantValue[int]">
-			<param name="mode" value="1" />
+			<param name="value" value="1" />
 		</node>
 		<node name="null_vector" type="ConstantValue[VistaVector3D]">
 			<param name="value">
