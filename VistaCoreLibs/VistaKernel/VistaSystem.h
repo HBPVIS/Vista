@@ -222,6 +222,7 @@ private:
 	bool DoInit( int argc, char** argv );
 
 	bool LoadIniFiles();
+	void CreateClusterMode();
 	bool SetupCluster();
 	bool SetupMessagePort();
 	bool SetupEventManager();

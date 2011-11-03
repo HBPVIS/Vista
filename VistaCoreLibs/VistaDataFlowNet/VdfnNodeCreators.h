@@ -496,7 +496,7 @@ public:
 		{
             const VistaPropertyList &oSubs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
 
-			T oInitialValue = oSubs.GetValueOrDefault( "initial_value", 0 );
+			T oInitialValue = oSubs.GetValueOrDefault<T>( "initial_value" );
 			T oModulo = 1;			
 			if( oSubs.GetValue( "modulo", oModulo ) == false )
 			{

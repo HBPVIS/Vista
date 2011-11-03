@@ -614,6 +614,8 @@ bool VistaSystem::DoInit( int argc, char **argv )
 		return false;
 	}
 
+	CreateClusterMode();
+
 	SetupMessagePort();
 
 	if( SetupEventManager() == false )
@@ -743,7 +745,7 @@ bool VistaSystem::SetupEventManager()
 	// communication!
 	m_pEventManager->SetPriority( this, VistaSystemEvent::GetTypeId(),
 											VistaSystemEvent::VSE_UPDATE_INTERACTION,
-											2*VistaEventManager::PRIO_HIGH );
+											2 * VistaEventManager::PRIO_HIGH );
 
 	m_pEventManager->AddEventHandler( this, VistaExternalMsgEvent::GetTypeId(),
 									 VistaEventManager::NVET_ALL,
@@ -753,12 +755,13 @@ bool VistaSystem::SetupEventManager()
 	return true;
 }
 
-bool VistaSystem::SetupCluster()
+void VistaSystem::CreateClusterMode()
 {
-	vstr::outi() << "\n-------------------------------------------------------------";
-	vstr::outi() << "\n----- [VistaSystem]: Cluster Setup                      -----" << std::endl;	
-	IndicateSystemProgress( "Setup Cluster", false );
-	vstr::IndentObject oIndent;
+	if( m_pClusterMode != NULL )
+	{
+		vstr::outi() << "[CreateCluserMode]: Encountered user-provided CLusterMode" << std::endl;
+		return;
+	}
 
 	switch( m_nClusterNodeType )
 	{
@@ -788,6 +791,14 @@ bool VistaSystem::SetupCluster()
 			VISTA_THROW( "UNKNOWN_CLUSTER_MODE", 0x00000066 );
 		}
 	}
+}
+
+bool VistaSystem::SetupCluster()
+{
+	vstr::outi() << "\n-------------------------------------------------------------";
+	vstr::outi() << "\n----- [VistaSystem]: Cluster Setup                      -----" << std::endl;	
+	IndicateSystemProgress( "Setup Cluster", false );
+	vstr::IndentObject oIndent;
 
 	return m_pClusterMode->Init( m_sClusterNodeName, m_oClusterConfig );
 }
@@ -1293,54 +1304,55 @@ bool VistaSystem::SetupMessagePort()
 	if( m_oVistaConfig.HasSubList( GetSystemSectionName() ) == false )
 		return false;
 	const VistaPropertyList& oSystemSection = m_oVistaConfig.GetSubListConstRef( GetSystemSectionName() );
-	// create message Port (we might need this for progress messages)
-
+	
 	bool bCreateMsgPort = oSystemSection.GetValueOrDefault( "MSGPORT", false );
-	if( bCreateMsgPort )
+	if( bCreateMsgPort == false )
+		return true;
+
+	if( m_pClusterMode->GetIsFollower() )
 	{
-		vstr::outi() << "\n-------------------------------------------------------------";
-		vstr::outi() << "\n----- [VistaSystem]: Creating External TCP/IP Msg Port  -----" << std::endl;
-		vstr::IndentObject oIndent;
+		vstr::outi() << "[SetupMessagePort]: Creation skipped on Cluster-Follower-Node - "
+			<< "will only be created on LEader-Nodes" << std::endl;
+		return true;
+	}
 
-		std::string sSection = m_pClusterMode->GetConfigSectionName();
-		std::string sHost;
+	vstr::outi() << "\n-------------------------------------------------------------";
+	vstr::outi() << "\n----- [VistaSystem]: Creating External TCP/IP Msg Port  -----" << std::endl;
+	vstr::IndentObject oIndent;
 
-		sHost = "localhost";
-		oSystemSection.GetValueOrDefault( "MSGPORTIP", sHost );
-		int iPort = oSystemSection.GetValueOrDefault<int>(  "MSGPORTPORT", 6666 );
+	std::string sHost;
+	oSystemSection.GetValueOrDefault<std::string>( "MSGPORTIP", sHost, "localhost" );
+	int iPort = oSystemSection.GetValueOrDefault<int>(  "MSGPORTPORT", 6666 );
 
-		bool bCreateIndicator =	oSystemSection.GetValueOrDefault( "PROGRESSINDICATOR", false );
-		std::string sProgressHost = "localhost";
-		oSystemSection.GetValueOrDefault<std::string>( "PROGRESSHOST", sProgressHost );
-		int iProgressPort = oSystemSection.GetValueOrDefault<int>( "PROGRESSPORT", 6667 );
-		
-		m_pMessagePort = new VistaKernelMsgPort( this, sHost, iPort,
-										  GetApplicationName(),
-										  bCreateIndicator,
-										  sProgressHost, iProgressPort, NULL) ;
+	bool bCreateIndicator =	oSystemSection.GetValueOrDefault<bool>( "PROGRESSINDICATOR", false );
+	std::string sProgressHost;
+	oSystemSection.GetValueOrDefault<std::string>( "PROGRESSHOST", sProgressHost, "localhost" );
+	int iProgressPort = oSystemSection.GetValueOrDefault<int>( "PROGRESSPORT", 6667 );
+	
+	m_pMessagePort = new VistaKernelMsgPort( this, sHost, iPort,
+									  GetApplicationName(),
+									  bCreateIndicator,
+									  sProgressHost, iProgressPort, NULL) ;
 
-		if( m_pMessagePort->GetIsConnected() )
+	if( m_pMessagePort->GetIsConnected() )
+	{
+		vstr::outi() << "MessagePort created at IP ["
+				<< sHost << "] - Port [" << iPort << "]" << std::endl;
+		if( bCreateIndicator )
 		{
-			vstr::outi() << "MessagePort created at IP ["
-					<< sHost << "] - Port [" << iPort << "]" << std::endl;
-			if( bCreateIndicator )
-			{
-				vstr::outi() << "MsgPort ProgressIndicator created at IP ["
-						<< sProgressHost << "] - Port [" << iProgressPort << "]" << std::endl;
-			}
-		}
-		else
-		{
-			vstr::errp() 
-					<< "Could not create MessagePort at IP ["
-					<< sHost << "] - Port [" << iPort << "]" << std::endl;
-			delete m_pMessagePort;
-			m_pMessagePort = NULL;
-			return false;
+			vstr::outi() << "MsgPort ProgressIndicator created at IP ["
+					<< sProgressHost << "] - Port [" << iProgressPort << "]" << std::endl;
 		}
 	}
 	else
+	{
+		vstr::errp() 
+				<< "Could not create MessagePort at IP ["
+				<< sHost << "] - Port [" << iPort << "]" << std::endl;
+		delete m_pMessagePort;
 		m_pMessagePort = NULL;
+		return false;
+	}
 
 	return true;
 }
