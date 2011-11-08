@@ -77,7 +77,9 @@ macro( _local_vcl_use_component _COMPONENT )
 			 # prepend libraries to achieve correct static linking order
 			set( VISTACORELIBS_LIBRARIES ${${_COMPONENT_UPPER}_LIBRARIES} ${VISTACORELIBS_LIBRARIES} )
 			list( APPEND VISTACORELIBS_FOUND_COMPONENTS ${_COMPONENT} )
-			list( APPEND VISTACORELIBS_MSVC_PROJECT ${${_COMPONENT_UPPER}_MSVC_PROJECT} DEP ${${_COMPONENT_UPPER}_INTERNAL_DEPENDENCIES} )
+			if( WIN32 )
+				list( APPEND VISTACORELIBS_MSVC_PROJECT ${${_COMPONENT_UPPER}_MSVC_PROJECT} DEP ${${_COMPONENT_UPPER}_INTERNAL_DEPENDENCIES} )
+			endif()
 
 		endif( _COMPONENT_FOUND EQUAL -1 )
 	endif( NOT ${_COMPONENT_UPPER}_FOUND )
@@ -101,6 +103,9 @@ if( NOT VistaCoreLibs_FIND_COMPONENTS )
 		set( ${_COMPONENT_UPPER}_DEFINITIONS "${VISTACORELIBS_DEFINITIONS}" )
 		# prepend libraries to achieve correct static linking order
 		set( VISTACORELIBS_LIBRARIES  optimized ${_COMPONENT} debug ${_COMPONENT}D ${VISTACORELIBS_LIBRARIES} )
+		if( WIN32 )
+			list( APPEND VISTACORELIBS_MSVC_PROJECT ${${_COMPONENT_UPPER}_MSVC_PROJECT} DEP ${${_COMPONENT_UPPER}_INTERNAL_DEPENDENCIES} )
+		endif()
 	endforeach( _COMPONENT ${VISTACORELIBS_COMPONENTS} )
 else( NOT VistaCoreLibs_FIND_COMPONENTS )
 	# we add the requested components, as well as components it depends on
