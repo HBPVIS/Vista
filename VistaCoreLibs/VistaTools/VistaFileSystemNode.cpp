@@ -91,13 +91,16 @@ string VistaFileSystemNode::GetLocalName() const
 void VistaFileSystemNode::SetName(const string &strName)
 {
 	m_sName = strName;
-	std::size_t iPos = m_sName.rfind( "/" );
+	std::size_t nPos = m_sName.rfind( "/" );
 #ifdef WIN32
-	std::size_t iPos2 = m_sName.rfind( "\\" );
-	if( iPos2 > iPos )
-		iPos = iPos2;
+	std::size_t nPos2 = m_sName.rfind( "\\" );
+	if( nPos2 > nPos || nPos == std::string::npos )
+		nPos = nPos2;
 #endif
-	m_sLocalName = m_sName.substr( iPos + 1 );
+	if( nPos == std::string::npos )
+		m_sLocalName = m_sName;
+	else
+		m_sLocalName = m_sName.substr( nPos + 1 );
 }
 
 
