@@ -26,8 +26,6 @@ endif( EXISTS "$ENV{VISTA_CMAKE_COMMON}" )
 
 include( VistaCommon )
 
-vista_find_package( OpenSG REQUIRED )
-
 # Self include
 include_directories( ${VistaCoreLibs_SOURCE_DIR} )
 
