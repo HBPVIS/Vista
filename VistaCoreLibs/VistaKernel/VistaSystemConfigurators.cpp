@@ -439,7 +439,7 @@ bool VistaSensorMappingConfigurator::Configure( IVistaDeviceDriver* pDriver,
 		if( oConfig.HasSubList( *itSensor ) == false )
 		{
 			vstr::warnp() << "[SensorMappingConfiguator]: Driver requests sensor ["
-					<< (*itSensor) << ", but no such entry exists" << std::endl;
+					<< (*itSensor) << "], but no such entry exists" << std::endl;
 			continue;
 		}
 

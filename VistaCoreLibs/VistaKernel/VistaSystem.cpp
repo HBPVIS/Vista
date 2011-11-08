@@ -1657,9 +1657,9 @@ void VistaSystem::CreateDeviceDrivers()
 		}
 
 		std::string sDriverPlugin;
-		m_oInteractionConfig.GetValueInSubList( "DRIVERPLUGIN", GetSystemSectionName(), sDriverPlugin );
+		m_oInteractionConfig.GetValueInSubList( "DRIVERPLUGIN", (*itDriver), sDriverPlugin );
 		std::string sTranscoderPlugin;
-		m_oInteractionConfig.GetValueInSubList( "TRANSCODERPLUGIN", GetSystemSectionName(), sTranscoderPlugin );
+		m_oInteractionConfig.GetValueInSubList( "TRANSCODERPLUGIN", (*itDriver), sTranscoderPlugin );
 
 		IVistaDriverCreationMethod *pDriverCRM = m_pInteractionManager->GetDriverCreationMethod( sType );
 
@@ -1849,7 +1849,9 @@ void VistaSystem::CreateDeviceDrivers()
 				{
 					// except for TYPE and NAME, all entries should have a meaning
 					// if not, we utter a warning
-					if( (*keyit)->m_oElement != "TYPE" && (*keyit)->m_oElement != "NAME"  )
+					if( (*keyit)->m_oElement != "TYPE" && (*keyit)->m_oElement != "NAME"
+						&& (*keyit)->m_oElement != "DRIVERPLUGIN" 
+						&& (*keyit)->m_oElement != "TRANSCODERPLUGIN" )
 					{
 						vstr::warnp() 
 								<< "No driver configurator for key [" 
@@ -2651,9 +2653,9 @@ bool VistaSystem::LoadDriverPlugin( const std::string& sDriverType,
 	else
 	{
 		if( sPluginName.substr( 0, 5 ) != "Vista" )
-			sPluginFilename = "Vista*" + sPluginName + "*";
+			sPluginFilename = "Vista" + sPluginName;
 		else
-			sPluginFilename = sPluginName + "*";
+			sPluginFilename = sPluginName;
 	}
 
 	if( sTranscoderName.empty() )
@@ -2664,9 +2666,9 @@ bool VistaSystem::LoadDriverPlugin( const std::string& sDriverType,
 	else
 	{
 		if( sTranscoderName.substr( 0, 5 ) != "Vista" )
-			sTranscoderFilename = "Vista*" + sTranscoderName + "*";
+			sTranscoderFilename = "Vista" + sTranscoderName;
 		else
-			sTranscoderFilename = sTranscoderName + "*";
+			sTranscoderFilename = sTranscoderName;
 	}
 
 #ifdef DEBUG
@@ -2774,11 +2776,9 @@ bool VistaSystem::LoadDriverPlugin( const std::string& sDriverType,
 	if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals(
 										oPlugin.m_strDriverClassName, sDriverType ) == false )
 	{
-		vstr::warnp() << "[VistaSystem]: Loading of plugin for driver ["
-			<< sDriverType << "] failed - plugin loaded, but plugin reports wrong name ["
+		vstr::warnp() << "[VistaSystem]: Loaded plugin for driver ["
+			<< sDriverType << "], but plugin reported driver name ["
 			<< oPlugin.m_strDriverClassName << "]" << std::endl;
-		VddUtil::DisposePlugin( &oPlugin );
-		return false;
 	}
 
 	if( pDriverMap->GetDriverCreationMethod( oPlugin.m_strDriverClassName ) )
@@ -2792,7 +2792,7 @@ bool VistaSystem::LoadDriverPlugin( const std::string& sDriverType,
 
 
 	vstr::outi() << "Registering method for devices of class ["
-						<< oPlugin.m_strDriverClassName
+						<< sDriverType
 						<< "]" << std::endl;
 
 	m_pDllHlp->m_liDevices.push_back( oPlugin );
