@@ -248,7 +248,7 @@ bool VistaWin32ThreadImp::SetThreadName(const std::string &sName)
 long VistaWin32ThreadImp::GetThreadIdentity() const
 {
 	/** @todo: replace with GetThreadId( win32Handle )? */
-	return (long)GetThreadId( win32Handle );
+	return (long)threadId;
 }
 
 long VistaWin32ThreadImp::GetCallingThreadIdentity()
