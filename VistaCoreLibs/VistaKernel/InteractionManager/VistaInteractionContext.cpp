@@ -25,6 +25,7 @@
 #include "VistaInteractionContext.h"
 
 #include <VistaKernel/InteractionManager/VistaInteractionEvent.h>
+#include <VistaKernel/InteractionManager/VistaInteractionManager.h>
 #include <VistaKernel/EventManager/VistaEventManager.h>
 
 #include <VistaAspects/VistaPropertyAwareable.h>
@@ -165,7 +166,10 @@ VistaInteractionContext::VistaInteractionContext(VistaInteractionManager *pMgr,
   m_pEvent(new VistaInteractionEvent(pMgr)),
   m_pEventManager(pEvMgr),
   m_nUpdateIndex(0),
-  m_nRoleId(~0)
+  m_nRoleId(~0),
+  m_bAutoPrintInfo( false ),
+  m_bManageDebugStream( false ),
+  m_pDebugStream( NULL )
 {
 	m_pEvent->SetInteractionContext(this);
 	m_pEvent->SetId( VistaInteractionEvent::VEID_CONTEXT_GRAPH_UPDATE );
@@ -180,6 +184,8 @@ VistaInteractionContext::~VistaInteractionContext()
 {
 	delete m_pEvent;
     delete m_pTransformGraph;
+	if( m_bManageDebugStream )
+		delete m_pDebugStream;
 }
 
 /*============================================================================*/
@@ -287,7 +293,10 @@ bool VistaInteractionContext::Update(double dTs)
 		// OR every time the graph is considered dirty
 		if( (dTs == 0) || (*m_pTransformGraph).NeedsEvaluation() )
 		{
-				return Evaluate( dTs );
+			bool bSuccess = Evaluate( dTs );
+			if( m_bAutoPrintInfo )
+				PrintDebuggingInfo();
+			return bSuccess;
 		}
 	}
 	return false;
@@ -302,6 +311,43 @@ void         VistaInteractionContext::SetRoleId( unsigned int nRoleId )
 {
     if(compAndAssignFunc<unsigned int>(nRoleId, m_nRoleId))
         Notify(MSG_ROLEID_CHANGE);
+}
+
+std::ostream* VistaInteractionContext::GetDebuggingStream() const
+{
+	return m_pDebugStream;
+}
+
+void VistaInteractionContext::SetDebuggingStream( std::ostream* pStream, bool bManageDeletion )
+{
+	m_pDebugStream = pStream;
+	m_bManageDebugStream = bManageDeletion;
+}
+
+bool VistaInteractionContext::GetAutoPrintDebugInfo() const
+{
+	return m_bAutoPrintInfo;
+}
+
+void VistaInteractionContext::SetAutoPrintDebugInfo( const bool bSet )
+{
+	m_bAutoPrintInfo = bSet;
+}
+
+void VistaInteractionContext::PrintDebuggingInfo( std::ostream& oStream ) const
+{
+	oStream << "\n#######################################\n";
+	oStream << "### RoleId   : " << m_nRoleId << "\n";
+	oStream << "### GraphFile: " << m_sGraphFile << "\n";
+	oStream << "### Graph    : \n";
+	m_pTransformGraph->PrintInfo( oStream );
+	oStream << "#######################################\n";
+}
+
+void VistaInteractionContext::PrintDebuggingInfo() const
+{
+	if( m_pDebugStream != NULL )
+		PrintDebuggingInfo( *m_pDebugStream );
 }
 
 /*============================================================================*/

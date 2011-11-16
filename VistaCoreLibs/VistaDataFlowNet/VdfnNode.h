@@ -375,6 +375,14 @@ public:
 	std::string GetGroupTag() const;
 
 
+
+
+	/**
+	 * Print debug info about the node
+	 */
+	void PrintInfo( std::ostream& oStream ) const;
+
+
 protected:
 	IVdfnNode();
 

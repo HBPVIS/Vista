@@ -367,7 +367,7 @@ namespace
 						{
 							vstr::warni() << vstr::singleindent
 										<< *it << " ["
-										<< typeid(*(pFrom->GetOutPort(*it))).name()
+										<< VistaConversion::GetTypeName( *pFrom->GetOutPort(*it) )
 										<< "]" << std::endl;
 						}
 					}

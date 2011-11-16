@@ -310,6 +310,11 @@ public:
 	 */
 	void SetCheckMasterSim( bool bCheck );
 
+	/**
+	 * Print debug info about the node
+	 */
+	void PrintInfo( std::ostream& oStream ) const;
+
 	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	// SERIALIZABLE
 	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

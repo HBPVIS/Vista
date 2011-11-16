@@ -116,6 +116,19 @@ public:
 	bool Update( double dTs );
 	bool Evaluate( double nTs );
 
+	// ######################################################################
+	// Debugging Functions
+	// ######################################################################
+	std::ostream* GetDebuggingStream() const;
+	void SetDebuggingStream( std::ostream* pStream, bool bManageDeletion );
+
+	bool GetAutoPrintDebugInfo() const;
+	void SetAutoPrintDebugInfo( const bool bSet );
+
+	void PrintDebuggingInfo( std::ostream& oStream ) const;
+	void PrintDebuggingInfo() const;
+	
+
 private:
 	// prevent copying
 	VistaInteractionContext(const VistaInteractionContext &);
@@ -134,6 +147,10 @@ private:
 	VdfnGraph*				m_pTransformGraph;
 	VistaInteractionEvent*	m_pEvent;
 	VistaEventManager*		m_pEventManager;
+
+	bool					m_bAutoPrintInfo;
+	std::ostream*			m_pDebugStream;
+	bool					m_bManageDebugStream;
 };
 
 /*============================================================================*/

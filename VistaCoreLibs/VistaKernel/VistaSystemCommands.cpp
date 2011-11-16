@@ -36,6 +36,7 @@
 #include <VistaKernel/Stuff/VistaKernelProfiling.h>
 #include <VistaKernel/InteractionManager/VistaKeyboardSystemControl.h>
 #include <VistaKernel/InteractionManager/VistaInteractionManager.h>
+#include <VistaKernel/InteractionManager/VistaInteractionContext.h>
 #include <VistaKernel/Cluster/VistaClusterMode.h>
 
 #include <VistaDataFlowNet/VdfnPersistence.h>
@@ -141,6 +142,21 @@ bool VistaReloadContextGraphCommand::Do()
 							m_pInteractionContext,
 							m_pSys->GetClusterMode()->GetNodeName(),
 							m_bDumpGraph, m_bWritePorts );
+
+}
+
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+VistaDebugContextGraphCommand::VistaDebugContextGraphCommand( VistaInteractionContext* pCtx )
+: m_pInteractionContext( pCtx )
+{
+}
+
+bool VistaDebugContextGraphCommand::Do()
+{
+	m_pInteractionContext->PrintDebuggingInfo();
+	return true;
 
 }
 

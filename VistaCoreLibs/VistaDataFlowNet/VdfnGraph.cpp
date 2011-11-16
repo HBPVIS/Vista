@@ -734,6 +734,19 @@ void VdfnGraph::SetCheckMasterSim( bool bCheck )
 	m_bCheckMasterSim = bCheck;
 }
 
+void VdfnGraph::PrintInfo( std::ostream& oStream ) const
+{
+	oStream << "CheckMasterSim         :"
+			<< ( m_bCheckMasterSim ? "true" : "false" ) << "\n";
+	oStream << "Nodes:\n";
+	for( NodeVec::const_iterator itNode = m_vecTraversal.begin();
+			itNode != m_vecTraversal.end(); ++itNode )
+	{
+		(*itNode)->PrintInfo( oStream );
+	}
+	oStream.flush();
+}
+
 
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */

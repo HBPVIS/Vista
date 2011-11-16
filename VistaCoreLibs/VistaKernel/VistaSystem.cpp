@@ -1277,7 +1277,7 @@ VistaInteractionContext* VistaSystem::SetupInteractionContext( const std::string
 		{
 			vstr::warnp() 
 					<< "RelaodTrigger [" << sReloadKey[0] << "] for context ["
-					<< sRole << "] already Occupied" << std::endl;
+					<< sRole << "] already occupied" << std::endl;
 			vstr::warnp() << vstr::singleindent << "Current function: "
 					<< m_pKeyboardSystemControl->GetHelpTextForToken( nTrigger ) << std::endl;
 		}
@@ -1294,6 +1294,92 @@ VistaInteractionContext* VistaSystem::SetupInteractionContext( const std::string
 
 		}
 	}
+
+	// configure graph debugging
+	std::string sDebugStream;
+	std::ostream* pStream = &vstr::out();
+	bool bManageStream = false;
+	if( oSection.GetValue( "DEBUGSTREAM", sDebugStream ) )
+	{
+		if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals(
+						sDebugStream, "VSTR::OUT" ) )
+		{
+			pStream = &vstr::out();
+		}
+		else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals(
+			sDebugStream, "VSTR::warn" ) )
+		{
+			pStream = &vstr::warn();
+		}
+		else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals(
+			sDebugStream, "VSTR::ERR" ) )
+		{
+			pStream = &vstr::err();
+		}
+		else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals(
+			sDebugStream, "cout" ) )
+		{
+			pStream = &std::cout;
+		}
+		else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals(
+			sDebugStream, "cerr" ) )
+		{
+			pStream = &std::cerr;
+		}
+		else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals(
+			sDebugStream, "clog" ) )
+		{
+			pStream = &std::clog;
+		}
+		else
+		{
+			pStream = new std::ofstream( sDebugStream.c_str() );
+			if( pStream->good() )
+			{
+				bManageStream = true;				
+			}
+			else
+			{
+				delete pStream;
+				pStream = NULL;
+				vstr::warnp() << "Cannot create filestream [" << sDebugStream
+					<< "} for InterActionContext "
+					<< sContextName << "]" << std::endl;
+			}
+		}
+	}
+	pContext->SetDebuggingStream( pStream, bManageStream );
+	
+
+	char cDebugKey;
+	if( oSection.GetValue( "DEBUGTRIGGER", cDebugKey ) )
+	{
+		// reload trigger was given by user:
+		int nTrigger = int(cDebugKey);
+
+		if( m_pKeyboardSystemControl->GetActionForToken(nTrigger) )
+		{
+			vstr::warnp() 
+				<< "DebugTrigger [" << sReloadKey[0] << "] for context ["
+				<< sRole << "] already occupied" << std::endl;
+			vstr::warnp() << vstr::singleindent << "Current function: "
+				<< m_pKeyboardSystemControl->GetHelpTextForToken( nTrigger ) << std::endl;
+		}
+		else
+		{
+			m_pKeyboardSystemControl->BindAction( nTrigger,
+						new VistaDebugContextGraphCommand( pContext ),
+						"reload graph for ["+sRole+"]");
+			vstr::outi() << " [VistaSystem]: DebugTrigger [" << sReloadKey[0] << "] for context ["
+						<< sRole << "] applied" << std::endl;
+
+		}
+	}
+
+	pContext->SetAutoPrintDebugInfo( oSection.GetValueOrDefault<bool>( "AUTODEBUG", false ) );
+
+
+
 
 	bool bEnable = oSection.GetValueOrDefault<bool>( "ENABLED", true );
 	pContext->SetIsEnabled( bEnable );

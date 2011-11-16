@@ -117,6 +117,17 @@ private:
          m_bWritePorts;
 };
 
+class VISTAKERNELAPI VistaDebugContextGraphCommand : public IVistaExplicitCallbackInterface
+{
+public:
+	VistaDebugContextGraphCommand( VistaInteractionContext *pCtx );
+
+	virtual bool Do();
+private:
+	VistaInteractionContext    *m_pInteractionContext;
+};
+
+
 template<class T>
 class TVistaDebugToConsoleCommand : public IVistaExplicitCallbackInterface
 {

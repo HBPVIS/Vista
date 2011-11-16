@@ -23,8 +23,9 @@
 // $Id$
 
 #include "VdfnPort.h" 
+
 #include <string>
-using namespace std;
+
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
@@ -123,7 +124,7 @@ int VdfnPortSerializeAdapter::DeSerialize(IVistaDeSerializer &oDeSer)
 	return sizeof(double)+sizeof(unsigned int);
 }
 
-string VdfnPortSerializeAdapter::GetSignature() const
+std::string VdfnPortSerializeAdapter::GetSignature() const
 {
 	return "IVdfnPort";
 }

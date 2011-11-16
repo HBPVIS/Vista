@@ -23,7 +23,9 @@
 // $Id$
 
 #include "VdfnNode.h"
+
 #include "VdfnPort.h"
+#include "VdfnPortFactory.h"
 
 #include <VistaTools/VistaBasicProfiler.h>
 
@@ -471,6 +473,58 @@ std::string IVdfnNode::GetGroupTag() const
 {
 	return m_strGroupTag;
 }
+
+void IVdfnNode::PrintInfo( std::ostream& oStream ) const
+{
+	oStream	<< "============== NODE ===============\n"
+			<< "Name    : " << m_strNodeName << "\n"
+			<< "Type    : " << VistaConversion::GetTypeName( *this ) << "\n"
+			<< "UserTag : " << m_strUserTag << "\n"
+			<< "TypeTag : " << m_strTypeTag << "\n"
+			<< "GroupTag: " << m_strGroupTag << "\n"
+			<< "------         Inports       ------\n";
+	for( PortMap::const_iterator itInPort = m_mpInPorts.begin();
+			itInPort != m_mpInPorts.end(); ++itInPort )
+	{
+		oStream << "Name: " << (*itInPort).first
+			<< "       Type: " << (*itInPort).second->GetTypeDescriptor() << '\n'
+			<< "Last Update: " << vstr::formattime( (*itInPort).second->GetLastUpdate() )
+			<< "       Update Count: " << (*itInPort).second->GetUpdateCounter() << '\n';
+		VdfnPortFactory::CPortAccess* pAccess = VdfnPortFactory::GetSingleton()->GetPortAccess(
+											(*itInPort).second->GetTypeDescriptor() );
+		if( pAccess && pAccess->m_pStringGet != NULL )
+		{
+			oStream << "Value: "
+					<< pAccess->m_pStringGet->GetValueAsString( (*itInPort).second ) << '\n';
+		}
+		else
+		{
+			oStream << "Value: <no-string-getter>\n";
+		}
+	}
+	oStream << "------        Outports       ------\n";
+	for( PortMap::const_iterator itOutPort = m_mpOutPorts.begin();
+		itOutPort != m_mpOutPorts.end(); ++itOutPort )
+	{
+		oStream << "Name: " << (*itOutPort).first
+				<< "       Type: " << (*itOutPort).second->GetTypeDescriptor() << '\n'
+				<< "Last Update: " << vstr::formattime( (*itOutPort).second->GetLastUpdate() )
+				<< "       Update Count: " << (*itOutPort).second->GetUpdateCounter() << '\n';
+		VdfnPortFactory::CPortAccess* pAccess = VdfnPortFactory::GetSingleton()->GetPortAccess(
+											(*itOutPort).second->GetTypeDescriptor() );
+		if( pAccess && pAccess->m_pStringGet != NULL )
+		{
+			oStream << "Value: "
+				<< pAccess->m_pStringGet->GetValueAsString( (*itOutPort).second ) << '\n';
+		}
+		else
+		{
+			oStream << "Value: <no-string-getter>\n";
+		}
+	}
+	oStream << "-----------------------------------\n";
+}
+
 /*============================================================================*/
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/

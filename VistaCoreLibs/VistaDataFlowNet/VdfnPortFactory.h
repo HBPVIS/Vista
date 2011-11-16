@@ -32,6 +32,7 @@
 
 #include <map>
 #include <string>
+#include <cassert>
 
 #include "VdfnPort.h"
 
@@ -149,20 +150,31 @@ public:
 					  unsigned int nIndex) = 0;
 	};
 
+	class VISTADFNAPI IPortStringGet
+	{
+	public:
+		virtual ~IPortStringGet() {}
+		virtual std::string GetValueAsString( IVdfnPort* pPort ) = 0;
+	};
+
+
 
 	class VISTADFNAPI CPortAccess
 	{
 	public:
 		CPortAccess( CPortCreationMethod *pMethod,
-					 CPortSetFunctor     *pSetFunctor)
+					 CPortSetFunctor     *pSetFunctor,
+					 IPortStringGet		 *pStringGet = NULL )
 					 : m_pCreationMethod(pMethod),
-					   m_pSetFunctor(pSetFunctor)
+					   m_pSetFunctor(pSetFunctor),
+					   m_pStringGet( pStringGet )
 		{
 		}
 
 
 		CPortCreationMethod *m_pCreationMethod;
 		CPortSetFunctor     *m_pSetFunctor;
+		IPortStringGet		*m_pStringGet;
 	};
 
 	class VISTADFNAPI StringGet
@@ -245,6 +257,24 @@ public:
 	{
 		return new TVdfnPortTypeCompare< TVdfnPort<T> >;
 	}
+};
+
+/**
+ * Utility class template to retrieve a port's value as sting
+ */
+
+template<class T>
+class VdfnTypedPortStringGet : public VdfnPortFactory::IPortStringGet
+{
+public:
+
+	virtual std::string GetValueAsString( IVdfnPort* pPort ) 
+	{
+		TVdfnPort<T>* pTypedPort = dynamic_cast<TVdfnPort<T>* >( pPort );
+		assert( pTypedPort != NULL );
+		return VistaConversion::ToString( pTypedPort->GetValueConstRef() );
+	}
+
 };
 
 #endif //_VDFNPORTFACTORY_H

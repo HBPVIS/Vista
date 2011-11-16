@@ -69,229 +69,12 @@ using namespace std;
 
 namespace
 {
-//	VistaVector3D ConvertToVistaVector3D(const std::string &sValue)
-//	{
-//		list<float> liTemp;
-//		int iSize = VistaAspectsConversionStuff::ConvertToList(sValue, liTemp);
-//		if (iSize > 4)
-//			iSize = 4;	// allow setting of the homogeneous coordinate
-//
-//		VistaVector3D v3Temp;
-//		list<float>::iterator it=liTemp.begin();
-//		for (int i=0; i<iSize; ++i, ++it)
-//			v3Temp[i] = *it;
-//
-//		return v3Temp;
-//	}
-//
-//	VistaQuaternion ConvertToVistaQuaternion(const std::string &sValue)
-//	{
-//		list<float> liTemp;
-//		int iSize = VistaAspectsConversionStuff::ConvertToList(sValue, liTemp);
-//		if( iSize == 3 ) // interpret as Euler Angles
-//		{
-//			float euAngles[3];
-//			list<float>::iterator it=liTemp.begin();
-//			for (int i=0; i<3; ++i, ++it)
-//				euAngles[i] = Vista::DegToRad(*it);
-//			VistaQuaternion qTemp( VistaEulerAngles(euAngles[0], euAngles[1], euAngles[2] ) );
-//			return qTemp;
-//		}
-//		else if (iSize > 4)
-//			iSize = 4;
-//
-//		if( iSize != 4)
-//			return VistaQuaternion(); // < 3?
-//
-//		VistaQuaternion qTemp;
-//		list<float>::iterator it=liTemp.begin();
-//		for (int i=0; i<iSize; ++i, ++it)
-//			qTemp[i] = *it;
-//
-//		return qTemp;
-//	}
-//
-//	VistaTransformMatrix ConvertToVistaMatrix( const std::string &sValue )
-//	{
-//		list<float> liTemp;
-//		int iSize = VistaAspectsConversionStuff::ConvertToList(sValue, liTemp);
-//		if(iSize != 16)
-//		{
-//			vstr::warnp() << "non-matchung number of arguments (" << iSize << " != 16 )\n";
-//			vstr::warni() << vstr::singleindent 
-//					<< "original string: " << sValue << std::endl;
-//			return VistaTransformMatrix();
-//		}
-//
-//
-//		VistaTransformMatrix m;
-//		list<float>::iterator it=liTemp.begin();
-//		for(int r=0; r < 4; ++r)
-//			for(int c=0; c < 4; ++c)
-//				m[r][c] = *it++;
-//
-//		return m;
-//	}
-//
-//
-//	bool ConvertDoubleToBool( double dVal )
-//	{
-//		return (dVal != 0 ? true : false);
-//	}
-//
-//	bool ConvertFloatToBool( float fVal )
-//	{
-//		return (fVal != 0 ? true : false);
-//	}
-//
-//#ifdef WIN32
-//#pragma warning(push)
-//#pragma warning(disable: 4800)
-//#endif
-//	// Convertion from bool to int triggers a warning. WE know of the
-//	// problem, and disable the waring
-//	template<class tFrom, class tTo>
-//	tTo ConvertFrom( tFrom from )
-//	{
-//		return tTo(from);
-//	}
-//#ifdef WIN32
-//#pragma warning(pop)
-//#endif
-//
-//	template<class T>
-//	std::string ConvertToString( T val )
-//	{
-//		return VistaAspectsConversionStuff::ConvertToString(val);
-//	}
-//
-//	template<class T>
-//	std::string ConvertArrayToString( T aArray[], int iSize )
-//	{
-//		std::string sRetVal = VistaAspectsConversionStuff::ConvertToString( aArray[0] );
-//		
-//		for( int i = 1; i < iSize; ++i )
-//		{
-//			sRetVal += " " + VistaAspectsConversionStuff::ConvertToString( aArray[i] );
-//		}
-//
-//		return sRetVal;
-//	}
-//
-//	std::string ConvertVecToString( VistaVector<float,4> v4 )
-//	{
-//		//return (VistaAspectsConversionStuff::ConvertToString(v4[0])
-//		//		+ std::string(" ")
-//		//		+ VistaAspectsConversionStuff::ConvertToString(v4[1])
-//		//		+ std::string(" ")
-//		//		+ VistaAspectsConversionStuff::ConvertToString(v4[2])
-//		//		+ std::string(" ")
-//		//		+ VistaAspectsConversionStuff::ConvertToString(v4[3]));
-//		return ConvertArrayToString<float>( &v4[0], 4 );
-//	}
-//
-//	template<class T> std::string ConvertVectorToString( std::vector<T> vec )
-//	{
-//	//	std::ostringstream ret;
-//	//	ret.setf(std::ios::fixed, std::ios::floatfield);
-//
-//	//	for( typename std::vector<T>::const_iterator cit = vec.begin();
-//	//			 cit != vec.end(); ++cit )
-//	//	{
-//	//		ret << VistaAspectsConversionStuff::ConvertToString( *cit )
-//	//		    << std::string( ";" );
-//	//	}
-//
-//	//	return ret.str();
-//		return ConvertArrayToString<T>( &vec[0], (int)vec.size() );
-//	}
-//
-//
-//	std::string ConvertVec3DToString( VistaVector3D v3 )
-//	{
-//		//return ConvertVecToString(v3);
-//		return ConvertArrayToString<float>( &v3[0], 4 );
-//	}
-//
-//
-//	std::string ConvertQuatToString( VistaQuaternion q )
-//	{
-//		//return ConvertVecToString(q);
-//		return ConvertArrayToString<float>( &q[0], 4 );
-//	}
-//
-//	VistaTransformMatrix ConvertVec3DToMatrix( VistaVector3D v3 )
-//	{
-//		VistaTransformMatrix mat;
-//		mat.SetTranslation(v3);
-//		return mat;
-//	}
-//
-//	VistaTransformMatrix ConvertQuatToMatrix( VistaQuaternion q )
-//	{
-//		VistaTransformMatrix mat(q);
-//		return mat;
-//	}
-//
-//    VistaQuaternion ConvertMatrixToQuat( VistaTransformMatrix m )
-//	{
-//		VistaQuaternion qat(m);
-//		return qat;
-//	}
-//
-//	std::string ConvertInt64ToString( DLV_INT64 v )
-//	{
-//		char buffer[4096];
-//	#ifdef WIN32
-//		_i64toa_s((_int64) v, buffer, 4096, 10);
-//	#else
-//		sprintf(buffer, "%lld", (unsigned long long) v);
-//	#endif
-//		return std::string(buffer);
-//	}
-//
-//	std::string ConvertUInt64ToString( VistaType::uint64 v )
-//	{
-//		char buffer[4096];
-//	#ifdef WIN32
-//		_i64toa_s((_int64) v, buffer, 4096, 10);
-//	#else
-//		sprintf(buffer, "%lld", (unsigned long long) v);
-//	#endif
-//		return std::string(buffer);
-//	}
-//
-//	std::string ConvertMicrotimeToString( VistaType::microtime ts )
-//	{
-//		return VistaAspectsConversionStuff::ConvertToString( double(ts) );
-//	}
-//
-//
-//	std::string ConvertStringToString( std::string str)
-//	{
-//		return str;
-//	}
-//
-//	std::string ConvertFloatToString( float f )
-//	{
-//		return VistaAspectsConversionStuff::ConvertToString( (double(f)) );
-//	}
-//
-//	std::string ConvertAxisToString( VistaAxisAndAngle aaa )
-//	{
-//		std::string sRet = ConvertVec3DToString(aaa.m_v3Axis)
-//						 + " ["
-//						 + VistaAspectsConversionStuff::ConvertToString(aaa.m_fAngle)
-//						 + "]";
-//		return sRet;
-//	}
-
 	template<class T>
-	class CGet : public VdfnPortFactory::StringGet
+	class PropertyGetAsString : public VdfnPortFactory::StringGet
 	{
 	public:
 		typedef std::string (*Convert)( const T& );
-		CGet( Convert pFConvert = NULL )
+		PropertyGetAsString( Convert pFConvert = NULL )
 		: m_pFC( pFConvert )
 		{
 			if( m_pFC == NULL )
@@ -409,6 +192,24 @@ namespace
 			return (left && right);
 		}
 	};
+
+
+	template<typename T>
+	void RegisterDefaultPortAndFunctorAccess( VdfnPortFactory* pFac )
+	{
+		pFac->AddPortAccess( typeid(T).name(),
+					new VdfnPortFactory::CPortAccess(
+							new VdfnTypedPortCreate<T>,
+							new TVdfnTranscodePortSet<T>,
+							new VdfnTypedPortStringGet<T> ) );
+
+		pFac->AddFunctorAccess( typeid(T).name(),
+					new VdfnPortFactory::CFunctorAccess(
+							new VdfnTypedPortTypeCompareCreate<T>,
+							new TActionSet<T>,
+							new VdfnTypedPortCreate<T>,
+							new PropertyGetAsString<T> ) );
+	}
 }
 
 
@@ -430,190 +231,54 @@ namespace VdfnUtil
 bool RegisterBasicPortSetters()
 {
 	VdfnPortFactory *pFac = VdfnPortFactory::GetSingleton();
-	pFac->AddPortAccess( typeid(int).name(),
-						 new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<int>,
-															new TVdfnTranscodePortSet<int> ) );
-	pFac->AddPortAccess( typeid(unsigned int).name(),
-						 new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<unsigned int>,
-															new TVdfnTranscodePortSet<unsigned int> ) );
-	pFac->AddPortAccess( typeid(VistaType::sint64).name(),
-						 new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<VistaType::sint64>,
-															new TVdfnTranscodePortSet<VistaType::sint64> ) );
 
-	pFac->AddPortAccess( typeid(VistaType::microtime).name(),
-						 new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<VistaType::microtime>,
-															new TVdfnTranscodePortSet<VistaType::microtime> ) );
+	RegisterDefaultPortAndFunctorAccess<bool>( pFac );
+	RegisterDefaultPortAndFunctorAccess<int>( pFac );
+	RegisterDefaultPortAndFunctorAccess<unsigned int>( pFac );
+	RegisterDefaultPortAndFunctorAccess<VistaType::sint64>( pFac );
+	RegisterDefaultPortAndFunctorAccess<VistaType::microtime>( pFac );
+	RegisterDefaultPortAndFunctorAccess<float>( pFac );
+	RegisterDefaultPortAndFunctorAccess<double>( pFac );
 
-	pFac->AddPortAccess( typeid(bool).name(),
-						 new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<bool>,
-															new TVdfnTranscodePortSet<bool> ) );
+	RegisterDefaultPortAndFunctorAccess<std::string>( pFac );
 
-	pFac->AddPortAccess( typeid(double).name(),
-						 new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<double>,
-															new TVdfnTranscodePortSet<double> ) );
+	RegisterDefaultPortAndFunctorAccess<VistaVector3D>( pFac );
+	RegisterDefaultPortAndFunctorAccess<VistaQuaternion>( pFac );
+	RegisterDefaultPortAndFunctorAccess<VistaTransformMatrix>( pFac );
+	RegisterDefaultPortAndFunctorAccess<VistaAxisAndAngle>( pFac );
 
+	//RegisterDefaultPortAndFunctorAccess<std::vector<bool> >( pFac );
+	RegisterDefaultPortAndFunctorAccess<std::vector<int> >( pFac );
+	RegisterDefaultPortAndFunctorAccess<std::vector<unsigned int> >( pFac );
+	RegisterDefaultPortAndFunctorAccess<std::vector<VistaType::sint64> >( pFac );
+	RegisterDefaultPortAndFunctorAccess<std::vector<VistaType::microtime> >( pFac );
+	RegisterDefaultPortAndFunctorAccess<std::vector<float> >( pFac );
+	RegisterDefaultPortAndFunctorAccess<std::vector<double> >( pFac );
 
-	pFac->AddPortAccess( typeid(float).name(),
-						 new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<float>,
-															new TVdfnTranscodePortSet<float> ) );
+	RegisterDefaultPortAndFunctorAccess<std::vector<std::string> >( pFac );
 
-	pFac->AddPortAccess( typeid(VistaVector3D).name(),
-						 new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<VistaVector3D>,
-															new TVdfnTranscodePortSet<VistaVector3D> ) );
-	pFac->AddPortAccess( typeid(VistaQuaternion).name(),
-						 new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<VistaQuaternion>,
-															new TVdfnTranscodePortSet<VistaQuaternion> ) );
+	RegisterDefaultPortAndFunctorAccess<std::vector<VistaVector3D> >( pFac );
+	RegisterDefaultPortAndFunctorAccess<std::vector<VistaQuaternion> >( pFac );
+	RegisterDefaultPortAndFunctorAccess<std::vector<VistaTransformMatrix> >( pFac );
+	RegisterDefaultPortAndFunctorAccess<std::vector<VistaAxisAndAngle> >( pFac );
 
 	pFac->AddPortAccess( typeid(VistaVector<float,4>).name(),
-						 new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<VistaVector<float,4> >,
-															new TVdfnTranscodePortSet<VistaVector<float,4> > ) );
+						new VdfnPortFactory::CPortAccess(
+									new VdfnTypedPortCreate<VistaVector<float,4> >,
+									new TVdfnTranscodePortSet<VistaVector<float,4> > ) );
 
-	pFac->AddPortAccess( typeid(VistaTransformMatrix).name(),
-						 new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<VistaTransformMatrix>,
-															new TVdfnTranscodePortSet<VistaTransformMatrix> ) );
-
-	pFac->AddPortAccess( typeid(VistaAxisAndAngle).name(),
-						 new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<VistaAxisAndAngle>,
-															new TVdfnTranscodePortSet<VistaAxisAndAngle> ) );
-
-	pFac->AddPortAccess( typeid(std::vector<float>).name(),
-		new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<std::vector<float> >,
-										   new TVdfnTranscodePortSet<std::vector<float> > ) );
-
-	pFac->AddPortAccess( typeid(std::vector<double>).name(),
-		new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<std::vector<double> >,
-										   new TVdfnTranscodePortSet<std::vector<double> > ) );
-
-	pFac->AddPortAccess( typeid(std::vector<unsigned int>).name(),
-		new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<std::vector<unsigned int> >,
-										   new TVdfnTranscodePortSet<std::vector<unsigned int> > ) );
-
-	pFac->AddPortAccess( typeid(std::vector<int>).name(),
-		new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<std::vector<int> >,
-										   new TVdfnTranscodePortSet<std::vector<int> > ) );
-
-	pFac->AddPortAccess( typeid(std::vector<VistaVector3D>).name(),
-		new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<std::vector<VistaVector3D> >,
-										   new TVdfnTranscodePortSet<std::vector<VistaVector3D> > ) );
-
-	pFac->AddPortAccess( typeid(std::vector<VistaTransformMatrix>).name(),
-		new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<std::vector<VistaTransformMatrix> >,
-										   new TVdfnTranscodePortSet<std::vector<VistaTransformMatrix> > ) );
-
-	pFac->AddPortAccess( typeid(std::vector<VistaQuaternion>).name(),
-		new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<std::vector<VistaQuaternion> >,
-										   new TVdfnTranscodePortSet<std::vector<VistaQuaternion> > ) );
+	pFac->AddFunctorAccess( typeid(VistaVector<float,4>).name(),
+						new VdfnPortFactory::CFunctorAccess(
+									new VdfnTypedPortTypeCompareCreate<VistaVector<float,4> >,
+									new TActionSet<VistaVector<float,4> >,
+									new VdfnTypedPortCreate<VistaVector<float,4> >,
+									new PropertyGetAsString<VistaVector<float,4> > ) );
 
 	pFac->AddPortAccess( typeid(std::map<std::string, float>).name(),
-		new VdfnPortFactory::CPortAccess( new VdfnTypedPortCreate<std::map<std::string, float> >,
-										   new TVdfnTranscodePortSet<std::map<std::string, float> > ) );
+						new VdfnPortFactory::CPortAccess(
+									new VdfnTypedPortCreate<std::map<std::string, float> >,
+									new TVdfnTranscodePortSet<std::map<std::string, float> > ) );
 
-	pFac->AddFunctorAccess( typeid(VistaVector3D).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<VistaVector3D>,
-																	  new TActionSet<VistaVector3D>,
-																	  new VdfnTypedPortCreate<VistaVector3D>,
-																	  new CGet<VistaVector3D> ) );
-	pFac->AddFunctorAccess( typeid(VistaVector<float,4>).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<VistaVector<float,4> >,
-																	  new TActionSet<VistaVector<float,4> >,
-																	  new VdfnTypedPortCreate<VistaVector<float,4> >,
-																	  new CGet<VistaVector<float,4> > ) );
-	pFac->AddFunctorAccess( typeid(VistaQuaternion).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<VistaQuaternion>,
-																	  new TActionSet<VistaQuaternion>,
-																	  new VdfnTypedPortCreate<VistaQuaternion>,
-																	  new CGet<VistaQuaternion> ) );
-	pFac->AddFunctorAccess( typeid(VistaTransformMatrix).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<VistaTransformMatrix>,
-																	  new TActionSet<VistaTransformMatrix>,
-																	  new VdfnTypedPortCreate<VistaTransformMatrix>) );
-	pFac->AddFunctorAccess( typeid(VistaAxisAndAngle).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<VistaAxisAndAngle>,
-																	  new TActionSet<VistaAxisAndAngle>,
-																	  new VdfnTypedPortCreate<VistaAxisAndAngle>,
-																	  new CGet<VistaAxisAndAngle> ) );
-
-
-	pFac->AddFunctorAccess( typeid(DLV_INT64).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<DLV_INT64>,
-																	  new TActionSet<DLV_INT64>,
-																	  new VdfnTypedPortCreate<DLV_INT64>,
-																	  new CGet<DLV_INT64> ) );
-	pFac->AddFunctorAccess( typeid(VistaType::microtime).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<VistaType::microtime>,
-																	  new TActionSet<VistaType::microtime>,
-																	  new VdfnTypedPortCreate<VistaType::microtime>,
-																	  new CGet<VistaType::microtime> ) );
-
-	pFac->AddFunctorAccess( typeid(VistaType::uint64).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<VistaType::uint64>,
-																	  new TActionSet<VistaType::uint64>,
-																	  new VdfnTypedPortCreate<VistaType::uint64>,
-																	  new CGet<VistaType::uint64> ) );
-
-	pFac->AddFunctorAccess( typeid(bool).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<bool>,
-																	  new TActionSet<bool>,
-																	  new VdfnTypedPortCreate<bool>,
-																	  new CGet<bool> ) );
-	pFac->AddFunctorAccess( typeid(double).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<double>,
-																	  new TActionSet<double>,
-																	  new VdfnTypedPortCreate<double>,
-																	  new CGet<double> ) );
-	pFac->AddFunctorAccess( typeid(float).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<float>,
-																	  new TActionSet<float>,
-																	  new VdfnTypedPortCreate<float>,
-																	  new CGet<float> ) );
-	pFac->AddFunctorAccess( typeid(std::string).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<std::string>,
-																	  new TActionSet<std::string>,
-																	  new VdfnTypedPortCreate<std::string>,
-																	  new CGet<std::string> ) );
-	pFac->AddFunctorAccess( typeid(int).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<int>,
-																	  new TActionSet<int>,
-																	  new VdfnTypedPortCreate<int>,
-																	  new CGet<int> ) );
-	pFac->AddFunctorAccess( typeid(unsigned int).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<unsigned int>,
-																	  new TActionSet<unsigned int>,
-																	  new VdfnTypedPortCreate<unsigned int>,
-																	  new CGet<unsigned int> ) );
-
-	pFac->AddFunctorAccess( typeid(std::vector<int>).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<std::vector<int> >,
-																	  new TActionSet<std::vector<int> >,
-																	  new VdfnTypedPortCreate<std::vector<int> > ) );
-	pFac->AddFunctorAccess( typeid(std::vector<unsigned int>).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<std::vector<unsigned int> >,
-																	  new TActionSet<std::vector<unsigned int> >,
-																	  new VdfnTypedPortCreate<std::vector<unsigned int> > ) );
-	pFac->AddFunctorAccess( typeid(std::vector<float>).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<std::vector<float> >,
-																	  new TActionSet<std::vector<float> >,
-																	  new VdfnTypedPortCreate<std::vector<float> > ) );
-	pFac->AddFunctorAccess( typeid(std::vector<double>).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<std::vector<double> >,
-																	  new TActionSet<std::vector<double> >,
-																	  new VdfnTypedPortCreate<std::vector<double> > ) );
-	pFac->AddFunctorAccess( typeid(std::vector<VistaVector3D>).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<std::vector<VistaVector3D> >,
-																	  new TActionSet<std::vector<VistaVector3D> >,
-																	  new VdfnTypedPortCreate<std::vector<VistaVector3D> > ) );
-	pFac->AddFunctorAccess( typeid(std::vector<VistaQuaternion>).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<std::vector<VistaQuaternion> >,
-																	  new TActionSet<std::vector<VistaQuaternion> >,
-																	  new VdfnTypedPortCreate<std::vector<VistaQuaternion> > ) );
-	pFac->AddFunctorAccess( typeid(std::vector<VistaAxisAndAngle>).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<std::vector<VistaAxisAndAngle> >,
-																	  new TActionSet<std::vector<VistaAxisAndAngle> >,
-																	  new VdfnTypedPortCreate<std::vector<VistaAxisAndAngle> > ) );
-	pFac->AddFunctorAccess( typeid(std::vector<VistaTransformMatrix>).name(), new VdfnPortFactory::CFunctorAccess(
-																	  new VdfnTypedPortTypeCompareCreate<std::vector<VistaTransformMatrix> >,
-																	  new TActionSet<std::vector<VistaTransformMatrix> >,
-																	  new VdfnTypedPortCreate<std::vector<VistaTransformMatrix> > ) );
 	return true;
 }
 
