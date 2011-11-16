@@ -614,15 +614,7 @@ bool VistaSystem::DoInit( int argc, char **argv )
 		return false;
 	}
 
-	CreateClusterMode();
-
-	SetupMessagePort();
-
-	if( SetupEventManager() == false )
-		return false;
-
 	// Create SystemClassFactory
-
 #if defined(VISTA_SYS_OPENSG)
 	m_pSystemClassFactory = new VistaOpenSGSystemClassFactory( this );
 #else
@@ -631,14 +623,20 @@ bool VistaSystem::DoInit( int argc, char **argv )
 
 	if(!m_pSystemClassFactory)
 	{
-		vstr::errp() 
-				<< "Unable to initialize the system - no SystemClassFactory available!" << std::endl;
+		vstr::errp() << "Unable to initialize the system - no SystemClassFactory available!" << std::endl;
 		m_bInitialized = false;
 		return false;
 	}
 
 	m_pInteractionManager = m_pSystemClassFactory->CreateInteractionManager();
-	
+
+	CreateClusterMode();
+
+	SetupMessagePort();
+
+	if( SetupEventManager() == false )
+		return false;
+
 	if( SetupCluster() == false )
 		return false;
 
@@ -821,8 +819,15 @@ bool VistaSystem::LoadIniFiles()
 	m_oVistaConfig = oParser.GetPropertyList();
 	m_sVistaConfigFile = oParser.GetFilename();
 
-	const VistaPropertyList& oSystemSection 
-			= m_oVistaConfig.GetPropertyConstRef( GetSystemSectionName() ).GetPropertyListConstRef();
+	if( m_oVistaConfig.HasSubList( GetSystemSectionName() ) == false )
+	{
+		vstr::errp() << "Vista-ini ["
+			<< m_sVistaConfigFile << "] invalid - no system section ["
+			<< GetSystemSectionName() << "]!" << std::endl;
+		return false;
+	}
+
+	const VistaPropertyList& oSystemSection = m_oVistaConfig.GetSubListConstRef( GetSystemSectionName() );
 	
 	// If not yet specified - check if specific files are given in cista.ini
 	if( m_sInteractionConfigFile.empty() )
