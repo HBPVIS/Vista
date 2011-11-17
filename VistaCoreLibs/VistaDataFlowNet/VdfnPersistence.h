@@ -122,13 +122,17 @@ public:
 	 * @param bWriteTypes set to true when you want to dump the type names to the dot as well.
 	          but beware: the type names are RTTI types, so they might not be readable and long,
 	          cluttering up the graph drawing.
+	 * @param bWriteValues set to true when you want to also write the values of each port
+	          to the graph, which is helpful to debug the current state of the DFN.
+			  This automatically enables Writing of Types (even if set to false)
 	 * @return true iff the file could be written, false else
 	 */
 	static bool SaveAsDot( VdfnGraph *pGraph,
 		                   const std::string &strGraphDotFile,
 						   const std::string &strGraphName,
 						   bool bWritePorts,
-						   bool bWriteTypes = false);
+						   bool bWriteTypes = false,
+						   bool bWriteValues = false );
 
 	/**
 	 * the method tries to dump an unparsed XML as DOT, in order to find logical errors

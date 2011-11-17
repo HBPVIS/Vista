@@ -1299,9 +1299,16 @@ VistaInteractionContext* VistaSystem::SetupInteractionContext( const std::string
 	std::string sDebugStream;
 	std::ostream* pStream = &vstr::out();
 	bool bManageStream = false;
+	bool bDumpAsDot = false;
 	if( oSection.GetValue( "DEBUGSTREAM", sDebugStream ) )
 	{
 		if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals(
+						sDebugStream, "dot" ) )
+		{
+			pStream = NULL;
+			bDumpAsDot = true;
+		}
+		else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals(
 						sDebugStream, "VSTR::OUT" ) )
 		{
 			pStream = &vstr::out();
@@ -1348,6 +1355,7 @@ VistaInteractionContext* VistaSystem::SetupInteractionContext( const std::string
 			}
 		}
 	}
+	pContext->SetDumpAsDot( bDumpAsDot );
 	pContext->SetDebuggingStream( pStream, bManageStream );
 	
 

@@ -122,11 +122,18 @@ public:
 	std::ostream* GetDebuggingStream() const;
 	void SetDebuggingStream( std::ostream* pStream, bool bManageDeletion );
 
+	bool GetDumpAsDot() const;
+	void SetDumpAsDot( bool bSet );
+
 	bool GetAutoPrintDebugInfo() const;
 	void SetAutoPrintDebugInfo( const bool bSet );
 
+
 	void PrintDebuggingInfo( std::ostream& oStream ) const;
 	void PrintDebuggingInfo() const;
+
+	void DumpStateAsDot( const std::string& sTargetFile ) const;
+	void DumpStateAsDot() const;
 	
 
 private:
@@ -147,10 +154,12 @@ private:
 	VdfnGraph*				m_pTransformGraph;
 	VistaInteractionEvent*	m_pEvent;
 	VistaEventManager*		m_pEventManager;
+	VistaInteractionManager*	m_pInteractionManager;
 
 	bool					m_bAutoPrintInfo;
 	std::ostream*			m_pDebugStream;
 	bool					m_bManageDebugStream;
+	bool					m_bDumpAsDot;
 };
 
 /*============================================================================*/

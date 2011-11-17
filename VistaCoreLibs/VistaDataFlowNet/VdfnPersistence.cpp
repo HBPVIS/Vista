@@ -28,6 +28,7 @@
 #include "VdfnNode.h"
 #include "VdfnPort.h"
 #include "VdfnNodeFactory.h"
+#include "VdfnPortFactory.h"
 
 #include <VistaTools/tinyXML/tinyxml.h>
 #include <VistaTools/VistaFileSystemDirectory.h>
@@ -903,9 +904,9 @@ namespace
 {
 
     bool SaveNode( const IVdfnNode *pNode, std::ofstream &str,
-		           bool bWritePorts, bool bWriteTypes )
+		           bool bWritePorts, bool bWriteTypes, bool bWriteValues )
 	{
-    	if(bWritePorts)
+    	if( bWritePorts || bWriteValues )
     	{
     		str << CleanNodeName(pNode->GetNameForNameable()) << " [shape=Mrecord, ";
     		if( pNode->GetIsMasterSim() )
@@ -919,23 +920,50 @@ namespace
 				tit != liInPort.end(); ++tit)
 			{
 				str << "<I_" << CleanNodeName(*tit) << "> " << *tit;
-				if(bWriteTypes)
+				if( bWriteTypes )
 				{
 					str << "\\n";
+					std::string sPortType = pNode->GetPortTypeCompareFor( (*tit) ).GetTypeDescriptor();
 #if !defined(__GNUC__)
-					str	<< NoSpacing(EscapeBraces(pNode->GetPortTypeCompareFor(*tit).GetTypeDescriptor()));
+					str	<< NoSpacing(EscapeBraces( sPortType ));
 #else
 					int state;
-					char *ret = abi::__cxa_demangle(pNode->GetPortTypeCompareFor(*tit).GetTypeDescriptor().c_str(), NULL, NULL, &state);
+					char *ret = abi::__cxa_demangle( sPortType.c_str(), NULL, NULL, &state);
 					if( state == 0 && ret )
 					{
 						str	<< NoSpacing(EscapeBraces(ret));
 						free(ret);
 					}
 					else
-						str	<< NoSpacing(pNode->GetPortTypeCompareFor(*tit).GetTypeDescriptor().c_str()) ;
+						str	<< NoSpacing(EscapeBraces(sPortType));
 #endif
+					if( bWriteValues )
+					{
+					}
 				}
+				if( bWriteValues )
+				{
+					str << "\\n";
+					IVdfnPort* pPort = pNode->GetInPort( (*tit) );
+					if( pPort != NULL )
+					{
+						VdfnPortFactory::CPortAccess* pAcc = VdfnPortFactory::GetSingleton()->GetPortAccess(
+																					pPort->GetTypeDescriptor() );
+						if( pAcc && pAcc->m_pStringGet )
+						{
+							str << pAcc->m_pStringGet->GetValueAsString( pPort );
+						}
+						else
+						{
+							str << "\\<no stringconv\\>";
+						}
+					}
+					else
+					{
+						str << "\\<not connected\\>";
+					}
+				}
+				
 				if(tit != --liInPort.end())
 					str << "|";
 			}
@@ -967,6 +995,29 @@ namespace
 						str	<< NoSpacing(pNode->GetOutPort(*it)->GetTypeDescriptor()) ;
 #endif
 				}
+				if( bWriteValues )
+				{
+					str << "\\n";
+					IVdfnPort* pPort = pNode->GetOutPort( (*it) );
+					if( pPort != NULL )
+					{
+						VdfnPortFactory::CPortAccess* pAcc = VdfnPortFactory::GetSingleton()->GetPortAccess(
+																					pPort->GetTypeDescriptor() );
+						if( pAcc && pAcc->m_pStringGet )
+						{
+							str << pAcc->m_pStringGet->GetValueAsString( pPort );
+						}
+						else
+						{
+							str << "\\<no stringconv\\>";
+						}
+					}
+					else
+					{
+						str << "\\<not connected\\>";
+					}
+				}
+
 				if(it != --liOutPort.end())
 					str << "|";
 			}
@@ -1056,7 +1107,7 @@ namespace
 bool VdfnPersistence::SaveAsDot( VdfnGraph *pGraph,
 								  const std::string &strGraphDotFile,
 								  const std::string &sGraphName,
-								  bool bWritePorts, bool bWriteTypes)
+								  bool bWritePorts, bool bWriteTypes, bool bWriteValues)
 {
 	if(pGraph == NULL)
 		return true;
@@ -1078,7 +1129,7 @@ bool VdfnPersistence::SaveAsDot( VdfnGraph *pGraph,
 			if(!strGroupTag.empty())
 				strGroupTags.insert( strGroupTag );
 
-			SaveNode( (*cit), str, bWritePorts, bWriteTypes );
+			SaveNode( (*cit), str, bWritePorts, bWriteTypes, bWriteValues );
 			str << "##\n";
 
 			const VdfnGraph::Edges &edges = pGraph->GetEdges();
@@ -1103,7 +1154,7 @@ bool VdfnPersistence::SaveAsDot( VdfnGraph *pGraph,
 						{
 							vstr::warnp() << "VdfnPersistence::SaveAsDot() - No port given" << std::endl;
 						}
-						if(bWritePorts)
+						if( bWritePorts || bWriteValues )
 						{
 							std::string strNodeName = CleanNodeName((*cit)->GetNameForNameable());
 //																	+ std::string("_")

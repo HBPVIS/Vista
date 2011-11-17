@@ -55,7 +55,7 @@ class VistaThread;
 class VISTAINTERPROCCOMMAPI  VistaWin32ThreadImp : public IVistaThreadImp
 {
 public:
-	VistaWin32ThreadImp(const VistaThread &);
+	VistaWin32ThreadImp( const VistaThread& );
 	virtual ~VistaWin32ThreadImp();
 
 	virtual bool Run();
@@ -99,8 +99,8 @@ public:
 	static long GetCallingThreadIdentity();
 
 protected:
-	HANDLE   win32Handle;
-	DWORD    threadId;
+	HANDLE   m_oWin32Handle;
+	DWORD    m_nThreadId;
 	const VistaThread  &m_rThread; /**< @todo think about this */
 	bool     m_bIsRunning;
 	bool     m_bCanBeCancelled;

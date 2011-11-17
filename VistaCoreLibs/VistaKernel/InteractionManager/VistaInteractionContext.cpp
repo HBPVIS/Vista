@@ -34,6 +34,8 @@
 
 #include <VistaBase/VistaExceptionBase.h>
 #include <VistaBase/VistaStreamUtils.h>
+#include <VistaBase/VistaBaseTypes.h>
+#include <VistaBase/VistaTimeUtils.h>
 
 #include <VistaDataFlowNet/VdfnGraph.h>
 #include <VistaDataFlowNet/VdfnNode.h>
@@ -169,7 +171,9 @@ VistaInteractionContext::VistaInteractionContext(VistaInteractionManager *pMgr,
   m_nRoleId(~0),
   m_bAutoPrintInfo( false ),
   m_bManageDebugStream( false ),
-  m_pDebugStream( NULL )
+  m_pDebugStream( NULL ),
+  m_bDumpAsDot( false ),
+  m_pInteractionManager( pMgr )
 {
 	m_pEvent->SetInteractionContext(this);
 	m_pEvent->SetId( VistaInteractionEvent::VEID_CONTEXT_GRAPH_UPDATE );
@@ -295,7 +299,12 @@ bool VistaInteractionContext::Update(double dTs)
 		{
 			bool bSuccess = Evaluate( dTs );
 			if( m_bAutoPrintInfo )
-				PrintDebuggingInfo();
+			{
+				if( m_bDumpAsDot )
+					DumpStateAsDot();
+				else
+					PrintDebuggingInfo();
+			}
 			return bSuccess;
 		}
 	}
@@ -348,6 +357,33 @@ void VistaInteractionContext::PrintDebuggingInfo() const
 {
 	if( m_pDebugStream != NULL )
 		PrintDebuggingInfo( *m_pDebugStream );
+}
+
+bool VistaInteractionContext::GetDumpAsDot() const
+{
+	return m_bDumpAsDot;
+}
+
+void VistaInteractionContext::SetDumpAsDot( bool bSet )
+{
+	m_bDumpAsDot = bSet;
+}
+
+void VistaInteractionContext::DumpStateAsDot() const
+{
+	std::string strGraphName = m_pInteractionManager->GetRoleForId( GetRoleId() );
+	VistaType::systemtime nTime = VistaTimeUtils::GetStandardTimer().GetSystemTime();
+	std::string sFilename = strGraphName + "_" 
+							+ VistaTimeUtils::ConvertToLexicographicDateString( nTime )
+							+ ".dot";
+	DumpStateAsDot( sFilename );
+}
+
+void VistaInteractionContext::DumpStateAsDot( const std::string& sTargetFile ) const
+{
+	std::string strGraphName = m_pInteractionManager->GetRoleForId( GetRoleId() );
+	VdfnPersistence::SaveAsDot( m_pTransformGraph, sTargetFile, strGraphName,
+								true, true, true );
 }
 
 /*============================================================================*/

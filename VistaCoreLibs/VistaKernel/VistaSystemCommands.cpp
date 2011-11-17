@@ -155,7 +155,10 @@ VistaDebugContextGraphCommand::VistaDebugContextGraphCommand( VistaInteractionCo
 
 bool VistaDebugContextGraphCommand::Do()
 {
-	m_pInteractionContext->PrintDebuggingInfo();
+	if( m_pInteractionContext->GetDumpAsDot() )
+		m_pInteractionContext->DumpStateAsDot();
+	else
+		m_pInteractionContext->PrintDebuggingInfo();
 	return true;
 
 }

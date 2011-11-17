@@ -95,14 +95,15 @@ static DWORD WINAPI Win32EntryPoint ( LPVOID that )
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
-VistaWin32ThreadImp::VistaWin32ThreadImp(const VistaThread &thread)
-: m_rThread(thread)
+VistaWin32ThreadImp::VistaWin32ThreadImp( const VistaThread& oThread )
+: m_rThread( oThread )
+, m_oWin32Handle( 0 )
+, m_nThreadId( 0 )
+, m_bIsRunning( false )
+, m_bCanBeCancelled( false )
+, m_dwAffinityMask( 1 )
 {
-	win32Handle = 0;
-	threadId = 0;
-	m_bIsRunning = false;
-	m_bCanBeCancelled = false;
-	m_dwAffinityMask = 1;
+
 }
 
 VistaWin32ThreadImp::~VistaWin32ThreadImp()
@@ -113,12 +114,12 @@ VistaWin32ThreadImp::~VistaWin32ThreadImp()
 bool     VistaWin32ThreadImp::Run( )
 {
 	// just to make sure
-	if(win32Handle>0)
+	if(m_oWin32Handle>0)
 		return false;
 
 	// create a thread without special security settings
-	win32Handle = CreateThread ( 0, 0, Win32EntryPoint, (void*)&m_rThread, 0, & threadId );
-	m_bIsRunning = (win32Handle!=0);
+	m_oWin32Handle = CreateThread ( 0, 0, Win32EntryPoint, (void*)&m_rThread, 0, & m_nThreadId );
+	m_bIsRunning = (m_oWin32Handle!=0);
 	SetProcessorAffinity(m_dwAffinityMask);
 
 	return ( m_bIsRunning );
@@ -127,7 +128,7 @@ bool     VistaWin32ThreadImp::Run( )
 
 bool     VistaWin32ThreadImp::Suspend()
 {
-	if(::SuspendThread ( win32Handle ) != -1)
+	if(::SuspendThread ( m_oWin32Handle ) != -1)
 		m_bIsRunning = false;
 
 	return ( !m_bIsRunning );
@@ -136,7 +137,7 @@ bool     VistaWin32ThreadImp::Suspend()
 
 bool     VistaWin32ThreadImp::Resume()
 {
-	if(::ResumeThread  ( win32Handle ) != -1)
+	if(::ResumeThread  ( m_oWin32Handle ) != -1)
 		m_bIsRunning = true;
 	return ( m_bIsRunning );
 }
@@ -144,16 +145,16 @@ bool     VistaWin32ThreadImp::Resume()
 
 bool     VistaWin32ThreadImp::Join()
 {
-	if(WaitForSingleObject(win32Handle, INFINITE) == WAIT_OBJECT_0)
+	if(WaitForSingleObject(m_oWin32Handle, INFINITE) == WAIT_OBJECT_0)
 	{
 		m_bIsRunning = false;
-		CloseHandle(win32Handle);
-		win32Handle  = 0;
-		threadId = 0;
+		CloseHandle(m_oWin32Handle);
+		m_oWin32Handle  = 0;
+		m_nThreadId = 0;
 	}
 
 
-	if(win32Handle)
+	if(m_oWin32Handle)
 		return false;
 
 	return true;
@@ -162,24 +163,24 @@ bool     VistaWin32ThreadImp::Join()
 bool     VistaWin32ThreadImp::Abort()
 {
 	DWORD wCode=0;
-	bool bRet = (TerminateThread(win32Handle,wCode) ? true : false);
+	bool bRet = (TerminateThread(m_oWin32Handle,wCode) ? true : false);
 	if(bRet)
 	{
-		CloseHandle(win32Handle);
-		win32Handle = 0;
-		threadId = 0;
+		CloseHandle(m_oWin32Handle);
+		m_oWin32Handle = 0;
+		m_nThreadId = 0;
 	}
 	return bRet;
 }
 
 bool     VistaWin32ThreadImp::SetPriority( const VistaPriority & inPrio)
 {
-	return (SetThreadPriority(win32Handle, inPrio.GetSystemPriority()) == TRUE);
+	return (SetThreadPriority(m_oWin32Handle, inPrio.GetSystemPriority()) == TRUE);
 }
 
 void VistaWin32ThreadImp::GetPriority( VistaPriority &outPrio ) const
 {
-	int prio = GetThreadPriority(win32Handle);
+	int prio = GetThreadPriority(m_oWin32Handle);
 	outPrio.SetVistaPriority(outPrio.GetVistaPriorityForSystemPriority(prio));
 }
 
@@ -206,26 +207,26 @@ void VistaWin32ThreadImp::PreRun()
 
 void VistaWin32ThreadImp::PostRun()
 {
-	if(win32Handle)
-		CloseHandle(win32Handle);
-	win32Handle = 0;
-	threadId = 0;
+	if(m_oWin32Handle)
+		CloseHandle(m_oWin32Handle);
+	m_oWin32Handle = 0;
+	m_nThreadId = 0;
 }
 
 bool VistaWin32ThreadImp::Equals(const IVistaThreadImp &oImp) const
 {
-	if(!win32Handle)
+	if(!m_oWin32Handle)
 		return false;
 
-	return (win32Handle == static_cast<const VistaWin32ThreadImp &>(oImp).win32Handle);
+	return (m_oWin32Handle == static_cast<const VistaWin32ThreadImp &>(oImp).m_oWin32Handle);
 }
 
 bool VistaWin32ThreadImp::SetProcessorAffinity(int iProcessorNum)
 {
 	m_dwAffinityMask = (1 << iProcessorNum);
-	if(win32Handle)
+	if(m_oWin32Handle)
 	{
-		if(SetThreadAffinityMask(win32Handle, m_dwAffinityMask)==0)
+		if(SetThreadAffinityMask(m_oWin32Handle, m_dwAffinityMask)==0)
 			// failure!
 		{
 			return false;
@@ -247,8 +248,7 @@ bool VistaWin32ThreadImp::SetThreadName(const std::string &sName)
 
 long VistaWin32ThreadImp::GetThreadIdentity() const
 {
-	/** @todo: replace with GetThreadId( win32Handle )? */
-	return (long)threadId;
+	return (long)m_nThreadId;
 }
 
 long VistaWin32ThreadImp::GetCallingThreadIdentity()
