@@ -43,6 +43,7 @@ public:
 	WindowObserver( VistaWindow* pWindow )
 	: IVistaObserver()
 	, m_pWindow( pWindow )
+	, m_bRatioChange( true )
 	{
 		m_pWindow->GetWindowProperties()->AttachObserver( this );
 	}

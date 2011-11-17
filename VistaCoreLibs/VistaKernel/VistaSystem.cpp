@@ -1368,7 +1368,7 @@ VistaInteractionContext* VistaSystem::SetupInteractionContext( const std::string
 		if( m_pKeyboardSystemControl->GetActionForToken(nTrigger) )
 		{
 			vstr::warnp() 
-				<< "DebugTrigger [" << sReloadKey[0] << "] for context ["
+				<< "DebugTrigger [" << cDebugKey << "] for context ["
 				<< sRole << "] already occupied" << std::endl;
 			vstr::warnp() << vstr::singleindent << "Current function: "
 				<< m_pKeyboardSystemControl->GetHelpTextForToken( nTrigger ) << std::endl;
@@ -1378,7 +1378,7 @@ VistaInteractionContext* VistaSystem::SetupInteractionContext( const std::string
 			m_pKeyboardSystemControl->BindAction( nTrigger,
 						new VistaDebugContextGraphCommand( pContext ),
 						"reload graph for ["+sRole+"]");
-			vstr::outi() << " [VistaSystem]: DebugTrigger [" << sReloadKey[0] << "] for context ["
+			vstr::outi() << " [VistaSystem]: DebugTrigger [" << cDebugKey << "] for context ["
 						<< sRole << "] applied" << std::endl;
 
 		}
