@@ -35,6 +35,7 @@
 #include <cassert>
 
 #include "VdfnPort.h"
+#include <VistaAspects/VistaConversion.h>
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
