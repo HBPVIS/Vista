@@ -66,11 +66,11 @@
 
 #define VISTA_HEAD
 
-#define VISTA_RELEASE_NAME "CLUSTERMODE_TEST branch $Revision: 22143 $ $Date: 2011-05-16 15:47:39 +0200 (Mo, 16. Mai 2011) $"
+#define VISTA_RELEASE_NAME "HEAD branch $Revision: 22143 $ $Date: 2011-05-16 15:47:39 +0200 (Mo, 16. Mai 2011) $"
 //#define VISTA_RELEASE_NAME "FANCYNAME" 
-#define VISTA_VERSION "1.11.0"
+#define VISTA_VERSION "1.12.0"
 #define VISTA_MAJOR    1
-#define VISTA_MINOR    11
+#define VISTA_MINOR    12
 #define VISTA_REVISION 0
 
 /*============================================================================*/

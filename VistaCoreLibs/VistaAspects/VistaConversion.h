@@ -1465,7 +1465,6 @@ namespace VistaConversion
 		{
 			std::string sCleanedSource = sSource;
 			RemoveBraces( sCleanedSource );
-			std::replace( sCleanedSource.begin(), sCleanedSource.end(), '-', ',' );
 
 	
 			float a3fValues[4];

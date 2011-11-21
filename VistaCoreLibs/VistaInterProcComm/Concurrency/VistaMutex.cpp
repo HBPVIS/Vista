@@ -47,6 +47,7 @@ VistaMutex::VistaMutex ()
 
 VistaMutex::VistaMutex(const string &sName)
 {
+	/** @TODO fixme - inter- and intraprocess mixed! */
 	m_pImp = IVistaMutexImp::CreateMutexImp(sName, IVistaMutexImp::eInterProcess);
 }
 
