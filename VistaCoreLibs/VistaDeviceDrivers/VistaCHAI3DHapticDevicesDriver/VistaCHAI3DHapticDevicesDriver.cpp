@@ -153,7 +153,7 @@ VistaCHAI3DHapticDevicesDriver::VistaCHAI3DHapticDevicesDriver(IVistaDriverCreat
 
 	AddDeviceSensor(pSensor);
 
-	pSensor->SetMeasureTranscode( GetFactory()->GetTranscoderFactoryForSensor("VistaCHAI3DHapticDevicesDriverMeasureTranscode")->CreateTranscoder() );
+	pSensor->SetMeasureTranscode( GetFactory()->GetTranscoderFactoryForSensor("")->CreateTranscoder() );
 
 	m_pProtocol = new VistaCHAI3DHapticDevicesDriverProtocolAspect(this);
 	RegisterAspect( m_pProtocol );
