@@ -28,6 +28,8 @@ set( DirFiles
 	VistaOpenSGToonShader.h
 	VistaOpenSGWebInterface.cpp
 	VistaOpenSGWebInterface.h
+	VistaOpenSGModelOptimizer.cpp
+	VistaOpenSGModelOptimizer.h
 	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
