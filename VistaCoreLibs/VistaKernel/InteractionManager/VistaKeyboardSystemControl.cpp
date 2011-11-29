@@ -276,7 +276,7 @@ bool VistaKeyboardSystemControl::UnbindAction( int nKeyCode, int nModifiers )
 							? ( m_mapCommandMap )
 							: ( m_vecModdedCommandMaps[nModifiers] );
 
-	CommandMap::iterator cit = m_vecModdedCommandMaps[nModifiers].find(nKeyCode);
+	CommandMap::iterator cit = mapCommands.find(nKeyCode);
 	if(cit == mapCommands.end())
 		return false;
 
