@@ -64,6 +64,10 @@ public:
 	static bool OptimizeNode( IVistaNode* pNode,
 						int nOptimizationMode = OPT_ALL,
 						bool bVerbose = true );
+	static bool OptimizeAndSaveNode( IVistaNode* pNode,
+						const std::string& sOutputFilename,
+						int nOptimizationMode = OPT_ALL,
+						bool bVerbose = true );
 	static bool OptimizeFile( const std::string& sFilename,
 						const std::string& sOutputFilename = "",
 						int nOptimizationMode = OPT_ALL,
