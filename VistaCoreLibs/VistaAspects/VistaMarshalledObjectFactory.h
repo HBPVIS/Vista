@@ -69,7 +69,7 @@ public:
 	/**
 	 * Singleton access method
 	 */
-	VistaMarshalledObjectFactory *GetSingleton();
+	static VistaMarshalledObjectFactory *GetSingleton();
 
 	/**
 	 * Register specific implementation sub-class of IVistaSerializable given
@@ -77,12 +77,18 @@ public:
 	 * type will result in failure.
 	 *
 	 * NOTE: The factory will take ownership of the creator object, i.e. the calling
-	 *       client must not delete it!
+	 *       client must not delete it! The object pointed to by pType, however, remains
+	 *		 in the client's possession, i.e. the client has to get rid of it on its own!
 	 *
 	 * \return global type id for the newly registered type, -1 in case of failure
 	 */
 	VistaType::sint32 RegisterType(IVistaSerializable *pType, 
 								   IVistaCreator<IVistaSerializable> *pCreator);
+
+	/**
+	 * retrieve the global type id (if any) for the given object
+	 */
+	VistaType::sint32 GetGlobalTypeId(const IVistaSerializable &rType) const;
 
 	/**
 	 * Marshall an object i.e. pack its type and state information

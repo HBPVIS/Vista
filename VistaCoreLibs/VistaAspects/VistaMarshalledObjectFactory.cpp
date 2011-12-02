@@ -80,21 +80,38 @@ VistaType::sint32 VistaMarshalledObjectFactory::RegisterType(
 	return iNewGlobalTypeId;
 }
 
+
+VistaType::sint32 VistaMarshalledObjectFactory::GetGlobalTypeId( 
+								const IVistaSerializable &rType ) const
+{
+	LocalTypeInfo oLocalType = typeid(rType);
+	TLocalToGlobalMap::const_iterator itGlobalType = 
+						m_mapLocalTypeToGlobalType.find(oLocalType);
+
+	if(itGlobalType == m_mapLocalTypeToGlobalType.end())
+	{
+		//not registered
+		return -1;
+	}
+	else
+	{
+		return itGlobalType->second;
+	}
+}
+
+
 int VistaMarshalledObjectFactory::MarshallObject(const IVistaSerializable &rObject, 
 												 IVistaSerializer &rSer ) const
 {
 	//map object type to global identifier
-	LocalTypeInfo oLocalType = typeid(rObject);
-	TLocalToGlobalMap::const_iterator itGlobalType = m_mapLocalTypeToGlobalType.find(oLocalType);
-	
-	if(itGlobalType == m_mapLocalTypeToGlobalType.end())
+	VistaType::sint32 iGlobalType = this->GetGlobalTypeId(rObject);
+	if(iGlobalType == -1)
 	{
 		//type not registered
 		return -1;
 	}
 	//serialize the type identifier
 	int iRet = 0, iSum = 0;
-	VistaType::sint32 iGlobalType = itGlobalType->second;
 	iRet = rSer.WriteInt32(iGlobalType);
 	
 	if(iRet < 0)
