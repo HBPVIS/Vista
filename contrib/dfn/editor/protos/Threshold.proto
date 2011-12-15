@@ -1,0 +1,26 @@
+<prototype>
+	<name value="Threshold"/>
+	<origin value="## built-in"/>
+	<params>
+		<param name="threshold" value=""/>
+		<param name="compare_absolute_value" value=""/>
+		<param name="mode" value=""/>
+	</params>
+	<instances>
+		int:
+		unsigned int:
+		float:
+		double
+	</instances>
+	<portstyle value="STATIC_PORTS"/>
+	<ports>
+		<inports>
+			<port name="in" type="@0"/>
+			<port name="threshold" type="@0"/>
+		</inports>
+		<outports>
+			<port name="out" type="@0"/>
+		</outports>
+	</ports>		
+</prototype>
+ 

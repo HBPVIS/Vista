@@ -1,0 +1,19 @@
+<prototype>
+	<name value="Composite"/>
+	<type value="Composite"/>
+	<origin value="## built-in"/>
+	<params>
+	 <param name="graph" value=""/>
+	 <param name="name" value=""/>
+	 <param name="parameterfile" value=""/>
+	 <param name="dumpparams" value=""/>
+	 <param name="dotfilename" value=""/>
+	</params>
+	<instances/>
+	<portstyle value="ALLPORTS_DEPEND_ON_STATE"/>
+	<ports>
+		<inports/>
+		<outports/>
+	</ports>		
+</prototype>
+ 

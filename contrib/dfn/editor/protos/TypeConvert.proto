@@ -14,6 +14,7 @@
 		double,string:
 		unsigned int,double:
 		unsigned int,string:
+		unsigned int,int:
 		microtime,string:
 		vector{double},string
 	</instances>

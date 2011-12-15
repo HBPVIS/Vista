@@ -1,0 +1,20 @@
+<prototype>
+	<name value="Substract"/>
+	<origin value="## built-in"/>
+	<params/>
+	<instances>
+		int:
+		VistaVector3D
+	</instances>
+	<portstyle value="STATIC_PORTS"/>
+	<ports>
+		<inports>
+			<port name="first" type="@0"/>
+			<port name="second" type="@0"/>
+		</inports>
+		<outports>
+			<port name="out" type="@0"/>
+		</outports>
+	</ports>		
+</prototype>
+ 
