@@ -107,7 +107,9 @@ private:
 
 struct VistaCHAI3DHapticDevicesDriver::_sCHAI3DHapticDevicesPrivate
 {
-	_sCHAI3DHapticDevicesPrivate()
+	_sCHAI3DHapticDevicesPrivate():
+		m_pHapticDevice(NULL),
+		m_strDeviceString("")
 	{
 	}
 
