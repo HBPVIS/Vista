@@ -55,8 +55,14 @@ public:
 
 	void SetValues( const float a3fValues[3] );
 	void SetValues( const double a3dValues[3] );
+	void SetValues( float fX, float fY, float fZ, float fW = 1.0f );
+	void SetValues( double fX, double fY, double fZ, double fW = 1.0 );
 	void GetValues( float a3fValues[3] ) const;
 	void GetValues( double a3dValues[3] ) const;
+	void GetValues( float& fX, float& fY, float& fZ ) const;
+	void GetValues( double& fX, double& fY, double& fZ ) const;
+	void GetValues( float& fX, float& fY, float& fZ, float& fW ) const;
+	void GetValues( double& fX, double& fY, double& fZ, double& fW ) const;
 	VistaVector3D GetNormalized() const;
 	VistaVector3D GetHomogenized() const;
 	VistaVector3D GetAbolute() const;
@@ -230,6 +236,22 @@ inline void VistaVector3D::SetValues( const double a3dValues[3] )
 	m_a4fValues[1] = (float)a3dValues[1];
 	m_a4fValues[2] = (float)a3dValues[2];
 }
+
+inline void VistaVector3D::SetValues( float fX, float fY, float fZ, float fW )
+{
+	m_a4fValues[0] = fX;
+	m_a4fValues[1] = fY;
+	m_a4fValues[2] = fZ;
+	m_a4fValues[3] = fW;
+}
+
+inline void VistaVector3D::SetValues( double fX, double fY, double fZ, double fW )
+{
+	m_a4fValues[0] = (float)fX;
+	m_a4fValues[1] = (float)fY;
+	m_a4fValues[2] = (float)fZ;
+	m_a4fValues[3] = (float)fW;
+}
 inline void VistaVector3D::GetValues( float a3fValues[3] ) const
 {
 	a3fValues[0] = m_a4fValues[0];
@@ -242,6 +264,37 @@ inline void VistaVector3D::GetValues( double a3dValues[3] ) const
 	a3dValues[1] = (double)m_a4fValues[1];
 	a3dValues[2] = (double)m_a4fValues[2];
 }
+
+inline void VistaVector3D::GetValues( float& fX, float& fY, float& fZ, float& fW ) const
+{
+	fX = m_a4fValues[0];
+	fY = m_a4fValues[1];
+	fZ = m_a4fValues[2];
+	fW = m_a4fValues[3];
+}
+
+inline void VistaVector3D::GetValues( double& fX, double& fY, double& fZ, double& fW ) const
+{
+	fX = (double)m_a4fValues[0];
+	fY = (double)m_a4fValues[1];
+	fZ = (double)m_a4fValues[2];
+	fW = (double)m_a4fValues[3];
+}
+
+inline void VistaVector3D::GetValues( float& fX, float& fY, float& fZ ) const
+{
+	fX = m_a4fValues[0];
+	fY = m_a4fValues[1];
+	fZ = m_a4fValues[2];
+}
+
+inline void VistaVector3D::GetValues( double& fX, double& fY, double& fZ ) const
+{
+	fX = (double)m_a4fValues[0];
+	fY = (double)m_a4fValues[1];
+	fZ = (double)m_a4fValues[2];
+}
+
 inline VistaVector3D VistaVector3D::GetNormalized() const
 {
 	const float fScale = 1.0f / GetLength();
