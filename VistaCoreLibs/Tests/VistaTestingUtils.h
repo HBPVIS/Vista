@@ -243,8 +243,8 @@ namespace VistaTestingCompare
 			return ::testing::AssertionFailure() << "different sizes: " 
 								<< oLeft.size() << " != " << oRight.size();
 		}
-		std::vector<T>::const_iterator itLeft = oLeft.begin();
-		std::vector<T>::const_iterator itRight = oRight.begin();
+		typename std::vector<T>::const_iterator itLeft = oLeft.begin();
+		typename std::vector<T>::const_iterator itRight = oRight.begin();
 		for( std::size_t i = 0; i < oLeft.size(); ++i, ++itLeft, ++itRight )
 		{
 			::testing::AssertionResult oRes = Compare<T>( (*itLeft), (*itRight) );
@@ -262,8 +262,8 @@ namespace VistaTestingCompare
 			return ::testing::AssertionFailure() << "different sizes: " 
 				<< oLeft.size() << " != " << oRight.size();
 		}
-		std::list<T>::const_iterator itLeft = oLeft.begin();
-		std::list<T>::const_iterator itRight = oRight.begin();
+		typename std::list<T>::const_iterator itLeft = oLeft.begin();
+		typename std::list<T>::const_iterator itRight = oRight.begin();
 		for( std::size_t i = 0; i < oLeft.size(); ++i, ++itLeft, ++itRight )
 		{
 			::testing::AssertionResult oRes = Compare<T>( (*itLeft), (*itRight) );
@@ -281,8 +281,8 @@ namespace VistaTestingCompare
 			return ::testing::AssertionFailure() << "different sizes: " 
 				<< oLeft.size() << " != " << oRight.size();
 		}
-		std::deque<T>::const_iterator itLeft = oLeft.begin();
-		std::deque<T>::const_iterator itRight = oRight.begin();
+		typename std::deque<T>::const_iterator itLeft = oLeft.begin();
+		typename std::deque<T>::const_iterator itRight = oRight.begin();
 		for( std::size_t i = 0; i < oLeft.size(); ++i, ++itLeft, ++itRight )
 		{
 			::testing::AssertionResult oRes = Compare<T>( (*itLeft), (*itRight) );
