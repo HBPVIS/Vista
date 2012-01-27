@@ -13,7 +13,7 @@
 /*                                               Technische Hochschule Aachen */
 /*      Purpose  :                                                            */
 /*                                                                            */
-/*                                                 Copyright (c)  1998-2011   */
+/*                                                 Copyright (c)  1998-2012   */
 /*                                                 by  RWTH-Aachen, Germany   */
 /*                                                 All rights reserved.       */
 /*                                             .                              */
