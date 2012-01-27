@@ -60,7 +60,7 @@ public:
 	DispObserver(VistaDfnViewerSourceNode *pParent)
 		: IVistaObserver(),
 		  m_pParent(pParent),
-		  m_nPropChange(MSG_NONE),
+		  m_nPropChange(~0),
 		  m_pDispProps(NULL),
 		  m_pPlatform(NULL)
 	{}
