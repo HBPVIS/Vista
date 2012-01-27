@@ -27,7 +27,7 @@
 #include <VistaKernel/VistaSystem.h>
 #include <VistaKernel/GraphicsManager/VistaGeometryFactory.h>
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaGeomNode.h>
 #include <VistaKernel/GraphicsManager/VistaGroupNode.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
@@ -55,7 +55,7 @@ int	main( int argc, char* argv[] )
 	if( oSystem.Init( argc, argv ) == false )
 		return -1;
 
-	VistaSG* pSceneGraph = oSystem.GetGraphicsManager()->GetSceneGraph();
+	VistaSceneGraph* pSceneGraph = oSystem.GetGraphicsManager()->GetSceneGraph();
 	VistaGeometryFactory oFactory( pSceneGraph );
 	VistaGeometry* pGeom = oFactory.CreateBox( S_fCubeSize, S_fCubeSize, S_fCubeSize, 
 													1, 1, 1, VistaColorRGB::LIGHT_GRAY );
