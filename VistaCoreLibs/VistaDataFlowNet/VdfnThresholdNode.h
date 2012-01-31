@@ -121,13 +121,13 @@ protected:
 		}
 		// this second line may look a little strange, but is necessary for unsigned
 		// types: for them, y=-x is greater than zero, which may lead to wrong results.
-		// Thus, we verify that the negation is actually negative
+		// Thus, we verify that the initial value is actually negative
 		// Since negating an unsigned type triggers a warning, we disable it
 #ifdef WIN32
 #pragma warning( push )
 #pragma warning( disable: 4146 )
 #endif
-		else if( m_bTestAbsoluteValue && -oValue >= m_oThresholdValue && -oValue < T(0) )
+		else if( m_bTestAbsoluteValue && -oValue >= m_oThresholdValue && oValue < T(0) )
 		{
 			m_pOut->SetValue( oValue, GetUpdateTimeStamp() );			
 		}
