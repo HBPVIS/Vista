@@ -18,6 +18,11 @@ VistaColor::VistaColor(float fR, float fG, float fB, float fA /*=1.f*/ )
 	SetValues(fR, fG, fB, fA);
 }
 
+VistaColor::VistaColor( float f1, float f2, float f3, EFormat eFormat /*= RGB*/ )
+{
+	SetValues(f1, f2, f3, eFormat);
+}
+
 VistaColor::VistaColor(const float afValues[], EFormat eFormat /*= FORMAT_RGB*/)
 {
 	SetValues(afValues, eFormat);
@@ -32,49 +37,6 @@ VistaColor::VistaColor(
 VistaColor::VistaColor(const int aiValues[], EFormat eFormat /*= FORMAT_RGB*/)
 {
 	SetValues(aiValues, eFormat);
-}
-
-VistaColor VistaColor::CreateFromHSL(float fH, float fS, float fL)
-{
-	VistaColor oColor;
-	oColor.SetHSLValues(fH, fS, fL);
-	return oColor;
-}
-
-VistaColor VistaColor::CreateFromHSL(const float a3fValues[3])
-{
-	VistaColor oColor;
-	oColor.SetHSLValues(a3fValues);
-	return oColor;
-}
-
-VistaColor VistaColor::CreateFromHSL(const double a3dValues[3])
-{
-	VistaColor oColor;
-	oColor.SetHSLValues(a3dValues);
-	return oColor;
-}
-
-
-VistaColor VistaColor::CreateFromHSV(float fH, float fS, float fV)
-{
-	VistaColor oColor;
-	oColor.SetHSVValues(fH, fS, fV);
-	return oColor;
-}
-
-VistaColor VistaColor::CreateFromHSV(const float a3fValues[3])
-{
-	VistaColor oColor;
-	oColor.SetHSVValues(a3fValues);
-	return oColor;
-}
-
-VistaColor VistaColor::CreateFromHSV(const double a3dValues[3])
-{
-	VistaColor oColor;
-	oColor.SetHSVValues(a3dValues);
-	return oColor;
 }
 
 //// Setters
@@ -95,57 +57,134 @@ void VistaColor::SetValues(float fR, float fG, float fB, float fA /*= 1.f */)
 	m_a4fValues[3] = fA;
 }
 
+
+void VistaColor::SetValues( float f1, float f2, float f3, EFormat eFormat /*= RGB */ )
+{
+	float a3fValues[3] = { f1, f2, f3 };
+	SetValues(a3fValues, eFormat);
+}
+
 void VistaColor::SetValues(
 	const float afValues[], EFormat eFormat /*= FORMAT_RGB*/)
 {
-	m_a4fValues[0] = afValues[0];
-	m_a4fValues[1] = afValues[1];
-	m_a4fValues[2] = afValues[2];
-
 	switch (eFormat)
 	{
 	case RGB:
+		m_a4fValues[0] = afValues[0];
+		m_a4fValues[1] = afValues[1];
+		m_a4fValues[2] = afValues[2];
 		m_a4fValues[3] = 1.f;
 		break;
 	case RGBA:
+		m_a4fValues[0] = afValues[0];
+		m_a4fValues[1] = afValues[1];
+		m_a4fValues[2] = afValues[2];
 		m_a4fValues[3] = afValues[3];
 		break;
+	case HSL:
+		HSLtoRGB(afValues, m_a4fValues);
+		m_a4fValues[3] = 1.f;
+		break;
+	case HSV:
+		HSVtoRGB(afValues, m_a4fValues);
+		m_a4fValues[3] = 1.f;
+		break;
+	default:
+		m_a4fValues[0] = 1.f;
+		m_a4fValues[1] = 1.f;
+		m_a4fValues[2] = 1.f;
+		m_a4fValues[3] = 1.f;
 	}
 }
 
 void VistaColor::SetValues(
 	const double adValues[], EFormat eFormat /*= FORMAT_RGB*/)
 {
-	m_a4fValues[0] = static_cast<float>(adValues[0]);
-	m_a4fValues[1] = static_cast<float>(adValues[1]);	
-	m_a4fValues[2] = static_cast<float>(adValues[2]);
-
 	switch (eFormat)
 	{
 	case RGB:
+		m_a4fValues[0] = static_cast<float>(adValues[0]);
+		m_a4fValues[1] = static_cast<float>(adValues[1]);
+		m_a4fValues[2] = static_cast<float>(adValues[2]);
 		m_a4fValues[3] = 1.f;
 		break;
 	case RGBA:
+		m_a4fValues[0] = static_cast<float>(adValues[0]);
+		m_a4fValues[1] = static_cast<float>(adValues[1]);
+		m_a4fValues[2] = static_cast<float>(adValues[2]);
 		m_a4fValues[3] = static_cast<float>(adValues[3]);
 		break;
+	case HSL:
+		{
+			float a3fValues[3] = {
+				static_cast<float>(adValues[0]),
+				static_cast<float>(adValues[1]),
+				static_cast<float>(adValues[2])	};
+			HSLtoRGB(a3fValues, m_a4fValues);
+			m_a4fValues[3] = 1.f;
+		}
+		break;
+	case HSV:
+		{
+			float a3fValues[3] = {
+				static_cast<float>(adValues[0]),
+				static_cast<float>(adValues[1]),
+				static_cast<float>(adValues[2])	};
+			HSVtoRGB(a3fValues, m_a4fValues);
+			m_a4fValues[3] = 1.f;
+		}
+		break;
+	default:
+		m_a4fValues[0] = 1.f;
+		m_a4fValues[1] = 1.f;
+		m_a4fValues[2] = 1.f;
+		m_a4fValues[3] = 1.f;
 	}
 }
 
 void VistaColor::SetValues(int iColor, EFormat eFormat /*= FORMAT_RGB*/ )
 {
+	float a4fDecomp[4] = {
+		((iColor & 0xFF000000) >> 24) / 255.0f,
+		((iColor & 0x00FF0000) >> 16) / 255.0f,
+		((iColor & 0x0000FF00) >> 8) / 255.0f,
+		 (iColor & 0x000000FF) / 255.0f };
+
 	switch (eFormat)
 	{
 	case RGB:
-		m_a4fValues[0] = ((iColor & 0xFF0000) >> 16) / 255.0f;
-		m_a4fValues[1] = ((iColor & 0x00FF00) >> 8) / 255.0f;
-		m_a4fValues[2] = ( iColor & 0x0000FF) / 255.0f;
+		m_a4fValues[0] = a4fDecomp[1];
+		m_a4fValues[1] = a4fDecomp[2];
+		m_a4fValues[2] = a4fDecomp[3];
 		m_a4fValues[3] = 1.f;
 		break;
 	case RGBA:
-		m_a4fValues[0] = ((iColor & 0xFF000000) >> 24) / 255.0f;
-		m_a4fValues[1] = ((iColor & 0x00FF0000) >> 16) / 255.0f;
-		m_a4fValues[2] = ((iColor & 0x0000FF00) >> 8) / 255.0f;
-		m_a4fValues[3] =  (iColor & 0x000000FF) / 255.0f;
+		m_a4fValues[0] = a4fDecomp[0];
+		m_a4fValues[1] = a4fDecomp[1];
+		m_a4fValues[2] = a4fDecomp[2];
+		m_a4fValues[3] = a4fDecomp[3];
+		break;
+	case HSL:
+		{
+			float a3fValues[3] = {
+				a4fDecomp[1],
+				a4fDecomp[2],
+				a4fDecomp[3]
+				};
+			HSLtoRGB(a3fValues, m_a4fValues);
+			m_a4fValues[3] = 1.f;
+		}
+		break;
+	case HSV:
+		{
+			float a3fValues[3] = {
+				a4fDecomp[1],
+				a4fDecomp[2],
+				a4fDecomp[3]
+			};
+			HSVtoRGB(a3fValues, m_a4fValues);
+			m_a4fValues[3] = 1.f;
+		}
 		break;
 	}
 }
@@ -153,63 +192,24 @@ void VistaColor::SetValues(int iColor, EFormat eFormat /*= FORMAT_RGB*/ )
 void VistaColor::SetValues(
 	const int aiValues[], EFormat eFormat /*= FORMAT_RGB*/)
 {
-	m_a4fValues[0] = aiValues[0] / 255.f;
-	m_a4fValues[1] = aiValues[1] / 255.f;
-	m_a4fValues[2] = aiValues[2] / 255.f;
+	float a4fValues[4];
+	a4fValues[0] = aiValues[0] / 255.f;
+	a4fValues[1] = aiValues[1] / 255.f;
+	a4fValues[2] = aiValues[2] / 255.f;
 
 	switch (eFormat)
 	{
 	case RGB:
-		m_a4fValues[3] = 1.f;
+	case HSL:
+	case HSV:
+		a4fValues[3] = 1.f;
 		break;
 	case RGBA:
-		m_a4fValues[3] = aiValues[3] / 255.f;
+		a4fValues[3] = aiValues[3] / 255.f;
 		break;
 	}
-}
 
-void VistaColor::SetHSLValues(float fH, float fS, float fL)
-{
-	float a3fHSL[3] = { fH, fS, fL };
-	SetHSLValues(a3fHSL);
-}
-
-void VistaColor::SetHSLValues(const float a3fValues[3])
-{
-	HSLtoRGB(a3fValues, m_a4fValues);
-	m_a4fValues[3] = 1.f;
-}
-
-void VistaColor::SetHSLValues(const double a3dValues[3])
-{
-	float a3fHSL[3] = {
-		static_cast<float>(a3dValues[0]),
-		static_cast<float>(a3dValues[1]),
-		static_cast<float>(a3dValues[2]) };
-	HSLtoRGB(a3fHSL, m_a4fValues);
-	m_a4fValues[3] = 1.f;
-}
-
-void VistaColor::SetHSVValues(float fH, float fS, float fV)
-{
-	float a3fHSV[3] = { fH, fS, fV };
-	SetHSVValues(a3fHSV);
-}
-
-void VistaColor::SetHSVValues(const float a3fValues[3])
-{
-	HSVtoRGB(a3fValues, m_a4fValues);
-	m_a4fValues[3] = 1.f;
-}
-
-void VistaColor::SetHSVValues(const double a3dValues[3])
-{
-	float a3fHSV[3] = {
-		static_cast<float>(a3dValues[0]),
-		static_cast<float>(a3dValues[1]),
-		static_cast<float>(a3dValues[2]) };
-	HSVtoRGB(a3fHSV, m_a4fValues);
-	m_a4fValues[3] = 1.f;
+	SetValues(a4fValues, eFormat);
 }
 
 void VistaColor::SetRed(float fR)
@@ -278,37 +278,111 @@ void VistaColor::SetValue(float fValue)
 void VistaColor::GetValues(
 	int aiValues[], EFormat eFormat /*= FORMAT_RGB*/) const
 {
-	aiValues[0] = static_cast<int>(m_a4fValues[0] * 255.f);
-	aiValues[1] = static_cast<int>(m_a4fValues[1] * 255.f);
-	aiValues[2] = static_cast<int>(m_a4fValues[2] * 255.f);
-	if (eFormat == RGBA)
+	switch (eFormat)
 	{
+	case RGB:
+		aiValues[0] = static_cast<int>(m_a4fValues[0] * 255.f);
+		aiValues[1] = static_cast<int>(m_a4fValues[1] * 255.f);
+		aiValues[2] = static_cast<int>(m_a4fValues[2] * 255.f);
+		break;
+	case RGBA:
+		aiValues[0] = static_cast<int>(m_a4fValues[0] * 255.f);
+		aiValues[1] = static_cast<int>(m_a4fValues[1] * 255.f);
+		aiValues[2] = static_cast<int>(m_a4fValues[2] * 255.f);
 		aiValues[3] = static_cast<int>(m_a4fValues[3] * 255.f);
+		break;
+	case HSL:
+		{
+			float a3fValues[3];
+			RGBtoHSL(m_a4fValues, a3fValues);
+			aiValues[0] = static_cast<int>(a3fValues[0] * 255.f);
+			aiValues[1] = static_cast<int>(a3fValues[1] * 255.f);
+			aiValues[2] = static_cast<int>(a3fValues[2] * 255.f);
+		}
+		break;
+	case HSV:
+		{
+			float a3fValues[3];
+			RGBtoHSV(m_a4fValues, a3fValues);
+			aiValues[0] = static_cast<int>(a3fValues[0] * 255.f);
+			aiValues[1] = static_cast<int>(a3fValues[1] * 255.f);
+			aiValues[2] = static_cast<int>(a3fValues[2] * 255.f);
+		}
+		break;
 	}
 }
 
 void VistaColor::GetValues( 
 	float afValues[], EFormat eFormat /*= FORMAT_RGB*/ ) const
 {
-	afValues[0] = m_a4fValues[0];
-	afValues[1] = m_a4fValues[1];
-	afValues[2] = m_a4fValues[2];
-
-	if (eFormat == RGBA)
+	switch (eFormat)
 	{
+	case RGB:
+		afValues[0] = m_a4fValues[0];
+		afValues[1] = m_a4fValues[1];
+		afValues[2] = m_a4fValues[2];
+		break;
+	case RGBA:
+		afValues[0] = m_a4fValues[0];
+		afValues[1] = m_a4fValues[1];
+		afValues[2] = m_a4fValues[2];
 		afValues[3] = m_a4fValues[3];
+		break;
+	case HSL:
+		{
+			float a3fValues[3];
+			RGBtoHSL(m_a4fValues, a3fValues);
+			afValues[0] = a3fValues[0];
+			afValues[1] = a3fValues[1];
+			afValues[2] = a3fValues[2];
+		}
+		break;
+	case HSV:
+		{
+			float a3fValues[3];
+			RGBtoHSV(m_a4fValues, a3fValues);
+			afValues[0] = a3fValues[0];
+			afValues[1] = a3fValues[1];
+			afValues[2] = a3fValues[2];
+		}
+		break;
 	}
 }
 
 void VistaColor::GetValues( 
 	double adValues[], EFormat eFormat /*= FORMAT_RGB*/ ) const
 {
-	adValues[0] = m_a4fValues[0];
-	adValues[1] = m_a4fValues[1];
-	adValues[2] = m_a4fValues[2];
-	if (eFormat == RGBA)
+	switch (eFormat)
 	{
+	case RGB:
+		adValues[0] = m_a4fValues[0];
+		adValues[1] = m_a4fValues[1];
+		adValues[2] = m_a4fValues[2];
+		break;
+	case RGBA:
+		adValues[0] = m_a4fValues[0];
+		adValues[1] = m_a4fValues[1];
+		adValues[2] = m_a4fValues[2];
 		adValues[3] = m_a4fValues[3];
+		break;
+	case HSL:
+		{
+			float a3fValues[3];
+			RGBtoHSL(m_a4fValues, a3fValues);
+			adValues[0] = a3fValues[0];
+			adValues[1] = a3fValues[1];
+			adValues[2] = a3fValues[2];
+		}
+		break;
+	case HSV:
+		{
+			float a3fValues[3];
+			RGBtoHSV(m_a4fValues, a3fValues);
+			adValues[0] = a3fValues[0];
+			adValues[1] = a3fValues[1];
+			adValues[2] = a3fValues[2];
+		}
+		break;
 	}
 }
 
@@ -325,37 +399,25 @@ int VistaColor::GetValues( EFormat eFormat /*= FORMAT_RGB*/ ) const
 			+ (static_cast<int>(m_a4fValues[1] * 255.f) << 16)
 			+ (static_cast<int>(m_a4fValues[2] * 255.f) << 8)
 			+ static_cast<int>(m_a4fValues[3] * 255.f);
+	case HSL:
+		{
+			float a3fValues[3];
+			RGBtoHSL(m_a4fValues, a3fValues);
+			return (static_cast<int>(a3fValues[0] * 255.f) << 16)
+				+ (static_cast<int>(a3fValues[1] * 255.f) << 8)
+				+ static_cast<int>(a3fValues[2] * 255.f);
+		}
+	case HSV:
+		{
+			float a3fValues[3];
+			RGBtoHSV(m_a4fValues, a3fValues);
+			return (static_cast<int>(a3fValues[0] * 255.f) << 16)
+				+ (static_cast<int>(a3fValues[1] * 255.f) << 8)
+				+ static_cast<int>(a3fValues[2] * 255.f);
+		}
 	default:
 		return 0;
 	}
-}
-
-void VistaColor::GetHSLValues(float a3fValues[3]) const
-{
-	RGBtoHSL(m_a4fValues, a3fValues);
-}
-
-void VistaColor::GetHSLValues(double a3dValues[3]) const
-{
-	float a3fHSL[3];
-	RGBtoHSL(m_a4fValues, a3fHSL);
-	a3dValues[0] = a3fHSL[0];
-	a3dValues[1] = a3fHSL[1];
-	a3dValues[2] = a3fHSL[2];
-}
-
-void VistaColor::GetHSVValues(float a3fValues[3]) const
-{
-	RGBtoHSV(m_a4fValues, a3fValues);
-}
-
-void VistaColor::GetHSVValues(double a3dValues[3]) const
-{
-	float a3fHSV[3];
-	RGBtoHSV(m_a4fValues, a3fHSV);
-	a3dValues[0] = a3fHSV[0];
-	a3dValues[1] = a3fHSV[1];
-	a3dValues[2] = a3fHSV[2];
 }
 
 float VistaColor::GetRed() const

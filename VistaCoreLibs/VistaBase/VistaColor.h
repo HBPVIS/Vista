@@ -110,7 +110,9 @@ public:
 	enum EFormat
 	{
 		RGB,
-		RGBA
+		RGBA,
+		HSL,
+		HSV
 	};
 
 	/**
@@ -121,43 +123,21 @@ public:
 	VistaColor( int iColor = WHITE, EFormat eFormat = RGB );
 	VistaColor( int iR, int iG, int iB, int iA = 255 );
 	VistaColor( float fR, float fG, float fB, float fA = 1.f );
+	VistaColor( float, float, float, EFormat eFormat = RGB);
 	explicit VistaColor( const int aiValues[], EFormat eFormat = RGB );
 	explicit VistaColor( const float afValues[], EFormat eFormat = RGB );
 	explicit VistaColor( const double adValues[], EFormat eFormat = RGB );
-
-	/**
-	 * Static convenience methods for creating colors based on HSL/HSV values
-	 */
-	static VistaColor CreateFromHSL( float fH, float fS, float fL );
-	static VistaColor CreateFromHSL( const float a3fValues[3] );
-	static VistaColor CreateFromHSL( const double a3dValues[3] );
-	static VistaColor CreateFromHSV( float fH, float fS, float fV );
-	static VistaColor CreateFromHSV( const float a3fValues[3] );
-	static VistaColor CreateFromHSV( const double a3dValues[3] );
 
 	/**
 	 * @see ctors
 	 */
 	void SetValues( int iR, int iG, int iB, int iA = 255);
 	void SetValues( float fR, float fG, float fB, float fA = 1.f );
+	void SetValues( float, float, float, EFormat eFormat = RGB );
 	void SetValues( int iColor, EFormat eFormat = RGB );
 	void SetValues( const int aiValues[], EFormat eFormat = RGB );
 	void SetValues( const float afValues[], EFormat eFormat = RGB );
 	void SetValues( const double adValues[], EFormat eFormat = RGB );
-
-	/**
-	 * HSL getters. All values are normalized from 0.f to 1.f, also hue!
-	 */
-	void SetHSLValues( float fH, float fS, float fL);
-	void SetHSLValues( const float a3fValues[3] );
-	void SetHSLValues( const double a3dValues[3] );
-
-	/**
-	 * HSV getters. All values are normalized from 0.f to 1.f, also hue!
-	 */
-	void SetHSVValues( float fH, float fS, float fV);
-	void SetHSVValues( const float a3fValues[3] );
-	void SetHSVValues( const double a3dValues[3] );
 
 	/**
 	 * Setters for the RGBA values
@@ -177,7 +157,6 @@ public:
 	void SetHSVSaturation( float fSaturation );
 	void SetValue( float fValue );
 
-
 	/**
 	 * @see ctors
 	 */
@@ -185,20 +164,6 @@ public:
 	void GetValues( int aiValues[], EFormat eFormat = RGB) const;
 	void GetValues( float afValues[], EFormat eFormat = RGB ) const;
 	void GetValues( double adValues[], EFormat eFormat = RGB ) const;
-
-	/**
-	 * HSL getters. All values are normalized from 0.f to 1.f, also hue! Time
-	 * consuming because a RGB to HSL conversion is performed on each call!
-	 */
-	void GetHSLValues( float a3fValues[3] ) const;
-	void GetHSLValues( double a3dValues[3] ) const;
-
-	/**
-	 * HSV getters. All values are normalized from 0.f to 1.f, also hue! Time
-	 * consuming because a RGB to HSV conversion is performed on each call!
-	 */
-	void GetHSVValues( float a3fValues[3] ) const;
-	void GetHSVValues( double a3dValues[3] ) const;
 
 	/**
 	 * Getters for the RGBA values
