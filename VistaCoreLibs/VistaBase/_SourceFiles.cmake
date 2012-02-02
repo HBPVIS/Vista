@@ -14,6 +14,8 @@ set( DirFiles
 	VistaBaseConfig.h
 	VistaBaseMain.cpp
 	VistaBaseTypes.h
+	VistaColor.cpp
+	VistaColor.h
 	VistaDefaultTimerImp.cpp
 	VistaDefaultTimerImp.h
 	VistaExceptionBase.cpp
