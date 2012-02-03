@@ -1,67 +1,121 @@
 #include "VistaColor.h"
+#include "VistaExceptionBase.h"
 
 //// Constructors
 
 VistaColor::VistaColor(
-	int iColor /*= WHITE */, EFormat eFormat /*= FORMAT_RGB*/ )
+	int iColor /*= WHITE */, EFormat eFormat /*= RGB*/ )
 {
 	SetValues(iColor, eFormat);
 }
 
-VistaColor::VistaColor(int iR, int iG, int iB, int iA /*=255*/ )
+VistaColor::VistaColor(
+	int i1, int i2, int i3, EFormat eFormat /*= RGBA*/ )
 {
-	SetValues(iR, iG, iB, iA);
+	SetValues(i1, i2, i3, eFormat);
 }
 
-VistaColor::VistaColor(float fR, float fG, float fB, float fA /*=1.f*/ )
-{
-	SetValues(fR, fG, fB, fA);
-}
-
-VistaColor::VistaColor( float f1, float f2, float f3, EFormat eFormat /*= RGB*/ )
+VistaColor::VistaColor(
+	float f1, float f2, float f3, EFormat eFormat /*= RGB*/ )
 {
 	SetValues(f1, f2, f3, eFormat);
 }
 
-VistaColor::VistaColor(const float afValues[], EFormat eFormat /*= FORMAT_RGB*/)
+VistaColor::VistaColor(
+	double d1, double d2, double d3, EFormat eFormat /*= RGB*/ )
+{
+	SetValues(d1, d2, d3, eFormat);
+}
+
+VistaColor::VistaColor(
+	int i1, int i2, int i3, int i4, EFormat eFormat /*= RGBA*/ )
+{
+	SetValues(i1, i2, i3, i4, eFormat);
+}
+
+VistaColor::VistaColor(
+	float f1, float f2, float f3, float f4, EFormat eFormat /*= RGBA*/ )
+{
+	SetValues(f1, f2, f3, f4, eFormat);
+}
+
+VistaColor::VistaColor(
+	double d1, double d2, double d3, double d4, EFormat eFormat /*= RGBA*/ )
+{
+	SetValues(d1, d2, d3, d4, eFormat);
+}
+
+VistaColor::VistaColor(const float afValues[], EFormat eFormat /*= RGB*/)
 {
 	SetValues(afValues, eFormat);
 }
 
 VistaColor::VistaColor(
-	const double adValues[], EFormat eFormat /*= FORMAT_RGB*/)
+	const double adValues[], EFormat eFormat /*= RGB*/)
 {
 	SetValues(adValues, eFormat);
 }
 
-VistaColor::VistaColor(const int aiValues[], EFormat eFormat /*= FORMAT_RGB*/)
+VistaColor::VistaColor(const int aiValues[], EFormat eFormat /*= RGB*/)
 {
 	SetValues(aiValues, eFormat);
 }
 
 //// Setters
 
-void VistaColor::SetValues(int iR, int iG, int iB, int iA /*= 255*/)
+void VistaColor::SetValues( int i1, int i2, int i3, EFormat eFormat /*= RGB */ )
 {
-	m_a4fValues[0] = iR / 255.f;
-	m_a4fValues[1] = iG / 255.f;
-	m_a4fValues[2] = iB / 255.f;
-	m_a4fValues[3] = iA / 255.f;
+	float a3fValues[3] = { 
+		i1 / 255.f, 
+		i2 / 255.f, 
+		i3 / 255.f };
+	SetValues(a3fValues, eFormat);
 }
 
-void VistaColor::SetValues(float fR, float fG, float fB, float fA /*= 1.f */)
-{
-	m_a4fValues[0] = fR;
-	m_a4fValues[1] = fG;
-	m_a4fValues[2] = fB;
-	m_a4fValues[3] = fA;
-}
-
-
-void VistaColor::SetValues( float f1, float f2, float f3, EFormat eFormat /*= RGB */ )
+void VistaColor::SetValues(
+	float f1, float f2, float f3, EFormat eFormat /*= RGB */ )
 {
 	float a3fValues[3] = { f1, f2, f3 };
 	SetValues(a3fValues, eFormat);
+}
+
+void VistaColor::SetValues( double d1, double d2, double d3, EFormat eFormat
+	/*= RGB */ )
+{
+	float a3fValues[3] = { 
+		static_cast<float>(d1),
+		static_cast<float>(d2),
+		static_cast<float>(d3) };
+	SetValues(a3fValues, eFormat);
+}
+
+void VistaColor::SetValues(
+	int i1, int i2, int i3, int i4, EFormat eFormat /*= RGBA*/ )
+{
+	float a4fValues[4] = {
+		i1 / 255.f,
+		i2 / 255.f,
+		i3 / 255.f,
+		i4 / 255.f };
+	SetValues(a4fValues, eFormat);
+}
+
+void VistaColor::SetValues(
+	float f1, float f2, float f3, float f4, EFormat eFormat /*= RGBA*/ )
+{
+	float a4fValues[4] = { f1, f2, f3, f4 };
+	SetValues(a4fValues, eFormat);
+}
+
+void VistaColor::SetValues(
+	double d1, double d2, double d3, double d4, EFormat eFormat /*= RGBA*/ )
+{
+	float a4fValues[4] = { 
+		static_cast<float>(d1),
+		static_cast<float>(d2),
+		static_cast<float>(d3),
+		static_cast<float>(d4) };
+	SetValues(a4fValues, eFormat);
 }
 
 void VistaColor::SetValues(
@@ -85,15 +139,20 @@ void VistaColor::SetValues(
 		HSLtoRGB(afValues, m_a4fValues);
 		m_a4fValues[3] = 1.f;
 		break;
+	case HSLA:
+		HSLtoRGB(afValues, m_a4fValues);
+		m_a4fValues[3] = afValues[3];
+		break;
 	case HSV:
 		HSVtoRGB(afValues, m_a4fValues);
 		m_a4fValues[3] = 1.f;
 		break;
+	case HSVA:
+		HSVtoRGB(afValues, m_a4fValues);
+		m_a4fValues[3] = afValues[3];
+		break;
 	default:
-		m_a4fValues[0] = 1.f;
-		m_a4fValues[1] = 1.f;
-		m_a4fValues[2] = 1.f;
-		m_a4fValues[3] = 1.f;
+		VISTA_THROW("Unknown color mode", 1);
 	}
 }
 
@@ -103,42 +162,32 @@ void VistaColor::SetValues(
 	switch (eFormat)
 	{
 	case RGB:
-		m_a4fValues[0] = static_cast<float>(adValues[0]);
-		m_a4fValues[1] = static_cast<float>(adValues[1]);
-		m_a4fValues[2] = static_cast<float>(adValues[2]);
-		m_a4fValues[3] = 1.f;
-		break;
-	case RGBA:
-		m_a4fValues[0] = static_cast<float>(adValues[0]);
-		m_a4fValues[1] = static_cast<float>(adValues[1]);
-		m_a4fValues[2] = static_cast<float>(adValues[2]);
-		m_a4fValues[3] = static_cast<float>(adValues[3]);
-		break;
+	case HSV:
 	case HSL:
 		{
 			float a3fValues[3] = {
 				static_cast<float>(adValues[0]),
 				static_cast<float>(adValues[1]),
-				static_cast<float>(adValues[2])	};
-			HSLtoRGB(a3fValues, m_a4fValues);
-			m_a4fValues[3] = 1.f;
+				static_cast<float>(adValues[2])
+				};
+			SetValues(a3fValues, eFormat);
 		}
 		break;
-	case HSV:
+	case RGBA:
+	case HSVA:
+	case HSLA:
 		{
-			float a3fValues[3] = {
+			float a4fValues[4] = {
 				static_cast<float>(adValues[0]),
 				static_cast<float>(adValues[1]),
-				static_cast<float>(adValues[2])	};
-			HSVtoRGB(a3fValues, m_a4fValues);
-			m_a4fValues[3] = 1.f;
+				static_cast<float>(adValues[2]),
+				static_cast<float>(adValues[3])
+			};
+			SetValues(a4fValues, eFormat);
 		}
 		break;
 	default:
-		m_a4fValues[0] = 1.f;
-		m_a4fValues[1] = 1.f;
-		m_a4fValues[2] = 1.f;
-		m_a4fValues[3] = 1.f;
+		VISTA_THROW("Unknown color mode", 1);
 	}
 }
 
@@ -153,63 +202,68 @@ void VistaColor::SetValues(int iColor, EFormat eFormat /*= FORMAT_RGB*/ )
 	switch (eFormat)
 	{
 	case RGB:
-		m_a4fValues[0] = a4fDecomp[1];
-		m_a4fValues[1] = a4fDecomp[2];
-		m_a4fValues[2] = a4fDecomp[3];
-		m_a4fValues[3] = 1.f;
-		break;
-	case RGBA:
-		m_a4fValues[0] = a4fDecomp[0];
-		m_a4fValues[1] = a4fDecomp[1];
-		m_a4fValues[2] = a4fDecomp[2];
-		m_a4fValues[3] = a4fDecomp[3];
-		break;
+	case HSV:
 	case HSL:
 		{
 			float a3fValues[3] = {
-				a4fDecomp[1],
-				a4fDecomp[2],
-				a4fDecomp[3]
-				};
-			HSLtoRGB(a3fValues, m_a4fValues);
-			m_a4fValues[3] = 1.f;
-		}
-		break;
-	case HSV:
-		{
-			float a3fValues[3] = {
-				a4fDecomp[1],
-				a4fDecomp[2],
-				a4fDecomp[3]
+				static_cast<float>(a4fDecomp[1]),
+				static_cast<float>(a4fDecomp[2]),
+				static_cast<float>(a4fDecomp[3])
 			};
-			HSVtoRGB(a3fValues, m_a4fValues);
-			m_a4fValues[3] = 1.f;
+			SetValues(a3fValues, eFormat);
 		}
 		break;
+	case RGBA:
+	case HSVA:
+	case HSLA:
+		{
+			float a4fValues[4] = {
+				static_cast<float>(a4fDecomp[0]),
+				static_cast<float>(a4fDecomp[1]),
+				static_cast<float>(a4fDecomp[2]),
+				static_cast<float>(a4fDecomp[3])
+			};
+			SetValues(a4fValues, eFormat);
+		}
+		break;
+	default:
+		VISTA_THROW("Unknown color mode", 1);
 	}
 }
 
 void VistaColor::SetValues(
 	const int aiValues[], EFormat eFormat /*= FORMAT_RGB*/)
 {
-	float a4fValues[4];
-	a4fValues[0] = aiValues[0] / 255.f;
-	a4fValues[1] = aiValues[1] / 255.f;
-	a4fValues[2] = aiValues[2] / 255.f;
-
 	switch (eFormat)
 	{
 	case RGB:
-	case HSL:
 	case HSV:
-		a4fValues[3] = 1.f;
+	case HSL:
+		{
+			float a3fValues[3] = {
+				aiValues[0] / 255.f,
+				aiValues[1] / 255.f,
+				aiValues[2] / 255.f,
+			};
+			SetValues(a3fValues, eFormat);
+		}
 		break;
 	case RGBA:
-		a4fValues[3] = aiValues[3] / 255.f;
+	case HSVA:
+	case HSLA:
+		{
+			float a4fValues[4] = {
+				aiValues[0] / 255.f,
+				aiValues[1] / 255.f,
+				aiValues[2] / 255.f,
+				aiValues[3] / 255.f,
+			};
+			SetValues(a4fValues, eFormat);
+		}
 		break;
+	default:
+		VISTA_THROW("Unknown color mode", 1);
 	}
-
-	SetValues(a4fValues, eFormat);
 }
 
 void VistaColor::SetRed(float fR)
@@ -275,40 +329,66 @@ void VistaColor::SetValue(float fValue)
 
 //// Getters
 
+int VistaColor::GetValues( EFormat eFormat /*= FORMAT_RGB*/ ) const
+{
+	switch (eFormat)
+	{
+	case RGB:
+	case HSV:
+	case HSL:
+		{
+			float a3fValues[3];
+			GetValues(a3fValues, eFormat);
+			return (static_cast<int>(a3fValues[0] * 255.f) << 16)
+				+ (static_cast<int>(a3fValues[1] * 255.f) << 8)
+				+ static_cast<int>(a3fValues[2] * 255.f);
+		}
+	case RGBA:
+	case HSVA:
+	case HSLA:
+		{
+			float a4fValues[4];
+			GetValues(a4fValues, eFormat);
+			return (static_cast<int>(a4fValues[0] * 255.f) << 24)
+				+ (static_cast<int>(a4fValues[1] * 255.f) << 16)
+				+ (static_cast<int>(a4fValues[2] * 255.f) << 8)
+				+ static_cast<int>(a4fValues[3] * 255.f);
+		}
+	default:
+		VISTA_THROW("Unknown color mode", 1);
+	}
+}
+
 void VistaColor::GetValues(
 	int aiValues[], EFormat eFormat /*= FORMAT_RGB*/) const
 {
 	switch (eFormat)
 	{
 	case RGB:
-		aiValues[0] = static_cast<int>(m_a4fValues[0] * 255.f);
-		aiValues[1] = static_cast<int>(m_a4fValues[1] * 255.f);
-		aiValues[2] = static_cast<int>(m_a4fValues[2] * 255.f);
-		break;
-	case RGBA:
-		aiValues[0] = static_cast<int>(m_a4fValues[0] * 255.f);
-		aiValues[1] = static_cast<int>(m_a4fValues[1] * 255.f);
-		aiValues[2] = static_cast<int>(m_a4fValues[2] * 255.f);
-		aiValues[3] = static_cast<int>(m_a4fValues[3] * 255.f);
-		break;
+	case HSV:
 	case HSL:
 		{
 			float a3fValues[3];
-			RGBtoHSL(m_a4fValues, a3fValues);
-			aiValues[0] = static_cast<int>(a3fValues[0] * 255.f);
-			aiValues[1] = static_cast<int>(a3fValues[1] * 255.f);
-			aiValues[2] = static_cast<int>(a3fValues[2] * 255.f);
+			GetValues(a3fValues, eFormat);
+			aiValues [0] = static_cast<int>(a3fValues[0] * 255.f);
+			aiValues [1] = static_cast<int>(a3fValues[1] * 255.f);
+			aiValues [2] = static_cast<int>(a3fValues[2] * 255.f);
 		}
 		break;
-	case HSV:
+	case RGBA:
+	case HSVA:
+	case HSLA:
 		{
-			float a3fValues[3];
-			RGBtoHSV(m_a4fValues, a3fValues);
-			aiValues[0] = static_cast<int>(a3fValues[0] * 255.f);
-			aiValues[1] = static_cast<int>(a3fValues[1] * 255.f);
-			aiValues[2] = static_cast<int>(a3fValues[2] * 255.f);
+			float a4fValues[4];
+			GetValues(a4fValues, eFormat);
+			aiValues [0] = static_cast<int>(a4fValues[0] * 255.f);
+			aiValues [1] = static_cast<int>(a4fValues[1] * 255.f);
+			aiValues [2] = static_cast<int>(a4fValues[2] * 255.f);
+			aiValues [3] = static_cast<int>(a4fValues[3] * 255.f);
 		}
 		break;
+	default:
+		VISTA_THROW("Unknown color mode", 1);
 	}
 }
 
@@ -337,6 +417,16 @@ void VistaColor::GetValues(
 			afValues[2] = a3fValues[2];
 		}
 		break;
+	case HSLA:
+		{
+			float a3fValues[3];
+			RGBtoHSL(m_a4fValues, a3fValues);
+			afValues[0] = a3fValues[0];
+			afValues[1] = a3fValues[1];
+			afValues[2] = a3fValues[2];
+			afValues[3] = m_a4fValues[3];
+		}
+		break;
 	case HSV:
 		{
 			float a3fValues[3];
@@ -346,6 +436,18 @@ void VistaColor::GetValues(
 			afValues[2] = a3fValues[2];
 		}
 		break;
+	case HSVA:
+		{
+			float a3fValues[3];
+			RGBtoHSV(m_a4fValues, a3fValues);
+			afValues[0] = a3fValues[0];
+			afValues[1] = a3fValues[1];
+			afValues[2] = a3fValues[2];
+			afValues[3] = m_a4fValues[3];
+		}
+		break;
+	default:
+		VISTA_THROW("Unknown color mode", 1);
 	}
 }
 
@@ -355,68 +457,30 @@ void VistaColor::GetValues(
 	switch (eFormat)
 	{
 	case RGB:
-		adValues[0] = m_a4fValues[0];
-		adValues[1] = m_a4fValues[1];
-		adValues[2] = m_a4fValues[2];
-		break;
-	case RGBA:
-		adValues[0] = m_a4fValues[0];
-		adValues[1] = m_a4fValues[1];
-		adValues[2] = m_a4fValues[2];
-		adValues[3] = m_a4fValues[3];
-		break;
+	case HSV:
 	case HSL:
 		{
 			float a3fValues[3];
-			RGBtoHSL(m_a4fValues, a3fValues);
-			adValues[0] = a3fValues[0];
-			adValues[1] = a3fValues[1];
-			adValues[2] = a3fValues[2];
+			GetValues(a3fValues, eFormat);
+			adValues [0] = a3fValues[0];
+			adValues [1] = a3fValues[1];
+			adValues [2] = a3fValues[2];
 		}
 		break;
-	case HSV:
-		{
-			float a3fValues[3];
-			RGBtoHSV(m_a4fValues, a3fValues);
-			adValues[0] = a3fValues[0];
-			adValues[1] = a3fValues[1];
-			adValues[2] = a3fValues[2];
-		}
-		break;
-	}
-}
-
-int VistaColor::GetValues( EFormat eFormat /*= FORMAT_RGB*/ ) const
-{
-	switch (eFormat)
-	{
-	case RGB:
-		return (static_cast<int>(m_a4fValues[0] * 255.f) << 16)
-			+ (static_cast<int>(m_a4fValues[1] * 255.f) << 8)
-			+ static_cast<int>(m_a4fValues[2] * 255.f);
 	case RGBA:
-		return (static_cast<int>(m_a4fValues[0] * 255.f) << 24)
-			+ (static_cast<int>(m_a4fValues[1] * 255.f) << 16)
-			+ (static_cast<int>(m_a4fValues[2] * 255.f) << 8)
-			+ static_cast<int>(m_a4fValues[3] * 255.f);
-	case HSL:
+	case HSVA:
+	case HSLA:
 		{
-			float a3fValues[3];
-			RGBtoHSL(m_a4fValues, a3fValues);
-			return (static_cast<int>(a3fValues[0] * 255.f) << 16)
-				+ (static_cast<int>(a3fValues[1] * 255.f) << 8)
-				+ static_cast<int>(a3fValues[2] * 255.f);
+			float a4fValues[4];
+			GetValues(a4fValues, eFormat);
+			adValues [0] = a4fValues[0];
+			adValues [1] = a4fValues[1];
+			adValues [2] = a4fValues[2];
+			adValues [3] = a4fValues[3];
 		}
-	case HSV:
-		{
-			float a3fValues[3];
-			RGBtoHSV(m_a4fValues, a3fValues);
-			return (static_cast<int>(a3fValues[0] * 255.f) << 16)
-				+ (static_cast<int>(a3fValues[1] * 255.f) << 8)
-				+ static_cast<int>(a3fValues[2] * 255.f);
-		}
+		break;
 	default:
-		return 0;
+		VISTA_THROW("Unknown color mode", 1);
 	}
 }
 

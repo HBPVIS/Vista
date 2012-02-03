@@ -1,6 +1,6 @@
 /*============================================================================*/
 /*                              ViSTA VR toolkit                              */
-/*               Copyright (c) 1997-2011 RWTH Aachen University               */
+/*               Copyright (c) 1997-2012 RWTH Aachen University               */
 /*============================================================================*/
 /*                                  License                                   */
 /*                                                                            */
@@ -112,7 +112,9 @@ public:
 		RGB,
 		RGBA,
 		HSL,
-		HSV
+		HSLA,
+		HSV,
+		HSVA
 	};
 
 	/**
@@ -121,9 +123,12 @@ public:
 	 * set to 1. When using RGBA the first four entries will be used.
 	 */
 	VistaColor( int iColor = WHITE, EFormat eFormat = RGB );
-	VistaColor( int iR, int iG, int iB, int iA = 255 );
-	VistaColor( float fR, float fG, float fB, float fA = 1.f );
+	VistaColor( int, int, int, EFormat eFormat = RGB);
 	VistaColor( float, float, float, EFormat eFormat = RGB);
+	VistaColor( double, double, double, EFormat eFormat = RGB);
+	VistaColor( int, int, int, int, EFormat eFormat = RGBA );
+	VistaColor( float, float, float, float, EFormat eFormat = RGBA );
+	VistaColor( double, double, double, double, EFormat eFormat = RGBA );
 	explicit VistaColor( const int aiValues[], EFormat eFormat = RGB );
 	explicit VistaColor( const float afValues[], EFormat eFormat = RGB );
 	explicit VistaColor( const double adValues[], EFormat eFormat = RGB );
@@ -131,10 +136,13 @@ public:
 	/**
 	 * @see ctors
 	 */
-	void SetValues( int iR, int iG, int iB, int iA = 255);
-	void SetValues( float fR, float fG, float fB, float fA = 1.f );
-	void SetValues( float, float, float, EFormat eFormat = RGB );
 	void SetValues( int iColor, EFormat eFormat = RGB );
+	void SetValues( int, int, int, EFormat eFormat = RGB );
+	void SetValues( float, float, float, EFormat eFormat = RGB );
+	void SetValues( double, double, double, EFormat eFormat = RGB );
+	void SetValues( int, int, int, int, EFormat eFormat = RGBA);
+	void SetValues( float, float, float, float, EFormat eFormat = RGBA );
+	void SetValues( double, double, double, double, EFormat eFormat = RGBA );
 	void SetValues( const int aiValues[], EFormat eFormat = RGB );
 	void SetValues( const float afValues[], EFormat eFormat = RGB );
 	void SetValues( const double adValues[], EFormat eFormat = RGB );
