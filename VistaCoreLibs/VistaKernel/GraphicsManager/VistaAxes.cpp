@@ -59,17 +59,17 @@ VistaAxes::VistaAxes(	VistaSceneGraph * pVistaSceneGraph,
 	VistaGeometryFactory geomFactory(pVistaSceneGraph);
 
 	// create axes
-	m_axes.push_back(geomFactory.CreateCone(0.05f,0.05f,sizeX-0.1f,32,32,32,VistaColorRGB::RED,true,true,true));
-	m_axes.push_back(geomFactory.CreateCone(0.05f,0.05f,sizeY-0.1f,32,32,32,VistaColorRGB::GREEN,true,true,true));
-	m_axes.push_back(geomFactory.CreateCone(0.05f,0.05f,sizeZ-0.1f,32,32,32,VistaColorRGB::BLUE,true,true,true));
+	m_axes.push_back(geomFactory.CreateCone(0.05f,0.05f,sizeX-0.1f,32,32,32,VistaColor::RED,true,true,true));
+	m_axes.push_back(geomFactory.CreateCone(0.05f,0.05f,sizeY-0.1f,32,32,32,VistaColor::GREEN,true,true,true));
+	m_axes.push_back(geomFactory.CreateCone(0.05f,0.05f,sizeZ-0.1f,32,32,32,VistaColor::BLUE,true,true,true));
 
 	// create tips
-	m_tips.push_back(geomFactory.CreateCone(0.07f,0,0.1f,32,32,32,VistaColorRGB::GRAY,true,true,true));
-	m_tips.push_back(geomFactory.CreateCone(0.07f,0,0.1f,32,32,32,VistaColorRGB::GRAY,true,true,true));
-	m_tips.push_back(geomFactory.CreateCone(0.07f,0,0.1f,32,32,32,VistaColorRGB::GRAY,true,true,true));
+	m_tips.push_back(geomFactory.CreateCone(0.07f,0,0.1f,32,32,32,VistaColor::GRAY,true,true,true));
+	m_tips.push_back(geomFactory.CreateCone(0.07f,0,0.1f,32,32,32,VistaColor::GRAY,true,true,true));
+	m_tips.push_back(geomFactory.CreateCone(0.07f,0,0.1f,32,32,32,VistaColor::GRAY,true,true,true));
 
 	// center sphere
-	m_center = geomFactory.CreateSphere(0.1f,21,VistaColorRGB::GRAY);
+	m_center = geomFactory.CreateSphere(0.1f,21,VistaColor::GRAY);
 
 	// put all together
 	m_group = pVistaSceneGraph->NewGroupNode(NULL);
@@ -146,10 +146,10 @@ bool VistaAxes::Init()
 	rotate[0] = -90;
 	rotate[1] =   0;
 	rotate[2] =  90;
-	VistaColorRGB colors[3];
-	colors[0] =  VistaColorRGB(0.8f,0.2f,0.2f);
-	colors[1] =  VistaColorRGB(0.2f,0.8f,0.2f);
-	colors[2] =  VistaColorRGB(0.2f,0.2f,0.8f);
+	VistaColor colors[3];
+	colors[0] =  VistaColor(0.8f,0.2f,0.2f);
+	colors[1] =  VistaColor(0.2f,0.8f,0.2f);
+	colors[2] =  VistaColor(0.2f,0.2f,0.8f);
 
 	for(int i=0; i < 3; ++i)
 	{

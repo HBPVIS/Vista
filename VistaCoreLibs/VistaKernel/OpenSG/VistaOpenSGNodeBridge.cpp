@@ -749,7 +749,7 @@ public:
 		m_fScale(1.0f),
 		m_fDepth(0.0f),
 		m_fSize(1.0f),
-		m_colFontColor(VistaColorRGB::WHITE),
+		m_colFontColor(VistaColor::WHITE),
 		m_sText(""),
 		m_pData(NULL)
 	{
@@ -827,12 +827,12 @@ public:
 	}
 
 
-	virtual VistaColorRGB GetFontColor() const
+	virtual VistaColor GetFontColor() const
 	{
 		return m_colFontColor;
 	}
 
-	virtual void SetFontColor(const VistaColorRGB &rgb)
+	virtual void SetFontColor(const VistaColor &rgb)
 	{
 		m_colFontColor = rgb;
 		UpdateColor();
@@ -900,7 +900,7 @@ private:
 	std::string
 		m_sText,
 		m_sFontName;
-	VistaColorRGB m_colFontColor;
+	VistaColor m_colFontColor;
 	float m_fScale;
 	float m_fSize;
 	float m_fDepth;

@@ -35,6 +35,7 @@
 #include <VistaKernel/VistaKernelConfig.h>
 #include <VistaBase/VistaVectorMath.h>
 #include <VistaBase/VistaBaseTypes.h>
+#include <VistaBase/VistaColor.h>
 #include <VistaAspects/VistaObserveable.h>
 
 /*============================================================================*/
@@ -46,7 +47,7 @@ class VistaPlane;
 class VistaRay;
 class IVistaGeometryData;
 class IVistaGraphicsBridge;
-class VistaColorRGB;
+class VistaColor;
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -102,88 +103,12 @@ public:
 	~VistaRenderingAttributes() {};
 };
 
-class VISTAKERNELAPI VistaColorRGB
-{
-public:
-	enum{
-		AQUAMARINE              = 0x7FFFD4,
-		BLACK                   = 0x000000,
-		BLUE                    = 0x0000FF,
-		BRICK_RED               = 0xB22222,
-		BROWN                   = 0xA52A2A,
-		CORAL                   = 0xFF7F50,
-		CYAN                    = 0x00FFFF,
-		FOREST_GREEN    		= 0x228B22,
-		GOLD                    = 0xFFD700,
-		GRAY                    = 0x808080,
-		GREEN                   = 0x00FF00,
-		GREEN_YELLOW    		= 0xADFF2F,
-		INDIGO                  = 0x4B0082,
-		KHAKI                   = 0xBDB76B,
-		LAWN_GREEN              = 0x7CFC00,
-		LIME                    = 0x32CD32,
-		MAGENTA                 = 0xFF00FF,
-		MAROON                  = 0x800000,
-		NAVY                    = 0x000080,
-		OLIVE                   = 0x808000,
-		ORANGE                  = 0xFFA500,
-		ORANGE_RED              = 0xFF4500,
-		PINK                    = 0xFF1493,
-		PURPLE                  = 0x800080,
-		SKY_BLUE                = 0x00BFFF,
-		RED                     = 0xFF0000,
-		ROYAL_BLUE              = 0x4169E1,
-		SALMON                  = 0xFA8072,
-		VIOLET                  = 0x8A2BE2,
-		WHITE                   = 0xFFFFFF,
-		YELLOW                  = 0xFFFF00,
-		LIGHT_BLUE              = 0xADD8E6,
-		LIGHT_GRAY              = 0xC0C0C0,
-		LIGHT_GREEN             = 0x90EE90,
-		LIGHT_ORANGE    		= 0xFFA07A,
-		LIGHT_PINK              = 0xFFB6C1,
-		LIGHT_SKY_BLUE  		= 0x87CEFA,
-		LIGHT_STEEL_BLUE		= 0xB0C4DE,
-		DARK_BLUE               = 0x00008B,
-		DARK_CYAN               = 0x008B8B,
-		DARK_GREEN              = 0x006400,
-		DARK_MAGENTA   			= 0x8B008B,
-		DARK_RED                = 0x8B0000,
-		DARK_OLIVE              = 0x556B2F,
-		DARK_ORANGE             = 0xFF8C00,
-		DARK_ORCHID             = 0x9932CC,
-		DARK_SALMON             = 0xE9967A,
-		DARK_TURQUOISE  		= 0x00CED1,
-		VISTA_BLUE		  		= 0x0066CC,
-	};
-
-	VistaColorRGB (const int color = WHITE);
-	VistaColorRGB (const float , const float , const float );
-	VistaColorRGB (const int , const int  , const int );
-	VistaColorRGB (const float colours[3]);
-	VistaColorRGB (const int colours[3]);
-
-	~VistaColorRGB(){};
-
-	void GetValues(float out[3]) const;
-	void GetValues(int out[3]) const;
-
-	float GetRed() const;
-	float GetGreen() const;
-	float GetBlue() const;
-
-protected:
-	float m_red;
-	float m_green;
-	float m_blue;
-};
-
 class VISTAKERNELAPI VistaMaterial
 {
 public:
 	VistaMaterial();
-	VistaMaterial(const VistaColorRGB &ambient, const VistaColorRGB &diffuse,
-				   const VistaColorRGB &specular, const VistaColorRGB &emission,
+	VistaMaterial(const VistaColor &ambient, const VistaColor &diffuse,
+				   const VistaColor &specular, const VistaColor &emission,
 				   const float shininess, const float opacity, const std::string &name);
 	VistaMaterial(const float ambient[3], const float diffuse[3], const float specular[3],
 				   const float emission[3],
@@ -236,10 +161,10 @@ public:
 	static void YellowRubber(VistaMaterial&);
 
 private:
-	VistaColorRGB      m_ambient;
-	VistaColorRGB      m_diffuse;
-	VistaColorRGB      m_specular;
-	VistaColorRGB      m_emission;
+	VistaColor          m_ambient;
+	VistaColor          m_diffuse;
+	VistaColor          m_specular;
+	VistaColor          m_emission;
 	float               m_shininess;
 	float               m_opacity;
 	std::string         m_strName;
@@ -322,7 +247,7 @@ protected:
 		const std::vector<VistaVector3D>& coords,
 		const std::vector<VistaVector3D>& textureCoords,
 		const std::vector<VistaVector3D>& normals,
-		const std::vector<VistaColorRGB>& colors,
+		const std::vector<VistaColor>& colors,
 		const VistaVertexFormat& vFormat,
 		const VistaGeometry::FaceType fType);
 
@@ -339,7 +264,7 @@ protected:
 		 const std::vector<float>& coords,
 		 const std::vector<float>& textureCoords,
 		 const std::vector<float>& normals,
-		 const std::vector<VistaColorRGB>& colors,
+		 const std::vector<VistaColor>& colors,
 		 const VistaVertexFormat& vFormat,
 		 const VistaGeometry::FaceType fType);
 
@@ -424,7 +349,7 @@ public:
 	/** \param color The color to use for all vertices of the geometry.
 	 *  \return bool Returns true if operation succeeded.
 	 *  */
-	bool SetColor(const VistaColorRGB  & color);
+	bool SetColor(const VistaColor  & color);
 
 	/** @todo */
 	bool SetMaterialIndex(const int& materialIndex);
@@ -566,12 +491,12 @@ public:
 	bool SetNormalIndices(const int startIdx, const std::vector<int>& indices);
 
 	int  GetColorIndex(const int idx) const;
-	VistaColorRGB GetColor(const int idx) const;
+	VistaColor GetColor(const int idx) const;
 
-	bool SetColors(const int startIndex, const std::vector<VistaColorRGB>& colors);
+	bool SetColors(const int startIndex, const std::vector<VistaColor>& colors);
 	bool SetColors(const int startIndex, const int bufferLength, float* colors);
 
-	bool SetColor(const int idx, const VistaColorRGB& color);
+	bool SetColor(const int idx, const VistaColor& color);
 	bool SetColorIndex(const int idx, const int value);
 	bool SetColorIndices(const int startIdx, const std::vector<int>& indices);
 

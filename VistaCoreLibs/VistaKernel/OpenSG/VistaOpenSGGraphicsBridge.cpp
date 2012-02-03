@@ -398,12 +398,12 @@ osg::ImagePtr VistaOpenSGGraphicsBridge::GetCachedOrLoadImage( const string &sFi
 }
 
 
-VistaColorRGB VistaOpenSGGraphicsBridge::GetBackgroundColor() const
+VistaColor VistaOpenSGGraphicsBridge::GetBackgroundColor() const
 {
 	if( GetVistaSystem()->GetDisplayManager()->GetViewports().empty() )
 	{
 		vstr::warnp() << " VistaOpenSGGraphicsBridge::GetBackgroundColor(): no viewports defined yet " << std::endl;
-		return VistaColorRGB(0,0,0); // returning BLACK
+		return VistaColor(0,0,0); // returning BLACK
 	}
 
 	osg::SolidBackgroundRefPtr bg(osg::SolidBackgroundPtr::dcast(((VistaOpenSGDisplayBridge::ViewportData *)
@@ -412,10 +412,10 @@ VistaColorRGB VistaOpenSGGraphicsBridge::GetBackgroundColor() const
 	if( bg.get() == osg::NullFC )
 	{
 		vstr::warnp() << "VistaOpenSGGraphicsBridge::GetBackgroundColor(): background is not solid " << std::endl;
-		return VistaColorRGB(0,0,0); // returning BLACK if the background isn't solid
+		return VistaColor(0,0,0); // returning BLACK if the background isn't solid
 	}
 
-	return VistaColorRGB(bg->getColor()[0], bg->getColor()[1], bg->getColor()[2]);
+	return VistaColor(bg->getColor()[0], bg->getColor()[1], bg->getColor()[2]);
 }
 
 void VistaOpenSGGraphicsBridge::DebugOSG()
@@ -447,7 +447,7 @@ void VistaOpenSGGraphicsBridge::DebugOSG()
 }
 
 
-void VistaOpenSGGraphicsBridge::SetBackgroundColor(const VistaColorRGB & color)
+void VistaOpenSGGraphicsBridge::SetBackgroundColor(const VistaColor & color)
 {
 	float col[3];
 	color.GetValues(col);
@@ -755,7 +755,7 @@ int  VistaOpenSGGraphicsBridge::GetColorIndex(const int idx, const IVistaGeometr
 }
 
 
-VistaColorRGB VistaOpenSGGraphicsBridge::GetColor(const int idx, const IVistaGeometryData* pData) const
+VistaColor VistaOpenSGGraphicsBridge::GetColor(const int idx, const IVistaGeometryData* pData) const
 {
 	const VistaOpenSGGeometryData* pOpenSGData 
 						= static_cast<const VistaOpenSGGeometryData*>(pData);
@@ -771,20 +771,20 @@ VistaColorRGB VistaOpenSGGraphicsBridge::GetColor(const int idx, const IVistaGeo
 			vstr::errp() << "VistaOpenSGGraphicsBridge::GetColor() -- "
 					<< "found no ChunkMaterial in OpenSG Geometry-Core!? MultiPassMaterial?" << std::endl;
 #endif
-			return VistaColorRGB(VistaColorRGB::RED);
+			return VistaColor(VistaColor::RED);
 		}
 
 		MaterialChunkPtr ptrChunk = MaterialChunkPtr::dcast(ptrMat->find(MaterialChunk::getClassType()));
 		Color4f colDiffuse = ptrChunk->getDiffuse();
-		return VistaColorRGB(colDiffuse.red(), colDiffuse.green(), colDiffuse.blue());
+		return VistaColor(colDiffuse.red(), colDiffuse.green(), colDiffuse.blue());
 	}
 
 
 	if(0 > idx || (unsigned int)idx >= pOpenSGData->GetGeometry()->getColors()->size() )
-		return VistaColorRGB(VistaColorRGB::WHITE);
+		return VistaColor(VistaColor::WHITE);
 
 	osg::Color3f color(pOpenSGData->GetGeometry()->getColors()->getValue(idx));
-	return VistaColorRGB(color[0],color[1],color[2]);
+	return VistaColor(color[0],color[1],color[2]);
 }
 
 int  VistaOpenSGGraphicsBridge::GetTextureCoordIndex(const int idx, const IVistaGeometryData* pData) const
@@ -1051,7 +1051,7 @@ bool VistaOpenSGGraphicsBridge::SetNormals(const int idx, const vector<VistaVect
 	return true;
 }
 
-bool VistaOpenSGGraphicsBridge::SetColor(const int idx, const VistaColorRGB& color, IVistaGeometryData* pData)
+bool VistaOpenSGGraphicsBridge::SetColor(const int idx, const VistaColor& color, IVistaGeometryData* pData)
 {
 	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
 
@@ -1103,7 +1103,7 @@ bool VistaOpenSGGraphicsBridge::SetColor(const int idx, const VistaColorRGB& col
 }
 
 
-bool VistaOpenSGGraphicsBridge::SetColors(const int idx, const vector<VistaColorRGB>& colors, IVistaGeometryData* pData)
+bool VistaOpenSGGraphicsBridge::SetColors(const int idx, const vector<VistaColor>& colors, IVistaGeometryData* pData)
 {
 	unsigned int i, n(idx + colors.size());
 	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
@@ -1348,7 +1348,7 @@ bool VistaOpenSGGraphicsBridge::SetColorIndex(const int idx, const int value, IV
 	return true;
 }
 
-bool VistaOpenSGGraphicsBridge::SetColor(const VistaColorRGB & color, IVistaGeometryData* pData)
+bool VistaOpenSGGraphicsBridge::SetColor(const VistaColor & color, IVistaGeometryData* pData)
 {
 	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
 	float col[3];
@@ -2156,7 +2156,7 @@ bool VistaOpenSGGraphicsBridge::GetNormals(vector<float>& normals,
 	return true;
 }
 
-bool VistaOpenSGGraphicsBridge::GetColors(vector<VistaColorRGB>& colorsRGB,
+bool VistaOpenSGGraphicsBridge::GetColors(vector<VistaColor>& colorsRGB,
 					const IVistaGeometryData* pData) const
 {
 	const VistaOpenSGGeometryData* pOpenSGData 
@@ -2174,7 +2174,7 @@ bool VistaOpenSGGraphicsBridge::GetColors(vector<VistaColorRGB>& colorsRGB,
 	while(i<ncol)
 	{
 		col->getValue(rgb, i++);
-		colorsRGB[i] = VistaColorRGB( rgb[0], rgb[1], rgb[2] );
+		colorsRGB[i] = VistaColor( rgb[0], rgb[1], rgb[2] );
 	}
 
 	return true;
@@ -2641,7 +2641,7 @@ bool VistaOpenSGGraphicsBridge::CreateIndexedGeometry
  const vector<VistaVector3D>& coords,
  const vector<VistaVector3D>& textureCoords,
  const vector<VistaVector3D>& normals,
- const vector<VistaColorRGB>& colorsRGB,
+ const vector<VistaColor>& colorsRGB,
  const VistaVertexFormat& vFormat,
  const VistaGeometry::FaceType fType,
  IVistaGeometryData* pData)
@@ -2904,7 +2904,7 @@ bool VistaOpenSGGraphicsBridge::CreateIndexedGeometry
  const vector<float>& coords,
  const vector<float>& textureCoords,
  const vector<float>& normals,
- const vector<VistaColorRGB>& colorsRGB,
+ const vector<VistaColor>& colorsRGB,
  const VistaVertexFormat& vFormat,
  const VistaGeometry::FaceType fType,
  IVistaGeometryData * pData)

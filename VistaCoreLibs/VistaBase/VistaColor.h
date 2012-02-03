@@ -118,9 +118,10 @@ public:
 	};
 
 	/**
-	 * ctors. Construct a color from various inputs. When using RGB as format,
-	 * only the first three entries of arrays will be used and alpha will be
-	 * set to 1. When using RGBA the first four entries will be used.
+	 * ctors. Construct a color from various inputs. When using RGB/HSV/HSL as
+	 * format, only the first three entries of arrays will be used and alpha
+	 * will be set to 1. When using RGBA/HSVA/HSLA the first four entries will
+	 * be used.
 	 */
 	VistaColor( int iColor = WHITE, EFormat eFormat = RGB );
 	VistaColor( int, int, int, EFormat eFormat = RGB);
@@ -129,9 +130,9 @@ public:
 	VistaColor( int, int, int, int, EFormat eFormat = RGBA );
 	VistaColor( float, float, float, float, EFormat eFormat = RGBA );
 	VistaColor( double, double, double, double, EFormat eFormat = RGBA );
-	explicit VistaColor( const int aiValues[], EFormat eFormat = RGB );
-	explicit VistaColor( const float afValues[], EFormat eFormat = RGB );
-	explicit VistaColor( const double adValues[], EFormat eFormat = RGB );
+	VistaColor( const int aiValues[], EFormat eFormat = RGB );
+	VistaColor( const float afValues[], EFormat eFormat = RGB );
+	VistaColor( const double adValues[], EFormat eFormat = RGB );
 
 	/**
 	 * @see ctors

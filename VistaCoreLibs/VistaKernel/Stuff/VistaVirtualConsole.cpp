@@ -2238,7 +2238,7 @@ namespace
 		return std::string::npos;
 	}
 }
-bool VistaVirtualConsole::Output( const std::string &strOutput, const VistaColorRGB &oColor)
+bool VistaVirtualConsole::Output( const std::string &strOutput, const VistaColor &oColor)
 {
 	if(strOutput.empty())
 		return false;
@@ -2501,32 +2501,32 @@ int  VistaVirtualConsole::GetActivationKey() const
 }
 
 
-const VistaColorRGB& VistaVirtualConsole::GetTextColor() const
+const VistaColor& VistaVirtualConsole::GetTextColor() const
 {
 	return m_TextColor;
 }
 
-void VistaVirtualConsole::SetTextColor( const VistaColorRGB &oColor )
+void VistaVirtualConsole::SetTextColor( const VistaColor &oColor )
 {
 	m_TextColor = oColor;
 }
 
-const VistaColorRGB& VistaVirtualConsole::GetCursorColor() const
+const VistaColor& VistaVirtualConsole::GetCursorColor() const
 {
 	return m_CursorColor;
 }
 
-void VistaVirtualConsole::SetCursorColor( const VistaColorRGB &oColor )
+void VistaVirtualConsole::SetCursorColor( const VistaColor &oColor )
 {
 	m_CursorColor = oColor;
 }
 
-const VistaColorRGB& VistaVirtualConsole::GetBackgroundColor() const
+const VistaColor& VistaVirtualConsole::GetBackgroundColor() const
 {
 	return m_BackgroudColor;
 }
 
-void VistaVirtualConsole::SetBackgroundColor( const VistaColorRGB &oColor )
+void VistaVirtualConsole::SetBackgroundColor( const VistaColor &oColor )
 {
 	m_BackgroudColor = oColor;
 }

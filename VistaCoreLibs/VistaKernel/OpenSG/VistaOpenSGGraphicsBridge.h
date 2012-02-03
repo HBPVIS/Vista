@@ -126,8 +126,8 @@ public:
 	 * Global States
 	 */
 
-	virtual VistaColorRGB GetBackgroundColor() const;
-	virtual void SetBackgroundColor( const VistaColorRGB&  color );
+	virtual VistaColor GetBackgroundColor() const;
+	virtual void SetBackgroundColor( const VistaColor&  color );
 
 	virtual bool GetFrustumCullingEnabled() const;
 	virtual void SetFrustumCullingEnabled( bool bCullingEnabled );
@@ -149,7 +149,7 @@ public:
 									const std::vector<VistaVector3D>& vecCoords,
 									const std::vector<VistaVector3D>& vecTexextureCoords2D,
 									const std::vector<VistaVector3D>& vecNormals,
-									const std::vector<VistaColorRGB>& vecColorsRGB,
+									const std::vector<VistaColor>& vecColorsRGB,
 									const VistaVertexFormat& oFormat,
 									const VistaGeometry::FaceType fType,
 									IVistaGeometryData* pData );
@@ -158,7 +158,7 @@ public:
 									const std::vector<float>& vecCoords,
 									const std::vector<float>& vecTextureCoords,
 									const std::vector<float>& vecNormals,
-									const std::vector<VistaColorRGB>& vecColors,
+									const std::vector<VistaColor>& vecColors,
 									const VistaVertexFormat& oFormat,
 									const VistaGeometry::FaceType fType,
 									IVistaGeometryData* pData );
@@ -194,7 +194,7 @@ public:
 									 const IVistaGeometryData* pData ) const;
 	virtual bool GetNormals( std::vector<float>& vecNormals,
 									const IVistaGeometryData* pData ) const;
-	virtual bool GetColors( std::vector<VistaColorRGB>& vecColors,
+	virtual bool GetColors( std::vector<VistaColor>& vecColors,
 									const IVistaGeometryData* pData ) const;
 
 	/**
@@ -221,7 +221,7 @@ public:
 	virtual VistaVector3D GetNormal( const int nIndex, const IVistaGeometryData* pData ) const;
 
 	virtual int  GetColorIndex( const int nIndex, const IVistaGeometryData* pData ) const;
-	virtual VistaColorRGB GetColor( const int nIndex, const IVistaGeometryData* pData ) const;
+	virtual VistaColor GetColor( const int nIndex, const IVistaGeometryData* pData ) const;
 
 	virtual int  GetTextureCoordIndex( const int nIndex, const IVistaGeometryData* pData ) const;
 	virtual bool GetTextureCoord( const int nIndex, float a3fTexCoord[3],
@@ -283,13 +283,13 @@ public:
 									IVistaGeometryData* pData );
 
 	virtual bool SetColors( const int nStartIndex,
-									const std::vector<VistaColorRGB>& vecColors,
+									const std::vector<VistaColor>& vecColors,
 									IVistaGeometryData* pData );
 	virtual bool SetColors( const int nStartIndex, const int nBufferLength,
 									float* afColors,
 									IVistaGeometryData* pData );
 
-	virtual bool SetColor( const int nIndex, const VistaColorRGB& oColor,
+	virtual bool SetColor( const int nIndex, const VistaColor& oColor,
 									IVistaGeometryData* pData );
 	virtual bool SetColorIndex( const int nIndex, const int nValue,
 									IVistaGeometryData* pData );
@@ -353,7 +353,7 @@ public:
 	virtual bool GetMaterialByIndex( int iIndex, VistaMaterial& oIn ) const;
 	virtual bool GetMaterialByName( const std::string& sName, VistaMaterial& oIn ) const;
 
-	virtual bool SetColor( const VistaColorRGB& oColor, IVistaGeometryData* pData );
+	virtual bool SetColor( const VistaColor& oColor, IVistaGeometryData* pData );
 
 	virtual bool SetMaterial( const VistaMaterial& oMaterial,
 									IVistaGeometryData* pData );

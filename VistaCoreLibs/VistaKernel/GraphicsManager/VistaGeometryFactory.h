@@ -39,7 +39,7 @@
 /*============================================================================*/
 
 class VistaSceneGraph;
-class VistaColorRGB;
+class VistaColor;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -62,7 +62,7 @@ public:
 		float sizeX = 1, float sizeZ = 1,
 		int resolutionX = 1.0f, int resolutionZ = 1.0f,
 		int facing = Vista::Y,
-		VistaColorRGB color = VistaColorRGB::WHITE
+		VistaColor color = VistaColor::WHITE
 	);
 
 	/**
@@ -71,7 +71,7 @@ public:
 	VistaGeometry* CreateBox (
 		float sizeX = 1.0f, float sizeY = 1.0f, float sizeZ = 1.0f,
 		int resolutionX = 1, int resolutionY = 1, int resolutionZ = 1,
-		VistaColorRGB color = VistaColorRGB::WHITE
+		VistaColor color = VistaColor::WHITE
 	);
 
 	/**
@@ -81,7 +81,7 @@ public:
 		float radius = 0.5f,
 		int resolutionC = 16, int resolutionD = 1,
 		int normal = Vista::Y,
-		VistaColorRGB color = VistaColorRGB::WHITE
+		VistaColor color = VistaColor::WHITE
 	);
 
 	/**
@@ -91,7 +91,7 @@ public:
 	VistaGeometry* CreateCone(
 		float radiusBottom = 0.5f, float radiusTop = 0.5f, float height = 1.0f,
 		int resolutionC = 16, int resolutionD = 1, int resolutionY = 1,
-		VistaColorRGB color = VistaColorRGB::WHITE,
+		VistaColor color = VistaColor::WHITE,
 		bool bottom = true, bool top = true, bool sides = true
 	);
 
@@ -101,7 +101,7 @@ public:
 	VistaGeometry* CreateTorus(
 		float ringRadius = 0.1f, float outerRadius = 0.4f,
 		int resolutionSides = 30, int resolutionRing = 30,
-		VistaColorRGB color = VistaColorRGB::WHITE
+		VistaColor color = VistaColor::WHITE
 	);
 
 	/**
@@ -114,7 +114,7 @@ public:
 		float radius_c = 0.5f,
 		int thetaPrecision = 32,
 		int phiPrecision = 32,
-		const VistaColorRGB & color = VistaColorRGB::WHITE
+		const VistaColor & color = VistaColor::WHITE
 	);
 
 	/**
@@ -124,7 +124,7 @@ public:
 	VistaGeometry* CreateSphere(
 		float radius = 0.5f,
 		int resolution = 32,
-		VistaColorRGB color = VistaColorRGB::WHITE
+		VistaColor color = VistaColor::WHITE
 	);
 	
 	/**
@@ -137,7 +137,7 @@ public:
 		const VistaVector3D & b = VistaVector3D( 1.0f/2,-1.0f/2,0),
 		const VistaVector3D & c = VistaVector3D(      0, 1.0f/2,0),
 		int resolution = 3,
-		const VistaColorRGB & color = VistaColorRGB::WHITE
+		const VistaColor & color = VistaColor::WHITE
 	);
 	
 	/**

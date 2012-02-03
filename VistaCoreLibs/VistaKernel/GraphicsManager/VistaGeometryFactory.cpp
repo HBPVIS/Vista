@@ -44,14 +44,14 @@ using namespace std;
 
 bool ReadColorFromProplist( const VistaPropertyList& oPropList,
 								   const std::string& sPropName,
-								   VistaColorRGB& oColorTarget )
+								   VistaColor& oColorTarget )
 {
 	if( oPropList.HasProperty( sPropName ) )
 		return false;
 	float a3fColorValues[3];
 	if( oPropList.GetValueAsArray<3>( sPropName, a3fColorValues ) == false )
 		return false;
-	oColorTarget = VistaColorRGB( a3fColorValues );
+	oColorTarget = VistaColor( a3fColorValues );
 	return true;
 }
 
@@ -85,7 +85,7 @@ VistaSceneGraph* VistaGeometryFactory::GetSG() const
 VistaGeometry* VistaGeometryFactory::CreatePlane( float xsize, float zsize,
 												  int xres, int zres,
 												  int normal,
-												  VistaColorRGB color)
+												  VistaColor color)
 {
 
 	VistaVertexFormat vertexFormat;
@@ -98,7 +98,7 @@ VistaGeometry* VistaGeometryFactory::CreatePlane( float xsize, float zsize,
 	vector<float> coords;
 	vector<float> textureCoords;
 	vector<float> normals;
-	vector<VistaColorRGB> colors;
+	vector<VistaColor> colors;
 
 	VistaIndexedVertex ci;
 	ci.SetColorIndex(0);
@@ -205,7 +205,7 @@ VistaGeometry* VistaGeometryFactory::CreatePlane( float xsize, float zsize,
 /*============================================================================*/
 VistaGeometry* VistaGeometryFactory::CreateBox (float xsize, float ysize, float zsize,
 												 int hor, int vert, int depth,
-												 VistaColorRGB color)
+												 VistaColor color)
 {
 	VistaVertexFormat vertexFormat;
 	vertexFormat.coordinate = VistaVertexFormat::COORDINATE;
@@ -217,7 +217,7 @@ VistaGeometry* VistaGeometryFactory::CreateBox (float xsize, float ysize, float 
 	vector<float> coords;
 	vector<float> textureCoords;
 	vector<float> normals;
-	vector<VistaColorRGB> colors;
+	vector<VistaColor> colors;
 
 	VistaIndexedVertex ci;
 	VistaVector3D vec;
@@ -378,7 +378,7 @@ VistaGeometry* VistaGeometryFactory::CreateBox (float xsize, float ysize, float 
 VistaGeometry* VistaGeometryFactory::CreateDisk(float pR,
 												   int resC, int resD,
 												   int normal,
-												   VistaColorRGB color)
+												   VistaColor color)
 {
 	VistaVertexFormat vertexFormat;
 	vertexFormat.coordinate = VistaVertexFormat::COORDINATE;
@@ -391,7 +391,7 @@ VistaGeometry* VistaGeometryFactory::CreateDisk(float pR,
 	vector<float> textureCoords;
 	vector<float> normals;
 	vector<float> coords;
-	vector<VistaColorRGB> colors;
+	vector<VistaColor> colors;
 
 	VistaIndexedVertex ci;
 	ci.SetColorIndex(0);
@@ -527,7 +527,7 @@ VistaGeometry* VistaGeometryFactory::CreateDisk(float pR,
 /*============================================================================*/
 VistaGeometry* VistaGeometryFactory::CreateCone(
 				float botRad, float topRad, float height,
-				int resC, int resD, int resY, VistaColorRGB color,
+				int resC, int resD, int resY, VistaColor color,
 				bool bBottom, bool bTop, bool bSides)
 				// resD := Diameter resolution
 				// resC := Circumference resolution
@@ -544,7 +544,7 @@ VistaGeometry* VistaGeometryFactory::CreateCone(
 	vector<float> coords;
 	vector<float> textureCoords;
 	vector<float> normals;
-	vector<VistaColorRGB> colors;
+	vector<VistaColor> colors;
 
 	VistaIndexedVertex ci;
 	ci.SetColorIndex(0);
@@ -976,7 +976,7 @@ VistaGeometry* VistaGeometryFactory::CreateCone(
 VistaGeometry* VistaGeometryFactory::CreateTorus(
 				float innerRad, float outerRad,
 				int resSides, int resRings,
-				VistaColorRGB color
+				VistaColor color
 				)
 {
 
@@ -991,7 +991,7 @@ VistaGeometry* VistaGeometryFactory::CreateTorus(
 	vector<float> coords;
 	vector<float> textureCoords;
 	vector<float> normals;
-	vector<VistaColorRGB> colors;
+	vector<VistaColor> colors;
 
 	VistaIndexedVertex ci;
 	ci.SetColorIndex(0);
@@ -1078,7 +1078,7 @@ VistaGeometry* VistaGeometryFactory::CreateTorus(
 /*  NAME      :   CreateSphereGeo                                             */
 /*                                                                            */
 /*============================================================================*/
-VistaGeometry* VistaGeometryFactory::CreateSphere(float radius, int resolution, VistaColorRGB color)
+VistaGeometry* VistaGeometryFactory::CreateSphere(float radius, int resolution, VistaColor color)
 {
 	return CreateEllipsoid(radius,radius,radius,resolution,resolution,color);
 }
@@ -1089,7 +1089,7 @@ VistaGeometry* VistaGeometryFactory::CreateEllipsoid(
 		float radius_c,
 		int thetaPrecision,
 		int phiPrecision,
-		const VistaColorRGB & color
+		const VistaColor & color
 	)
 {
 
@@ -1111,7 +1111,7 @@ VistaGeometry* VistaGeometryFactory::CreateEllipsoid(
 	vector<VistaVector3D>   listCoords;
 	vector<VistaVector3D>   listTextureCoords2D;
 	vector<VistaVector3D>   listNormals;
-	vector<VistaColorRGB>   listColors;
+	vector<VistaColor>   listColors;
 
 	listVertices.resize(phiResolution*6*thetaPrecision );
 	
@@ -1261,7 +1261,7 @@ VistaGeometry* VistaGeometryFactory::CreateTriangle(
 					const VistaVector3D & b,
 					const VistaVector3D & c,
 					int resolution,
-					const VistaColorRGB & color
+					const VistaColor & color
 )
 {
 	
@@ -1269,7 +1269,7 @@ VistaGeometry* VistaGeometryFactory::CreateTriangle(
 	std::vector<VistaVector3D> listCoords;
 	std::vector<VistaVector3D> textureCoords;
 	std::vector<VistaVector3D> listNormals;
-	std::vector<VistaColorRGB> listColors;
+	std::vector<VistaColor> listColors;
 	
 	VistaVertexFormat vertexFormat;
 	vertexFormat.coordinate = VistaVertexFormat::COORDINATE;
@@ -1385,7 +1385,7 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 		int iResolutionZ = oPropList.GetValueOrDefault<int>( "RESOLUTIONZ", iResolutionZ, 1 );
 		int nFacing = oPropList.GetValueOrDefault<int>( "FACEING", nFacing, Vista::Y );
 		
-		VistaColorRGB oColor = VistaColorRGB::WHITE;
+		VistaColor oColor = VistaColor::WHITE;
 		ReadColorFromProplist( oPropList, "COLOR", oColor );
 		return CreatePlane( fSizeX, fSizeY, iResolutionX, iResolutionZ, nFacing, oColor );
 	}
@@ -1398,7 +1398,7 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 		int iResolutionY = oPropList.GetValueOrDefault<int>( "RESOLUTIONY", 1 );
 		int iResolutionZ = oPropList.GetValueOrDefault<int>( "RESOLUTIONZ", 1 );
 
-		VistaColorRGB oColor = VistaColorRGB::WHITE;
+		VistaColor oColor = VistaColor::WHITE;
 		ReadColorFromProplist( oPropList, "COLOR", oColor );
 		return CreateBox (
 				fSizeX, fSizeY, fSizeZ,
@@ -1412,7 +1412,7 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 		int iResolutionD = oPropList.GetValueOrDefault<int>( "RESOLUTIOND", 16 );
 		int nNormal = oPropList.GetValueOrDefault<int>( "NORMAL", Vista::Y );
 		
-		VistaColorRGB color = VistaColorRGB::WHITE;
+		VistaColor color = VistaColor::WHITE;
 		ReadColorFromProplist( oPropList, "COLOR", color );
 
 		return CreateDisk( fRadius,
@@ -1431,7 +1431,7 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 		bool fTop = oPropList.GetValueOrDefault<bool>( "TOP", true );
 		bool fSsides = oPropList.GetValueOrDefault<bool>( "SIDES", true );
 
-		VistaColorRGB color = VistaColorRGB::WHITE;
+		VistaColor color = VistaColor::WHITE;
 		ReadColorFromProplist( oPropList, "COLOR", color );
 
 		return CreateCone(
@@ -1448,7 +1448,7 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 		int resolutionSides = oPropList.GetValueOrDefault<int>( "RESOLUTIONSIDES", 30 );
 		int resolutionRing = oPropList.GetValueOrDefault<int>( "RESOLUTIONRING", 30 );
 
-		VistaColorRGB color = VistaColorRGB::WHITE;
+		VistaColor color = VistaColor::WHITE;
 		ReadColorFromProplist( oPropList, "COLOR", color );
 
 		return CreateTorus(
@@ -1463,7 +1463,7 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 
 		float radius = oPropList.GetValueOrDefault<float>( "RADIUS", 0.5f );
 		int resolution = oPropList.GetValueOrDefault<int>( "RESOLUTION", 32 );
-		VistaColorRGB color = VistaColorRGB::WHITE;
+		VistaColor color = VistaColor::WHITE;
 		ReadColorFromProplist( oPropList, "COLOR", color );
 
 		return CreateSphere( radius, resolution, color );
@@ -1476,7 +1476,7 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 		int thetaPrecision = oPropList.GetValueOrDefault<int>( "THETARESOLUTION", 32 );
 		int phiPrecision = oPropList.GetValueOrDefault<int>( "PHIRESOLUTION", 32 );
 
-		VistaColorRGB color = VistaColorRGB::WHITE;
+		VistaColor color = VistaColor::WHITE;
 		ReadColorFromProplist( oPropList, "COLOR", color );
 
 		return CreateEllipsoid( radius_a, radius_b, radius_c, thetaPrecision, phiPrecision, color );
@@ -1490,7 +1490,7 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 		VistaVector3D v3PointC = oPropList.GetValueOrDefault<VistaVector3D>(
 											"POINT_C", VistaVector3D( 0, 0.5f, 0 ) );
 		int iResolution = oPropList.GetValueOrDefault<int>( "RESOLUTION", 3 );
-		VistaColorRGB color = VistaColorRGB::WHITE;
+		VistaColor color = VistaColor::WHITE;
 		ReadColorFromProplist( oPropList, "COLOR", color );
 
 		return CreateTriangle( v3PointA, v3PointB, v3PointC, iResolution, color );

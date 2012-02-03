@@ -141,7 +141,7 @@ public:
 						const std::vector<VistaVector3D>& coords,
 						const std::vector<VistaVector3D>& textureCoords,
 						const std::vector<VistaVector3D>& normals,
-						const std::vector<VistaColorRGB>& colors,
+						const std::vector<VistaColor>& colors,
 						const VistaVertexFormat& vFormat = VistaVertexFormat(),
 						const VistaGeometry::FaceType = VistaGeometry::VISTA_FACE_TYPE_TRIANGLES );
 
@@ -157,7 +157,7 @@ public:
 						const std::vector<float>& coords,
 						const std::vector<float>& textureCoords,
 						const std::vector<float>& normals,
-						const std::vector<VistaColorRGB>& colors,
+						const std::vector<VistaColor>& colors,
 						const VistaVertexFormat& vFormat = VistaVertexFormat(),
 						const VistaGeometry::FaceType = VistaGeometry::VISTA_FACE_TYPE_TRIANGLES );
 

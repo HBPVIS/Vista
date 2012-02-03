@@ -392,7 +392,7 @@ VistaGeometry* VistaSceneGraph::NewIndexedGeometry(
 		const vector<VistaVector3D>& coords,
 		const vector<VistaVector3D>& textureCoords,
 		const vector<VistaVector3D>& normals,
-		const vector<VistaColorRGB>& colors,
+		const vector<VistaColor>& colors,
 		const VistaVertexFormat& vFormat,
 		const VistaGeometry::FaceType fType)
 {
@@ -416,7 +416,7 @@ VistaGeometry* VistaSceneGraph::NewIndexedGeometry(
 		const vector<float>& coords,
 		const vector<float>& textureCoords,
 		const vector<float>& normals,
-		const vector<VistaColorRGB>& colors,
+		const vector<VistaColor>& colors,
 		const VistaVertexFormat& vFormat,
 		const VistaGeometry::FaceType fType)
 {

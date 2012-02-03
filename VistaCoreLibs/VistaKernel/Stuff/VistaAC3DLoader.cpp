@@ -848,7 +848,7 @@ static IVistaNode *ReadGeomKid(const std::string &sFileName,
 	vector<VistaVector3D> coords;
 	vector<VistaVector3D> textureCoords;
 	vector<VistaVector3D> normals;
-	vector<VistaColorRGB> colors;
+	vector<VistaColor> colors;
 	vector<VistaIndexedVertex> vertices;
 
 	coords.resize(obj->num_vert);
@@ -1118,19 +1118,19 @@ IVistaNode *VistaAC3DLoader::LoadNode(VistaSceneGraph *pSG, VistaGroupNode *pPar
 		ACMaterial rMat = vecPalette[i];
 		ACMaterial *mat = &rMat;
 		
-		VistaColorRGB ambient((*mat).ambient.r, 
+		VistaColor ambient((*mat).ambient.r, 
 								(*mat).ambient.g,
 								(*mat).ambient.b);
 
-		VistaColorRGB specular((*mat).specular.r, 
+		VistaColor specular((*mat).specular.r, 
 						(*mat).specular.g,
 						(*mat).specular.b);
 
-		VistaColorRGB emmissive((*mat).emissive.r, 
+		VistaColor emmissive((*mat).emissive.r, 
 				(*mat).emissive.g,
 				(*mat).emissive.b);
 
-		VistaColorRGB diffuse((*mat).rgb.r, 
+		VistaColor diffuse((*mat).rgb.r, 
 				(*mat).rgb.g,
 				(*mat).rgb.b);
 

@@ -82,7 +82,7 @@ public:
 	 * Stick to ASCII characters here.
 	 */
 	bool Output( const std::string &strOutput,
-			const VistaColorRGB &oColor = VistaColorRGB::WHITE );
+			const VistaColor &oColor = VistaColor::WHITE );
 
 	/**
 	 * adds a string to the input line, null terminated, plz.
@@ -178,14 +178,14 @@ public:
 
 
 	// coloring
-	const VistaColorRGB& GetTextColor() const;
-	void SetTextColor( const VistaColorRGB &oColor );
+	const VistaColor& GetTextColor() const;
+	void SetTextColor( const VistaColor &oColor );
 
-	const VistaColorRGB& GetCursorColor() const;
-	void SetCursorColor( const VistaColorRGB &oColor );
+	const VistaColor& GetCursorColor() const;
+	void SetCursorColor( const VistaColor &oColor );
 
-	const VistaColorRGB& GetBackgroundColor() const;
-	void SetBackgroundColor( const VistaColorRGB &oColor );
+	const VistaColor& GetBackgroundColor() const;
+	void SetBackgroundColor( const VistaColor &oColor );
 
 	/**
 	 *  1: opaque
@@ -221,7 +221,7 @@ private:
 		 m_bInitDone;
 	int  m_nActivationKey; /**< the enable / disable key for the console */
 
-	VistaColorRGB m_BackgroudColor,
+	VistaColor m_BackgroudColor,
 				   m_TextColor,
 				   m_CursorColor;
 
@@ -255,7 +255,7 @@ private:
 
 	struct SOutputLine
 	{
-		SOutputLine( const LINE &oLine, const VistaColorRGB &oColor )
+		SOutputLine( const LINE &oLine, const VistaColor &oColor )
 			: m_strLine(oLine),
 			m_oColor(oColor)
 		{
@@ -263,7 +263,7 @@ private:
 		}
 
 		LINE           m_strLine;
-		VistaColorRGB m_oColor;
+		VistaColor m_oColor;
 	};
 
 	LINE m_strInputLine;

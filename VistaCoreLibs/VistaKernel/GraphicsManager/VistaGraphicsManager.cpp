@@ -106,11 +106,11 @@ bool VistaGraphicsManager::SetupScene( const std::string& sIniSection,
 	float a3fBackgroundColor[3]; 
 	if( oProps.GetValueAsArray<3>( "BACKGROUNDCOLOR", a3fBackgroundColor ) )
 	{
-		SetBackgroundColor( VistaColorRGB( a3fBackgroundColor ) );
+		SetBackgroundColor( VistaColor( a3fBackgroundColor ) );
 	}
 	else
 	{
-		SetBackgroundColor( VistaColorRGB::VISTA_BLUE );
+		SetBackgroundColor( VistaColor::VISTA_BLUE );
 	}
 
 	//configure default lights
@@ -233,12 +233,12 @@ void VistaGraphicsManager::SetBBoxDrawingEnabled(bool bState)
 	return m_pGraphicsBridge->SetBBoxDrawingEnabled(bState);
 }
 
-VistaColorRGB VistaGraphicsManager::GetBackgroundColor() const
+VistaColor VistaGraphicsManager::GetBackgroundColor() const
 {
 	return m_pGraphicsBridge->GetBackgroundColor();
 }
 
-void VistaGraphicsManager::SetBackgroundColor(const VistaColorRGB &color)
+void VistaGraphicsManager::SetBackgroundColor(const VistaColor &color)
 {
 	m_pGraphicsBridge->SetBackgroundColor(color);
 }

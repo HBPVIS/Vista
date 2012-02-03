@@ -306,12 +306,12 @@ bool VistaOpenGLPrimitiveList::SetMaterial(const VistaMaterial & oMat) const
 	return true;
 }
 
-bool VistaOpenGLPrimitiveList::SetColor (const VistaColorRGB  & color)
+bool VistaOpenGLPrimitiveList::SetColor (const VistaColor  & color)
 {
-	m_pDrawInterface->SetMaterial(VistaMaterial( VistaColorRGB::BLACK,
-												 VistaColorRGB(color),
-												 VistaColorRGB::BLACK,
-												 VistaColorRGB::BLACK,
+	m_pDrawInterface->SetMaterial(VistaMaterial( VistaColor::BLACK,
+												 VistaColor(color),
+												 VistaColor::BLACK,
+												 VistaColor::BLACK,
 												 1,1,""));
 
 	return true;

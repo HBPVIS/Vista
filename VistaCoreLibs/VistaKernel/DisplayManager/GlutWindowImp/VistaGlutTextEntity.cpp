@@ -44,7 +44,7 @@ VistaGlutTextEntity::VistaGlutTextEntity()
 	m_nYPos = 0;
 	m_nZPos = 0;
 	m_bEnabled = true;
-	m_oColor = VistaColorRGB::BRICK_RED;
+	m_oColor = VistaColor::BRICK_RED;
 	m_sText = "";
 	m_pFontType = GLUT_BITMAP_HELVETICA_18;
 }

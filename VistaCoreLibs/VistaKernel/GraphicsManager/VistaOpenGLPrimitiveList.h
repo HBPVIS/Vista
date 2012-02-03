@@ -111,7 +111,7 @@ public:
 	void SetRemoveFromSGOnDelete(bool bRemove);
 
 	bool SetMaterial(const VistaMaterial &oMat) const;
-	bool SetColor (const VistaColorRGB  & color);
+	bool SetColor (const VistaColor  & color);
 	bool SetPrimitiveType(const ePrimitiveType & primitiveType);
 
 private:

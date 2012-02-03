@@ -82,8 +82,8 @@ public:
 	/**
 	 * Get/set background color
 	 */
-	VistaColorRGB  GetBackgroundColor() const;
-	void SetBackgroundColor(const VistaColorRGB & color);
+	VistaColor  GetBackgroundColor() const;
+	void SetBackgroundColor(const VistaColor & color);
 
 	/**
 	 * @return returns true if frustum culling is enabled globally, false otherwise

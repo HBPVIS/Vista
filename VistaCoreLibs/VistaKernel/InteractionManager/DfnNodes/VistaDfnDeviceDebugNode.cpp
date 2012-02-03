@@ -69,7 +69,7 @@ IVistaTextEntity *VistaDfnDeviceDebugNode::CreateText( int nY, const std::string
 	IVistaTextEntity *pRet = m_pDisplayManager->CreateTextEntity();
 	pRet->SetYPos( (float)nY );
 	pRet->SetText( sText );
-	pRet->SetColor(VistaColorRGB(m_r, m_g, m_b));
+	pRet->SetColor(VistaColor(m_r, m_g, m_b));
 
 	return pRet;
 }
@@ -231,7 +231,7 @@ void VistaDfnDeviceDebugNode::SetColor( float r, float g, float b)
 
 	for(LABMAP::iterator it = m_mpDynamicLabels.begin(); it != m_mpDynamicLabels.end(); ++it)
 	{
-		(*it).second->SetColor(VistaColorRGB(m_r, m_g, m_b));
+		(*it).second->SetColor(VistaColor(m_r, m_g, m_b));
 	}
 }
 

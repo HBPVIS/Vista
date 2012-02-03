@@ -40,7 +40,7 @@
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
 class VistaBoundingBox;
-class VistaColorRGB;
+class VistaColor;
 class VistaVector3D;
 
 
@@ -72,8 +72,8 @@ public:
 	virtual std::string GetFontName() const = 0;
 
 
-	virtual VistaColorRGB GetFontColor() const = 0;
-	virtual void            SetFontColor(const VistaColorRGB &) = 0;
+	virtual VistaColor GetFontColor() const = 0;
+	virtual void            SetFontColor(const VistaColor &) = 0;
 
 protected:
 	IVista3DText();

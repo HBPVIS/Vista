@@ -29,8 +29,8 @@
 /* INCLUDES                                                                   */
 /*============================================================================*/
 #include <VistaKernel/VistaKernelConfig.h>
-
-#include <VistaKernel/GraphicsManager/VistaGeometry.h>
+#include <VistaBase/VistaColor.h>
+//#include <VistaKernel/GraphicsManager/VistaGeometry.h>
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -103,8 +103,8 @@ public:
 	inline bool GetEnabled() const { return m_bEnabled; };
 	inline void SetEnabled( bool b ) { m_bEnabled = b; };
 
-	inline VistaColorRGB GetColor() const { return m_oColor; };
-	inline void SetColor( VistaColorRGB c ) { m_oColor = c; };
+	inline VistaColor GetColor() const { return m_oColor; };
+	inline void SetColor( VistaColor c ) { m_oColor = c; };
 
 	inline std::string GetText() { return m_sText; };
 	inline void SetText( const std::string& sText ) { m_sText = sText; };
@@ -115,7 +115,7 @@ protected:
 
 	bool m_bEnabled;
 
-	VistaColorRGB m_oColor;
+	VistaColor  m_oColor;
 	std::string m_sText;
 };
 
