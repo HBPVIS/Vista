@@ -236,7 +236,7 @@ public:
 	  * @param strinf strFileName : Name of output file
 	  * @return bool true/false
 	*/
-	virtual bool SaveSubTree(std::string strFileName, VistaGroupNode* pNode);
+	virtual bool SaveSubTree(std::string strFileName, VistaNode* pNode);
 	/** Load a single geometry described in a file
 	  * @param string strFileName : Name of file to be loaded
 	  * @return VistaGeomNode* : Pointer to geometry node to which read geometry has been attached

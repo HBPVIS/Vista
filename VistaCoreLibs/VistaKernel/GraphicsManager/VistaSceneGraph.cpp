@@ -661,7 +661,7 @@ VistaGroupNode* VistaSceneGraph::LoadSubTree(const std::string &strFileName,
 }
 // ============================================================================
 // ============================================================================
-bool VistaSceneGraph::SaveSubTree(std::string strFileName, VistaGroupNode* pNode)
+bool VistaSceneGraph::SaveSubTree(std::string strFileName, VistaNode* pNode)
 {
 	if(!pNode)
 		return false;
