@@ -46,16 +46,12 @@ using namespace std;
 #define max(a,b)	((a>b)?(a):(b))
 #define intersect(a1,a2,b1,b2)	((a1 <= b1) ? (a2>=b1) : (b2>=a1))
 
-//using namespace std;
 
-bool VistaBoundingBox::ComputeAABB(const float p1[3],
-						const float p2[3],
-						const VistaTransformMatrix &m,
-						VistaBoundingBox &bbOut)
+bool VistaBoundingBox::ComputeAABB( const VistaVector3D& v3Min,
+						const VistaVector3D& v3Max,
+						const VistaTransformMatrix& matTransform,
+						VistaBoundingBox& oBBOut )
 {
-	VistaVector3D v3Min(p1[0], p1[1], p1[2]);
-	VistaVector3D v3Max(p2[0], p2[1], p2[2]);
-
 	VistaVector3D v[8];
 	v[0] = VistaVector3D(v3Min);
 	v[1] = VistaVector3D(v3Max[Vista::X], v3Min[Vista::Y], v3Min[Vista::Z]);
@@ -66,37 +62,37 @@ bool VistaBoundingBox::ComputeAABB(const float p1[3],
 	v[6] = VistaVector3D(v3Min[Vista::X], v3Max[Vista::Y], v3Max[Vista::Z]);
 	v[7] = VistaVector3D(v3Max);
 
-	v[0] = m * v[0];
-	v[1] = m * v[1];
-	v[2] = m * v[2];
-	v[3] = m * v[3];
-	v[4] = m * v[4];
-	v[5] = m * v[5];
-	v[6] = m * v[6];
-	v[7] = m * v[7];
+	v[0] = matTransform * v[0];
+	v[1] = matTransform * v[1];
+	v[2] = matTransform * v[2];
+	v[3] = matTransform * v[3];
+	v[4] = matTransform * v[4];
+	v[5] = matTransform * v[5];
+	v[6] = matTransform * v[6];
+	v[7] = matTransform * v[7];
 
-	v3Min = m*v3Min;
-	v3Max = m*v3Max;
+	VistaVector3D v3MinTrans = matTransform * v3Min;
+	VistaVector3D v3MaxTrans = matTransform * v3Max;
 
 	for(unsigned i=0; i < 8; ++i)
 	{
-		if(v[i][Vista::X] < v3Min[Vista::X])
-			v3Min[Vista::X] = v[i][Vista::X];
-		if(v[i][Vista::X] > v3Max[Vista::X])
-			v3Max[Vista::X] = v[i][Vista::X];	
+		if(v[i][Vista::X] < v3MinTrans[Vista::X])
+			v3MinTrans[Vista::X] = v[i][Vista::X];
+		if(v[i][Vista::X] > v3MaxTrans[Vista::X])
+			v3MaxTrans[Vista::X] = v[i][Vista::X];	
 
-		if(v[i][Vista::Y] < v3Min[Vista::Y])
-			v3Min[Vista::Y] = v[i][Vista::Y];
-		if(v[i][Vista::Y] > v3Max[Vista::Y])
-			v3Max[Vista::Y] = v[i][Vista::Y];	
+		if(v[i][Vista::Y] < v3MinTrans[Vista::Y])
+			v3MinTrans[Vista::Y] = v[i][Vista::Y];
+		if(v[i][Vista::Y] > v3MaxTrans[Vista::Y])
+			v3MaxTrans[Vista::Y] = v[i][Vista::Y];	
 
-		if(v[i][Vista::Z] < v3Min[Vista::Z])
-			v3Min[Vista::Z] = v[i][Vista::Z];
-		if(v[i][Vista::Z] > v3Max[Vista::Z])
-			v3Max[Vista::Z] = v[i][Vista::Z];	
+		if(v[i][Vista::Z] < v3MinTrans[Vista::Z])
+			v3MinTrans[Vista::Z] = v[i][Vista::Z];
+		if(v[i][Vista::Z] > v3MaxTrans[Vista::Z])
+			v3MaxTrans[Vista::Z] = v[i][Vista::Z];	
 	}
 
-	bbOut = VistaBoundingBox(&v3Min[0], &v3Max[0]);
+	oBBOut = VistaBoundingBox(&v3Min[0], &v3Max[0]);
 	return true;
 }
 
@@ -107,29 +103,44 @@ bool VistaBoundingBox::ComputeAABB(const float p1[3],
 
 VistaBoundingBox::VistaBoundingBox()	
 {
-	m_min[0] = m_min[1] = m_min[2] = 0.0f;
-	m_max[0] = m_max[1] = m_max[2] = 0.0f;
 }
 
-VistaBoundingBox::VistaBoundingBox (const float min[3], const float max[3])
+VistaBoundingBox::VistaBoundingBox( const float a3fMin[3], const float a3fMax[3] )
 {
-	m_min[0] = min[0];
-	m_min[1] = min[1];
-	m_min[2] = min[2];
-
-	m_max[0] = max[0];
-	m_max[1] = max[1];
-	m_max[2] = max[2];
+	m_v3Min.SetValues( a3fMin );
+	m_v3Max.SetValues( a3fMax );
+}
+VistaBoundingBox::VistaBoundingBox( const VistaVector3D& v3Min, const VistaVector3D& v3Max )
+{
+	m_v3Min = v3Min;
+	m_v3Max = v3Max;
 }
 
-VistaBoundingBox::VistaBoundingBox(const float a[3], const float b[3], const float c[3])
+
+VistaBoundingBox::VistaBoundingBox( const float a3fVertexA[3],
+								   const float a3fVertexB[3],
+								   const float a3fVertexC[3] )
 {
-	m_min[0] = min(a[0], min(b[0], c[0]));
-	m_max[0] = max(a[0], max(b[0], c[0]));
-	m_min[1] = min(a[1], min(b[1], c[1]));
-	m_max[1] = max(a[1], max(b[1], c[1]));
-	m_min[2] = min(a[2], min(b[2], c[2]));
-	m_max[2] = max(a[2], max(b[2], c[2]));
+	m_v3Min[0] = min( a3fVertexA[0], min( a3fVertexB[0], a3fVertexC[0] ) );
+	m_v3Min[1] = min( a3fVertexA[1], min( a3fVertexB[1], a3fVertexC[1] ) );
+	m_v3Min[2] = min( a3fVertexA[2], min( a3fVertexB[2], a3fVertexC[2] ) );
+
+	m_v3Max[0] = max( a3fVertexA[0], max( a3fVertexB[0], a3fVertexC[0] ) );
+	m_v3Max[1] = max( a3fVertexA[1], max( a3fVertexB[1], a3fVertexC[1] ) );
+	m_v3Max[2] = max( a3fVertexA[2], max( a3fVertexB[2], a3fVertexC[2] ) );
+}
+
+VistaBoundingBox::VistaBoundingBox( const VistaVector3D& v3VertexA,
+									const VistaVector3D& v3VertexB, 
+									const VistaVector3D& v3VertexC )
+{
+	m_v3Min[0] = min( v3VertexA[0], min( v3VertexB[0], v3VertexC[0] ) );
+	m_v3Min[1] = min( v3VertexA[1], min( v3VertexB[1], v3VertexC[1] ) );
+	m_v3Min[2] = min( v3VertexA[2], min( v3VertexB[2], v3VertexC[2] ) );
+
+	m_v3Max[0] = max( v3VertexA[0], max( v3VertexB[0], v3VertexC[0] ) );
+	m_v3Max[1] = max( v3VertexA[1], max( v3VertexB[1], v3VertexC[1] ) );
+	m_v3Max[2] = max( v3VertexA[2], max( v3VertexB[2], v3VertexC[2] ) );
 }
 
 VistaBoundingBox::~VistaBoundingBox()
@@ -140,26 +151,28 @@ VistaBoundingBox::~VistaBoundingBox()
 //  IMPLEMENTATION
 //============================================================================
 
-void VistaBoundingBox::SetBounds(const float min[3], const float max[3])
+void VistaBoundingBox::SetBounds(const float a3fMin[3], const float a3fMax[3])
 {
-	m_min[0] = min[0];
-	m_min[1] = min[1];
-	m_min[2] = min[2];
-
-	m_max[0] = max[0];
-	m_max[1] = max[1];
-	m_max[2] = max[2];	
+	m_v3Min.SetValues( a3fMin );
+	m_v3Max.SetValues( a3fMax );
 }
 
-void VistaBoundingBox::GetBounds(float min[3], float max[3]) const
+void VistaBoundingBox::SetBounds( const VistaVector3D& v3Min, const VistaVector3D& v3Max )
 {
-	min[0] = m_min[0];
-	min[1] = m_min[1];
-	min[2] = m_min[2];
+	m_v3Min = v3Min;
+	m_v3Max = v3Max;
+}
 
-	max[0] = m_max[0];
-	max[1] = m_max[1];
-	max[2] = m_max[2];	
+void VistaBoundingBox::GetBounds( float a3fMin[3], float a3fMax[3] ) const
+{
+	m_v3Min.GetValues( a3fMin );
+	m_v3Max.GetValues( a3fMax );
+}
+
+void VistaBoundingBox::GetBounds( VistaVector3D& v3Min, VistaVector3D& v3Max ) const
+{
+	v3Min = m_v3Min;
+	v3Max = m_v3Max;
 }
 
 
@@ -175,74 +188,84 @@ bool VistaBoundingBox::IsEmpty() const
 		return false;
 }
 
-void VistaBoundingBox::GetSize(float& width, float& height, float& depth) const
+void VistaBoundingBox::GetSize( float& nWidth, float& nHeight, float& nDepth ) const
 {
-	width = m_max[0] - m_min[0];
-	height = m_max[1] - m_min[1];
-	depth = m_max[2] - m_min[2];
+	nWidth = m_v3Max[0] - m_v3Min[0];
+	nHeight = m_v3Max[1] - m_v3Min[1];
+	nDepth = m_v3Max[2] - m_v3Min[2];
+}
+
+VistaVector3D VistaBoundingBox::GetSize() const
+{
+	return ( m_v3Max - m_v3Min );
 }
 
 float VistaBoundingBox::GetDiagonalLength() const
 {
-	float width, height, depth;
-	
-	GetSize(width, height, depth);
-
-	return (float)sqrt(width*width + height*height + depth*depth);
+	return GetSize().GetLength();
 }
 
 float VistaBoundingBox::GetVolume() const
 {
-	float width, height, depth;
+	float nWidth, nHeight, nDepth;
 	
-	GetSize(width, height, depth);
+	GetSize( nWidth, nHeight, nDepth );
 
-	return width*height*depth;
+	return ( nWidth * nHeight * nDepth );
 }
 
-void VistaBoundingBox::GetCenter(float center[3]) const
+void VistaBoundingBox::GetCenter( float a3fCenter[3] ) const
 {
-	center[0] = (m_max[0] + m_min[0])/2.0f;
-	center[1] = (m_max[1] + m_min[1])/2.0f;
-	center[2] = (m_max[2] + m_min[2])/2.0f;
+	VistaVector3D v3Center = GetCenter();
+	v3Center.GetValues( a3fCenter );
 }
 
-VistaBoundingBox VistaBoundingBox::Expand(const float &size)
+VistaVector3D VistaBoundingBox::GetCenter() const
 {
-	m_min[0] -= size;
-	m_min[1] -= size;
-	m_min[2] -= size;
-	m_max[0] += size;
-	m_max[1] += size;
-	m_max[2] += size;
+	return ( 0.5f * ( m_v3Min + m_v3Max ) );
+}
+
+VistaBoundingBox VistaBoundingBox::Expand( const float nSize )
+{
+	m_v3Min[0] -= nSize;
+	m_v3Min[1] -= nSize;
+	m_v3Min[2] -= nSize;
+	m_v3Max[0] += nSize;
+	m_v3Max[1] += nSize;
+	m_v3Max[2] += nSize;
 	return *this;
 }
 
-bool VistaBoundingBox::Intersects (const float point[3]) const
+bool VistaBoundingBox::Intersects (const float a3fPoint[3]) const
 { 
-	if (m_min[0] <= point[0] && point[0] <= m_max[0]
-	 && m_min[1] <= point[1] && point[1] <= m_max[1]
-	 && m_min[2] <= point[2] && point[2] <= m_max[2])
+	if (m_v3Min[0] <= a3fPoint[0] && a3fPoint[0] <= m_v3Max[0]
+	 && m_v3Min[1] <= a3fPoint[1] && a3fPoint[1] <= m_v3Max[1]
+	 && m_v3Min[2] <= a3fPoint[2] && a3fPoint[2] <= m_v3Max[2])
+		return true;
+	else
+		return false;
+}
+bool VistaBoundingBox::Intersects( const VistaVector3D& v3Point ) const
+{
+	return Intersects( &v3Point[0] );
+}
+
+
+bool VistaBoundingBox::Contains (const VistaBoundingBox& oBBox) const
+{
+	if (m_v3Min[0] <= oBBox.m_v3Min[0] && oBBox.m_v3Max[0] <= m_v3Max[0]
+	 && m_v3Min[1] <= oBBox.m_v3Min[1] && oBBox.m_v3Max[1] <= m_v3Max[1]
+	 && m_v3Min[2] <= oBBox.m_v3Min[2] && oBBox.m_v3Max[2] <= m_v3Max[2])
 		return true;
 	else
 		return false;
 }
 
-bool VistaBoundingBox::Contains (const VistaBoundingBox& BBox) const
+bool VistaBoundingBox::Intersects (const VistaBoundingBox& oBBox) const
 {
-	if (m_min[0] <= BBox.m_min[0] && BBox.m_max[0] <= m_max[0]
-	 && m_min[1] <= BBox.m_min[1] && BBox.m_max[1] <= m_max[1]
-	 && m_min[2] <= BBox.m_min[2] && BBox.m_max[2] <= m_max[2])
-		return true;
-	else
-		return false;
-}
-
-bool VistaBoundingBox::Intersects (const VistaBoundingBox& BBox) const
-{
-	if(intersect(m_min[0], m_max[0], BBox.m_min[0], BBox.m_max[0])
-	&& intersect(m_min[1], m_max[1], BBox.m_min[1], BBox.m_max[1])
-	&& intersect(m_min[2], m_max[2], BBox.m_min[2], BBox.m_max[2]))
+	if(intersect(m_v3Min[0], m_v3Max[0], oBBox.m_v3Min[0], oBBox.m_v3Max[0])
+	&& intersect(m_v3Min[1], m_v3Max[1], oBBox.m_v3Min[1], oBBox.m_v3Max[1])
+	&& intersect(m_v3Min[2], m_v3Max[2], oBBox.m_v3Min[2], oBBox.m_v3Max[2]))
 		return true;
 	else
 		return false;
@@ -250,60 +273,65 @@ bool VistaBoundingBox::Intersects (const VistaBoundingBox& BBox) const
 
 VistaBoundingBox VistaBoundingBox::Include(const VistaBoundingBox& BBox)
 {
-	if (BBox.m_min[0] < m_min[0])
+	if (BBox.m_v3Min[0] < m_v3Min[0])
 	{
-		m_min[0] = BBox.m_min[0];
+		m_v3Min[0] = BBox.m_v3Min[0];
 	}
-	if (BBox.m_max[0] > m_max[0])
+	if (BBox.m_v3Max[0] > m_v3Max[0])
 	{
-		m_max[0] = BBox.m_max[0];
+		m_v3Max[0] = BBox.m_v3Max[0];
 	}
-	if (BBox.m_min[1] < m_min[1])
+	if (BBox.m_v3Min[1] < m_v3Min[1])
 	{
-		m_min[1] = BBox.m_min[1];
+		m_v3Min[1] = BBox.m_v3Min[1];
 	}
-	if (BBox.m_max[1] > m_max[1])
+	if (BBox.m_v3Max[1] > m_v3Max[1])
 	{
-		m_max[1] = BBox.m_max[1];
+		m_v3Max[1] = BBox.m_v3Max[1];
 	}
-	if (BBox.m_min[2] < m_min[2])
+	if (BBox.m_v3Min[2] < m_v3Min[2])
 	{
-		m_min[2] = BBox.m_min[2];
+		m_v3Min[2] = BBox.m_v3Min[2];
 	}
-	if (BBox.m_max[2] > m_max[2])
+	if (BBox.m_v3Max[2] > m_v3Max[2])
 	{
-		m_max[2] = BBox.m_max[2];
+		m_v3Max[2] = BBox.m_v3Max[2];
 	}
 	return(*this);
 }
 
-VistaBoundingBox VistaBoundingBox::Include(const float Pnt[3])
+VistaBoundingBox VistaBoundingBox::Include( const float a3fPoint[3] )
 {
-	if (Pnt[0] < m_min[0])
+	if (a3fPoint[0] < m_v3Min[0])
 	{
-		m_min[0] = Pnt[0];
+		m_v3Min[0] = a3fPoint[0];
 	}
-	if (Pnt[0] > m_max[0])
+	if (a3fPoint[0] > m_v3Max[0])
 	{
-		m_max[0] = Pnt[0];
+		m_v3Max[0] = a3fPoint[0];
 	}
-	if (Pnt[1] < m_min[1])
+	if (a3fPoint[1] < m_v3Min[1])
 	{
-		m_min[1] = Pnt[1];
+		m_v3Min[1] = a3fPoint[1];
 	}
-	if (Pnt[1] > m_max[1])
+	if (a3fPoint[1] > m_v3Max[1])
 	{
-		m_max[1] = Pnt[1];
+		m_v3Max[1] = a3fPoint[1];
 	}
-	if (Pnt[2] < m_min[2])
+	if (a3fPoint[2] < m_v3Min[2])
 	{
-		m_min[2] = Pnt[2];
+		m_v3Min[2] = a3fPoint[2];
 	}
-	if (Pnt[2] > m_max[2])
+	if (a3fPoint[2] > m_v3Max[2])
 	{
-		m_max[2] = Pnt[2];
+		m_v3Max[2] = a3fPoint[2];
 	}
 	return(*this);
+}
+
+VistaBoundingBox VistaBoundingBox::Include( const VistaVector3D& v3Point )
+{
+	return Include( &v3Point[0] );
 }
 
 bool VistaBoundingBox::Intersects(const float origin[3], 
@@ -343,8 +371,8 @@ bool VistaBoundingBox::Intersects(const float origin[3],
 			// Compute the parametric values for the intersection
 			// points of the line and the bounding box according
 			// to the current axis only.
-			float tmpmin = (m_min[i] - origin[i]) / directionNorm[i];
-			float tmpmax = (m_max[i] - origin[i]) / directionNorm[i];
+			float tmpmin = (m_v3Min[i] - origin[i]) / directionNorm[i];
+			float tmpmax = (m_v3Max[i] - origin[i]) / directionNorm[i];
 
 			if (tmpmin > tmpmax)
 			{
@@ -395,14 +423,21 @@ bool VistaBoundingBox::Intersects(const float origin[3],
 			// and has its origin outside the box's min and max
 			// coordinate for that axis, the ray/line cannot hit
 			// the box.
-			if ((origin[i] < m_min[i] - epsilon)
-				||	(origin[i] > m_max[i] + epsilon))
+			if ((origin[i] < m_v3Min[i] - epsilon)
+				||	(origin[i] > m_v3Max[i] + epsilon))
 			{
 				return 0;
 			}
 		}
 	}
 	return(true);
+}
+
+bool VistaBoundingBox::Intersects( const VistaVector3D& v3Origin,
+								  const VistaVector3D& v3Direction,
+								  const bool bIsRay, const float nEpsilon ) const
+{
+	return Intersects( &v3Origin[0], &v3Direction[0], bIsRay, nEpsilon );
 }
 
 /**
@@ -418,10 +453,10 @@ bool VistaBoundingBox::IntersectsSphere
 	// detection by exclusion
 	for(int iCtr = 0; iCtr < 3; ++iCtr)
 	{
-		if(fPosition[iCtr] < m_min[iCtr] - fRadius || m_max[iCtr] + fRadius < fPosition[iCtr])
+		if(fPosition[iCtr] < m_v3Min[iCtr] - fRadius || m_v3Max[iCtr] + fRadius < fPosition[iCtr])
 			return false;
 		else
-			if(m_min[iCtr] <= fPosition[iCtr] && fPosition[iCtr] <= m_max[iCtr])
+			if(m_v3Min[iCtr] <= fPosition[iCtr] && fPosition[iCtr] <= m_v3Max[iCtr])
 				iTypeOfIntersection[iCtr] = 1;
 	}
 	// okay, if we reached this point, we have determined that the center of
@@ -447,11 +482,11 @@ bool VistaBoundingBox::IntersectsSphere
 			iEdge[1] = (iEdge[0] + 1)%3;
 			iEdge[2] = (iEdge[0] + 2)%3;
 			fDirection[iEdge[0]] = 1.0f;
-			fPoint[iEdge[0]] = m_min[iEdge[0]];
-			if(fPosition[iEdge[1]] < m_min[iEdge[1]])	fPoint[iEdge[1]] = m_min[iEdge[1]];
-			else										fPoint[iEdge[1]] = m_max[iEdge[1]];
-			if(fPosition[iEdge[2]] < m_min[iEdge[2]])	fPoint[iEdge[2]] = m_min[iEdge[2]];
-			else										fPoint[iEdge[2]] = m_max[iEdge[2]];
+			fPoint[iEdge[0]] = m_v3Min[iEdge[0]];
+			if(fPosition[iEdge[1]] < m_v3Min[iEdge[1]])	fPoint[iEdge[1]] = m_v3Min[iEdge[1]];
+			else										fPoint[iEdge[1]] = m_v3Max[iEdge[1]];
+			if(fPosition[iEdge[2]] < m_v3Min[iEdge[2]])	fPoint[iEdge[2]] = m_v3Min[iEdge[2]];
+			else										fPoint[iEdge[2]] = m_v3Max[iEdge[2]];
 			// a sphere is given by (p-c)(p-c)-r^2 = 0 and a ray by (o+td) = p
 			// => (o+td-c)(o+td-c) - r^2 = 0
 			// => At^2+Bt+C = 0 with A = dd, B = 2(o-c)d, C = (o-c)(o-c)-r^2
@@ -467,9 +502,9 @@ bool VistaBoundingBox::IntersectsSphere
 		case 0: // center of sphere inside the extension of a corner of the bounding box
 			// determine corner next to the position of the sphere
 		{
-			float fCorner[3] = { m_min[0], m_min[1], m_min[2] };
+			float fCorner[3] = { m_v3Min[0], m_v3Min[1], m_v3Min[2] };
 			for(int iCtr = 0; iCtr < 3; ++iCtr)
-				if(fPosition[iCtr] > m_min[iCtr]) fCorner[iCtr] = m_max[iCtr];
+				if(fPosition[iCtr] > m_v3Min[iCtr]) fCorner[iCtr] = m_v3Max[iCtr];
 			// compute the distance from the corner to the center of the sphere
 			float fSqrDistance =
 					(fCorner[0] - fPosition[0]) * (fCorner[0] - fPosition[0]) +
@@ -486,20 +521,25 @@ bool VistaBoundingBox::IntersectsSphere
 	return false;
 }
 
+bool VistaBoundingBox::IntersectsSphere( const VistaVector3D& v3Center, const float nRadius ) const
+{
+	return IntersectsSphere( &v3Center[0], nRadius );
+}
+
 bool VistaBoundingBox::IntersectsBox
 	(const float fTransformation[16],
 	 const float fWidth, const float fHeight, const float fDepth) const
 {
 	// some variables needed later on
-	const float fMyExtend[3] = {	(m_max[0] - m_min[0])/2.0f,
-									(m_max[1] - m_min[1])/2.0f,
-									(m_max[2] - m_min[2])/2.0f };
+	const float fMyExtend[3] = {	(m_v3Max[0] - m_v3Min[0])/2.0f,
+									(m_v3Max[1] - m_v3Min[1])/2.0f,
+									(m_v3Max[2] - m_v3Min[2])/2.0f };
 	const  float fHisExtend[3] = {	fWidth /2.0f,
 									fHeight/2.0f,
 									fDepth /2.0f };
-	const float fMyCenter[3]={	m_min[0] + fMyExtend[0],
-								m_min[1] + fMyExtend[1],
-								m_min[2] + fMyExtend[2] };
+	const float fMyCenter[3]={	m_v3Min[0] + fMyExtend[0],
+								m_v3Min[1] + fMyExtend[1],
+								m_v3Min[2] + fMyExtend[2] };
 	const float fHisCenter[3]={	fTransformation[3],
 								fTransformation[7],
 								fTransformation[11] };
@@ -530,18 +570,18 @@ bool VistaBoundingBox::IntersectsBox
 				fMax[iCtr] -= fHisExtend[iCtr]*fHisAxis[iCtrAxis][iCtr];
 			}
 		}
-	if(!(m_min[0] <= fMax[0] && fMin[0] <= m_max[0])) return false;
-	if(!(m_min[1] <= fMax[1] && fMin[1] <= m_max[1])) return false;
-	if(!(m_min[2] <= fMax[2] && fMin[2] <= m_max[2])) return false;
+	if(!(m_v3Min[0] <= fMax[0] && fMin[0] <= m_v3Max[0])) return false;
+	if(!(m_v3Min[1] <= fMax[1] && fMin[1] <= m_v3Max[1])) return false;
+	if(!(m_v3Min[2] <= fMax[2] && fMin[2] <= m_v3Max[2])) return false;
 
-	const float fMyPoints[8][3] = { { m_min[0], m_min[1], m_min[2] },
-									{ m_min[0], m_min[1], m_max[2] },
-									{ m_min[0], m_max[1], m_min[2] },
-									{ m_min[0], m_max[1], m_max[2] },
-									{ m_max[0], m_min[1], m_min[2] },
-									{ m_max[0], m_min[1], m_max[2] },
-									{ m_max[0], m_max[1], m_min[2] },
-									{ m_max[0], m_max[1], m_max[2] } };
+	const float fMyPoints[8][3] = { { m_v3Min[0], m_v3Min[1], m_v3Min[2] },
+									{ m_v3Min[0], m_v3Min[1], m_v3Max[2] },
+									{ m_v3Min[0], m_v3Max[1], m_v3Min[2] },
+									{ m_v3Min[0], m_v3Max[1], m_v3Max[2] },
+									{ m_v3Max[0], m_v3Min[1], m_v3Min[2] },
+									{ m_v3Max[0], m_v3Min[1], m_v3Max[2] },
+									{ m_v3Max[0], m_v3Max[1], m_v3Min[2] },
+									{ m_v3Max[0], m_v3Max[1], m_v3Max[2] } };
 
 	for(iCtrAxis = 0; iCtrAxis < 3; ++iCtrAxis)
 	{
@@ -634,6 +674,22 @@ bool VistaBoundingBox::IntersectsBox
 	return true;
 }
 
+bool VistaBoundingBox::IntersectsBox( const VistaTransformMatrix& matTransform, 
+									 const float nWidth, const float nHeight, const float nDepth ) const
+{
+	float a16fTransform[16]; 
+	matTransform.GetValues( a16fTransform );
+	return IntersectsBox( a16fTransform, nWidth, nHeight, nDepth );
+}
+
+bool VistaBoundingBox::IntersectsBox( const VistaTransformMatrix& matTransform,
+									 const VistaVector3D& v3Extents ) const
+{
+	float a16fTransform[16]; 
+	matTransform.GetValues( a16fTransform );
+	return IntersectsBox( a16fTransform, v3Extents[0], v3Extents[1], v3Extents[2] );
+}
+
 /** \brief A helper function to project a box to an axis
  * The box is project to the given axis and the minimum and maximum values are returned.
  * \param float[3] The origin of the axis
@@ -720,8 +776,8 @@ int VistaBoundingBox::Intersection(const float origin[3],
 			// Compute the parametric values for the intersection
 			// points of the line and the bounding box according
 			// to the current axis only.
-			float tmpmin = (m_min[i] - origin[i]) / directionNorm[i];
-			float tmpmax = (m_max[i] - origin[i]) / directionNorm[i];
+			float tmpmin = (m_v3Min[i] - origin[i]) / directionNorm[i];
+			float tmpmax = (m_v3Max[i] - origin[i]) / directionNorm[i];
 
 			if (tmpmin > tmpmax)
 			{
@@ -772,8 +828,8 @@ int VistaBoundingBox::Intersection(const float origin[3],
 			// and has its origin outside the box's min and max
 			// coordinate for that axis, the ray/line cannot hit
 			// the box.
-			if ((origin[i] < m_min[i] - epsilon)
-				||	(origin[i] > m_max[i] + epsilon))
+			if ((origin[i] < m_v3Min[i] - epsilon)
+				||	(origin[i] > m_v3Max[i] + epsilon))
 			{
 				return 0;
 			}

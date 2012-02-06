@@ -31,6 +31,8 @@
 
 #include "VistaMathConfig.h"
 
+#include <VistaBase/VistaVector3D.h>
+
 //============================================================================
 //  FORWARD DECLARATIONS
 //============================================================================
@@ -55,60 +57,77 @@ class VistaTransformMatrix;
 class VISTAMATHAPI VistaBoundingBox
 {
 public:
-	/// Default constructor.
 	VistaBoundingBox();
-	/// Constructor overload.
-	VistaBoundingBox (const float min[3], const float max[3]);
+	VistaBoundingBox( const float a3fMin[3], const float a3fMax[3] );
+	VistaBoundingBox( const VistaVector3D& v3Min, const VistaVector3D& v3Max );
 	/// Constructor for a triangle.
-	VistaBoundingBox(const float a[3], const float b[3], const float c[3]);
-	/// Destructor.
+	VistaBoundingBox( const float a3fVertexA[3], const float a3fVertexB[3], const float a3fVertexC[3] );
+	VistaBoundingBox( const VistaVector3D& v3VertexA,
+						const VistaVector3D& v3VertexB, 
+						const VistaVector3D& v3VertexC );
+
 	~VistaBoundingBox();
 
 	/// Test if the bounding box is of zero volume.
 	bool IsEmpty() const;
 	/// Set boundaries of the bounding box.
-	void SetBounds(const float min[3], const float max[3]);
+	void SetBounds( const float a3fMin[3], const float a3fMax[3] );
+	void SetBounds( const VistaVector3D& v3Min, const VistaVector3D& v3Max );
+
 	/// Get bounds
-	void GetBounds(float min[3], float max[3]) const;
+	void GetBounds( float a3fMin[3], float a3fMax[3] ) const;
+	void GetBounds( VistaVector3D& v3Min, VistaVector3D& v3Max ) const;
 	/// Increase the size of the bounding box by adding the specified value to all sides.
-	VistaBoundingBox Expand(const float &size);
+	VistaBoundingBox Expand( const float nSize );
 
 	/// Get the dimensions of the bounding box.
-	void GetSize(float& width, float& height, float& depth) const;
+	void GetSize( float& nWidth, float& nHeight, float& nDepth ) const;
+	VistaVector3D GetSize() const;
 	/// Get the length of the diagonal of the bounding box.
 	float GetDiagonalLength() const;
 	/// Get the volume of the bounding box.
 	float GetVolume() const;
 	/// Get the center of the bounding box.
-	void GetCenter(float center[3]) const;
+	void GetCenter( float a3fCenter[3] ) const;
+	VistaVector3D GetCenter() const;
 
 	/// Test if the specified point lies inside the bounding box.
-	bool Intersects (const float point[3]) const;
+	bool Intersects( const float a3fPoint[3] ) const;
+	bool Intersects( const VistaVector3D& v3Point ) const;
 	/// Test intersection with a second AABB.
-	bool Intersects (const VistaBoundingBox& BBox) const;
+	bool Intersects( const VistaBoundingBox& oBBox ) const;
 	/// Test intersection with a ray or line segment.
-	bool Intersects(const float origin[3],
-					 const float direction[3],
-					 const bool isRay,
-					 const float epsilon=0.00001f) const;
+	bool Intersects( const float a3fOrigin[3],
+					 const float a3fDirection[3],
+					 const bool bIsRay,
+					 const float nEpsilon=0.00001f ) const;
+	bool Intersects( const VistaVector3D& v3Origin,
+					 const VistaVector3D& v3Direction,
+					 const bool bIsRay,
+					 const float nEpsilon=0.00001f ) const;
 	/// Does the sphere (given by position and radius) intersect the boundingbox?
-	bool IntersectsSphere(const float[3], const float) const;
+	bool IntersectsSphere( const float a3fCenter[3], const float nRadius ) const;
+	bool IntersectsSphere( const VistaVector3D& v3Center, const float nRadius ) const;
 	/// Does the box (given by transformation and width, height and depth) intersect the boundingbox?
-
-	bool IntersectsBox(const float[16], const float, const float, const float) const;
+	bool IntersectsBox( const float a16fTransform[16], const float nWidth,
+						const float nHeight, const float nDepth ) const;
+	bool IntersectsBox( const VistaTransformMatrix& matTransform, const float nWidth,
+						const float nHeight, const float nDepth ) const;
+	bool IntersectsBox( const VistaTransformMatrix& matTransform, const VistaVector3D& v3Extents ) const;
 
 	/** @todo those tests are missing */
 	// bool IntersectsCylinder(const float[16], const float, const float) const
 	// bool IntersectsCone(const float[16], const float, const float) const
 
 	/// Test if this AABB encloses the specified AABB.
-	bool Contains (const VistaBoundingBox& BBox) const;
+	bool Contains( const VistaBoundingBox& oBBox ) const;
 
 	/// Resize the bounding box such that the specified point is included.
-	VistaBoundingBox Include(const float Pnt[3]);
+	VistaBoundingBox Include( const float a3fPoint[3] );
+	VistaBoundingBox Include( const VistaVector3D& v3Point );
 
 	/// Resize the bounding box such that the specified box is included.
-	VistaBoundingBox Include(const VistaBoundingBox& BBox);
+	VistaBoundingBox Include( const VistaBoundingBox& oBBox );
 
 	/**
 	 * \brief Intersection of a ray or line segment with the bounding box.
@@ -142,30 +161,29 @@ public:
 	 * \note In case the ray/line does not intersect the box, all parameters
 	 *       passed by reference will not be changed.
 	 */
-	int Intersection(const float origin[3],
-					 const float direction[3],
-					 const bool isRay,
-					 float isect1[3], float& delta1,
-					 float isect2[3], float& delta2,
-					 const float epsilon=0.00001f) const;
+	int Intersection(const float a3fOrigin[3],
+					 const float a3fDirection[3],
+					 const bool bIsRay,
+					 float a3fIsect1[3], float& nDelta1,
+					 float a3fIsect2[3], float& nDelta2,
+					 const float epsilon = 0.00001f ) const;
 
-	static bool ComputeAABB(const float p1[3],
-						const float p2[3],
-						const VistaTransformMatrix &mtWorldTransform,
-						VistaBoundingBox &bbOut);
+	static bool ComputeAABB( const VistaVector3D& v3Min,
+						const VistaVector3D& v3Max,
+						const VistaTransformMatrix &matWorldTransform,
+						VistaBoundingBox& oBBOut );
 
 
 private:
 	/// A helper function to deceide if there is an intersection?!
-	void ProjectBoxToAxis
-		(const float[3], const float[3], const float[8][3],
-		 float&, float&) const;
+	void ProjectBoxToAxis( const float[3], const float[3], const float[8][3],
+								float&, float&) const;
 
 public:
 	/// Minimum coordinates x/y/z of the bounding box.
-	float	m_min[3];
+	VistaVector3D	m_v3Min;
 	/// Maximum coordinates x/y/z of the bounding box.
-	float	m_max[3];
+	VistaVector3D	m_v3Max;
 };
 
 //============================================================================

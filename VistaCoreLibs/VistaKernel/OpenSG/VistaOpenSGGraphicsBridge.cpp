@@ -3189,12 +3189,12 @@ bool VistaOpenSGGraphicsBridge::GetOSGMaterialByIndex(int iIndex, osg::ChunkMate
 
 bool VistaOpenSGGraphicsBridge::GetMaterialByName(const std::string &sName, VistaMaterial &oIn) const
 {
-	string CurrentName;
+	string sCurrentName;
 	unsigned int i, n(m_vMaterialTable.size());
 	for( i = 0; i < n; ++i )
 	{
-		m_vMaterialTable[i].GetName(CurrentName);
-		if( CurrentName.compare(sName) == 0 )
+		sCurrentName = m_vMaterialTable[i].GetName();
+		if( sCurrentName.compare(sName) == 0 )
 		{
 			oIn = m_vMaterialTable[i];
 			return true;
@@ -3204,17 +3204,17 @@ bool VistaOpenSGGraphicsBridge::GetMaterialByName(const std::string &sName, Vist
 }
 
 // convenience function in/for the OpenSG bridge
-bool VistaOpenSGGraphicsBridge::SetMaterial(const VistaMaterial & material, IVistaGeometryData* pData)
+bool VistaOpenSGGraphicsBridge::SetMaterial(const VistaMaterial& oMaterial, IVistaGeometryData* pData)
 {
 	VistaOpenSGGeometryData* pOpenSGData = static_cast<VistaOpenSGGeometryData*>(pData);
 
-	float amb[3], dif[3], spe[3], emi[3], opa, shi;
-	material.GetAmbientColor(amb);
-	material.GetDiffuseColor(dif);
-	material.GetSpecularColor(spe);
-	material.GetEmissionColor(emi);
-	material.GetOpacity(opa);
-	material.GetShininess(shi);
+	float amb[3], dif[3], spe[3], emi[3];
+	oMaterial.GetAmbientColor(amb);
+	oMaterial.GetDiffuseColor(dif);
+	oMaterial.GetSpecularColor(spe);
+	oMaterial.GetEmissionColor(emi);
+	float nOpacity = oMaterial.GetOpacity();
+	float nShininess = oMaterial.GetShininess();
 
 #if 0
 	/*
@@ -3263,7 +3263,7 @@ bool VistaOpenSGGraphicsBridge::SetMaterial(const VistaMaterial & material, IVis
 	if(stateChunk != osg::NullFC)
 	{
 		matchunk = osg::MaterialChunkPtr::dcast(stateChunk);
-		if(opa != 1.0f)
+		if(nOpacity != 1.0f)
 		{
 			beginEditCP(stm);
 			stm->addChunk(blendchunk);
@@ -3286,7 +3286,7 @@ bool VistaOpenSGGraphicsBridge::SetMaterial(const VistaMaterial & material, IVis
 		matchunk = osg::MaterialChunk::create();
 		beginEditCP(stm);
 		{
-			if(opa != 1.0f)
+			if(nOpacity != 1.0f)
 				stm->addChunk(blendchunk);
 			else
 			{
@@ -3307,10 +3307,10 @@ bool VistaOpenSGGraphicsBridge::SetMaterial(const VistaMaterial & material, IVis
 	beginEditCP(matchunk);
 	{
 		matchunk->setAmbient (osg::Color4f(amb[0],amb[1],amb[2],1.0f));
-		matchunk->setDiffuse (osg::Color4f(dif[0],dif[1],dif[2],opa ));
+		matchunk->setDiffuse (osg::Color4f(dif[0],dif[1],dif[2],nOpacity ));
 		matchunk->setSpecular(osg::Color4f(spe[0],spe[1],spe[2],1.0f));
 		matchunk->setEmission(osg::Color4f(emi[0],emi[1],emi[2],1.0f));
-		matchunk->setShininess(shi);
+		matchunk->setShininess(nShininess);
 		matchunk->setLit(true);
 	}
 	endEditCP(matchunk);
@@ -3453,26 +3453,26 @@ bool VistaOpenSGGraphicsBridge::GetVertices(
 }
 
 
-int VistaOpenSGGraphicsBridge::AddMaterial( const VistaMaterial & material )
+int VistaOpenSGGraphicsBridge::AddMaterial( const VistaMaterial& oMaterial )
 {
 	// get material properties from ViSTA object
-	float amb[3], dif[3], spe[3], emi[3], opa, shi, alpha;
-	material.GetAmbientColor(amb);
-	material.GetDiffuseColor(dif);
-	material.GetSpecularColor(spe);
-	material.GetEmissionColor(emi);
-	material.GetOpacity(opa);
-	material.GetShininess(shi);
-	alpha = opa;
+	float amb[3], dif[3], spe[3], emi[3];
+	oMaterial.GetAmbientColor(amb);
+	oMaterial.GetDiffuseColor(dif);
+	oMaterial.GetSpecularColor(spe);
+	oMaterial.GetEmissionColor(emi);
+	float nOpacity = oMaterial.GetOpacity();
+	float nShininess = oMaterial.GetShininess();
+	float nAlpha = nOpacity;
 
 	osg::MaterialChunkPtr matchunk = osg::MaterialChunk::create();
 	beginEditCP(matchunk);
 	{
-		matchunk->setAmbient(osg::Color4f(amb[0],amb[1],amb[2],alpha));
-		matchunk->setDiffuse(osg::Color4f(dif[0],dif[1],dif[2],alpha));
-		matchunk->setSpecular(osg::Color4f(spe[0],spe[1],spe[2],alpha));
-		matchunk->setEmission(osg::Color4f(emi[0],emi[1],emi[2],alpha));
-		matchunk->setShininess(shi);
+		matchunk->setAmbient(osg::Color4f(amb[0],amb[1],amb[2],nAlpha));
+		matchunk->setDiffuse(osg::Color4f(dif[0],dif[1],dif[2],nAlpha));
+		matchunk->setSpecular(osg::Color4f(spe[0],spe[1],spe[2],nAlpha));
+		matchunk->setEmission(osg::Color4f(emi[0],emi[1],emi[2],nAlpha));
+		matchunk->setShininess(nShininess);
 		matchunk->setLit(true);
 	}
 	endEditCP(matchunk);
@@ -3489,7 +3489,7 @@ int VistaOpenSGGraphicsBridge::AddMaterial( const VistaMaterial & material )
 	// cache all OpenSG data to prevent inefficient material-merge-scene-graph-operations
 	m_vOSGMatTab.push_back(stm);
 
-	m_vMaterialTable.push_back(material);
+	m_vMaterialTable.push_back(oMaterial);
 	m_vMaterialTable.back().SetMaterialIndex( (int)m_vMaterialTable.size() - 1 );
 	return (int)m_vMaterialTable.size() - 1;
 }

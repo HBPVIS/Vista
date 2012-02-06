@@ -62,27 +62,67 @@ VistaGeometry::~VistaGeometry()
 
 VistaIndexedVertex::VistaIndexedVertex()
 {
-	m_coordinatesIndex = -1;
-	m_normalIndex = -1;
-	m_colorIndex = -1;
-	m_textureCoordIndex = -1;
+	m_nCoordinatesIndex = -1;
+	m_nNormalIndex = -1;
+	m_nColorIndex = -1;
+	m_nTextureCoordIndex = -1;
 }
 
 VistaIndexedVertex::VistaIndexedVertex(const int coordIndex)
 {
-	m_coordinatesIndex = coordIndex;
-	m_normalIndex = -1;
-	m_colorIndex = -1;
-	m_textureCoordIndex = -1;
+	m_nCoordinatesIndex = coordIndex;
+	m_nNormalIndex = -1;
+	m_nColorIndex = -1;
+	m_nTextureCoordIndex = -1;
 }
 
 VistaIndexedVertex::~VistaIndexedVertex()
 {
 }
 
+void VistaIndexedVertex::SetCoordinateIndex( const int nCoordinatesIndex )
+{
+	m_nCoordinatesIndex = nCoordinatesIndex;
+}
+
+int VistaIndexedVertex::GetCoordinateIndex() const
+{
+	return m_nCoordinatesIndex;
+}
+
+void VistaIndexedVertex::SetNormalIndex( const int nNormalIndex )
+{
+	m_nNormalIndex = nNormalIndex;
+}
+
+int VistaIndexedVertex::GetNormalIndex() const
+{
+	return m_nNormalIndex;
+}
+
+void VistaIndexedVertex::SetColorIndex( const int nColorIndex )
+{
+	m_nColorIndex = nColorIndex;
+}
+
+int VistaIndexedVertex::GetColorIndex() const
+{
+	return m_nColorIndex;
+}
+
+void VistaIndexedVertex::SetTextureCoordinateIndex( const int nTextureCoordIndex )
+{
+	m_nTextureCoordIndex = nTextureCoordIndex;
+}
+
+int VistaIndexedVertex::GetTextureCoordinateIndex() const
+{
+	return m_nTextureCoordIndex;
+}
+
 // ============================================================================
 // ============================================================================
-bool VistaGeometry::CalcVertexNormals(const float &fCreaseAngle)
+bool VistaGeometry::CalcVertexNormals(const float fCreaseAngle)
 {
 	return m_pBridge->CalcVertexNormals( m_pData, fCreaseAngle );
 }
@@ -555,9 +595,16 @@ bool VistaGeometry::GetCoordinates(vector<float>& coords) const
 // ============================================================================
 
 
-bool VistaGeometry::GetBoundingBox(VistaVector3D& pMin, VistaVector3D& pMax)
+bool VistaGeometry::GetBoundingBox(VistaVector3D& pMin, VistaVector3D& pMax) const
 {
 	return m_pBridge->GetBoundingBox(pMin, pMax, m_pData);
+}
+
+VistaBoundingBox VistaGeometry::GetBoundingBox() const
+{
+	VistaVector3D v3Min, v3Max;
+	GetBoundingBox( v3Min, v3Max );
+	return VistaBoundingBox( v3Min, v3Max );
 }
 
 unsigned int VistaGeometry::GetNumberOfVertices() const
@@ -1038,7 +1085,7 @@ bool VistaGeometry::AddFace(const int vertexId0, const int vertexId1, const int 
 	m_adjacentFaces[vertexId1].insert(faceId);
 	m_adjacentFaces[vertexId2].insert(faceId);
 
-	m_lastFaceChanged = faceId;
+	m_nLastFaceChanged = faceId;
 	Notify(VistaGeometry::MSG_ADD_FACE);
 	return ret ? true:false;
 }
@@ -1078,7 +1125,7 @@ bool VistaGeometry::DeleteFace(const int faceId, bool deleteVertices)
 
 	int ret = m_pBridge->DeleteFace(faceId, deleteVertices, m_pData);
 
-	m_lastFaceChanged = faceId;
+	m_nLastFaceChanged = faceId;
 	Notify(VistaGeometry::MSG_DELETE_FACE);
 	return ret?true:false;
 }
@@ -1089,9 +1136,9 @@ int VistaGeometry::AddVertex(const VistaVector3D& pos)
 
 	m_adjacentFaces.resize(m_adjacentFaces.size()+1);
 
-	m_lastVertexChanged = ret;
-	m_lastFaceChanged = -1;
-	m_lastPositionChanged = pos;
+	m_nLastVertexChanged = ret;
+	m_nLastFaceChanged = -1;
+	m_nLastPositionChanged = pos;
 	Notify(VistaGeometry::MSG_ADD_VERTEX);
 	return ret;
 }
@@ -1111,9 +1158,9 @@ int VistaGeometry::AddVertex(const int face, const float a, const float b)
 
 	int ret = AddVertex(pos);
 	SetNormal(ret, normal);
-	m_lastVertexChanged = ret;
-	m_lastFaceChanged = face;
-	m_lastPositionChanged = VistaVector3D(a, b, 0.0f);
+	m_nLastVertexChanged = ret;
+	m_nLastFaceChanged = face;
+	m_nLastPositionChanged = VistaVector3D(a, b, 0.0f);
 	Notify(VistaGeometry::MSG_ADD_VERTEX);
 	return ret;
 }
@@ -1133,7 +1180,7 @@ bool VistaGeometry::DeleteVertex(const int vertexId)
 
 	ret = ret && m_pBridge->DeleteVertex(vertexId, m_pData);
 
-	m_lastVertexChanged = vertexId;
+	m_nLastVertexChanged = vertexId;
 	Notify(VistaGeometry::MSG_DELETE_VERTEX);
 	return ret?true:false;
 }
@@ -1148,12 +1195,12 @@ bool VistaGeometry::IsConsistent() const
 
 VistaMaterial::VistaMaterial()
 	// set to OpenGL default values
-	: m_ambient  (0.2f, 0.2f, 0.2f)
-	, m_diffuse  (0.8f, 0.8f, 0.8f)
-	, m_specular (0.0f, 0.0f, 0.0f)
-	, m_emission (0.0f, 0.0f, 0.0f)
-	, m_opacity  (1.0f)
-	, m_shininess(0.0f)
+	: m_oAmbient  (0.2f, 0.2f, 0.2f)
+	, m_oDiffuse  (0.8f, 0.8f, 0.8f)
+	, m_oSpecular (0.0f, 0.0f, 0.0f)
+	, m_oEmission (0.0f, 0.0f, 0.0f)
+	, m_nOpacity  (1.0f)
+	, m_nShininess(0.0f)
 	, m_strName  ("OpenGL defaults")
 	, m_iIndex   (-1)
 {
@@ -1164,12 +1211,12 @@ VistaMaterial::VistaMaterial(const VistaColor& ambient, const VistaColor& diffus
 							   const VistaColor& specular, const VistaColor& emission,
 							   const float shininess, const float opacity, const std::string & name)
 {
-	m_ambient   = ambient;
-	m_diffuse   = diffuse;
-	m_specular  = specular;
-	m_emission  = emission;
-	m_shininess = shininess;
-	m_opacity   = opacity;
+	m_oAmbient   = ambient;
+	m_oDiffuse   = diffuse;
+	m_oSpecular  = specular;
+	m_oEmission  = emission;
+	m_nShininess = shininess;
+	m_nOpacity   = opacity;
 	m_strName   = name;
 	m_iIndex    = -1;
 }
@@ -1178,79 +1225,119 @@ VistaMaterial::VistaMaterial(const float ambient[3], const float diffuse[3],
 							   const float specular[3], const float emission[3],
 							   const float  shininess, const float opacity, const std::string & name)
 {
-	m_ambient   = ambient;
-	m_diffuse   = diffuse;
-	m_specular  = specular;
-	m_emission  = emission;
-	m_shininess = shininess;
-	m_opacity   = opacity;
+	m_oAmbient   = ambient;
+	m_oDiffuse   = diffuse;
+	m_oSpecular  = specular;
+	m_oEmission  = emission;
+	m_nShininess = shininess;
+	m_nOpacity   = opacity;
 	m_strName   = name;
 	m_iIndex    = -1;
 }
 
-void VistaMaterial::GetAmbientColor(float out[3]) const
+void VistaMaterial::GetAmbientColor(float a3fColor[3]) const
 {
-	m_ambient.GetValues(out);
+	m_oAmbient.GetValues(a3fColor);
 }
 
-void VistaMaterial::GetEmissionColor(float out[3]) const
+VistaColor VistaMaterial::GetAmbientColor() const
 {
-	m_emission.GetValues(out);
+	return m_oAmbient;
 }
 
-void VistaMaterial::GetDiffuseColor(float out[3]) const
+void VistaMaterial::GetEmissionColor(float a3fColor[3]) const
 {
-	m_diffuse.GetValues(out);
+	m_oEmission.GetValues(a3fColor);
 }
 
-void VistaMaterial::GetSpecularColor(float out[3]) const
+VistaColor VistaMaterial::GetEmissionColor() const
 {
-	m_specular.GetValues(out);
+	return m_oEmission;
 }
 
-void VistaMaterial::GetShininess(float& out) const
+void VistaMaterial::GetDiffuseColor(float a3fColor[3]) const
 {
-	out = m_shininess;
+	m_oDiffuse.GetValues(a3fColor);
 }
 
-void VistaMaterial::GetOpacity(float& out) const
+VistaColor VistaMaterial::GetDiffuseColor() const
 {
-	out = m_opacity;
+	return m_oDiffuse;
 }
 
-void VistaMaterial::SetAmbientColor(float amb[3])
+void VistaMaterial::GetSpecularColor(float a3fColor[3]) const
 {
-	m_ambient = VistaColor(amb);
+	m_oSpecular.GetValues(a3fColor);
 }
 
-void VistaMaterial::SetDiffuseColor(float dif[3])
+VistaColor VistaMaterial::GetSpecularColor() const
 {
-	m_diffuse = VistaColor(dif);
+	return m_oSpecular;
 }
 
-void VistaMaterial::SetSpecularColor(float spec[3])
+float VistaMaterial::GetShininess() const
 {
-	m_specular = VistaColor(spec);
+	return m_nShininess;
 }
 
-void VistaMaterial::SetEmissionColor(float emm[3])
+float VistaMaterial::GetOpacity() const
 {
-	m_emission = VistaColor(emm);
+	return m_nOpacity;
+}
+
+void VistaMaterial::SetAmbientColor( const float amb[3])
+{
+	m_oAmbient = VistaColor(amb);
+}
+
+void VistaMaterial::SetAmbientColor( const VistaColor& oColor )
+{
+	m_oAmbient = oColor;
+}
+
+void VistaMaterial::SetDiffuseColor(const float dif[3])
+{
+	m_oDiffuse = VistaColor(dif);
+}
+
+void VistaMaterial::SetDiffuseColor( const VistaColor& oColor )
+{
+	m_oDiffuse = oColor;
+}
+
+void VistaMaterial::SetSpecularColor(const float spec[3])
+{
+	m_oSpecular = VistaColor(spec);
+}
+
+void VistaMaterial::SetSpecularColor( const VistaColor& oColor )
+{
+	m_oSpecular = oColor;
+}
+
+void VistaMaterial::SetEmissionColor(const float emm[3])
+{
+	m_oEmission = VistaColor(emm);
+}
+
+void VistaMaterial::SetEmissionColor( const VistaColor& oColor )
+{
+	m_oEmission = oColor;
 }
 
 void VistaMaterial::SetShininess(float shiny)
 {
-	m_shininess = shiny;
+	m_nShininess = shiny;
 }
 
 void VistaMaterial::SetOpacity(float opacity)
 {
-	m_opacity = opacity;
+	m_nOpacity = opacity;
 }
 
-void VistaMaterial::GetName(std::string & out) const
+std::string VistaMaterial::GetName() const
 {
-	out = m_strName;
+	return m_strName;
 }
 
 int  VistaMaterial::GetMaterialIndex() const
@@ -1266,193 +1353,193 @@ bool VistaMaterial::SetMaterialIndex(int iIndex)
 
 void VistaMaterial::Emerald(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.0215f, 0.1745f, 0.0215f);
-	mat.m_diffuse = VistaColor(0.07568f, 0.61424f, 0.07568f);
-	mat.m_specular = VistaColor(0.633f, 0.727811f, 0.633f);
-	mat.m_shininess = 60.0f;
+	mat.m_oAmbient = VistaColor(0.0215f, 0.1745f, 0.0215f);
+	mat.m_oDiffuse = VistaColor(0.07568f, 0.61424f, 0.07568f);
+	mat.m_oSpecular = VistaColor(0.633f, 0.727811f, 0.633f);
+	mat.m_nShininess = 60.0f;
 }
 
 void VistaMaterial::Jade(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.135f, 0.2225f, 0.1575f);
-	mat.m_diffuse = VistaColor(0.54f, 0.89f, 0.63f);
-	mat.m_specular = VistaColor(0.316228f, 0.316228f, 0.316228f);
-	mat.m_shininess = 10.0f;
+	mat.m_oAmbient = VistaColor(0.135f, 0.2225f, 0.1575f);
+	mat.m_oDiffuse = VistaColor(0.54f, 0.89f, 0.63f);
+	mat.m_oSpecular = VistaColor(0.316228f, 0.316228f, 0.316228f);
+	mat.m_nShininess = 10.0f;
 }
 
 void VistaMaterial::Obsidian(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.05375f, 0.05f, 0.06625f);
-	mat.m_diffuse = VistaColor(0.18275f, 0.17f, 0.22525f);
-	mat.m_specular = VistaColor(0.332741f, 0.328634f, 0.346435f);
-	mat.m_shininess = 30.0f;
+	mat.m_oAmbient = VistaColor(0.05375f, 0.05f, 0.06625f);
+	mat.m_oDiffuse = VistaColor(0.18275f, 0.17f, 0.22525f);
+	mat.m_oSpecular = VistaColor(0.332741f, 0.328634f, 0.346435f);
+	mat.m_nShininess = 30.0f;
 }
 
 void VistaMaterial::Pearl(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.25f, 0.20725f, 0.20725f);
-	mat.m_diffuse = VistaColor(1.0f, 0.829f, 0.829f);
-	mat.m_specular = VistaColor(0.296648f, 0.296648f, 0.296648f);
-	mat.m_shininess = 8.8f;
+	mat.m_oAmbient = VistaColor(0.25f, 0.20725f, 0.20725f);
+	mat.m_oDiffuse = VistaColor(1.0f, 0.829f, 0.829f);
+	mat.m_oSpecular = VistaColor(0.296648f, 0.296648f, 0.296648f);
+	mat.m_nShininess = 8.8f;
 }
 
 void VistaMaterial::Ruby(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.1745f, 0.01175f, 0.01175f);
-	mat.m_diffuse = VistaColor(0.61424f, 0.04136f, 0.04136f);
-	mat.m_specular = VistaColor(0.727811f, 0.626959f, 0.626959f);
-	mat.m_shininess = 60.0f;
+	mat.m_oAmbient = VistaColor(0.1745f, 0.01175f, 0.01175f);
+	mat.m_oDiffuse = VistaColor(0.61424f, 0.04136f, 0.04136f);
+	mat.m_oSpecular = VistaColor(0.727811f, 0.626959f, 0.626959f);
+	mat.m_nShininess = 60.0f;
 }
 
 void VistaMaterial::Turquoise(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.1f, 0.18725f, 0.1745f);
-	mat.m_diffuse = VistaColor(0.396f, 0.74151f, 0.69102f);
-	mat.m_specular = VistaColor(0.297254f, 0.30829f, 0.306678f);
-	mat.m_shininess = 10.0f;
+	mat.m_oAmbient = VistaColor(0.1f, 0.18725f, 0.1745f);
+	mat.m_oDiffuse = VistaColor(0.396f, 0.74151f, 0.69102f);
+	mat.m_oSpecular = VistaColor(0.297254f, 0.30829f, 0.306678f);
+	mat.m_nShininess = 10.0f;
 }
 
 void VistaMaterial::Brass(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.329412f, 0.223529f, 0.027451f);
-	mat.m_diffuse = VistaColor(0.780392f, 0.568627f, 0.113725f);
-	mat.m_specular = VistaColor(0.992157f, 0.941176f, 0.807843f);
-	mat.m_shininess = 21.794872f;
+	mat.m_oAmbient = VistaColor(0.329412f, 0.223529f, 0.027451f);
+	mat.m_oDiffuse = VistaColor(0.780392f, 0.568627f, 0.113725f);
+	mat.m_oSpecular = VistaColor(0.992157f, 0.941176f, 0.807843f);
+	mat.m_nShininess = 21.794872f;
 }
 
 void VistaMaterial::Bronze(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.2125f, 0.1275f, 0.054f);
-	mat.m_diffuse = VistaColor(0.714f, 0.4284f, 0.18144f);
-	mat.m_specular = VistaColor(0.393548f, 0.271906f, 0.166721f);
-	mat.m_shininess = 20.0f;
+	mat.m_oAmbient = VistaColor(0.2125f, 0.1275f, 0.054f);
+	mat.m_oDiffuse = VistaColor(0.714f, 0.4284f, 0.18144f);
+	mat.m_oSpecular = VistaColor(0.393548f, 0.271906f, 0.166721f);
+	mat.m_nShininess = 20.0f;
 }
 
 void VistaMaterial::Chrome(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.25f, 0.25f, 0.25f);
-	mat.m_diffuse = VistaColor(0.4f, 0.4f, 0.4f);
-	mat.m_specular = VistaColor(0.774597f, 0.774597f, 0.774597f);
-	mat.m_shininess = 60.0f;
+	mat.m_oAmbient = VistaColor(0.25f, 0.25f, 0.25f);
+	mat.m_oDiffuse = VistaColor(0.4f, 0.4f, 0.4f);
+	mat.m_oSpecular = VistaColor(0.774597f, 0.774597f, 0.774597f);
+	mat.m_nShininess = 60.0f;
 }
 
 void VistaMaterial::Copper(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.19125f, 0.0735f, 0.0225f);
-	mat.m_diffuse = VistaColor(0.7038f, 0.27048f, 0.0828f);
-	mat.m_specular = VistaColor(0.256777f, 0.137622f, 0.086014f);
-	mat.m_shininess = 10.0f;
+	mat.m_oAmbient = VistaColor(0.19125f, 0.0735f, 0.0225f);
+	mat.m_oDiffuse = VistaColor(0.7038f, 0.27048f, 0.0828f);
+	mat.m_oSpecular = VistaColor(0.256777f, 0.137622f, 0.086014f);
+	mat.m_nShininess = 10.0f;
 }
 
 void VistaMaterial::Gold(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.24725f, 0.1995f, 0.0745f);
-	mat.m_diffuse = VistaColor(0.75164f, 0.60648f, 0.22648f);
-	mat.m_specular = VistaColor(0.628281f, 0.555802f, 0.366065f);
-	mat.m_shininess = 40.0f;
+	mat.m_oAmbient = VistaColor(0.24725f, 0.1995f, 0.0745f);
+	mat.m_oDiffuse = VistaColor(0.75164f, 0.60648f, 0.22648f);
+	mat.m_oSpecular = VistaColor(0.628281f, 0.555802f, 0.366065f);
+	mat.m_nShininess = 40.0f;
 }
 
 void VistaMaterial::Silver(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.19225f, 0.19225f, 0.19225f);
-	mat.m_diffuse = VistaColor(0.50754f, 0.50754f, 0.50754f);
-	mat.m_specular = VistaColor(0.508273f, 0.508273f, 0.508273f);
-	mat.m_shininess = 40.0f;
+	mat.m_oAmbient = VistaColor(0.19225f, 0.19225f, 0.19225f);
+	mat.m_oDiffuse = VistaColor(0.50754f, 0.50754f, 0.50754f);
+	mat.m_oSpecular = VistaColor(0.508273f, 0.508273f, 0.508273f);
+	mat.m_nShininess = 40.0f;
 }
 
 void VistaMaterial::BlackPlastic(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.0f, 0.0f, 0.0f);
-	mat.m_diffuse = VistaColor(0.01f, 0.01f, 0.01f);
-	mat.m_specular = VistaColor(0.50f, 0.50f, 0.50f);
-	mat.m_shininess = 25.0f;
+	mat.m_oAmbient = VistaColor(0.0f, 0.0f, 0.0f);
+	mat.m_oDiffuse = VistaColor(0.01f, 0.01f, 0.01f);
+	mat.m_oSpecular = VistaColor(0.50f, 0.50f, 0.50f);
+	mat.m_nShininess = 25.0f;
 }
 
 void VistaMaterial::CyanPlastic(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.0f, 0.1f, 0.06f);
-	mat.m_diffuse = VistaColor(0.0f, 0.50980392f, 0.50980392f);
-	mat.m_specular = VistaColor(0.50196078f, 0.50196078f, 0.50196078f);
-	mat.m_shininess = 25.0f;
+	mat.m_oAmbient = VistaColor(0.0f, 0.1f, 0.06f);
+	mat.m_oDiffuse = VistaColor(0.0f, 0.50980392f, 0.50980392f);
+	mat.m_oSpecular = VistaColor(0.50196078f, 0.50196078f, 0.50196078f);
+	mat.m_nShininess = 25.0f;
 }
 
 void VistaMaterial::GreenPlastic(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.0f, 0.0f, 0.0f);
-	mat.m_diffuse = VistaColor(0.1f, 0.35f, 0.1f);
-	mat.m_specular = VistaColor(0.45f, 0.55f, 0.45f);
-	mat.m_shininess = 25.0f;
+	mat.m_oAmbient = VistaColor(0.0f, 0.0f, 0.0f);
+	mat.m_oDiffuse = VistaColor(0.1f, 0.35f, 0.1f);
+	mat.m_oSpecular = VistaColor(0.45f, 0.55f, 0.45f);
+	mat.m_nShininess = 25.0f;
 }
 
 void VistaMaterial::RedPlastic(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.0f, 0.0f, 0.0f);
-	mat.m_diffuse = VistaColor(0.5f, 0.0f, 0.0f);
-	mat.m_specular = VistaColor(0.7f, 0.6f, 0.6f);
-	mat.m_shininess = 25.0f;
+	mat.m_oAmbient = VistaColor(0.0f, 0.0f, 0.0f);
+	mat.m_oDiffuse = VistaColor(0.5f, 0.0f, 0.0f);
+	mat.m_oSpecular = VistaColor(0.7f, 0.6f, 0.6f);
+	mat.m_nShininess = 25.0f;
 }
 
 void VistaMaterial::WhitePlastic(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.0f, 0.0f, 0.0f);
-	mat.m_diffuse = VistaColor(0.55f, 0.55f, 0.55f);
-	mat.m_specular = VistaColor(0.70f, 0.70f, 0.70f);
-	mat.m_shininess = 25.0f;
+	mat.m_oAmbient = VistaColor(0.0f, 0.0f, 0.0f);
+	mat.m_oDiffuse = VistaColor(0.55f, 0.55f, 0.55f);
+	mat.m_oSpecular = VistaColor(0.70f, 0.70f, 0.70f);
+	mat.m_nShininess = 25.0f;
 }
 
 void VistaMaterial::YellowPlastic(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.0f, 0.0f, 0.0f);
-	mat.m_diffuse = VistaColor(0.5f, 0.5f, 0.0f);
-	mat.m_specular = VistaColor(0.60f, 0.60f, 0.50f);
-	mat.m_shininess = 25.0f;
+	mat.m_oAmbient = VistaColor(0.0f, 0.0f, 0.0f);
+	mat.m_oDiffuse = VistaColor(0.5f, 0.5f, 0.0f);
+	mat.m_oSpecular = VistaColor(0.60f, 0.60f, 0.50f);
+	mat.m_nShininess = 25.0f;
 }
 
 void VistaMaterial::BlackRubber(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.02f, 0.02f, 0.02f);
-	mat.m_diffuse = VistaColor(0.01f, 0.01f, 0.01f);
-	mat.m_specular = VistaColor(0.4f, 0.4f, 0.4f);
-	mat.m_shininess = 25.0f;
+	mat.m_oAmbient = VistaColor(0.02f, 0.02f, 0.02f);
+	mat.m_oDiffuse = VistaColor(0.01f, 0.01f, 0.01f);
+	mat.m_oSpecular = VistaColor(0.4f, 0.4f, 0.4f);
+	mat.m_nShininess = 25.0f;
 }
 
 void VistaMaterial::CyanRubber(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.0f, 0.05f, 0.05f);
-	mat.m_diffuse = VistaColor(0.4f, 0.5f, 0.5f);
-	mat.m_specular = VistaColor(0.04f, 0.7f, 0.7f);
-	mat.m_shininess = 7.8125f;
+	mat.m_oAmbient = VistaColor(0.0f, 0.05f, 0.05f);
+	mat.m_oDiffuse = VistaColor(0.4f, 0.5f, 0.5f);
+	mat.m_oSpecular = VistaColor(0.04f, 0.7f, 0.7f);
+	mat.m_nShininess = 7.8125f;
 }
 
 void VistaMaterial::GreenRubber(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.0f, 0.05f, 0.0f);
-	mat.m_diffuse = VistaColor(0.4f, 0.5f, 0.4f);
-	mat.m_specular = VistaColor(0.04f, 0.7f, 0.04f);
-	mat.m_shininess = 7.8125f;
+	mat.m_oAmbient = VistaColor(0.0f, 0.05f, 0.0f);
+	mat.m_oDiffuse = VistaColor(0.4f, 0.5f, 0.4f);
+	mat.m_oSpecular = VistaColor(0.04f, 0.7f, 0.04f);
+	mat.m_nShininess = 7.8125f;
 }
 
 void VistaMaterial::RedRubber(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.05f, 0.0f, 0.0f);
-	mat.m_diffuse = VistaColor(0.5f, 0.4f, 0.4f);
-	mat.m_specular = VistaColor(0.7f, 0.04f, 0.04f);
-	mat.m_shininess = 7.8125f;
+	mat.m_oAmbient = VistaColor(0.05f, 0.0f, 0.0f);
+	mat.m_oDiffuse = VistaColor(0.5f, 0.4f, 0.4f);
+	mat.m_oSpecular = VistaColor(0.7f, 0.04f, 0.04f);
+	mat.m_nShininess = 7.8125f;
 }
 
 void VistaMaterial::WhiteRubber(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.05f, 0.05f, 0.05f);
-	mat.m_diffuse = VistaColor(0.5f, 0.5f, 0.5f);
-	mat.m_specular = VistaColor(0.7f, 0.7f, 0.7f);
-	mat.m_shininess = 7.8125f;
+	mat.m_oAmbient = VistaColor(0.05f, 0.05f, 0.05f);
+	mat.m_oDiffuse = VistaColor(0.5f, 0.5f, 0.5f);
+	mat.m_oSpecular = VistaColor(0.7f, 0.7f, 0.7f);
+	mat.m_nShininess = 7.8125f;
 }
 
 void VistaMaterial::YellowRubber(VistaMaterial& mat)
 {
-	mat.m_ambient = VistaColor(0.05f, 0.05f, 0.0f);
-	mat.m_diffuse = VistaColor(0.5f, 0.5f, 0.4f);
-	mat.m_specular = VistaColor(0.7f, 0.7f, 0.04f);
-	mat.m_shininess = 7.8125f;
+	mat.m_oAmbient = VistaColor(0.05f, 0.05f, 0.0f);
+	mat.m_oDiffuse = VistaColor(0.5f, 0.5f, 0.4f);
+	mat.m_oSpecular = VistaColor(0.7f, 0.7f, 0.04f);
+	mat.m_nShininess = 7.8125f;
 }
 

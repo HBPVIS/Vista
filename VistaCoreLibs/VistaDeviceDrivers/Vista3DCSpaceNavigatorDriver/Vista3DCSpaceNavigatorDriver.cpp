@@ -169,8 +169,8 @@ Vista3DCSpaceNavigator::Vista3DCSpaceNavigator(IVistaDriverCreationMethod *crm)
 
 	VistaBoundingBox bb;
 
-	bb.m_min[0] = bb.m_min[1] = bb.m_min[2] = -400;
-	bb.m_max[0] = bb.m_max[1] = bb.m_max[2] =  400;
+	bb.m_v3Min[0] = bb.m_v3Min[1] = bb.m_v3Min[2] = -400;
+	bb.m_v3Max[0] = bb.m_v3Max[1] = bb.m_v3Max[2] =  400;
 
 	m_pWorkspace->SetWorkspace( "KNOB", bb );
 

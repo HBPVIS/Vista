@@ -138,16 +138,16 @@ IVistaDeSerializer &operator>>( IVistaDeSerializer &oSer, VistaAxisAndAngle &v3 
 
 IVistaSerializer &operator<<( IVistaSerializer &oSer, const VistaBoundingBox &bb )
 {
-	oSer << bb.m_min[0] << bb.m_min[1] << bb.m_min[2] 
-		 << bb.m_max[0] << bb.m_max[1] << bb.m_max[2];
+	oSer << bb.m_v3Min[0] << bb.m_v3Min[1] << bb.m_v3Min[2] 
+		 << bb.m_v3Max[0] << bb.m_v3Max[1] << bb.m_v3Max[2];
 	return oSer;
 }
 
 
 IVistaDeSerializer &operator>>( IVistaDeSerializer &oSer, VistaBoundingBox &bb )
 {
-	oSer >> bb.m_min[0] >> bb.m_min[1] >> bb.m_min[2] 
-		 >> bb.m_max[0] >> bb.m_max[1] >> bb.m_max[2];
+	oSer >> bb.m_v3Min[0] >> bb.m_v3Min[1] >> bb.m_v3Min[2] 
+		 >> bb.m_v3Max[0] >> bb.m_v3Max[1] >> bb.m_v3Max[2];
 
 	return oSer;
 }

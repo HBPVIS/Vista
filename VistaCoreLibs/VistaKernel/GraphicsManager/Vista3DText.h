@@ -57,23 +57,23 @@ public:
 	// Deconstructor
 	virtual ~IVista3DText();
 
-	virtual void		SetText(const std::string &Text ) = 0;
-	virtual std::string	GetText() const                   = 0;
+	virtual void		  SetText(const std::string &Text ) = 0;
+	virtual std::string   GetText() const                   = 0;
 
-	virtual float       GetFontSize() const          = 0;
-	virtual void        SetFontSize(float fFontSize) = 0;
+	virtual float         GetFontSize() const          = 0;
+	virtual void          SetFontSize(float fFontSize) = 0;
 
-	virtual float       GetFontDepth() const = 0;
-	virtual void        SetFontDepth(float fDepth) = 0;
+	virtual float         GetFontDepth() const = 0;
+	virtual void          SetFontDepth(float fDepth) = 0;
 
-	virtual bool        FontHasChar(char c) const    = 0;
+	virtual bool          FontHasChar(char c) const    = 0;
 
-	virtual bool        SetFontName(const std::string &sFontName) = 0;
-	virtual std::string GetFontName() const = 0;
+	virtual bool          SetFontName(const std::string &sFontName) = 0;
+	virtual std::string   GetFontName() const = 0;
 
 
-	virtual VistaColor GetFontColor() const = 0;
-	virtual void            SetFontColor(const VistaColor &) = 0;
+	virtual VistaColor    GetFontColor() const = 0;
+	virtual void          SetFontColor( const VistaColor& oColor ) = 0;
 
 protected:
 	IVista3DText();

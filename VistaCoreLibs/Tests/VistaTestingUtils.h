@@ -58,6 +58,10 @@ namespace VistaTestingRandom
 		dRand *= S_nRandRange;
 		return dRand;
 	}
+	inline double RandomFloat()
+	{
+		return (float)RandomDouble();
+	}
 
 	inline int RandomInt( int nMax )
 	{
@@ -98,13 +102,13 @@ namespace VistaTestingRandom
 	template<>
 	inline VistaVector3D GenerateRandom<VistaVector3D>()
 	{
-		return VistaVector3D( RandomDouble(), RandomDouble(), RandomDouble() );
+		return VistaVector3D( RandomFloat(), RandomFloat(), RandomFloat() );
 	}
 
 	template<>
 	inline VistaQuaternion GenerateRandom<VistaQuaternion>()
 	{
-		VistaQuaternion qRand( RandomDouble(), RandomDouble(), RandomDouble(), RandomDouble() );
+		VistaQuaternion qRand( RandomFloat(), RandomFloat(), RandomFloat(), RandomFloat() );
 		qRand.Normalize();
 		return qRand;
 	}
@@ -112,10 +116,10 @@ namespace VistaTestingRandom
 	template<>
 	inline VistaTransformMatrix GenerateRandom<VistaTransformMatrix>()
 	{
-		return VistaTransformMatrix( RandomDouble(), RandomDouble(), RandomDouble(), RandomDouble(),
-							RandomDouble(), RandomDouble(), RandomDouble(), RandomDouble(),
-							RandomDouble(), RandomDouble(), RandomDouble(), RandomDouble(),
-							RandomDouble(), RandomDouble(), RandomDouble(), RandomDouble() );
+		return VistaTransformMatrix( RandomFloat(), RandomFloat(), RandomFloat(), RandomFloat(),
+							RandomFloat(), RandomFloat(), RandomFloat(), RandomFloat(),
+							RandomFloat(), RandomFloat(), RandomFloat(), RandomFloat(),
+							RandomFloat(), RandomFloat(), RandomFloat(), RandomFloat() );
 	}
 
 	inline VistaPropertyList GenerateRandomProplist( unsigned int nRecursionDepth )

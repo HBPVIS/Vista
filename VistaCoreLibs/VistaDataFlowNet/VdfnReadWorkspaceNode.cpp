@@ -100,15 +100,15 @@ void VdfnReadWorkspaceNode::SetWorkspaceAspect( VistaDriverWorkspaceAspect *pWS 
         // clear fields
 	    VistaBoundingBox bb;
 	    m_pBounds->SetValue(bb, GetUpdateTimeStamp());
-	    m_pMinX->SetValue(bb.m_min[0], GetUpdateTimeStamp());
-	    m_pMaxX->SetValue(bb.m_max[0], GetUpdateTimeStamp());
-	    m_pMinY->SetValue(bb.m_min[1], GetUpdateTimeStamp());
-	    m_pMaxY->SetValue(bb.m_max[1], GetUpdateTimeStamp());
-	    m_pMinZ->SetValue(bb.m_min[2], GetUpdateTimeStamp());
-	    m_pMaxZ->SetValue(bb.m_max[2], GetUpdateTimeStamp());
-        m_pWidth->SetValue(bb.m_max[0] - bb.m_min[0], GetUpdateTimeStamp() );
-        m_pHeight->SetValue(bb.m_max[1] - bb.m_min[1], GetUpdateTimeStamp() );
-        m_pDepth->SetValue(bb.m_max[2] - bb.m_min[2], GetUpdateTimeStamp() );
+	    m_pMinX->SetValue(bb.m_v3Min[0], GetUpdateTimeStamp());
+	    m_pMaxX->SetValue(bb.m_v3Max[0], GetUpdateTimeStamp());
+	    m_pMinY->SetValue(bb.m_v3Min[1], GetUpdateTimeStamp());
+	    m_pMaxY->SetValue(bb.m_v3Max[1], GetUpdateTimeStamp());
+	    m_pMinZ->SetValue(bb.m_v3Min[2], GetUpdateTimeStamp());
+	    m_pMaxZ->SetValue(bb.m_v3Max[2], GetUpdateTimeStamp());
+        m_pWidth->SetValue(bb.m_v3Max[0] - bb.m_v3Min[0], GetUpdateTimeStamp() );
+        m_pHeight->SetValue(bb.m_v3Max[1] - bb.m_v3Min[1], GetUpdateTimeStamp() );
+        m_pDepth->SetValue(bb.m_v3Max[2] - bb.m_v3Min[2], GetUpdateTimeStamp() );
     }
 }
 
@@ -117,15 +117,15 @@ bool VdfnReadWorkspaceNode::DoEvalNode()
 	VistaBoundingBox bb;
 	m_pWorkspace->GetWorkspace(m_strWorkspaceToken, bb);
 	m_pBounds->SetValue(bb, GetUpdateTimeStamp());
-	m_pMinX->SetValue(bb.m_min[0], GetUpdateTimeStamp());
-	m_pMaxX->SetValue(bb.m_max[0], GetUpdateTimeStamp());
-	m_pMinY->SetValue(bb.m_min[1], GetUpdateTimeStamp());
-	m_pMaxY->SetValue(bb.m_max[1], GetUpdateTimeStamp());
-	m_pMinZ->SetValue(bb.m_min[2], GetUpdateTimeStamp());
-	m_pMaxZ->SetValue(bb.m_max[2], GetUpdateTimeStamp());
-    m_pWidth->SetValue(bb.m_max[0] - bb.m_min[0], GetUpdateTimeStamp() );
-    m_pHeight->SetValue(bb.m_max[1] - bb.m_min[1], GetUpdateTimeStamp() );
-    m_pDepth->SetValue(bb.m_max[2] - bb.m_min[2], GetUpdateTimeStamp() );
+	m_pMinX->SetValue(bb.m_v3Min[0], GetUpdateTimeStamp());
+	m_pMaxX->SetValue(bb.m_v3Max[0], GetUpdateTimeStamp());
+	m_pMinY->SetValue(bb.m_v3Min[1], GetUpdateTimeStamp());
+	m_pMaxY->SetValue(bb.m_v3Max[1], GetUpdateTimeStamp());
+	m_pMinZ->SetValue(bb.m_v3Min[2], GetUpdateTimeStamp());
+	m_pMaxZ->SetValue(bb.m_v3Max[2], GetUpdateTimeStamp());
+    m_pWidth->SetValue(bb.m_v3Max[0] - bb.m_v3Min[0], GetUpdateTimeStamp() );
+    m_pHeight->SetValue(bb.m_v3Max[1] - bb.m_v3Min[1], GetUpdateTimeStamp() );
+    m_pDepth->SetValue(bb.m_v3Max[2] - bb.m_v3Min[2], GetUpdateTimeStamp() );
 
     return true;
 }

@@ -54,18 +54,18 @@ class VISTAKERNELAPI VistaAxes
 {
 public:
 
-	VistaAxes(VistaSceneGraph * pVistaSceneGraph,
-			  float sizeX=1.0f, float sizeY=1.0f, float sizeZ=1.0f);
+	VistaAxes( VistaSceneGraph * pVistaSceneGraph,
+			  float fSizeX = 1.0f, float fSizeY = 1.0f, float fSizeZ = 1.0f );
 	virtual ~VistaAxes();
 
 	IVistaNode * GetVistaNode();
 
 private:
 
-	std::vector<VistaGeometry*>	m_axes;
-	std::vector<VistaGeometry*>	m_tips;
-	VistaGeometry*				m_center;
-	VistaGroupNode*			m_group;
+	std::vector<VistaGeometry*>	m_vecAxes;
+	std::vector<VistaGeometry*>	m_vecTips;
+	VistaGeometry*				m_pCenter;
+	VistaGroupNode*				m_pGroup;
 };
 
 /*============================================================================*/

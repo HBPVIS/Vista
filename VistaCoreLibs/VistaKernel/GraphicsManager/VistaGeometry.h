@@ -37,6 +37,7 @@
 #include <VistaBase/VistaBaseTypes.h>
 #include <VistaBase/VistaColor.h>
 #include <VistaAspects/VistaObserveable.h>
+#include <VistaMath/VistaBoundingBox.h>
 
 /*============================================================================*/
 /* FORWARD DECLARATIONS                                                       */
@@ -60,10 +61,10 @@ class VistaColor;
 class VistaVertexFormat
 {
 public:
-	enum coordinateFormat {COORDINATE};
-	enum colorFormat {COLOR_NONE, COLOR_RGB};
-	enum normalFormat {NORMAL_NONE, NORMAL, NORMAL_AUTO};
-	enum textureCoordFormat {TEXTURE_COORD_NONE, TEXTURE_COORD_2D};
+	enum coordinateFormat { COORDINATE };
+	enum colorFormat { COLOR_NONE, COLOR_RGB };
+	enum normalFormat { NORMAL_NONE, NORMAL, NORMAL_AUTO };
+	enum textureCoordFormat { TEXTURE_COORD_NONE, TEXTURE_COORD_2D };
 
 	coordinateFormat coordinate;
 	colorFormat color;
@@ -116,21 +117,30 @@ public:
 
 	~VistaMaterial(){};
 
-	void GetAmbientColor(float [3]) const;
-	void GetDiffuseColor(float [3]) const;
-	void GetSpecularColor(float [3]) const;
-	void GetEmissionColor(float [3]) const;
-	void GetShininess(float &) const;
-	void GetOpacity(float &) const;
+	
+	VistaColor GetAmbientColor() const;
+	void GetAmbientColor( float a3fColor[3] ) const;
+	VistaColor GetDiffuseColor() const;
+	void GetDiffuseColor( float a3fColor[3] ) const;
+	VistaColor GetSpecularColor() const;
+	void GetSpecularColor( float a3fColor[3] ) const;
+	VistaColor GetEmissionColor() const;
+	void GetEmissionColor( float a3fColor[3] ) const;
+	float GetShininess() const;
+	float GetOpacity() const;
 
-	void SetAmbientColor(float [3]) ;
-	void SetDiffuseColor(float [3]) ;
-	void SetSpecularColor(float [3]) ;
-	void SetEmissionColor(float [3]) ;
-	void SetShininess(float ) ;
-	void SetOpacity(float ) ;
+	void SetAmbientColor( const float a3fColor[3] );
+	void SetAmbientColor( const VistaColor& oColor ) ;
+	void SetDiffuseColor( const float a3fColor[3] );
+	void SetDiffuseColor( const VistaColor& oColor ) ;
+	void SetSpecularColor( const float a3fColor[3] );
+	void SetSpecularColor( const VistaColor& oColor ) ;
+	void SetEmissionColor( const float a3fColor[3] );
+	void SetEmissionColor( const VistaColor& oColor ) ;
+	void SetShininess( const float nShininess ) ;
+	void SetOpacity( const float nOpacity  ) ;
 
-	void GetName(std::string &) const;
+	std::string GetName() const;
 
 	int  GetMaterialIndex() const;
 	bool SetMaterialIndex(int iIndex);
@@ -161,12 +171,12 @@ public:
 	static void YellowRubber(VistaMaterial&);
 
 private:
-	VistaColor          m_ambient;
-	VistaColor          m_diffuse;
-	VistaColor          m_specular;
-	VistaColor          m_emission;
-	float               m_shininess;
-	float               m_opacity;
+	VistaColor          m_oAmbient;
+	VistaColor          m_oDiffuse;
+	VistaColor          m_oSpecular;
+	VistaColor          m_oEmission;
+	float               m_nShininess;
+	float               m_nOpacity;
 	std::string         m_strName;
 	int                 m_iIndex;
 };
@@ -179,23 +189,23 @@ public:
 
 	~VistaIndexedVertex();
 
-	void SetCoordinateIndex(const int& coordinatesIndex) {m_coordinatesIndex = coordinatesIndex;}
-	int GetCoordinateIndex() const {return m_coordinatesIndex;}
+	void SetCoordinateIndex( const int nCoordinatesIndex );
+	int GetCoordinateIndex() const;
 
-	void SetNormalIndex(const int& normalIndex) {m_normalIndex = normalIndex;}
-	int GetNormalIndex() const {return m_normalIndex;}
+	void SetNormalIndex( const int nNormalIndex);
+	int GetNormalIndex() const;
 
-	void SetColorIndex(const int& colorIndex) {m_colorIndex = colorIndex;}
-	int GetColorIndex() const {return m_colorIndex;}
+	void SetColorIndex( const int nColorIndex );
+	int GetColorIndex() const;
 
-	void SetTextureCoordinateIndex(const int& textureCoordIndex) {m_textureCoordIndex = textureCoordIndex;}
-	int GetTextureCoordinateIndex() const {return m_textureCoordIndex;}
+	void SetTextureCoordinateIndex( const int nTextureCoordIndex );
+	int GetTextureCoordinateIndex() const;
 
 private:
-	int             m_coordinatesIndex;
-	int             m_normalIndex;
-	int             m_colorIndex;
-	int             m_textureCoordIndex;
+	int             m_nCoordinatesIndex;
+	int             m_nNormalIndex;
+	int             m_nColorIndex;
+	int             m_nTextureCoordIndex;
 };
 
 class VISTAKERNELAPI VistaGeometryObservable : public IVistaObserveable
@@ -215,9 +225,9 @@ public:
 	};
 
 public:
-	int                     m_lastVertexChanged;
-	int                     m_lastFaceChanged;
-	VistaVector3D          m_lastPositionChanged;
+	int				m_nLastVertexChanged;
+	int				m_nLastFaceChanged;
+	VistaVector3D	m_nLastPositionChanged;
 
 };
 
@@ -242,14 +252,13 @@ public:
 protected:
 
 	//! Deprecated version for creating an indexed geometry, as vectors of VistaVector3Ds are used.
-	bool CreateIndexedGeometry(
-		const std::vector<VistaIndexedVertex>& vertices,
-		const std::vector<VistaVector3D>& coords,
-		const std::vector<VistaVector3D>& textureCoords,
-		const std::vector<VistaVector3D>& normals,
-		const std::vector<VistaColor>& colors,
-		const VistaVertexFormat& vFormat,
-		const VistaGeometry::FaceType fType);
+	bool CreateIndexedGeometry(	const std::vector<VistaIndexedVertex>& vecVertices,
+							const std::vector<VistaVector3D>& vecCoords,
+							const std::vector<VistaVector3D>& vecTextureCoords,
+							const std::vector<VistaVector3D>& vecNormals,
+							const std::vector<VistaColor>& vecColors,
+							const VistaVertexFormat& vFormat,
+							const VistaGeometry::FaceType fType );
 
 	//! Create an indexed geometry.
 	/**
@@ -259,14 +268,13 @@ protected:
 	 * @param normals - vector with x,y,z value for the textures length%3 should be 0
 	 *
 	*/
-	bool CreateIndexedGeometry
-		(const std::vector<VistaIndexedVertex>& vertices,
-		 const std::vector<float>& coords,
-		 const std::vector<float>& textureCoords,
-		 const std::vector<float>& normals,
-		 const std::vector<VistaColor>& colors,
-		 const VistaVertexFormat& vFormat,
-		 const VistaGeometry::FaceType fType);
+	bool CreateIndexedGeometry( const std::vector<VistaIndexedVertex>& vecVertices,
+							const std::vector<float>& vecCoords,
+							const std::vector<float>& vecTextureCoords,
+							const std::vector<float>& vecNormals,
+							const std::vector<VistaColor>& vecColors,
+							const VistaVertexFormat& vFormat,
+							const VistaGeometry::FaceType fType);
 
 public:
 	virtual ~VistaGeometry();
@@ -287,7 +295,7 @@ public:
 	 *  calculates the Vertex normals in depending on the given angle
 	 *  Expensive!
 	 */
-	bool CalcVertexNormals(const float &fCreaseAngle = 0.524f); // 30 degrees
+	bool CalcVertexNormals( const float fCreaseAngle = 0.524f ); // 30 degrees
 	/**
 	 * calculating the Face normals.
 	 * Expensive!
@@ -325,7 +333,8 @@ public:
 	 *  \param pMax The second vertex of the bounding box.
 	 *  \return bool Always true.
 	 *  */
-	bool GetBoundingBox(VistaVector3D& pMin, VistaVector3D& pMax);
+	bool GetBoundingBox( VistaVector3D& pMin, VistaVector3D& pMax ) const;
+	VistaBoundingBox GetBoundingBox() const;
 
 	//! Scale geometry in all directions by the same given factor
 	/** \param scale The floating point value to scale the geometry with.
