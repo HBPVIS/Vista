@@ -58,7 +58,7 @@ namespace VistaTestingRandom
 		dRand *= S_nRandRange;
 		return dRand;
 	}
-	inline double RandomFloat()
+	inline float RandomFloat()
 	{
 		return (float)RandomDouble();
 	}

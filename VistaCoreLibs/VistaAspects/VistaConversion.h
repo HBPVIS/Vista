@@ -35,6 +35,7 @@
 #include <VistaBase/VistaVectorMath.h>
 #include <VistaBase/VistaExceptionBase.h>
 #include <VistaBase/VistaStreamUtils.h>
+#include <VistaBase/VistaColor.h>
 
 
 #include <string>
@@ -1506,6 +1507,62 @@ namespace VistaConversion
 
 	};
 
+	template<>
+	struct StringConvertObject<VistaColor>
+	{
+		static void ToString( const VistaColor& oSource, std::string& sTarget,
+								char cSeparator = S_cDefaultSeparator )
+		{
+			char aBuffer[128];
+			if( oSource[3] == 1 )
+			{
+				sprintf( aBuffer, "%g%c %g%c %g",
+						(double)oSource[0], cSeparator,
+						(double)oSource[1], cSeparator,
+						(double)oSource[2] );
+			}
+			else
+			{
+				sprintf( aBuffer, "%g%c %g%c %g%c %g",
+						(double)oSource[0], cSeparator,
+						(double)oSource[1], cSeparator,
+						(double)oSource[2], cSeparator,
+						(double)oSource[3] );
+			}
+			sTarget = std::string( aBuffer );
+		}
+		static bool FromString( const std::string& sSource, VistaColor& oTarget,
+								char cSeparator = S_cDefaultSeparator )
+		{
+			std::string sCleanedSource = sSource;
+			RemoveBraces( sCleanedSource );
+
+			std::vector<float> vecEntries;
+
+			if( StringConvertObject<std::vector<float> >::FromString(
+									sCleanedSource, vecEntries, cSeparator ) == false )
+				return false;
+
+			if( vecEntries.size() == 3 )
+			{
+				oTarget[0] = vecEntries[0];
+				oTarget[1] = vecEntries[1];
+				oTarget[2] = vecEntries[2];
+				oTarget[3] = 1.0f;
+			}
+			else if( vecEntries.size() == 4 )
+			{
+				oTarget[0] = vecEntries[0];
+				oTarget[1] = vecEntries[1];
+				oTarget[2] = vecEntries[2];
+				oTarget[3] = vecEntries[3];
+			}
+			else
+				return false;
+
+			return true;
+		}
+	};
 
 }
 
