@@ -253,12 +253,19 @@ namespace
 					<< pSlave->m_sName << "] - no free port left on slave" << std::endl;
 				return NULL;
 			}
+			else if( nPort < 0 )
+			{
+				vstr::warnp()  << "[VistaClusterMaster]:"
+					<< "Could not create conection to slave ["
+					<< pSlave->m_sName << "]" << std::endl;
+				return NULL;
+			}
 			VistaConnectionIP* pConnection = new VistaConnectionIP( VistaConnectionIP::CT_TCP,
 																	pSlave->m_sIP, nPort );
 			if( pConnection->GetIsConnected() == false && pConnection->Connect() == false )
 			{
 				vstr::errp() << "[VistaClusterMaster]:"
-							<< "Could not create conection to slave ["
+							<< "Could not create connection to slave ["
 							<< pSlave->m_sName << "] at Host [" << pSlave->m_sIP 
 							<< "] - Port [" << nPort << "]" << std::endl;
 				return NULL;
@@ -292,7 +299,6 @@ public:
 	: VistaEventObserver()
 	, m_nFrameIndex(0)
 	, m_nPacketIndex(0)
-	, m_pSyncBC(NULL)
 	, m_oSerializer( 0 )
 	, m_pAvgSendTimer( new VistaWeightedAverageTimer )
 	{
@@ -311,12 +317,18 @@ public:
 	{
 		delete m_pAvgSendTimer;
 
-		if(m_pSyncBC)
+		if( m_vecSwapSyncSockets.empty() == false )
 		{
 			SyncBC();
-			m_pSyncBC->CloseSocket();
+			for( std::vector<VistaUDPSocket*>::iterator itSocket = m_vecSwapSyncSockets.begin();
+					itSocket != m_vecSwapSyncSockets.end(); ++itSocket )
+			{
+				if( (*itSocket) == NULL )
+					continue;
+				(*itSocket)->CloseSocket();
+				delete (*itSocket);
+			}
 		}
-		delete m_pSyncBC;
 
 		for( std::vector<Slave*>::iterator itSlave = m_vecSlaves.begin();
 				itSlave != m_vecSlaves.end(); ++itSlave )
@@ -411,19 +423,22 @@ public:
 	 */
 	void SyncBC()
 	{
-		if( m_pSyncBC )
+		for( std::vector<VistaUDPSocket*>::iterator itSocket = m_vecSwapSyncSockets.begin();
+				itSocket != m_vecSwapSyncSockets.end(); ++itSocket )
 		{
+			if( (*itSocket) == NULL )
+				continue;
 			try
 			{
 				// frame was successfully dispatched by the master to all slaves.
-				m_pSyncBC->SendRaw( &m_nFrameIndex, sizeof(int) );
+				(*itSocket)->SendRaw( &m_nFrameIndex, sizeof(int) );
 			}
 			catch( VistaExceptionBase& )
 			{
 				vstr::warnp() << "VistaClusterMaster::SwapSync() -- "
 						<< "Sending Sync signal failed - disabling syncing" << std::endl;
-				delete m_pSyncBC;
-				m_pSyncBC = NULL;
+				delete (*itSocket);
+				(*itSocket) = NULL;
 			}			
 		}
 	}
@@ -859,7 +874,7 @@ public:
 	unsigned int				m_nFrameIndex; /**< the current frame index */
 	unsigned int				m_nPacketIndex;
 
-	VistaUDPSocket*				m_pSyncBC; /**< a UPD broadcast socket for back-linking */
+	std::vector<VistaUDPSocket*>	m_vecSwapSyncSockets; /**< UPD broadcast sockets for back-linking */
 
 	std::vector<EventBuffer*>	m_vecSystemBuffers; /**< store system events */
 	std::vector<EventBuffer*>	m_vecInteractionBuffers; /**< store interaction events */
@@ -1179,31 +1194,44 @@ bool VistaClusterMaster::Init( const std::string& sClusterSection,
 
 		std::string sSyncIP;
 		int nSyncPort = -1;
-		if( oSection.GetValue( "SYNCIP", sSyncIP ) == false
-			|| oSection.GetValue( "SYNCPORT", nSyncPort ) == false )
+		std::vector<int> vecPorts;
+		if( oSection.GetValue( "SYNCIP", sSyncIP ) == false )			
 		{
-			vstr::warnp() << "No swap sync ip or port given. Sync will not work!" << std::endl;
+			vstr::warnp() << "No swap sync ip given. Sync will not work!" << std::endl;
 		}
-		else
+		if( oSection.GetValue( "SYNCPORT", nSyncPort ) )
+		{
+			vecPorts.push_back( nSyncPort );
+		}
+		else if( oSection.GetValue( "SYNCPORTS", vecPorts ) == false || vecPorts.empty() )
+		{
+			vstr::warnp() << "No swap ports given. Sync will not work!" << std::endl;
+		}
+
+		if( sSyncIP.empty() == false && vecPorts.empty() == false )
 		{		
-			vstr::outi() << "Creating swap sync socket on IP ["
-						<< sSyncIP << "], Port [" << nSyncPort << "]" << std::endl;
-			VistaUDPSocket *pSyncSocket = new VistaUDPSocket;
-
-			VistaSocketAddress oAdress( sSyncIP, nSyncPort );
-
-			if( !oAdress.GetIsValid() || ( (*pSyncSocket).OpenSocket() == false ) )
+			for( std::vector<int>::const_iterator itPort = vecPorts.begin(); 
+					itPort != vecPorts.end(); ++itPort )
 			{
-				vstr::errp() << "Could not open swap sync socket. Sync will not work." << std::endl;
-				delete pSyncSocket;
-				pSyncSocket = NULL;
+				vstr::outi() << "Creating swap sync socket on IP ["
+							<< sSyncIP << "], Port [" << (*itPort) << "]" << std::endl;
+				VistaUDPSocket *pSyncSocket = new VistaUDPSocket;
+
+				VistaSocketAddress oAdress( sSyncIP, (*itPort) );
+
+				if( !oAdress.GetIsValid() || ( (*pSyncSocket).OpenSocket() == false ) )
+				{
+					vstr::errp() << "Could not open swap sync socket. Sync will not work." << std::endl;
+					delete pSyncSocket;
+					pSyncSocket = NULL;
+				}
+				else
+				{
+					(*pSyncSocket).SetPermitBroadcast(1);
+					(*pSyncSocket).ConnectToAddress(oAdress);
+					m_pEventObserver->m_vecSwapSyncSockets.push_back( pSyncSocket );
+				}				
 			}
-			else
-			{
-				(*pSyncSocket).SetPermitBroadcast(1);
-				(*pSyncSocket).ConnectToAddress(oAdress);
-			}
-			m_pEventObserver->m_pSyncBC = pSyncSocket;
 		}
 
 		std::list<std::string> liSlaveList;

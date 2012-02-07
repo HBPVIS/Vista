@@ -102,7 +102,7 @@ public:
 									const std::vector<VistaVector3D>& vecCoords,
 									const std::vector<VistaVector3D>& vecTexextureCoords2D,
 									const std::vector<VistaVector3D>& vecNormals,
-									const std::vector<VistaColor>& vecColorsRGB,
+									const std::vector<VistaColor>& vecColors,
 									const VistaVertexFormat& oFormat,
 									const VistaGeometry::FaceType fType,
 									IVistaGeometryData* pData ) = 0;

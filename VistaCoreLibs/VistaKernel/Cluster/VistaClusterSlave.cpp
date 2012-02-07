@@ -795,34 +795,37 @@ int VistaClusterSlave::GetNextFreePort()
 VistaConnectionIP* VistaClusterSlave::CreateConnectionToMaster()
 {
 	VistaConnectionIP* pConnection = NULL;
-	int iPort = GetNextFreePort();
-	if( iPort < 0 )
-	{
-		vstr::warnp() << "VistaClusterSlave::CreateConnectionToMaster() -- "
-				<< "Could not create new Socket for master - no free ports are available"
-				<< std::endl;
-		return NULL;
-	}
+	try
+	{		
+		int iPort = GetNextFreePort();
+		if( iPort < 0 )
+		{
+			vstr::warnp() << "VistaClusterSlave::CreateConnectionToMaster() -- "
+					<< "Could not create new Socket for master - no free ports are available"
+					<< std::endl;
+			m_pAckConnection->WriteInt32( -1 );
+			return NULL;
+		}
 
-	vstr::outi() << "VistaClusterSlave::CreateConnectionToMaster() -- "
+		vstr::outi() << "VistaClusterSlave::CreateConnectionToMaster() -- "
 			<< "Waiting for connection from master on IP [" << m_sSlaveHostName 
 			<< "] - Port [" << iPort << "]" << std::endl;
 
-	try
-	{
+	
 		VistaTCPServer oServer( m_sSlaveHostName, iPort, 0, true);
 		if( oServer.GetIsValid() == false )
 		{
 			vstr::errp() << "VistaClusterSlave::CreateConnectionToMaster() -- "
 					<< "Could not create Main TCP socket on IP [" << m_sSlaveHostName
 					<< "] - Port [" << iPort << "]" << std::endl;
+			m_pAckConnection->WriteInt32( -2 );
 			return NULL;
 		}
 
 		if( m_pAckConnection->WriteInt32( iPort ) != sizeof(VistaType::sint32) )
 		{
 			vstr::errp() << "VistaClusterSlave::CreateConnectionToMaster() -- "
-					<< "Could not sent own port to master" << std::endl;
+					<< "Could not send own port to master" << std::endl;
 			return NULL;
 		}
 

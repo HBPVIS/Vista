@@ -449,6 +449,12 @@ void VistaOpenSGGraphicsBridge::DebugOSG()
 
 void VistaOpenSGGraphicsBridge::SetBackgroundColor(const VistaColor & color)
 {
+	if( fabs( color.GetAlpha() - 1.0 ) > Vista::Epsilon )
+	{
+		vstr::warnp() << "VistaOpenSGGraphicsBridge::SetBackgroundColor( " << color
+					<< " ) - transparency not supported, ignoring alpha value" << std::endl;
+	}
+
 	float col[3];
 	color.GetValues(col);
 	osg::SolidBackgroundPtr bg = osg::SolidBackground::create();
@@ -459,10 +465,9 @@ void VistaOpenSGGraphicsBridge::SetBackgroundColor(const VistaColor & color)
 	if( GetVistaSystem()->GetDisplayManager() == NULL
 		|| GetVistaSystem()->GetDisplayManager()->GetViewports().empty() )
 	{
-		vstr::warnp() 
-			<< "VistaOpenSGGraphicsBridge::SetBackgroundColor() no viewports yet " << std::endl;
+		vstr::warnp() << "VistaOpenSGGraphicsBridge::SetBackgroundColor() no viewports yet " << std::endl;
 		return;
-	}
+	}	
 
 	unsigned int iViewportIndex;
 	osg::ViewportPtr viewport;
@@ -776,7 +781,7 @@ VistaColor VistaOpenSGGraphicsBridge::GetColor(const int idx, const IVistaGeomet
 
 		MaterialChunkPtr ptrChunk = MaterialChunkPtr::dcast(ptrMat->find(MaterialChunk::getClassType()));
 		Color4f colDiffuse = ptrChunk->getDiffuse();
-		return VistaColor(colDiffuse.red(), colDiffuse.green(), colDiffuse.blue());
+		return VistaColor( colDiffuse.red(), colDiffuse.green(), colDiffuse.blue(), colDiffuse.alpha() );
 	}
 
 
