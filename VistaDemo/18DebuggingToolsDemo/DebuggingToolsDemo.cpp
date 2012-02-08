@@ -31,7 +31,7 @@
  * hierarchy, as well as the use of streams (color- and split-streams plus
  * VistaStreamUtils) to highlight or redirect output, and the usage of the
  * VistaBasicProfiler to perform simple per-frame subroutine runtime measurements
- * Keys: s to print StackWalker outpur for random hierarchy
+ * Keys: s to print StackWalker output for random hierarchy
  *       c to print all color combinations for the outstream
  */
 
@@ -211,7 +211,10 @@ DebuggingToolsDemoAppl::DebuggingToolsDemoAppl( int argc, char  *argv[] )
 									VistaColorOutstream::CC_YELLOW,
 									VistaColorOutstream::CC_RED, 1 );
 	// we make the stream thread-safe, so that concurrent threads can write to it and
-	// do not fragment the output
+	// do not fragment the output. Notice that use the default parameter of bBufferInternally,
+	// which means that the stream data is not printed immediately to the original stream,
+	// but only! after flushing the stream - thus, chunks are not fragmented between
+	// streams, but may be printed too late if you do not flugh (e.g. using std::endl).
 	VistaStreams::MakeStreamThreadSafe( pRedStream );
 	//now, we can tell ViSTA to print all internal errors to this stream
 	vstr::SetErrStream( pRedStream );
