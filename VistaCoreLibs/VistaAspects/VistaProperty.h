@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaProperty.h 22163 2011-07-03 14:11:15Z dr165799 $
+// $Id$
 
 #ifndef _VISTAPROPERTY_H
 #define _VISTAPROPERTY_H

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaMutexImp.h 22867 2011-08-07 15:29:00Z dr165799 $
+// $Id$
 
 #ifndef _VISTAMUTEXIMP_H
 #define _VISTAMUTEXIMP_H

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPhantomCommonShare.h 22228 2011-07-04 12:49:23Z dr165799 $
+// $Id$
 
 #ifndef _VISTAPHANTOMDRIVERCONFIG_H
 #define _VISTAPHANTOMDRIVERCONFIG_H

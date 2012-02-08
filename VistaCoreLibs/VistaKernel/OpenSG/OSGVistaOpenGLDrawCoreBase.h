@@ -214,6 +214,6 @@ typedef RefPtr<VistaOpenGLDrawCorePtr> VistaOpenGLDrawCoreRefPtr;
 
 OSG_END_NAMESPACE
 
-#define OSGVistaOpenGLDrawCoreBASE_HEADER_CVSID "@(#)$Id: OSGVistaOpenGLDrawCoreBase.h 23493 2011-09-22 16:12:15Z dr165799 $"
+#define OSGVistaOpenGLDrawCoreBASE_HEADER_CVSID "@(#)$Id$"
 
 #endif /* _OSGVistaOpenGLDrawCoreBASE_H_ */

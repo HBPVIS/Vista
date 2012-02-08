@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaKernelConfig.h 20730 2011-03-30 15:56:24Z dr165799 $
+// $Id$
 
 #ifndef _VISTAKERNELCONFIG_H
 #define _VISTAKERNELCONFIG_H

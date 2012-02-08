@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnNodeCreators.h 23043 2011-08-23 14:13:18Z dr165799 $
+// $Id$
 
 #ifndef _VDFNNODECREATORS_H
 #define _VDFNNODECREATORS_H

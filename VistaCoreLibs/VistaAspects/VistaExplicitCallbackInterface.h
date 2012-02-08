@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaExplicitCallbackInterface.h 22867 2011-08-07 15:29:00Z dr165799 $
+// $Id$
 
 #ifndef _VISTAEXPLICITCALLBACKINTERFACE_H
 #define _VISTAEXPLICITCALLBACKINTERFACE_H

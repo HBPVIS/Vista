@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaVersion.h 22143 2011-07-01 15:07:00Z dr165799 $
+// $Id$
 
 #ifndef _VISTAVERSION_H
 #define _VISTAVERSION_H
@@ -66,7 +66,7 @@
 
 #define VISTA_HEAD
 
-#define VISTA_RELEASE_NAME "HEAD branch $Revision: 22143 $ $Date: 2011-05-16 15:47:39 +0200 (Mo, 16. Mai 2011) $"
+#define VISTA_RELEASE_NAME "HEAD branch $Revision$ $Date$"
 //#define VISTA_RELEASE_NAME "FANCYNAME" 
 #define VISTA_VERSION "1.12.0"
 #define VISTA_MAJOR    1

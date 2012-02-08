@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaSpaceNavigatorDriver.h 22143 2011-07-01 15:07:00Z dr165799 $
+// $Id$
 
 #ifndef __VISTASPACENAVIGATORDRIVER_H
 #define __VISTASPACENAVIGATORDRIVER_H

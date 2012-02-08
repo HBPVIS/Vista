@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaGraphicsManager.h 20766 2011-04-05 09:30:14Z dr165799 $
+// $Id$
 
 #ifndef _VISTANNEWGRAPHICSMANAGER_H
 #define _VISTANNEWGRAPHICSMANAGER_H

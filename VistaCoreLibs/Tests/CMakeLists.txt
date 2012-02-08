@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 21407 2011-05-20 13:36:52Z dr165799 $
+# $Id$
 
 # configure_vista_test( Name sourcefile ... )
 macro( configure_vista_test TEST_NAME )

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnChangeDetectNode.cpp 21609 2011-05-27 14:45:26Z dr165799 $
+// $Id$
 
 #include "VdfnChangeDetectNode.h" 
 

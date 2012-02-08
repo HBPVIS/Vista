@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPipeComponent.h 22867 2011-08-07 15:29:00Z dr165799 $
+// $Id$
 
 #ifndef IDLVISTAPIPECOMPONENT_H
 #define IDLVISTAPIPECOMPONENT_H

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaFileDataSet.h 22867 2011-08-07 15:29:00Z dr165799 $
+// $Id$
 
 /**
  *      Purpose  :  Access to "FileDataSets". A dataset is an

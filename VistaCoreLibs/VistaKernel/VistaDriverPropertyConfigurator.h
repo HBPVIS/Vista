@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDriverPropertyConfigurator.h 20766 2011-04-05 09:30:14Z dr165799 $
+// $Id$
 
 #ifndef _VISTADRIVERPROPERTYCONFIGURATOR_H
 #define _VISTADRIVERPROPERTYCONFIGURATOR_H

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaLocatable.h 20730 2011-03-30 15:56:24Z dr165799 $
+// $Id$
 
 #ifndef _VISTALOCATABLE_H
 #define _VISTALOCATABLE_H

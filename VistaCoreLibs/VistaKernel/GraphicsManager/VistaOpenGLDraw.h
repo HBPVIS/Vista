@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenGLDraw.h 20730 2011-03-30 15:56:24Z dr165799 $
+// $Id$
 
 #ifndef _VISTAOPENGLDRAW_H
 #define _VISTAOPENGLDRAW_H

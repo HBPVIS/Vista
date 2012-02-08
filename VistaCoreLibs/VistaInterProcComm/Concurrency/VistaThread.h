@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaThread.h 23493 2011-09-22 16:12:15Z dr165799 $
+// $Id$
 
 #ifndef _VISTATHREAD_H
 #define _VISTATHREAD_H

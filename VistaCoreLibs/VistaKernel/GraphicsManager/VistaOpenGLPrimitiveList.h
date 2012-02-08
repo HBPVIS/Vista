@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenGLPolyLine.h 23044 2011-08-23 14:22:37Z dr165799 $
+// $Id$
 
 #ifndef _VISTAOPENGLPRIMITIVELIST_H
 #define _VISTAOPENGLPRIMITIVELIST_H

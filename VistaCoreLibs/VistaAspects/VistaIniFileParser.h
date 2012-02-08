@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaIniFileParser.h 21463 2011-05-24 08:20:37Z dr165799 $
+// $Id$
 
 #ifndef _VISTAINIFILEPARSER_H
 #define _VISTAINIFILEPARSER_H

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaSceneGraph.h 21662 2011-06-01 12:14:41Z dr165799 $
+// $Id$
 
 #ifndef _VISTASCENEGRAPH_H
 #define _VISTASCENEGRAPH_H

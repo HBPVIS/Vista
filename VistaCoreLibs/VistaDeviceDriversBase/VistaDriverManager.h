@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDriverManager.h 22143 2011-07-01 15:07:00Z dr165799 $
+// $Id$
 
 #ifndef __VISTADRIVERMANAGER_H
 #define __VISTADRIVERMANAGER_H

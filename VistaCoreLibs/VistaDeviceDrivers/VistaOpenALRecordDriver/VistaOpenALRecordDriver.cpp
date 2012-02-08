@@ -21,7 +21,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenALRecordDriver.cpp 5761 2011-01-17 19:46:22Z ingoassenmacher $
+// $Id$
 
 #include "VistaOpenALRecordDriver.h"
 #include "OpenALSoundContext.h"

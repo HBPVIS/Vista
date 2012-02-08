@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDeSerializer.h 4719 2009-09-10 09:29:58Z tbeer $
+// $Id$
 #ifndef _VISTAAUTOBUFFERPOOL_H_
 #define _VISTAAUTOBUFFERPOOL_H_
 

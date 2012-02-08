@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaTransformFilter.h 22867 2011-08-07 15:29:00Z dr165799 $
+// $Id$
 
 #ifndef IDLVISTATRANSFORMFILTER_H
 #define IDLVISTATRANSFORMFILTER_H

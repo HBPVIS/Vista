@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenCVCaptureDriver.cpp 5761 2011-01-17 19:46:22Z ingoassenmacher $
+// $Id$
 
 #include "VistaOpenCVCaptureDriver.h"
 

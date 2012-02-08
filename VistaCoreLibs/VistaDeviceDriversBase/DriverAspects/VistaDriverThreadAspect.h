@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDriverThreadAspect.h 22143 2011-07-01 15:07:00Z dr165799 $
+// $Id$
 
 #ifndef _VISTADRIVERTHREADASPECT_H
 #define _VISTADRIVERTHREADASPECT_H

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDTrackDriver.cpp 20121 2011-01-29 20:42:19Z ingoassenmacher $
+// $Id$
 
 #include "VistaDTrackDriver.h"
 

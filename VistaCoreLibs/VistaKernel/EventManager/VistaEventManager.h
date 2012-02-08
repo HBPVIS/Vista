@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaEventManager.h 20730 2011-03-30 15:56:24Z dr165799 $
+// $Id$
 
 #ifndef _VISTAEVENTMANAGER_H
 #define _VISTAEVENTMANAGER_H

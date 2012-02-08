@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: Vista3DCSpaceNavigatorDriver.cpp 20121 2011-01-29 20:42:19Z ingoassenmacher $
+// $Id$
 
 #import "progid:TDxInput.Device.1" no_namespace
 

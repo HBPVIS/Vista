@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaTransformMatrix.h 23167 2011-09-05 14:08:59Z dr165799 $
+// $Id$
 
 #ifndef _VISTATRANSFORMMATRIX_H
 #define _VISTATRANSFORMMATRIX_H

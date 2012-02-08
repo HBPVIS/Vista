@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDfn3DMouseTransformNode.h 20730 2011-03-30 15:56:24Z dr165799 $
+// $Id$
 
 #ifndef _VISTADFN3DMOUSETRANSFORMNODE_H
 #define _VISTADFN3DMOUSETRANSFORMNODE_H

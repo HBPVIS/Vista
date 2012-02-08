@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 21407 2011-05-20 13:36:52Z dr165799 $
+# $Id$
 
 vista_adopt_version( VistaBase VistaCoreLibs )
 

@@ -21,7 +21,7 @@
 /* Ingo Assenmacher (2008), Patric Schmitz (2010)                             */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnDelayNode.h 20730 2011-03-30 15:56:24Z dr165799 $
+// $Id$
 
 #ifndef _VDFNDELAYNODE_H
 #define _VDFNDELAYNODE_H

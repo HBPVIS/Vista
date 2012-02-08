@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPosixSerialPortImp.h 22867 2011-08-07 15:29:00Z dr165799 $
+// $Id$
 
 #if defined(LINUX) || defined(IRIX) || defined(HPUX) || defined(SUNOS) || defined(DARWIN)
 #ifndef _VISTAPOSIXSERIALPORTIMP_H

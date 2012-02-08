@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDeSerializer.h 22143 2011-07-01 15:07:00Z dr165799 $
+// $Id$
 
 #ifndef _VISTADESERIALIZER_H
 #define _VISTADESERIALIZER_H

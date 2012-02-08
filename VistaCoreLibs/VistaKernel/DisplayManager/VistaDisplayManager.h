@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDisplayManager.h 21674 2011-06-01 14:23:37Z dr165799 $
+// $Id$
 
 #if !defined(_VISTADISPLAYMANAGER_H)
 #define _VISTADISPLAYMANAGER_H

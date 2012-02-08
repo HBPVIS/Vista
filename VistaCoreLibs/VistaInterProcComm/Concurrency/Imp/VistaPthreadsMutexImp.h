@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPthreadsMutexImp.h 22873 2011-08-08 10:48:52Z dr165799 $
+// $Id$
 
 #if defined(VISTA_THREADING_POSIX)
 

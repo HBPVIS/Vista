@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaSpaceMouseDriver.h 5570 2010-10-26 20:21:11Z ingoassenmacher $
+// $Id$
 
 #ifndef _VISTASPACEMOUSEDRIVERCONFIG_H
 #define _VISTASPACEMOUSEDRIVERCONFIG_H

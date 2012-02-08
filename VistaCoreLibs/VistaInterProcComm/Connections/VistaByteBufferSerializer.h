@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaByteBufferSerializer.h 22867 2011-08-07 15:29:00Z dr165799 $
+// $Id$
 
 #ifndef _VISTABYTEBUFFERSERIALIZER_H
 #define _VISTABYTEBUFFERSERIALIZER_H

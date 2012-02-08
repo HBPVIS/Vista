@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaQuaternion.h 23167 2011-09-05 14:08:59Z dr165799 $
+// $Id$
 
 #ifndef _VISTAQUATERNION_H
 #define _VISTAQUATERNION_H

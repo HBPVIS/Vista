@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaFileWriter.h 22867 2011-08-07 15:29:00Z dr165799 $
+// $Id$
 
 #ifndef DLVISTAFILEWRITER_H
 #define DLVISTAFILEWRITER_H

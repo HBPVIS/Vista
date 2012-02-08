@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaWin32SerialPortImp.h 22867 2011-08-07 15:29:00Z dr165799 $
+// $Id$
 
 #if defined(WIN32)
 #ifndef _VISTAWIN32SERIALPORTIMP_H

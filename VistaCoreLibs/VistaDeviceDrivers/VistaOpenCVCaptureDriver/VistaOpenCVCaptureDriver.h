@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenCVCaptureDriver.h 5761 2011-01-17 19:46:22Z ingoassenmacher $
+// $Id$
 
 #ifndef __VISTAOPENCVCAPTUREDRIVER_H
 #define __VISTAOPENCVCAPTUREDRIVER_H

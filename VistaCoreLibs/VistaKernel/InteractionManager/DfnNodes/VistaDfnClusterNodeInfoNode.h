@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDfnClusterNodeInfoNode.h 22143 2011-07-01 15:07:00Z dr165799 $
+// $Id$
 
 #ifndef _VISTADFNCLUSTERNODEINFONODE_H
 #define _VISTADFNCLUSTERNODEINFONODE_H

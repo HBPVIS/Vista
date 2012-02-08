@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaCentralEventHandler.h 20730 2011-03-30 15:56:24Z dr165799 $
+// $Id$
 
 #ifndef _VISTACENTRALEVENTHANDLER_H
 #define _VISTACENTRALEVENTHANDLER_H

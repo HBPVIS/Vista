@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDeviceSensor.h 22286 2011-07-06 20:56:09Z dr165799 $
+// $Id$
 
 #ifndef _VISTADEVICESENSOR_H
 #define _VISTADEVICESENSOR_H

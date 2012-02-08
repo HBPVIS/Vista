@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaMarshalledObjectFactory.h 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #ifndef _VISTAMARSHALLEDOBJECTFACTORY_H
 #define _VISTAMARSHALLEDOBJECTFACTORY_H

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnForceFeedbackNode.h 23044 2011-08-23 14:22:37Z dr165799 $
+// $Id$
 
 #ifndef _VDFNFORCEFEEDBACKNODE_H
 #define _VDFNFORCEFEEDBACKNODE_H

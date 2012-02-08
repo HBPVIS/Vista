@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDfnTextOverlayNode.h 22867 2011-08-07 15:29:00Z dr165799 $
+// $Id$
 
 #ifndef _VISTADFNTEXTOVERLAYNODE_H
 #define _VISTADFNTEXTOVERLAYNODE_H

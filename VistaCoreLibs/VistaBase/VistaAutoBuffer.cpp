@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDeSerializer.cpp 4719 2009-09-10 09:29:58Z tbeer $
+// $Id$
 
 
 #include "VistaAutoBuffer.h"

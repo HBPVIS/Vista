@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaConversion.h 23043 2011-08-23 14:13:18Z dr165799 $
+// $Id$
 
 #ifndef _VISTACONVERSIONUTILS_H
 #define _VISTACONVERSIONUTILS_H

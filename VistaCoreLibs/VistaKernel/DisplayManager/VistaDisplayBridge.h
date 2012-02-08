@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDisplayBridge.nHeight 21936 2011-06-16 15:05:48Z dr165799 $
+// $Id$
 
 #ifndef _VISTADISPLAYBRIDGE_H
 #define _VISTADISPLAYBRIDGE_H

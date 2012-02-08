@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaGeometry.h 22163 2011-07-03 14:11:15Z dr165799 $
+// $Id$
 
 #ifndef _VISTAGEOMETRY_H
 #define _VISTAGEOMETRY_H

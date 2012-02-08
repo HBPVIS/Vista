@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaNetworkSync.h 22173 2011-07-03 21:12:57Z ingoassenmacher $
+// $Id$
 
 #ifndef _VISTANETWORKSYNC_H
 #define _VISTANETWORKSYNC_H

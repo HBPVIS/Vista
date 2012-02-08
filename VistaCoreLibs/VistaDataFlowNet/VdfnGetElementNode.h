@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnChangeDetectNode.h 21609 2011-05-27 14:45:26Z dr165799 $
+// $Id$
 
 #ifndef _VDFNGETELEMENTNODE_H
 #define _VDFNGETELEMENTNODE_H

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPropertyAwareable.h 22163 2011-07-03 14:11:15Z dr165799 $
+// $Id$
 
 #ifndef _VISTAPROPERTYAWAREABLE_H
 #define _VISTAPROPERTYAWAREABLE_H

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaProgressBar.h 23313 2011-09-15 10:41:51Z dr165799 $
+// $Id$
 
 #if !defined(_VISTAPROGRESSBAR_H)
 #define _VISTAPROGRESSBAR_H

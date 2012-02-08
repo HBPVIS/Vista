@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnBinaryOpNode.h 21565 2011-05-26 13:22:59Z dr165799 $
+// $Id$
 
 #ifndef _VDFNBINARYOPNODE_H
 #define _VDFNBINARYOPNODE_H

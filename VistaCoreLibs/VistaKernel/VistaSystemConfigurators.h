@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaSystemConfigurators.h 20766 2011-04-05 09:30:14Z dr165799 $
+// $Id$
 
 #ifndef _VISTASYSTEMCONFIGURATORS_H
 #define _VISTASYSTEMCONFIGURATORS_H

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDriverAbstractWindowAspect.h 22238 2011-07-04 14:30:59Z dr165799 $
+// $Id$
 
 #ifndef _VISTADRIVERABSTRACTWINDOWASPECT_H
 #define _VISTADRIVERABSTRACTWINDOWASPECT_H

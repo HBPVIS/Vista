@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaSpaceMouseDriver.cpp 5570 2010-10-26 20:21:11Z ingoassenmacher $
+// $Id$
 
 #if defined(WIN32) && !defined(VISTASPACEMOUSEDRIVERPLUGIN_STATIC)
 	#ifdef VISTASPACEMOUSEPLUGIN_EXPORTS

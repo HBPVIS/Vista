@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaWindow.h 22143 2011-07-01 15:07:00Z dr165799 $
+// $Id$
 
 #if !defined _VISTAWINDOW_H
 #define _VISTAWINDOW_H

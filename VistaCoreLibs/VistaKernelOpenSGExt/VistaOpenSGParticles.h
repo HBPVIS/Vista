@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenSGParticles.h 22867 2011-08-07 15:29:00Z dr165799 $
+// $Id$
 
 #ifndef _VISTAOPENSGPARTICLES_H__
 #define _VISTAOPENSGPARTICLES_H__

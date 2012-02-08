@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: Vdfn3DNormalizeNode.h 22873 2011-08-08 10:48:52Z dr165799 $
+// $Id$
 
 #ifndef _VDFN3DNORMALIZENODE_H
 #define _VDFN3DNORMALIZENODE_H

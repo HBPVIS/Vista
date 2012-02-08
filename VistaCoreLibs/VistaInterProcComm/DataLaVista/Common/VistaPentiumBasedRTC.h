@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPentiumBasedRTC.h 22867 2011-08-07 15:29:00Z dr165799 $
+// $Id$
 
 #if defined(WIN32) || defined(LINUX) && !defined(ARM)
 #define DLV_IX86

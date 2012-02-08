@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaProtocol.h 23313 2011-09-15 10:41:51Z dr165799 $
+// $Id$
 
 #if !defined(_VISTAPROTOCOL_H)
 #define _VISTAPROTOCOL_H

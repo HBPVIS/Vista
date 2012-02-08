@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDriverSensorMappingAspect.h 22143 2011-07-01 15:07:00Z dr165799 $
+// $Id$
 
 #ifndef _VISTADRIVERSENSORMAPPINGASPECT_H
 #define _VISTADRIVERSENSORMAPPINGASPECT_H

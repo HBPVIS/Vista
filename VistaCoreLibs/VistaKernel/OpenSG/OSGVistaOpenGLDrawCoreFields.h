@@ -109,6 +109,6 @@ typedef MField<VistaOpenGLDrawCorePtr> MFVistaOpenGLDrawCorePtr;
 
 OSG_END_NAMESPACE
 
-#define OSGVistaOpenGLDrawCoreFIELDS_HEADER_CVSID "@(#)$Id: OSGVistaOpenGLDrawCoreFields.h 23493 2011-09-22 16:12:15Z dr165799 $"
+#define OSGVistaOpenGLDrawCoreFIELDS_HEADER_CVSID "@(#)$Id$"
 
 #endif /* _OSGVistaOpenGLDrawCoreFIELDS_H_ */

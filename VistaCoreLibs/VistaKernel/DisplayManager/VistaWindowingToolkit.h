@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaWindowingToolkit.h 21936 2011-06-16 15:05:48Z dr165799 $
+// $Id$
 
 #ifndef _VISTAWINDOWINGTOOLKIT_H
 #define _VISTAWINDOWINGTOOLKIT_H

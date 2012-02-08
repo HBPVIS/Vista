@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaRandomNumberGenerator.h 23568 2011-09-27 12:35:29Z dr165799 $
+// $Id$
 
 #ifndef _VISTARANDOMNUMBERGENERATOR_H
 #define _VISTARANDOMNUMBERGENERATOR_H

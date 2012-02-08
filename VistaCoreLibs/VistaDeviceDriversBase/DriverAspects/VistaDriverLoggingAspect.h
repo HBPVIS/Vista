@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDriverLoggingAspect.h 22143 2011-07-01 15:07:00Z dr165799 $
+// $Id$
 
 #ifndef _VISTADRIVERLOGGINGASPECT_H
 #define _VISTADRIVERLOGGINGASPECT_H

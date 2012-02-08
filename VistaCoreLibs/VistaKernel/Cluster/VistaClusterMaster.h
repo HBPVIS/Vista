@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaClusterMaster.h 21957 2011-06-17 16:02:35Z dr165799 $
+// $Id$
 
 #ifndef _VISTACLUSTERMASTER_H
 #define _VISTACLUSTERMASTER_H

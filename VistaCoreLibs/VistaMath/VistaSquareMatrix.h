@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaSquareMatrix.h 22873 2011-08-08 10:48:52Z dr165799 $
+// $Id$
 
 #ifndef _VISTASQUAREMATRIX_H
 #define _VISTASQUAREMATRIX_H

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaVector3D.h 23167 2011-09-05 14:08:59Z dr165799 $
+// $Id$
 
 #ifndef _VISTAVECTOR3D_H
 #define _VISTAVECTOR3D_H

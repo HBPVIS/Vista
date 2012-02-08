@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaSPROCThreadImp.h 23493 2011-09-22 16:12:15Z dr165799 $
+// $Id$
 
 #if defined(VISTA_THREADING_SPROC)
 

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDisplaySystem.h 20730 2011-03-30 15:56:24Z dr165799 $
+// $Id$
 
 #if !defined(_VISTADISPLAYSYSTEM_H)
 #define _VISTADISPLAYSYSTEM_H

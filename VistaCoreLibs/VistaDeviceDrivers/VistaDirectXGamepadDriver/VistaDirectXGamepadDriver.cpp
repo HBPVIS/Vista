@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDirectXGamepad.cpp 5686 2010-12-06 09:56:02Z dominikrausch $
+// $Id$
 
 // include header here
 

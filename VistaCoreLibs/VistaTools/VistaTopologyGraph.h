@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaTopologyGraph.h 21548 2011-05-26 07:33:40Z dr165799 $
+// $Id$
 
 #ifndef _VISTATOPOLOGYGRAPH_H
 #define _VISTATOPOLOGYGRAPH_H

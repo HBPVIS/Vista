@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPolynomial.h 22163 2011-07-03 14:11:15Z dr165799 $
+// $Id$
 
 /* dont forget that these deal with floats! */
 

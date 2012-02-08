@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaGlutJoystickDriver.cpp 4783 2009-10-02 22:33:37Z ingoassenmacher $
+// $Id$
 
 #include "VistaGlutJoystickDriver.h"
 #include <map>

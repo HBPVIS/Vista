@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaCHAI3DHapticDevicesDriver.h 23044 2011-08-23 14:22:37Z dr165799 $
+// $Id$
 
 #ifndef __VISTACHAI3DHAPTICDEVICESDRIVER_H
 #define __VISTACHAI3DHAPTICDEVICESDRIVER_H

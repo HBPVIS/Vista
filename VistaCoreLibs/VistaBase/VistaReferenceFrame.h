@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaReferenceFrame.h 21548 2011-05-26 07:33:40Z dr165799 $
+// $Id$
 
 #ifndef _VISTAREFERENCEFRAME_H
 #define _VISTAREFERENCEFRAME_H

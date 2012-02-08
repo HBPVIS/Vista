@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaMIDIDriver.cpp 5570 2010-10-26 20:21:11Z ingoassenmacher $
+// $Id$
 
 #include "VistaMIDIDriver.h"
 

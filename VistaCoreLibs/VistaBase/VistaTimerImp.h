@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaTimerImp.h 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 
 #ifndef _VISTATIMERIMP_H
 #define _VISTATIMERIMP_H

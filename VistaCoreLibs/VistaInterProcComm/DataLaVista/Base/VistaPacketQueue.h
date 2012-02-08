@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPacketQueue.h 22867 2011-08-07 15:29:00Z dr165799 $
+// $Id$
 
 #ifndef DLVISTAPACKETQUEUE_H
 #define DLVISTAPACKETQUEUE_H

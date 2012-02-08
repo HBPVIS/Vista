@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: OSGAC3DFileType.h 23493 2011-09-22 16:12:15Z dr165799 $
+// $Id$
 
 #ifndef _AC3DSCENEFILETYPE_H_
 #define _AC3DSCENEFILETYPE_H_
@@ -129,7 +129,7 @@ typedef OSGAC3DSceneFileType* OSGAC3DSceneFileTypeP;
 
 OSG_END_NAMESPACE
 
-#define OSGAC3DSCENEFILETYPE_HEADER_CVSID "@(#)$Id: OSGAC3DFileType.h 23493 2011-09-22 16:12:15Z dr165799 $"
+#define OSGAC3DSCENEFILETYPE_HEADER_CVSID "@(#)$Id$"
 
 #endif // _AC3DSCENEFILETYPE_H_
 

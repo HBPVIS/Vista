@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDisplayEntity.h 22681 2011-07-27 20:56:47Z dr165799 $
+// $Id$
 
 #if !defined _VISTADISPLAYENTITY_H
 #define _VISTADISPLAYENTITY_H

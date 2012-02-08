@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPhantomServerDriver.h 23044 2011-08-23 14:22:37Z dr165799 $
+// $Id$
 
 #ifndef _VISTAPHANTOMSERVERDRIVER_H
 #define _VISTAPHANTOMSERVERDRIVER_H

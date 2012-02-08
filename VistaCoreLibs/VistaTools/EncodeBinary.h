@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: EncodeBinary.h 20730 2011-03-30 15:56:24Z dr165799 $
+// $Id$
 
 /**
 *		NOTE:	Due to the usage of sizeof(...) you might encouter problems, when using

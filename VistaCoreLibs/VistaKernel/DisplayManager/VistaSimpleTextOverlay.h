@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaSimpleTextOverlay.h 20730 2011-03-30 15:56:24Z dr165799 $
+// $Id$
 
 #ifndef _VISTASIMPLETEXTOVERLAY_H
 #define _VISTASIMPLETEXTOVERLAY_H

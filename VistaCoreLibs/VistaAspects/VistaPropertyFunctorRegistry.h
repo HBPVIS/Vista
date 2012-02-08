@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPropertyFunctorRegistry.h 22163 2011-07-03 14:11:15Z dr165799 $
+// $Id$
 
 #ifndef _VISTAPROPERTYFUNCTORREGISTRY_H
 #define _VISTAPROPERTYFUNCTORREGISTRY_H

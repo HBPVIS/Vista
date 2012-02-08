@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenSGglutJoystickDriver.h 4783 2009-10-02 22:33:37Z ingoassenmacher $
+// $Id$
 
 #ifndef _VISTAOPENSGGLUTJOYSTICKDRIVER_H
 #define _VISTAOPENSGGLUTJOYSTICKDRIVER_H

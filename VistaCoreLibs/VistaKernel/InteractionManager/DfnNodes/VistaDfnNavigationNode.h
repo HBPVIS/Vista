@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDfnNavigationNode.h 21645 2011-05-31 16:23:16Z dr165799 $
+// $Id$
 
 #ifndef _VISTADFNNAVIGATIONNODE_H
 #define _VISTADFNNAVIGATIONNODE_H

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaAspectsUtils.h 22873 2011-08-08 10:48:52Z dr165799 $
+// $Id$
 
 #ifndef _VISTAASPECTSUTILS_H
 #define _VISTAASPECTSUTILS_H

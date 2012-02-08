@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenSGToonShader.h 19647 2010-07-23 15:45:53Z tbeer $
+// $Id$
 
 #ifndef _VISTAOPENSGMODELOPTIMIZER_H_
 #define _VISTAOPENSGMODELOPTIMIZER_H_

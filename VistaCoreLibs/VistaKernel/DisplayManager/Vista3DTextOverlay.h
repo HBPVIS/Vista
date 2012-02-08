@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: Vista3DTextOverlay.h 20730 2011-03-30 15:56:24Z dr165799 $
+// $Id$
 
 #ifndef _VISTA3DTEXTOVERLAY_H
 #define _VISTA3DTEXTOVERLAY_H

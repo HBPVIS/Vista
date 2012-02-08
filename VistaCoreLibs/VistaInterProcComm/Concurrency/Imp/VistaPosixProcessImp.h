@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPosixProcessImp.h 22867 2011-08-07 15:29:00Z dr165799 $
+// $Id$
 
 #if defined(VISTA_THREADING_SPROC) || defined(VISTA_THREADING_POSIX)
 

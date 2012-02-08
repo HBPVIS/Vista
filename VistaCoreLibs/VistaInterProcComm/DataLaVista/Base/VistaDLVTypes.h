@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDLVTypes.h 20730 2011-03-30 15:56:24Z dr165799 $
+// $Id$
 
 #if !defined(DLVISTATYPES_H)
 #define DLVISTATYPES_H

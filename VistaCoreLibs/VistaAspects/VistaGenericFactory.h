@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaAbstractFactory.h 21315 2011-05-16 13:47:39Z dr165799 $
+// $Id$
 #ifndef VISTAGENERICFACTORY_H
 #define VISTAGENERICFACTORY_H
 

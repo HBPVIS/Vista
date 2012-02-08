@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnCounterNode.h 22163 2011-07-03 14:11:15Z dr165799 $
+// $Id$
 
 #ifndef _VDFNCOUNTERNODE_H
 #define _VDFNCOUNTERNODE_H

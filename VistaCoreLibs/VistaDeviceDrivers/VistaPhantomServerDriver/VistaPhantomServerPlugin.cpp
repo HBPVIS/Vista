@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaPhantomServerDriver.cpp 19790 2010-10-26 20:21:11Z ingoassenmacher $
+// $Id$
 
 #include "VistaPhantomServerDriver.h"
 

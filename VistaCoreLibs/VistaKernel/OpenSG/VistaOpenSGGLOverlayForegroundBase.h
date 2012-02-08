@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenSGGLOverlayForegroundBase.h 23493 2011-09-22 16:12:15Z dr165799 $
+// $Id$
 
 #ifndef _VISTA_OPENSG_GLOVERLAYFOREGROUND_BASE_H_
 #define _VISTA_OPENSG_GLOVERLAYFOREGROUND_BASE_H_

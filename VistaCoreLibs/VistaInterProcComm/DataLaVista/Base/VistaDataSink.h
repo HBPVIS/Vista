@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDataSink.h 22867 2011-08-07 15:29:00Z dr165799 $
+// $Id$
 
 #ifndef DLVISTADATASINK_H
 #define DLVISTADATASINK_H

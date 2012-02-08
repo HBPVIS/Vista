@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: OSGVistaOpenGLDrawCore.h 23493 2011-09-22 16:12:15Z dr165799 $
+// $Id$
 #ifndef _OSGVISTAOPENGLDRAWCORE_H_
 #define _OSGVISTAOPENGLDRAWCORE_H_
 
@@ -132,6 +132,6 @@ OSG_END_NAMESPACE
 #include "OSGVistaOpenGLDrawCoreBase.inl"
 #include "OSGVistaOpenGLDrawCore.inl"
 
-#define OSGVistaOpenGLDrawCore_HEADER_CVSID "@(#)$Id: OSGVistaOpenGLDrawCore.h 23493 2011-09-22 16:12:15Z dr165799 $"
+#define OSGVistaOpenGLDrawCore_HEADER_CVSID "@(#)$Id$"
 
 #endif /* _OSGVISTAOPENGLDRAWCORE_H_ */

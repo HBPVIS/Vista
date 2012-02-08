@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnActionObject.h 22278 2011-07-06 12:04:40Z dr165799 $
+// $Id$
 
 #ifndef _VDFNACTIONOBJECT_H
 #define _VDFNACTIONOBJECT_H

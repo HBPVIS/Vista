@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnTypeConvertNode.h 22867 2011-08-07 15:29:00Z dr165799 $
+// $Id$
 
 #ifndef _VDFNTYPECONVERTNODE_H
 #define _VDFNTYPECONVERTNODE_H
