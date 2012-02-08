@@ -53,6 +53,21 @@ namespace
 	HANDLE		m_hConsole = NULL;
 	int			m_ConsoleRefCount = 0;
 
+	bool IsWinXPOrEarlier()
+	{
+		static int nVersion = -1;
+
+		if( nVersion == -1 )
+		{
+			OSVERSIONINFO oVersionInfo;
+			ZeroMemory( &oVersionInfo, sizeof(OSVERSIONINFO) );
+			oVersionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+			GetVersionEx( &oVersionInfo );
+			nVersion = oVersionInfo.dwMajorVersion;
+		}
+		return ( nVersion <= 5 );
+	}
+
 	void ApplyTextColor( const VistaColorOutstream::CONSOLE_COLOR iColor, WORD& oConsoleAttributes )
 	{
 		oConsoleAttributes &= ~( FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY );
@@ -399,7 +414,7 @@ protected:
 		std::cout.flush();
 
 		// we lock globally to verify that only one thread
-		// writes to the console at any tiem
+		// writes to the console at any time
 		ConsoleLock oLock;
 		
 		CONSOLE_SCREEN_BUFFER_INFO oInfo;
@@ -407,9 +422,17 @@ protected:
 		SetConsoleTextAttribute( m_hConsole, m_oAttributes );		
 
 		LPDWORD oReturnChars = 0;
-		WriteConsole( m_hConsole, &m_vecBuffer[0], (DWORD)n, oReturnChars, NULL );
 
-		//std::cout.write( &m_vecBuffer[0], n );
+		// WindowsXP problems with directly writing to the console, so we just use std::cout instead
+		if( IsWinXPOrEarlier() )
+		{
+			std::cout.write( &m_vecBuffer[0], n );			
+		}
+		else
+		{
+			WriteConsole( m_hConsole, &m_vecBuffer[0], (DWORD)n, oReturnChars, NULL );
+		}
+		
 		
 		SetConsoleTextAttribute( m_hConsole, oInfo.wAttributes );
 
