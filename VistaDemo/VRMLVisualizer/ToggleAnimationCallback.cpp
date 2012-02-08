@@ -49,7 +49,7 @@ ToggleAnimationCallback::~ToggleAnimationCallback(){}
 bool ToggleAnimationCallback::Do()
 {
 	// toggle animation state
-	mProps.SetBoolValue("animation", !mProps.GetBoolValue("animation"));
+	mProps.SetValue<bool>("animation", !mProps.GetValueOrDefault<bool>("animation"));
 	return true;
 }
 

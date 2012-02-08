@@ -98,7 +98,7 @@ bool ApplyColorActionObject::SetColor( const VistaVector3D& v3Color )
 		return true;
 
 	m_v3Color = v3Color;
-	m_pGeometry->SetColor( VistaColorRGB( v3Color[0], v3Color[1], v3Color[2] ) );
+	m_pGeometry->SetColor( VistaColor( v3Color[0], v3Color[1], v3Color[2] ) );
 	/**
 	 * we have changed m_v3Color, and thus the return value of GetColor.
 	 * Thus, we have to inform any actionnode for this actionobject

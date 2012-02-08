@@ -90,7 +90,7 @@ TextDemoAppl::TextDemoAppl( int argc, char  *argv[] )
 	m_pTextEntity1->SetXPos( 1.5f );
 	m_pTextEntity1->SetYPos( 1.5f );
 	m_pTextEntity1->SetZPos( 1.5f );
-	m_pTextEntity1->SetColor( VistaColorRGB::CYAN );
+	m_pTextEntity1->SetColor( VistaColor::CYAN );
 
 	pSimpleTOverlay->AddText( m_pTextEntity1 );
 
@@ -113,7 +113,7 @@ TextDemoAppl::TextDemoAppl( int argc, char  *argv[] )
 
 	m_pTextEntity3->SetText( "Hello World 3!" );
 	m_pTextEntity3->SetFont( "SERIF", 30 );
-	m_pTextEntity3->SetColor( VistaColorRGB::GREEN );
+	m_pTextEntity3->SetColor( VistaColor::GREEN );
 	m_pTextEntity3->SetXPos( 0.0f );
 	m_pTextEntity3->SetYPos( 1.0f );
 	m_pTextEntity3->SetZPos( 0.0f );

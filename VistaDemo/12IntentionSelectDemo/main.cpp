@@ -273,7 +273,7 @@ void CreateScene(VistaSystem &vistaSystem)
         VistaGeometry *pBox = oGeometryFactory.CreateBox ( 0.5f, 0.5f, 0.5f );
 
         // give a fancy color
-        pBox->SetColor( VistaColorRGB( VistaColorRGB::DARK_ORCHID ) );
+        pBox->SetColor( VistaColor( VistaColor::DARK_ORCHID ) );
 
         // shift boxes away from the user with
         // a slight tendency to the left

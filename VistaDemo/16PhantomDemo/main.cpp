@@ -155,7 +155,7 @@ void CreateScene( VistaSystem &vistaSystem )
 	m_pHandleParent = vistaSG->NewTransformNode(vistaSG->GetRoot());
 	//m_pHandleParent->SetTranslation(0,0,10);
 
-	VistaGeometry* plane = gf.CreatePlane(3,3,1,1,Vista::Y,VistaColorRGB::YELLOW);
+	VistaGeometry* plane = gf.CreatePlane(3,3,1,1,Vista::Y,VistaColor::YELLOW);
 	vistaSG->NewGeomNode(vistaSG->GetRoot(),plane);
 	m_pPlane->SetConstraintPlane(VistaVector3D(0,0,0),VistaVector3D(0,1,0),0.5f,0.5f,VistaVector3D(0,0,0));
 
@@ -167,18 +167,18 @@ void CreateScene( VistaSystem &vistaSystem )
 	vistaSG->NewGeomNode(m_pHandle,handleBall);
 
 	VistaGeometry *x = gf.CreateCone(0.01f,0.01f,0.15f);
-	x->SetColor(VistaColorRGB::RED);
+	x->SetColor(VistaColor::RED);
 	VistaTransformNode *xNode = vistaSG->NewTransformNode(m_pHandle);
 	// turn around 90 degrees
 	xNode->SetRotation(VistaQuaternion(VistaAxisAndAngle(VistaVector3D(0,0,1),Vista::DegToRad(90))));
 	vistaSG->NewGeomNode(xNode,x);
 
 	VistaGeometry *y = gf.CreateCone(0.01f,0.01f,0.15f);
-	y->SetColor(VistaColorRGB::GREEN);
+	y->SetColor(VistaColor::GREEN);
 	vistaSG->NewGeomNode(m_pHandle,y);
 
 	VistaGeometry *z = gf.CreateCone(0.01f,0.01f,0.15f);
-	z->SetColor(VistaColorRGB::BLUE);
+	z->SetColor(VistaColor::BLUE);
 	VistaTransformNode *zNode = vistaSG->NewTransformNode(m_pHandle);
 	// turn around 90 degrees
 	zNode->SetRotation(VistaQuaternion(VistaAxisAndAngle(VistaVector3D(1,0,0),Vista::DegToRad(90))));

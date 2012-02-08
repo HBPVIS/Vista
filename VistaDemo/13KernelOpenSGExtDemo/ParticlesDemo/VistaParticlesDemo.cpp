@@ -637,14 +637,14 @@ void CreateScene(VistaSystem *pSystem)
 	pTransSmoke->SetTranslation(0, 0, -1.0125f);
 
 	VistaGeometryFactory pFactory( pSG );
-	VistaGeometry* pCube = pFactory.CreateBox(0.05f,0.05f,0.05f,1,1,1,VistaColorRGB(255,255,0));
+	VistaGeometry* pCube = pFactory.CreateBox(0.05f,0.05f,0.05f,1,1,1,VistaColor(255,255,0));
 	VistaTransformNode *pTransCone = pSG->NewTransformNode(pSG->GetRoot());
 	VistaGeomNode* pGeomNode1 = pSG->NewGeomNode(pTransCone, pCube);
 	pTransCone->Translate(VistaVector3D(0,0,-1.025f));
 	Smoke *poSmoke = new Smoke(pTransSmoke, pSG);
 
-	VistaGeometry* pSwimmingpool = pFactory.CreateBox(1.0f,1.0f,0.1f,1,1,1,VistaColorRGB::WHITE);
-	VistaGeometry* pWater = pFactory.CreateBox(0.8f,0.8f,0.11f,1,1,1,VistaColorRGB::BLUE);
+	VistaGeometry* pSwimmingpool = pFactory.CreateBox(1.0f,1.0f,0.1f,1,1,1,VistaColor::WHITE);
+	VistaGeometry* pWater = pFactory.CreateBox(0.8f,0.8f,0.11f,1,1,1,VistaColor::BLUE);
 
 	VistaTransformNode* pSwimmingpoolNode = pSG->NewTransformNode(pSG->GetRoot());
 	VistaGeomNode* pPoolGeomNode = pSG->NewGeomNode(pSwimmingpoolNode,pSwimmingpool);

@@ -125,7 +125,7 @@ IVdfnNode *VdfnPlaneConstraintNodeCreate::CreateNode( const VistaPropertyList &o
 	try
 	{
 		const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
-		std::string strDriverId = subs.GetStringValue("device_id");
+		std::string strDriverId = subs.GetValueOrDefault<std::string>("device_id");
 		if(strDriverId.empty())
 			return NULL;
 

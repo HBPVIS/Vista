@@ -255,11 +255,11 @@ int main(int argc, char **argv)
 			VistaTransformNode *boxTransform = pSG->NewTransformNode( pSG->GetRoot() );
 			boxTransform->SetTranslation( 0, 0.5f, 0 );
 			boxTransform->SetRotation( VistaQuaternion(VistaEulerAngles(0, (Vista::Pi/3.0f), 0)) );
-			box->SetColor(VistaColorRGB(VistaColorRGB::LIGHT_GRAY));
+			box->SetColor(VistaColor(VistaColor::LIGHT_GRAY));
 			pSG->NewGeomNode( boxTransform, box );
 
 			VistaGeometry *floor = geometryFactory.CreatePlane( 40, 40, 40, 40, Vista::Y );
-			floor->SetColor(VistaColorRGB(VistaColorRGB::GRAY));
+			floor->SetColor(VistaColor(VistaColor::GRAY));
 			pSG->NewGeomNode( pSG->GetRoot(), floor );
 
 			// now determine the reference frame from a given display system
@@ -287,7 +287,7 @@ int main(int argc, char **argv)
 			Vista3DTextOverlay *oTextOverlay3D = new Vista3DTextOverlay( pDispMgr );
 			IVistaTextEntity* pTextEntity = pDispMgr->CreateTextEntity();
 			pTextEntity->SetText("overlay text hooked to a 3D position");
-			pTextEntity->SetColor(VistaColorRGB::RED);
+			pTextEntity->SetColor(VistaColor::RED);
 			pTextEntity->SetYPos(1.2f);
 			oTextOverlay3D->AddText(pTextEntity);
 

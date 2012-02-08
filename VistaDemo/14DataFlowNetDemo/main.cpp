@@ -109,7 +109,7 @@ int	main (int argc, char *argv[])
 		VistaTransformNode* pGeomTrans = pSceneGraph->NewTransformNode( pSceneGraph->GetRoot() );
 		
 		VistaGeometryFactory oGeometryFactory( pSceneGraph );
-		VistaGeometry* pGeometry = oGeometryFactory.CreateSphere( 0.05f, 64, VistaColorRGB::WHITE );
+		VistaGeometry* pGeometry = oGeometryFactory.CreateSphere( 0.05f, 64, VistaColor::WHITE );
 		pSceneGraph->NewGeomNode( pGeomTrans, pGeometry );
 
 

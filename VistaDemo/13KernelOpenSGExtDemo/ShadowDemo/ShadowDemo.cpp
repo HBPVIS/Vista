@@ -132,7 +132,7 @@ ShadowDemo::ShadowDemo(int argc, char *argv[])
 		VistaSystemEvent::VSE_PREGRAPHICS);
 
 	// set background color
-	pGraphicsManager->SetBackgroundColor( VistaColorRGB(0.6f, 0.6f, 1.0f) );
+	pGraphicsManager->SetBackgroundColor( VistaColor(0.6f, 0.6f, 1.0f) );
 
 	// create shadow viewports
 	m_pShadow = new VistaOpenSGShadow(pDisplayManager, pGraphicsManager);
@@ -206,11 +206,11 @@ bool ShadowDemo::CreateScene()
 		VistaGeometryFactory oGeometryFactory(pSG);
 		VistaGeometry *pGeomBox = oGeometryFactory.CreateBox();
 		pSG->NewGeomNode(pTransBox,pGeomBox);
-		pGeomBox->SetColor(VistaColorRGB(0.6f, 0.8f, 0.8f));
+		pGeomBox->SetColor(VistaColor(0.6f, 0.8f, 0.8f));
 
 		VistaGeometry  *pGeomSphere = oGeometryFactory.CreateBox(0.4f, 64, 64);
 		pSG->NewGeomNode(pTransSphere,pGeomSphere);
-		pGeomSphere->SetColor(VistaColorRGB(0.4f, 0.5f, 0.9f));
+		pGeomSphere->SetColor(VistaColor(0.4f, 0.5f, 0.9f));
 
 		// seed some trees
 		VistaTransformNode *pTreeNode1, *pTreeNode2, *pTreeNode3, *pTreeNode4;
@@ -265,7 +265,7 @@ static VistaGeometry* createFloor(const float &fExtents, const int &iTess)
 	std::vector<VistaIndexedVertex> vVerts;
 	std::vector<float> vCoords;
 	std::vector<float> vNormals;
-	std::vector<VistaColorRGB> vColors;
+	std::vector<VistaColor> vColors;
 	std::vector<float> vTexCoords;
 
 	oVertexFormat.coordinate = VistaVertexFormat::COORDINATE;
@@ -339,7 +339,7 @@ static VistaGeometry* createFloor(const float &fExtents, const int &iTess)
 		vNormals, vColors, oVertexFormat,
 		fType);
 
-	pGeo->SetColor(VistaColorRGB::WHITE);
+	pGeo->SetColor(VistaColor::WHITE);
 	return pGeo;
 }
 

@@ -92,7 +92,7 @@ bool GeometryDemoAppl::Init( int argc, char  *argv[] )
 	// Create the box
 	m_pBox = oGeometryFactory.CreateBox ();
 	// Create a sphere
-	m_pSphere = oGeometryFactory.CreateSphere( 1, 300, VistaColorRGB::WHITE );
+	m_pSphere = oGeometryFactory.CreateSphere( 1, 300, VistaColor::WHITE );
 	// some nice texture
 	m_pSphere->SetTexture( "../data/bus.jpg");
 

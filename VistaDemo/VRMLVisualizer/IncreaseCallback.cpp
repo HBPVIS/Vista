@@ -50,7 +50,7 @@ IncreaseCallback::~IncreaseCallback(){}
 bool IncreaseCallback::Do()
 {
 	// check if the animation is running
-	if( m_pVrmlVisualizer->GetPropertyList().GetBoolValue("animation") )
+	if( m_pVrmlVisualizer->GetPropertyList().GetValueOrDefault<bool>("animation") )
 	{
 		// make the animation faster
 		m_pVrmlVisualizer->IncreaseStepSpeed();

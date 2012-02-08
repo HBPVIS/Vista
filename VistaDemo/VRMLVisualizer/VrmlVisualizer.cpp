@@ -162,7 +162,7 @@ bool VrmlVisualizer::LoadData()
 	bool flag = true;
 	if( m_vrmlProps.HasProperty( "dirname" ) )
 	{
-		VistaFileSystemDirectory dir( m_vrmlProps.GetStringValue( "dirname" ) );
+		VistaFileSystemDirectory dir( m_vrmlProps.GetValueOrDefault<std::string>( "dirname" ) );
 		if( !dir.Exists() )
 			return false;
 		
@@ -176,7 +176,7 @@ bool VrmlVisualizer::LoadData()
 	}
 	else
 	{
-		flag = AddByFilename(m_vrmlProps.GetStringValue("filename"));
+		flag = AddByFilename(m_vrmlProps.GetValueOrDefault<std::string>("filename"));
 	}
 	
 	if (!m_loadedNodes.empty())
@@ -192,7 +192,7 @@ void VrmlVisualizer::Update()
 
     VistaVector3D GroupNode;
 
-	if ( !m_vrmlProps.GetBoolValue( "animation" ) )
+	if ( !m_vrmlProps.GetValueOrDefault<bool>( "animation" ) )
 	{
 		m_dLastTime = m_vistaSystem.GetFrameClock();
 	}
@@ -294,7 +294,7 @@ void VrmlVisualizer::ParseParameters()
 				PrintUsage();
 				VISTA_THROW( "[VRMLVisualizer] No filename given.", 1 );
 			}
-			m_vrmlProps.SetStringValue( "filename", m_vecArgs[i+1] );
+			m_vrmlProps.SetValue<std::string>( "filename", m_vecArgs[i+1] );
 			continue;
 		}
 		else if( std::string("--directory").compare( m_vecArgs[i] ) == 0 || std::string("-d").compare( m_vecArgs[i] ) == 0 )
@@ -305,7 +305,7 @@ void VrmlVisualizer::ParseParameters()
 				PrintUsage();
 				VISTA_THROW( "[VRMLVisualizer] No directory given.", 1 );
 			}
-			m_vrmlProps.SetStringValue( "dirname", m_vecArgs[i+1] );
+			m_vrmlProps.SetValue<std::string>( "dirname", m_vecArgs[i+1] );
 			continue;
 		}
 		else if( std::string("--animation").compare( m_vecArgs[i] ) == 0 || std::string("-a").compare( m_vecArgs[i] ) == 0 )
@@ -316,7 +316,7 @@ void VrmlVisualizer::ParseParameters()
 				PrintUsage();
 				VISTA_THROW( "[VRMLVisualizer] No animationfile given.", 1 );
 			}
-			m_vrmlProps.SetStringValue( "animationFilename", m_vecArgs[i+1] );
+			m_vrmlProps.SetValue<std::string>( "animationFilename", m_vecArgs[i+1] );
 			continue;
 		}
 		else if( std::string("--steptime").compare( m_vecArgs[i] ) == 0 || std::string("-s").compare( m_vecArgs[i] ) == 0 )
@@ -349,39 +349,39 @@ void VrmlVisualizer::ParseParameters()
 		}
 	}
 
-	if( !m_vrmlProps.GetStringValue("animationFilename").empty() )
+	if( !m_vrmlProps.GetValueOrDefault<std::string>("animationFilename").empty() )
 	{
 		VistaProfiler prof;
 		std::string section = "VRML";
 		if( !m_vrmlProps.HasProperty("dirname") )
 		{
-			m_vrmlProps.SetStringValue("dirname",
-				prof.GetTheProfileString(section,"DIRECTORY","",m_vrmlProps.GetStringValue("animationFilename")));
+			m_vrmlProps.SetValue<std::string>("dirname",
+				prof.GetTheProfileString(section,"DIRECTORY","",m_vrmlProps.GetValueOrDefault<std::string>("animationFilename")));
 		}
 		if( !m_vrmlProps.HasProperty("filename") )
 		{
-			m_vrmlProps.SetStringValue("filename",
-				prof.GetTheProfileString(section,"FILENAME","",m_vrmlProps.GetStringValue("animationFilename")));
+			m_vrmlProps.SetValue<std::string>("filename",
+				prof.GetTheProfileString(section,"FILENAME","",m_vrmlProps.GetValueOrDefault<std::string>("animationFilename")));
 		}
 		if( !m_vrmlProps.HasProperty("steptime") )
 		{
 			m_vrmlProps.SetDoubleValue("steptime",
-				prof.GetTheProfileFloat(section,"STEPTIME",1,m_vrmlProps.GetStringValue("animationFilename")));
+				prof.GetTheProfileFloat(section,"STEPTIME",1,m_vrmlProps.GetValueOrDefault<std::string>("animationFilename")));
 		}
 		if( !m_vrmlProps.HasProperty("time") )
 		{
 			m_vrmlProps.SetDoubleValue("time",
-				prof.GetTheProfileFloat(section,"TIME",0,m_vrmlProps.GetStringValue("animationFilename")));
+				prof.GetTheProfileFloat(section,"TIME",0,m_vrmlProps.GetValueOrDefault<std::string>("animationFilename")));
 		}
 	}
 
-	m_vrmlProps.SetBoolValue( "animation", m_vrmlProps.HasProperty("dirname") || m_vrmlProps.HasProperty("animationFilename") );
+	m_vrmlProps.SetValue<bool>( "animation", m_vrmlProps.HasProperty("dirname") || m_vrmlProps.HasProperty("animationFilename") );
 	
-	VistaFileSystemDirectory dir( m_vrmlProps.GetStringValue( "dirname" ) );
-	m_dStepTime = m_vrmlProps.GetDoubleValue("time") / dir.GetNumberOfEntries();
+	VistaFileSystemDirectory dir( m_vrmlProps.GetValueOrDefault<std::string>( "dirname" ) );
+	m_dStepTime = m_vrmlProps.GetValueOrDefault<double>("time") / dir.GetNumberOfEntries();
 	if( m_vrmlProps.HasProperty("steptime") )
 	{
-		m_dStepTime = m_vrmlProps.GetDoubleValue("steptime");
+		m_dStepTime = m_vrmlProps.GetValueOrDefault<double>("steptime");
 	}
 	
 	if( m_dStepTime == 0 )

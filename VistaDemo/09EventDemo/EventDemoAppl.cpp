@@ -163,7 +163,7 @@ void EventDemoAppl::CreateScene ()
 		
 		std::cout << "sphere done" << std::endl;
 
-		pGeomSphere->SetColor(VistaColorRGB(1.0f, 0.0f, 0.0f));
+		pGeomSphere->SetColor(VistaColor(1.0f, 0.0f, 0.0f));
     }
     else
     {
