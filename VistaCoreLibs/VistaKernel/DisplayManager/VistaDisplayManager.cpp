@@ -590,20 +590,23 @@ VistaWindow *VistaDisplayManager::CreateVistaWindow( const std::string& sSection
 			vstr::errp() << "Cannot create display - section [" 
 						<< sDisplaySection << "] does not exist" << std::endl;
 		}
-		const VistaPropertyList& oDisplaySection = oConfig.GetSubListConstRef( sDisplaySection );
-
-
-		string strDisplayName;
-		oDisplaySection.GetValue( "NAME", strDisplayName );
-		pDisplay = GetDisplayByName( strDisplayName );
-		if( !pDisplay )
-		{
-			vstr::outi() << "Creating display [" << strDisplayName << "]" << std::endl;
-			pDisplay = CreateDisplay( oDisplaySection );
-		}
 		else
 		{
-			vstr::outi() << "Using existing display [" << strDisplayName << "]" << std::endl;
+			const VistaPropertyList& oDisplaySection = oConfig.GetSubListConstRef( sDisplaySection );
+
+
+			string strDisplayName;
+			oDisplaySection.GetValue( "NAME", strDisplayName );
+			pDisplay = GetDisplayByName( strDisplayName );
+			if( !pDisplay )
+			{
+				vstr::outi() << "Creating display [" << strDisplayName << "]" << std::endl;
+				pDisplay = CreateDisplay( oDisplaySection );
+			}
+			else
+			{
+				vstr::outi() << "Using existing display [" << strDisplayName << "]" << std::endl;
+			}
 		}
 	}
 
