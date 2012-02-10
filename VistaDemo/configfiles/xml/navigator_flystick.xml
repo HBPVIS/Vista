@@ -20,7 +20,7 @@
 		</node>
 
 		<!-- get linear and angular speed from local base and app-controlled factor -->
-		<node name="linear_velocitye" type="ConstantValue[float]">
+		<node name="linear_velocity" type="ConstantValue[float]">
 			<param name="value" value="2.0"/>
 		</node>
 		<node name="angular_velocity" type="ConstantValue[float]">
@@ -112,7 +112,6 @@
 		<edge fromnode="timer" tonode="navigator" fromport="dt" toport="dt"/>
 		<edge fromnode="get_transform" tonode="navigator" fromport="transform" toport="transform"/>
 		<edge fromnode="navigator" tonode="set_transform" fromport="transform" toport="in"/>
-		<edge fromnode="navigator" tonode="cammove" fromport="transform" toport="SETTRANSFORM"/>
 		
 	</edges>
 </module>

@@ -4,7 +4,7 @@
 	</nodespace>
 	<graph>
 		<node name="head_source" type="DriverSensor">
-			<param name="sensor_name" value="HEAD_SENSOR"/>
+			<param name="sensor_index" value="2"/>
 			<param name="type" value="BODY"/>
 			<param name="driver" value="DTRACK"/>
 		</node>
@@ -13,7 +13,7 @@
 		</node>
 		
 		<node name="project_mode" type="ConstantValue[int]">
-			<param name="mode" value="1"/> 
+			<param name="value" value="1"/> 
 		</node>
 
 		<!-- tracker conversion -->
@@ -39,7 +39,6 @@
 		<!-- history projection -->
 		<edge fromnode="project_mode" tonode="head" fromport="value"   toport="sampling_mode"/>
 		<edge fromnode="head_source"  tonode="head" fromport="history" toport="history"/>
-		<edge fromnode="head_source"  tonode="dd" fromport="history" toport="history"/>
 
 		<edge fromnode="head" tonode="translate_pos" fromport="POSITION" toport="first"/>
 		<edge fromnode="to_dtrack_origin" tonode="translate_pos" fromport="value" toport="second"/>
