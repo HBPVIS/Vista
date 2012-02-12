@@ -1,69 +1,20 @@
 import os, sys, shutil, re
 
-cppreplaces = [
-	( re.compile( r'IVistaSimpleTextOverlay', re.MULTILINE ), r'VistaSimpleTextOverlay' ),
-	( re.compile( r'IVista3DTextOverlay', re.MULTILINE ), r'Vista3DTextOverlay' ),
-	( re.compile( r'(\.|->)PrintPropertyList(\s*\()', re.MULTILINE ), r'\1Print\2' ),
-	( re.compile( r'(\.|->)GetHasProperty(\s*\()', re.MULTILINE ), r'\1HasProperty\2' ),
-	( re.compile( r'(\.|->)GetHasSubList(\s*\()', re.MULTILINE ), r'\1HasSubList\2' ),
-	
-	( re.compile( r'VistaSG', re.MULTILINE ), r'VistaSceneGraph' ),
-	( re.compile( r'(\.|->)(Get|Set)CullingEnabled', re.MULTILINE ), r'\1\2OcclusionCullingEnabled' ),
-	( re.compile( r'(\.|->)Add2D(Text|Bitmap|Line|Rectangle)', re.MULTILINE ), r'\1New2D\2' ),
-	( re.compile( r'VistaType::ubyte8', re.MULTILINE ), r'VistaType::byte' ),
-	
-	( re.compile( r'<VistaBase/VistaStreams.h>', re.MULTILINE ), r'<VistaTools/VistaStreams.h>' ),
-	( re.compile( r'vstr::CC_([A-Z_]+[^A-Z_])', re.MULTILINE ), r'VistaColorOutstream::CC_\1' ),
-	( re.compile( r'vstr::CONSOLE_COLOR', re.MULTILINE ), r'VistaColorOutstream::CONSOLE_COLOR' ),
-	( re.compile( r'vstr::GetConsoleColorName', re.MULTILINE ), r'VistaColorOutstream::GetConsoleColorName' ),
-	
-	( re.compile( r'VistaGeometry::faceType', re.MULTILINE ), r'VistaGeometry::FaceType' ),
-	
-	( re.compile( r'VistaGetArrayPropertyFunctor', re.MULTILINE ), r'TVistaPropertyArrayGet' ),
-	( re.compile( r'VistaSetArrayPropertyFunctor', re.MULTILINE ), r'TVistaPropertyArraySet' ),
-	( re.compile( r'VistaPropertyListGetFunctor', re.MULTILINE ), r'TVistaPropertyListGet' ),
-	( re.compile( r'VistaPropertyListSetFunctor', re.MULTILINE ), r'TVistaPropertyListSet' ),
-
-# optional - better don't use
-# they should be safe, but are better replaced using exact matches
-# (e.g. SetValue<float> instead of double where applicable
-# propertylist-getters are explicitely not modeled! Check them manually
-	#( re.compile( r'(\.|->)SetStringValue(\s*\()', re.MULTILINE ), r'\1SetValue<std::string>\2' ),
-	#( re.compile( r'(\.|->)SetIntValue(\s*\()', re.MULTILINE ), r'\1SetValue<int>\2' ),
-	#( re.compile( r'(\.|->)SetBoolValue(\s*\()', re.MULTILINE ), r'\1SetValue<bool>\2' ),
-	#( re.compile( r'(\.|->)SetDoubleValue(\s*\()', re.MULTILINE ), r'\1SetValue<double>\2' ),
-	#( re.compile( r'(\.|->)SetStringListValue(\s*\()', re.MULTILINE ), r'\1SetValue\2' ),
-	
-# Optional: replace propertylist-getvalues with API-equivalent. Can, but should not be used
-# since there are now better options, and for more different types
-	#( re.compile( r'(\.|->)GetStringValue(\s*\()', re.MULTILINE ), r'\1GetValueOrDefault<std::string>\2' ),
-	#( re.compile( r'(\.|->)GetIntValue(\s*\()', re.MULTILINE ), r'\1GetValueOrDefault<int>\2' ),
-	#( re.compile( r'(\.|->)GetBoolValue(\s*\()', re.MULTILINE ), r'\1GetValueOrDefault<bool>\2' ),
-	#( re.compile( r'(\.|->)GetDoubleValue(\s*\()', re.MULTILINE ), r'\1GetValueOrDefault<double>\2' ),
-	#( re.compile( r'(\.|->)GetStringListValue(\s*\()', re.MULTILINE ), r'\1SetValue\2' ),
-	
-# this line can be used, but shouldn't - HasSubList now throws an exception, instead of 
-# returning an empty proplistref
-	#( re.compile( r'(\.|->)GetPropertyListValue(\s*\()', re.MULTILINE ), r'\1HasSubList\2' ),
+cppreplaces = [	
 ]
 
-inireplaces = [
-	( re.compile( r'DUMPGRAPHS', re.MULTILINE ), r'DUMPDFNGRAPHS' ),
-	( re.compile( r'WRITEPORTS', re.MULTILINE ), r'WRITEDFNPORTS' ),
-	( re.compile( r'FULL_SCREEN', re.MULTILINE ), r'FULLSCREEN' ),
+inireplaces = [	
 ]
 
 xmlreplaces = [
-	( re.compile( r'(\s*param\s*name\s*=\s*)"sensor_id"', re.MULTILINE ), r'\1"sensor_name"' ),
-	( re.compile( r'(\s*param\s*name\s*=\s*)"sensor"', re.MULTILINE ), r'\1"sensor_index"' ),
 ]
 
 
 
 replacementrules = [
-	( r'.+\.(cpp|h)$', cppreplaces ),
-	( r'.+\.(ini)$', inireplaces ),
-	( r'.+\.(xml)$', xmlreplaces ),
+	#( r'.+\.(cpp|h)$', cppreplaces ),
+	#( r'.+\.(ini)$', inireplaces ),
+	#( r'.+\.(xml)$', xmlreplaces ),
 ]
 
 def ReplaceContent( file, replacelist ):    
