@@ -178,6 +178,8 @@ IVistaSceneOverlay::~IVistaSceneOverlay()
 
 VistaViewport* IVistaSceneOverlay::GetAttachedViewport() const
 {
+	if( m_pViewportObserver == NULL )
+		return NULL;
 	return m_pViewportObserver->GetViewport();
 }
 

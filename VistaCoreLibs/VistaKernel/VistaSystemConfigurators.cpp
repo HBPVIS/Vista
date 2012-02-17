@@ -901,7 +901,7 @@ bool VistaDriverReferenceFrameConfigurator::Configure( IVistaDeviceDriver* pDriv
 					<< " returned false. Maybe it is not supported by the driver?" << std::endl;
 			}
 		}
-		if( oSection.GetValue( "EMITTER_ALIGNMENT", oMatrix ) )
+		else if( oSection.GetValue( "EMITTER_ALIGNMENT", oMatrix ) )
 		{
 			if( pAspect->SetEmitterAlignment( oMatrix ) == false )
 			{

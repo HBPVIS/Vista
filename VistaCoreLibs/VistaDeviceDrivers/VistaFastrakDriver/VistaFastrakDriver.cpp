@@ -78,7 +78,6 @@ public:
 	virtual bool CmdSetStreamMode() = 0;
 	virtual bool CmdSetPollMode(bool bForce) = 0;
 
-
 	virtual bool CmdStylusButtonMode(unsigned int iMode, int iUnit) = 0;
 	virtual bool CmdSetPosQuaternionMode() = 0;
 	virtual bool CmdSetPosQuaternionMode(unsigned int iUnit) = 0;
@@ -88,6 +87,10 @@ public:
 	virtual bool CmdSetHemisphere(unsigned int iUnit, float x = 1, float y = 0, float z = 0) = 0;
 
 	virtual bool CmdPollValues() = 0;
+
+	virtual bool CmdSetUpdateRate() = 0;
+
+	virtual std::string GetDeviceInfoString( std::vector<std::string> &vecStore ) = 0;
 
 	/**
 	 * @param iStation 0xFFFFFFFF for all stations
@@ -138,10 +141,10 @@ protected:
 	int   m_nMessageLength;
 };
 
-class LibertyCommandSet : public IVistaFastrakCommandSet
+class CommonCommandSet : public IVistaFastrakCommandSet
 {
 public:
-	LibertyCommandSet(VistaDriverConnectionAspect *pCon,
+	CommonCommandSet(VistaDriverConnectionAspect *pCon,
 		               IVistaDriverReferenceFrameAspect *pRefFrame)
 		: IVistaFastrakCommandSet(pCon),
 		 m_bPollMode(true),
@@ -151,7 +154,7 @@ public:
 	{
 	}
 
-	virtual ~LibertyCommandSet()
+	virtual ~CommonCommandSet()
 	{
 	}
 
@@ -376,34 +379,6 @@ public:
 		return m_pConnection->SendCommand( 0, data, (unsigned int)strlen(data), 100 );
 	}
 
-	virtual std::string GetDeviceInfoString(std::vector<std::string> &vecStore ) const
-	{
-		VistaConnection *pCon = m_pConnection->GetConnection(0);
-
-		char data[2];
-
-		data[0] = 0x16; // ^V : WhoAmI ?
-		data[1] = 0x0D;
-		if(pCon->Send(data, 2) == 2)
-		{
-			VistaTimeUtils::Sleep(1000); // wait a sec
-			std::string strAnswer;
-
-			std::string strPart;
-			for(int i=0; i < 11; ++i)
-			{
-				if(pCon->ReadDelimitedString( strPart, 0x0A )==-1)
-					break; // leave loop
-				vecStore.push_back(strPart);
-				strAnswer += strPart + std::string("\n"); // we swallowd the trailing endline
-			}
-
-			return strAnswer;
-		}
-
-		return "";
-	}
-
 	virtual bool CmdPollValues()
 	{
 		char data[1];
@@ -466,13 +441,11 @@ public:
 
 	virtual float GetDataFromBinary(unsigned char *source) { return false; }
 	virtual float GetDataFromAscii(unsigned char *source, int length)  { return false; }
-
-
-	static std::string GetCommandSetId() { return "LIBERTY"; }
-	virtual eMode CmdGetCurrentMode() const { return MD_NONE; }
+	
 
 	virtual long CmdGetActiveStationMask() const
 	{
+		Flush();
 		char data[3];
 		data[0] = 0x15;
 		data[1] = '0';
@@ -507,6 +480,7 @@ public:
 
 	virtual long CmdGetStationsMask() const
 	{
+		Flush();
 		char data[3];
 		data[0] = 0x15;
 		data[1] = '0';
@@ -584,12 +558,7 @@ public:
 
 				}
 
-				data[0] = 'R';
-				data[1] = '3'; // set to 120Hz output
-				if(m_pConnection->SendCommand( 0, data, 3, 150 ))
-				{
-					vstr::outi() << "[FastrackDriver]: switched to 120Hz update rate." << std::endl;
-				}
+				CmdSetUpdateRate();
 
 				if(CmdEnableMetricMode())
 				{
@@ -688,7 +657,6 @@ public:
 	}
 
 protected:
-private:
 
 
 	std::vector<std::string> m_vecInfoStrings;
@@ -699,6 +667,109 @@ private:
 		 m_nStationMask;
 	std::string m_sDeviceName;
 	IVistaDriverReferenceFrameAspect *m_pRefFrame;
+};
+
+class LibertyCommandSet : public CommonCommandSet
+{
+public:
+	LibertyCommandSet(VistaDriverConnectionAspect *pCon,
+		               IVistaDriverReferenceFrameAspect *pRefFrame)
+	: CommonCommandSet( pCon, pRefFrame )
+	{
+	}
+
+	static std::string GetCommandSetId() { return "LIBERTY"; }
+	virtual eMode CmdGetCurrentMode() const { return MD_NONE; }
+
+	virtual bool CmdSetUpdateRate()
+	{
+		char data[3];
+		data[0] = 'R';
+		data[1] = '3'; // set to 120Hz output
+		data[2] = 0x0D;
+		if(m_pConnection->SendCommand( 0, data, 3, 150 ))
+		{
+			vstr::outi() << "[FastrackDriver]: switched to 120Hz update rate." << std::endl;
+			return true;
+		}
+		return false;		
+	}
+
+	virtual std::string GetDeviceInfoString(std::vector<std::string> &vecStore )
+	{
+		Flush();
+		VistaConnection *pCon = m_pConnection->GetConnection(0);
+
+		char data[2];
+
+		data[0] = 0x16; // ^V : WhoAmI ?
+		data[1] = 0x0D;
+		if(pCon->Send(data, 2) == 2)
+		{
+			VistaTimeUtils::Sleep(1000); // wait a sec
+			std::string strAnswer;
+
+			std::string strPart;
+			for(int i=0; i < 11; ++i)
+			{
+				if(pCon->ReadDelimitedString( strPart, 0x0A )==-1)
+					break; // leave loop
+				vecStore.push_back(strPart);
+				strAnswer += strPart + std::string("\n"); // we swallowd the trailing endline
+			}
+
+			return strAnswer;
+		}
+
+		return "";
+	}
+};
+
+class PatriotCommandSet : public LibertyCommandSet
+{
+public:
+	PatriotCommandSet(VistaDriverConnectionAspect *pCon,
+		               IVistaDriverReferenceFrameAspect *pRefFrame)
+		: LibertyCommandSet( pCon, pRefFrame )
+	{
+	}
+
+	static std::string GetCommandSetId() { return "PATRIOTS"; }
+	virtual eMode CmdGetCurrentMode() const { return MD_NONE; }
+
+	virtual bool CmdSetUpdateRate()
+	{
+		return true; // nothing to be done
+	}
+	
+	virtual std::string GetDeviceInfoString(std::vector<std::string> &vecStore )
+	{
+		Flush();
+		VistaConnection *pCon = m_pConnection->GetConnection(0);
+
+		char data[2];
+
+		data[0] = 0x16; // ^V : WhoAmI ?
+		data[1] = 0x0D;
+		if(pCon->Send(data, 2) == 2)
+		{
+			VistaTimeUtils::Sleep(1000); // wait a sec
+			std::string strAnswer;
+
+			std::string strPart;
+			for( int i = 0; i < 6; ++i )
+			{
+				if(pCon->ReadDelimitedString( strPart, 0x0A )==-1)
+					break; // leave loop
+				vecStore.push_back(strPart);
+				strAnswer += strPart + std::string("\n"); // we swallowd the trailing endline
+			}
+
+			return strAnswer;
+		}
+
+		return "";
+	}
 };
 
 
@@ -741,8 +812,20 @@ public:
 		}
 		else if(oTag.m_strProtocolName == "PATRIOT")
 		{
-			vstr::errp() << "[FastrackDriver]: Protocol [PATRIOT] known, but not supported" << std::endl;
-			return false;
+			vstr::outi() << "[FastrackDriver]: Using the PATRIOT protocol" << std::endl;
+			VistaDriverConnectionAspect *pConAsp
+				= dynamic_cast<VistaDriverConnectionAspect*>(
+				     m_pDriver->GetAspectById(
+						VistaDriverConnectionAspect::GetAspectId() ) );
+
+			IVistaDriverReferenceFrameAspect *pRefFrame
+				= dynamic_cast<IVistaDriverReferenceFrameAspect *>(
+				     m_pDriver->GetAspectById(
+						IVistaDriverReferenceFrameAspect ::GetAspectId() ) );
+
+			PatriotCommandSet *pSet = new PatriotCommandSet(pConAsp, pRefFrame);
+			m_pDriver->SetCommandSet(pSet);
+			return true;
 		}
 
 		return false;

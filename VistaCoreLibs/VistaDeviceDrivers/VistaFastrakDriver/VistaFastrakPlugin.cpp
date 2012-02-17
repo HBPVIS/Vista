@@ -113,6 +113,6 @@ extern "C" VISTAFASTRAKDRIVERPLUGINAPI void UnloadCreationMethod(IVistaDriverCre
 
 extern "C" VISTAFASTRAKDRIVERPLUGINAPI const char *GetDeviceClassName()
 {
-	return "VISTAFASTRAK";
+	return "FASTRAK";
 }
 
