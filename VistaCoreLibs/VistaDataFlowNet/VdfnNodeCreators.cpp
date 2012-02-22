@@ -353,7 +353,7 @@ IVdfnNode *VdfnDriverSensorNodeCreate::CreateNode( const VistaPropertyList &oPar
 				{
 					vstr::warnp() << "[SensorNodeCreate]: - Driver ["
 							<< sDriver << "] requires a sensor to be specified!"
-							<< " Use \"sensor_name\" or \"sensor_id\"" << std::endl;
+							<< " Use \"sensor_name\" or \"sensor_index\"" << std::endl;
 					return NULL;
 				}
 				unsigned int nId = pMappingAspect->GetSensorId( nType, 0 );
@@ -405,7 +405,7 @@ IVdfnNode *VdfnDriverSensorNodeCreate::CreateNode( const VistaPropertyList &oPar
 			{
 				vstr::warnp() << "[SensorNodeCreate]: - Driver ["
 						<< sDriver << "] requires a sensor to be specified! "
-						<< "Use \"sensor_name\" or \"sensor_id\"" << std::endl;
+						<< "Use \"sensor_name\" or \"sensor_index\"" << std::endl;
 				return NULL;
 			}
 

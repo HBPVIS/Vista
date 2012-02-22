@@ -29,6 +29,7 @@
 /*============================================================================*/
 /* INCLUDES                                                                   */
 /*============================================================================*/
+#include <VistaBase/VistaBaseTypes.h>
 
 namespace VistaDTrackMeasures
 {
@@ -47,26 +48,43 @@ namespace VistaDTrackMeasures
 	 */
 	struct sBodyMeasure
 	{
-		double  m_nId;
+		double m_nId;
 		double m_nQuality;
-		double  m_nPos[3],
-				m_nEuler[3],
-				m_anRot[9];
+		double m_nPos[3];
+		double m_nEuler[3];
+		double m_anRot[9];
 	};
 
 
 	/**
-	 * memory layout of the stick measure
+	 * memory layout of the stick measure (protocol 1 flystick)
 	 */
 	struct sStickMeasure
 	{
-		double  m_nId;
+		double m_nId;
 		double m_nQuality;
 		double m_nButtonState;
-		double  m_nPos[3],
-				m_nEuler[3],
-				m_anRot[9];
+		double m_nPos[3];
+		double m_nEuler[3];
+		double m_anRot[9];
 	};
+
+	
+	/**
+	 * memory layout of the stick measure (protocol 1 flystick)
+	 */
+	struct sStick2Measure
+	{
+		double	m_nId;
+		double	m_nQuality;
+		double	m_nNumberButtonValues;
+		double	m_nNumberControllerValues;
+		double	m_nPos[3];
+		double	m_anRot[9];
+		VistaType::sint32	m_nButtonMask;		// limits number of buttons to 32
+		double	m_anControllers[8]; //@todo: max number of controllers?
+	};
+
 
 	/**
 	 *  memory layout of the marker measure

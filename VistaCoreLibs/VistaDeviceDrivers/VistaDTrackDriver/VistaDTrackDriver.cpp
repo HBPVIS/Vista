@@ -24,6 +24,8 @@
 
 #include "VistaDTrackDriver.h"
 
+#include "VistaDTrackCommonShare.h"
+
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverConnectionAspect.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverSensorMappingAspect.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverMeasureHistoryAspect.h>
@@ -41,6 +43,7 @@
 
 #include <string>
 #include <iostream>
+#include <sstream>
 #include <assert.h>
 
 
@@ -394,6 +397,156 @@ private:
 
 };
 
+
+class Flystick2Decode : public ILineDecode
+{
+public:
+	Flystick2Decode( unsigned int nSensorType )
+	: ILineDecode(nSensorType)
+	{
+		m_vecBlockLength.push_back( 4 );
+		m_vecBlockLength.push_back( 3 );
+		m_vecBlockLength.push_back( 9 );
+		m_vecBlockLength.push_back( 0 ); // variable number
+	}
+
+	~Flystick2Decode()
+	{
+	}
+
+	virtual int ReadMarkerType( VistaByteBufferDeSerializer *pDeSer,
+								unsigned int& nMarkerType )
+	{
+		std::string sNumCalibrated;
+		std::string sNumTransmitted;
+
+		// read two numbers: number of total sticks calibrated, and number of sticks
+		// that actually follow
+		int nRead = pDeSer->ReadDelimitedString( sNumCalibrated, ' ' );
+		if( nRead < 1 )
+			return -1;
+		pDeSer->ReadDelimitedString( sNumTransmitted, ' ' );
+		if( nRead < 1 )
+			return -1;
+
+
+		// read off number of sensors read
+		unsigned int nNum = 0;
+		if( VistaConversion::FromString( sNumTransmitted, nNum ) == false )
+		{
+			vstr::warnp() << "[DTrackDriver]: could not parse number of sensors ["
+						<< sNumTransmitted << "]" << std::endl;
+			return -1;
+		}
+		nMarkerType = m_nMarkerType;
+		return nNum;
+
+	}
+
+	virtual int ReadAllBlocksWithOffset(VistaByteBufferDeSerializer *pDeSer,
+		VistaSensorMeasure::MEASUREVEC &vecOut,
+								unsigned int nOffset)
+	{
+		assert( nOffset == 4 );
+		// we ignore offset and such, because we have a dynamic size
+		// the first four values have already been read, so we still need
+		// [sx sy sz][r0 r1 r2 r3 r4 r5 r6 r7 r8][bt0 ... ct0 ct1 ...]
+
+		std::string strBlock, strBeg;
+
+		// read position block
+		pDeSer->ReadDelimitedString(strBeg, '[');
+		pDeSer->ReadDelimitedString(strBlock, ']');
+
+		int nNumDoubles = 3;
+		double* pTarget = (double*)&vecOut[4];
+		if( VistaConversion::ArrayFromString<double>( strBlock, pTarget, nNumDoubles, ' ' ) == false )
+		{
+			vstr::warnp() << "[DTrackDriver]: Could not read " << nNumDoubles 
+				<< " number from block " << strBlock << std::endl;
+			return -1;
+		}
+
+		// read rotation block
+		pDeSer->ReadDelimitedString(strBeg, '[');
+		pDeSer->ReadDelimitedString(strBlock, ']');
+
+		nNumDoubles = 9;
+		pTarget = (double*)&vecOut[7];
+		if( VistaConversion::ArrayFromString<double>( strBlock, pTarget, nNumDoubles, ' ' ) == false )
+		{
+			vstr::warnp() << "[DTrackDriver]: Could not read " << nNumDoubles 
+				<< " number from block " << strBlock << std::endl;
+			return -1;
+		}
+
+		// read dynamic size block
+		pDeSer->ReadDelimitedString(strBeg, '[');
+		pDeSer->ReadDelimitedString(strBlock, ']');
+
+		VistaDTrackMeasures::sStick2Measure* pStickMeasure 
+				= reinterpret_cast<VistaDTrackMeasures::sStick2Measure*>( &vecOut[0] );
+
+		std::istringstream oStream( strBlock );
+		int nDummyInt;
+		if( pStickMeasure->m_nNumberButtonValues > 0 )
+		{
+			oStream >> pStickMeasure->m_nButtonMask;
+			// read off, but discard additional buttons
+			for( int i = 1; i < pStickMeasure->m_nNumberButtonValues; ++i )
+				oStream >> nDummyInt;
+		}
+		else
+			pStickMeasure->m_nButtonMask = 0;
+
+		double nDummyDouble;
+		for( int i = 0; i < 8; ++i )
+		{
+			if( i < pStickMeasure->m_nNumberControllerValues )
+				oStream >> pStickMeasure->m_anControllers[i];			
+			else
+				pStickMeasure->m_anControllers[i] = 0.0;
+		}
+		for( int i = 8; i < pStickMeasure->m_nNumberControllerValues; ++i )
+		{
+			oStream >> nDummyDouble;			
+		}
+		if( oStream.bad() )
+		{
+			vstr::warnp() << "[DTrackDriver]: Error while parsing dynamic size block [" << strBlock 
+				<< "] - expected " << pStickMeasure->m_nNumberButtonValues << " buttonmasks and "
+				<< pStickMeasure->m_nNumberControllerValues << " controllers" << std::endl;
+			return -1;
+		}
+
+		return sizeof( VistaDTrackMeasures::sStick2Measure );
+	}
+
+	virtual int ReadSingleBlock(VistaByteBufferDeSerializer*pDeSer,
+		VistaSensorMeasure::MEASUREVEC &vecOut)
+	{
+		std::string strBlock, strBeg;
+		pDeSer->ReadDelimitedString(strBeg, '[');
+		pDeSer->ReadDelimitedString(strBlock, ']');
+
+		int nNumDoubles = vecOut.size() / sizeof(double);
+		double* pTarget = (double*)&vecOut[0];
+		if( VistaConversion::ArrayFromString<double>( strBlock, pTarget, nNumDoubles, ' ' ) == false )
+		{
+			vstr::warnp() << "[DTrackDriver]: Could not read " << nNumDoubles 
+				<< " number from block " << strBlock << std::endl;
+			return -1;
+		}
+	
+		return nNumDoubles;
+	}
+
+
+private:
+	VistaCSVDeSerializer *m_pFragDecode;
+
+};
+
 // ############################################################################
 // ############################################################################
 
@@ -481,6 +634,11 @@ VistaDTrackCreationMethod::VistaDTrackCreationMethod(IVistaTranscoderFactoryFact
 		60,
 		metaFac->CreateFactoryForType("STICK"));
 
+	RegisterSensorType( "STICK2",
+		sizeof(VistaDTrackMeasures::sStick2Measure),
+		60,
+		metaFac->CreateFactoryForType("STICK2"));
+
 	RegisterSensorType( "BODY",
 		sizeof(VistaDTrackMeasures::sBodyMeasure),
 		60,
@@ -539,12 +697,17 @@ VistaDTrackDriver::VistaDTrackDriver(IVistaDriverCreationMethod *crm)
 	if( nStickType == ~0 )
 		nStickType = m_pSensors->GetTypeId("STICK");
 
+	// register sensor type STICK measuring dynamic size values
+	unsigned int nStick2Type  =  m_pSensors->RegisterType("STICK2");
+	if( nStick2Type == ~0 )
+		nStick2Type = m_pSensors->GetTypeId("STICK2");
+
 	// register sensor type BODY measuring 17 values (same as stick without button)
 	unsigned int nBodyType   =  m_pSensors->RegisterType("BODY");
 	if( nBodyType == ~0 )
 		nBodyType = m_pSensors->GetTypeId("BODY");
 
-	// register sensort type MARKER catching id,qu and 3dof
+	// register sensor type MARKER catching id,qu and 3dof
 	m_nMarkerType =  m_pSensors->RegisterType("MARKER");
 	if( m_nMarkerType == ~0 )
 		m_nMarkerType = m_pSensors->GetTypeId("MARKER");
@@ -592,6 +755,10 @@ VistaDTrackDriver::VistaDTrackDriver(IVistaDriverCreationMethod *crm)
 	vTmp.push_back(2); // 2 first
 	vTmp.push_back(3); // then 3 doubles
 	m_mapDecoder.insert(DECODEMAP::value_type("3d", new GenDecode(m_nMarkerType, vTmp)));
+
+	// 6df2 new flystick protocol with variable size
+	// [id qu nbt nct][sx sy sz][r0 r1 r2 r3 r4 r5 r6 r7 r8][bt0 ... ct0 ct1 ...]
+	m_mapDecoder.insert(DECODEMAP::value_type("6df2", new Flystick2Decode( nStick2Type )));
 
 }
 
@@ -730,7 +897,8 @@ bool VistaDTrackDriver::DoSensorUpdate(VistaType::microtime dTs)
 					{
 						// vTmp[0]: id
 						// vTmp[1]: qu
-						// vTmp[2]: bt (if (*it).second->m_vecBlockLength() == 3)
+						// vTmp[2]: bt or nbt (if (*it).second->m_vecBlockLength() == 3)
+						// vTmp[3]: nct (if (*it).second->m_vecBlockLength() == 4)
 
 						// determine type related index
 						VistaDeviceSensor *pSen = NULL;
@@ -776,17 +944,18 @@ bool VistaDTrackDriver::DoSensorUpdate(VistaType::microtime dTs)
 							 //cout << " -- FOUND\n";
 
 							m_pHistoryAspect->MeasureStart(pSen, dTs);
-							VistaSensorMeasure *pM = m_pHistoryAspect->GetCurrentSlot(pSen);
-							assert(pM);
+							VistaSensorMeasure* pMeasure = m_pHistoryAspect->GetCurrentSlot(pSen);
+							assert(pMeasure);
 							unsigned int nIdx = (unsigned int)(double(vTmp.size())/sizeof(double));
 							double *dField = (double*)&vTmp[0];
-							VistaDTrackMeasures::sGenericMeasure *m = (VistaDTrackMeasures::sGenericMeasure*)&(*pM).m_vecMeasures[0];
+							VistaDTrackMeasures::sGenericMeasure* pGenericMeasure = 
+								reinterpret_cast<VistaDTrackMeasures::sGenericMeasure*>( &(*pMeasure).m_vecMeasures[0] );
 
 							for(unsigned int l=0; l < nIdx; ++l)
-								m->m_anField[l] = dField[l];
+								pGenericMeasure->m_anField[l] = dField[l];
 
 							(*(*it).second).ReadAllBlocksWithOffset(m_pLine,
-															   (*pM).m_vecMeasures,
+															   (*pMeasure).m_vecMeasures,
 															   nIdx);
 
 //							for(int i=0; i < (*pM).m_vecMeasures.size(); ++i)

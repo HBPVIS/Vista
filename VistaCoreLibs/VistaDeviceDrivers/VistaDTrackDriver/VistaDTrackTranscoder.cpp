@@ -581,27 +581,6 @@ namespace
 
 	};
 
-	/*
-	@TODO: Deprecated? What's that m_nNumberOfButtons needed for?
-
-	class VistaDTrackStickFactory : public IVistaMeasureTranscoderFactory
-	{
-	public:
-		VistaDTrackStickFactory(unsigned int nNumberOfButtons)
-			: m_nNumberOfButtons(nNumberOfButtons)
-		{
-		}
-
-		virtual IVistaMeasureTranscode *CreateTranscoder()
-		{
-			return new VistaDTrackStickTranscode;
-		}
-
-		unsigned int m_nNumberOfButtons;
-	};
-	*/
-
-
 	static IVistaPropertyGetFunctor *SaStickGet[] =
 	{
 		new VistaDTrackStickScalarGet,
@@ -613,6 +592,193 @@ namespace
 		"Buttonmask as reported from the dtrack" ),
 		NULL
 	};
+
+
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+	class VistaDTrackStick2Transcode : public VistaDTrackBodyTranscode
+	{
+	public:
+		VistaDTrackStick2Transcode()
+			: VistaDTrackBodyTranscode()
+		{
+			// 5 info, 8 buttons, 8 controllers, 
+			m_nNumberOfScalars = 8 + 8 + 2;
+		}
+
+		static std::string GetTypeString() { return "VistaDTrackStick2Transcode"; }
+
+		REFL_INLINEIMP(VistaDTrackStic2kTranscode, VistaDTrackBodyTranscode);
+	};
+
+
+	class VistaDTrackStick2ScalarGet : public VistaDTrackBodyScalarGet
+	{
+	public:
+		VistaDTrackStick2ScalarGet()
+			: VistaDTrackBodyScalarGet("DSCALAR",
+			"VistaDTrackStick2Transcode", "dtrack Stick2 dscalar get") {}
+
+
+		bool GetValueIndexed( const VistaSensorMeasure *pMeasure,
+			double &dScalar, unsigned int nIndex) const
+		{
+			if(!pMeasure)
+				return false;
+
+			// normalize index
+			const VistaDTrackMeasures::sStick2Measure* pStick2Measure =
+						reinterpret_cast<const VistaDTrackMeasures::sStick2Measure*>( &(*pMeasure).m_vecMeasures[0] );
+			if( nIndex < 8)
+			{
+				// trying to retrieve virtual button state
+				// note that we map the virtual scalar index 5 .. 5+nNumberOfButtons
+				// from a single bit mask which is stored in m_vecMeasures[2]
+
+				dScalar =  ( pStick2Measure->m_nButtonMask & ( 1 << nIndex ) ) ? 1.0 : 0.0;
+				return true;
+			}
+			else if( nIndex < 16 )
+			{
+				dScalar = pStick2Measure->m_anControllers[nIndex - 8];
+			}
+			else
+			{
+				switch(nIndex)
+				{
+				case 8:
+					dScalar = pStick2Measure->m_nId;
+					return true;
+				case 9:
+					dScalar = pStick2Measure->m_nQuality;
+					return true;
+				default:
+					break;
+				}
+			}
+			return false;
+		}
+	};
+
+	class VistaDTrackStick2OriGet : public IVistaMeasureTranscode::CQuatGet
+	{
+	public:
+		VistaDTrackStick2OriGet()
+			: IVistaMeasureTranscode::CQuatGet("ORIENTATION",
+			"VistaDTrackStick2Transcode", "dtrack Stick2 ori get") {}
+
+		VistaQuaternion GetValue(const VistaSensorMeasure *pMeasure) const
+		{
+			VistaQuaternion q;
+			GetValue(pMeasure, q);
+			return q;
+		};
+
+		bool GetValue(const VistaSensorMeasure * pMeasure, VistaQuaternion &qQuat) const
+		{
+			if(!pMeasure)
+				return false;
+
+			VistaDTrackMeasures::sStick2Measure *m = (VistaDTrackMeasures::sStick2Measure*)&(*pMeasure).m_vecMeasures[0];
+			VistaTransformMatrix t (float(m->m_anRot[0]), float(m->m_anRot[3]), float(m->m_anRot[6]), 0,
+									float(m->m_anRot[1]), float(m->m_anRot[4]), float(m->m_anRot[7]), 0,
+									float(m->m_anRot[2]), float(m->m_anRot[5]), float(m->m_anRot[8]), 0,
+									0    , 0    , 0    , 1);
+
+			qQuat = VistaQuaternion(t);
+			return true;
+		}
+	};
+
+	class VistaDTrackStick2PosGet : public IVistaMeasureTranscode::CV3Get
+	{
+	public:
+		VistaDTrackStick2PosGet()
+			: IVistaMeasureTranscode::CV3Get("POSITION",
+			"VistaDTrackStick2Transcode", "dtrack Stick2 pos get") {}
+
+		VistaVector3D GetValue(const VistaSensorMeasure *pMeasure) const
+		{
+			VistaVector3D v3;
+			GetValue(pMeasure, v3);
+			return v3;
+		}
+
+		bool GetValue(const VistaSensorMeasure * pMeasure, VistaVector3D &v3Pos) const
+		{
+			if(!pMeasure)
+				return false;
+
+			VistaDTrackMeasures::sStick2Measure *m = (VistaDTrackMeasures::sStick2Measure*)&(*pMeasure).m_vecMeasures[0];
+			v3Pos[0] = float(m->m_nPos[0]);
+			v3Pos[1] = float(m->m_nPos[1]);
+			v3Pos[2] = float(m->m_nPos[2]);
+			return true;
+		}
+	};
+
+	class VistaDTrackNamedStick2Get : public IVistaMeasureTranscode::CUIntGet
+	{
+	public:
+		enum eTp
+		{
+			TAG_BTMASK = 0
+		};
+
+		VistaDTrackNamedStick2Get(eTp nIdx,
+			const std::string &strName,
+			const std::string &strClass,
+			const std::string &strDesc)
+			: IVistaMeasureTranscode::CUIntGet( strName, strClass, strDesc ),
+			m_nIdx(nIdx)
+		{
+		}
+
+
+		unsigned int GetValue( const VistaSensorMeasure *pMeasure ) const
+		{
+			unsigned int nVal = 0;
+			GetValue(pMeasure,nVal);
+			return nVal;
+		}
+
+		bool GetValue( const VistaSensorMeasure *pMeasure,
+			unsigned int &dVal ) const
+		{
+			bool bRet = true;
+			VistaDTrackMeasures::sStick2Measure *m = (VistaDTrackMeasures::sStick2Measure*)&(*pMeasure).m_vecMeasures[0];
+
+			switch( m_nIdx )
+			{
+			case TAG_BTMASK:
+				{
+					dVal = (unsigned int)(int(m->m_nButtonMask));
+					break;
+				}
+			default:
+				bRet = false;
+				break;
+			}
+
+			return bRet;
+		}
+	private:
+		eTp m_nIdx;
+
+	};
+
+	static IVistaPropertyGetFunctor *SaStick2Get[] =
+	{
+		new VistaDTrackStick2ScalarGet,
+		new VistaDTrackStick2OriGet,
+		new VistaDTrackStick2PosGet,
+		new VistaDTrackNamedStick2Get( VistaDTrackNamedStick2Get::TAG_BTMASK,
+		"BTMASK",
+		"VistaDTrackStick2Transcode",
+		"Buttonmask as reported from the dtrack" ),
+		NULL
+	};
+
 	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 	class VistaDTrackMarkerTranscode : public IVistaMeasureTranscode

@@ -276,10 +276,10 @@ public:
     /**
      * arguments
      * - driver: [string,mandatory] - the name of the driver that contains the sensor of desire
-     * - sensor: [number,optional] - the sensor <i>index</i> to query from the driver.
+     * - sensor_index: [number,optional] - the sensor <i>index</i> to query from the driver.
                  this number may be hard to get, as it is the raw id, OR the sensor mapped id
                  if the driver supports a sensor mapping.
-     * - sensor_id: [string,optional] - the sensor <i>name</i> to query from the driver.
+     * - sensor_name: [string,optional] - the sensor <i>name</i> to query from the driver.
                  the sensor must be given after the creation of the sensor using the
                  VistaDeviceSensor::SetSensorName() API.
      */
