@@ -877,6 +877,7 @@ namespace
 		{
 			mp["MARKER"]  = new TCreateTranscoder<VistaDTrackMarkerTranscode>;
 			mp["STICK"]  = new TCreateTranscoder<VistaDTrackStickTranscode>;
+			mp["STICK2"]  = new TCreateTranscoder<VistaDTrackStick2Transcode>;
 			mp["BODY"]  = new TCreateTranscoder<VistaDTrackBodyTranscode>;
 			mp["GLOBAL"]  = new TCreateTranscoder<VistaDTrackGlobalsTranscode>;
 			//mp["MEASURE"]  = new TCreateTranscoder<VistaDTrackMeasureTranscode>;
