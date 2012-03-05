@@ -545,14 +545,13 @@ bool VistaCHAI3DHapticDevicesDriver::VistaCHAI3DHapticDevicesForceFeedbackAspect
 
 bool VistaCHAI3DHapticDevicesDriver::VistaCHAI3DHapticDevicesForceFeedbackAspect::SetForcesEnabled(bool bEnabled)
 {
-	//Not supported by CHAI3D
+	m_bEnabled = bEnabled;
 	return true;
 }
 
 bool VistaCHAI3DHapticDevicesDriver::VistaCHAI3DHapticDevicesForceFeedbackAspect::GetForcesEnabled() const
 {
-	//Not supported by CHAI3D
-	return true;
+	return m_bEnabled;
 }
 
 int VistaCHAI3DHapticDevicesDriver::VistaCHAI3DHapticDevicesForceFeedbackAspect::GetNumInputDOF() const

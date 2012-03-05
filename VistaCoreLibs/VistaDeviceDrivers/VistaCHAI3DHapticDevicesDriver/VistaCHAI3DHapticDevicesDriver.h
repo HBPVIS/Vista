@@ -119,6 +119,7 @@ public:
 
 		VistaVector3D   m_v3Force;
 		VistaVector3D   m_v3AngularForce;
+		bool			m_bEnabled;
 	};
 
 	std::string GetDeviceString() const;
