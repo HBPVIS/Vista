@@ -30,12 +30,10 @@
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverProtocolAspect.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDeviceIdentificationAspect.h>
 
-
 #include <VistaDeviceDriversBase/VistaDeviceSensor.h>
 
 #include <VistaBase/VistaExceptionBase.h>
 #include <VistaAspects/VistaReferenceCountable.h>
-
 
 #include <HD/hd.h>
 #include <HD/hdDevice.h>
@@ -47,10 +45,6 @@
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
 
-
-
-
-
 class VistaPhantomDriverProtocolAspect : public IVistaDriverProtocolAspect
 {
 public:
@@ -58,7 +52,6 @@ public:
 		: IVistaDriverProtocolAspect(),
 		  m_pParent(pDriver)
 	{
-
 	}
 
 	virtual bool SetProtocol( const _cVersionTag &oTag )
@@ -113,19 +106,7 @@ namespace
 		//((VistaPhantomDriver*) data)->m_effect.CalcEffectForce();
 		return HD_CALLBACK_CONTINUE;
 	}
-
-    HDCallbackCode HDCALLBACK dutyCycleCallback(void *data)
-    {
-        double timeElapsed = hdGetSchedulerTimeStamp();
-        if (timeElapsed > .001)
-        {
-            //assert(false && "Scheduler has exceeded 1ms.");
-            std::cout << "Scheduler has exceeded 1ms.\n";
-        }
-        return HD_CALLBACK_CONTINUE;
-    }
 }
-
 
 /*
 IVistaDriverCreationMethod *VistaPhantomDriver::GetDriverFactoryMethod()
@@ -140,7 +121,6 @@ IVistaDriverCreationMethod *VistaPhantomDriver::GetDriverFactoryMethod()
 	return SpFactory;
 }
 */
-
 
 VistaPhantomDriver::VistaPhantomDriver(IVistaDriverCreationMethod *crm)
 : IVistaDeviceDriver(crm),
@@ -165,7 +145,6 @@ VistaPhantomDriver::VistaPhantomDriver(IVistaDriverCreationMethod *crm)
 	AddDeviceSensor(pSensor);
 
 	pSensor->SetMeasureTranscode( GetFactory()->GetTranscoderFactoryForSensor("")->CreateTranscoder() );
-	
 
 	m_pProtocol = new VistaPhantomDriverProtocolAspect(this);
 	RegisterAspect( m_pProtocol );
@@ -173,7 +152,6 @@ VistaPhantomDriver::VistaPhantomDriver(IVistaDriverCreationMethod *crm)
 	RegisterAspect( m_pWorkSpace );
 	RegisterAspect( m_pInfo );
 	RegisterAspect( m_pIdentification );
-
 }
 
 VistaPhantomDriver::~VistaPhantomDriver()
@@ -209,7 +187,6 @@ VistaPhantomDriver::~VistaPhantomDriver()
 
 	delete m_pPrivate;
 }
-
 
 /*============================================================================*/
 /* IMPLEMENTATION                                                             */
@@ -298,8 +275,6 @@ bool VistaPhantomDriver::Connect()
 		if(m_pPrivate->m_effectID == 0)
 			m_pPrivate->m_effectID = hdScheduleAsynchronous( LoopCallback, this, HD_DEFAULT_SCHEDULER_PRIORITY);
 
-        hdScheduleAsynchronous( dutyCycleCallback, this, HD_MIN_SCHEDULER_PRIORITY );
-
 		if (HD_DEVICE_ERROR(error = hdGetError()))
 		{
 			hduPrintError(stderr, &error, "some error");
@@ -343,6 +318,14 @@ bool VistaPhantomDriver::DoSensorUpdate(VistaType::microtime nTs)
 	hdGetFloatv(HD_CURRENT_ANGULAR_VELOCITY,   s->m_afAngularVelocity);
 	hdGetFloatv(HD_CURRENT_TRANSFORM,          s->m_afRotMatrix);
 
+#ifdef PHANTOM_USES_VISTA_UNITS
+	for (int i =0; i<3;i++)
+	{
+		s->m_afPosition[i]*=0.001;
+		s->m_afVelocity[i]*=0.001;
+	};
+#endif
+
 	if(m_pForceFeedBack->GetForcesEnabled())
 	{
 		VistaVector3D v3Force;
@@ -375,7 +358,6 @@ bool VistaPhantomDriver::DoSensorUpdate(VistaType::microtime nTs)
 			v3Torque = m_pForceFeedBack->m_v3AngularForce;
 		}
 
-
 		if(m_pForceFeedBack->m_nOutputDOF >= 3)
 		{
 			hdSetFloatv( HD_CURRENT_FORCE, &v3Force[0] );
@@ -387,7 +369,7 @@ bool VistaPhantomDriver::DoSensorUpdate(VistaType::microtime nTs)
 
 	hdGetIntegerv(HD_CURRENT_BUTTONS,         &s->m_nButtonState);
 	hdGetFloatv(HD_MOTOR_TEMPERATURE,          s->m_afOverheatState);
-	hdGetFloatv(HD_INSTANTANEOUS_UPDATE_RATE, &s->m_nUpdateRate);	
+	hdGetFloatv(HD_INSTANTANEOUS_UPDATE_RATE, &s->m_nUpdateRate);
 	hdGetFloatv(HD_CURRENT_JOINT_ANGLES,       s->m_afJointAngles);
 	hdGetFloatv(HD_CURRENT_GIMBAL_ANGLES,      s->m_afGimbalAngles);
 	hdGetLongv(HD_CURRENT_ENCODER_VALUES,      s->m_nEncoderValues);
@@ -396,11 +378,17 @@ bool VistaPhantomDriver::DoSensorUpdate(VistaType::microtime nTs)
 	hdGetBooleanv(HD_CURRENT_INKWELL_SWITCH,  &bSwitch);
 	s->m_bInkwellSwitch = bSwitch ? true : false;
 
-
 	hdGetFloatv(HD_CURRENT_FORCE,              s->m_afForce);
 	hdGetFloatv(HD_CURRENT_VELOCITY,           s->m_afVelocity);
 
 	hdEndFrame( m_pPrivate->m_hHD );
+
+	double timeElapsed = hdGetSchedulerTimeStamp();
+	if (timeElapsed > .001)
+	{
+		//assert(false && "Scheduler has exceeded 1ms.");
+		std::cout << "Scheduler has exceeded 1ms.\n";
+	}
 
     HDErrorInfo error;
     /* Check if an error occurred while attempting to render the force */
@@ -451,9 +439,6 @@ void VistaPhantomDriver::SetDeviceString(const std::string &strDevice)
 		m_pPrivate->m_strDeviceString = strDevice;
 }
 
-
-
-
 // #############################################################################
 
 VistaPhantomDriver::VistaPhantomForceFeedbackAspect::VistaPhantomForceFeedbackAspect( VistaPhantomDriver *pDriver )
@@ -469,7 +454,6 @@ VistaPhantomDriver::VistaPhantomForceFeedbackAspect::VistaPhantomForceFeedbackAs
 VistaPhantomDriver::VistaPhantomForceFeedbackAspect::~VistaPhantomForceFeedbackAspect()
 {
 }
-
 
 bool VistaPhantomDriver::VistaPhantomForceFeedbackAspect::SetForce( const VistaVector3D   & v3Force,
 																	  const VistaVector3D & v3AngularForce)
@@ -490,7 +474,6 @@ bool VistaPhantomDriver::VistaPhantomForceFeedbackAspect::SetForcesEnabled(bool 
 
 	return (GetForcesEnabled() == bEnabled);
 }
-
 
 bool VistaPhantomDriver::VistaPhantomForceFeedbackAspect::GetForcesEnabled() const
 {
@@ -517,4 +500,3 @@ float VistaPhantomDriver::VistaPhantomForceFeedbackAspect::GetMaximumForce() con
 {
     return m_nMaxForce;
 }
-
