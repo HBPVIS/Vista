@@ -71,8 +71,12 @@ public:
 		VistaMaterial GetMaterial() const;
 		void           SetMaterial(const VistaMaterial &mat);
 
+		bool GetUseLighting() const;
+		void SetUseLighting(bool val);
+
 	protected:
 		bool UpdateDisplayList();
+		void CalculateNormal( float normal[3], unsigned int i, int param2, int param3 );
 	private:
 		int m_iDispId;
 		bool m_bDlistDirty;
@@ -81,6 +85,7 @@ public:
 		VistaBoundingBox   m_oBBox;
 		unsigned int m_eGLPrimitiveType;
 		VistaMaterial     m_oMat;
+		bool			m_bUseLighting;
 	};
 public:
 
@@ -110,6 +115,7 @@ public:
 	bool GetRemoveFromSGOnDelete() const;
 	void SetRemoveFromSGOnDelete(bool bRemove);
 
+	bool SetUseLighting(bool bUseLighting);
 	bool SetMaterial(const VistaMaterial &oMat) const;
 	bool SetColor (const VistaColor  & color);
 	bool SetPrimitiveType(const ePrimitiveType & primitiveType);

@@ -145,7 +145,7 @@ bool VistaOpenGLPrimitiveList::SetPrimitiveType( const ePrimitiveType & primitiv
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
 VistaOpenGLPrimitiveList::COpenGLPrimitiveList::COpenGLPrimitiveList()
-: m_iDispId(-1), m_bDlistDirty(false), m_eGLPrimitiveType(GL_LINES)
+: m_iDispId(-1), m_bDlistDirty(false), m_eGLPrimitiveType(GL_LINES), m_bUseLighting(FALSE)
 {
 }
 
@@ -167,6 +167,12 @@ bool VistaOpenGLPrimitiveList::COpenGLPrimitiveList::Do()
 	// draw the
 	glPushMatrix();
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
+	if (m_bUseLighting)
+	{
+		glEnable(GL_LIGHTING);
+		glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
+		glEnable ( GL_COLOR_MATERIAL );
+	}
 	glCallList(m_iDispId);
 	glPopAttrib();
 	glPopMatrix();
@@ -194,21 +200,27 @@ bool VistaOpenGLPrimitiveList::COpenGLPrimitiveList::UpdateDisplayList()
 	// and compile it
 	glNewList(m_iDispId, GL_COMPILE);
 	glPushAttrib(GL_ENABLE_BIT);
-	glDisable(GL_LIGHTING);
-
-	float fDiff[4];
-	std::memset(fDiff, 0, 4);
-
-	m_oMat.GetDiffuseColor(fDiff);
-  //  if(m_oMat.GetOpacity() > 0)
-  //  {
-  //      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  //      glEnable(GL_BLEND);
-  //  }
-  //  else
-  //      glDisable(GL_BLEND);
-
-	glColor3fv(fDiff);
+	if (m_bUseLighting)
+	{
+		glEnable(GL_LIGHTING);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+		glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
+		glEnable ( GL_COLOR_MATERIAL );
+		float blue[4]={0,0,1,0};
+		float red[4]={1,0,0,0};
+		glMaterialfv(GL_FRONT,GL_DIFFUSE,blue);
+		glMaterialfv(GL_BACK, GL_DIFFUSE,red);
+		glColor4f(1.0f,1.0f,0.0f,1.0f);
+	}
+	else
+	{
+		glDisable(GL_LIGHTING);
+		float fDiff[4];
+		std::memset(fDiff, 0, 4);
+		m_oMat.GetDiffuseColor(fDiff);
+		glColor3fv(fDiff);
+	}
 
 	float fMin[3], fMax[3];
 	fMin[0] = fMin[1] = fMin[2] = 0.0f;
@@ -216,9 +228,24 @@ bool VistaOpenGLPrimitiveList::COpenGLPrimitiveList::UpdateDisplayList()
 
 	// single line
 	glBegin(m_eGLPrimitiveType);
+	float normal[3];
 	for(unsigned int i=0; i<m_vecPoints.size(); i=i+3)
 	{
+		//normal calculation.
+		if (m_bUseLighting && m_eGLPrimitiveType==GL_TRIANGLE_STRIP && m_vecPoints.size()>12 && !(i & 1))
+		{
+			if(i<6)
+			{
+				CalculateNormal(normal,i,i+3,i+6);
+			}
+			else
+			{
+				CalculateNormal(normal,i,i-3,i-6);
+			}
+			glNormal3fv(normal);
+		}
 		glVertex3f(m_vecPoints[i], m_vecPoints[i+1], m_vecPoints[i+2]);
+
 #if defined(WIN32) && defined(_MSC_VER) && (_MSC_VER<1300)
 #if !defined(MIN)
 #define MIN(A,B) A>B?B:A
@@ -300,6 +327,27 @@ void VistaOpenGLPrimitiveList::COpenGLPrimitiveList::SetMaterial(const VistaMate
 	m_bDlistDirty = true;
 }
 
+bool VistaOpenGLPrimitiveList::COpenGLPrimitiveList::GetUseLighting() const
+{
+	return m_bUseLighting;
+}
+
+void VistaOpenGLPrimitiveList::COpenGLPrimitiveList::SetUseLighting( bool val )
+{
+	m_bDlistDirty = true;
+	m_bUseLighting = val;
+}
+
+inline void VistaOpenGLPrimitiveList::COpenGLPrimitiveList::CalculateNormal( float normal[3], unsigned int i, int param2, int param3 )
+{
+	float a[3] = {m_vecPoints[i]-m_vecPoints[param2], m_vecPoints[i+1]-m_vecPoints[param2+1], m_vecPoints[i+2]-m_vecPoints[param2+2]};
+	float b[3] = {m_vecPoints[i]-m_vecPoints[param3], m_vecPoints[i+1]-m_vecPoints[param3+1], m_vecPoints[i+2]-m_vecPoints[param3+2]};
+
+	normal[0]=a[1]*b[2] - b[1]*a[2];
+	normal[1]=a[2]*b[0] - b[2]*a[0];
+	normal[2]=a[0]*b[1] - b[0]*a[1];
+}
+
 bool VistaOpenGLPrimitiveList::SetMaterial(const VistaMaterial & oMat) const
 {
 	m_pDrawInterface->SetMaterial(oMat);
@@ -314,5 +362,11 @@ bool VistaOpenGLPrimitiveList::SetColor (const VistaColor  & color)
 												 VistaColor::BLACK,
 												 1,1,""));
 
+	return true;
+}
+
+bool VistaOpenGLPrimitiveList::SetUseLighting( bool bUseLighting )
+{
+	m_pDrawInterface->SetUseLighting(bUseLighting);
 	return true;
 }
