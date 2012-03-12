@@ -1433,26 +1433,14 @@ bool VistaSystem::SetupMessagePort()
 									  bCreateIndicator,
 									  sProgressHost, iProgressPort, NULL) ;
 
-	if( m_pMessagePort->GetIsConnected() )
+	
+	vstr::outi() << "MessagePort created at IP ["
+		<< sHost << "] - Port [" << iPort << "]" << std::endl;
+	if( bCreateIndicator )
 	{
-		vstr::outi() << "MessagePort created at IP ["
-				<< sHost << "] - Port [" << iPort << "]" << std::endl;
-		if( bCreateIndicator )
-		{
-			vstr::outi() << "MsgPort ProgressIndicator created at IP ["
-					<< sProgressHost << "] - Port [" << iProgressPort << "]" << std::endl;
-		}
+		vstr::outi() << "MsgPort ProgressIndicator created at IP ["
+			<< sProgressHost << "] - Port [" << iProgressPort << "]" << std::endl;
 	}
-	else
-	{
-		vstr::errp() 
-				<< "Could not create MessagePort at IP ["
-				<< sHost << "] - Port [" << iPort << "]" << std::endl;
-		delete m_pMessagePort;
-		m_pMessagePort = NULL;
-		return false;
-	}
-
 	return true;
 }
 
