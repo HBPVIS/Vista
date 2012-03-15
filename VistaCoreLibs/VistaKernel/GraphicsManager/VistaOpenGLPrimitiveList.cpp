@@ -145,7 +145,7 @@ bool VistaOpenGLPrimitiveList::SetPrimitiveType( const ePrimitiveType & primitiv
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
 VistaOpenGLPrimitiveList::COpenGLPrimitiveList::COpenGLPrimitiveList()
-: m_iDispId(-1), m_bDlistDirty(false), m_eGLPrimitiveType(GL_LINES), m_bUseLighting(FALSE)
+: m_iDispId(-1), m_bDlistDirty(false), m_eGLPrimitiveType(GL_LINES), m_bUseLighting(false)
 {
 }
 
