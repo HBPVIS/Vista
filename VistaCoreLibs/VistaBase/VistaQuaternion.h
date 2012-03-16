@@ -420,10 +420,10 @@ inline const VistaQuaternion& VistaQuaternion::operator*=( const float fScale )
 inline const VistaQuaternion& VistaQuaternion::operator/=( const float fScale )
 {
 	const float fInvScale = 1.0f / fScale;
-	m_a4fValues[0] /= fInvScale;
-	m_a4fValues[1] /= fInvScale;
-	m_a4fValues[2] /= fInvScale;
-	m_a4fValues[3] /= fInvScale;
+	m_a4fValues[0] *= fInvScale;
+	m_a4fValues[1] *= fInvScale;
+	m_a4fValues[2] *= fInvScale;
+	m_a4fValues[3] *= fInvScale;
 	return (*this);
 }
 

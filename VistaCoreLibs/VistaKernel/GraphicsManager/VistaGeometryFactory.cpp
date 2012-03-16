@@ -1264,32 +1264,27 @@ VistaGeometry* VistaGeometryFactory::CreateTriangle(
 					const VistaColor & color
 )
 {
-	
+	// set up list for indexed geometries
 	std::vector<VistaIndexedVertex> listIndex;
 	std::vector<VistaVector3D> listCoords;
 	std::vector<VistaVector3D> textureCoords;
 	std::vector<VistaVector3D> listNormals;
 	std::vector<VistaColor> listColors;
 	
+	// set up vertex format
 	VistaVertexFormat vertexFormat;
 	vertexFormat.coordinate = VistaVertexFormat::COORDINATE;
 	vertexFormat.color = VistaVertexFormat::COLOR_RGB;
 	vertexFormat.normal = VistaVertexFormat::NORMAL;
 	vertexFormat.textureCoord = VistaVertexFormat::TEXTURE_COORD_2D;
 	
-	listNormals.push_back(VistaVector3D(0,0,1));
-	listColors.push_back(color);
+	// calculate vectors relative to a
+	VistaVector3D v1     = c - a;
+	VistaVector3D v1Part = v1 / (float)resolution;
+	VistaVector3D v2     = b - a;
+	VistaVector3D v2Part = v2 / (float)resolution;
 
-	textureCoords.push_back(VistaVector3D(0,0,0));
-
-	VistaVector3D v1 = c - a;
-	v1.Normalize();
-	v1 /= (float)resolution;
-	
-	VistaVector3D v2 = b - a;
-	v2.Normalize();
-	v2 /= float(resolution + 1);
-
+	// create vertices
 	for( int i = 0; i < resolution + 1; ++i )
 	{
 		VistaVector3D offset = a + (float)i * v1;
@@ -1299,6 +1294,17 @@ VistaGeometry* VistaGeometryFactory::CreateTriangle(
 		}
 	}
 
+	// create normals
+   listNormals.push_back( v1.Cross( v2 ) );
+   
+   // create colors
+   listColors.push_back( color );
+
+   // create texture coordinates
+   // ToDo: calculate texture-coordinates for triangle
+   textureCoords.push_back( VistaVector3D( 0, 0, 0 ) );
+   
+   // create indices
 	int offset = 0;
 	int step = resolution;
 	for( int i = 0; i < resolution; ++i )
@@ -1355,10 +1361,6 @@ VistaGeometry* VistaGeometryFactory::CreateTriangle(
 		 listColors,vertexFormat,VistaGeometry::VISTA_FACE_TYPE_TRIANGLES);
 
 	return ret;
-	
-	//return NULL;
-
-	
 }
 
 

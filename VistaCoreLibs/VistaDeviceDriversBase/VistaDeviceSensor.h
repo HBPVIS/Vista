@@ -351,13 +351,25 @@ public:
 	 * values by defining an API GetValueIndexed() with an index as a stack
 	 * return or be side-effect.
 	 */
-	template <class T> class TTranscodeIndexedGet : public ITranscodeGet
+	class ITranscodeIndexedGet : public ITranscodeGet
+	{
+	public:
+		ITranscodeIndexedGet(const std::string &sPropname,
+						 const std::string &sClassName,
+						 const std::string &sDescription = "<none>")
+		: ITranscodeGet(sPropname, sClassName, sDescription)
+		{}
+
+		virtual unsigned int GetNumberOfIndices() const { return -1; }
+	};
+
+	template <class T> class TTranscodeIndexedGet : public ITranscodeIndexedGet
 	{
 	public:
 	TTranscodeIndexedGet(const std::string &sPropname,
 						 const std::string &sClassName,
 						 const std::string &sDescription = "<none>")
-		: ITranscodeGet(sPropname, sClassName, sDescription)
+		: ITranscodeIndexedGet(sPropname, sClassName, sDescription)
 		{}
 
 		/**

@@ -213,9 +213,11 @@ void VdfnHistoryProjectNode::UpdateOutPortMap()
 			// a good port setter, currently, we have two: value get and indexed get as double
 
 			// first: try indexed double get
-			IVistaMeasureTranscode::CScalarDoubleGet *pIdxTrans
-				= dynamic_cast<IVistaMeasureTranscode::CScalarDoubleGet *>(pGet);
-			if(pIdxTrans) // yes...
+			//IVistaMeasureTranscode::CScalarDoubleGet *pIdxTrans
+			//	= dynamic_cast<IVistaMeasureTranscode::CScalarDoubleGet *>(pGet);
+			IVistaMeasureTranscode::ITranscodeIndexedGet* pIndexedGet = 
+						dynamic_cast<IVistaMeasureTranscode::ITranscodeIndexedGet*>( pGet );
+			if( pIndexedGet ) // yes...
 			{
 				// a side note: few getters may be index get getters, so the pIdxTrans will usually
 				// evaluate to NULL, one might think it is faster then to check on the ordinary
@@ -223,7 +225,10 @@ void VdfnHistoryProjectNode::UpdateOutPortMap()
 				// called at a <i>very</i> low frequency...
 
 				// add a new outport for every scalar we can get
-				for(unsigned int n=0; n < pTrans->GetNumberOfScalars(); ++n)
+				unsigned int nNumberOfIndices = pIndexedGet->GetNumberOfIndices();
+				if( nNumberOfIndices == -1 )
+					nNumberOfIndices = pTrans->GetNumberOfScalars();
+				for(unsigned int n=0; n < nNumberOfIndices; ++n)
 				{
 					// claim an accessor for the property
 					VdfnPortFactory::CPortAccess *pAccess = pFac->GetPortAccess( pGet->GetReturnType().name() );

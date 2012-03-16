@@ -127,6 +127,39 @@ namespace VistaDTrackMeasures
 		double m_anField[18];
 	};
 
+	/**
+	 * memory layout of the typical finger measure
+	 */
+	struct sHandMeasure
+	{
+		enum
+		{
+			THUMB = 0,
+			INDEX_FINGER,
+			MIDDLE_FINGER,
+			RING_FINGER,
+			LITTLE_FINGER,
+		};
+		struct Finger
+		{
+			double m_anPosition[3];
+			double m_anRotation[9];
+			double m_nRadius;
+			double m_nOuterPhalanxLength;
+			double m_nOuterToMiddleAngle;
+			double m_nMiddlePhalanxLength;
+			double m_nMiddleToInnerAngle;
+			double m_nInnerPhalanxLength;			
+		};
+		double m_nId;
+		double m_nQuality;
+		double m_nIsRightHand;
+		double m_nNumberOfFingers;
+		double m_anBackPosition[3];
+		double m_anBackRotation[9];
+		Finger m_aFingers[5];	
+	};
+
 }
 
 

@@ -77,6 +77,8 @@ set( DirFiles
 	VdfnPortFactory.h
 	VdfnProjectVectorNode.cpp
 	VdfnProjectVectorNode.h
+	VdfnQuaternionSlerpNode.cpp
+	VdfnQuaternionSlerpNode.h
 	VdfnReEvalNode.cpp
 	VdfnReEvalNode.h
 	VdfnReadWorkspaceNode.cpp

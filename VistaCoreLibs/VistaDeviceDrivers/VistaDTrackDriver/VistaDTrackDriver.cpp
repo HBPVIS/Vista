@@ -452,6 +452,9 @@ public:
 		// the first four values have already been read, so we still need
 		// [sx sy sz][r0 r1 r2 r3 r4 r5 r6 r7 r8][bt0 ... ct0 ct1 ...]
 
+		VistaDTrackMeasures::sStick2Measure* pStickMeasure 
+				= reinterpret_cast<VistaDTrackMeasures::sStick2Measure*>( &vecOut[0] );
+
 		std::string strBlock, strBeg;
 
 		// read position block
@@ -459,8 +462,7 @@ public:
 		pDeSer->ReadDelimitedString(strBlock, ']');
 
 		int nNumDoubles = 3;
-		double* pTarget = (double*)&vecOut[4];
-		if( VistaConversion::ArrayFromString<double>( strBlock, pTarget, nNumDoubles, ' ' ) == false )
+		if( VistaConversion::ArrayFromString<double>( strBlock, pStickMeasure->m_nPos, nNumDoubles, ' ' ) == false )
 		{
 			vstr::warnp() << "[DTrackDriver]: Could not read " << nNumDoubles 
 				<< " number from block " << strBlock << std::endl;
@@ -472,8 +474,7 @@ public:
 		pDeSer->ReadDelimitedString(strBlock, ']');
 
 		nNumDoubles = 9;
-		pTarget = (double*)&vecOut[7];
-		if( VistaConversion::ArrayFromString<double>( strBlock, pTarget, nNumDoubles, ' ' ) == false )
+		if( VistaConversion::ArrayFromString<double>( strBlock, pStickMeasure->m_anRot, nNumDoubles, ' ' ) == false )
 		{
 			vstr::warnp() << "[DTrackDriver]: Could not read " << nNumDoubles 
 				<< " number from block " << strBlock << std::endl;
@@ -482,22 +483,10 @@ public:
 
 		// read dynamic size block
 		pDeSer->ReadDelimitedString(strBeg, '[');
-		pDeSer->ReadDelimitedString(strBlock, ']');
-
-		VistaDTrackMeasures::sStick2Measure* pStickMeasure 
-				= reinterpret_cast<VistaDTrackMeasures::sStick2Measure*>( &vecOut[0] );
+		pDeSer->ReadDelimitedString(strBlock, ']');		
 
 		std::istringstream oStream( strBlock );
-		int nDummyInt;
-		if( pStickMeasure->m_nNumberButtonValues > 0 )
-		{
-			oStream >> pStickMeasure->m_nButtonMask;
-			// read off, but discard additional buttons
-			for( int i = 1; i < pStickMeasure->m_nNumberButtonValues; ++i )
-				oStream >> nDummyInt;
-		}
-		else
-			pStickMeasure->m_nButtonMask = 0;
+		oStream >> pStickMeasure->m_nButtonMask;
 
 		double nDummyDouble;
 		for( int i = 0; i < 8; ++i )
@@ -520,6 +509,154 @@ public:
 		}
 
 		return sizeof( VistaDTrackMeasures::sStick2Measure );
+	}
+
+	virtual int ReadSingleBlock(VistaByteBufferDeSerializer*pDeSer,
+		VistaSensorMeasure::MEASUREVEC &vecOut)
+	{
+		std::string strBlock, strBeg;
+		pDeSer->ReadDelimitedString(strBeg, '[');
+		pDeSer->ReadDelimitedString(strBlock, ']');
+
+		int nNumDoubles = vecOut.size() / sizeof(double);
+		double* pTarget = (double*)&vecOut[0];
+		if( VistaConversion::ArrayFromString<double>( strBlock, pTarget, nNumDoubles, ' ' ) == false )
+		{
+			vstr::warnp() << "[DTrackDriver]: Could not read " << nNumDoubles 
+				<< " number from block " << strBlock << std::endl;
+			return -1;
+		}
+	
+		return nNumDoubles;
+	}
+
+
+private:
+	VistaCSVDeSerializer *m_pFragDecode;
+
+};
+
+
+class FingerTrackingDecode : public ILineDecode
+{
+public:
+	FingerTrackingDecode( unsigned int nSensorType )
+	: ILineDecode(nSensorType)
+	{
+		m_vecBlockLength.push_back( 4 );
+		m_vecBlockLength.push_back( 3 );
+		m_vecBlockLength.push_back( 9 );
+		m_vecBlockLength.push_back( 0 ); // various values
+	}
+
+	~FingerTrackingDecode()
+	{
+	}
+
+	virtual int ReadMarkerType( VistaByteBufferDeSerializer *pDeSer,
+								unsigned int& nMarkerType )
+	{
+		std::string sNumberHands;
+
+		// read two numbers: number of total sticks calibrated, and number of sticks
+		// that actually follow
+		int nRead = pDeSer->ReadDelimitedString( sNumberHands, ' ' );
+		if( nRead < 1 )
+			return -1;
+
+
+		// read off number of sensors read
+		unsigned int nNum = 0;
+		if( VistaConversion::FromString( sNumberHands, nNum ) == false )
+		{
+			vstr::warnp() << "[DTrackDriver]: could not parse number of sensors ["
+						<< sNumberHands << "]" << std::endl;
+			return -1;
+		}
+		nMarkerType = m_nMarkerType;
+		return nNum;
+	}
+
+	virtual int ReadAllBlocksWithOffset(VistaByteBufferDeSerializer *pDeSer,
+								VistaSensorMeasure::MEASUREVEC &vecOut,
+								unsigned int nOffset)
+	{
+		assert( nOffset == 4 );
+		// we ignore offset and such, because we have a dynamic size
+		// the first four values have already been read, so we still need
+		// [bsx bsy bsz][br0 br1 br2 br3 br4 br5 br6 br7 br8] pos and ori of back of hand
+		// per finger: [bsx bsy bsz][br0 br1 br2 br3 br4 br5 br6 br7 br8] pos and ori of back of hand
+
+		VistaDTrackMeasures::sHandMeasure* pHandMeasure 
+				= reinterpret_cast<VistaDTrackMeasures::sHandMeasure*>( &vecOut[0] );
+
+		std::string strBlock, strBeg;
+
+		// read back position block
+		pDeSer->ReadDelimitedString(strBeg, '[');
+		pDeSer->ReadDelimitedString(strBlock, ']');
+
+		int nNumDoubles = 3;
+		if( VistaConversion::ArrayFromString<double>( strBlock, pHandMeasure->m_anBackPosition, nNumDoubles, ' ' ) == false )
+		{
+			vstr::warnp() << "[DTrackDriver]: Could not read " << nNumDoubles 
+				<< " number from block " << strBlock << std::endl;
+			return -1;
+		}
+
+		// read back rotation block
+		pDeSer->ReadDelimitedString(strBeg, '[');
+		pDeSer->ReadDelimitedString(strBlock, ']');
+
+		nNumDoubles = 9;
+		if( VistaConversion::ArrayFromString<double>( strBlock, pHandMeasure->m_anBackRotation, nNumDoubles, ' ' ) == false )
+		{
+			vstr::warnp() << "[DTrackDriver]: Could not read " << nNumDoubles 
+				<< " number from block " << strBlock << std::endl;
+			return -1;
+		}
+
+		// read fingers
+		for( int i = 0; i < pHandMeasure->m_nNumberOfFingers; ++i )
+		{
+			VistaDTrackMeasures::sHandMeasure::Finger& oFinger = pHandMeasure->m_aFingers[i];
+			pDeSer->ReadDelimitedString(strBeg, '[');
+			pDeSer->ReadDelimitedString(strBlock, ']');
+
+			if( VistaConversion::ArrayFromString<double>( strBlock, oFinger.m_anPosition, 3, ' ' ) == false )
+			{
+				vstr::warnp() << "[DTrackDriver]: Could not read " << nNumDoubles 
+					<< " number from block " << strBlock << std::endl;
+				return -1;
+			}
+
+			pDeSer->ReadDelimitedString(strBeg, '[');
+			pDeSer->ReadDelimitedString(strBlock, ']');
+
+			if( VistaConversion::ArrayFromString<double>( strBlock, oFinger.m_anRotation, 9, ' ' ) == false )
+			{
+				vstr::warnp() << "[DTrackDriver]: Could not read " << nNumDoubles 
+					<< " number from block " << strBlock << std::endl;
+				return -1;
+			}
+
+			pDeSer->ReadDelimitedString(strBeg, '[');
+			pDeSer->ReadDelimitedString(strBlock, ']');
+
+			if( VistaConversion::ArrayFromString<double>( strBlock, &oFinger.m_nRadius, 6, ' ' ) == false )
+			{
+				vstr::warnp() << "[DTrackDriver]: Could not read " << nNumDoubles 
+					<< " number from block " << strBlock << std::endl;
+				return -1;
+			}
+		}
+		for( int i = pHandMeasure->m_nNumberOfFingers; i < 5; ++i )
+		{
+			VistaDTrackMeasures::sHandMeasure::Finger& oFinger = pHandMeasure->m_aFingers[i];
+			memset( &oFinger, 0, sizeof(VistaDTrackMeasures::sHandMeasure::Finger) );
+		}
+
+		return sizeof( VistaDTrackMeasures::sHandMeasure );
 	}
 
 	virtual int ReadSingleBlock(VistaByteBufferDeSerializer*pDeSer,
@@ -654,6 +791,11 @@ VistaDTrackCreationMethod::VistaDTrackCreationMethod(IVistaTranscoderFactoryFact
 		60,
 		metaFac->CreateFactoryForType("GLOBAL"));
 
+	RegisterSensorType( "HAND",
+		sizeof(VistaDTrackMeasures::sHandMeasure),
+		60,
+		metaFac->CreateFactoryForType("HAND"));
+
 	//RegisterSensorType( "MEASURE",
 	//	sizeof(_sMeasureMeasure),
 	//	60,
@@ -707,17 +849,22 @@ VistaDTrackDriver::VistaDTrackDriver(IVistaDriverCreationMethod *crm)
 	if( nBodyType == ~0 )
 		nBodyType = m_pSensors->GetTypeId("BODY");
 
+	// register type HAND with up to 5 fingers
+	unsigned int nHandType =  m_pSensors->RegisterType("HAND");
+	if( nHandType == ~0 )
+		nHandType = m_pSensors->GetTypeId("HAND");
+
 	// register sensor type MARKER catching id,qu and 3dof
 	m_nMarkerType =  m_pSensors->RegisterType("MARKER");
 	if( m_nMarkerType == ~0 )
 		m_nMarkerType = m_pSensors->GetTypeId("MARKER");
-
 
 	// register type global, catching frame count and (optional) clock
 	m_nGlobalType =  m_pSensors->RegisterType("GLOBAL");
 	if( m_nGlobalType == ~0 )
 		m_nGlobalType = m_pSensors->GetTypeId("GLOBAL");
 
+	
 	unsigned int nMeasureType = m_pSensors->RegisterType("MEASURE");
 	if( nMeasureType == ~0 )
 		nMeasureType = m_pSensors->GetTypeId("MEASURE");
@@ -759,6 +906,13 @@ VistaDTrackDriver::VistaDTrackDriver(IVistaDriverCreationMethod *crm)
 	// 6df2 new flystick protocol with variable size
 	// [id qu nbt nct][sx sy sz][r0 r1 r2 r3 r4 r5 r6 r7 r8][bt0 ... ct0 ct1 ...]
 	m_mapDecoder.insert(DECODEMAP::value_type("6df2", new Flystick2Decode( nStick2Type )));
+
+	// gl finger tracking
+	// [id qu lr nf]
+	// [sbx sby sbz][b0 b1 b2 b3 b4 b5 b6 b7 b8]
+	// [sf0x sf0y sf0z][bf00 bf01 bf02 bf03 bf04 bf05 bf06 bf07 bf08][rf0 lo0 aom0 lm0 ami0 li0]
+	// ...
+	m_mapDecoder.insert( DECODEMAP::value_type( "gl", new FingerTrackingDecode( nHandType ) ) );
 
 }
 

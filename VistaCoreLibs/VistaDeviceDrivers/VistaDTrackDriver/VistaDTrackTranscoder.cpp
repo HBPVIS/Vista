@@ -81,18 +81,6 @@ namespace
 		}
 	};
 
-	/*
-	@TODO: Deprecated? Delete if you don't need this.
-	class VistaDTrackGlobalsFactory : public IVistaMeasureTranscoderFactory
-	{
-	public:
-		virtual IVistaMeasureTranscode *CreateTranscoder()
-		{
-			return new VistaDTrackGlobalsTranscode;
-		}
-	};
-	*/
-
 	static IVistaPropertyGetFunctor *SaGlobalGet[] =
 	{
 		new VistaDTrackGlobalsScalarGet,
@@ -117,7 +105,6 @@ namespace
 	private:
 
 		REFL_INLINEIMP(VistaDTrackBodyTranscode, IVistaMeasureTranscode);
-
 	};
 
 	class VistaDTrackBodyPosGet : public IVistaMeasureTranscode::CV3Get
@@ -366,17 +353,6 @@ namespace
 		eTp m_nIdx;
 	};
 
-	/*
-	@TODO: Deprecated. Delete if possible.
-	class VistaDTrackBodyFactory : public IVistaMeasureTranscoderFactory
-	{
-	public:
-		virtual IVistaMeasureTranscode *CreateTranscoder()
-		{
-			return new VistaDTrackBodyTranscode;
-		}
-	};
-	*/
 
 	static IVistaPropertyGetFunctor *SaBodyGet[] =
 	{
@@ -608,7 +584,7 @@ namespace
 
 		static std::string GetTypeString() { return "VistaDTrackStick2Transcode"; }
 
-		REFL_INLINEIMP(VistaDTrackStic2kTranscode, VistaDTrackBodyTranscode);
+		REFL_INLINEIMP(VistaDTrackStick2Transcode, VistaDTrackBodyTranscode);
 	};
 
 
@@ -641,15 +617,16 @@ namespace
 			else if( nIndex < 16 )
 			{
 				dScalar = pStick2Measure->m_anControllers[nIndex - 8];
+				return true;
 			}
 			else
 			{
 				switch(nIndex)
 				{
-				case 8:
+				case 16:
 					dScalar = pStick2Measure->m_nId;
 					return true;
-				case 9:
+				case 17:
 					dScalar = pStick2Measure->m_nQuality;
 					return true;
 				default:
@@ -657,6 +634,34 @@ namespace
 				}
 			}
 			return false;
+		}
+	};
+
+	class VistaDTrackStick2ButtonGet : public IVistaMeasureTranscode::TTranscodeIndexedGet<bool>
+	{
+	public:
+		VistaDTrackStick2ButtonGet()
+			: IVistaMeasureTranscode::TTranscodeIndexedGet<bool>("BUTTONS",
+				"VistaDTrackStick2Transcode", "Flystick2 buttons")
+		{
+		}
+
+		virtual unsigned int GetNumberOfIndices() const { return 32; }
+
+		bool GetValueIndexed( const VistaSensorMeasure *pMeasure,
+							bool &bScalar, unsigned int nIndex) const
+		{
+			if(!pMeasure)
+				return false;
+
+			const VistaDTrackMeasures::sStick2Measure* pStickMeasure
+						= pMeasure->getRead<VistaDTrackMeasures::sStick2Measure>();
+
+			if( nIndex >= pStickMeasure->m_nNumberButtonValues )
+				return false;
+
+			bScalar = ( pStickMeasure->m_nButtonMask & ( 1 << nIndex ) ) != 0;
+			return true;
 		}
 	};
 
@@ -770,12 +775,281 @@ namespace
 	static IVistaPropertyGetFunctor *SaStick2Get[] =
 	{
 		new VistaDTrackStick2ScalarGet,
+		new VistaDTrackStick2ButtonGet,
 		new VistaDTrackStick2OriGet,
 		new VistaDTrackStick2PosGet,
 		new VistaDTrackNamedStick2Get( VistaDTrackNamedStick2Get::TAG_BTMASK,
 		"BTMASK",
 		"VistaDTrackStick2Transcode",
 		"Buttonmask as reported from the dtrack" ),
+		NULL
+	};
+
+
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+	class VistaDTrackHandTranscode : public VistaDTrackBodyTranscode
+	{
+	public:
+		VistaDTrackHandTranscode()
+			: VistaDTrackBodyTranscode()
+		{
+			m_nNumberOfScalars = 0;
+		}
+
+		static std::string GetTypeString() { return "VistaDTrackHandTranscode"; }
+
+		REFL_INLINEIMP(VistaDTrackHandTranscode, VistaDTrackBodyTranscode);
+	};
+
+
+	class VistaDTrackHandScalarGet : public VistaDTrackBodyScalarGet
+	{
+	public:
+		VistaDTrackHandScalarGet()
+			: VistaDTrackBodyScalarGet("DSCALAR",
+			"VistaDTrackHandTranscode", "dtrack hand dscalar get") {}
+
+
+		bool GetValueIndexed( const VistaSensorMeasure *pMeasure,
+			double &dScalar, unsigned int nIndex) const
+		{
+			if(!pMeasure)
+				return false;
+
+			//// normalize index
+			//const VistaDTrackMeasures::sHandMeasure* pHandMeasure =
+			//			reinterpret_cast<const VistaDTrackMeasures::sHandMeasure*>( &(*pMeasure).m_vecMeasures[0] );
+			//if( nIndex < 8)
+			//{
+			//	// trying to retrieve virtual button state
+			//	// note that we map the virtual scalar index 5 .. 5+nNumberOfButtons
+			//	// from a single bit mask which is stored in m_vecMeasures[2]
+
+			//	dScalar =  ( pHandMeasure->m_nButtonMask & ( 1 << nIndex ) ) ? 1.0 : 0.0;
+			//	return true;
+			//}
+			//else if( nIndex < 16 )
+			//{
+			//	dScalar = pHandMeasure->m_anControllers[nIndex - 8];
+			//	return true;
+			//}
+			//else
+			//{
+			//	switch(nIndex)
+			//	{
+			//	case 16:
+			//		dScalar = pHandMeasure->m_nId;
+			//		return true;
+			//	case 17:
+			//		dScalar = pHandMeasure->m_nQuality;
+			//		return true;
+			//	default:
+			//		break;
+			//	}
+			//}
+			return false;
+		}
+	};
+
+	class VistaDTrackHandOriGet : public IVistaMeasureTranscode::CQuatGet
+	{
+	public:
+		VistaDTrackHandOriGet()
+			: IVistaMeasureTranscode::CQuatGet("ORIENTATION",
+			"VistaDTrackHandTranscode", "dtrack Hand ori get") {}
+
+		VistaQuaternion GetValue(const VistaSensorMeasure *pMeasure) const
+		{
+			VistaQuaternion q;
+			GetValue(pMeasure, q);
+			return q;
+		};
+
+		bool GetValue(const VistaSensorMeasure * pMeasure, VistaQuaternion &qQuat) const
+		{
+			if(!pMeasure)
+				return false;
+
+			VistaDTrackMeasures::sHandMeasure *m = (VistaDTrackMeasures::sHandMeasure*)&(*pMeasure).m_vecMeasures[0];
+			VistaTransformMatrix matTrans;
+			matTrans.SetBasisMatrix( m->m_anBackRotation );
+
+			qQuat = VistaQuaternion( matTrans );
+			return true;
+		}
+	};
+
+	class VistaDTrackHandPosGet : public IVistaMeasureTranscode::CV3Get
+	{
+	public:
+		VistaDTrackHandPosGet()
+			: IVistaMeasureTranscode::CV3Get("POSITION",
+			"VistaDTrackHandTranscode", "dtrack Hand pos get") {}
+
+		VistaVector3D GetValue(const VistaSensorMeasure *pMeasure) const
+		{
+			VistaVector3D v3;
+			GetValue(pMeasure, v3);
+			return v3;
+		}
+
+		bool GetValue(const VistaSensorMeasure * pMeasure, VistaVector3D &v3Pos) const
+		{
+			if(!pMeasure)
+				return false;
+
+			VistaDTrackMeasures::sHandMeasure *m = (VistaDTrackMeasures::sHandMeasure*)&(*pMeasure).m_vecMeasures[0];
+			v3Pos.SetValues( m->m_anBackPosition );
+			return true;
+		}
+	};
+
+	class VistaDTrackHandFingerPositionGet : public IVistaMeasureTranscode::CV3Get
+	{
+	public:
+		VistaDTrackHandFingerPositionGet( int nFingerIndex,
+								const std::string &strName,
+								const std::string &strClass,
+								const std::string &strDesc)
+			: IVistaMeasureTranscode::CV3Get( strName, strClass, strDesc )
+			, m_nFingerIndex( nFingerIndex )
+		{
+		}
+
+
+		VistaVector3D GetValue( const VistaSensorMeasure *pMeasure ) const
+		{
+			VistaVector3D v3Pos;
+			GetValue( pMeasure, v3Pos );
+			return v3Pos;
+		}
+
+		bool GetValue( const VistaSensorMeasure *pMeasure,
+							VistaVector3D& v3Val ) const
+		{
+			bool bRet = true;
+			const VistaDTrackMeasures::sHandMeasure* pHandMeasure = (*pMeasure).getRead<VistaDTrackMeasures::sHandMeasure>();
+			if( m_nFingerIndex >= pHandMeasure->m_nNumberOfFingers )
+				return false;
+
+			const VistaDTrackMeasures::sHandMeasure::Finger& oFinger = pHandMeasure->m_aFingers[m_nFingerIndex];
+			v3Val.SetValues( oFinger.m_anPosition );
+			return bRet;
+		}
+	private:
+		int m_nFingerIndex;
+	};
+
+	class VistaDTrackHandFingerOrientationGet : public IVistaMeasureTranscode::CQuatGet
+	{
+	public:
+		VistaDTrackHandFingerOrientationGet( int nFingerIndex,
+								const std::string &strName,
+								const std::string &strClass,
+								const std::string &strDesc)
+			: IVistaMeasureTranscode::CQuatGet( strName, strClass, strDesc )
+			, m_nFingerIndex( nFingerIndex )
+		{
+		}
+
+
+		VistaQuaternion GetValue( const VistaSensorMeasure *pMeasure ) const
+		{
+			VistaQuaternion v3Pos;
+			GetValue( pMeasure, v3Pos );
+			return v3Pos;
+		}
+
+		bool GetValue( const VistaSensorMeasure *pMeasure,
+							VistaQuaternion& v3Val ) const
+		{
+			bool bRet = true;
+			const VistaDTrackMeasures::sHandMeasure* pHandMeasure = (*pMeasure).getRead<VistaDTrackMeasures::sHandMeasure>();
+			if( m_nFingerIndex >= pHandMeasure->m_nNumberOfFingers )
+				return false;
+
+			const VistaDTrackMeasures::sHandMeasure::Finger& oFinger = pHandMeasure->m_aFingers[m_nFingerIndex];
+			VistaTransformMatrix matRot;
+			matRot.SetBasisMatrix( oFinger.m_anRotation );
+			v3Val = VistaQuaternion( matRot );
+			return bRet;
+		}
+	private:
+		int m_nFingerIndex;
+	};
+
+	class VistaDTrackHandAllFingerPositionsGet : public IVistaMeasureTranscode::TTranscodeValueGet<std::vector<VistaVector3D> >
+	{
+	public:
+		VistaDTrackHandAllFingerPositionsGet()
+		: IVistaMeasureTranscode::TTranscodeValueGet<std::vector<VistaVector3D> >
+				( "FINGER_POSITIONS", "VistaDTrackHandTranscode",
+				   "vector with positions of fingers")
+		{
+		}
+		virtual std::vector<VistaVector3D> GetValue( const VistaSensorMeasure* pMeasure ) const
+		{
+			std::vector<VistaVector3D> vecPositions;
+			GetValue( pMeasure, vecPositions );
+			return vecPositions;
+		}
+		virtual bool GetValue( const VistaSensorMeasure* pMeasure, std::vector<VistaVector3D>& vecOut ) const
+		{
+			const VistaDTrackMeasures::sHandMeasure* pHandMeasure = (*pMeasure).getRead<VistaDTrackMeasures::sHandMeasure>();
+			vecOut.resize( (std::size_t)pHandMeasure->m_nNumberOfFingers );
+			for( int i = 0; i < pHandMeasure->m_nNumberOfFingers; ++i )
+				vecOut[i] = VistaVector3D( pHandMeasure->m_aFingers[i].m_anPosition );
+			return true;
+		}
+	};
+
+	class VistaDTrackHandAllFingerOrientationsGet : public IVistaMeasureTranscode::TTranscodeValueGet<std::vector<VistaQuaternion> >
+	{
+	public:
+		VistaDTrackHandAllFingerOrientationsGet()
+		: IVistaMeasureTranscode::TTranscodeValueGet<std::vector<VistaQuaternion> >
+				( "FINGER_ORIENTATIONS", "VistaDTrackHandTranscode",
+				   "vector with positions of fingers")
+		{
+		}
+		virtual std::vector<VistaQuaternion> GetValue( const VistaSensorMeasure* pMeasure ) const
+		{
+			std::vector<VistaQuaternion> vecPositions;
+			GetValue( pMeasure, vecPositions );
+			return vecPositions;
+		}
+		virtual bool GetValue( const VistaSensorMeasure* pMeasure, std::vector<VistaQuaternion>& vecOut ) const
+		{
+			const VistaDTrackMeasures::sHandMeasure* pHandMeasure = (*pMeasure).getRead<VistaDTrackMeasures::sHandMeasure>();
+			vecOut.resize( (std::size_t)pHandMeasure->m_nNumberOfFingers );
+			for( int i = 0; i < pHandMeasure->m_nNumberOfFingers; ++i )
+			{
+				VistaTransformMatrix matTransform;
+				matTransform.SetBasisMatrix( pHandMeasure->m_aFingers[i].m_anRotation );
+				vecOut[i] = VistaQuaternion( matTransform );
+			}
+			return true;
+		}
+	};
+
+	static IVistaPropertyGetFunctor *SaHandGet[] =
+	{
+		new VistaDTrackHandScalarGet,
+		new VistaDTrackHandOriGet,
+		new VistaDTrackHandPosGet,
+		new VistaDTrackHandAllFingerPositionsGet,
+		new VistaDTrackHandAllFingerOrientationsGet,
+		new VistaDTrackHandFingerPositionGet( 0, "FINGER1_POSITION", "VistaDTrackHandTranscode", "Position of thumb" ),
+		new VistaDTrackHandFingerPositionGet( 1, "FINGER2_POSITION", "VistaDTrackHandTranscode", "Position of index finger" ),
+		new VistaDTrackHandFingerPositionGet( 2, "FINGER3_POSITION", "VistaDTrackHandTranscode", "Position of middle finger" ),
+		new VistaDTrackHandFingerPositionGet( 3, "FINGER4_POSITION", "VistaDTrackHandTranscode", "Position of ring finger" ),
+		new VistaDTrackHandFingerPositionGet( 4, "FINGER5_POSITION", "VistaDTrackHandTranscode", "Position of little finger" ),
+		new VistaDTrackHandFingerOrientationGet( 0, "FINGER1_ORIENTATION", "VistaDTrackHandTranscode", "Orientation of thumb" ),
+		new VistaDTrackHandFingerOrientationGet( 1, "FINGER2_ORIENTATION", "VistaDTrackHandTranscode", "Orientation of index finger" ),
+		new VistaDTrackHandFingerOrientationGet( 2, "FINGER3_ORIENTATION", "VistaDTrackHandTranscode", "Orientation of middle finger" ),
+		new VistaDTrackHandFingerOrientationGet( 3, "FINGER4_ORIENTATION", "VistaDTrackHandTranscode", "Orientation of ring finger" ),
+		new VistaDTrackHandFingerOrientationGet( 4, "FINGER5_ORIENTATION", "VistaDTrackHandTranscode", "Orientation of little finger" ),
 		NULL
 	};
 
@@ -796,19 +1070,6 @@ namespace
 
 		REFL_INLINEIMP(VistaDTrackMarkerTranscode, IVistaMeasureTranscode);
 	};
-
-	/*
-	@TODO: Deprecated? Delete if not needed :)
-
-	class VistaDTrackMarkerFactory : public IVistaMeasureTranscoderFactory
-	{
-	public:
-		virtual IVistaMeasureTranscode *CreateTranscoder()
-		{
-			return new VistaDTrackMarkerTranscode;
-		}
-	};
-	*/
 
 	class VistaDTrackMarkerPosGet : public IVistaMeasureTranscode::CV3Get
 	{
@@ -878,6 +1139,7 @@ namespace
 			mp["MARKER"]  = new TCreateTranscoder<VistaDTrackMarkerTranscode>;
 			mp["STICK"]  = new TCreateTranscoder<VistaDTrackStickTranscode>;
 			mp["STICK2"]  = new TCreateTranscoder<VistaDTrackStick2Transcode>;
+			mp["HAND"]  = new TCreateTranscoder<VistaDTrackHandTranscode>;
 			mp["BODY"]  = new TCreateTranscoder<VistaDTrackBodyTranscode>;
 			mp["GLOBAL"]  = new TCreateTranscoder<VistaDTrackGlobalsTranscode>;
 			//mp["MEASURE"]  = new TCreateTranscoder<VistaDTrackMeasureTranscode>;

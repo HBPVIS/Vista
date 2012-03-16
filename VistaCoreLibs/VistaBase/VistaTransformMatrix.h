@@ -140,8 +140,10 @@ public:
 
 	void SetTranslation( const float a3fTranslation[3] );
 	void SetTranslation( const VistaVector3D& v3Translation );
-	void SetBasisMatrix( const float a3x3Matrix[3][3] );
+	void SetBasisMatrix( const float a3x3fMatrix[3][3] );
 	void SetBasisMatrix( const float a9fMatrix[9] );
+	void SetBasisMatrix( const double a3x3dMatrix[3][3] );
+	void SetBasisMatrix( const double a9dMatrix[9] );
 	void SetBasisMatrix( const VistaQuaternion& qRotation );
 
 	void SetToIdentity();
@@ -797,6 +799,30 @@ inline void VistaTransformMatrix::SetBasisMatrix( const float a9fMatrix[9] )
 	operator()( 2, 0 ) = a9fMatrix[6];
 	operator()( 2, 1 ) = a9fMatrix[7];
 	operator()( 2, 2 ) = a9fMatrix[8];
+}
+inline void VistaTransformMatrix::SetBasisMatrix( const double a3x3dMatrix[3][3] )
+{
+	operator()( 0, 0 ) = (float)a3x3dMatrix[0][0];
+	operator()( 0, 1 ) = (float)a3x3dMatrix[1][0];
+	operator()( 0, 2 ) = (float)a3x3dMatrix[2][0];
+	operator()( 1, 0 ) = (float)a3x3dMatrix[0][1];
+	operator()( 1, 1 ) = (float)a3x3dMatrix[1][1];
+	operator()( 1, 2 ) = (float)a3x3dMatrix[2][1];
+	operator()( 2, 0 ) = (float)a3x3dMatrix[0][2];
+	operator()( 2, 1 ) = (float)a3x3dMatrix[1][2];
+	operator()( 2, 2 ) = (float)a3x3dMatrix[2][2];
+}
+inline void VistaTransformMatrix::SetBasisMatrix( const double a9dMatrix[9] )
+{
+	operator()( 0, 0 ) = (float)a9dMatrix[0];
+	operator()( 0, 1 ) = (float)a9dMatrix[1];
+	operator()( 0, 2 ) = (float)a9dMatrix[2];
+	operator()( 1, 0 ) = (float)a9dMatrix[3];
+	operator()( 1, 1 ) = (float)a9dMatrix[4];
+	operator()( 1, 2 ) = (float)a9dMatrix[5];
+	operator()( 2, 0 ) = (float)a9dMatrix[6];
+	operator()( 2, 1 ) = (float)a9dMatrix[7];
+	operator()( 2, 2 ) = (float)a9dMatrix[8];
 }
 inline void VistaTransformMatrix::SetBasisMatrix( const VistaQuaternion& qRotation )
 {

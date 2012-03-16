@@ -1,6 +1,6 @@
 /*============================================================================*/
 /*                              ViSTA VR toolkit                              */
-/*               Copyright (c) 1997-2012 RWTH Aachen University               */
+/*               Copyright (c) 1997-2011 RWTH Aachen University               */
 /*============================================================================*/
 /*                                  License                                   */
 /*                                                                            */
@@ -20,11 +20,9 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
 
-#ifndef _VDFNAPPLYTRANSFORMNODE_H
-#define _VDFAPPLYTRANSFORMNODE_H
-
+#ifndef _VDFNQUATERNIONSLERPNODE_H
+#define _VDFNQUATERNIONSLERPNODE_H
 
 /*============================================================================*/
 /* INCLUDES                                                                   */
@@ -33,8 +31,12 @@
 #include "VdfnNode.h"
 #include "VdfnPort.h"
 #include "VdfnSerializer.h"
+#include "VdfnNodeFactory.h"
+#include "VdfnObjectRegistry.h"
+
 #include <VistaBase/VistaVectorMath.h>
 
+#include <string>
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -44,104 +46,55 @@
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
 
-class IVistaTransformable;
-class VdfnObjectRegistry;
-
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
-
 /**
- * The VdfnApplyTransformNode can be used to <b>apply</b> an absolute transformation
- * to one IVistaTransformable interface. The new matrix is multiplied from
- * right-hand-side
- * The node offers a set for three independent channels
- * - VistaTransformMatrix to apply the affine 4x4 transformation matrix as the transformable's
-     transform. The matrix is right handed and expected to be in row major.
- * - VistaVector3D to apply the transformable's translation
- * - VistaQuaternion to apply the transformable's rotation
+ * VdfnQuaternionSlerpNode<br>
+ * This DFN-Node calculates the slerp between two quaternions using a fraction
+ * value.<br>
+ * 
+ * @inport{ first, VistaQuaternion, optional, First quaternion (default = 0\,
+ * 0\, 0\, 1) }
+ * @inport{ second, VistaQuaternion, optional, Second quaternion (default = 
+ * 0\, 0\, 0\, 1) }
+ * @inport{ fraction, float, optional, Fraction value for interpolation
+ * between quaternions (default = 0) }
  *
- * Each channel is optional, but when set, each channel is evaluated!
- * Execpt when transform is set, then only transform will be evaluated.
- *
- * @inport{transform, VistaTransformMatrix, row-major transform matrix}
- *
- * @todo check the evaluation mode of this node, it will evaluate unconditional of an
-         incoming state change, and it will evaluate on and inport set. This can be
-         confusing.
+ * @outport{ out, VistaQuaternion, The resulting VistaQuaternion }
  */
-class VISTADFNAPI VdfnApplyTransformNode : public IVdfnNode
+class VISTADFNAPI VdfnQuaternionSlerpNode : public IVdfnNode
 {
 public:
-	/**
-	 * empty constructor, use ApplyTransformTarget() to make this node work.
-	 */
-	VdfnApplyTransformNode();
+	VdfnQuaternionSlerpNode();
+   virtual ~VdfnQuaternionSlerpNode();
+   
+   virtual bool GetIsValid() const;
+   virtual bool PrepareEvaluationRun();
+   
+   static const std::string S_sFirstQuaternionInPortName;
+   static const std::string S_sSecondQuaternionInPortName;
+   static const std::string S_sFractionInPortName;
 
-	/**
-	 * delayed construction constructor, give an object registry to look for
-	 * a transformable upon the call to PrepareEvaluationRun().
-	 * @param a non NULL object registry
-	 * @param strKey the name to look for in the registry, case sensitive
-	 * @param applyLocal set true if you want to apply the changes in local coordsystem (right hand side)
-	 */
-	VdfnApplyTransformNode( VdfnObjectRegistry *, const std::string &strKey, const bool bApplyLocal = false );
+   static const std::string S_sQuaternionOutPortName;
 
-	/**
-	 * use when the transformable is known already.
-	 * @param pObj the transformable
-	 * @param applyLocal set true if you want to apply the changes in local coordsystem (right hand side)
-	 */
-	VdfnApplyTransformNode(IVistaTransformable *pObj, const bool bApplyLocal = false );
-
-	/**
-	 * does nothing.
-	 */
-	~VdfnApplyTransformNode();
-
-	/**
-	 * is valid when GetTransformTarget() != NULL and at least one inport is set
-	 */
-	virtual bool GetIsValid() const;
-
-	/**
-	 * in case a registry was provided, the name key is not empty and no transform
-	 * target was set, the method tries to claim a transform target from the
-	 * registry and caches the node ports
-	 * @return GetIsValid()
-	 */
-	virtual bool PrepareEvaluationRun();
-
-	/**
-	 * @return the current transform target
-	 */
-	IVistaTransformable *GetTransformTarget() const;
-
-	/**
-	 * set the current transfom target.
-	 */
-	void SetTransformTarget( IVistaTransformable * );
-
-	static const std::string STransformInPortName;
 protected:
-	virtual bool DoEvalNode();
+   virtual bool DoEvalNode();
 
 private:
-	void RegisterInPrototypes();
-
-	TVdfnPort<VistaTransformMatrix> *m_pInTransform;
-
-	unsigned int m_nTCount; // update count for transform inport
-
-	IVistaTransformable *m_pOutTransform;
-	VdfnObjectRegistry *m_pObjRegistry;
-	std::string          m_strKey;
-	bool				 m_bApplyLocal;
+   TVdfnPort< VistaQuaternion > *m_pInFirstQuaternion;
+   TVdfnPort< VistaQuaternion > *m_pInSecondQuaternion;
+   TVdfnPort< float > *m_pInFraction;
+   
+   TVdfnPort< VistaQuaternion > *m_pOutQuaternion;
 };
 
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/
 
-#endif //_VDFNAPPLYTRANSFORMNODE_H
+/*============================================================================*/
+/* END OF FILE                                                                */
+/*============================================================================*/
 
+#endif //_VDFNQUATERNIONSLERPNODE_H
