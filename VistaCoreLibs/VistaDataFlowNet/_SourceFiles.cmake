@@ -18,6 +18,7 @@ set( DirFiles
 	VdfnAxisRotateNode.h
 	VdfnBinaryOpNode.cpp
 	VdfnBinaryOpNode.h
+	VdfnBinaryOps.h
 	VdfnChangeDetectNode.cpp
 	VdfnChangeDetectNode.h
 	VdfnCompose3DVectorNode.cpp

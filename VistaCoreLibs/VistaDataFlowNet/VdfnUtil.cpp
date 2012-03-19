@@ -71,7 +71,7 @@ using namespace std;
 
 namespace
 {
-	template<class T>
+		template<class T>
 	class PropertyGetAsString : public VdfnPortFactory::StringGet
 	{
 	public:
@@ -124,150 +124,6 @@ namespace
 	private:
 		Convert m_pFC;
 	};
-
-
-	// ########################################################
-	// Some basic binary ops, +,*, ==
-	// ########################################################
-
-	template<class T, class T2, class K>
-	class VdfnAddOp : public TVdfnBinaryOpNode<T,T2,K>::BinOp
-	{
-	public:
-		virtual K operator()(const T&left, const T2&right) const
-		{
-			return left+right;
-		}
-	};
-
-	template<class T, class T2, class K>
-	class VdfnSubOp : public TVdfnBinaryOpNode<T,T2,K>::BinOp
-	{
-	public:
-		virtual K operator()(const T&left, const T2&right) const
-		{
-			return left-right;
-		}
-	};
-
-#ifdef WIN32
-#pragma warning(push)
-#pragma warning(disable: 4244)
-#endif
-	// the MultOp can contain some type conversions that may result in warnings
-	// we know and accept that, so we disable the warning locally
-	template<class T, class T2, class K>
-	class VdfnMultOp : public TVdfnBinaryOpNode<T,T2,K>::BinOp
-	{
-		virtual K operator()(const T&left, const T2&right) const
-		{
-			return left * right;
-		}
-	};
-#ifdef WIN32
-#pragma warning(pop)
-#endif
-
-	template<class T, class T2, class K>
-	class VdfnDivOp : public TVdfnBinaryOpNode<T,T2,K>::BinOp
-	{
-		virtual K operator()(const T&left, const T2&right) const
-		{
-			return left / right;
-		}
-	};
-
-	template<class T, class T2, class K>
-	class VdfnEqualsOp : public TVdfnBinaryOpNode<T,T2,K>::BinOp
-	{
-		virtual K operator()(const T&left, const T2&right) const
-		{
-			return (left == right);
-		}
-	};
-
-	template<class T, class T2, class K>
-	class VdfnAndOp : public TVdfnBinaryOpNode<T,T2,K>::BinOp
-	{
-		virtual K operator()(const T&left, const T2&right) const
-		{
-			return (left && right);
-		}
-	};
-
-	template<class T, class T2, class K>
-	class VdfnTransformOp : public TVdfnBinaryOpNode<T,T2,K>::BinOp
-	{
-	public:
-		virtual K operator()(const T& left, const T2& right) const
-		{
-			// works for QUATxQUAT, MATxV3D, MATxQUAT, MATxMAT
-			return K( left * right );
-		}
-	};
-	// specializations for QUATxV3D, V3DxV3D, QUATxMAT, V3DxMAT
-	template<>
-	class VdfnTransformOp<VistaQuaternion,VistaVector3D,VistaVector3D>
-			: public TVdfnBinaryOpNode<VistaQuaternion,VistaVector3D,VistaVector3D>::BinOp
-	{
-	public:
-		virtual VistaVector3D operator()(const VistaQuaternion& left, const VistaVector3D& right) const
-		{
-			return ( left.Rotate( right ) );
-		}
-	};
-	template<>
-	class VdfnTransformOp<VistaVector3D,VistaVector3D,VistaVector3D>
-			: public TVdfnBinaryOpNode<VistaVector3D,VistaVector3D,VistaVector3D>::BinOp
-	{
-	public:
-		virtual VistaVector3D operator()(const VistaVector3D& left, const VistaVector3D& right) const
-		{
-			return ( left + right );
-		}
-	};
-	template<>
-	class VdfnTransformOp<VistaVector3D,VistaTransformMatrix,VistaTransformMatrix>
-			: public TVdfnBinaryOpNode<VistaVector3D,VistaTransformMatrix,VistaTransformMatrix>::BinOp
-	{
-	public:
-		virtual VistaTransformMatrix operator()(const VistaVector3D& left, const VistaTransformMatrix& right) const
-		{
-			return ( VistaTransformMatrix( left ) * right );
-		}
-	};
-	template<>
-	class VdfnTransformOp<VistaQuaternion,VistaTransformMatrix,VistaTransformMatrix>
-		: public TVdfnBinaryOpNode<VistaQuaternion,VistaTransformMatrix,VistaTransformMatrix>::BinOp
-	{
-	public:
-		virtual VistaTransformMatrix operator()(const VistaQuaternion& left, const VistaTransformMatrix& right) const
-		{
-			return ( VistaTransformMatrix( left ) * right );
-		}
-	};
-	// specialization to work on vectors of targets
-	template<class T, class T2, class K>
-	class VdfnTransformOp<T, std::vector<T2>, std::vector<K> >
-		: public TVdfnBinaryOpNode<T, std::vector<T2>, std::vector<K> >::BinOp
-	{
-	public:
-		std::vector<K> operator()( const T& left, const std::vector<T2>& right ) const
-		{
-			std::vector<K> vecResult;
-			vecResult.reserve( right.size() );
-			for( std::vector<T2>::const_iterator itRight = right.begin();
-					itRight != right.end(); ++itRight )
-			{
-				vecResult.push_back( m_oOp( left, (*itRight) ) );
-			}
-			return vecResult;
-		}
-		VdfnTransformOp<T, T2, K > m_oOp;
-	};
-
-
-
 
 	template<typename T>
 	void RegisterDefaultPortAndFunctorAccess( VdfnPortFactory* pFac )
@@ -348,6 +204,7 @@ bool RegisterBasicPortSetters()
 	RegisterDefaultPortAndFunctorAccess<std::vector<VistaQuaternion> >( pFac );
 	RegisterDefaultPortAndFunctorAccess<std::vector<VistaTransformMatrix> >( pFac );
 	RegisterDefaultPortAndFunctorAccess<std::vector<VistaAxisAndAngle> >( pFac );
+	RegisterDefaultPortAndFunctorAccess<VdfnHistoryPortData*>( pFac );
 
 	pFac->AddPortAccess( typeid(VistaVector<float,4>).name(),
 						new VdfnPortFactory::CPortAccess(
@@ -470,92 +327,92 @@ bool RegisterBasicNodeCreators(VistaDriverMap *pDrivers,
  	pFac->SetNodeCreator( "TypeConvert[vector[double],string]", new VdfnTypeConvertNodeCreate<std::vector<double>,std::string>() );
 
 
-	pFac->SetNodeCreator( "Add[string]", new TVdfnBinOpCreate<std::string,std::string,std::string>( new VdfnAddOp<std::string,std::string,std::string>) );
-	pFac->SetNodeCreator( "Add[int]", new TVdfnBinOpCreate<int,int,int>( new VdfnAddOp<int,int,int> ) );
-	pFac->SetNodeCreator( "Add[unsigned int]", new TVdfnBinOpCreate<unsigned int,unsigned int,unsigned int>( new VdfnAddOp<unsigned int,unsigned int,unsigned int> ) );
-	pFac->SetNodeCreator( "Add[float]", new TVdfnBinOpCreate<float,float,float>( new VdfnAddOp<float,float,float> ) );
-	pFac->SetNodeCreator( "Add[double]", new TVdfnBinOpCreate<double,double,double>( new VdfnAddOp<double,double,double> ) );
-	pFac->SetNodeCreator( "Add[VistaVector3D]", new TVdfnBinOpCreate<VistaVector3D,VistaVector3D,VistaVector3D>( new VdfnAddOp<VistaVector3D,VistaVector3D,VistaVector3D>) );
+	pFac->SetNodeCreator( "Add[string]", new TVdfnBinOpCreate<std::string,std::string,std::string>( new VdfnBinaryOps::AddOp<std::string,std::string,std::string>) );
+	pFac->SetNodeCreator( "Add[int]", new TVdfnBinOpCreate<int,int,int>( new VdfnBinaryOps::AddOp<int,int,int> ) );
+	pFac->SetNodeCreator( "Add[unsigned int]", new TVdfnBinOpCreate<unsigned int,unsigned int,unsigned int>( new VdfnBinaryOps::AddOp<unsigned int,unsigned int,unsigned int> ) );
+	pFac->SetNodeCreator( "Add[float]", new TVdfnBinOpCreate<float,float,float>( new VdfnBinaryOps::AddOp<float,float,float> ) );
+	pFac->SetNodeCreator( "Add[double]", new TVdfnBinOpCreate<double,double,double>( new VdfnBinaryOps::AddOp<double,double,double> ) );
+	pFac->SetNodeCreator( "Add[VistaVector3D]", new TVdfnBinOpCreate<VistaVector3D,VistaVector3D,VistaVector3D>( new VdfnBinaryOps::AddOp<VistaVector3D,VistaVector3D,VistaVector3D>) );
 
-	pFac->SetNodeCreator( "Substract[VistaVector3D]", new TVdfnBinOpCreate<VistaVector3D,VistaVector3D,VistaVector3D>( new VdfnSubOp<VistaVector3D,VistaVector3D,VistaVector3D>) );
-	pFac->SetNodeCreator( "Substract[int]", new TVdfnBinOpCreate<int,int,int>( new VdfnSubOp<int,int,int>) );
+	pFac->SetNodeCreator( "Substract[VistaVector3D]", new TVdfnBinOpCreate<VistaVector3D,VistaVector3D,VistaVector3D>( new VdfnBinaryOps::SubOp<VistaVector3D,VistaVector3D,VistaVector3D>) );
+	pFac->SetNodeCreator( "Substract[int]", new TVdfnBinOpCreate<int,int,int>( new VdfnBinaryOps::SubOp<int,int,int>) );
 
-	pFac->SetNodeCreator( "Multiply[int]", new TVdfnBinOpCreate<int,int,int>( new VdfnMultOp<int,int,int> ) );
-	pFac->SetNodeCreator( "Multiply[unsigned int]", new TVdfnBinOpCreate<unsigned int,unsigned int,unsigned int>( new VdfnMultOp<unsigned int,unsigned int,unsigned int> ) );
-	pFac->SetNodeCreator( "Multiply[float]", new TVdfnBinOpCreate<float,float,float>( new VdfnMultOp<float,float,float> ) );
-	pFac->SetNodeCreator( "Multiply[double]", new TVdfnBinOpCreate<double,double,double>( new VdfnMultOp<double,double,double> ) );
+	pFac->SetNodeCreator( "Multiply[int]", new TVdfnBinOpCreate<int,int,int>( new VdfnBinaryOps::MultOp<int,int,int> ) );
+	pFac->SetNodeCreator( "Multiply[unsigned int]", new TVdfnBinOpCreate<unsigned int,unsigned int,unsigned int>( new VdfnBinaryOps::MultOp<unsigned int,unsigned int,unsigned int> ) );
+	pFac->SetNodeCreator( "Multiply[float]", new TVdfnBinOpCreate<float,float,float>( new VdfnBinaryOps::MultOp<float,float,float> ) );
+	pFac->SetNodeCreator( "Multiply[double]", new TVdfnBinOpCreate<double,double,double>( new VdfnBinaryOps::MultOp<double,double,double> ) );
 
-	pFac->SetNodeCreator( "Divide[int]", new TVdfnBinOpCreate<int,int,int>( new VdfnDivOp<int,int,int> ) );
-	pFac->SetNodeCreator( "Divide[unsigned int]", new TVdfnBinOpCreate<unsigned int,unsigned int,unsigned int>( new VdfnDivOp<unsigned int,unsigned int,unsigned int> ) );
-	pFac->SetNodeCreator( "Divide[float]", new TVdfnBinOpCreate<float,float,float>( new VdfnDivOp<float,float,float> ) );
-	pFac->SetNodeCreator( "Divide[double]", new TVdfnBinOpCreate<double,double,double>( new VdfnDivOp<double,double,double> ) );
+	pFac->SetNodeCreator( "Divide[int]", new TVdfnBinOpCreate<int,int,int>( new VdfnBinaryOps::DivOp<int,int,int> ) );
+	pFac->SetNodeCreator( "Divide[unsigned int]", new TVdfnBinOpCreate<unsigned int,unsigned int,unsigned int>( new VdfnBinaryOps::DivOp<unsigned int,unsigned int,unsigned int> ) );
+	pFac->SetNodeCreator( "Divide[float]", new TVdfnBinOpCreate<float,float,float>( new VdfnBinaryOps::DivOp<float,float,float> ) );
+	pFac->SetNodeCreator( "Divide[double]", new TVdfnBinOpCreate<double,double,double>( new VdfnBinaryOps::DivOp<double,double,double> ) );
 
 	pFac->SetNodeCreator( "Multiply[VistaTransformMatrix]", new TVdfnBinOpCreate<VistaTransformMatrix, VistaTransformMatrix, VistaTransformMatrix>(
-															  new VdfnMultOp<VistaTransformMatrix, VistaTransformMatrix, VistaTransformMatrix> ) );
+															  new VdfnBinaryOps::MultOp<VistaTransformMatrix, VistaTransformMatrix, VistaTransformMatrix> ) );
 	pFac->SetNodeCreator( "Multiply[VistaQuaternion]", new TVdfnBinOpCreate<VistaQuaternion, VistaQuaternion, VistaQuaternion>(
-															  new VdfnMultOp<VistaQuaternion, VistaQuaternion, VistaQuaternion> ) );
+															  new VdfnBinaryOps::MultOp<VistaQuaternion, VistaQuaternion, VistaQuaternion> ) );
 
 	pFac->SetNodeCreator( "Multiply[int,VistaVector3D]", new TVdfnBinOpCreate<int, VistaVector3D, VistaVector3D>(
-															  new VdfnMultOp<int, VistaVector3D, VistaVector3D> ) );
+															  new VdfnBinaryOps::MultOp<int, VistaVector3D, VistaVector3D> ) );
 	pFac->SetNodeCreator( "Multiply[unsigned int,VistaVector3D]", new TVdfnBinOpCreate<unsigned int, VistaVector3D, VistaVector3D>(
-															  new VdfnMultOp<unsigned int, VistaVector3D, VistaVector3D> ) );
+															  new VdfnBinaryOps::MultOp<unsigned int, VistaVector3D, VistaVector3D> ) );
 	pFac->SetNodeCreator( "Multiply[float,VistaVector3D]", new TVdfnBinOpCreate<float, VistaVector3D, VistaVector3D>(
-															  new VdfnMultOp<float, VistaVector3D, VistaVector3D> ) );
+															  new VdfnBinaryOps::MultOp<float, VistaVector3D, VistaVector3D> ) );
 	pFac->SetNodeCreator( "Multiply[double,VistaVector3D]", new TVdfnBinOpCreate<double, VistaVector3D, VistaVector3D>(
-															  new VdfnMultOp<double, VistaVector3D, VistaVector3D> ) );
+															  new VdfnBinaryOps::MultOp<double, VistaVector3D, VistaVector3D> ) );
 	pFac->SetNodeCreator( "Multiply[VistaTransformMatrix,VistaVector3D]", new TVdfnBinOpCreate<VistaTransformMatrix, VistaVector3D, VistaVector3D>(
-															  new VdfnMultOp<VistaTransformMatrix, VistaVector3D, VistaVector3D> ) );
+															  new VdfnBinaryOps::MultOp<VistaTransformMatrix, VistaVector3D, VistaVector3D> ) );
 
 	pFac->SetNodeCreator( "Transform[VistaTransformMatrix,VistaVector3D]", new TVdfnBinOpCreate<VistaTransformMatrix, VistaVector3D, VistaVector3D>(
-															  new VdfnTransformOp<VistaTransformMatrix, VistaVector3D, VistaVector3D> ) );
+															  new VdfnBinaryOps::TransformOp<VistaTransformMatrix, VistaVector3D, VistaVector3D> ) );
 	pFac->SetNodeCreator( "Transform[VistaTransformMatrix,VistaQuaternion]", new TVdfnBinOpCreate<VistaTransformMatrix, VistaQuaternion, VistaQuaternion>(
-															  new VdfnTransformOp<VistaTransformMatrix, VistaQuaternion, VistaQuaternion> ) );
+															  new VdfnBinaryOps::TransformOp<VistaTransformMatrix, VistaQuaternion, VistaQuaternion> ) );
 	pFac->SetNodeCreator( "Transform[VistaTransformMatrix,VistaTransformMatrix]", new TVdfnBinOpCreate<VistaTransformMatrix, VistaTransformMatrix, VistaTransformMatrix>(
-															  new VdfnTransformOp<VistaTransformMatrix, VistaTransformMatrix, VistaTransformMatrix> ) );
+															  new VdfnBinaryOps::TransformOp<VistaTransformMatrix, VistaTransformMatrix, VistaTransformMatrix> ) );
 	pFac->SetNodeCreator( "Transform[VistaVector3D,VistaVector3D]", new TVdfnBinOpCreate<VistaVector3D, VistaVector3D, VistaVector3D>(
-															  new VdfnTransformOp<VistaVector3D, VistaVector3D, VistaVector3D> ) );
+															  new VdfnBinaryOps::TransformOp<VistaVector3D, VistaVector3D, VistaVector3D> ) );
 	pFac->SetNodeCreator( "Transform[VistaVector3D,VistaTransformMatrix]", new TVdfnBinOpCreate<VistaVector3D, VistaTransformMatrix, VistaTransformMatrix>(
-															  new VdfnTransformOp<VistaVector3D, VistaTransformMatrix, VistaTransformMatrix> ) );
+															  new VdfnBinaryOps::TransformOp<VistaVector3D, VistaTransformMatrix, VistaTransformMatrix> ) );
 	pFac->SetNodeCreator( "Transform[VistaQuaternion,VistaVector3D]", new TVdfnBinOpCreate<VistaQuaternion, VistaVector3D, VistaVector3D>(
-															  new VdfnTransformOp<VistaQuaternion, VistaVector3D, VistaVector3D> ) );
+															  new VdfnBinaryOps::TransformOp<VistaQuaternion, VistaVector3D, VistaVector3D> ) );
 	pFac->SetNodeCreator( "Transform[VistaQuaternion,VistaQuaternion]", new TVdfnBinOpCreate<VistaQuaternion, VistaQuaternion, VistaQuaternion>(
-															  new VdfnTransformOp<VistaQuaternion, VistaQuaternion, VistaQuaternion> ) );
+															  new VdfnBinaryOps::TransformOp<VistaQuaternion, VistaQuaternion, VistaQuaternion> ) );
 	pFac->SetNodeCreator( "Transform[VistaQuaternion,VistaTransformMatrix]", new TVdfnBinOpCreate<VistaQuaternion, VistaTransformMatrix, VistaTransformMatrix>(
-															  new VdfnTransformOp<VistaQuaternion, VistaTransformMatrix, VistaTransformMatrix> ) );
+															  new VdfnBinaryOps::TransformOp<VistaQuaternion, VistaTransformMatrix, VistaTransformMatrix> ) );
 
 	pFac->SetNodeCreator( "Transform[VistaTransformMatrix,vector[VistaVector3D]]", new TVdfnBinOpCreate<VistaTransformMatrix, std::vector<VistaVector3D>, std::vector<VistaVector3D> >(
-															  new VdfnTransformOp<VistaTransformMatrix, std::vector<VistaVector3D>, std::vector<VistaVector3D> > ) );
+															  new VdfnBinaryOps::TransformOp<VistaTransformMatrix, std::vector<VistaVector3D>, std::vector<VistaVector3D> > ) );
 	pFac->SetNodeCreator( "Transform[VistaTransformMatrix,vector[VistaQuaternion]]", new TVdfnBinOpCreate<VistaTransformMatrix, std::vector<VistaQuaternion>, std::vector<VistaQuaternion> >(
-															  new VdfnTransformOp<VistaTransformMatrix, std::vector<VistaQuaternion>, std::vector<VistaQuaternion> > ) );
+															  new VdfnBinaryOps::TransformOp<VistaTransformMatrix, std::vector<VistaQuaternion>, std::vector<VistaQuaternion> > ) );
 	pFac->SetNodeCreator( "Transform[VistaTransformMatrix,vector[VistaTransformMatrix]]", new TVdfnBinOpCreate<VistaTransformMatrix, std::vector<VistaTransformMatrix>, std::vector<VistaTransformMatrix> >(
-															  new VdfnTransformOp<VistaTransformMatrix, std::vector<VistaTransformMatrix>, std::vector<VistaTransformMatrix> > ) );
+															  new VdfnBinaryOps::TransformOp<VistaTransformMatrix, std::vector<VistaTransformMatrix>, std::vector<VistaTransformMatrix> > ) );
 	pFac->SetNodeCreator( "Transform[VistaVector3D,vector[VistaVector3D]]", new TVdfnBinOpCreate<VistaVector3D, std::vector<VistaVector3D>, std::vector<VistaVector3D> >(
-															  new VdfnTransformOp<VistaVector3D, std::vector<VistaVector3D>, std::vector<VistaVector3D> > ) );
+															  new VdfnBinaryOps::TransformOp<VistaVector3D, std::vector<VistaVector3D>, std::vector<VistaVector3D> > ) );
 	pFac->SetNodeCreator( "Transform[VistaVector3D,vector[VistaTransformMatrix]]", new TVdfnBinOpCreate<VistaVector3D, std::vector<VistaTransformMatrix>, std::vector<VistaTransformMatrix> >(
-															  new VdfnTransformOp<VistaVector3D, std::vector<VistaTransformMatrix>, std::vector<VistaTransformMatrix> > ) );
+															  new VdfnBinaryOps::TransformOp<VistaVector3D, std::vector<VistaTransformMatrix>, std::vector<VistaTransformMatrix> > ) );
 	pFac->SetNodeCreator( "Transform[VistaQuaternion,vector[VistaVector3D]]", new TVdfnBinOpCreate<VistaQuaternion, std::vector<VistaVector3D>, std::vector<VistaVector3D> >(
-															  new VdfnTransformOp<VistaQuaternion, std::vector<VistaVector3D>, std::vector<VistaVector3D> > ) );
+															  new VdfnBinaryOps::TransformOp<VistaQuaternion, std::vector<VistaVector3D>, std::vector<VistaVector3D> > ) );
 	pFac->SetNodeCreator( "Transform[VistaQuaternion,vector[VistaQuaternion]]", new TVdfnBinOpCreate<VistaQuaternion, std::vector<VistaQuaternion>, std::vector<VistaQuaternion> >(
-															  new VdfnTransformOp<VistaQuaternion, std::vector<VistaQuaternion>, std::vector<VistaQuaternion> > ) );
+															  new VdfnBinaryOps::TransformOp<VistaQuaternion, std::vector<VistaQuaternion>, std::vector<VistaQuaternion> > ) );
 	pFac->SetNodeCreator( "Transform[VistaQuaternion,vector[VistaTransformMatrix]]", new TVdfnBinOpCreate<VistaQuaternion, std::vector<VistaTransformMatrix>, std::vector<VistaTransformMatrix> >(
-															  new VdfnTransformOp<VistaQuaternion, std::vector<VistaTransformMatrix>, std::vector<VistaTransformMatrix> > ) );
+															  new VdfnBinaryOps::TransformOp<VistaQuaternion, std::vector<VistaTransformMatrix>, std::vector<VistaTransformMatrix> > ) );
 
-	pFac->SetNodeCreator( "Equals[string]", new TVdfnBinOpCreate<std::string,std::string,bool>( new VdfnEqualsOp<std::string,std::string,bool> ) );
-	pFac->SetNodeCreator( "Equals[bool]", new TVdfnBinOpCreate<bool,bool,bool>( new VdfnEqualsOp<bool,bool,bool> ) );
-	pFac->SetNodeCreator( "Equals[int]", new TVdfnBinOpCreate<int,int,bool>( new VdfnEqualsOp<int,int,bool> ) );
-	pFac->SetNodeCreator( "Equals[unsigned int]", new TVdfnBinOpCreate<unsigned int,unsigned int,bool>( new VdfnEqualsOp<unsigned int,unsigned int,bool> ) );
-	pFac->SetNodeCreator( "Equals[float]", new TVdfnBinOpCreate<float,float,bool>( new VdfnEqualsOp<float,float,bool> ) );
-	pFac->SetNodeCreator( "Equals[double]", new TVdfnBinOpCreate<double,double,bool>( new VdfnEqualsOp<double,double,bool> ) );
-	pFac->SetNodeCreator( "Equals[VistaVector3D]", new TVdfnBinOpCreate<VistaVector3D,VistaVector3D,bool>( new VdfnEqualsOp<VistaVector3D,VistaVector3D,bool> ) );
-	pFac->SetNodeCreator( "Equals[VistaQuaternion]", new TVdfnBinOpCreate<VistaQuaternion,VistaQuaternion,bool>( new VdfnEqualsOp<VistaQuaternion,VistaQuaternion,bool> ) );
-	pFac->SetNodeCreator( "Equals[VistaTransformMatrix]", new TVdfnBinOpCreate<VistaTransformMatrix,VistaTransformMatrix,bool>( new VdfnEqualsOp<VistaTransformMatrix,VistaTransformMatrix,bool> ) );
+	pFac->SetNodeCreator( "Equals[string]", new TVdfnBinOpCreate<std::string,std::string,bool>( new VdfnBinaryOps::EqualsOp<std::string,std::string,bool> ) );
+	pFac->SetNodeCreator( "Equals[bool]", new TVdfnBinOpCreate<bool,bool,bool>( new VdfnBinaryOps::EqualsOp<bool,bool,bool> ) );
+	pFac->SetNodeCreator( "Equals[int]", new TVdfnBinOpCreate<int,int,bool>( new VdfnBinaryOps::EqualsOp<int,int,bool> ) );
+	pFac->SetNodeCreator( "Equals[unsigned int]", new TVdfnBinOpCreate<unsigned int,unsigned int,bool>( new VdfnBinaryOps::EqualsOp<unsigned int,unsigned int,bool> ) );
+	pFac->SetNodeCreator( "Equals[float]", new TVdfnBinOpCreate<float,float,bool>( new VdfnBinaryOps::EqualsOp<float,float,bool> ) );
+	pFac->SetNodeCreator( "Equals[double]", new TVdfnBinOpCreate<double,double,bool>( new VdfnBinaryOps::EqualsOp<double,double,bool> ) );
+	pFac->SetNodeCreator( "Equals[VistaVector3D]", new TVdfnBinOpCreate<VistaVector3D,VistaVector3D,bool>( new VdfnBinaryOps::EqualsOp<VistaVector3D,VistaVector3D,bool> ) );
+	pFac->SetNodeCreator( "Equals[VistaQuaternion]", new TVdfnBinOpCreate<VistaQuaternion,VistaQuaternion,bool>( new VdfnBinaryOps::EqualsOp<VistaQuaternion,VistaQuaternion,bool> ) );
+	pFac->SetNodeCreator( "Equals[VistaTransformMatrix]", new TVdfnBinOpCreate<VistaTransformMatrix,VistaTransformMatrix,bool>( new VdfnBinaryOps::EqualsOp<VistaTransformMatrix,VistaTransformMatrix,bool> ) );
 
 	pFac->SetNodeCreator( "Compose3DVector", new TVdfnDefaultNodeCreate<VdfnCompose3DVectorNode> );
 	pFac->SetNodeCreator( "Decompose3DVector", new TVdfnDefaultNodeCreate<VdfnDecompose3DVectorNode> );
 
 	pFac->SetNodeCreator( "QuaternionSlerp", new TVdfnDefaultNodeCreate<VdfnQuaternionSlerpNode> );
 
-	pFac->SetNodeCreator( "And[bool]", new TVdfnBinOpCreate<bool,bool,bool>( new VdfnAndOp<bool,bool,bool> ) );
+	pFac->SetNodeCreator( "And[bool]", new TVdfnBinOpCreate<bool,bool,bool>( new VdfnBinaryOps::AndOp<bool,bool,bool> ) );
 
 	pFac->SetNodeCreator( "ValueToTrigger[int]", new TVdfnValueToTriggerNodeCreate<int> );
 	pFac->SetNodeCreator( "ValueToTrigger[unsigned int]", new TVdfnValueToTriggerNodeCreate<unsigned int> );

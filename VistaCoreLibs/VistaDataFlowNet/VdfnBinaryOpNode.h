@@ -35,6 +35,7 @@
 #include "VdfnNode.h"
 #include "VdfnPort.h"
 #include "VdfnNodeFactory.h"
+#include "VdfnBinaryOps.h"
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -66,20 +67,9 @@ class TVdfnBinaryOpNode : public IVdfnNode
 {
 public:
 	/**
-	 * specialize for custom operations.
-	 */
-	class BinOp
-	{
-	public:
-		virtual ~BinOp() {}
-		virtual K operator()(const T&, const T2&) const = 0;
-	};
-
-
-	/**
 	 * construct and determine the operation.
 	 */
-	TVdfnBinaryOpNode(BinOp *pBinOp)
+	TVdfnBinaryOpNode( VdfnBinaryOps::BinOp<T,T2,K> *pBinOp)
 	: IVdfnNode(), m_pBinOp(pBinOp),
 	  m_pFirst(NULL),
 	  m_pSecond(NULL),
@@ -128,7 +118,7 @@ private:
 	TVdfnPort<T> *m_pFirst;
 	TVdfnPort<T2> *m_pSecond;
     TVdfnPort<K> *m_pOut;
-	BinOp       *m_pBinOp;
+	VdfnBinaryOps::BinOp<T,T2,K> *m_pBinOp;
 };
 
 
@@ -144,7 +134,7 @@ public:
 	 * @param pOp the binary operation. The memory of pOp belongs to the
 	          TVdfnBinOpCreate now and will be deleted upon destruction
 	 */
-	TVdfnBinOpCreate( typename TVdfnBinaryOpNode<T, T2, K>::BinOp *pOp )
+	TVdfnBinOpCreate( typename VdfnBinaryOps::BinOp<T,T2,K> *pOp )
 	: VdfnNodeFactory::IVdfnNodeCreator(), m_pOp(pOp)
 	{
 
@@ -164,7 +154,7 @@ public:
 		return new TVdfnBinaryOpNode<T,T2,K>(m_pOp);
 	}
 private:
-	typename TVdfnBinaryOpNode<T,T2,K>::BinOp *m_pOp;
+	typename VdfnBinaryOps::BinOp<T,T2,K> *m_pOp;
 };
 
 
