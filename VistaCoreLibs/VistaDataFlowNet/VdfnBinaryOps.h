@@ -165,9 +165,9 @@ namespace VdfnBinaryOps
 	public:
 		std::vector<TRes> operator()( const TLeft& oLeft, const std::vector<TRight>& oRight ) const
 		{
-			std::vector<TRes> vecResult;
+			typename std::vector<TRes> vecResult;
 			vecResult.reserve( oRight.size() );
-			for( std::vector<TRight>::const_iterator itRight = oRight.begin();
+			for( typename std::vector<TRight>::const_iterator itRight = oRight.begin();
 					itRight != oRight.end(); ++itRight )
 			{
 				vecResult.push_back( m_oOp( oLeft, (*itRight) ) );
