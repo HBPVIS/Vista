@@ -462,7 +462,7 @@ public:
 		pDeSer->ReadDelimitedString(strBlock, ']');
 
 		int nNumDoubles = 3;
-		if( VistaConversion::ArrayFromString<double>( strBlock, pStickMeasure->m_nPos, nNumDoubles, ' ' ) == false )
+		if( VistaConversion::ArrayFromString<double>( strBlock, pStickMeasure->m_anPosition, nNumDoubles, ' ' ) == false )
 		{
 			vstr::warnp() << "[DTrackDriver]: Could not read " << nNumDoubles 
 				<< " number from block " << strBlock << std::endl;
@@ -474,7 +474,7 @@ public:
 		pDeSer->ReadDelimitedString(strBlock, ']');
 
 		nNumDoubles = 9;
-		if( VistaConversion::ArrayFromString<double>( strBlock, pStickMeasure->m_anRot, nNumDoubles, ' ' ) == false )
+		if( VistaConversion::ArrayFromString<double>( strBlock, pStickMeasure->m_anRotation, nNumDoubles, ' ' ) == false )
 		{
 			vstr::warnp() << "[DTrackDriver]: Could not read " << nNumDoubles 
 				<< " number from block " << strBlock << std::endl;
@@ -486,7 +486,7 @@ public:
 		pDeSer->ReadDelimitedString(strBlock, ']');		
 
 		std::istringstream oStream( strBlock );
-		oStream >> pStickMeasure->m_nButtonMask;
+		oStream >> pStickMeasure->m_nButtonState;
 
 		double nDummyDouble;
 		for( int i = 0; i < 8; ++i )
@@ -597,7 +597,7 @@ public:
 		pDeSer->ReadDelimitedString(strBlock, ']');
 
 		int nNumDoubles = 3;
-		if( VistaConversion::ArrayFromString<double>( strBlock, pHandMeasure->m_anBackPosition, nNumDoubles, ' ' ) == false )
+		if( VistaConversion::ArrayFromString<double>( strBlock, pHandMeasure->m_anPosition, nNumDoubles, ' ' ) == false )
 		{
 			vstr::warnp() << "[DTrackDriver]: Could not read " << nNumDoubles 
 				<< " number from block " << strBlock << std::endl;
@@ -609,7 +609,7 @@ public:
 		pDeSer->ReadDelimitedString(strBlock, ']');
 
 		nNumDoubles = 9;
-		if( VistaConversion::ArrayFromString<double>( strBlock, pHandMeasure->m_anBackRotation, nNumDoubles, ' ' ) == false )
+		if( VistaConversion::ArrayFromString<double>( strBlock, pHandMeasure->m_anRotation, nNumDoubles, ' ' ) == false )
 		{
 			vstr::warnp() << "[DTrackDriver]: Could not read " << nNumDoubles 
 				<< " number from block " << strBlock << std::endl;
@@ -650,7 +650,7 @@ public:
 				return -1;
 			}
 		}
-		for( int i = pHandMeasure->m_nNumberOfFingers; i < 5; ++i )
+		for( int i = (int)pHandMeasure->m_nNumberOfFingers; i < 5; ++i )
 		{
 			VistaDTrackMeasures::sHandMeasure::Finger& oFinger = pHandMeasure->m_aFingers[i];
 			memset( &oFinger, 0, sizeof(VistaDTrackMeasures::sHandMeasure::Finger) );

@@ -50,9 +50,9 @@ namespace VistaDTrackMeasures
 	{
 		double m_nId;
 		double m_nQuality;
-		double m_nPos[3];
-		double m_nEuler[3];
-		double m_anRot[9];
+		double m_anPosition[3];
+		double m_anEuler[3];
+		double m_anRotation[9];
 	};
 
 
@@ -64,9 +64,9 @@ namespace VistaDTrackMeasures
 		double m_nId;
 		double m_nQuality;
 		double m_nButtonState;
-		double m_nPos[3];
-		double m_nEuler[3];
-		double m_anRot[9];
+		double m_anPosition[3];
+		double m_anEuler[3];
+		double m_anRotation[9];
 	};
 
 	
@@ -79,9 +79,9 @@ namespace VistaDTrackMeasures
 		double	m_nQuality;
 		double	m_nNumberButtonValues;
 		double	m_nNumberControllerValues;
-		double	m_nPos[3];
-		double	m_anRot[9];
-		VistaType::sint32	m_nButtonMask;		// limits number of buttons to 32
+		double	m_anPosition[3];
+		double	m_anRotation[9];
+		VistaType::sint32	m_nButtonState;		// limits number of buttons to 32
 		double	m_anControllers[8]; //@todo: max number of controllers?
 	};
 
@@ -92,8 +92,8 @@ namespace VistaDTrackMeasures
 	struct sMarkerMeasure
 	{
 		double m_nId;
-		double m_nQuality,
-			  m_nPos[3];
+		double m_nQuality;
+		double m_anPosition[3];
 	};
 
 	/**
@@ -104,8 +104,8 @@ namespace VistaDTrackMeasures
 		double m_nId;
 		double m_nQuality;
 		double m_nButtonState;
-		double m_nPos[3],
-			   m_anRot[9];
+		double m_anPosition[3];
+		double m_anRotation[9];
 	};
 
 	/**
@@ -113,8 +113,8 @@ namespace VistaDTrackMeasures
 	 */
 	struct sBaseMasure
 	{
-		double m_nId,
-			   m_nQuality;
+		double m_nId;
+		double m_nQuality;
 	};
 
 	/**
@@ -155,8 +155,8 @@ namespace VistaDTrackMeasures
 		double m_nQuality;
 		double m_nIsRightHand;
 		double m_nNumberOfFingers;
-		double m_anBackPosition[3];
-		double m_anBackRotation[9];
+		double m_anPosition[3];
+		double m_anRotation[9];
 		Finger m_aFingers[5];	
 	};
 

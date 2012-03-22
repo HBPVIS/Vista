@@ -68,10 +68,13 @@ public:
 	:	IVdfnReEvalNode(),
 		m_pInPort( NULL ),
 		m_pOutPort( new TVdfnPort<T> ),
-		m_bInvertOrder( bInvertOrder )
+		m_pIndexPort( new TVdfnPort<unsigned int> ),
+		m_bInvertOrder( bInvertOrder ),
+		m_nCurrentIndex( 0 )
 	{
 		RegisterInPortPrototype( "in", new TVdfnPortTypeCompare<TVdfnPort<std::vector<T> > >);
 		RegisterOutPort( "out", m_pOutPort );
+		RegisterOutPort( "index", m_pIndexPort );
 	}
 	~TVdfnVectorDecomposeNode() {}
 
@@ -97,19 +100,21 @@ protected:
 			if( m_vecBuffer.empty() )
 			{
 				m_vecBuffer = m_pInPort->GetValueConstRef();
-				m_citCurrentPos = m_vecBuffer.begin();
+				m_nCurrentIndex = 0;
 			}
 
-			if( m_citCurrentPos != m_vecBuffer.end() )
+			if( m_nCurrentIndex < m_vecBuffer.size() )
 			{
-				m_pOutPort->SetValue( (*m_citCurrentPos), GetUpdateTimeStamp() );
-				++m_citCurrentPos;
+				m_pOutPort->SetValue( m_vecBuffer[m_nCurrentIndex], GetUpdateTimeStamp() );
+				m_pIndexPort->SetValue( m_nCurrentIndex, GetUpdateTimeStamp() );
+				++m_nCurrentIndex;
 			}
-
-			// when we've passed through all elements, we clear the buffer to
-			// indicate that we do not need any more evaluation runs
-			if( m_citCurrentPos == m_vecBuffer.end() )
+			else
+			{
+				// when we've passed through all elements, we clear the buffer to
+				// indicate that we do not need any more evaluation runs
 				m_vecBuffer.clear();
+			}
 		}
 		else
 		{
@@ -118,18 +123,21 @@ protected:
 			if( m_vecBuffer.empty() )
 			{
 				m_vecBuffer = m_pInPort->GetValueConstRef();
-				m_citCurrentPos = m_vecBuffer.end();
+				m_nCurrentIndex = m_vecBuffer.size();
 			}
 
-			if( m_citCurrentPos != m_vecBuffer.begin() )
+			if( m_nCurrentIndex > 0 )
 			{
-				--m_citCurrentPos;
-				m_pOutPort->SetValue( (*m_citCurrentPos), GetUpdateTimeStamp() );
+				--m_nCurrentIndex;
+				m_pOutPort->SetValue( m_vecBuffer[m_nCurrentIndex], GetUpdateTimeStamp() );
+				m_pIndexPort->SetValue( m_nCurrentIndex, GetUpdateTimeStamp() );
 			}
 			else
+			{
 				// when we've passed through all elements, we clear the buffer to
 				// indicate that we do not need any more evaluation runs
 				m_vecBuffer.clear();
+			}
 		}
 
 		return true;
@@ -138,8 +146,9 @@ protected:
 private:
 	TVdfnPort<std::vector<T> >*		m_pInPort;
 	TVdfnPort<T>*					m_pOutPort;
+	TVdfnPort<unsigned int>*		m_pIndexPort;
 	std::vector<T>				 	m_vecBuffer;
-	typename std::vector<T>::const_iterator	m_citCurrentPos;
+	unsigned int					m_nCurrentIndex;
 	bool							m_bInvertOrder;
 };
 
