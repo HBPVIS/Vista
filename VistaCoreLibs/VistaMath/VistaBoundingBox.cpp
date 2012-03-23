@@ -440,6 +440,118 @@ bool VistaBoundingBox::Intersects( const VistaVector3D& v3Origin,
 	return Intersects( &v3Origin[0], &v3Direction[0], bIsRay, nEpsilon );
 }
 
+bool VistaBoundingBox::GetIntersectionDistance(const float origin[3], 
+									const float direction[3], 
+									const bool isRay,
+									float& fMinIntersection,
+									float& fMaxIntersection,
+									const float epsilon) const
+{
+	float directionNorm[3];
+	directionNorm[0] = direction[0];
+	directionNorm[1] = direction[1];
+	directionNorm[2] = direction[2];
+
+	// If the computation is done for a ray, normalize the
+	// direction vector first.
+	if (isRay == true)
+	{
+		const float sqrlen = (direction[0]*direction[0]
+							+ direction[1]*direction[1]
+							+ direction[2]*direction[2]);
+		if (sqrlen>0.0)
+		{
+			const float inverse_length = 1.0f/(float)sqrt(sqrlen);
+			directionNorm[0] *= inverse_length;
+			directionNorm[1] *= inverse_length;
+			directionNorm[2] *= inverse_length;
+		}
+	}
+
+	float tmin = 0;
+	float tmax = 0;
+	bool init = true;
+	// Check all three axis one by one.
+	for(int i=0; i<3; ++i)
+	{
+		if(fabs(directionNorm[i]) > epsilon)
+		{
+			// Compute the parametric values for the intersection
+			// points of the line and the bounding box according
+			// to the current axis only.
+			float tmpmin = (m_v3Min[i] - origin[i]) / directionNorm[i];
+			float tmpmax = (m_v3Max[i] - origin[i]) / directionNorm[i];
+
+			if (tmpmin > tmpmax)
+			{
+				// Switch tmpmin and tmpmax.
+				const float tmp = tmpmin;
+				tmpmin = tmpmax;
+				tmpmax = tmp;
+			}
+			if (init)
+			{
+				tmin = tmpmin;
+				tmax = tmpmax;
+
+				if (tmax < -epsilon)
+					return false;
+				if (tmin < 0.0)
+					tmin = 0.0;
+
+				if(!isRay) // is a line segment
+				{
+					// First intersection is outside the scope of
+					// the line segment.
+					if(tmin > 1.0 + epsilon)
+						return false;
+					if(tmax > 1.0)
+						tmax = 1.0;
+				}
+
+				init = false;
+			}
+			else
+			{
+				// This is the regular check if the direction
+				// vector is non-zero along the current axis.
+				if(tmpmin > tmax + epsilon)
+					return false;
+				if(tmpmax < tmin - epsilon)
+					return false;
+				if(tmpmin > tmin)
+					tmin = tmpmin;
+				if(tmpmax < tmax)
+					tmax = tmpmax;
+			}
+		}
+		else // line parallel to box
+		{
+			// If the ray or line segment is parallel to an axis
+			// and has its origin outside the box's min and max
+			// coordinate for that axis, the ray/line cannot hit
+			// the box.
+			if ((origin[i] < m_v3Min[i] - epsilon)
+				||	(origin[i] > m_v3Max[i] + epsilon))
+			{
+				return false;
+			}
+		}
+	}
+	fMinIntersection = tmin;
+	fMaxIntersection = tmax;
+	return(true);
+}
+
+bool VistaBoundingBox::GetIntersectionDistance( const VistaVector3D& v3Origin,
+								const VistaVector3D& v3Direction,
+								const bool bIsRay, float& fMinIntersection,
+								float& fMaxIntersection, const float nEpsilon ) const
+{
+	return GetIntersectionDistance( &v3Origin[0], &v3Direction[0], bIsRay, 
+								fMinIntersection, fMaxIntersection, nEpsilon );
+}
+
 /**
  * Intersection of the bounding-box with the sphere given by position and radius.
  * \param fPosition The position of the center of the sphere

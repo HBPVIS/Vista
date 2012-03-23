@@ -105,6 +105,18 @@ public:
 					 const VistaVector3D& v3Direction,
 					 const bool bIsRay,
 					 const float nEpsilon=0.00001f ) const;
+	bool GetIntersectionDistance( const float a3fOrigin[3],
+					 const float a3fDirection[3],
+					 const bool bIsRay,
+					 float& fMinIntersection,
+					 float& fMaxIntersection,
+					 const float nEpsilon=0.00001f ) const;
+	bool GetIntersectionDistance( const VistaVector3D& v3Origin,
+					 const VistaVector3D& v3Direction,
+					 const bool bIsRay,
+					 float& fMinIntersection,
+					 float& fMaxIntersection,
+					 const float nEpsilon=0.00001f ) const;
 	/// Does the sphere (given by position and radius) intersect the boundingbox?
 	bool IntersectsSphere( const float a3fCenter[3], const float nRadius ) const;
 	bool IntersectsSphere( const VistaVector3D& v3Center, const float nRadius ) const;
