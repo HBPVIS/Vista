@@ -680,12 +680,12 @@ bool VistaIniFileParser::ReadProplistFromFile( const std::string& sFilename,
 		}
 	}
 	vstr::warnp() << "[VistaIniFileParser]: Could not find file ["
-				<< sFilename << "] in any of the directorien";
+				<< sFilename << "] in any of the directories:";
 	vstr::IndentObject oIndent;
 	for( std::list<std::string>::const_iterator itPath = liFileSearchPathes.begin();
 			itPath != liFileSearchPathes.end(); ++itPath )
 	{
-		vstr::warnp() << (*itPath) << "\n";
+		vstr::warni() << (*itPath) << "\n";
 	}
 	vstr::warn().flush();
 	return false;
