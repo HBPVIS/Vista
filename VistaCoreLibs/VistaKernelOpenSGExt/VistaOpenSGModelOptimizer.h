@@ -42,6 +42,7 @@
 /*============================================================================*/
 
 class IVistaNode;
+class VistaSceneGraph;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -52,25 +53,32 @@ class VISTAKERNELOPENSGEXTAPI VistaOpenSGModelOptimizer
 public:
 	enum
 	{
-		OPT_VERIFY_GRAPH		=  1,
-		OPT_VERIFY_GEOMETRIES	=  2,
-		OPT_MERGE_MATERIALS		=  4,
-		OPT_STRIPE_GEOMETRIES	=  8,
-		OPT_MERGE_GEOMETRIES	= 16,
-		OPT_CONVERT_GEOMS		= 32,
+		OPT_MERGE_MATERIALS		= 2<<0,
+		OPT_STRIPE_GEOMETRIES	= 2<<1,
+		OPT_MERGE_GEOMETRIES	= 2<<2,
+		OPT_CONVERT_GEOMS		= 2<<3,
+		// preset combinations
+		OPT_NONE				= 0,
+		OPT_DEFAULT				= OPT_MERGE_MATERIALS | OPT_MERGE_GEOMETRIES,
 		OPT_ALL					= ~0
 	};
 
 	static bool OptimizeNode( IVistaNode* pNode,
-						int nOptimizationMode = OPT_ALL,
+						int nOptimizationMode = OPT_DEFAULT,
 						bool bVerbose = true );
 	static bool OptimizeAndSaveNode( IVistaNode* pNode,
 						const std::string& sOutputFilename,
-						int nOptimizationMode = OPT_ALL,
+						int nOptimizationMode = OPT_DEFAULT,
 						bool bVerbose = true );
 	static bool OptimizeFile( const std::string& sFilename,
 						const std::string& sOutputFilename = "",
-						int nOptimizationMode = OPT_ALL,
+						int nOptimizationMode = OPT_DEFAULT,
+						bool bVerbose = true  );
+	static IVistaNode* LoadAutoOptimizedFile( VistaSceneGraph* pSceneGraph,
+						const std::string& sFilename,
+						int nOptimizationMode = OPT_DEFAULT,
+						const std::string& sDumpDataFormat = "bin",
+						bool bCompareTimestamps = true,
 						bool bVerbose = true  );
 };
 

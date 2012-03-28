@@ -99,89 +99,101 @@ private:
 
 bool Optimize( osg::NodePtr pModelNode, int nOptimizationMode, bool bVerbose )
 {
-	if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_VERIFY_GRAPH )
+	try
 	{
+
+		// we always verify
 		if( bVerbose )
 			vstr::outi() << "[VistaOpenSGModelOptimizer]: Performing Graph verification" << std::endl;		
 		osg::VerifyGraphOp oVerifyOp;
 		oVerifyOp.setVerbose( bVerbose );
 		oVerifyOp.traverse( pModelNode );
-	}
 
-	if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_VERIFY_GEOMETRIES )
-	{
 		if( bVerbose )
 			vstr::outi() << "[VistaOpenSGModelOptimizer]: Performing Geometry verification" << std::endl;		
 		osg::VerifyGeoGraphOp oVerifyGeoOp;
 		oVerifyGeoOp.traverse( pModelNode );
-	}
 
-	if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_CONVERT_GEOMS )
-	{
-		if( bVerbose )
-			vstr::outi() << "[VistaOpenSGModelOptimizer]: Converting Geometries" << std::endl;	
 
-		OSGGeometryTraversal oTraversalHelper;
-		osg::traverse( pModelNode, 
-			osg::osgTypedMethodFunctor1ObjPtrCPtrRef<osg::Action::ResultE, OSGGeometryTraversal, osg::NodePtr>(
-															&oTraversalHelper, &OSGGeometryTraversal::Process ) ); 
-		
-		std::list<osg::GeometryPtr> &geos = oTraversalHelper.GetGeometries();
-		int overallVertexCount = 0;
-		int count = 0;
-		for( std::list<osg::GeometryPtr>::const_iterator itGeom = geos.begin();
-			itGeom != geos.end(); ++itGeom )
+		if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_CONVERT_GEOMS )
 		{
-			const int vCount = osg::createSingleIndex( (*itGeom) );
-			overallVertexCount += vCount;			
-			std::cout << ++count << "/" << geos.size() << ": " << vCount << " vertices" << std::endl;
+			if( bVerbose )
+				vstr::outi() << "[VistaOpenSGModelOptimizer]: Converting Geometries" << std::endl;	
+
+			OSGGeometryTraversal oTraversalHelper;
+			osg::traverse( pModelNode, 
+				osg::osgTypedMethodFunctor1ObjPtrCPtrRef<osg::Action::ResultE, OSGGeometryTraversal, osg::NodePtr>(
+																&oTraversalHelper, &OSGGeometryTraversal::Process ) ); 
+			
+			std::list<osg::GeometryPtr> &geos = oTraversalHelper.GetGeometries();
+			int overallVertexCount = 0;
+			int count = 0;
+			for( std::list<osg::GeometryPtr>::const_iterator itGeom = geos.begin();
+				itGeom != geos.end(); ++itGeom )
+			{
+				const int vCount = osg::createSingleIndex( (*itGeom) );
+				overallVertexCount += vCount;			
+				std::cout << ++count << "/" << geos.size() << ": " << vCount << " vertices" << std::endl;
+			}
+			
+		}
+
+		//if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_MERGE_MATERIALS )
+		//{
+		//	if( bVerbose )
+		//		vstr::outi() << "[VistaOpenSGModelOptimizer]: Performing Material Merge" << std::endl;		
+		//	osg::MaterialMergeGraphOp oMaterialMergeOp;
+		//	oMaterialMergeOp.traverse( pModelNode );
+		//	//graphop->addGraphOp(&matMerge);
+		//}
+
+		if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_MERGE_GEOMETRIES )
+		{
+			if( bVerbose )
+				vstr::outi() << "[VistaOpenSGModelOptimizer]: Merging Geometries" << std::endl;	
+			osg::MergeGraphOp oMerge;		
+			oMerge.traverse( pModelNode );
 		}
 		
-	}
+		//if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_MERGE_MATERIALS )
+		//{
+		//	if( bVerbose )
+		//		vstr::outi() << "[VistaOpenSGModelOptimizer]: Performing Material Merge (again)" << std::endl;		
+		//	osg::MaterialMergeGraphOp oMaterialMergeOp;
+		//	oMaterialMergeOp.traverse( pModelNode );
+		//	//graphop->addGraphOp(&matMerge);
+		//}
 
-	if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_MERGE_MATERIALS )
-	{
-		if( bVerbose )
-			vstr::outi() << "[VistaOpenSGModelOptimizer]: Performing Material Merge" << std::endl;		
-		osg::MaterialMergeGraphOp oMaterialMergeOp;
-		oMaterialMergeOp.traverse( pModelNode );
-		//graphop->addGraphOp(&matMerge);
-	}
+		if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_STRIPE_GEOMETRIES )
+		{
+			if( bVerbose )
+				vstr::outi() << "[VistaOpenSGModelOptimizer]: Performing Geometry Striping" << std::endl;	
+			osg::StripeGraphOp oStripeOp;
+			oStripeOp.traverse( pModelNode );
+		}	
 
-	if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_MERGE_GEOMETRIES )
+		if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_MERGE_MATERIALS )
+		{
+			if( bVerbose )
+				vstr::outi() << "[VistaOpenSGModelOptimizer]: Performing Material Merge" << std::endl;		
+			osg::MaterialMergeGraphOp oMaterialMergeOp;
+			oMaterialMergeOp.traverse( pModelNode );
+			//graphop->addGraphOp(&matMerge);
+		}
+
+	}
+	catch( std::exception& oException )
 	{
-		if( bVerbose )
-			vstr::outi() << "[VistaOpenSGModelOptimizer]: Merging Geometries" << std::endl;	
-		osg::MergeGraphOp oMerge;		
-		oMerge.traverse( pModelNode );
+		vstr::warnp() << "[VistaOpenSGModelOptimizer]: Exception during optimization: "
+					<< oException.what() << std::endl;
+		return false;
+	}
+	catch( ... )
+	{
+		vstr::warnp() << "[VistaOpenSGModelOptimizer]: Exception during optimization" << std::endl;
+		return false;
 	}
 	
-	//if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_MERGE_MATERIALS )
-	//{
-	//	if( bVerbose )
-	//		vstr::outi() << "[VistaOpenSGModelOptimizer]: Performing Material Merge (again)" << std::endl;		
-	//	osg::MaterialMergeGraphOp oMaterialMergeOp;
-	//	oMaterialMergeOp.traverse( pModelNode );
-	//	//graphop->addGraphOp(&matMerge);
-	//}
-
-	//if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_MERGE_MATERIALS )
-	//{
-	//	if( bVerbose )
-	//		vstr::outi() << "[VistaOpenSGModelOptimizer]: Performing Material Merge" << std::endl;		
-	//	osg::MaterialMergeGraphOp oMaterialMergeOp;
-	//	oMaterialMergeOp.traverse( pModelNode );
-	//	//graphop->addGraphOp(&matMerge);
-	//}
-
-	if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_STRIPE_GEOMETRIES )
-	{
-		if( bVerbose )
-			vstr::outi() << "[VistaOpenSGModelOptimizer]: Performing Geometry Striping" << std::endl;	
-		osg::StripeGraphOp oStripeOp;
-		oStripeOp.traverse( pModelNode );
-	}	
-
 	return true;
 }
 
@@ -218,12 +230,11 @@ bool VistaOpenSGModelOptimizer::OptimizeFile( const std::string& sFilename,
 											bool bVerbose )
 {
 	bool bDoExit = false;
-	int nState = OSG::SystemState();
-	if( OSG::SystemState() == 0 )
-	{
-		OSG::osgInit( 0, NULL );
-		bDoExit = true;
-	}
+
+	// @todo: how to check if osg already is initialized?
+	OSG::osgInit( 0, NULL );
+	//bDoExit = true;
+
 
 	VistaFileSystemFile oFile( sFilename );
 	if( oFile.Exists() == false )
@@ -235,31 +246,41 @@ bool VistaOpenSGModelOptimizer::OptimizeFile( const std::string& sFilename,
 	
 	osg::NodePtr pModelNode;
 	if( bVerbose )
+	{
 		vstr::outi() << "[VistaOpenSGModelOptimizer::OptimizeFile] -- "
-				<< "Laoding FILE [" << sFilename << "]" << std::endl;
+				<< "Laoding file [" << sFilename << "]" << std::endl;
+	}
 
 	osg::GraphOpSeq* pGraphOp = new osg::GraphOpSeq;
-	if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_VERIFY_GRAPH )
-	{
-		pGraphOp->addGraphOp( new osg::VerifyGraphOp );
-	}
+	// we always verify
+	pGraphOp->addGraphOp( new osg::VerifyGraphOp );
+	pGraphOp->addGraphOp( new osg::VerifyGeoGraphOp );
 
-	if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_VERIFY_GEOMETRIES )
-	{
-		pGraphOp->addGraphOp( new osg::VerifyGeoGraphOp );
-	}
-
-	if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_MERGE_MATERIALS )
-	{
-		pGraphOp->addGraphOp( new osg::MaterialMergeGraphOp );
-	}
+	//if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_MERGE_MATERIALS )
+	//{
+	//	pGraphOp->addGraphOp( new osg::MaterialMergeGraphOp );
+	//}
 
 	//if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_STRIPE_GEOMETRIES )
 	//{
 	//	pGraphOp->addGraphOp( new osg::StripeGraphOp );
 	//}
 
-	pModelNode = osg::SceneFileHandler::the().read( sFilename.c_str(), pGraphOp );
+	try
+	{
+		pModelNode = osg::SceneFileHandler::the().read( sFilename.c_str(), pGraphOp );
+	}
+	catch( std::exception& oException )
+	{
+		vstr::warnp() << "[VistaOpenSGModelOptimizer]: Exception during optimization loading: "
+					<< oException.what() << std::endl;
+		return false;
+	}
+	catch( ... )
+	{
+		vstr::warnp() << "[VistaOpenSGModelOptimizer]: Exception during optimization loading" << std::endl;
+		return false;
+	}
 	if( pModelNode == NULL )
 	{
 		vstr::errp() << "[VistaOpenSGModelOptimizer::OptimizeFile] -- "
@@ -292,6 +313,11 @@ bool VistaOpenSGModelOptimizer::OptimizeFile( const std::string& sFilename,
 		sOutName = sOutputFilename;
 	}
 
+	if( bVerbose )
+	{
+		vstr::outi() << "[VistaOpenSGModelOptimizer::OptimizeFile] -- "
+				<< "Writing optimized file [" << sFilename << "]" << std::endl;
+	}
 	bool bRes = osg::SceneFileHandler::the().write( pModelNode, sOutName.c_str() );	
 
 	if( bDoExit )
@@ -324,6 +350,111 @@ bool VistaOpenSGModelOptimizer::OptimizeAndSaveNode( IVistaNode* pNode,
 	pData->SetNode( pOSGNode );
 
 	return osg::SceneFileHandler::the().write( pOSGNode, sOutputFilename.c_str() );	
+}
+
+IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* pSceneGraph,
+												 const std::string& sFilename,
+												 int nOptimizationMode,
+												 const std::string& sDumpDataFormat,
+												 bool bCompareTimestamps,
+												 bool bVerbose )
+{
+	if( VistaFileSystemFile( sFilename ).Exists() == false )
+	{
+		vstr::errp() << "[VistaOpenSGModelOptimizer::OptimizeFile] -- "
+				<< "File [" << sFilename << "] does not exist!" << std::endl;
+		return false;
+	}
+
+	VistaSceneGraph::eOptFlags eLoadOptFlags = VistaSceneGraph::OPT_NONE;
+
+	std::string sOptSting;
+	if( nOptimizationMode != OPT_NONE )
+	{			
+		if( nOptimizationMode & OPT_MERGE_MATERIALS )
+		{
+			sOptSting += "_MM";
+		}
+		if( nOptimizationMode & OPT_STRIPE_GEOMETRIES )
+		{
+			sOptSting += "_STRP";
+		}
+		if( nOptimizationMode & OPT_MERGE_GEOMETRIES )
+		{
+			sOptSting += "_MG";
+		}
+		if( nOptimizationMode & OPT_CONVERT_GEOMS )
+		{
+			sOptSting += "_CG";
+		}
+	}
+
+	std::size_t nDotPos = sFilename.rfind( '.' );
+	std::string sOwnExtension = sFilename.substr( nDotPos + 1 );
+	assert( nDotPos != std::string::npos );
+
+	std::string sOptLoadName = sFilename.substr( 0, nDotPos )
+								+ "_opt" + sOptSting;
+
+	if( sDumpDataFormat == "ac" )
+	{
+		vstr::warnp() << "[VistaOpenSGModelOptimizer::OptimizeFile] -- "
+				<< "Data format [ac] not supported for writing - using [bin] instead" << std::endl;
+		sOptLoadName += ".bin";
+	}
+	else
+	{
+		sOptLoadName += "." + sDumpDataFormat;
+	}
+
+	VistaFileSystemFile oOptFile( sOptLoadName );
+	bool bDoOptimize = true;
+	if( oOptFile.Exists() )
+	{
+		// File has already been optimized - check if it has to be rebuilt
+		if( bCompareTimestamps == false )
+		{
+			bDoOptimize = false;
+		}
+		else if( oOptFile.GetLastModifiedDate() > VistaFileSystemFile( sFilename ).GetLastModifiedDate() )
+		{
+			bDoOptimize = false;
+		}
+		else if( bVerbose )
+		{
+			vstr::outi() << "[VistaOpenSGModelOptimizer::OptimizeFile] -- "
+				<< "Optimized file [" << sOptLoadName 
+				<< "] exists, but is outdated - recreating it" << std::endl;
+		}
+	}
+
+	if( bDoOptimize )
+	{
+		if( OptimizeFile( sFilename, sOptLoadName, nOptimizationMode, bVerbose ) == false )
+			return NULL;
+	}
+
+	try
+	{
+		if( bVerbose )
+			vstr::outi() << "[VistaOpenSGModelOptimizer::OptimizeFile] -- "
+				<< "Loading optimized file [" << sOptLoadName << "]" << std::endl;
+		VistaSceneGraph::eOptFlags nSGOptMode = VistaSceneGraph::OPT_NONE;
+		if( nOptimizationMode & OPT_MERGE_MATERIALS )
+			nSGOptMode = VistaSceneGraph::OPT_MEMORY_LOW;
+		return pSceneGraph->LoadNode( sOptLoadName, nSGOptMode );
+	}
+	catch( std::exception& oException )
+	{
+		vstr::warnp() << "[VistaOpenSGModelOptimizer]: Exception while loading optimized file: "
+					<< oException.what() << std::endl;
+		return false;
+	}
+	catch( ... )
+	{
+		vstr::warnp() << "[VistaOpenSGModelOptimizer]: Exception while loading optimized file" << std::endl;
+		return false;
+	}
 }
 
 /*============================================================================*/
