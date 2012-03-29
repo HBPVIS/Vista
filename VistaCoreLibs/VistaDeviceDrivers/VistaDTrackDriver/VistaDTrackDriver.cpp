@@ -518,7 +518,7 @@ public:
 		pDeSer->ReadDelimitedString(strBeg, '[');
 		pDeSer->ReadDelimitedString(strBlock, ']');
 
-		int nNumDoubles = vecOut.size() / sizeof(double);
+		int nNumDoubles = (int)( vecOut.size() / sizeof(double) );
 		double* pTarget = (double*)&vecOut[0];
 		if( VistaConversion::ArrayFromString<double>( strBlock, pTarget, nNumDoubles, ' ' ) == false )
 		{
@@ -666,7 +666,7 @@ public:
 		pDeSer->ReadDelimitedString(strBeg, '[');
 		pDeSer->ReadDelimitedString(strBlock, ']');
 
-		int nNumDoubles = vecOut.size() / sizeof(double);
+		int nNumDoubles = (int)( vecOut.size() / sizeof(double) );
 		double* pTarget = (double*)&vecOut[0];
 		if( VistaConversion::ArrayFromString<double>( strBlock, pTarget, nNumDoubles, ' ' ) == false )
 		{

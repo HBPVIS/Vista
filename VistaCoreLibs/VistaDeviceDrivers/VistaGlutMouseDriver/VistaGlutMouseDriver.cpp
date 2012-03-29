@@ -190,6 +190,8 @@ public:
 		}
 
 		int nWindowId = oWindow.GetID();
+		if( nWindowId <= 0 )
+			return false;
 
 		// ok, register with the window is in the statics
 		// section

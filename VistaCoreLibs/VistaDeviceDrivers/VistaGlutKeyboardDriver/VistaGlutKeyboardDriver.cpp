@@ -286,6 +286,9 @@ public:
 			// ugly workaround
 			int windowId = oWindow.GetID();
 
+			if( windowId == -1 )
+				return false;
+
 			// ok, register with the window is in the statics
 			// section
 			if(S_mapKeyboardMap.RegisterKeyboardWithWindow(windowId, m_pKeyboardDriver))
