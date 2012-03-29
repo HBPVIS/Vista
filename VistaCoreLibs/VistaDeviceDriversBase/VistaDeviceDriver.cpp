@@ -130,7 +130,7 @@ void IVistaDeviceDriver::SwapSensorMeasures(std::vector<int> *liIds )
 	{
 		if( (*it)->SwapMeasures() && liIds )
 		{
-			(*liIds).push_back( it - m_vecSensors.begin() );
+			(*liIds).push_back( (int)( it - m_vecSensors.begin() ) );
 		}
 	}
 }
