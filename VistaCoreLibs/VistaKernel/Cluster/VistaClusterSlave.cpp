@@ -217,6 +217,7 @@ bool VistaClusterSlave::Init( const std::string& sClusterSection,
 			{
 				m_pSyncSocket->SetIsBlocking(true);
 				m_pSyncSocket->SetPermitBroadcast(1);
+				m_pSyncSocket->SetSocketReuse( true );
 
 				VistaSocketAddress adr(strSyncIp, nSyncPort);
 				if(!m_pSyncSocket->BindToAddress(adr))
