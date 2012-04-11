@@ -431,7 +431,7 @@ VistaDisplaySystem *VistaDisplayManager::CreateDisplaySystem( const std::string&
 
 		m_pBridge->DestroyDisplaySystem( pDisplaySystem );
 		delete pReferenceFrame;
-		return false;
+		return NULL;
 	}
 	m_mapDisplaySystems[strDisplaySystemName] = pDisplaySystem;
 
@@ -504,7 +504,7 @@ VistaDisplay *VistaDisplayManager::CreateDisplay(const VistaPropertyList &refPro
 						<< strDisplayName << "] - name is not unique!" << std::endl;
 
 			m_pBridge->DestroyDisplay(pDisplay);
-			return false;
+			return NULL;
 		}
 		m_mapDisplays[strDisplayName] = pDisplay;
 
@@ -632,7 +632,7 @@ VistaWindow *VistaDisplayManager::CreateVistaWindow( const std::string& sSection
 					<< "Name [" << sCurrentWindowName << "] not unique" << std::endl;
 
 		m_pBridge->DestroyVistaWindow(pWindow);
-		return false;
+		return NULL;
 	}
 	m_mapWindows[sCurrentWindowName] = pWindow;
 
@@ -858,7 +858,7 @@ VistaProjection *VistaDisplayManager::CreateProjection(VistaViewport *pViewport,
 			<< "] - name is not unique" << std::endl;
 
 		m_pBridge->DestroyProjection(pProjection);
-		return false;
+		return NULL;
 	}
 	m_mapProjections[sProjectionName] = pProjection;
 

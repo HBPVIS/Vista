@@ -69,17 +69,20 @@ using namespace ATL;
 
 #include <windows.h>
 #include <float.h>
+
 #else
+
 #include <linux/input.h>
 #include <dirent.h>
 #include <fcntl.h>
 #include <poll.h>
 #include <stdio.h>
 
+#include <unistd.h>
+
 #include <cstring>
 #include <cstdio>
 #include <cassert>
-
 #endif // defined WIN32
 
 

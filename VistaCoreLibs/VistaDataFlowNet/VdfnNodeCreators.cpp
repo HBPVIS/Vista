@@ -463,7 +463,7 @@ IVdfnNode *VdfnLoggerNodeCreate::CreateNode( const VistaPropertyList &oParams ) 
 	const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
 
 	if(!subs.HasProperty("prefix"))
-		return false;
+		return NULL;
 
 	bool bWriteHeader = subs.GetValueOrDefault<bool>( "writeheader", false );
 	bool bWriteTime = subs.GetValueOrDefault<bool>( "writetime", false );

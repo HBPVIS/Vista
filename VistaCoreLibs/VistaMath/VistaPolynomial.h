@@ -70,6 +70,13 @@
   if (fabs(result) <= fuzz_factor * (fabs(term1) + fabs(term2) + fabs(term3) + fabs(term4) + fabs(term5) + fabs(term6))) \
 	result = 0.0
 
+double VISTAMATHAPI cube_root ( double x );
+int VISTAMATHAPI solve_cubic ( double a, double b, double c, double d,
+			  double* x1, double* x2, double* x3 );
+int VISTAMATHAPI solve_quadratic ( double a, double b, double c, double* x1, double* x2 );
+int VISTAMATHAPI solve_linear ( double a, double b, double* x );
+
+
 /*============================================================================*/
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
@@ -342,15 +349,6 @@ bool VistaPolynomial<Type,dim>::Debug ()
 	vstr::out() << std::endl;
 	return true;
 }
-
-/*============================================================================*/
-/*============================================================================*/
-
-double VISTAMATHAPI cube_root ( double x );
-int VISTAMATHAPI solve_cubic ( double a, double b, double c, double d,
-			  double* x1, double* x2, double* x3 );
-int VISTAMATHAPI solve_quadratic ( double a, double b, double c, double* x1, double* x2 );
-int VISTAMATHAPI solve_linear ( double a, double b, double* x );
 
 
 /*============================================================================*/

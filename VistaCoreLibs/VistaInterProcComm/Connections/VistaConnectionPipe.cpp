@@ -23,15 +23,12 @@
 // $Id$
 
 #if !defined(WIN32)
-#include <poll.h>
+	#include <poll.h>
 	#include <sys/ioctl.h>
 	#include <sys/types.h>
+	#include <unistd.h>
 #else
-
-#endif
-
-#if defined(SUNOS)
-#include <unistd.h>
+	
 #endif
 
 #include <iostream>

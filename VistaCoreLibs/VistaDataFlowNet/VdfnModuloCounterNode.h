@@ -73,7 +73,7 @@ public:
 		  m_pModulo( NULL ),
 		  m_oModuloValue( oModulo )
 	{
-		RegisterInPortPrototype( "modulo", new TVdfnPortTypeCompare<TVdfnPort<T> > );
+		this->RegisterInPortPrototype( "modulo", new TVdfnPortTypeCompare<TVdfnPort<T> > );
 	}
 
 	bool PrepareEvaluationRun()
