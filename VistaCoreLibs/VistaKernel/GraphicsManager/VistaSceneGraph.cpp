@@ -775,221 +775,233 @@ VistaTextNode *VistaSceneGraph::NewTextNode(VistaGroupNode *pParent, const std::
 IVistaNode* VistaSceneGraph::CloneSubtree( IVistaNode* pNode, 
 									VistaGroupNode* pNewParent )
 {
-	IVistaNode *pReturnNode = NULL;
-
-	switch( pNode->GetType() )
+	IVistaNode* pNewNode = m_pNodeBridge->CloneSubtree( static_cast<VistaNode*>( pNode )->GetData() );
+	if( pNewNode && pNewParent )
+		pNewParent->AddChild( pNewNode );
+	if( pNewNode )
 	{
-		case VISTA_GROUPNODE:
+		std::string sName = pNode->GetName();
+		if( sName.empty() == false )
 		{
-			VistaGroupNode *pOrigNode = dynamic_cast<VistaGroupNode*>( pNode );
-			assert( pOrigNode != NULL );
-			VistaGroupNode *pNewNode = NewGroupNode( pNewParent );
-
-			// clone children and append them
-			for(unsigned int n=0; n < pOrigNode->GetNumChildren(); ++n)
-			{
-				CloneSubtree( pOrigNode->GetChild(n), pNewNode );
-			}
-
-			pReturnNode = pNewNode;
-			pReturnNode->SetName( pOrigNode->GetName() );
-			pReturnNode->SetIsEnabled( pOrigNode->GetIsEnabled() );
-			break;
-		}
-		case VISTA_SWITCHNODE:
-		{
-			VistaSwitchNode *pOrigNode = dynamic_cast<VistaSwitchNode*>( pNode );
-			VistaSwitchNode *pNewNode = NewSwitchNode( pNewParent );
-			for( unsigned int n=0; n < pOrigNode->GetNumChildren(); ++n)
-			{
-				IVistaNode *pNode = pOrigNode->GetChild( (unsigned int)n );
-				CloneSubtree( pNode, pNewNode );
-			}
-
-			pNewNode->SetActiveChild( pOrigNode->GetActiveChild() );
-
-			pReturnNode = pNewNode;
-			pReturnNode->SetName( pOrigNode->GetName() );
-			break;
-		}
-		case VISTA_LEAFNODE:
-		{
-			vstr::warnp() << "[VistaSceneGraph::CloneSubtree]: found node of type LEAFNODE!"
-					<< " Cannot handle this node - omitting:" << std::endl;
-			break;
-		}
-		case VISTA_LIGHTNODE:
-		case VISTA_AMBIENTLIGHTNODE:
-		case VISTA_DIRECTIONALLIGHTNODE:
-		case VISTA_POINTLIGHTNODE:	
-		case VISTA_SPOTLIGHTNODE:
-		{
-			VistaLightNode *pOrigNode = dynamic_cast<VistaLightNode*>( pNode );
-			assert( pOrigNode != NULL );
-			VistaLightNode *pNewNode;
-			switch( pOrigNode->GetLightType() )
-			{
-				
-				case VISTA_AMBIENT_LIGHT:
-				{
-					pNewNode = NewAmbientLight( pNewParent );
-					break;
-				}
-				case VISTA_DIRECTIONAL_LIGHT:
-				{
-					pNewNode = NewDirectionalLight( pNewParent );
-					break;
-				}
-				case VISTA_POINT_LIGHT:
-				{
-					pNewNode = NewPointLight( pNewParent );
-					break;
-				}
-				case VISTA_SPOT_LIGHT:
-				{
-					pNewNode = NewSpotLight( pNewParent );
-					break;
-				}
-				case VISTA_LIGHTTYPE_NONE:
-				default:
-				{
-					vstr::errp() << "[VistaSceneGraph::CloneSubtree] Found light with unknown type!" << std::endl
-								<< " Cannot handle this node - omitting." << std::endl;
-					return NULL;
-					break;
-				}
-			}
-			
-			float fR, fG, fB;
-
-			pOrigNode->GetAmbientColor( fR, fG, fB );
-			pNewNode->SetAmbientColor( fR, fG, fB );
-
-			pOrigNode->GetDiffuseColor( fR, fG, fB );
-			pNewNode->SetDiffuseColor( fR, fG, fB );
-
-			pOrigNode->GetSpecularColor( fR, fG, fB );
-			pNewNode->SetSpecularColor( fR, fG, fB );
-
-			pNewNode->SetIntensity( pOrigNode->GetIntensity() );
-			pNewNode->SetAttenuation( pOrigNode->GetAttenuation() );
-
-			pReturnNode = pNewNode;
-			pReturnNode->SetName( pOrigNode->GetName() );
-			pReturnNode->SetIsEnabled( pOrigNode->GetIsEnabled() );
-			break;
-		}
-		case VISTA_GEOMNODE:
-		{
-			VistaGeomNode *pOrigNode = dynamic_cast<VistaGeomNode*>( pNode );
-			assert( pOrigNode );
-			VistaGeomNode *pNewNode = NewGeomNode( pNewParent, pOrigNode->GetGeometry() );
-
-			pReturnNode = pNewNode;
-			pReturnNode->SetName( pNode->GetName() );
-			pReturnNode->SetIsEnabled( pOrigNode->GetIsEnabled() );
-			break;
-		}
-		case VISTA_EXTENSIONNODE:
-		{
-			VistaExtensionNode *pOrigNode = dynamic_cast<VistaExtensionNode*>( pNode );
-			assert( pOrigNode );
-			VistaExtensionNode *pNewNode = NewExtensionNode( pNewParent, pOrigNode->GetExtension() );
-
-			pReturnNode = pNewNode;
-			pReturnNode->SetName( pOrigNode->GetName() );
-			pReturnNode->SetIsEnabled( pOrigNode->GetIsEnabled() );
-			break;
-		}
-		case VISTA_OPENGLNODE:
-		{
-			VistaOpenGLNode *pOrigNode = dynamic_cast<VistaOpenGLNode*>( pNode );
-			assert( pOrigNode );
-			IVistaOpenGLDraw* pDrawCB = dynamic_cast<IVistaOpenGLDraw*>( pOrigNode->GetExtension() );
-			assert( pDrawCB != NULL );
-			VistaOpenGLNode *pNewNode = NewOpenGLNode( pNewParent, pDrawCB );
-
-			pReturnNode = pNewNode;
-			pReturnNode->SetName( pOrigNode->GetName() );
-			pReturnNode->SetIsEnabled( pOrigNode->GetIsEnabled() );
-			break;
-		}
-		case VISTA_LODNODE:
-		{
-			VistaLODNode *pOrigNode = dynamic_cast<VistaLODNode*>( pNode );
-			assert( pOrigNode );
-			VistaLODNode *pNewNode = NewLODNode( pNewParent );
-
-			for( unsigned int i=0; i < pNewNode->GetNumChildren(); ++i )
-			{
-				IVistaNode *pNode = pNewNode->GetChild( (unsigned int)i );
-				CloneSubtree( pNode, pNewNode );			
-			}
-
-			std::vector<float> vecRanges;
-			pOrigNode->GetRange( vecRanges );
-			pNewNode->SetRange( vecRanges );
-
-			VistaVector3D v3Center;
-			pOrigNode->GetCenter( v3Center );
-			pNewNode->SetCenter( v3Center );
-
-			pReturnNode = pNewNode;
-			pReturnNode->SetName( pOrigNode->GetName() );
-			pReturnNode->SetIsEnabled( pOrigNode->GetIsEnabled() );
-			break;
-		}
-		case VISTA_TRANSFORMNODE:
-		{
-			VistaTransformNode *pOrigNode = dynamic_cast<VistaTransformNode*>( pNode );
-			assert( pOrigNode != NULL );
-			VistaTransformNode *pNewNode = NewTransformNode( pNewParent );
-
-			// copy transform
-			VistaTransformMatrix m;
-			pOrigNode->GetTransform( m );
-			pNewNode->SetTransform( m );
-
-			// clone children and append them
-			for(unsigned int n=0; n < pOrigNode->GetNumChildren(); ++n)
-			{
-				CloneSubtree( pOrigNode->GetChild(n), pNewNode );
-			}
-
-			pReturnNode = pNewNode;
-			pReturnNode->SetName( pOrigNode->GetName() );
-			pReturnNode->SetIsEnabled( pOrigNode->GetIsEnabled() );
-			break;
-		}		
-		case VISTA_TEXTNODE:
-		{
-			VistaTextNode *pOrigNode = dynamic_cast<VistaTextNode*>( pNode );
-			assert( pOrigNode != NULL );
-			VistaTextNode *pNewNode = NewTextNode( pNewParent, 
-													pOrigNode->GetTextImp()->GetFontName() );
-
-			IVista3DText* pOrigText = pOrigNode->GetTextImp();
-			IVista3DText* pNewText = pNewNode->GetTextImp();
-
-			pNewText->SetFontColor( pOrigText->GetFontColor() );
-			pNewText->SetFontDepth( pOrigText->GetFontDepth() );
-			//pNewText->SetFontName( pOrigText->GetFontName() );
-			pNewText->SetFontSize( pOrigText->GetFontSize() );
-			pNewText->SetText( pOrigText->GetText() );
-						
-			pReturnNode = pNewNode;
-			pReturnNode->SetName( pOrigNode->GetName() );
-			pReturnNode->SetIsEnabled( pOrigNode->GetIsEnabled() );
-			break;
-		}		
-		default:
-		{
-			vstr::errp() << "[VistaSceneGraph::CloneSubtree] Found unknown scenegraph node!" << std::endl;								
-			break;
+			pNewNode->SetName( sName + "_clone" );
 		}
 	}
+	return pNewNode;
+	//IVistaNode *pReturnNode = NULL;
 
-	return pReturnNode;
+	//switch( pNode->GetType() )
+	//{
+	//	case VISTA_GROUPNODE:
+	//	{
+	//		VistaGroupNode *pOrigNode = dynamic_cast<VistaGroupNode*>( pNode );
+	//		assert( pOrigNode != NULL );
+	//		VistaGroupNode *pNewNode = NewGroupNode( pNewParent );
+
+	//		// clone children and append them
+	//		for(unsigned int n=0; n < pOrigNode->GetNumChildren(); ++n)
+	//		{
+	//			CloneSubtree( pOrigNode->GetChild(n), pNewNode );
+	//		}
+
+	//		pReturnNode = pNewNode;
+	//		pReturnNode->SetName( pOrigNode->GetName() );
+	//		pReturnNode->SetIsEnabled( pOrigNode->GetIsEnabled() );
+	//		break;
+	//	}
+	//	case VISTA_SWITCHNODE:
+	//	{
+	//		VistaSwitchNode *pOrigNode = dynamic_cast<VistaSwitchNode*>( pNode );
+	//		VistaSwitchNode *pNewNode = NewSwitchNode( pNewParent );
+	//		for( unsigned int n=0; n < pOrigNode->GetNumChildren(); ++n)
+	//		{
+	//			IVistaNode *pNode = pOrigNode->GetChild( (unsigned int)n );
+	//			CloneSubtree( pNode, pNewNode );
+	//		}
+
+	//		pNewNode->SetActiveChild( pOrigNode->GetActiveChild() );
+
+	//		pReturnNode = pNewNode;
+	//		pReturnNode->SetName( pOrigNode->GetName() );
+	//		break;
+	//	}
+	//	case VISTA_LEAFNODE:
+	//	{
+	//		vstr::warnp() << "[VistaSceneGraph::CloneSubtree]: found node of type LEAFNODE!"
+	//				<< " Cannot handle this node - omitting:" << std::endl;
+	//		break;
+	//	}
+	//	case VISTA_LIGHTNODE:
+	//	case VISTA_AMBIENTLIGHTNODE:
+	//	case VISTA_DIRECTIONALLIGHTNODE:
+	//	case VISTA_POINTLIGHTNODE:	
+	//	case VISTA_SPOTLIGHTNODE:
+	//	{
+	//		VistaLightNode *pOrigNode = dynamic_cast<VistaLightNode*>( pNode );
+	//		assert( pOrigNode != NULL );
+	//		VistaLightNode *pNewNode;
+	//		switch( pOrigNode->GetLightType() )
+	//		{
+	//			
+	//			case VISTA_AMBIENT_LIGHT:
+	//			{
+	//				pNewNode = NewAmbientLight( pNewParent );
+	//				break;
+	//			}
+	//			case VISTA_DIRECTIONAL_LIGHT:
+	//			{
+	//				pNewNode = NewDirectionalLight( pNewParent );
+	//				break;
+	//			}
+	//			case VISTA_POINT_LIGHT:
+	//			{
+	//				pNewNode = NewPointLight( pNewParent );
+	//				break;
+	//			}
+	//			case VISTA_SPOT_LIGHT:
+	//			{
+	//				pNewNode = NewSpotLight( pNewParent );
+	//				break;
+	//			}
+	//			case VISTA_LIGHTTYPE_NONE:
+	//			default:
+	//			{
+	//				vstr::errp() << "[VistaSceneGraph::CloneSubtree] Found light with unknown type!" << std::endl
+	//							<< " Cannot handle this node - omitting." << std::endl;
+	//				return NULL;
+	//				break;
+	//			}
+	//		}
+	//		
+	//		float fR, fG, fB;
+
+	//		pOrigNode->GetAmbientColor( fR, fG, fB );
+	//		pNewNode->SetAmbientColor( fR, fG, fB );
+
+	//		pOrigNode->GetDiffuseColor( fR, fG, fB );
+	//		pNewNode->SetDiffuseColor( fR, fG, fB );
+
+	//		pOrigNode->GetSpecularColor( fR, fG, fB );
+	//		pNewNode->SetSpecularColor( fR, fG, fB );
+
+	//		pNewNode->SetIntensity( pOrigNode->GetIntensity() );
+	//		pNewNode->SetAttenuation( pOrigNode->GetAttenuation() );
+
+	//		pReturnNode = pNewNode;
+	//		pReturnNode->SetName( pOrigNode->GetName() );
+	//		pReturnNode->SetIsEnabled( pOrigNode->GetIsEnabled() );
+	//		break;
+	//	}
+	//	case VISTA_GEOMNODE:
+	//	{
+	//		VistaGeomNode *pOrigNode = dynamic_cast<VistaGeomNode*>( pNode );
+	//		assert( pOrigNode );
+	//		VistaGeomNode *pNewNode = NewGeomNode( pNewParent, pOrigNode->GetGeometry() );
+
+	//		pReturnNode = pNewNode;
+	//		pReturnNode->SetName( pNode->GetName() );
+	//		pReturnNode->SetIsEnabled( pOrigNode->GetIsEnabled() );
+	//		break;
+	//	}
+	//	case VISTA_EXTENSIONNODE:
+	//	{
+	//		VistaExtensionNode *pOrigNode = dynamic_cast<VistaExtensionNode*>( pNode );
+	//		assert( pOrigNode );
+	//		VistaExtensionNode *pNewNode = NewExtensionNode( pNewParent, pOrigNode->GetExtension() );
+
+	//		pReturnNode = pNewNode;
+	//		pReturnNode->SetName( pOrigNode->GetName() );
+	//		pReturnNode->SetIsEnabled( pOrigNode->GetIsEnabled() );
+	//		break;
+	//	}
+	//	case VISTA_OPENGLNODE:
+	//	{
+	//		VistaOpenGLNode *pOrigNode = dynamic_cast<VistaOpenGLNode*>( pNode );
+	//		assert( pOrigNode );
+	//		IVistaOpenGLDraw* pDrawCB = dynamic_cast<IVistaOpenGLDraw*>( pOrigNode->GetExtension() );
+	//		assert( pDrawCB != NULL );
+	//		VistaOpenGLNode *pNewNode = NewOpenGLNode( pNewParent, pDrawCB );
+
+	//		pReturnNode = pNewNode;
+	//		pReturnNode->SetName( pOrigNode->GetName() );
+	//		pReturnNode->SetIsEnabled( pOrigNode->GetIsEnabled() );
+	//		break;
+	//	}
+	//	case VISTA_LODNODE:
+	//	{
+	//		VistaLODNode *pOrigNode = dynamic_cast<VistaLODNode*>( pNode );
+	//		assert( pOrigNode );
+	//		VistaLODNode *pNewNode = NewLODNode( pNewParent );
+
+	//		for( unsigned int i=0; i < pNewNode->GetNumChildren(); ++i )
+	//		{
+	//			IVistaNode *pNode = pNewNode->GetChild( (unsigned int)i );
+	//			CloneSubtree( pNode, pNewNode );			
+	//		}
+
+	//		std::vector<float> vecRanges;
+	//		pOrigNode->GetRange( vecRanges );
+	//		pNewNode->SetRange( vecRanges );
+
+	//		VistaVector3D v3Center;
+	//		pOrigNode->GetCenter( v3Center );
+	//		pNewNode->SetCenter( v3Center );
+
+	//		pReturnNode = pNewNode;
+	//		pReturnNode->SetName( pOrigNode->GetName() );
+	//		pReturnNode->SetIsEnabled( pOrigNode->GetIsEnabled() );
+	//		break;
+	//	}
+	//	case VISTA_TRANSFORMNODE:
+	//	{
+	//		VistaTransformNode *pOrigNode = dynamic_cast<VistaTransformNode*>( pNode );
+	//		assert( pOrigNode != NULL );
+	//		VistaTransformNode *pNewNode = NewTransformNode( pNewParent );
+
+	//		// copy transform
+	//		VistaTransformMatrix m;
+	//		pOrigNode->GetTransform( m );
+	//		pNewNode->SetTransform( m );
+
+	//		// clone children and append them
+	//		for(unsigned int n=0; n < pOrigNode->GetNumChildren(); ++n)
+	//		{
+	//			CloneSubtree( pOrigNode->GetChild(n), pNewNode );
+	//		}
+
+	//		pReturnNode = pNewNode;
+	//		pReturnNode->SetName( pOrigNode->GetName() );
+	//		pReturnNode->SetIsEnabled( pOrigNode->GetIsEnabled() );
+	//		break;
+	//	}		
+	//	case VISTA_TEXTNODE:
+	//	{
+	//		VistaTextNode *pOrigNode = dynamic_cast<VistaTextNode*>( pNode );
+	//		assert( pOrigNode != NULL );
+	//		VistaTextNode *pNewNode = NewTextNode( pNewParent, 
+	//												pOrigNode->GetTextImp()->GetFontName() );
+
+	//		IVista3DText* pOrigText = pOrigNode->GetTextImp();
+	//		IVista3DText* pNewText = pNewNode->GetTextImp();
+
+	//		pNewText->SetFontColor( pOrigText->GetFontColor() );
+	//		pNewText->SetFontDepth( pOrigText->GetFontDepth() );
+	//		//pNewText->SetFontName( pOrigText->GetFontName() );
+	//		pNewText->SetFontSize( pOrigText->GetFontSize() );
+	//		pNewText->SetText( pOrigText->GetText() );
+	//					
+	//		pReturnNode = pNewNode;
+	//		pReturnNode->SetName( pOrigNode->GetName() );
+	//		pReturnNode->SetIsEnabled( pOrigNode->GetIsEnabled() );
+	//		break;
+	//	}		
+	//	default:
+	//	{
+	//		vstr::errp() << "[VistaSceneGraph::CloneSubtree] Found unknown scenegraph node!" << std::endl;								
+	//		break;
+	//	}
+	//}
+
+	//return pReturnNode;
 }
 
 VistaLightNode* VistaSceneGraph::NewLightFromProplist( const VistaPropertyList& oProps,

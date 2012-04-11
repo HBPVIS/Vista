@@ -35,6 +35,7 @@
 #include <VistaKernel/GraphicsManager/VistaNode.h>
 #include <VistaKernel/OpenSG/VistaOpenSGNodeBridge.h>
 #include <VistaBase/VistaStreamUtils.h>
+#include <VistaBase/VistaTimer.h>
 #include <VistaTools/VistaFileSystemFile.h>
 
 #include <OpenSG/OSGConfig.h>
@@ -56,6 +57,7 @@
 #include <OpenSG/OSGBaseFunctions.h>
 
 #include <list>
+
 
 
 
@@ -101,6 +103,7 @@ bool Optimize( osg::NodePtr pModelNode, int nOptimizationMode, bool bVerbose )
 {
 	try
 	{
+		VistaTimer oTimer;
 
 		// we always verify
 		if( bVerbose )
@@ -108,20 +111,33 @@ bool Optimize( osg::NodePtr pModelNode, int nOptimizationMode, bool bVerbose )
 		osg::VerifyGraphOp oVerifyOp;
 		oVerifyOp.setVerbose( bVerbose );
 		oVerifyOp.traverse( pModelNode );
+		if( bVerbose )
+		{
+			vstr::outi() << vstr::singleindent << "optimization took " << vstr::formattime( 1000 * oTimer.GetLifeTime(), 1 ) << "ms" << std::endl;
+		}
 
 		if( bVerbose )
 			vstr::outi() << "[VistaOpenSGModelOptimizer]: Performing Geometry verification" << std::endl;		
 		osg::VerifyGeoGraphOp oVerifyGeoOp;
 		oVerifyGeoOp.traverse( pModelNode );
+		if( bVerbose )
+		{
+			vstr::outi() << vstr::singleindent << "optimization took " << vstr::formattime( 1000 * oTimer.GetLifeTime(), 1 ) << "ms" << std::endl;
+		}
 
 		
 		if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_MERGE_MATERIALS )
 		{
 			if( bVerbose )
 				vstr::outi() << "[VistaOpenSGModelOptimizer]: Performing Material Merge" << std::endl;		
+			oTimer.ResetLifeTime();
 			osg::MaterialMergeGraphOp oMaterialMergeOp;
 			oMaterialMergeOp.traverse( pModelNode );
 			//graphop->addGraphOp(&matMerge);
+			if( bVerbose )
+			{
+				vstr::outi() << vstr::singleindent << "optimization took " << vstr::formattime( 1000 * oTimer.GetLifeTime(), 1 ) << "ms" << std::endl;
+			}
 		}
 
 
@@ -130,6 +146,7 @@ bool Optimize( osg::NodePtr pModelNode, int nOptimizationMode, bool bVerbose )
 			if( bVerbose )
 				vstr::outi() << "[VistaOpenSGModelOptimizer]: Converting Geometries" << std::endl;	
 
+			oTimer.ResetLifeTime();
 			OSGGeometryTraversal oTraversalHelper;
 			osg::traverse( pModelNode, 
 				osg::osgTypedMethodFunctor1ObjPtrCPtrRef<osg::Action::ResultE, OSGGeometryTraversal, osg::NodePtr>(
@@ -145,6 +162,10 @@ bool Optimize( osg::NodePtr pModelNode, int nOptimizationMode, bool bVerbose )
 				overallVertexCount += vCount;			
 				std::cout << ++count << "/" << geos.size() << ": " << vCount << " vertices" << std::endl;
 			}
+			if( bVerbose )
+			{
+				vstr::outi() << vstr::singleindent << "optimization took " << vstr::formattime( 1000 * oTimer.GetLifeTime(), 1 ) << "ms" << std::endl;
+			}
 			
 		}
 
@@ -152,16 +173,26 @@ bool Optimize( osg::NodePtr pModelNode, int nOptimizationMode, bool bVerbose )
 		{
 			if( bVerbose )
 				vstr::outi() << "[VistaOpenSGModelOptimizer]: Merging Geometries" << std::endl;	
+			oTimer.ResetLifeTime();
 			osg::MergeGraphOp oMerge;		
 			oMerge.traverse( pModelNode );
+			if( bVerbose )
+			{
+				vstr::outi() << vstr::singleindent << "optimization took " << vstr::formattime( 1000 * oTimer.GetLifeTime(), 1 ) << "ms" << std::endl;
+			}
 		}
 
 		if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_STRIPE_GEOMETRIES )
 		{
 			if( bVerbose )
 				vstr::outi() << "[VistaOpenSGModelOptimizer]: Performing Geometry Striping" << std::endl;	
+			oTimer.ResetLifeTime();
 			osg::StripeGraphOp oStripeOp;
 			oStripeOp.traverse( pModelNode );
+			if( bVerbose )
+			{
+				vstr::outi() << vstr::singleindent << "optimization took " << vstr::formattime( 1000 * oTimer.GetLifeTime(), 1 ) << "ms" << std::endl;
+			}
 		}
 
 	}
@@ -299,7 +330,7 @@ bool VistaOpenSGModelOptimizer::OptimizeFile( const std::string& sFilename,
 	if( bVerbose )
 	{
 		vstr::outi() << "[VistaOpenSGModelOptimizer::OptimizeFile] -- "
-				<< "Writing optimized file [" << sFilename << "]" << std::endl;
+				<< "Writing optimized file [" << sOutName << "]" << std::endl;
 	}
 	bool bRes = osg::SceneFileHandler::the().write( pModelNode, sOutName.c_str() );	
 
@@ -418,12 +449,12 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 	try
 	{
 		if( bVerbose )
+		{
 			vstr::outi() << "[VistaOpenSGModelOptimizer::OptimizeFile] -- "
 				<< "Loading optimized file [" << sOptLoadName << "]" << std::endl;
-		VistaSceneGraph::eOptFlags nSGOptMode = VistaSceneGraph::OPT_NONE;
-		//if( nOptimizationMode & OPT_MERGE_MATERIALS )
-		//	nSGOptMode = VistaSceneGraph::OPT_MEMORY_LOW;
-		return pSceneGraph->LoadNode( sOptLoadName, nSGOptMode );
+		}
+		IVistaNode* pNode = pSceneGraph->LoadNode( sOptLoadName, VistaSceneGraph::OPT_NONE );
+		return pNode;
 	}
 	catch( std::exception& oException )
 	{

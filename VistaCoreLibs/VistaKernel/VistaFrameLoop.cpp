@@ -109,7 +109,7 @@ bool VistaFrameLoop::Init( VistaSystem* pVistaSystem )
 
 	m_pSystemEvent = new VistaSystemEvent;
 
-	m_pFrameRate = new VistaWeightedAverageTimer;
+	m_pFrameRate = new VistaWindowAverageTimer( 30 );
 	m_pAvgLoopTime = new VistaWeightedAverageTimer;
 
 	return true;
@@ -172,6 +172,7 @@ void VistaFrameLoop::FrameUpdate()
 	{
 		VistaKernelProfileScope( "RENDER" );
 	
+
 		m_pDisplayManager->DrawFrame();
 
 		m_pClusterMode->SwapSync();

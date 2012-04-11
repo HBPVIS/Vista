@@ -142,7 +142,7 @@ public:
 	virtual bool GetWorldOrientation( VistaQuaternion& qOrientation, const IVistaNodeData* pData ) const = 0;
 	
 	/*******************************************/
-	/* Node Hioerarchy                         */
+	/* Node Hierarchy                          */
 	/*******************************************/
 
 	virtual bool CanAddChild( IVistaNodeData* pChildData, const IVistaNodeData* pData ) const = 0;
@@ -259,6 +259,8 @@ public:
 	virtual bool ApplyOptimizationToNode( IVistaNode *pNode,
 								VistaSceneGraph::eOptFlags eFlags,
 								const bool bVerbose = false ) = 0;
+
+	virtual IVistaNode* CloneSubtree( IVistaNodeData* pNodeData ) = 0;
 
 
 	/*******************************************/

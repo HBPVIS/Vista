@@ -106,7 +106,7 @@ bool VistaEventManager::ProcessEvent( VistaEvent *pEvent )
 	// Is the event itself valid?
 	if( !IsValidEventType( iEventType ) )
 	{
-		vstr::debugi() << "[ViEvMa] received invalid event - event type: "
+		vstr::warni() << "[ViEvMa] received invalid event - event type: "
 					<< pEvent->GetType() << std::endl;
 		return false;
 	}

@@ -49,6 +49,7 @@ class VistaEventManager;
 class VistaSystemEvent;
 class VistaClusterMode;
 class VistaWeightedAverageTimer;
+class VistaWindowAverageTimer;
 class Vista2DText;
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -85,7 +86,7 @@ protected:
 	VistaClusterMode*			m_pClusterMode;
 
 	VistaWeightedAverageTimer*	m_pAvgLoopTime;
-	VistaWeightedAverageTimer*	m_pFrameRate;
+	VistaWindowAverageTimer*	m_pFrameRate;
 	int							m_iFrameCount;
 
 	Vista2DText*				m_pFrameRateDisplay;

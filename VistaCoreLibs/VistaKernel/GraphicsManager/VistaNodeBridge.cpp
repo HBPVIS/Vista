@@ -256,7 +256,6 @@ VistaTransformNode* IVistaNodeBridge::NewTransformNode     (VistaGroupNode* pPar
 	return new VistaTransformNode(pParent, this, pData, sName);
 }
 
-
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/

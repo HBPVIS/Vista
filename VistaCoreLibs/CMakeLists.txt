@@ -29,6 +29,8 @@ include( VistaCommon )
 # Self include
 include_directories( ${VistaCoreLibs_SOURCE_DIR} )
 
+vista_enable_most_compiler_warnings()
+
 # the version type can be either HEAD, RELASE, BRANCH, or TAG
 vista_set_version( VistaCoreLibs HEAD HEAD svn_rev )
 

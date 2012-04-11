@@ -1970,7 +1970,7 @@ void VistaOpenSGNodeBridge::ClearGeomNodeData( VistaGeomNode *pGeomNode ) const
 {
 	VistaOpenSGGeomNodeData *pData =
 		dynamic_cast<VistaOpenSGGeomNodeData*>(pGeomNode->GetData());
-	pData->SetCore(osg::Geometry::create());
+	pData->SetCore(osg::Geometry::create());	
 }
 
 
@@ -2668,4 +2668,12 @@ void  VistaOpenSGNodeBridge::SetLightIsEnabled(bool bEnabled, IVistaNodeData *pD
 bool VistaOpenSGNodeBridge::GetAmbientLightState() const
 {
 	return m_bAmbientLightState;
+}
+
+IVistaNode* VistaOpenSGNodeBridge::CloneSubtree( IVistaNodeData* pNodeData )
+{
+	VistaOpenSGNodeData* pOpenSGData = static_cast<VistaOpenSGNodeData*>( pNodeData );
+	osg::NodePtr pNewOSGNode = pOpenSGData->GetNode()->clone();
+	IVistaNode* pRet = dive( this, static_cast<VistaOpenSGGraphicsBridge*>(GetVistaSceneGraph()->GetGraphicsBridge()), pNewOSGNode );
+	return pRet;
 }

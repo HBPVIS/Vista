@@ -405,6 +405,8 @@ public:
 								VistaSceneGraph::eOptFlags eFlags,
 								const bool bVerbose = false );
 
+	virtual IVistaNode* CloneSubtree( IVistaNodeData* pNodeData );
+
 private:
 	osg::Color4f m_afAmbientLight;
 	bool         m_bAmbientLightState;
