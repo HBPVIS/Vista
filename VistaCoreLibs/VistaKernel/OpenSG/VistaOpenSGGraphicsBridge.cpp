@@ -400,8 +400,6 @@ osg::ImagePtr VistaOpenSGGraphicsBridge::GetCachedOrLoadImage( const string &sFi
 
 VistaColor VistaOpenSGGraphicsBridge::GetBackgroundColor() const
 {
-	return VistaColor::WHITE;
-
 	if( GetVistaSystem()->GetDisplayManager()->GetViewports().empty() )
 	{
 		vstr::warnp() << " VistaOpenSGGraphicsBridge::GetBackgroundColor(): no viewports defined yet " << std::endl;
@@ -451,8 +449,6 @@ void VistaOpenSGGraphicsBridge::DebugOSG()
 
 void VistaOpenSGGraphicsBridge::SetBackgroundColor(const VistaColor & color)
 {
-	return;
-
 	if( fabs( color.GetAlpha() - 1.0 ) > Vista::Epsilon )
 	{
 		vstr::warnp() << "VistaOpenSGGraphicsBridge::SetBackgroundColor( " << color

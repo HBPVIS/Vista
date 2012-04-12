@@ -89,11 +89,15 @@ public:
 
 	bool ReadFile( const std::string& sFileName,
 					VistaPropertyList& oTarget,
-					const bool bReplaceEnvironmentVariables )
+					const bool bReplaceEnvironmentVariables,
+					const std::string& sFileVariableSectionName )
 	{
 		m_iCurrentLine = 0;
 
 		m_sFilename = sFileName;
+		m_bReplaceEnvironmentVariables = bReplaceEnvironmentVariables;
+		m_sFileVariableSectionName = sFileVariableSectionName;
+		m_pVariablesProplist = NULL;
 
 		m_oFile.open( m_sFilename.c_str() );
 
@@ -104,7 +108,7 @@ public:
 							<< "] for reading" << std::endl;
 			return false;
 		}
-		int bSuccess = FillPropertyList( oTarget, bReplaceEnvironmentVariables, 0 );
+		int bSuccess = FillPropertyList( oTarget, 0 );
 		m_oFile.close();
 		return ( bSuccess == 0 );
 	}
@@ -112,7 +116,6 @@ public:
 private:
 
 	int FillPropertyList( VistaPropertyList& oTarget,
-						bool bReplaceEnvironmentVariables,
 						int iLevel )
 	{
 		std::string sKey, sEntry;
@@ -147,10 +150,13 @@ private:
 						oProp = VistaProperty();
 					}
 					oProp.SetPropertyType( VistaProperty::PROPT_PROPERTYLIST );
+					if( iLevel == 0 && m_sSectionName == m_sFileVariableSectionName )
+					{
+						m_pVariablesProplist = &oProp.GetPropertyListRef();
+					}
 					oProp.SetNameForNameable( m_sSectionName );	
 					oProp.GetPropertyListRef().SetIsCaseSensitive( oTarget.GetIsCaseSensitive() );
 					iSectionDepth = FillPropertyList( oProp.GetPropertyListRef(),
-														bReplaceEnvironmentVariables,
 														iSectionDepth );
 				} while ( iSectionDepth > iLevel );
 				return iSectionDepth;
@@ -171,8 +177,8 @@ private:
 			if( ReadEntry( sEntry ) == false )
 				continue;
 
-			if( bReplaceEnvironmentVariables )
-				CheckAndReplaceEnvironmentVariable( sEntry );
+
+			CheckAndReplaceVariables( sEntry );
 
 			VistaProperty& oProp = oTarget[sKey];
 			if( oProp.GetIsNilProperty() == false )
@@ -188,8 +194,10 @@ private:
 		return 0;
 	}
 
-	void CheckAndReplaceEnvironmentVariable( std::string& sString )
+	void CheckAndReplaceVariables( std::string& sString )
 	{	
+		if( m_pVariablesProplist == NULL && m_bReplaceEnvironmentVariables == false )
+			return;
 		std::size_t nSearchStart = 0;
 
 		while( nSearchStart != std::string::npos )
@@ -202,18 +210,28 @@ private:
 				return;
 
 			std::string nVariable = sString.substr( nStart + 2, nEnd - nStart - 2 );
-			char* sVarValue = getenv( nVariable.c_str() );
-			if( sVarValue == NULL )
+
+			if( m_pVariablesProplist != NULL )
 			{
-				PARSE_WARN << "Could not replace environment variable ["
+				if( m_pVariablesProplist->HasProperty( nVariable ) )
+				{
+					sString = sString.replace( nStart, nEnd - nStart + 1, m_pVariablesProplist->GetValue<std::string>( nVariable ) );
+					return;
+				}
+			}
+			if( m_bReplaceEnvironmentVariables )
+			{
+				char* sVarValue = getenv( nVariable.c_str() );
+				if( sVarValue != NULL )
+				{
+					sString = sString.replace( nStart, nEnd - nStart + 1, sVarValue );
+					nSearchStart = nStart + strlen( sVarValue );
+					return;
+				}
+			}
+
+			PARSE_WARN << "Could not replace variable ["
 						<< nVariable << "]" << std::endl;
-				nSearchStart = nEnd;
-			}
-			else
-			{
-				sString = sString.replace( nStart, nEnd - nStart + 1, sVarValue );
-				nSearchStart = nStart + strlen( sVarValue );
-			}
 		}
 
 	}
@@ -350,6 +368,10 @@ private:
 	int					m_iCurrentLine;
 	char				m_acLineBuffer[S_iBufferSize];
 	char*				m_cCurrentRead;
+
+	bool m_bReplaceEnvironmentVariables;
+	std::string m_sFileVariableSectionName;
+	VistaPropertyList* m_pVariablesProplist;
 };
 
 
@@ -460,9 +482,11 @@ private:
 /*============================================================================*/
 
 VistaIniFileParser::VistaIniFileParser( const bool bReplaceEnvironmentVariables,
-									   const bool bCaseSensitiveKeys )
+										const std::string& sFileVariableSectionName,
+										const bool bCaseSensitiveKeys )
 : m_oFilePropertyList( bCaseSensitiveKeys )
 , m_bReplaceEnvironmentVariables( bReplaceEnvironmentVariables )
+, m_sFileVariableSectionName( sFileVariableSectionName )
 , m_cCommentSymbol( '#' )
 , m_cKeySeparatorSymbol( '=' )
 , m_cSectionHeaderEndSymbol( ']' )
@@ -473,10 +497,12 @@ VistaIniFileParser::VistaIniFileParser( const bool bReplaceEnvironmentVariables,
 }
 
 VistaIniFileParser::VistaIniFileParser( const std::string& sFilename,
-									   const bool bReplaceEnvironmentVariables,
-									   const bool bCaseSensitiveKeys )
+										const bool bReplaceEnvironmentVariables,
+										const std::string& sFileVariableSectionName,
+										const bool bCaseSensitiveKeys )
 : m_oFilePropertyList( bCaseSensitiveKeys )
 , m_bReplaceEnvironmentVariables( bReplaceEnvironmentVariables )
+, m_sFileVariableSectionName( sFileVariableSectionName )
 , m_cCommentSymbol( '#' )
 , m_cKeySeparatorSymbol( '=' )
 , m_cSectionHeaderEndSymbol( ']' )
@@ -488,11 +514,13 @@ VistaIniFileParser::VistaIniFileParser( const std::string& sFilename,
 }
 
 VistaIniFileParser::VistaIniFileParser( const std::string& sFilename,
-									   std::list<std::string>& liFileSearchPathes,
-									   const bool bReplaceEnvironmentVariables,
-									   const bool bCaseSensitiveKeys )
+										std::list<std::string>& liFileSearchPathes,
+										const bool bReplaceEnvironmentVariables,
+										const std::string& sFileVariableSectionName,
+										const bool bCaseSensitiveKeys )
 : m_oFilePropertyList( bCaseSensitiveKeys )
 , m_bReplaceEnvironmentVariables( bReplaceEnvironmentVariables )
+, m_sFileVariableSectionName( sFileVariableSectionName )
 , m_cCommentSymbol( '#' )
 , m_cKeySeparatorSymbol( '=' )
 , m_cSectionHeaderEndSymbol( ']' )
@@ -555,6 +583,7 @@ bool VistaIniFileParser::ReadFile( const std::string& sFilename )
 {
 	if( ReadProplistFromFile( sFilename, m_oFilePropertyList,
 					m_bReplaceEnvironmentVariables,
+					m_sFileVariableSectionName,
 					GetUseCaseSensitiveKeys() ) )
 	{
 		m_sFilename = sFilename;
@@ -572,6 +601,7 @@ bool VistaIniFileParser::ReadFile( const std::string& sFilename,
 									m_oFilePropertyList,
 									m_sFilename,
 									m_bReplaceEnvironmentVariables,
+									m_sFileVariableSectionName,
 									GetUseCaseSensitiveKeys() );	
 	return m_bFileIsValid;
 }
@@ -629,6 +659,7 @@ void VistaIniFileParser::SetPropertyList( const VistaPropertyList& oList )
 bool VistaIniFileParser::ReadProplistFromFile( const std::string& sFilename,
 							VistaPropertyList& oTarget,							
 							const bool bReplaceEnvironmentVariables,
+							const std::string& sFileVariableSectionName,
 							const bool bCaseSensitiveKeys )
 {
 	if( CheckFileExists( sFilename ) == false )
@@ -642,16 +673,17 @@ bool VistaIniFileParser::ReadProplistFromFile( const std::string& sFilename,
 	oTarget.SetIsCaseSensitive( bCaseSensitiveKeys );
 
 	IniFileReader oReader;
-	return oReader.ReadFile( sFilename, oTarget, bReplaceEnvironmentVariables );
+	return oReader.ReadFile( sFilename, oTarget, bReplaceEnvironmentVariables, sFileVariableSectionName );
 
 	
 }
 VistaPropertyList VistaIniFileParser::ReadProplistFromFile( const std::string &sFilename,
 							const bool bReplaceEnvironmentVariables,
+							const std::string& sFileVariableSectionName,
 							const bool bCaseSensitiveKeys )
 {
 	VistaPropertyList oList;
-	ReadProplistFromFile( sFilename, oList, bReplaceEnvironmentVariables, bCaseSensitiveKeys );
+	ReadProplistFromFile( sFilename, oList, bReplaceEnvironmentVariables, sFileVariableSectionName, bCaseSensitiveKeys );
 	return oList;
 }
 bool VistaIniFileParser::ReadProplistFromFile( const std::string& sFilename,
@@ -659,6 +691,7 @@ bool VistaIniFileParser::ReadProplistFromFile( const std::string& sFilename,
 							VistaPropertyList& oTarget,
 							std::string& sFullLoadedFile,
 							const bool bReplaceEnvironmentVariables,
+							const std::string& sFileVariableSectionName,
 							const bool bCaseSensitiveKeys )
 {
 	oTarget.clear();
@@ -671,7 +704,7 @@ bool VistaIniFileParser::ReadProplistFromFile( const std::string& sFilename,
 		if( CheckFileExists( sExtFilename ) )
 		{
 			IniFileReader oReader;
-			if( oReader.ReadFile( sExtFilename, oTarget, bReplaceEnvironmentVariables ) )
+			if( oReader.ReadFile( sExtFilename, oTarget, bReplaceEnvironmentVariables, sFileVariableSectionName ) )
 			{
 				sFullLoadedFile = sExtFilename;
 				return true;
@@ -694,11 +727,12 @@ VistaPropertyList VistaIniFileParser::ReadProplistFromFile( const std::string& s
 							std::list<std::string>& liFileSearchPathes,
 							std::string& sFullLoadedFile,
 							const bool bReplaceEnvironmentVariables,
+							const std::string& sFileVariableSectionName,
 							const bool bCaseSensitiveKeys )
 {
 	VistaPropertyList oList;
 	ReadProplistFromFile( sFilename, liFileSearchPathes, oList, sFullLoadedFile, 
-						bReplaceEnvironmentVariables, bCaseSensitiveKeys );
+						bReplaceEnvironmentVariables, sFileVariableSectionName, bCaseSensitiveKeys );
 	return oList;
 }
 
@@ -715,4 +749,14 @@ bool VistaIniFileParser::WriteProplistToFile( const std::string& sFilename,
 
 	IniFileWriter oWriter( 20 );
 	return oWriter.WriteFile( sFilename, oSource );
+}
+
+std::string VistaIniFileParser::GetFileVariableSectionName() const
+{
+	return m_sFileVariableSectionName;
+}
+
+void VistaIniFileParser::SetFileVariableSectionName( const std::string& oValue )
+{
+	m_sFileVariableSectionName = oValue;
 }

@@ -57,14 +57,17 @@ class VISTAASPECTSAPI VistaIniFileParser
 {
 public:
 	VistaIniFileParser( const bool bReplaceEnvironmentVariables = false,
+							const std::string& sFileVariableSectionName = "FILE_VARIABLES",
 							const bool bCaseSensitiveKeys = false );	
 	VistaIniFileParser( const std::string& sFilename,
-							 const bool bReplaceEnvironmentVariables = false,
-							 const bool bCaseSensitiveKeys = false );
+							const bool bReplaceEnvironmentVariables = false,
+							const std::string& sFileVariableSectionName = "FILE_VARIABLES",
+							const bool bCaseSensitiveKeys = false );
 	VistaIniFileParser( const std::string& sFilename,
-							 std::list<std::string>& liFileSearchPathes,
-							 const bool bReplaceEnvironmentVariables = false,
-							 const bool bCaseSensitiveKeys = false );
+							std::list<std::string>& liFileSearchPathes,
+							const bool bReplaceEnvironmentVariables = false,
+							const std::string& sFileVariableSectionName = "FILE_VARIABLES",
+							const bool bCaseSensitiveKeys = false );
 
 	virtual ~VistaIniFileParser();
 
@@ -79,6 +82,9 @@ public:
 
 	void SetReplaceEnvironmentVariables( const bool bSet );
 	bool GetReplaceEnvironmentVariables() const;
+
+	std::string GetFileVariableSectionName() const;
+	void SetFileVariableSectionName( const std::string& oValue );
 
 	void SetUseCaseSensitiveKeys( const bool bSet );
 	bool GetUseCaseSensitiveKeys() const;
@@ -102,20 +108,24 @@ public:
 	static bool ReadProplistFromFile( const std::string& sFilename,
 							VistaPropertyList& oTarget,
 							const bool bReplaceEnvironmentVariables = false,
+							const std::string& sFileVariableSectionName = "FILE_VARIABLES",
 							const bool bCaseSensitiveKeys = false );
 	static VistaPropertyList ReadProplistFromFile( const std::string& sFilename,
 							const bool bReplaceEnvironmentVariables = false,
+							const std::string& sFileVariableSectionName = "FILE_VARIABLES",
 							const bool bCaseSensitiveKeys = false );
 	static bool ReadProplistFromFile( const std::string& sFilename,
 							std::list<std::string>& liFileSearchPathes,
 							VistaPropertyList& oTarget,				
 							std::string& sFullLoadedFile,
 							const bool bReplaceEnvironmentVariables = false,
+							const std::string& sFileVariableSectionName = "FILE_VARIABLES",
 							const bool bCaseSensitiveKeys = false );
 	static VistaPropertyList ReadProplistFromFile( const std::string& sFilename,		
 							std::list<std::string>& liFileSearchPathes,
 							std::string& sFullLoadedFile,
 							const bool bReplaceEnvironmentVariables = false,
+							const std::string& sFileVariableSectionName = "FILE_VARIABLES",
 							const bool bCaseSensitiveKeys = false );
 
 	static bool WriteProplistToFile( const std::string& sFilename,
@@ -138,9 +148,10 @@ private:
 
 private:
 	bool				m_bReplaceEnvironmentVariables;
+	std::string			m_sFileVariableSectionName;
 	bool				m_bFileIsValid;
 	VistaPropertyList	m_oFilePropertyList;
-	std::string			m_sFilename;
+	std::string			m_sFilename;	
 
 	char				m_cSectionHeaderStartSymbol;
 	char				m_cSectionHeaderEndSymbol;
