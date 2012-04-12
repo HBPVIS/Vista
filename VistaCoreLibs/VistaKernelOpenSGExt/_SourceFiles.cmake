@@ -7,6 +7,8 @@ set( DirFiles
 	VistaKernelOpenSGExtConfig.h
 	VistaOpenSGGeometryTools.cpp
 	VistaOpenSGGeometryTools.h
+	VistaOpenSGMaterialTools.cpp
+	VistaOpenSGMaterialTools.h
 	VistaOpenSGNormalMapMaterial.cpp
 	VistaOpenSGNormalMapMaterial.h
 	VistaOpenSGNormalMapMaterialShaders.cpp
