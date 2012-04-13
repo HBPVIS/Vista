@@ -65,6 +65,7 @@ public:
 	std::string GetExceptionSource() const;
 
 	void        PrintException() const;
+	void        PrintException( std::ostream& oStream, bool bAutoIndent = false ) const;
 	std::string GetPrintStatement() const;
 	std::string GetBacktraceString() const;
 	void        PrintBacktrace() const;

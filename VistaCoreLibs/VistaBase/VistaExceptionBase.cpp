@@ -137,51 +137,38 @@ std::string VistaExceptionBase::GetExceptionSource() const
 
 void VistaExceptionBase::PrintException() const
 {
-	vstr::err() << GetPrintStatement() << std::endl;
+	PrintException( vstr::err(), true );
+}
+
+void VistaExceptionBase::PrintException( std::ostream& oStream, bool bAutoIndent ) const
+{
+	if( bAutoIndent == false )
+	{
+		oStream << "VistaExceptionBase() -- Exception [" << GetExceptionNumber() << "]\n"
+				<< "===============================================\n"
+				<< m_sExceptionText << "\n"
+				<< "===============================================\n"
+				<< "Location: " << m_sExceptionSource << "\n"
+				<< "Line:     " << m_iExceptionLine << "\n"
+				<< "===============================================\n";
+	}
+	else
+	{
+		oStream << vstr::indent << "VistaExceptionBase() -- Exception [" << GetExceptionNumber() << "]\n"
+				<< vstr::indent << "===============================================\n"
+				<< vstr::indent << m_sExceptionText << "\n"
+				<< vstr::indent << "===============================================\n"
+				<< vstr::indent << "Location: " << m_sExceptionSource << "\n"
+				<< vstr::indent << "Line:     " << m_iExceptionLine << "\n"
+				<< vstr::indent << "===============================================\n";
+	}
+	oStream.flush();
 }
 
 std::string VistaExceptionBase::GetPrintStatement() const
 {
-//	//char buffer[8192];
-//	string sText = GetExceptionText();
-//	string sSource = GetExceptionSource();
-//	vector<unsigned char> vecString(220     // for the decorative text
-//						 +sText.size()          // for the user given text
-//						 +sSource.size()        // for the source file text
-//						 +(int)ceil(log((float)GetExceptionNumber()+1))+1 // ln(dig) ~ number of digits-1
-//						 +(int)ceil(log((float)GetExceptionLine()+1))+1,// ln(dig) ~ number of digits-1
-//						 0); // init with 0
-//#ifdef WIN32
-// #if defined (_MSC_VER)
-//  #if ( _MSC_VER >= 1400 )
-//	_snprintf_s((char*)&vecString[0], vecString.size(), vecString.size(), "VistaExceptionBase() -- Exception [%d]\n===============================================\n%s\n===============================================\nLocation: %s\nLine:     %d\n===============================================\n",
-//		GetExceptionNumber(), GetExceptionText().c_str(), GetExceptionSource().c_str(), GetExceptionLine());
-// #else
-//	_snprintf((char*)&vecString[0], 8192, "VistaExceptionBase() -- Exception [%d]\n===============================================\n%s\n===============================================\nLocation: %s\nLine:     %d\n===============================================\n",
-//		GetExceptionNumber(), GetExceptionText().c_str(), GetExceptionSource().c_str(), GetExceptionLine());
-// #endif // _MSC_VER >= 1400
-// #else
-//	sprintf((char*)&vecString[0], "VistaExceptionBase() -- Exception [%d]\n===============================================\n%s\n===============================================\nLocation: %s\nLine:     %d\n===============================================\n",
-//		GetExceptionNumber(), GetExceptionText().c_str(), GetExceptionSource().c_str(), GetExceptionLine());
-// #endif // _MSCVER
-//#else // WIN32
-//	snprintf((char*)&vecString[0], 8192, "VistaExceptionBase() -- Exception [%d]\n===============================================\n%s\n===============================================\nLocation: %s\nLine:     %d\n===============================================\n",
-//		GetExceptionNumber(), GetExceptionText().c_str(), GetExceptionSource().c_str(), GetExceptionLine());
-//#endif
-//#if defined(SUNOS) || _MSC_VER < 1400
-//	return string((char*)&vecString[0]);
-//#else
-//	return string(vecString.begin(), vecString.end());
-//#endif
-
 	std::stringstream oText;
-	oText << "VistaExceptionBase() -- Exception [" << GetExceptionNumber() << "]\n"
-		<< "===============================================\n"
-		<< m_sExceptionText << "\n"
-		<< "===============================================\n"
-		<< "Location: " << m_sExceptionSource << "\n"
-		<< "Line:     " << m_iExceptionLine << "\n"
-		<< "===============================================\n";
+	PrintException( oText );
 	return oText.str();
 }
 
