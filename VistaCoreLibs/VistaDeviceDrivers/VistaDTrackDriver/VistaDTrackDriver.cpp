@@ -34,6 +34,7 @@
 
 
 #include <VistaInterProcComm/Connections/VistaConnection.h>
+#include <VistaInterProcComm/Connections/VistaConnectionIP.h>
 #include <VistaInterProcComm/Connections/VistaByteBufferDeSerializer.h>
 #include <VistaInterProcComm/Connections/VistaCSVDeSerializer.h>
 
@@ -1165,15 +1166,29 @@ bool VistaDTrackDriver::PhysicalEnable(bool bEnable)
 {
 	if(!m_bAttachOnly) // will not send enable/disable only on specific request
 	{
-		if(bEnable)
+		try
 		{
-			return m_pProtocol->GetProtocol()->SendEnableString(m_pConnection->GetConnection(1));
+			if(bEnable)
+			{
+				return m_pProtocol->GetProtocol()->SendEnableString(m_pConnection->GetConnection(1));
 
+			}
+			else
+			{
+				return m_pProtocol->GetProtocol()->SendDisableString(m_pConnection->GetConnection(1));
+			}
 		}
-		else
+		catch( VistaExceptionBase& e )
 		{
-			return m_pProtocol->GetProtocol()->SendDisableString(m_pConnection->GetConnection(1));
-		}
+			VistaConnectionIP* pConnection = dynamic_cast<VistaConnectionIP*>( m_pConnection->GetConnection(1) );
+			vstr::warnp() << "[VistaDTrackDriver]: sending " << ( bEnable ? "enable" : "disable" )
+						<< " string to dtrack server failed";
+			if( pConnection )
+				vstr::warn() << " on connection [" << pConnection->GetPeerName() << ":" << pConnection->GetPeerPort() << "]";
+			vstr::warnp() << " with exception:" << std::endl;
+			vstr::IndentObject oIndent;
+			e.PrintException( vstr::warn(), true );
+		}		
 	}
 	return true;
 }
