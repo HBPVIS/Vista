@@ -70,334 +70,334 @@
 
 using namespace OSG;
 
-class StereoBufferShadowViewport;
-typedef FCPtr<ShadowViewportPtr, StereoBufferShadowViewport> StereoBufferShadowViewportPtr;
-
-class StereoBufferShadowViewport: public ShadowViewport
-{
-public:
-    enum
-    {
-        LeftBufferFieldId = ShadowViewport::NextFieldId,
-        RightBufferFieldId = LeftBufferFieldId + 1,
-        NextFieldId = RightBufferFieldId + 1
-    };
-
-    static const OSG::BitVector LeftBufferFieldMask;
-
-    static const OSG::BitVector RightBufferFieldMask;
-
-    static const OSG::BitVector MTInfluenceMask;
-
-
-    StereoBufferShadowViewport()
-        : ShadowViewport()
-        , _sfLeftBuffer( true )
-		, _sfRightBuffer( true )
-	{
-	}
-
-    static OSG::FieldContainerType &getClassType(void)
-    {
-        return _type;
-    }
-
-    static OSG::UInt32 getClassTypeId(void)
-    {
-        return _type.getId();
-    }
-
-    SFBool *getSFLeftBuffer(void)
-    {
-        return &_sfLeftBuffer;
-    }
-
-    SFBool *getSFRightBuffer(void)
-    {
-        return &_sfRightBuffer;
-    }
-
-
-    bool &getLeftBuffer(void)
-    {
-        return _sfLeftBuffer.getValue();
-    }
-
-    const bool &getLeftBuffer(void) const
-    {
-        return _sfLeftBuffer.getValue();
-    }
-
-    void setLeftBuffer(const bool bValue)
-    {
-		_sfLeftBuffer.setValue(bValue);
-	}
-
-    bool &getRightBuffer(void)
-    {
-        return _sfRightBuffer.getValue();
-    }
-
-    const bool &getRightBuffer(void) const
-    {
-        return _sfRightBuffer.getValue();
-    }
-
-    void setRightBuffer(const bool bValue)
-    {
-		_sfRightBuffer.setValue(bValue);
-	}
-
-    void activate(void)
-    {
-        if(getLeftBuffer())
-        {
-            if(getRightBuffer())
-            {
-                glDrawBuffer(GL_BACK);
-                glReadBuffer(GL_BACK);
-            }
-            else
-            {
-                glDrawBuffer(GL_BACK_LEFT);
-                glReadBuffer(GL_BACK_LEFT);
-            }
-        }
-        else
-        {
-            if(getRightBuffer())
-            {
-                glDrawBuffer(GL_BACK_RIGHT);
-                glReadBuffer(GL_BACK_RIGHT);
-            }
-            else
-            {
-                glDrawBuffer(GL_NONE);
-                glReadBuffer(GL_NONE);
-            }
-        }
-        ShadowViewport::activate();
-    }
-
-    void deactivate(void)
-    {
-        ShadowViewport::deactivate();
-        glDrawBuffer(GL_BACK);
-        glReadBuffer(GL_BACK);
-    }
-
-    static StereoBufferShadowViewportPtr create (void)
-    {
-        /*StereoBufferShadowViewportPtr fc;
-
-        if(getClassType().getPrototype() != OSG::NullFC)
-        {
-        fc = StereoBufferShadowViewportPtr::dcast(
-        getClassType().getPrototype()-> shallowCopy());
-        }
-
-        return fc;*/
-        return createEmpty();
-    }
-    static StereoBufferShadowViewportPtr createEmpty (void)
-    {
-        StereoBufferShadowViewportPtr returnValue;
-
-        newPtr(returnValue);
-
-        return returnValue;
-    }
-
-    static void initMethod (void)
-    {
-    }
-
-
-    UInt32 getBinSize(const BitVector &whichField)
-    {
-        UInt32 returnValue = ShadowViewport::getBinSize(whichField);
-
-        if(FieldBits::NoField != (LeftBufferFieldMask & whichField))
-        {
-            returnValue += _sfLeftBuffer.getBinSize();
-        }
-
-        if(FieldBits::NoField != (RightBufferFieldMask & whichField))
-        {
-            returnValue += _sfRightBuffer.getBinSize();
-        }
-
-
-        return returnValue;
-    }
-
-    void copyToBin(      BinaryDataHandler &pMem,
-        const BitVector         &whichField)
-    {
-        ShadowViewport::copyToBin(pMem, whichField);
-
-        if(FieldBits::NoField != (LeftBufferFieldMask & whichField))
-        {
-            _sfLeftBuffer.copyToBin(pMem);
-        }
-
-        if(FieldBits::NoField != (RightBufferFieldMask & whichField))
-        {
-            _sfRightBuffer.copyToBin(pMem);
-        }
-
-
-    }
-
-    void copyFromBin(      BinaryDataHandler &pMem,
-        const BitVector    &whichField)
-    {
-        ShadowViewport::copyFromBin(pMem, whichField);
-
-        if(FieldBits::NoField != (LeftBufferFieldMask & whichField))
-        {
-            _sfLeftBuffer.copyFromBin(pMem);
-        }
-
-        if(FieldBits::NoField != (RightBufferFieldMask & whichField))
-        {
-            _sfRightBuffer.copyFromBin(pMem);
-        }
-
-
-    }
-
-    
-FieldContainerPtr shallowCopy(void) const 
-{ 
-    StereoBufferShadowViewportPtr returnValue; 
-
-    newPtr(returnValue, dynamic_cast<const StereoBufferShadowViewport *>(this)); 
-
-    return returnValue; 
-}
-
-UInt32 getContainerSize(void) const 
-{ 
-    return sizeof(StereoBufferShadowViewport); 
-}
-
-
-#if !defined(OSG_FIXED_MFIELDSYNC)
-void executeSync(      FieldContainer &other,
-                                    const BitVector      &whichField)
-{
-    this->executeSyncImpl(static_cast<StereoBufferShadowViewport *>(&other),
-                          whichField);
-}
-#else
-void executeSync(      FieldContainer &other,
-                                    const BitVector      &whichField,                                    const SyncInfo       &sInfo     )
-{
-    this->executeSyncImpl((StereoBufferShadowViewport *) &other, whichField, sInfo);
-}
-void execBeginEdit(const BitVector &whichField, 
-                                            UInt32     uiAspect,
-                                            UInt32     uiContainerSize) 
-{
-    this->execBeginEditImpl(whichField, uiAspect, uiContainerSize);
-}
-
-void onDestroyAspect(UInt32 uiId, UInt32 uiAspect)
-{
-    Inherited::onDestroyAspect(uiId, uiAspect);
-
-}
-#endif
-
-
-#if !defined(OSG_FIXED_MFIELDSYNC)
-    void executeSyncImpl(      StereoBufferShadowViewport *pOther,
-        const BitVector         &whichField)
-    {
-
-        ShadowViewport::executeSyncImpl(pOther, whichField);
-
-        if(FieldBits::NoField != (LeftBufferFieldMask & whichField))
-            _sfLeftBuffer.syncWith(pOther->_sfLeftBuffer);
-
-        if(FieldBits::NoField != (RightBufferFieldMask & whichField))
-            _sfRightBuffer.syncWith(pOther->_sfRightBuffer);
-
-
-    }
-#else
-    void executeSyncImpl(      StereoBufferShadowViewport *pOther,
-        const BitVector         &whichField,
-        const SyncInfo          &sInfo      )
-    {
-
-        ShadowViewport::executeSyncImpl(pOther, whichField, sInfo);
-
-        if(FieldBits::NoField != (LeftBufferFieldMask & whichField))
-            _sfLeftBuffer.syncWith(pOther->_sfLeftBuffer);
-
-        if(FieldBits::NoField != (RightBufferFieldMask & whichField))
-            _sfRightBuffer.syncWith(pOther->_sfRightBuffer);
-
-
-
-    }
-
-    void execBeginEditImpl (const BitVector &whichField, 
-        UInt32     uiAspect,
-        UInt32     uiContainerSize)
-    {
-        ShadowViewport::execBeginEditImpl(whichField, uiAspect, uiContainerSize);
-
-    }
-#endif
-
-
-
-protected:
-    SFBool _sfLeftBuffer;
-    SFBool _sfRightBuffer;
-
-    friend class FieldContainer;
-
-    static FieldDescription *_desc[];
-    static FieldContainerType _type;
-
-};
-
-const OSG::BitVector StereoBufferShadowViewport::LeftBufferFieldMask =
-(TypeTraits<BitVector>::One << StereoBufferShadowViewport::LeftBufferFieldId);
-
-const OSG::BitVector StereoBufferShadowViewport::RightBufferFieldMask =
-(TypeTraits<BitVector>::One << StereoBufferShadowViewport::RightBufferFieldId);
-
-const OSG::BitVector StereoBufferShadowViewport::MTInfluenceMask =
-(ShadowViewport::MTInfluenceMask) |
-(static_cast<BitVector>(0x0) << ShadowViewport::NextFieldId);
-
-FieldDescription *StereoBufferShadowViewport::_desc[] =
-{
-	new FieldDescription(SFBool::getClassType(),
-				"leftBuffer",
-				StereoBufferShadowViewport::LeftBufferFieldId, LeftBufferFieldMask,
-				false,
-				(FieldAccessMethod) &StereoBufferShadowViewport::getSFLeftBuffer),
-	new FieldDescription(SFBool::getClassType(),
-				"rightBuffer",
-				StereoBufferShadowViewport::RightBufferFieldId, RightBufferFieldMask,
-				false,
-				(FieldAccessMethod) &StereoBufferShadowViewport::getSFRightBuffer)
-};
-
-FieldContainerType StereoBufferShadowViewport::_type(
-	"StereoBufferShadowViewport",
-	"StereoBufferViewport",
-	NULL,
-	(PrototypeCreateF) &StereoBufferShadowViewport::createEmpty,
-	StereoBufferShadowViewport::initMethod,
-	_desc,
-	sizeof(_desc));
+//class StereoBufferShadowViewport;
+//typedef FCPtr<ShadowViewportPtr, StereoBufferShadowViewport> StereoBufferShadowViewportPtr;
+
+//class StereoBufferShadowViewport: public ShadowViewport
+//{
+//public:
+//    enum
+//    {
+//        LeftBufferFieldId = ShadowViewport::NextFieldId,
+//        RightBufferFieldId = LeftBufferFieldId + 1,
+//        NextFieldId = RightBufferFieldId + 1
+//    };
+//
+//    static const OSG::BitVector LeftBufferFieldMask;
+//
+//    static const OSG::BitVector RightBufferFieldMask;
+//
+//    static const OSG::BitVector MTInfluenceMask;
+//
+//
+//    StereoBufferShadowViewport()
+//        : ShadowViewport()
+//        , _sfLeftBuffer( true )
+//		, _sfRightBuffer( true )
+//	{
+//	}
+//
+//    static OSG::FieldContainerType &getClassType(void)
+//    {
+//        return _type;
+//    }
+//
+//    static OSG::UInt32 getClassTypeId(void)
+//    {
+//        return _type.getId();
+//    }
+//
+//    SFBool *getSFLeftBuffer(void)
+//    {
+//        return &_sfLeftBuffer;
+//    }
+//
+//    SFBool *getSFRightBuffer(void)
+//    {
+//        return &_sfRightBuffer;
+//    }
+//
+//
+//    bool &getLeftBuffer(void)
+//    {
+//        return _sfLeftBuffer.getValue();
+//    }
+//
+//    const bool &getLeftBuffer(void) const
+//    {
+//        return _sfLeftBuffer.getValue();
+//    }
+//
+//    void setLeftBuffer(const bool bValue)
+//    {
+//		_sfLeftBuffer.setValue(bValue);
+//	}
+//
+//    bool &getRightBuffer(void)
+//    {
+//        return _sfRightBuffer.getValue();
+//    }
+//
+//    const bool &getRightBuffer(void) const
+//    {
+//        return _sfRightBuffer.getValue();
+//    }
+//
+//    void setRightBuffer(const bool bValue)
+//    {
+//		_sfRightBuffer.setValue(bValue);
+//	}
+//
+//    void activate(void)
+//    {
+//        if(getLeftBuffer())
+//        {
+//            if(getRightBuffer())
+//            {
+//                glDrawBuffer(GL_BACK);
+//                glReadBuffer(GL_BACK);
+//            }
+//            else
+//            {
+//                glDrawBuffer(GL_BACK_LEFT);
+//                glReadBuffer(GL_BACK_LEFT);
+//            }
+//        }
+//        else
+//        {
+//            if(getRightBuffer())
+//            {
+//                glDrawBuffer(GL_BACK_RIGHT);
+//                glReadBuffer(GL_BACK_RIGHT);
+//            }
+//            else
+//            {
+//                glDrawBuffer(GL_NONE);
+//                glReadBuffer(GL_NONE);
+//            }
+//        }
+//        ShadowViewport::activate();
+//    }
+//
+//    void deactivate(void)
+//    {
+//        ShadowViewport::deactivate();
+//        glDrawBuffer(GL_BACK);
+//        glReadBuffer(GL_BACK);
+//    }
+//
+//    static StereoBufferShadowViewportPtr create (void)
+//    {
+//        /*StereoBufferShadowViewportPtr fc;
+//
+//        if(getClassType().getPrototype() != OSG::NullFC)
+//        {
+//        fc = StereoBufferShadowViewportPtr::dcast(
+//        getClassType().getPrototype()-> shallowCopy());
+//        }
+//
+//        return fc;*/
+//        return createEmpty();
+//    }
+//    static StereoBufferShadowViewportPtr createEmpty (void)
+//    {
+//        StereoBufferShadowViewportPtr returnValue;
+//
+//        newPtr(returnValue);
+//
+//        return returnValue;
+//    }
+//
+//    static void initMethod (void)
+//    {
+//    }
+//
+//
+//    UInt32 getBinSize(const BitVector &whichField)
+//    {
+//        UInt32 returnValue = ShadowViewport::getBinSize(whichField);
+//
+//        if(FieldBits::NoField != (LeftBufferFieldMask & whichField))
+//        {
+//            returnValue += _sfLeftBuffer.getBinSize();
+//        }
+//
+//        if(FieldBits::NoField != (RightBufferFieldMask & whichField))
+//        {
+//            returnValue += _sfRightBuffer.getBinSize();
+//        }
+//
+//
+//        return returnValue;
+//    }
+//
+//    void copyToBin(      BinaryDataHandler &pMem,
+//        const BitVector         &whichField)
+//    {
+//        ShadowViewport::copyToBin(pMem, whichField);
+//
+//        if(FieldBits::NoField != (LeftBufferFieldMask & whichField))
+//        {
+//            _sfLeftBuffer.copyToBin(pMem);
+//        }
+//
+//        if(FieldBits::NoField != (RightBufferFieldMask & whichField))
+//        {
+//            _sfRightBuffer.copyToBin(pMem);
+//        }
+//
+//
+//    }
+//
+//    void copyFromBin(      BinaryDataHandler &pMem,
+//        const BitVector    &whichField)
+//    {
+//        ShadowViewport::copyFromBin(pMem, whichField);
+//
+//        if(FieldBits::NoField != (LeftBufferFieldMask & whichField))
+//        {
+//            _sfLeftBuffer.copyFromBin(pMem);
+//        }
+//
+//        if(FieldBits::NoField != (RightBufferFieldMask & whichField))
+//        {
+//            _sfRightBuffer.copyFromBin(pMem);
+//        }
+//
+//
+//    }
+//
+//    
+//FieldContainerPtr shallowCopy(void) const 
+//{ 
+//    StereoBufferShadowViewportPtr returnValue; 
+//
+//    newPtr(returnValue, dynamic_cast<const StereoBufferShadowViewport *>(this)); 
+//
+//    return returnValue; 
+//}
+//
+//UInt32 getContainerSize(void) const 
+//{ 
+//    return sizeof(StereoBufferShadowViewport); 
+//}
+//
+//
+//#if !defined(OSG_FIXED_MFIELDSYNC)
+//void executeSync(      FieldContainer &other,
+//                                    const BitVector      &whichField)
+//{
+//    this->executeSyncImpl(static_cast<StereoBufferShadowViewport *>(&other),
+//                          whichField);
+//}
+//#else
+//void executeSync(      FieldContainer &other,
+//                                    const BitVector      &whichField,                                    const SyncInfo       &sInfo     )
+//{
+//    this->executeSyncImpl((StereoBufferShadowViewport *) &other, whichField, sInfo);
+//}
+//void execBeginEdit(const BitVector &whichField, 
+//                                            UInt32     uiAspect,
+//                                            UInt32     uiContainerSize) 
+//{
+//    this->execBeginEditImpl(whichField, uiAspect, uiContainerSize);
+//}
+//
+//void onDestroyAspect(UInt32 uiId, UInt32 uiAspect)
+//{
+//    Inherited::onDestroyAspect(uiId, uiAspect);
+//
+//}
+//#endif
+//
+//
+//#if !defined(OSG_FIXED_MFIELDSYNC)
+//    void executeSyncImpl(      StereoBufferShadowViewport *pOther,
+//        const BitVector         &whichField)
+//    {
+//
+//        ShadowViewport::executeSyncImpl(pOther, whichField);
+//
+//        if(FieldBits::NoField != (LeftBufferFieldMask & whichField))
+//            _sfLeftBuffer.syncWith(pOther->_sfLeftBuffer);
+//
+//        if(FieldBits::NoField != (RightBufferFieldMask & whichField))
+//            _sfRightBuffer.syncWith(pOther->_sfRightBuffer);
+//
+//
+//    }
+//#else
+//    void executeSyncImpl(      StereoBufferShadowViewport *pOther,
+//        const BitVector         &whichField,
+//        const SyncInfo          &sInfo      )
+//    {
+//
+//        ShadowViewport::executeSyncImpl(pOther, whichField, sInfo);
+//
+//        if(FieldBits::NoField != (LeftBufferFieldMask & whichField))
+//            _sfLeftBuffer.syncWith(pOther->_sfLeftBuffer);
+//
+//        if(FieldBits::NoField != (RightBufferFieldMask & whichField))
+//            _sfRightBuffer.syncWith(pOther->_sfRightBuffer);
+//
+//
+//
+//    }
+//
+//    void execBeginEditImpl (const BitVector &whichField, 
+//        UInt32     uiAspect,
+//        UInt32     uiContainerSize)
+//    {
+//        ShadowViewport::execBeginEditImpl(whichField, uiAspect, uiContainerSize);
+//
+//    }
+//#endif
+//
+//
+//
+//protected:
+//    SFBool _sfLeftBuffer;
+//    SFBool _sfRightBuffer;
+//
+//    friend class FieldContainer;
+//
+//    static FieldDescription *_desc[];
+//    static FieldContainerType _type;
+//
+//};
+//
+//const OSG::BitVector StereoBufferShadowViewport::LeftBufferFieldMask =
+//(TypeTraits<BitVector>::One << StereoBufferShadowViewport::LeftBufferFieldId);
+//
+//const OSG::BitVector StereoBufferShadowViewport::RightBufferFieldMask =
+//(TypeTraits<BitVector>::One << StereoBufferShadowViewport::RightBufferFieldId);
+//
+//const OSG::BitVector StereoBufferShadowViewport::MTInfluenceMask =
+//(ShadowViewport::MTInfluenceMask) |
+//(static_cast<BitVector>(0x0) << ShadowViewport::NextFieldId);
+//
+//FieldDescription *StereoBufferShadowViewport::_desc[] =
+//{
+//	new FieldDescription(SFBool::getClassType(),
+//				"leftBuffer",
+//				StereoBufferShadowViewport::LeftBufferFieldId, LeftBufferFieldMask,
+//				false,
+//				(FieldAccessMethod) &StereoBufferShadowViewport::getSFLeftBuffer),
+//	new FieldDescription(SFBool::getClassType(),
+//				"rightBuffer",
+//				StereoBufferShadowViewport::RightBufferFieldId, RightBufferFieldMask,
+//				false,
+//				(FieldAccessMethod) &StereoBufferShadowViewport::getSFRightBuffer)
+//};
+//
+//FieldContainerType StereoBufferShadowViewport::_type(
+//	"StereoBufferShadowViewport",
+//	"StereoBufferViewport",
+//	NULL,
+//	(PrototypeCreateF) &StereoBufferShadowViewport::createEmpty,
+//	StereoBufferShadowViewport::initMethod,
+//	_desc,
+//	sizeof(_desc));
 
 
 // small helper class to get rid of the OpenSG dependencies in the header file
@@ -409,7 +409,7 @@ OSG::ShadowViewportPtr CreateShadowViewport( const std::vector<VistaLightNode*>&
 	OSG::ShadowViewportPtr pShadowVP;
 	if( bStereo )
 	{
-		pShadowVP = StereoBufferShadowViewport::create();
+		pShadowVP = OSG::ShadowViewport::create();
 		pShadowVP->setLeftBuffer( bLeft );
 		pShadowVP->setRightBuffer( !bLeft );
 	}

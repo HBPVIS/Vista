@@ -90,29 +90,43 @@ public:
 					bool bReplaceExistingStream = false );
 	/**
 	 * Removes the stream with the specified name, and deletes it if
-	 * bDelete == true OR MnagaeDeletion was set for the stream
+	 * bAlwaysDelete == true OR ManagaeDeletion was set for the stream
 	 * @return true if Stream was removed, false if no stream of this name exists.
 	 */
 	virtual bool RemoveStream( const std::string& sName,
-							const bool bDelete = false );
+							const bool bAlwaysDelete = false );
 	/** 
 	 * returns the stream with the given name. 
 	 * If it does not exist, cout is returned instead
 	 */
 	std::ostream& GetStream( const std::string& sName );
+
+	bool GetHasStream( const std::string& sName );
+
 	/**
-	 * Creates a new filestream and adds it.
+	 * Creates a new filestream.
 	 * The name consists of the specified filename (or the streamname,
 	 * if the filename is ""), the current date (if bAddTimeStamp == true),
 	 * the name of the Vista ClusterNode (if bAddNodeName == true and the
 	 * InfoInterface has been set), as well as the FileExtension
 	 * The stream is managed by the StreamManager, and 
 	 */
+	std::ostream* CreateNewLogFileStream( const std::string& sFileName,
+						const std::string& sFileExtension = "log",
+						const bool bManageDeletion = false,
+						const bool bAddNodeName = true,
+						const bool bAddTimeStamp = true,
+						const bool bAppendToExistingFile = false );
+	/**
+	 * Creates a new filestream, and automatically adds it.
+	 * Also manages deletion of the stream
+	 */
 	bool AddNewLogFileStream( const std::string& sStreamName,
 						const std::string& sFileName = "",
 						const std::string& sFileExtension = "log",
 						const bool bAddNodeName = true,
-						const bool bAddTimeStamp = true );
+						const bool bAddTimeStamp = true,
+						const bool bAppendToExistingFile = false);
 					
 	
 	enum INFO_LAYOUT_ELEMENT
@@ -180,8 +194,7 @@ public:
 protected:
 	/** 
 	 * This function is called if a stream is requested by GetStream(), but does not
-	 * exist yet. Default implementation just returns std::cout, but this can be
-	 * overwritten, e.g. to create a new named stream
+	 * exist yet. Default implementation just returns the null stream
 	 */
 	virtual std::ostream& GetDefaultStream( const std::string& sName );
 	void RebuildIndentationString();

@@ -70,27 +70,38 @@ VistaStreamManager::~VistaStreamManager()
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/
 
+
 bool VistaStreamManager::AddNewLogFileStream( const std::string& sStreamName,
-											const std::string& sFileName,
-											const std::string& sFileExtension,
-											const bool bAddNodeName,
-											const bool bAddTimeStamp )
+											 const std::string& sFileName,
+											 const std::string& sFileExtension,
+											 const bool bAddNodeName,
+											 const bool bAddTimeStamp,
+											 const bool bAppendToExistingFile )
 {
+	
 	std::map<std::string, std::ostream*>::iterator itStream
 							= m_mapStreams.find(sStreamName);
 	if( itStream != m_mapStreams.end() )
 		return false; // name already exists
 
-	std::string sFullName;
-	if( sFileName.empty() )
-	{
-		if( sStreamName.empty() )
-			sFullName = "logfile";
-		else
-			sFullName = sStreamName;
-	}
-	else
-		sFullName = sFileName;
+	std::string sActualFilename = ( sFileName.empty() ? sStreamName : sFileName );
+	std::ostream* pStream = CreateNewLogFileStream( sActualFilename, sFileExtension,
+									bAddNodeName, bAddTimeStamp, bAppendToExistingFile );
+	if( pStream == false )
+		return false;
+	m_mapStreams[sStreamName] = pStream;
+	return true;
+}
+
+
+std::ostream* VistaStreamManager::CreateNewLogFileStream( const std::string& sFileName,
+											const std::string& sFileExtension,
+											const bool bManageDeletion,
+											const bool bAddNodeName,
+											const bool bAddTimeStamp,
+											const bool bAppendToExistingFile )
+{
+	std::string sFullName = sFileName;
 
 	if( bAddTimeStamp )
 		sFullName += "." + GetDateString();
@@ -101,18 +112,23 @@ bool VistaStreamManager::AddNewLogFileStream( const std::string& sStreamName,
 	if( sFileExtension.empty() == false )
 		sFullName += "." + sFileExtension;
 
-	std::ofstream* oStream = new std::ofstream( sFullName.c_str() );
+	std::ofstream* oStream;
+	if( bAppendToExistingFile )
+		oStream = new std::ofstream( sFullName.c_str(), std::ios_base::out | std::ios_base::app );
+	else
+		oStream = new std::ofstream( sFullName.c_str() );
 
 	
 	if( oStream->bad() )
 	{		
 		delete oStream;
-		return false;
+		return NULL;
 	}
+	
+	if( bManageDeletion )
+		m_vecOwnStreams.push_back( oStream );
 
-	m_mapStreams[sStreamName] = oStream;
-	m_vecOwnStreams.push_back( oStream );
-	return true;
+	return oStream;
 }
 
 bool VistaStreamManager::AddStream( const std::string& sName,
@@ -131,7 +147,7 @@ bool VistaStreamManager::AddStream( const std::string& sName,
 	return true;
 }
 bool VistaStreamManager::RemoveStream( const std::string& sName,
-										const bool bDelete )
+										const bool bAlwaysDelete )
 {
 	std::map<std::string, std::ostream*>::iterator itStream = m_mapStreams.find( sName );
 	if( itStream == m_mapStreams.end() )
@@ -144,7 +160,7 @@ bool VistaStreamManager::RemoveStream( const std::string& sName,
 		delete (*itStream).second;
 		m_vecOwnStreams.erase( itToDel );
 	}
-	else if( bDelete )
+	else if( bAlwaysDelete )
 		delete (*itStream).second;
 	m_mapStreams.erase( itStream );		
 	return true;
@@ -308,7 +324,7 @@ VistaStreamManager::IInfoInterface* VistaStreamManager::GetInfoInterface() const
 
 std::ostream& VistaStreamManager::GetDefaultStream( const std::string& sName )
 {
-	return std::cout;
+	return vstr::GetNullStream();
 }
 
 std::string VistaStreamManager::GetErrorPrefix() const
@@ -395,6 +411,11 @@ void VistaStreamManager::RebuildIndentationString()
 const std::string& VistaStreamManager::GetIndentation() const
 {
 	return m_sIndentation;
+}
+
+bool VistaStreamManager::GetHasStream( const std::string& sName )
+{
+	return ( m_mapStreams.find( sName ) != m_mapStreams.end() );
 }
 
 

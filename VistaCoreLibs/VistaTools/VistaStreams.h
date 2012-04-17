@@ -45,7 +45,7 @@
 /*============================================================================*/
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
-
+class VistaPropertyList;
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
@@ -66,6 +66,23 @@ namespace VistaStreams
 										const bool bBufferInternally = true );
 	VISTATOOLSAPI bool MakeStreamThreadSafe( std::ostream* pStream,
 										const bool bBufferInternally = true );
+
+	/**
+	 * 
+	 * may get a little complex syntax
+	 * Syntax: 
+	 * THREADSAFE = TRUE | FALSE			determines wether or not default streams should be threadsafe (default TRUE)
+	 * OUT | WARN | ERR | DEBUG | customname = 
+	 *			COUT | CLOG | CERR			outputs to standard output stream
+	 *			stream					    outputs to another stream (defined in this section)
+	 *			NULL						outputs nothing
+	 *			FILE( filename, [ADD_TIME], [ADD_NODENAME], [APPEND_TO_FILE] )	outputs to a file
+	 *			COLOR( textcolor, [backgroundcolor] )	outputs to a color stream
+	 *			SPLIT( stream1, stream2 ... )	outputs to all streams in the list
+	 *          BUILDTYPE( releasestream, debugstream )	outputs to where stream1 is used in release mode and stream2 in debug
+	 * may be used recursive, e.g. BUILDTYPE( COLOR( GREEN ), NULL )
+	 */
+	VISTATOOLSAPI bool CreateStreamsFromProplist( const VistaPropertyList& oConfig );
 }
 
 /**
@@ -97,6 +114,7 @@ public:
 		CC_NUM_COLORS,
 	};
 	static std::string GetConsoleColorName( const CONSOLE_COLOR oColor );
+	static CONSOLE_COLOR GetConsoleColorFromString( const std::string& sName );
 
 public:
 	VistaColorOutstream( const CONSOLE_COLOR iTextColor = CC_DEFAULT,

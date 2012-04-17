@@ -25,6 +25,12 @@
 #include "VistaStreams.h"
 
 #include <VistaBase/VistaExceptionBase.h>
+#include <VistaBase/VistaStreamManager.h>
+#include <VistaBase/VistaStreamUtils.h>
+
+#include <VistaAspects/VistaAspectsUtils.h>
+#include <VistaAspects/VistaPropertyList.h>
+
 #include <VistaInterProcComm/Concurrency/VistaMutex.h>
 #include <VistaInterProcComm/Concurrency/VistaSemaphore.h>
 #include <VistaInterProcComm/Concurrency/VistaThread.h>
@@ -512,6 +518,17 @@ std::string VistaColorOutstream::GetConsoleColorName( const CONSOLE_COLOR oColor
 	return S_aColorNames[oColor];
 }
 
+VistaColorOutstream::CONSOLE_COLOR VistaColorOutstream::GetConsoleColorFromString( const std::string& sName )
+{
+	std::string sCleanedName = VistaConversion::StringToUpper( sName );
+	for( int nColorIndex = 0; nColorIndex < CC_NUM_COLORS; ++nColorIndex )
+	{
+		if( sName == S_aColorNames[nColorIndex] )
+			return CONSOLE_COLOR( nColorIndex );
+	}
+	return CONSOLE_COLOR( -1 );
+}
+
 
 /*============================================================================*/
 /*  SPLITOUTSTREAM                                                            */
@@ -807,4 +824,371 @@ VISTATOOLSAPI bool VistaStreams::MakeStreamThreadSafe( std::ostream* pStream,
 										const bool bBufferInternally )
 {
 	return MakeStreamThreadSafe( *pStream, bBufferInternally );
+}
+
+
+// return: -1 = fail, 0 = delay (recursive), 1 = success
+std::ostream* CreateStreamFromDescription( const std::string& sDefinition,
+								const VistaPropertyList& oConfig,
+								const bool bThreadSafeStream,
+								const std::list<std::string>& liStreamsToCreate,
+								int& nResult )
+{
+	std::string sCommand;
+	std::vector<std::string> vecArguments;
+
+	nResult = -1;
+	
+	// first, check if it is more complex, i.e. if it has braces
+	std::size_t nBraceStart = sDefinition.find( '(' );
+	if( nBraceStart != std::string::npos )
+	{
+		std::size_t nBraceEnd =  sDefinition.rfind( ')' );
+		if( nBraceEnd == std::string::npos )
+		{
+			vstr::warnp() << "VistaStreams::CreateStreamsFromProplist -- Could not parse definition \""
+						<< sDefinition << "\" - missing \")\"" << std::endl;
+			return NULL;
+		}
+		// @todo: recursion
+		sCommand = sDefinition.substr( 0, nBraceStart );
+
+		//VistaConversion::FromString( sDefinition.substr( nBraceStart + 1, nBraceEnd - nBraceStart - 1 ), vecArguments );
+		// make sure that we do not split sub-commands
+		vecArguments.clear();
+		int nInBraceDepth = 0;
+		std::size_t nCommandStart = nBraceStart + 1;
+		std::size_t nCommandEnd = 0;
+		bool bBeforeFirstSign = true;
+		for( std::size_t nPos = nBraceStart + 1; nPos != nBraceEnd; ++nPos )
+		{
+			char cChar = sDefinition[nPos];
+			if( cChar == '(' )
+				++nInBraceDepth;
+			else if( cChar == ')' )
+			{
+				--nInBraceDepth;
+				if( bBeforeFirstSign )
+				{
+					nCommandStart = nPos;
+					bBeforeFirstSign = false;
+				}
+				else
+					nCommandEnd = nPos;
+			}			
+			else if( nInBraceDepth == 0 && cChar == ',' )
+			{
+				// we have a split
+				if( bBeforeFirstSign == false )
+				{
+					vecArguments.push_back( sDefinition.substr( nCommandStart, nCommandEnd - nCommandStart + 1 ) );
+				}
+				bBeforeFirstSign = true;
+			}
+			else if( cChar != ' ' && cChar != '\t'  )
+			{
+				//skip whitespaces
+				if( bBeforeFirstSign )
+				{
+					nCommandStart = nPos;
+					bBeforeFirstSign = false;
+				}
+				else
+					nCommandEnd = nPos;
+					
+			}
+		}
+
+		if( bBeforeFirstSign == false )
+		{
+			vecArguments.push_back( sDefinition.substr( nCommandStart, nCommandEnd - nCommandStart + 1 ) );
+		}
+		
+	}
+	else
+		sCommand = sDefinition;
+
+	std::ostream* pStream = NULL;
+	if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sCommand, "COUT" ) )
+	{
+		pStream = &std::cout;
+	}
+	else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sCommand, "CLOG" ) )
+	{
+		pStream = &std::clog;
+	}
+	else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sCommand, "CERR" ) )
+	{
+		pStream = &std::cerr;
+	}
+	else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sCommand, "NULL" ) )
+	{
+		pStream = &vstr::GetNullStream();
+	}
+	else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sCommand, "FILE" ) )
+	{
+		if( vecArguments.empty() )
+		{
+			vstr::warnp() << "VistaStreams::CreateStreamsFromProplist -- "
+						<< "Call to \"FILE\" missing arguments - specify at least filename" << std::endl;
+			return NULL;
+		}
+		std::string sFilename = vecArguments.front();
+		std::string sExtension = "log";
+		std::size_t nDotPos = sFilename.rfind( '.' );
+		if( nDotPos != std::string::npos )
+		{
+			sExtension = sExtension.substr( nDotPos + 1 );
+			sFilename = sFilename.substr( 0, nDotPos );
+		}
+		bool bAddTime = false;
+		bool bAddNodename = false;
+		bool bAppend = false;
+		for( std::vector<std::string>::const_iterator itParam = vecArguments.begin() + 1;
+				itParam != vecArguments.end(); ++itParam )
+		{
+			if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( (*itParam), "ADD_TIME" ) )
+				bAddTime = true;
+			else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( (*itParam), "ADD_NODENAME" ) )
+				bAddNodename = true;
+			else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( (*itParam), "APPEND_TO_FILE" ) )
+				bAppend = true;
+			else
+			{
+				vstr::warnp() << "VistaStreams::CreateStreamsFromProplist -- "
+						<< "unknown parameter \"" << (*itParam) << "\" to stream \"FILE\"" << std::endl;
+			}
+		}
+		pStream = vstr::GetStreamManager()->CreateNewLogFileStream( sFilename, sExtension, true, bAddNodename, bAddTime, bAppend );
+		if( pStream == NULL )
+			return NULL;
+		if( bThreadSafeStream )
+			VistaStreams::MakeStreamThreadSafe( pStream );
+
+	}
+	else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sCommand, "COLOR" ) )
+	{		
+		VistaColorOutstream::CONSOLE_COLOR oTextColor = VistaColorOutstream::CC_DEFAULT;
+		VistaColorOutstream::CONSOLE_COLOR oBackgroundColor = VistaColorOutstream::CC_DEFAULT;
+		if( vecArguments.size() > 0 )
+		{
+			oTextColor = VistaColorOutstream::GetConsoleColorFromString( vecArguments[0] );
+			if( oTextColor == -1 )
+			{
+				vstr::warnp() << "VistaStreams::CreateStreamsFromProplist -- "
+						<< "unknown color \"" << vecArguments[0] << "\" to stream \"COLOR\"" << std::endl;
+				return NULL;
+			}
+		}
+		if( vecArguments.size() > 1 )
+		{
+			oTextColor = VistaColorOutstream::GetConsoleColorFromString( vecArguments[1] );
+			if( oTextColor == -1 )
+			{
+				vstr::warnp() << "VistaStreams::CreateStreamsFromProplist -- "
+						<< "unknown color \"" << vecArguments[1] << "\" to stream \"COLOR\"" << std::endl;
+				return NULL;
+			}
+		}
+		pStream = new VistaColorOutstream( oTextColor, oBackgroundColor );
+		if( bThreadSafeStream )
+			VistaStreams::MakeStreamThreadSafe( pStream );
+	}
+	else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sCommand, "SPLIT" ) )
+	{
+		if( vecArguments.empty() )
+		{
+			vstr::warnp() << "VistaStreams::CreateStreamsFromProplist -- "
+						<< "Call to \"SPLIT\" missing arguments - specify at least one stream" << std::endl;
+			return NULL;
+		}
+		// to prevent memory leaks/multiple creations of substreams, we have to first wait till all our strings can be
+		// created
+		for( std::vector<std::string>::const_iterator itArg = vecArguments.begin();
+				itArg != vecArguments.end(); ++itArg )
+		{			
+			std::list<std::string>::const_iterator itWait = std::find(
+							liStreamsToCreate.begin(), liStreamsToCreate.end(), (*itArg) );
+			if( itWait != liStreamsToCreate.end() )
+			{
+				nResult = 0;
+				return NULL;	
+			}
+		}
+
+		VistaSplitOutstream* pSplitStream = new VistaSplitOutstream;
+		if( bThreadSafeStream )
+			VistaStreams::MakeStreamThreadSafe( pSplitStream );
+		for( std::vector<std::string>::const_iterator itArg = vecArguments.begin();
+				itArg != vecArguments.end(); ++itArg )
+		{		
+			std::ostream* pSubStream = CreateStreamFromDescription( (*itArg), oConfig, false, liStreamsToCreate, nResult );
+			if( pSubStream == NULL )
+			{
+				vstr::warnp() << "VistaStreams::CreateStreamsFromProplist -- "
+							<< "\"SPLIT\"-command's substream \"" << (*itArg)
+							<< "\" could not be created" << std::endl;
+			}
+			else
+			{
+				pSplitStream->AddStream( pSubStream );
+			}			
+		}
+		pStream = pSplitStream;
+	}
+	else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sCommand, "BUILDTYPE" ) )
+	{
+		if( vecArguments.size() )
+		{
+			vstr::warnp() << "VistaStreams::CreateStreamsFromProplist -- "
+						<< "Call to \"BUILDTYPE\" requires exactly two parameters" << std::endl;
+			return NULL;
+		}
+#ifdef DEBUG
+		std::string sBuildTypeName = vecArguments[1];
+#else
+		std::string sBuildTypeName = vecArguments[0];
+#endif
+		std::list<std::string>::const_iterator itWait = std::find(
+							liStreamsToCreate.begin(), liStreamsToCreate.end(),sBuildTypeName );
+		if( itWait != liStreamsToCreate.end() )
+		{
+			nResult = 0;
+			return NULL;
+		}
+		pStream = CreateStreamFromDescription( sBuildTypeName, oConfig, true, liStreamsToCreate, nResult );
+		if( nResult != 1 )
+			return NULL;
+		
+	}
+	else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sCommand, "OUT" ) )
+	{
+		std::list<std::string>::const_iterator itWait = std::find(
+					liStreamsToCreate.begin(), liStreamsToCreate.end(), "out" );
+		if( itWait != liStreamsToCreate.end() )
+		{
+			nResult = 0;
+			return NULL;
+		}
+		pStream = &vstr::out();
+	}
+	else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sCommand, "WARN" ) )
+	{
+		std::list<std::string>::const_iterator itWait = std::find(
+					liStreamsToCreate.begin(), liStreamsToCreate.end(), "warn" );
+		if( itWait != liStreamsToCreate.end() )
+		{
+			nResult = 0;
+			return NULL;
+		}
+		pStream = &vstr::warn();
+	}
+	else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sCommand, "ERR" ) )
+	{
+		std::list<std::string>::const_iterator itWait = std::find(
+					liStreamsToCreate.begin(), liStreamsToCreate.end(), "err" );
+		if( itWait != liStreamsToCreate.end() )
+		{
+			nResult = 0;
+			return NULL;
+		}
+		pStream = &vstr::err();
+	}
+	else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sCommand, "DEBUG" ) )
+	{
+		std::list<std::string>::const_iterator itWait = std::find(
+					liStreamsToCreate.begin(), liStreamsToCreate.end(), "debug" );
+		if( itWait != liStreamsToCreate.end() )
+		{
+			nResult = 0;
+			return NULL;
+		}
+		pStream = &vstr::debug();
+	}
+	else
+	{
+		std::list<std::string>::const_iterator itWait = std::find(
+					liStreamsToCreate.begin(), liStreamsToCreate.end(), sCommand );
+		if( itWait != liStreamsToCreate.end() )
+		{
+			nResult = 0;
+			return NULL;
+		}
+
+		if( vstr::GetStreamManager()->GetHasStream( sCommand ) == false )
+		{
+			vstr::warnp() << "VistaStreams::CreateStreamsFromProplist -- "
+						<< "Cannot interprete definition \"" << sDefinition << "\" - "
+						<< "unknown command or non-existent stream" << std::endl;
+			return NULL;
+		}
+		pStream = &vstr::Stream( sCommand );		
+	}
+
+	nResult = 1;
+	return pStream;
+}
+
+bool VistaStreams::CreateStreamsFromProplist( const VistaPropertyList& oConfig )
+{
+	std::list<std::string> liStreamsToCreate;
+	VistaAspectsComparisonStuff::StringCompareObject oCompare( false );
+
+	bool bThreadSafe = oConfig.GetValueOrDefault<bool>( "THREADSAFE", true );
+
+
+	for( VistaPropertyList::const_iterator itEntry = oConfig.begin();
+			itEntry != oConfig.end(); ++itEntry )
+	{
+		if( oCompare( (*itEntry).first, "THREADSAFE" ) )
+			continue;
+		if( oCompare( (*itEntry).first, "OUT" )
+			|| oCompare( (*itEntry).first, "WARN" )
+			|| oCompare( (*itEntry).first, "ERR" )
+			|| oCompare( (*itEntry).first, "DEBUG" ) )
+		{
+			liStreamsToCreate.push_back( VistaConversion::StringToLower( (*itEntry).first ) );
+		}
+		else
+		{
+			liStreamsToCreate.push_back( (*itEntry).first );
+		}
+	}
+
+	int nMaxIterations = oConfig.size() * oConfig.size();
+	int nIterations = 0;
+
+	while( liStreamsToCreate.empty() == false )
+	{
+		if( ++nIterations > nMaxIterations )
+		{
+			VISTA_THROW( "Recursive Stream Definition!", -1 );
+		}
+
+		std::string sStreamName = liStreamsToCreate.front();
+		liStreamsToCreate.pop_front();
+
+		int nRes;
+		std::ostream* pStream = CreateStreamFromDescription( oConfig.GetValue<std::string>( sStreamName ),
+															oConfig, bThreadSafe, liStreamsToCreate, nRes );
+		if( nRes == 0 )
+		{
+			liStreamsToCreate.push_back( sStreamName );
+		}
+		else if( nRes == 1 )
+		{
+			vstr::GetStreamManager()->AddStream( sStreamName, *pStream, false, true );
+			if( oCompare( sStreamName, "OUT" ) )
+				vstr::SetOutStream( pStream );
+			else if( oCompare( sStreamName, "WARN" ) )
+				vstr::SetWarnStream( pStream );
+			else if( oCompare( sStreamName, "ERR" ) )
+				vstr::SetErrStream( pStream );
+			else if( oCompare( sStreamName, "DEBUG" ) )
+				vstr::SetDebugStream( pStream );
+		}
+
+	}
+
+	return true;
 }

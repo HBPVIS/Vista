@@ -167,7 +167,7 @@ bool VistaPrintProfilerOutputCommand::Do()
 {
 	std::cout << "\nProfilingInfo:\n";
 	if( VistaBasicProfiler::GetSingleton() )
-		VistaBasicProfiler::GetSingleton()->PrintProfile( std::cout, 5 );
+		VistaBasicProfiler::GetSingleton()->PrintProfile( vstr::out(), 5 );
 	return true;
 }
 

@@ -230,6 +230,7 @@ private:
 	bool SetupGraphicsManager();
 	bool SetupInteractionManager();
 
+	bool SetupOutputStreams();
 	bool SetupBasicInteraction();
 	VistaInteractionContext* SetupInteractionContext( const std::string& strContextSec );
 	void BindKeyboardActions();

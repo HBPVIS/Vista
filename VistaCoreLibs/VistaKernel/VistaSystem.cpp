@@ -68,6 +68,7 @@
 
 #include <VistaTools/VistaEnvironment.h>
 #include <VistaTools/VistaTopologyGraph.h>
+#include <VistaTools/VistaStreams.h>
 #include <VistaAspects/VistaConversion.h>
 #include <VistaAspects/VistaIniFileParser.h>
 
@@ -614,6 +615,8 @@ bool VistaSystem::DoInit( int argc, char **argv )
 		return false;
 	}
 
+	SetupOutputStreams();
+
 	// Create SystemClassFactory
 #if defined(VISTA_SYS_OPENSG)
 	m_pSystemClassFactory = new VistaOpenSGSystemClassFactory( this );
@@ -639,8 +642,6 @@ bool VistaSystem::DoInit( int argc, char **argv )
 
 	if( SetupCluster() == false )
 		return false;
-
-	vstr::GetStreamManager()->SetInfoInterface( new VistaKernelStreamInfoInterface( this ) );
 
 	std::vector<IVistaSystemClassFactory::Manager> vOrder = m_pSystemClassFactory->GetInitOrder();
 	for( unsigned int i = 0; i < vOrder.size() ; ++i )
@@ -2890,6 +2891,34 @@ bool VistaSystem::LoadDriverPlugin( const std::string& sDriverType,
 
 	return true;
 #endif // no static build
+}
+
+bool VistaSystem::SetupOutputStreams()
+{
+	vstr::GetStreamManager()->SetInfoInterface( new VistaKernelStreamInfoInterface( this ) );
+
+	std::string sOutputConfigSection;
+	if( m_oClusterConfig.GetValueInSubList( "OUTPUT", m_sClusterNodeName, sOutputConfigSection ) )
+	{
+		if( m_oClusterConfig.HasSubList( sOutputConfigSection ) == false )
+		{
+			vstr::warnp() << "Output configuration section [" << sOutputConfigSection
+						<< "] requested, but does not exist" << std::endl;
+			return false;
+		}
+		return VistaStreams::CreateStreamsFromProplist( m_oClusterConfig.GetSubListConstRef( sOutputConfigSection ) );
+	}
+	else if( m_oVistaConfig.GetValueInSubList( "OUTPUT", GetSystemSectionName(), sOutputConfigSection ) )
+	{
+		if( m_oVistaConfig.HasSubList( sOutputConfigSection ) == false )
+		{
+			vstr::warnp() << "Output configuration section [" << sOutputConfigSection
+						<< "] requested, but does not exist" << std::endl;
+			return false;
+		}
+		return VistaStreams::CreateStreamsFromProplist( m_oVistaConfig.GetSubListConstRef( sOutputConfigSection ) );
+	}
+	return true;
 }
 
 /*============================================================================*/
