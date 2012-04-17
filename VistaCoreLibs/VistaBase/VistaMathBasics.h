@@ -56,6 +56,7 @@ namespace Vista
 	float DegToRad( const float fDegrees );
 	float RadToDeg( const float fRadians );
 	bool IsValidNumber( const float fValue );
+	template<class T> T Clamp( const T val, const T minVal, const T maxVal );
 }
 
 /**
@@ -78,6 +79,16 @@ inline bool Vista::IsValidNumber( const float fValue )
 	return ( fValue == fValue
 			&& fValue != std::numeric_limits<float>::infinity() );
 };
+
+template<class T>
+T Vista::Clamp( const T nVal, const T nMinVal, const T nMaxVal )
+{
+	// @todo Interfers with min/max macros on windows.
+	//return std::min( std::max( nVal, nMinVal ), nMaxVal );
+
+	//     ------- min check -------|------------ max check -------------
+	return nVal < nMinVal ? nMinVal : ( nVal > nMaxVal ? nMaxVal : nVal );
+}
 
 
 #endif //_VISTAMATHBASICS_H
