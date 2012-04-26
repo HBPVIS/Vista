@@ -6,7 +6,7 @@ cppreplaces = [
 	( re.compile( r'(\.|->)PrintPropertyList(\s*\()', re.MULTILINE ), r'\1Print\2' ),
 	( re.compile( r'(\.|->)GetHasProperty(\s*\()', re.MULTILINE ), r'\1HasProperty\2' ),
 	( re.compile( r'(\.|->)GetHasSubList(\s*\()', re.MULTILINE ), r'\1HasSubList\2' ),
-	( re.compile( r'VistaColor', re.MULTILINE ), r'VirtaColorRGB' ),
+	( re.compile( r'VistaColorRGB', re.MULTILINE ), r'VistaColor' ),
 	
 	( re.compile( r'VistaSG', re.MULTILINE ), r'VistaSceneGraph' ),
 	( re.compile( r'(\.|->)(Get|Set)CullingEnabled', re.MULTILINE ), r'\1\2OcclusionCullingEnabled' ),
