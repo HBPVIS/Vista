@@ -1412,7 +1412,7 @@ bool VistaSystem::SetupMessagePort()
 	if( m_pClusterMode->GetIsFollower() )
 	{
 		vstr::outi() << "[SetupMessagePort]: Creation skipped on Cluster-Follower-Node - "
-			<< "will only be created on LEader-Nodes" << std::endl;
+			<< "will only be created on Leader-Nodes" << std::endl;
 		return true;
 	}
 
