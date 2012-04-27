@@ -123,9 +123,9 @@ IVdfnNode* RandomNumberDfnNodeCreate::CreateNode( const VistaPropertyList& oPara
 	const VistaPropertyList& oSubParams = oParams.GetPropertyConstRef ("param" ).GetPropertyListConstRef();
 
 	if( oSubParams.HasProperty( "min" ) )
-		fMin = (float)oSubParams.GetDoubleValue( "min" );
+		fMin = (float)oSubParams.GetValue<double>( "min" );
 	if( oSubParams.HasProperty( "max" ) )
-		fMax = (float)oSubParams.GetDoubleValue( "max" );
+		fMax = (float)oSubParams.GetValue<double>( "max" );
 	return new RandomNumberDfnNode( fMin, fMax );
 }
 

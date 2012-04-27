@@ -44,7 +44,7 @@ ColorChangerDfnNode::ColorChangerDfnNode()
 	 * object of the type IVdfnPort, by using the templated TVdfnPort with
 	 * VistaVector3D as template class. Note that the DataFlowNet only supports
 	 * a limited set of datatypes, which is why we store our output color as
-	 * VistaVector3D, instead of VistaColorRGB.
+	 * VistaVector3D, instead of VistaColor.
 	 * After creation of the port, we register it so that the DFN knows about
 	 * it, and thereby give it a name with which we reference it in the graph file.
 	 * Also note that by registering, we hand over memory management to the node

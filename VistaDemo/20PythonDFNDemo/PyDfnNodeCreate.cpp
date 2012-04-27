@@ -25,7 +25,7 @@ IVdfnNode* PyDfnNodeCreate::CreateNode( const VistaPropertyList& oParams ) const
 		exit(-1);
 	}
 	
-	std::string path(oSubParams.GetStringValue("path"));
+	std::string path(oSubParams.GetValue<std::string>("path"));
 
 	return new PyDfnNode(path);
 }
