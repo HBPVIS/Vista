@@ -213,9 +213,11 @@ private:
 
 			if( m_pVariablesProplist != NULL )
 			{
-				if( m_pVariablesProplist->HasProperty( nVariable ) )
+				std::string vVarValue;
+				if( m_pVariablesProplist->GetValue( nVariable, vVarValue ) )
 				{
-					sString = sString.replace( nStart, nEnd - nStart + 1, m_pVariablesProplist->GetValue<std::string>( nVariable ) );
+					sString = sString.replace( nStart, nEnd - nStart + 1, vVarValue );
+					nSearchStart = nStart + vVarValue.size();
 					return;
 				}
 			}
@@ -232,6 +234,7 @@ private:
 
 			PARSE_WARN << "Could not replace variable ["
 						<< nVariable << "]" << std::endl;
+			nSearchStart = nEnd;
 		}
 
 	}
