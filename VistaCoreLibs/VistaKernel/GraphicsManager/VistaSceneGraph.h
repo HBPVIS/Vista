@@ -277,10 +277,10 @@ public:
 	IVistaNode* CloneSubtree( IVistaNode *pNode, VistaGroupNode* pNewParent = NULL );
 
 	/**
-	 * Returns all nodes of type wantedNodeType in the subtree starting from pNode.
-	 * @return a std vector containing pointers to the nodes
+	 * Searchs all nodes of type wantedNodeType in the subtree starting from pNode and pushes them into vecNodesOfWantedType.
+	 * If pNode is NULL the whole scene graph is searched
 	 */
-	std::vector<IVistaNode*>* GetAllSubNodesOfType( IVistaNode *pNode, const VISTA_NODETYPE& wantedNodeType ) const;
+	void GetAllSubNodesOfType( std::vector<IVistaNode*>& vecNodesOfWantedType, const VISTA_NODETYPE& wantedNodeType, IVistaNode *pNode = NULL ) const;
 
 protected:
 	//NEW: NodeBridge and GraphicsBridge are concepts of the new VistaGraphicsManager

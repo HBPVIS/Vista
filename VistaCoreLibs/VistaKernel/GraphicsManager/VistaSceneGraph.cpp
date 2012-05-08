@@ -1058,12 +1058,9 @@ VistaLightNode* VistaSceneGraph::NewLightFromProplist( const VistaPropertyList& 
 	return pLight;
 }
 
-std::vector<IVistaNode*>* VistaSceneGraph::GetAllSubNodesOfType( IVistaNode *pNode, const VISTA_NODETYPE& wantedNodeType ) const
+void VistaSceneGraph::GetAllSubNodesOfType( std::vector<IVistaNode*>& vecNodesOfWantedType, const VISTA_NODETYPE& wantedNodeType, IVistaNode *pNode) const
 {
-	if(!pNode)
-		return NULL;
-
-	std::vector<IVistaNode*>* returnVector  = new std::vector<IVistaNode*>;
+	if(!pNode) pNode = GetRoot();
 
 	std::stack<IVistaNode*> NodeStack;
 	IVistaNode*	pCurrNode	= NULL;
@@ -1075,7 +1072,7 @@ std::vector<IVistaNode*>* VistaSceneGraph::GetAllSubNodesOfType( IVistaNode *pNo
 		pCurrNode = NodeStack.top();
 		NodeStack.pop();
 		//if it has the wanted type, add to results
-		if(pCurrNode->GetType() == wantedNodeType) returnVector->push_back(pCurrNode);
+		if(pCurrNode->GetType() == wantedNodeType) vecNodesOfWantedType.push_back(pCurrNode);
 		//check if there are further kids and enqueue them for further search
 		pCurrNodeAsGroupNode = dynamic_cast<VistaGroupNode*>(pCurrNode);
 		if(pCurrNodeAsGroupNode!=NULL)
@@ -1086,8 +1083,6 @@ std::vector<IVistaNode*>* VistaSceneGraph::GetAllSubNodesOfType( IVistaNode *pNo
 			}
 		}
 	}
-
-	return returnVector;
 }
 
 /*============================================================================*/
