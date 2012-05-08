@@ -31,6 +31,7 @@
 #include <VistaKernel/VistaKernelConfig.h>
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
 #include <VistaKernel/GraphicsManager/VistaGeometry.h>
+#include <VistaKernel/GraphicsManager/VistaNodeInterface.h>
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
@@ -65,7 +66,6 @@ class VistaPropertyList;
 class VistaExtensionNode;
 class IVistaExplicitCallbackInterface;
 class IVista3DText;
-
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -116,7 +116,7 @@ public:
 	*/
 	VistaGeomNode*		NewGeomNode		(VistaGroupNode* pParent, VistaGeometry* pGeom);
 
-	VistaLightNode*			NewLightFromProplist( const VistaPropertyList& oProps, 
+	VistaLightNode*			NewLightFromProplist( const VistaPropertyList& oProps,
 													VistaGroupNode* pParent );
 	VistaAmbientLight*		NewAmbientLight	(VistaGroupNode* pParent);
 	VistaDirectionalLight*	NewDirectionalLight	(VistaGroupNode* pParent);
@@ -130,7 +130,6 @@ public:
 	int					GetNumberOfMaterials	(void);
 	virtual bool GetMaterialByIndex(int iIndex, VistaMaterial &oIn) const;
 	virtual bool GetMaterialByName(const std::string &sName, VistaMaterial &oIn) const;
-
 
 	/** Generate a new geometry object
 	  * @return VistaGeometry* : Pointer to newly created geometry object
@@ -276,6 +275,12 @@ public:
 	 * @return the copied version of pNode (i.e. local root of the new subtree)
 	 */
 	IVistaNode* CloneSubtree( IVistaNode *pNode, VistaGroupNode* pNewParent = NULL );
+
+	/**
+	 * Returns all nodes of type wantedNodeType in the subtree starting from pNode.
+	 * @return a std vector containing pointers to the nodes
+	 */
+	std::vector<IVistaNode*>* GetAllSubNodesOfType( IVistaNode *pNode, const VISTA_NODETYPE& wantedNodeType ) const;
 
 protected:
 	//NEW: NodeBridge and GraphicsBridge are concepts of the new VistaGraphicsManager

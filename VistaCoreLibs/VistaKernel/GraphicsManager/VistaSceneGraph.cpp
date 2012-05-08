@@ -52,7 +52,6 @@
 #include <cassert>
 #include <stack>
 
-
 /*============================================================================*/
 /*  MAKROS AND DEFINES                                                        */
 /*============================================================================*/
@@ -78,11 +77,10 @@ VistaSceneGraph::~VistaSceneGraph()
 
 	m_pRoot = NULL;
 	m_pModelRoot = NULL;
-
 }
 // ============================================================================
 // ============================================================================
-bool VistaSceneGraph::Init(IVistaNodeBridge* pNodeBridge, 
+bool VistaSceneGraph::Init(IVistaNodeBridge* pNodeBridge,
 					IVistaGraphicsBridge* pGraphicsBridge)
 {
 	if(pNodeBridge && pGraphicsBridge)
@@ -95,16 +93,16 @@ bool VistaSceneGraph::Init(IVistaNodeBridge* pNodeBridge,
 
 		if(!m_pNodeBridge)
 			return false;
-		
+
 		//New implementation specific representation of rootnode
 		IVistaNodeData*		pNewData =	m_pNodeBridge->NewRootNodeData();
-		
+
 		if(!pNewData)
 			return false;
 
 		m_pRoot = new VistaTransformNode(NULL,m_pNodeBridge,pNewData);
 		m_pRoot->SetName("ViSTA-root");
-		
+
 		//init base transform of rootnode
 		//base transform is set via vista.ini and hidden from the user hereafter
 		/// @todo make this a group node
@@ -122,18 +120,18 @@ VistaGroupNode* VistaSceneGraph::NewGroupNode(VistaGroupNode* pParent)
 {
 	if(!m_pNodeBridge)
 		return NULL;
-	
+
 	VistaGroupNode*	pNewnode =	NULL;
 	//New implementation specific representation of groupnode
 	IVistaNodeData*		pNewData =	m_pNodeBridge->NewGroupNodeData();
-	
+
 	if(!pNewData)
 		return NULL;
 
 	pNewnode = new VistaGroupNode(pParent,m_pNodeBridge,pNewData);
 	if(pNewnode && pParent)
 		pParent->AddChild(pNewnode);
-	
+
 	return pNewnode;
 }
 // ============================================================================
@@ -142,11 +140,11 @@ VistaSwitchNode* VistaSceneGraph::NewSwitchNode(VistaGroupNode* pParent)
 {
 	if(!m_pNodeBridge)
 		return NULL;
-	
+
 	VistaSwitchNode*	pNewnode =	NULL;
 	//New implementation specific representation of switchnode
 	IVistaNodeData*		pNewData =	m_pNodeBridge->NewSwitchNodeData();
-	
+
 	if(!pNewData)
 		return NULL;
 
@@ -161,11 +159,11 @@ VistaLODNode* VistaSceneGraph::NewLODNode(VistaGroupNode* pParent)
 {
 	if(!m_pNodeBridge)
 		return NULL;
-	
+
 	VistaLODNode*	pNewnode =	NULL;
 	//New implementation specific representation of switchnode
 	IVistaNodeData*		pNewData =	m_pNodeBridge->NewLODNodeData();
-	
+
 	if(!pNewData)
 		return NULL;
 
@@ -177,7 +175,7 @@ VistaLODNode* VistaSceneGraph::NewLODNode(VistaGroupNode* pParent)
 // ============================================================================
 // ============================================================================
 VistaGeomNode* VistaSceneGraph::NewGeomNode(VistaGroupNode* pParent, VistaGeometry* pGeom)
-{	
+{
 	if(!m_pNodeBridge || !pGeom)
 		return NULL;
 
@@ -202,7 +200,7 @@ VistaTransformNode *VistaSceneGraph::NewTransformNode(VistaGroupNode *pParent)
 	VistaTransformNode*	pNewnode =	NULL;
 
 	IVistaNodeData*		pNewData =	m_pNodeBridge->NewTransformNodeData();
-	
+
 	if(!pNewData)
 		return NULL;
 
@@ -210,7 +208,7 @@ VistaTransformNode *VistaSceneGraph::NewTransformNode(VistaGroupNode *pParent)
 
 	if(pNewnode && pParent)
 		pParent->AddChild(pNewnode);
-	return pNewnode;	
+	return pNewnode;
 }
 
 // ============================================================================
@@ -220,7 +218,7 @@ VistaLightNode* VistaSceneGraph::NewLightNode(VistaGroupNode* pParent, VISTA_LIG
 {
 	if(!m_pNodeBridge)
 		return NULL;
-	
+
 	VistaLightNode*	pNewnode = NULL;
 	//New implementation specific representation of lightnode
 	IVistaNodeData*		pNewData = m_pNodeBridge->NewLightNodeData(t);
@@ -239,7 +237,7 @@ VistaAmbientLight*	VistaSceneGraph::NewAmbientLight (VistaGroupNode* pParent)
 {
 	if(!m_pNodeBridge)
 		return NULL;
-	
+
 	VistaAmbientLight*	pNewnode = NULL;
 	//New implementation specific representation of lightnode
 	IVistaNodeData*		pNewData = m_pNodeBridge->NewLightNodeData(VISTA_AMBIENT_LIGHT);
@@ -254,7 +252,6 @@ VistaAmbientLight*	VistaSceneGraph::NewAmbientLight (VistaGroupNode* pParent)
 		return NULL;
 	}
 
-
 	if(pParent)
 		pParent->AddChild(pNewnode);
 
@@ -265,7 +262,7 @@ VistaDirectionalLight* VistaSceneGraph::NewDirectionalLight (VistaGroupNode* pPa
 {
 	if(!m_pNodeBridge)
 		return NULL;
-	
+
 	VistaDirectionalLight*	pNewnode = NULL;
 	//New implementation specific representation of lightnode
 	IVistaNodeData*		pNewData = m_pNodeBridge->NewLightNodeData(VISTA_DIRECTIONAL_LIGHT);
@@ -274,7 +271,7 @@ VistaDirectionalLight* VistaSceneGraph::NewDirectionalLight (VistaGroupNode* pPa
 		return NULL;
 
 	pNewnode = m_pNodeBridge->NewDirectionalLight(pParent, pNewData, "DirectionalLight");
-	
+
 	if(!pNewnode)
 	{
 		delete pNewData;
@@ -291,7 +288,7 @@ VistaPointLight* VistaSceneGraph::NewPointLight (VistaGroupNode* pParent)
 {
 	if(!m_pNodeBridge)
 		return NULL;
-	
+
 	VistaPointLight*	pNewnode = NULL;
 	//New implementation specific representation of lightnode
 	IVistaNodeData*		pNewData = m_pNodeBridge->NewLightNodeData(VISTA_POINT_LIGHT);
@@ -309,7 +306,6 @@ VistaPointLight* VistaSceneGraph::NewPointLight (VistaGroupNode* pParent)
 	if(pParent)
 		pParent->AddChild(pNewnode);
 
-
 	return pNewnode;
 }
 
@@ -317,7 +313,7 @@ VistaSpotLight* VistaSceneGraph::NewSpotLight (VistaGroupNode* pParent)
 {
 	if(!m_pNodeBridge)
 		return NULL;
-	
+
 	VistaSpotLight*	pNewnode = NULL;
 	//New implementation specific representation of lightnode
 	IVistaNodeData*		pNewData = m_pNodeBridge->NewLightNodeData(VISTA_SPOT_LIGHT);
@@ -334,7 +330,7 @@ VistaSpotLight* VistaSceneGraph::NewSpotLight (VistaGroupNode* pParent)
 
 	if(pParent)
 		pParent->AddChild(pNewnode);
-	
+
 	return pNewnode;
 }
 
@@ -345,10 +341,10 @@ VistaOpenGLNode* VistaSceneGraph::NewOpenGLNode(VistaGroupNode* pParent, IVistaO
 {
 	//New implementation specific representation of lightnode
 	IVistaNodeData*		pNewData = m_pNodeBridge->NewOpenGLNodeData();
-	
+
 	if(!pNewData)
 		return NULL;
-	
+
 	VistaOpenGLNode*pNewNode = new VistaOpenGLNode(pParent, pDI, m_pNodeBridge, pNewData);
 	if(pNewNode && pNewNode->Init())
 	{
@@ -359,17 +355,16 @@ VistaOpenGLNode* VistaSceneGraph::NewOpenGLNode(VistaGroupNode* pParent, IVistaO
 	else
 		delete pNewData;
 
-
 	return NULL;
 }
 
 VistaExtensionNode *VistaSceneGraph::NewExtensionNode(VistaGroupNode *pParent, IVistaExplicitCallbackInterface *pExt)
 {
 	IVistaNodeData*		pNewData = m_pNodeBridge->NewExtensionNodeData();
-	
+
 	if(!pNewData)
 		return NULL;
-	
+
 	VistaExtensionNode*pNewNode = new VistaExtensionNode(pParent, pExt, m_pNodeBridge, pNewData);
 	if(pNewNode && pNewNode->Init())
 	{
@@ -380,7 +375,6 @@ VistaExtensionNode *VistaSceneGraph::NewExtensionNode(VistaGroupNode *pParent, I
 	else
 		delete pNewData;
 
-
 	return NULL;
 }
 
@@ -388,7 +382,7 @@ VistaExtensionNode *VistaSceneGraph::NewExtensionNode(VistaGroupNode *pParent, I
 // ============================================================================
 
 VistaGeometry* VistaSceneGraph::NewIndexedGeometry(
-		const vector<VistaIndexedVertex>& vertices, 
+		const vector<VistaIndexedVertex>& vertices,
 		const vector<VistaVector3D>& coords,
 		const vector<VistaVector3D>& textureCoords,
 		const vector<VistaVector3D>& normals,
@@ -401,18 +395,17 @@ VistaGeometry* VistaSceneGraph::NewIndexedGeometry(
 	//create an empty geometry
 	VistaGeometry* pNewGeom = new VistaGeometry(m_pGraphicsBridge, pData);
 	//fill the geometry with content
-	if(pData && pNewGeom && pNewGeom->CreateIndexedGeometry(vertices, coords, textureCoords, 
+	if(pData && pNewGeom && pNewGeom->CreateIndexedGeometry(vertices, coords, textureCoords,
 										normals, colors, vFormat, fType))
 		return pNewGeom;
 	else
 		delete pData;
 
-
 	return NULL;
 }
 
 VistaGeometry* VistaSceneGraph::NewIndexedGeometry(
-		const vector<VistaIndexedVertex>& vertices, 
+		const vector<VistaIndexedVertex>& vertices,
 		const vector<float>& coords,
 		const vector<float>& textureCoords,
 		const vector<float>& normals,
@@ -425,12 +418,11 @@ VistaGeometry* VistaSceneGraph::NewIndexedGeometry(
 	//create an empty geometry
 	VistaGeometry* pNewGeom = new VistaGeometry(m_pGraphicsBridge, pData);
 	//fill the geometry with content
-	if(pData && pNewGeom && pNewGeom->CreateIndexedGeometry(vertices, coords, textureCoords, 
+	if(pData && pNewGeom && pNewGeom->CreateIndexedGeometry(vertices, coords, textureCoords,
 										normals, colors, vFormat, fType))
 		return pNewGeom;
 	else
 		delete pData;
-
 
 	return NULL;
 }
@@ -441,9 +433,9 @@ bool VistaSceneGraph::DeleteLeaf(VistaLeafNode* pLeafNode)
 {
 	if(!pLeafNode)
 		return false;
-	
+
 	VistaGroupNode* pParent = pLeafNode->GetParent();
-	
+
 	if(pParent)
 	{
 		 pParent->DisconnectChild(pLeafNode);
@@ -510,7 +502,7 @@ bool VistaSceneGraph::DeleteSubTree(VistaGroupNode* pSubTreeRoot)
 				//VISTA_NODE can be deleted directly (rem.: VISTA_NODEs can be created during Rebuild-Process)
 				if(pCurrChild->GetType() == VISTA_NODE)
 					delete pCurrChild;
-				else 
+				else
 				{
 					//LeafNodes of any type can be deleted directly
 					if(!pCurrChild->CanHaveChildren())
@@ -555,7 +547,7 @@ void VistaSceneGraph::Debug(std::ostream& out) const
 	out << vstr::indent << "[ViSG] Current ROOT_NODE transform is: \n";
 	out << vstr::indent << matrix;
 	out << vstr::indent << "\n[ViSG] Current SG layout is : \n";
-	
+
 	//TNodePair holds a node to be printed and a number indicating the depth in the SG
 	typedef std::pair<IVistaNode*,int> TNodePair;
 	std::stack<TNodePair> NodeStack;
@@ -581,7 +573,7 @@ void VistaSceneGraph::Debug(std::ostream& out) const
 		//Print out node data...
 		(AktPair.first)->Debug(out, AktPair.second);
 	}
-	
+
 	VistaVector3D min, max;
 
 	m_pRoot->GetBoundingBox(min, max);
@@ -611,9 +603,9 @@ IVistaNode* VistaSceneGraph::GetNode(const std::string &strName,
 	IVistaNode* pFoundNode = NULL;
 	IVistaNode* pCurrNode = NULL;
 	VistaGroupNode* pFather = NULL;
-	
+
 	std::stack<IVistaNode*> NodeStack;
-	
+
 	IVistaNode *pSearchRoot = pSubRoot ? pSubRoot : m_pModelRoot;
 
 	NodeStack.push(pSearchRoot);
@@ -621,10 +613,10 @@ IVistaNode* VistaSceneGraph::GetNode(const std::string &strName,
 	{
 		pCurrNode = NodeStack.top();
 		NodeStack.pop();
-		
+
 		if(pCurrNode->GetName() == strName)
 			pFoundNode = pCurrNode;
-		
+
 		if(pCurrNode->CanHaveChildren())
 		{
 			//push all children of current node onto the stack
@@ -640,7 +632,7 @@ IVistaNode* VistaSceneGraph::GetNode(const std::string &strName,
 }
 // ============================================================================
 // ============================================================================
-VistaGroupNode* VistaSceneGraph::LoadSubTree(const std::string &strFileName, 
+VistaGroupNode* VistaSceneGraph::LoadSubTree(const std::string &strFileName,
 									   VistaSceneGraph::eOptFlags eOpts,
 									   float fScale,
 									   bool bVerbose )
@@ -649,7 +641,7 @@ VistaGroupNode* VistaSceneGraph::LoadSubTree(const std::string &strFileName,
 										fScale,
 										VistaSceneGraph::eOptFlags(eOpts),
 										bVerbose);
-	if( pLoadedNode && pLoadedNode->GetType() == VISTA_GROUPNODE )
+	if( pLoadedNode && (pLoadedNode->GetType() == VISTA_GROUPNODE || pLoadedNode->GetType() == VISTA_TRANSFORMNODE ))
 	{
 		return static_cast<VistaGroupNode*>(pLoadedNode);
 	}
@@ -669,12 +661,12 @@ bool VistaSceneGraph::SaveSubTree(std::string strFileName, VistaNode* pNode)
 }
 // ============================================================================
 // ============================================================================
-VistaGeomNode* VistaSceneGraph::LoadGeomNode( const std::string &strFileName, 
+VistaGeomNode* VistaSceneGraph::LoadGeomNode( const std::string &strFileName,
 										VistaSceneGraph::eOptFlags eOpts,
 										float fScale,
 										bool bVerbose )
 {
-	IVistaNode* pLoadedNode = m_pNodeBridge->LoadNode( strFileName, 
+	IVistaNode* pLoadedNode = m_pNodeBridge->LoadNode( strFileName,
 														fScale,
 														VistaSceneGraph::eOptFlags(eOpts),
 														bVerbose );
@@ -686,7 +678,7 @@ VistaGeomNode* VistaSceneGraph::LoadGeomNode( const std::string &strFileName,
 			return static_cast<VistaGeomNode*>(pLoadedNode);
 		}
 		// try to skip a prefixed group node and look if we can find the geo node beneath...
-		else if(pLoadedNode->CanHaveChildren()) 
+		else if(pLoadedNode->CanHaveChildren())
 		{
 			VistaGroupNode *pNode = dynamic_cast<VistaGroupNode*>(pLoadedNode);
 			if(pNode->GetNumChildren() == 1)
@@ -694,7 +686,7 @@ VistaGeomNode* VistaSceneGraph::LoadGeomNode( const std::string &strFileName,
 				if( pNode->GetChild(0)->GetType() == VISTA_GEOMNODE )
 				{
 					VistaGeomNode *pGeom = dynamic_cast<VistaGeomNode*>(pNode->GetChild(0));
-					
+
 					pNode->DisconnectChild((unsigned int)0);
 					DeleteGroupNode( pNode );
 					return pGeom;
@@ -708,7 +700,7 @@ VistaGeomNode* VistaSceneGraph::LoadGeomNode( const std::string &strFileName,
 	return NULL;
 }
 
-IVistaNode * VistaSceneGraph::LoadNode( const std::string &sFileName, 
+IVistaNode * VistaSceneGraph::LoadNode( const std::string &sFileName,
 								VistaSceneGraph::eOptFlags eOpts,
 								float fScale,
 								bool bVerbose )
@@ -722,7 +714,6 @@ bool VistaSceneGraph::ApplyOptimizationToNode( IVistaNode *pNode,
 {
 	return m_pNodeBridge->ApplyOptimizationToNode( pNode, VistaSceneGraph::eOptFlags(eFlags), bVerbose );
 }
-
 
 int VistaSceneGraph::GetNumberOfMaterials(void)
 {
@@ -755,15 +746,14 @@ VistaTextNode *VistaSceneGraph::NewTextNode(VistaGroupNode *pParent, const std::
 	else
 		pText->SetFontName(sFontDesc);
 
-
 	IVistaNodeData*		pNewData = m_pNodeBridge->NewTextNodeData(pText);
-	
+
 	if(!pNewData)
 	{
 		m_pNodeBridge->DestroyFontRepresentation(pText);
 		return NULL;
 	}
-	
+
 	VistaTextNode *pNode = new VistaTextNode(pParent, pText, m_pNodeBridge, pNewData);
 
 	if(pParent)
@@ -772,7 +762,7 @@ VistaTextNode *VistaSceneGraph::NewTextNode(VistaGroupNode *pParent, const std::
 	return pNode;
 }
 
-IVistaNode* VistaSceneGraph::CloneSubtree( IVistaNode* pNode, 
+IVistaNode* VistaSceneGraph::CloneSubtree( IVistaNode* pNode,
 									VistaGroupNode* pNewParent )
 {
 	IVistaNode* pNewNode = m_pNodeBridge->CloneSubtree( static_cast<VistaNode*>( pNode )->GetData() );
@@ -833,7 +823,7 @@ IVistaNode* VistaSceneGraph::CloneSubtree( IVistaNode* pNode,
 	//	case VISTA_LIGHTNODE:
 	//	case VISTA_AMBIENTLIGHTNODE:
 	//	case VISTA_DIRECTIONALLIGHTNODE:
-	//	case VISTA_POINTLIGHTNODE:	
+	//	case VISTA_POINTLIGHTNODE:
 	//	case VISTA_SPOTLIGHTNODE:
 	//	{
 	//		VistaLightNode *pOrigNode = dynamic_cast<VistaLightNode*>( pNode );
@@ -841,7 +831,7 @@ IVistaNode* VistaSceneGraph::CloneSubtree( IVistaNode* pNode,
 	//		VistaLightNode *pNewNode;
 	//		switch( pOrigNode->GetLightType() )
 	//		{
-	//			
+	//
 	//			case VISTA_AMBIENT_LIGHT:
 	//			{
 	//				pNewNode = NewAmbientLight( pNewParent );
@@ -871,7 +861,7 @@ IVistaNode* VistaSceneGraph::CloneSubtree( IVistaNode* pNode,
 	//				break;
 	//			}
 	//		}
-	//		
+	//
 	//		float fR, fG, fB;
 
 	//		pOrigNode->GetAmbientColor( fR, fG, fB );
@@ -935,7 +925,7 @@ IVistaNode* VistaSceneGraph::CloneSubtree( IVistaNode* pNode,
 	//		for( unsigned int i=0; i < pNewNode->GetNumChildren(); ++i )
 	//		{
 	//			IVistaNode *pNode = pNewNode->GetChild( (unsigned int)i );
-	//			CloneSubtree( pNode, pNewNode );			
+	//			CloneSubtree( pNode, pNewNode );
 	//		}
 
 	//		std::vector<float> vecRanges;
@@ -972,12 +962,12 @@ IVistaNode* VistaSceneGraph::CloneSubtree( IVistaNode* pNode,
 	//		pReturnNode->SetName( pOrigNode->GetName() );
 	//		pReturnNode->SetIsEnabled( pOrigNode->GetIsEnabled() );
 	//		break;
-	//	}		
+	//	}
 	//	case VISTA_TEXTNODE:
 	//	{
 	//		VistaTextNode *pOrigNode = dynamic_cast<VistaTextNode*>( pNode );
 	//		assert( pOrigNode != NULL );
-	//		VistaTextNode *pNewNode = NewTextNode( pNewParent, 
+	//		VistaTextNode *pNewNode = NewTextNode( pNewParent,
 	//												pOrigNode->GetTextImp()->GetFontName() );
 
 	//		IVista3DText* pOrigText = pOrigNode->GetTextImp();
@@ -988,15 +978,15 @@ IVistaNode* VistaSceneGraph::CloneSubtree( IVistaNode* pNode,
 	//		//pNewText->SetFontName( pOrigText->GetFontName() );
 	//		pNewText->SetFontSize( pOrigText->GetFontSize() );
 	//		pNewText->SetText( pOrigText->GetText() );
-	//					
+	//
 	//		pReturnNode = pNewNode;
 	//		pReturnNode->SetName( pOrigNode->GetName() );
 	//		pReturnNode->SetIsEnabled( pOrigNode->GetIsEnabled() );
 	//		break;
-	//	}		
+	//	}
 	//	default:
 	//	{
-	//		vstr::errp() << "[VistaSceneGraph::CloneSubtree] Found unknown scenegraph node!" << std::endl;								
+	//		vstr::errp() << "[VistaSceneGraph::CloneSubtree] Found unknown scenegraph node!" << std::endl;
 	//		break;
 	//	}
 	//}
@@ -1033,7 +1023,7 @@ VistaLightNode* VistaSceneGraph::NewLightFromProplist( const VistaPropertyList& 
 		pLight = pDirLight;
 	}
 	else if( oCompare( sType, "POINT" ) )
-	{		
+	{
 		VistaPointLight* pPointLight = NewPointLight( pParent );
 		pPointLight->SetPosition( v3Direction );
 		pLight = pPointLight;
@@ -1041,7 +1031,7 @@ VistaLightNode* VistaSceneGraph::NewLightFromProplist( const VistaPropertyList& 
 	else if( oCompare( sType, "SPOT" ) )
 	{
 		VistaSpotLight* pSpotLight = NewSpotLight( pParent );
-		pSpotLight->SetDirection( v3Direction );	
+		pSpotLight->SetDirection( v3Direction );
 		pSpotLight->SetPosition( v3Position );
 
 		float fSpotCharacter = oProps.GetValueOrDefault<float>( "CHARACTER", 180.0 );
@@ -1068,6 +1058,37 @@ VistaLightNode* VistaSceneGraph::NewLightFromProplist( const VistaPropertyList& 
 	return pLight;
 }
 
+std::vector<IVistaNode*>* VistaSceneGraph::GetAllSubNodesOfType( IVistaNode *pNode, const VISTA_NODETYPE& wantedNodeType ) const
+{
+	if(!pNode)
+		return NULL;
+
+	std::vector<IVistaNode*>* returnVector  = new std::vector<IVistaNode*>;
+
+	std::stack<IVistaNode*> NodeStack;
+	IVistaNode*	pCurrNode	= NULL;
+	VistaGroupNode*	pCurrNodeAsGroupNode	= NULL;
+
+	NodeStack.push(pNode);
+	while(!NodeStack.empty())
+	{
+		pCurrNode = NodeStack.top();
+		NodeStack.pop();
+		//if it has the wanted type, add to results
+		if(pCurrNode->GetType() == wantedNodeType) returnVector->push_back(pCurrNode);
+		//check if there are further kids and enqueue them for further search
+		pCurrNodeAsGroupNode = dynamic_cast<VistaGroupNode*>(pCurrNode);
+		if(pCurrNodeAsGroupNode!=NULL)
+		{
+			for (int childIndex = 0; childIndex < pCurrNodeAsGroupNode->GetNumChildren(); ++childIndex)
+			{
+				NodeStack.push(pCurrNodeAsGroupNode->GetChild(childIndex));
+			}
+		}
+	}
+
+	return returnVector;
+}
 
 /*============================================================================*/
 /*                                                                            */
