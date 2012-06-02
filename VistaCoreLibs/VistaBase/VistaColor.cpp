@@ -739,7 +739,11 @@ void VistaColor::HSVtoHSL(const float a3fHSV[3], float a3fHSL[3])
 	a3fHSL[0] = a3fHSV[0];
 	float fL = (2.f - a3fHSV[1]) * a3fHSV[2];
 	a3fHSL[1] = a3fHSV[1] * a3fHSV[2];
-	if (fL > 0.f)
+	if (fL == 2.f)
+	{
+		a3fHSL[1] = 0.f;
+	}
+	else if (fL > 0.f)
 	{
 		a3fHSL[1] /= (fL <= 1.f) ? fL : (2.f - fL);
 	}
