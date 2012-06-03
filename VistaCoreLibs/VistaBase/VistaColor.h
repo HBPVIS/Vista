@@ -196,7 +196,8 @@ public:
 	 * Mixes to colors by its RGBA values. Fraction can be used to create an
 	 * imbalanced mixing or for interpolations
 	 */
-	VistaColor Mix( const VistaColor& oEnd, float fFraction = .5f ) const;
+	VistaColor Mix( const VistaColor& oEnd, float fFraction = .5f, 
+		EFormat eFormat = VistaColor::RGBA ) const;
 
 	/**
 	 * Clamps all RGBA values to [0.f;1.f]

@@ -566,14 +566,52 @@ float VistaColor::GetValue() const
 
 //// Operations
 
-VistaColor VistaColor::Mix( 
-	const VistaColor& v3End, float fFraction /*= .f5*/) const
+VistaColor VistaColor::Mix( const VistaColor& v3End, 
+	float fFraction /*= .f5*/, EFormat eFormat /* = VistaColor::RGBA */ ) const
 {
 	float fOwn = 1.0f - fFraction;
-	return VistaColor( fOwn * m_a4fValues[0] + fFraction * v3End.m_a4fValues[0],
-		fOwn * m_a4fValues[1] + fFraction * v3End.m_a4fValues[1],
-		fOwn * m_a4fValues[2] + fFraction * v3End.m_a4fValues[2],
-		fOwn * m_a4fValues[3] + fFraction * v3End.m_a4fValues[3]);
+	switch (eFormat)
+	{
+	case RGBA:
+		return VistaColor( 
+			fOwn * m_a4fValues[0] + fFraction * v3End.m_a4fValues[0],
+			fOwn * m_a4fValues[1] + fFraction * v3End.m_a4fValues[1],
+			fOwn * m_a4fValues[2] + fFraction * v3End.m_a4fValues[2],
+			fOwn * m_a4fValues[3] + fFraction * v3End.m_a4fValues[3],
+			RGBA);
+	case RGB:
+		return VistaColor( 
+			fOwn * m_a4fValues[0] + fFraction * v3End.m_a4fValues[0],
+			fOwn * m_a4fValues[1] + fFraction * v3End.m_a4fValues[1],
+			fOwn * m_a4fValues[2] + fFraction * v3End.m_a4fValues[2],
+			RGB);
+	case HSVA:
+		return VistaColor( 
+			fOwn * GetHue() + fFraction * v3End.GetHue(),
+			fOwn * GetHSVSaturation() + fFraction * v3End.GetHSVSaturation(),
+			fOwn * GetValue() + fFraction * v3End.GetValue(),
+			fOwn * m_a4fValues[3] + fFraction * v3End.m_a4fValues[3],
+			HSVA);
+	case HSV:
+		return VistaColor( 
+			fOwn * GetHue() + fFraction * v3End.GetHue(),
+			fOwn * GetHSVSaturation() + fFraction * v3End.GetHSVSaturation(),
+			fOwn * GetValue() + fFraction * v3End.GetValue(),
+			HSV);
+	case HSLA:
+		return VistaColor( 
+			fOwn * GetHue() + fFraction * v3End.GetHue(),
+			fOwn * GetHSLSaturation() + fFraction * v3End.GetHSLSaturation(),
+			fOwn * GetLightness() + fFraction * v3End.GetLightness(),
+			fOwn * m_a4fValues[3] + fFraction * v3End.m_a4fValues[3],
+			HSLA);
+	case HSL:
+		return VistaColor( 
+			fOwn * GetHue() + fFraction * v3End.GetHue(),
+			fOwn * GetHSLSaturation() + fFraction * v3End.GetHSLSaturation(),
+			fOwn * GetLightness() + fFraction * v3End.GetLightness(),
+			HSL);
+	}
 }
 
 void VistaColor::ClampValues()
