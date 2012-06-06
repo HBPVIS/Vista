@@ -611,6 +611,8 @@ VistaColor VistaColor::Mix( const VistaColor& v3End,
 			fOwn * GetHSLSaturation() + fFraction * v3End.GetHSLSaturation(),
 			fOwn * GetLightness() + fFraction * v3End.GetLightness(),
 			HSL);
+	default:
+		VISTA_THROW("Unknown color mode", 1);
 	}
 }
 
