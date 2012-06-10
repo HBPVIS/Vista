@@ -77,10 +77,18 @@ public:
 	}
 
 protected:
-	virtual void DefinedThreadWork()
+	virtual void PreWork()
 	{
 		m_pCallback->PrepareCallback();
+	}
+
+	virtual void DefinedThreadWork()
+	{
 		m_pCallback->Do();
+	}
+
+	virtual void PostWork()
+	{
 		m_pCallback->PostCallback();
 	}
 
