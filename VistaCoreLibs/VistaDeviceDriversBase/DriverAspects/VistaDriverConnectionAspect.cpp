@@ -52,12 +52,14 @@ VistaDriverConnectionAspect::ConnectionHlp::ConnectionHlp(VistaDriverConnectionA
 VistaConnection *pCon,
 VistaDriverConnectionAspect::IVistaConnectionSequence *pAttach,
 VistaDriverConnectionAspect::IVistaConnectionSequence *pDetach,
-bool bCanBeReplaced)
+bool bCanBeReplaced,
+bool bCollect )
 : m_pConnection(pCon),
 m_pAttachSequence(pAttach),
 m_pDetachSequence(pDetach),
 m_pParent(pParent),
-m_bCanBeReplaced(bCanBeReplaced)
+m_bCanBeReplaced(bCanBeReplaced),
+m_bCollect( bCollect )
 {
 }
 
@@ -67,6 +69,9 @@ VistaDriverConnectionAspect::ConnectionHlp::~ConnectionHlp()
 			m_pParent->DetachConnection(m_pConnection);
 		delete m_pAttachSequence;
 		delete m_pDetachSequence;
+
+		if( m_bCollect )
+			delete m_pConnection;
 }
 
 
@@ -147,7 +152,8 @@ void VistaDriverConnectionAspect::SetConnection(unsigned int nIndex,
 												 VistaConnection *pConnection,
 												 const std::string &sName,
 												 bool bCanBeReplaced,
-												 bool bForce)
+												 bool bForce,
+												 bool bCollectConnection)
 {
 	// create enough storage, even when inserting NULLs
 	if(nIndex >= m_vecConnections.size())
@@ -177,6 +183,7 @@ void VistaDriverConnectionAspect::SetConnection(unsigned int nIndex,
 
 	// set connection (might be redundant, but hey...)
 	pHlp->m_pConnection = pConnection;
+	pHlp->m_bCollect = bCollectConnection;
 
 	// ok, check whether the new connection is valid
 	if(pHlp->m_pConnection)
@@ -273,7 +280,7 @@ bool VistaDriverConnectionAspect::SendCommand(unsigned int nIndex,
 
 	ConnectionHlp *pHlp = m_vecConnections[nIndex];
 
-	if(pHlp->m_pConnection && pHlp->m_pConnection->Send(pcCmd, unLength) == unLength)
+	if( pHlp->m_pConnection && ((unsigned int)pHlp->m_pConnection->Send(pcCmd, unLength) == unLength) )
 	{
 		if(nPostSendDelay != 0)
 			VistaTimeUtils::Sleep(nPostSendDelay);

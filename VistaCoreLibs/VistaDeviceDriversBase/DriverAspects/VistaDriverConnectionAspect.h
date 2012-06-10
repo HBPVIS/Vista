@@ -52,8 +52,7 @@ class VistaConnection;
  * If so, they can export a connection aspect that defines the number of
  * connections needed, and the role of each connection for the driver.
  * Valid roles are driver specific, but can be queried through the aspect
- * interface. The VistaSystem uses the driver to configure the connections
- * needed by an //ini// file interface.
+ * interface.
  * Connections are organized by assigning a driver role to an index. The
  * driver role is a human readable string that can be assigned dynamically and
  * is driver specific. Connections have attach and detach sequences which
@@ -132,7 +131,8 @@ public:
 									VistaConnection *pConnection,
 									const std::string &sRoleName,
 									bool bCanBeReplaced,
-									bool bForce = false);
+									bool bForce = false,
+									bool bCollectOnAspectDelete = true );
 
 	/**
 	 * is called upon detach. will eventually lead to calling the detach
@@ -321,7 +321,8 @@ private:
 			VistaConnection *pCon,
 			IVistaConnectionSequence *pAttach = NULL,
 			IVistaConnectionSequence *pDetach = NULL,
-			bool bCanBeReplaced = true);
+			bool bCanBeReplaced = true,
+			bool bCollect = true );
 
 		~ConnectionHlp();
 
@@ -330,7 +331,8 @@ private:
 								 *m_pDetachSequence;
 		VistaDriverConnectionAspect *m_pParent;
 		std::string m_strName;
-		bool m_bCanBeReplaced;
+		bool m_bCanBeReplaced,
+		     m_bCollect;
 	};
 
 	typedef std::vector<ConnectionHlp*> CONVEC;
