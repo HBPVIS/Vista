@@ -63,16 +63,12 @@ namespace VddUtil
 	{
 	public:
 		VistaDriverPlugin()
-			: m_pDriver(NULL),
-			  m_pMethod(NULL),
+			: m_pMethod(NULL),
 			  m_Plugin(NULL),
 			  m_TranscoderDll(NULL),
 			  m_pTranscoder(NULL)
 		{
 		}
-
-		IVistaDeviceDriver         *m_pDriver; /**< a pointer to the driver this plugin describes
-		                                            @todo check whether this is outdated! */
 		IVistaDriverCreationMethod     *m_pMethod; /**< a pointer to the creation methods for drivers of the type */
 		IVistaTranscoderFactoryFactory *m_pTranscoder;
 		VistaDLL::DLLHANDLE             m_Plugin;  /**< a handle of the DLL that is managing the driver */
@@ -102,18 +98,35 @@ namespace VddUtil
 
 	/**
 	 * releases memory from a DLL and associated resources. call this method, when cleaning up,
-	 * or when absolutely sure that //NO// ressource allocated by the dll or so is still in use.
+	 * or when absolutely sure that //NO// resource allocated by the dll or so is still in use.
 	 * this can sometimes be non-trivial! The method will call the OnUnload() method of the
-	 * creation method, which might deregister some global stuff and lead to crashes.
+	 * creation method, which might unregister some global stuff and lead to crashes.
 	 * In that case: report that! and fix it!
 	 * @param a pointer to a driver plugin (non-NULL)
 	 * @param bDeleteCm indicates whether the creation method is to be deleted
 	          note that the plugin will be unloaded, any subsequent call to
-	          destruct the creation method will fail, as the memory is no
+	          destroy the creation method will fail, as the memory is no
 	          longer part of the application.
 	 * @return true
 	 */
 	bool VISTADEVICEDRIVERSAPI DisposePlugin( VistaDriverPlugin *, bool bDeleteCm = false );
+
+
+	// #########################################################################################
+	// MISC UTIL
+	// #########################################################################################
+
+	std::string VISTADEVICEDRIVERSAPI GetTranscoderLibName( const std::string &infix );
+	std::string VISTADEVICEDRIVERSAPI GetTranscoderLibInfix();
+	std::string VISTADEVICEDRIVERSAPI GetPluginLibName( const std::string &infix );
+	std::string VISTADEVICEDRIVERSAPI GetDriverLibName( const std::string &infix );
+	std::string VISTADEVICEDRIVERSAPI GetPlugPrefix();
+	std::string VISTADEVICEDRIVERSAPI GetPlugInfix();
+	std::string VISTADEVICEDRIVERSAPI GetDriverInfix();
+	std::string VISTADEVICEDRIVERSAPI GetPlugPostfix();
+	
+	std::string VISTADEVICEDRIVERSAPI GetDefaultPluginPath();
+
 
 	bool VISTADEVICEDRIVERSAPI InitVdd();
 	bool VISTADEVICEDRIVERSAPI ExitVdd();

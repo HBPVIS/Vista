@@ -31,6 +31,7 @@
 
 #include <VistaTools/VistaFileSystemFile.h>
 #include <VistaTools/VistaFileSystemDirectory.h>
+#include <VistaTools/VistaEnvironment.h>
 
 #include <cmath>
 
@@ -169,13 +170,6 @@ namespace VddUtil
 
 	bool DisposePlugin( VistaDriverPlugin *pPlug, bool bDeleteCm )
 	{
-		if( pPlug->m_pDriver )
-		{
-			// currently, there is no explicit dispose in plugin structure
-			delete pPlug->m_pDriver;
-			pPlug->m_pDriver = NULL;
-		}
-
 		if( pPlug->m_pMethod )
 		{
 			VistaDLL::DLLSYMBOL name = VistaDLL::FindSymbol(pPlug->m_Plugin, "UnloadCreationMethod");
@@ -186,24 +180,14 @@ namespace VddUtil
 				UnloadMt unloadFunc = (UnloadMt)name;
 
 				unloadFunc(pPlug->m_pMethod); // call
-//				if(bDeleteCm)
-//					delete pPlug->m_pMethod;
+
 				pPlug->m_pMethod = NULL;
 			}
 			else
 			{
-//				pPlug->m_pMethod->OnUnload(); // call directly
-
-				// currently, there is no explicit dispose in plugin structure
-				// even worse: no method to get hold of a generic destructor
-				// we should think about this (ref-count?)
-				// so we get rid of the getters and setters, but not of the method
-				// itself... damn...
-
 				if(bDeleteCm)
 					IVistaReferenceCountable::refdown(pPlug->m_pMethod);
 
-				// but instead: ignore the problem...
 				pPlug->m_pMethod = NULL;
 			}
 		}
@@ -222,23 +206,86 @@ namespace VddUtil
 		return true;
 	}
 
+	// ######################################################################################################
+
+
 	bool InitVdd()
 	{
-		//if( IVistaTimerImp::GetSingleton() )
-		//	return true;
-
-		// no timer set... but we need one...
-		// note: this is a dangling pointer, we hope somebody will clean up
-		// after us. Not nice, but the concept has to settle.
-		//IVistaTimerImp::SetSingleton( new VistaDefaultTimerImp );
 		return true;
 	}
 
 	bool ExitVdd()
 	{
-		//delete IVistaTimerImp::GetSingleton();
-		//IVistaTimerImp::SetSingleton(NULL);
 		return true;
+	}
+
+	std::string GetTranscoderLibName( const std::string &infix )
+	{
+		return GetPlugPrefix() + infix + GetTranscoderLibInfix() + GetPlugPostfix();
+	}
+
+	std::string GetTranscoderLibInfix()
+	{
+		return "Transcoder";
+	}
+
+	std::string GetPlugInfix()
+	{
+		return "Driver";
+	}
+
+	std::string GetDriverInfix()
+	{	
+		return "Driver";
+	}
+
+	std::string GetPluginLibName( const std::string &infix )
+	{
+		return GetPlugPrefix() + infix + GetPlugInfix() + GetPlugPostfix();
+	}
+
+	std::string GetDriverLibName( const std::string &infix )
+	{
+		return GetPlugPrefix() + infix + GetDriverInfix() + GetPlugPostfix();
+	}
+
+	std::string GetPlugPrefix()
+	{
+#if defined(WIN32)
+		return "Vista";
+#else
+		return "libVista";
+#endif
+	}
+
+	std::string GetPlugPostfix()
+	{
+#if defined(DEBUG)
+	#if defined(WIN32)
+			return "D.dll";
+	#else
+			return "D.so";
+	#endif
+#else
+	#if defined(WIN32)
+			return ".dll";
+	#else
+			return ".so";
+	#endif
+#endif
+	}
+
+	std::string GetDefaultPluginPath()
+	{
+
+		std::string strPlugPath = VistaEnvironment::GetEnv("DRIVERPLUGINDIRS");
+		if (strPlugPath.empty())
+			strPlugPath = VistaEnvironment::GetEnv("VISTA_ROOT")
+				+ VistaFileSystemDirectory::GetOSSpecificSeparator()
+				+ std::string("lib")
+				+ VistaFileSystemDirectory::GetOSSpecificSeparator()
+				+ std::string(VistaEnvironment::GetOSystem());
+		return strPlugPath;
 	}
 
 }
