@@ -181,6 +181,23 @@ public:
 	private:
 		bool m_bCaseSensitive;
 	};
+
+	template<class T>
+	class ObjEqualsCompare : public std::unary_function< const T &, bool >
+	{
+	public:
+		ObjEqualsCompare( const T &arg )
+			: m_cmpArg(arg) {}
+
+		~ObjEqualsCompare() {}
+
+		bool operator()( const T &o ) const
+		{
+			return (o == m_cmpArg);
+		}
+
+		T m_cmpArg;
+	};
 };
 
 template<class T>
