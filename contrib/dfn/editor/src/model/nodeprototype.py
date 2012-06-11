@@ -23,6 +23,10 @@ class NodePrototype(basemodel.BaseModel):
     OUTPORTS_SAME_AS_INPORTS_MIXIN  =  5 # node accepts all ports, but provides its own, too
     OUTPORTS_DEPEND_ON_PARAMETER    =  6 # node has static inports, but configurable outports
     INPORTS_DEPEND_ON_PARAMETER        =  7 # node has static outports, but configurable inports
+    DYNAMIC_INPORTS_ONLY            = 8 # node accepts all inports, provides no outports, has no custom ports
+    DYNAMIC_INPORTS_MIXIN           = 9 # node accepts all inports, provides no outports, has custom builtin ports
+    DYNAMIC_INPORTS_OUTPORTS        = 10 # node accepts all inports, provides outports
+    DYNAMIC_INPORTS_MIXIN_OUTPORTS  = 11 # node accepts all inports, provides own inports, has outports
     
          
     def __init__(self):
@@ -52,7 +56,11 @@ class NodePrototype(basemodel.BaseModel):
                                     "OUTPORTS_SAME_AS_INPORTS_MIXIN" : NodePrototype.OUTPORTS_SAME_AS_INPORTS_MIXIN,
                                     "NOT_DEFINED" : NodePrototype.NOT_DEFINED,
                                     "OUTPORTS_DEPEND_ON_PARAMETER" : NodePrototype.OUTPORTS_DEPEND_ON_PARAMETER,
-                                    "INPORTS_DEPEND_ON_PARAMETER" : NodePrototype.INPORTS_DEPEND_ON_PARAMETER }
+                                    "INPORTS_DEPEND_ON_PARAMETER" : NodePrototype.INPORTS_DEPEND_ON_PARAMETER,
+                                    "DYNAMIC_INPORTS_ONLY" : NodePrototype.DYNAMIC_INPORTS_ONLY,
+                                    "DYNAMIC_INPORTS_MIXIN" : NodePrototype.DYNAMIC_INPORTS_MIXIN,
+                                    "DYNAMIC_INPORTS_OUTPORTS" : NodePrototype.DYNAMIC_INPORTS_OUTPORTS,
+                                    "DYNAMIC_INPORTS_MIXIN_OUTPORTS" : NodePrototype.DYNAMIC_INPORTS_MIXIN_OUTPORTS }
                                     )
         self.portStyleId = dict()
         for x in self.portStyleString.keys():

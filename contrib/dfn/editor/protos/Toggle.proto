@@ -1,14 +1,16 @@
 <prototype>
-	<name value="ApplyTransform"/>
-	<type value="ApplyTransform"/>
+	<name value="Toggle"/>
+	<type value="Toggle"/>
 	<origin value="## built-in"/>
 	<params/>
 	<instances/>
 	<portstyle value="STATIC_PORTS"/>
 	<ports>
 		<inports>
-			<port name="in" type="VistaTransformMatrix"/>
+			<port name="toggle" type="bool"/>
 		</inports>
-		<outports/>
+		<outports>
+			<port name="out" type="bool"/>
+		</outports>
 	</ports>
 </prototype>

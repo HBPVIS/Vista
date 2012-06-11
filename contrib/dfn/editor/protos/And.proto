@@ -1,19 +1,16 @@
 <prototype>
-	<name value="ChangeDetect"/>
+	<name value="And"/>
 	<origin value="## built-in"/>
 	<params/>
 	<instances>
 		bool:
-		VistaVector3D:
-		VistaQuaternion:
-		int:
-		unsigned int:
-		float
+		int
 	</instances>
 	<portstyle value="STATIC_PORTS"/>
 	<ports>
 		<inports>
-			<port name="in" type="@0"/>
+			<port name="first" type="@0"/>
+			<port name="second" type="@0"/>
 		</inports>
 		<outports>
 			<port name="out" type="@0"/>

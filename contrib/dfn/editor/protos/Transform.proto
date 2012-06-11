@@ -1,16 +1,10 @@
 <prototype>
-	<name value="Multiply"/>
+	<name value="Transform"/>
 	<origin value="## built-in"/>
 	<params/>
 	<instances>
-		float:
-		double:
-		VistaVector3D:
-		VistaQuaternion:
-		VistaTransformMatrix:
-		float,VistaVector3D:
-		VistaTransformMatrix,VistaVector3D:
-		double,VistaVector3D
+		VistaQuaternion,VistaQuaternion:
+		VistaQuaternion,VistaVector3D
 	</instances>
 	<portstyle value="STATIC_PORTS"/>
 	<ports>

@@ -13,6 +13,7 @@
 			<port name="angular_velocity" type="float"/>
 			<port name="dt" type="double"/>
 			<port name="transform" type="VistaTransformMatrix"/>
+			<port name="navigation_mode" type="int"/>
 		</inports>	
 		<outports>
 			<port name="transform" type="VistaTransformMatrix"/>

@@ -1,0 +1,18 @@
+<prototype>
+	<name value="Multiplex"/>
+	<origin value="## built-in"/>
+	<params>
+	</params>
+	<instances>
+		float
+	</instances>
+	<portstyle value="DYNAMIC_INPORTS_MIXIN_OUTPORTS"/>
+	<ports>
+		<inports>
+			<port name="select" type="@0"/>
+		</inports>
+		<outports>
+			<port name="out" type="@0"/>
+		</outports>
+	</ports>
+</prototype>

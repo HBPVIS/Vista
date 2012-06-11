@@ -10,13 +10,15 @@
 		VistaVector3D,string:
 		VistaQuaternion,string:
 		VistaQuaternion,VistaTransformMatrix:
+		VistaTransformMatrix,VistaQuaternion:
 		double,bool:
 		double,string:
 		unsigned int,double:
 		unsigned int,string:
 		unsigned int,int:
 		microtime,string:
-		vector{double},string
+		vector{double},string:
+		int,float
 	</instances>
 	<portstyle value="STATIC_PORTS"/>
 	<ports>

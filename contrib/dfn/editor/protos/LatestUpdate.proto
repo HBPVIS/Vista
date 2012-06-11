@@ -1,0 +1,16 @@
+<prototype>
+	<name value="LatestUpdate"/>
+	<origin value="## built-in"/>
+	<params>
+	</params>
+	<instances>
+		bool
+	</instances>
+	<portstyle value="DYNAMIC_INPORTS_OUTPORTS"/>
+	<ports>
+		<inports/>
+		<outports>
+			<port name="out" type="@0"/>
+		</outports>
+	</ports>
+</prototype>

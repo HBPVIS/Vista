@@ -1,22 +1,17 @@
 <prototype>
-	<name value="ChangeDetect"/>
+	<name value="Aggregate"/>
 	<origin value="## built-in"/>
 	<params/>
 	<instances>
-		bool:
-		VistaVector3D:
-		VistaQuaternion:
-		int:
-		unsigned int:
-		float
+		int
 	</instances>
 	<portstyle value="STATIC_PORTS"/>
 	<ports>
 		<inports>
-			<port name="in" type="@0"/>
+			<port name="history" type="@0"/>
 		</inports>
 		<outports>
-			<port name="out" type="@0"/>
+			<port name="values" type="@0"/>
 		</outports>
 	</ports>		
 </prototype>

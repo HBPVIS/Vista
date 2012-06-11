@@ -126,6 +126,10 @@ def CreateEdge(xmlEdge, graph):
                     toPt.valid = model.port.Port.STATE_PROBABLY_OK
                     if style == model.nodeprototype.NodePrototype.OUTPORTS_SAME_AS_INPORTS_MIXIN:
                         toPt.type = "passed"
+                    elif style == model.nodeprototype.NodePrototype.DYNAMIC_INPORTS_ONLY:
+                        toPt.type = "passed"
+                    elif style == model.nodeprototype.NodePrototype.DYNAMIC_INPORTS_MIXIN:
+                        toPt.type = "passed"
                     else:
                         toPt.type = "guessed"
             else:

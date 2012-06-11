@@ -1,14 +1,9 @@
 <prototype>
-	<name value="ChangeDetect"/>
+	<name value="Delay"/>
 	<origin value="## built-in"/>
 	<params/>
 	<instances>
-		bool:
-		VistaVector3D:
-		VistaQuaternion:
-		int:
-		unsigned int:
-		float
+		VistaVector3D
 	</instances>
 	<portstyle value="STATIC_PORTS"/>
 	<ports>
@@ -18,6 +13,6 @@
 		<outports>
 			<port name="out" type="@0"/>
 		</outports>
-	</ports>		
+	</ports>
+		
 </prototype>
- 

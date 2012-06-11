@@ -11,7 +11,11 @@
 		<inports>
 			<port name="history" type="history"/>
 			<port name="sampling_mode" type="int"/>
+			<port name="backward_index" type="unsigned int"/>
 		</inports>
-		<outports/>
+		<outports>
+			<port name="__iteratestate" type="unsigned int"/>
+			<port name="__projected_index" type="unsigned int"/>
+		</outports>
 	</ports>
 </prototype>

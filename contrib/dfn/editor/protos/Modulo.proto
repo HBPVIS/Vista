@@ -1,14 +1,9 @@
 <prototype>
-	<name value="ChangeDetect"/>
+	<name value="Modulo"/>
 	<origin value="## built-in"/>
 	<params/>
 	<instances>
-		bool:
-		VistaVector3D:
-		VistaQuaternion:
-		int:
-		unsigned int:
-		float
+		int
 	</instances>
 	<portstyle value="STATIC_PORTS"/>
 	<ports>

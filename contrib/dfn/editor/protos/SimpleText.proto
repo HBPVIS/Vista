@@ -1,13 +1,15 @@
 <prototype>
-	<name value="ApplyTransform"/>
-	<type value="ApplyTransform"/>
+	<name value="TextOverlay"/>
 	<origin value="## built-in"/>
-	<params/>
-	<instances/>
+	<params>
+	</params>
+	<instances>
+		unsigned int
+	</instances>
 	<portstyle value="STATIC_PORTS"/>
 	<ports>
 		<inports>
-			<port name="in" type="VistaTransformMatrix"/>
+			<port name="value" type="@0"/>
 		</inports>
 		<outports/>
 	</ports>

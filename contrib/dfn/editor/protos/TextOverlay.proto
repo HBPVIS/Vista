@@ -1,16 +1,9 @@
 <prototype>
-	<name value="TextOverlay"/>
+	<name value="SimpleText"/>
 	<origin value="## built-in"/>
 	<params>
 	</params>
-	<instances>
-		unsigned int
-	</instances>
-	<portstyle value="STATIC_PORTS"/>
-	<ports>
-		<inports>
-			<port name="value" type="@0"/>
-		</inports>
-		<outports/>
-	</ports>
+	<instances/>
+	<portstyle value="DYNAMIC_INPORTS_ONLY"/>
+	<ports/>
 </prototype>

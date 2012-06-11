@@ -1,0 +1,19 @@
+<prototype>
+	<name value="MatrixCompose"/>
+	<type value="MatrixCompose"/>
+	<origin value="##built-in"/>
+	<params/>
+	<instances/>
+	<portstyle value="STATIC_PORTS"/>
+	<ports>
+		<inports>
+			<port name="translation" type="VistaVector3D"/>
+			<port name="orientation" type="VistaQuaternion"/>
+			<port name="scale" type="VistaVector3D"/>
+			<port name="scale_orientation" type="VistaQuaternion"/>
+		</inports>
+		<outports>
+			<port name="out" type="VistaTransformMatrix"/>
+		</outports>
+	</ports>
+</prototype>

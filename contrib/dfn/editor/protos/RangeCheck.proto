@@ -1,22 +1,20 @@
 <prototype>
-	<name value="ChangeDetect"/>
+	<name value="RangeCheck"/>
 	<origin value="## built-in"/>
 	<params/>
 	<instances>
-		bool:
-		VistaVector3D:
-		VistaQuaternion:
-		int:
-		unsigned int:
-		float
+		float:
+		double
 	</instances>
 	<portstyle value="STATIC_PORTS"/>
 	<ports>
 		<inports>
 			<port name="in" type="@0"/>
+			<port name="min" type="@0"/>
+			<port name="max" type="@0"/>
 		</inports>
 		<outports>
-			<port name="out" type="@0"/>
+			<port name="in_range" type="@0"/>
 		</outports>
 	</ports>		
 </prototype>

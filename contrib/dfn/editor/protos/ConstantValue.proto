@@ -11,7 +11,8 @@
 		float:
 		double:
 		string:
-		int
+		int:
+		bool
 	</instances>
 	<portstyle value="STATIC_PORTS"/>
 	<ports>
