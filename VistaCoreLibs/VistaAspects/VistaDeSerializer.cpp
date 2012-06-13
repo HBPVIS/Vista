@@ -89,7 +89,7 @@ IVistaDeSerializer &IVistaDeSerializer::operator>> ( VistaType::float64 &val)
 
 IVistaDeSerializer &IVistaDeSerializer::operator>> ( string &val)
 {
-	ReadString(val, (int)val.capacity());
+	ReadDelimitedString( val );
 	return *this;
 }
 

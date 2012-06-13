@@ -87,7 +87,7 @@ IVistaSerializer &IVistaSerializer::operator<< (  VistaType::float64 val)
 
 IVistaSerializer &IVistaSerializer::operator<< (  const std::string &val)
 {
-	WriteString(val);
+	WriteDelimitedString( val );
 	return *this;
 }
 
