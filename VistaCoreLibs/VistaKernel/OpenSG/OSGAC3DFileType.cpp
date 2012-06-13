@@ -1003,7 +1003,7 @@ static OSG::GeometryPtr createGeometry(ACObject *pObj, ACMaterial *pMatTable,
 			stm->setEnvMode(GL_MODULATE);
 			stm->setEnvMap(GL_FALSE);
 			stm->setMinFilter    (GL_LINEAR_MIPMAP_LINEAR);
-			stm->setMagFilter    (GL_NEAREST);
+			stm->setMagFilter    (GL_LINEAR_MIPMAP_LINEAR);
 
 
 			ImagePtr texture = NullFC;

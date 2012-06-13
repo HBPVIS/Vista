@@ -51,7 +51,7 @@ class VistaGeometry;
 class VISTAKERNELOPENSGEXTAPI VistaOpenSGPerMaterialShader
 {
 public:
-	struct CShaderUniformParam
+	struct VISTAKERNELOPENSGEXTAPI CShaderUniformParam
 	{
 	friend class VistaOpenSGPerMaterialShader;
 	public:

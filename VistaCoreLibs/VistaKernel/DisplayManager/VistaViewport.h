@@ -79,6 +79,7 @@ public:
 	 *
 	 * POSITION             -   [list of ints - 2 items]
 	 * SIZE                 -   [list of ints - 2 items]
+	 * PASSIVE_BACKGROUND   -   [bool]
 	 * DISPLAY_SYSTEM_NAME  -   [string][read only]
 	 * WINDOW_NAME          -   [string][read only]
 	 * PROJECTION_NAME      -   [string][read only]
@@ -92,6 +93,7 @@ public:
 		{
 			MSG_POSITION_CHANGE = IVistaDisplayEntityProperties::MSG_LAST,
 			MSG_SIZE_CHANGE,
+			MSG_PASSIVE_BACKGROUND_CHANGE,
 			MSG_LAST
 		};
 
@@ -102,6 +104,13 @@ public:
 
 		bool GetSize(int& w, int& h) const;
 		bool SetSize(const int w, const int h);
+
+		/**
+		 * If passive background is set, the image will not be
+		 * cleared between draws
+		 */
+		bool GetHasPassiveBackground() const;
+		bool SetHasPassiveBackground( const bool bSet );
 
 		virtual std::string GetReflectionableType() const;
 	protected:

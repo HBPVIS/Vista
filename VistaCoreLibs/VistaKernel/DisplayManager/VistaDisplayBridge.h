@@ -222,6 +222,10 @@ public:
 									const VistaViewport* pTarget) = 0;
 	virtual void SetViewportSize(int nWidth, int nHeight,
 									VistaViewport* pTarget) = 0;
+	
+	virtual bool GetViewportHasPassiveBackground( const VistaViewport* pTarget ) = 0;
+	virtual void SetViewportHasPassiveBackground( bool bSet,
+									VistaViewport* pTarget ) = 0;
 	virtual void DebugViewport( std::ostream& oStream,
 									const VistaViewport* pTarget ) = 0;
 

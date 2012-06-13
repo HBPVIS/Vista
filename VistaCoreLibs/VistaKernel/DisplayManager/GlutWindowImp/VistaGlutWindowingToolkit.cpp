@@ -831,8 +831,7 @@ bool VistaGlutWindowingToolkit::CheckVSyncAvailability()
 
 GlutWindowInfo* VistaGlutWindowingToolkit::GetWindowInfo( const VistaWindow* pWindow  ) const
 {
-	WindowInfoMap::const_iterator itWindow =
-											m_mapWindowInfo.find( pWindow );
+	WindowInfoMap::const_iterator itWindow = m_mapWindowInfo.find( pWindow );
 	if( itWindow == m_mapWindowInfo.end() )
 		return NULL;
 	return (*itWindow).second;

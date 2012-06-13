@@ -58,6 +58,8 @@
 #include <OpenSG/OSGPerspectiveCamera.h>
 #include <OpenSG/OSGImageForeground.h>
 #include <OpenSG/OSGImage.h>
+#include <OpenSG/OSGSolidBackground.h>
+#include <OpenSG/OSGPassiveBackground.h>
 
 #ifdef WIN32
 // disable warnings from OpenSG
@@ -230,6 +232,9 @@ public:
 									VistaViewport* pTarget);
 	virtual void GetViewportSize(int& nWidth, int& nHeight,
 									const VistaViewport* pTarget);
+	virtual void SetViewportHasPassiveBackground( bool bSet,
+									VistaViewport* pTarget );
+	virtual bool GetViewportHasPassiveBackground( const VistaViewport* pTarget );
 	virtual void DebugViewport( std::ostream& oStream,
 									const VistaViewport* pTarget );
 
@@ -408,6 +413,8 @@ public:
 		osg::ViewportPtr GetOpenSGRightViewport() const ;
 		osg::VistaOpenSGTextForegroundPtr GetTextForeground() const ;
 		osg::VistaOpenSGGLOverlayForegroundPtr GetOverlayForeground() const;
+		osg::SolidBackgroundPtr GetSolidBackground() const ;
+		osg::PassiveBackgroundPtr GetPassiveBackground() const;
 
 		/**
 		 * @todo think about a concept to wrap this in the DisplayManager layer
@@ -420,11 +427,14 @@ public:
 		bool             m_bStereo; // just in case someone asks ;-)
 		bool             m_bAccumBufferEnabled;
 		bool             m_bStencilBufferEnabled;
+		bool             m_bHasPassiveBackground;
 		osg::ViewportPtr m_Viewport;
 		osg::ViewportPtr m_RightViewport;
 		osg::VistaOpenSGTextForegroundPtr m_TextForeground;
 		osg::VistaOpenSGGLOverlayForegroundPtr m_pOverlays;
 		osg::ImageForegroundPtr m_oBitmaps;
+		osg::SolidBackgroundPtr m_pSolidBackground;
+		osg::PassiveBackgroundPtr m_pPassiveBackground;
 
 		std::list<Vista2DDrawingObject*> m_liOverlays;
 	};

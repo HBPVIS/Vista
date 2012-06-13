@@ -217,6 +217,9 @@ namespace {
 		new TVistaProperty2RefGet<int, VistaViewport::VistaViewportProperties, VistaProperty::PROPT_INT>
 		("SIZE", sSReflectionType,
 		 &VistaViewport::VistaViewportProperties::GetSize),	
+		 new TVistaPropertyGet<bool, VistaViewport::VistaViewportProperties, VistaProperty::PROPT_BOOL>
+		("PASSIVE_BACKGROUND", sSReflectionType,
+		&VistaViewport::VistaViewportProperties::GetHasPassiveBackground),
 		new TVistaDisplayEntityParentPropertyGet<std::string, VistaViewport, VistaProperty::PROPT_STRING>
 		("DISPLAY_SYSTEM_NAME", sSReflectionType,
 		 &VistaViewport::GetDisplaySystemName),
@@ -237,6 +240,9 @@ namespace {
 		new TVistaProperty2ValSet<int, VistaViewport::VistaViewportProperties>
 		("SIZE", sSReflectionType,
 		 &VistaViewport::VistaViewportProperties::SetSize),
+		 new TVistaPropertySet<bool, bool, VistaViewport::VistaViewportProperties>
+		("PASSIVE_BACKGROUND", sSReflectionType,
+		 &VistaViewport::VistaViewportProperties::SetHasPassiveBackground),
 		new TVistaPropertySet<const string &, string,VistaViewport::VistaViewportProperties>
 		("NAME", sSReflectionType,
 		 &VistaViewport::VistaViewportProperties::SetName),
@@ -273,7 +279,8 @@ bool VistaViewport::VistaViewportProperties::SetPosition(const int x, const int 
 	VistaViewport *pV = static_cast<VistaViewport*>(GetParent());
 	GetDisplayBridge()->GetViewportPosition(iCurXPos, iCurYPos, pV);
 
-	if((iCurXPos == x) && (iCurYPos == y)) return false;
+	if((iCurXPos == x) && (iCurYPos == y))
+		return false;
 	else
 	{
 		GetDisplayBridge()->SetViewportPosition(x, y, pV);
@@ -297,7 +304,8 @@ bool VistaViewport::VistaViewportProperties::SetSize(const int w, const int h)
 	VistaViewport *pV = static_cast<VistaViewport*>(GetParent());
 	GetDisplayBridge()->GetViewportSize(iCurW, iCurH, pV);
 
-	if((iCurW == w) && (iCurH == h)) return false;
+	if((iCurW == w) && (iCurH == h))
+		return false;
 	else
 	{
 		GetDisplayBridge()->SetViewportSize(w, h, pV);
@@ -305,6 +313,26 @@ bool VistaViewport::VistaViewportProperties::SetSize(const int w, const int h)
 		return true;
 	}
 }
+
+
+bool VistaViewport::VistaViewportProperties::GetHasPassiveBackground() const
+{
+	VistaViewport* pViewport = static_cast<VistaViewport*>( GetParent() );
+	return GetDisplayBridge()->GetViewportHasPassiveBackground( pViewport );
+}
+
+bool VistaViewport::VistaViewportProperties::SetHasPassiveBackground( const bool bSet )
+{
+	if( bSet == GetHasPassiveBackground() )
+		return false;
+	VistaViewport* pViewport = static_cast<VistaViewport*>( GetParent() );
+	GetDisplayBridge()->SetViewportHasPassiveBackground( bSet, pViewport );
+	Notify( MSG_PASSIVE_BACKGROUND_CHANGE );
+	return true;
+}
+
+
+
 
 string VistaViewport::VistaViewportProperties::GetReflectionableType() const
 {
@@ -329,7 +357,5 @@ VistaViewport::VistaViewportProperties::VistaViewportProperties(
 VistaViewport::VistaViewportProperties::~VistaViewportProperties()
 {
 }
-
-
 
 

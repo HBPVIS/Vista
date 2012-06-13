@@ -55,6 +55,7 @@
 
 #include <OpenSG/OSGNode.h>
 #include <OpenSG/OSGSolidBackground.h>
+#include <OpenSG/OSGPassiveBackground.h>
 #include <OpenSG/OSGFileGrabForeground.h>
 #include <OpenSG/OSGStereoBufferViewport.h>
 #include <OpenSG/OSGPerspectiveCamera.h>
@@ -415,7 +416,10 @@ m_Viewport(osg::NullFC),
 m_RightViewport(osg::NullFC),
 m_TextForeground(osg::NullFC),
 m_pOverlays(osg::NullFC),
-m_oBitmaps(osg::NullFC)
+m_oBitmaps(osg::NullFC),
+m_pSolidBackground(osg::NullFC),
+m_pPassiveBackground(osg::NullFC),
+m_bHasPassiveBackground(false)
 {
 }
 
@@ -434,6 +438,12 @@ VistaOpenSGDisplayBridge::ViewportData::~ViewportData()
 
 	if(m_oBitmaps != osg::NullFC)
 		subRefCP(m_oBitmaps);
+
+	if(m_pSolidBackground != osg::NullFC)
+		subRefCP(m_pSolidBackground);
+
+	if(m_pPassiveBackground != osg::NullFC)
+		subRefCP(m_pPassiveBackground);
 }
 
 bool VistaOpenSGDisplayBridge::ViewportData::GetStereo() const
@@ -459,6 +469,16 @@ osg::VistaOpenSGTextForegroundPtr VistaOpenSGDisplayBridge::ViewportData::GetTex
 osg::VistaOpenSGGLOverlayForegroundPtr VistaOpenSGDisplayBridge::ViewportData::GetOverlayForeground() const
 {
 	return m_pOverlays;
+}
+
+osg::SolidBackgroundPtr VistaOpenSGDisplayBridge::ViewportData::GetSolidBackground() const
+{
+	return m_pSolidBackground;
+}
+
+osg::PassiveBackgroundPtr VistaOpenSGDisplayBridge::ViewportData::GetPassiveBackground() const
+{
+	return m_pPassiveBackground;
 }
 
 
@@ -1490,9 +1510,9 @@ VistaWindow* VistaOpenSGDisplayBridge::CreateVistaWindow( VistaDisplay* pDisplay
 
 	//pVistaWindow->SetPropertiesByList(refProps);
 	VistaPropertyList oCleanedList = oProps;
-	//oCleanedList.RemoveProperty( "STEREO" );
-	//oCleanedList.RemoveProperty( "USE_ACCUM_BUFFER" );
-	//oCleanedList.RemoveProperty( "USE_STENCIL_BUFFER" );
+	oCleanedList.RemoveProperty( "STEREO" );
+	oCleanedList.RemoveProperty( "USE_ACCUM_BUFFER" );
+	oCleanedList.RemoveProperty( "USE_STENCIL_BUFFER" );
 	oCleanedList.RemoveProperty( "DISPLAY" );
 	pVistaWindow->GetProperties()->SetPropertiesByList( oCleanedList );
 
@@ -1691,10 +1711,10 @@ VistaViewport * VistaOpenSGDisplayBridge::CreateViewport(
 	}
 
 	// RWTH blue as background color
-	osg::SolidBackgroundPtr bg = osg::SolidBackground::create();
-	beginEditCP(bg);
-	bg->setColor( osg::Color3f( 0.0f,0.4f,0.8f ) );
-	endEditCP(bg);
+	pData->m_pSolidBackground = osg::SolidBackground::create();
+	beginEditCP(pData->m_pSolidBackground);
+	pData->m_pSolidBackground->setColor( osg::Color3f( 0.0f,0.4f,0.8f ) );
+	endEditCP(pData->m_pSolidBackground);
 
 	WindowData* pWindowData = static_cast<WindowData*>( pWindow->GetData() );
 
@@ -1707,7 +1727,7 @@ VistaViewport * VistaOpenSGDisplayBridge::CreateViewport(
 		StereoViewport = osg::StereoBufferViewport::create();
 		beginEditCP(StereoViewport);
 		StereoViewport->setSize(0,0,1,1);
-		StereoViewport->setBackground(bg);
+		StereoViewport->setBackground(pData->m_pSolidBackground);
 		StereoViewport->setRoot(m_pRealRoot);
 		StereoViewport->setLeftBuffer(true);
 		StereoViewport->setRightBuffer(false);
@@ -1717,7 +1737,7 @@ VistaViewport * VistaOpenSGDisplayBridge::CreateViewport(
 		StereoViewport = osg::StereoBufferViewport::create();
 		beginEditCP(StereoViewport);
 		StereoViewport->setSize(0,0,1,1);
-		StereoViewport->setBackground(bg);
+		StereoViewport->setBackground(pData->m_pSolidBackground);
 		StereoViewport->setRoot(m_pRealRoot);
 		StereoViewport->setLeftBuffer(false);
 		StereoViewport->setRightBuffer(true);
@@ -1738,7 +1758,7 @@ VistaViewport * VistaOpenSGDisplayBridge::CreateViewport(
 		pData->m_Viewport = osg::Viewport::create();
 		beginEditCP(pData->m_Viewport);
 		pData->m_Viewport->setSize(0,0,1,1);
-		pData->m_Viewport->setBackground(bg);
+		pData->m_Viewport->setBackground(pData->m_pSolidBackground);
 		pData->m_Viewport->setRoot(m_pRealRoot);
 		endEditCP(pData->m_Viewport);
 
@@ -1895,6 +1915,52 @@ void VistaOpenSGDisplayBridge::GetViewportSize( int& w, int& h, const VistaViewp
 	osg::ViewportPtr viewport = ((ViewportData *)pTarget->GetData())->m_Viewport;
 	w = viewport->getPixelWidth();
 	h = viewport->getPixelHeight();
+}
+
+
+void VistaOpenSGDisplayBridge::SetViewportHasPassiveBackground( bool bSet, VistaViewport* pTarget )
+{
+	ViewportData* pData = static_cast<ViewportData*>( pTarget->GetData() );
+	if( bSet )
+	{
+		ViewportData* pData = static_cast<ViewportData*>( pTarget->GetData() );
+		if( pData->m_pPassiveBackground == osg::NullFC )
+			pData->m_pPassiveBackground = osg::PassiveBackground::create();
+
+		osg::ViewportPtr pViewport = pData->GetOpenSGViewport();
+		beginEditCP( pViewport );
+		pViewport->setBackground( pData->m_pPassiveBackground );
+		endEditCP( pViewport );
+
+		if( pData->GetStereo() )
+		{
+			pViewport = pData->GetOpenSGRightViewport();
+			beginEditCP( pViewport );
+			pViewport->setBackground( pData->m_pPassiveBackground );
+			endEditCP( pViewport );
+		}		
+	}
+	else
+	{
+		osg::ViewportPtr pViewport = pData->GetOpenSGViewport();
+		beginEditCP( pViewport );
+		pViewport->setBackground( pData->m_pSolidBackground );
+		endEditCP( pViewport );
+
+		if( pData->GetStereo() )
+		{
+			pViewport = pData->GetOpenSGRightViewport();
+			beginEditCP( pViewport );
+			pViewport->setBackground( pData->m_pSolidBackground );
+			endEditCP( pViewport );
+		}
+	}
+	pData->m_bHasPassiveBackground = bSet;
+}
+
+bool VistaOpenSGDisplayBridge::GetViewportHasPassiveBackground( const VistaViewport* pTarget )
+{
+	return static_cast<ViewportData*>( pTarget->GetData() )->m_bHasPassiveBackground;
 }
 
 /*============================================================================*/
@@ -2585,4 +2651,5 @@ bool VistaOpenSGDisplayBridge::GetShowCursor() const
 {
 	return m_bShowCursor;
 }
+
 

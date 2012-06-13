@@ -406,16 +406,17 @@ VistaColor VistaOpenSGGraphicsBridge::GetBackgroundColor() const
 		return VistaColor(0,0,0); // returning BLACK
 	}
 
-	osg::SolidBackgroundRefPtr bg(osg::SolidBackgroundPtr::dcast(((VistaOpenSGDisplayBridge::ViewportData *)
-													   GetVistaSystem()->GetDisplayManager()->GetViewports().begin()->second->GetData())
-													  ->GetOpenSGViewport()->getBackground()));
-	if( bg.get() == osg::NullFC )
+	VistaOpenSGDisplayBridge::ViewportData* pData = static_cast<VistaOpenSGDisplayBridge::ViewportData*>(
+							GetVistaSystem()->GetDisplayManager()->GetViewports().begin()->second->GetData() );
+	osg::SolidBackgroundPtr bg = pData->GetSolidBackground();
+	if( bg == osg::NullFC )
 	{
 		vstr::warnp() << "VistaOpenSGGraphicsBridge::GetBackgroundColor(): background is not solid " << std::endl;
 		return VistaColor(0,0,0); // returning BLACK if the background isn't solid
 	}
+	osg::Color3f oColor = bg->getColor();
 
-	return VistaColor(bg->getColor()[0], bg->getColor()[1], bg->getColor()[2]);
+	return VistaColor( oColor[0], oColor[1], oColor[2] );
 }
 
 void VistaOpenSGGraphicsBridge::DebugOSG()
@@ -455,12 +456,12 @@ void VistaOpenSGGraphicsBridge::SetBackgroundColor(const VistaColor & color)
 					<< " ) - transparency not supported, ignoring alpha value" << std::endl;
 	}
 
-	float col[3];
-	color.GetValues(col);
-	osg::SolidBackgroundPtr bg = osg::SolidBackground::create();
-	beginEditCP(bg);
-	bg->setColor( osg::Color3f(col[0],col[1],col[2]) );
-	endEditCP(bg);
+	//float col[3];
+	//color.GetValues(col);
+	//osg::SolidBackgroundPtr bg = osg::SolidBackground::create();
+	//beginEditCP(bg);
+	//bg->setColor( osg::Color3f(col[0],col[1],col[2]) );
+	//endEditCP(bg);	
 
 	if( GetVistaSystem()->GetDisplayManager() == NULL
 		|| GetVistaSystem()->GetDisplayManager()->GetViewports().empty() )
@@ -469,33 +470,42 @@ void VistaOpenSGGraphicsBridge::SetBackgroundColor(const VistaColor & color)
 		return;
 	}	
 
-	unsigned int iViewportIndex;
-	osg::ViewportPtr viewport;
-	std::map<std::string,VistaWindow*> windows = GetVistaSystem()->GetDisplayManager()->GetWindows();
-	std::map<std::string,VistaWindow*>::iterator infoIter = windows.begin();
-	for( ; infoIter != windows.end(); ++infoIter )
+	//unsigned int iViewportIndex;
+	//osg::ViewportPtr viewport;
+	//std::map<std::string,VistaWindow*> windows = GetVistaSystem()->GetDisplayManager()->GetWindows();
+	//std::map<std::string,VistaWindow*>::iterator infoIter = windows.begin();
+	//for( ; infoIter != windows.end(); ++infoIter )
+	//{
+	//	for( iViewportIndex = 0; iViewportIndex < infoIter->second->GetNumberOfViewports(); ++iViewportIndex )
+	//	{
+	//		VistaOpenSGDisplayBridge::ViewportData* pData = static_cast<VistaOpenSGDisplayBridge::ViewportData*>(
+	//												infoIter->second->GetViewport( iViewportIndex )->GetData() );
+	//		viewport = pData->GetOpenSGViewport();
+	//		beginEditCP(viewport);
+	//		viewport->setBackground(bg);
+	//		endEditCP(viewport);
+
+	//		/** CLUSTERTODO: verify that this stereo is correct! */
+	//		if( pData->GetStereo() )
+	//		{
+	//			viewport = pData->GetOpenSGRightViewport();
+	//			beginEditCP(viewport);
+	//			viewport->setBackground(bg);
+	//			endEditCP(viewport);
+	//		}
+	//	}
+	//}
+
+	osg::Color3f oOsgColor( color[0], color[1], color[2] );
+
+	const std::map<std::string, VistaViewport*>& mapViewports = GetVistaSystem()->GetDisplayManager()->GetViewportsConstRef();
+	for( std::map<std::string, VistaViewport*>::const_iterator itViewport = mapViewports.begin();
+			itViewport != mapViewports.end(); ++itViewport )
 	{
-		for( iViewportIndex = 0; iViewportIndex < infoIter->second->GetNumberOfViewports(); ++iViewportIndex )
-		{
-			VistaOpenSGDisplayBridge::ViewportData* pData = static_cast<VistaOpenSGDisplayBridge::ViewportData*>(
-													infoIter->second->GetViewport( iViewportIndex )->GetData() );
-			viewport = pData->GetOpenSGViewport();
-			beginEditCP(viewport);
-			viewport->setBackground(bg);
-			endEditCP(viewport);
-
-			/** CLUSTERTODO: verify that this stereo is correct! */
-			if( pData->GetStereo() )
-			{
-				viewport = pData->GetOpenSGRightViewport();
-				beginEditCP(viewport);
-				viewport->setBackground(bg);
-				endEditCP(viewport);
-			}
-		}
+		VistaOpenSGDisplayBridge::ViewportData* pData = static_cast<VistaOpenSGDisplayBridge::ViewportData*>(
+																			(*itViewport).second->GetData() );
+		pData->GetSolidBackground()->setColor( oOsgColor );
 	}
-
-	DebugOSG();
 }
 
 VistaVertexFormat VistaOpenSGGraphicsBridge::GetVertexFormat(const IVistaGeometryData* pData) const
