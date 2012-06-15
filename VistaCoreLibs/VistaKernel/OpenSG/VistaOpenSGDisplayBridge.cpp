@@ -1508,13 +1508,7 @@ VistaWindow* VistaOpenSGDisplayBridge::CreateVistaWindow( VistaDisplay* pDisplay
 
 	m_pWindowingToolkit->RegisterWindow( pVistaWindow );
 
-	//pVistaWindow->SetPropertiesByList(refProps);
-	VistaPropertyList oCleanedList = oProps;
-	oCleanedList.RemoveProperty( "STEREO" );
-	oCleanedList.RemoveProperty( "USE_ACCUM_BUFFER" );
-	oCleanedList.RemoveProperty( "USE_STENCIL_BUFFER" );
-	oCleanedList.RemoveProperty( "DISPLAY" );
-	pVistaWindow->GetProperties()->SetPropertiesByList( oCleanedList );
+	pVistaWindow->GetProperties()->SetPropertiesByList( oProps );
 
 	// finally create the window
 	m_pWindowingToolkit->InitWindow( pVistaWindow );
@@ -1533,14 +1527,6 @@ VistaWindow* VistaOpenSGDisplayBridge::CreateVistaWindow( VistaDisplay* pDisplay
 	pData->m_ptrWindow->setSize( nWidth, nHeight );
 
 	pData->ObserveWindow( pVistaWindow, this );
-
-	//pVistaWindow->SetPropertiesByList(refProps);
-	//VistaPropertyList oCleanedList = oProps;
-	//oCleanedList.RemoveProperty( "STEREO" );
-	//oCleanedList.RemoveProperty( "USE_ACCUM_BUFFER" );
-	//oCleanedList.RemoveProperty( "USE_STENCIL_BUFFER" );
-	//oCleanedList.RemoveProperty( "DISPLAY" );
-	//pVistaWindow->GetProperties()->SetPropertiesByList( oCleanedList );
 
 	return pVistaWindow;
 }

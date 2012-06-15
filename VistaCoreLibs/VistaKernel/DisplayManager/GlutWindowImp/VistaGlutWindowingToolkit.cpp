@@ -592,7 +592,7 @@ bool VistaGlutWindowingToolkit::SetUseStereo( VistaWindow* pWindow, const bool b
 {
 	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
 
-	if( pInfo->m_iWindowID )
+	if( pInfo->m_iWindowID != -1 )
 	{
 		vstr::warnp() << "[GlutWindow]: Trying to change stereo mode on window ["
 				<< pWindow->GetNameForNameable() << "] - this can only be done before initialization"
@@ -612,7 +612,7 @@ bool VistaGlutWindowingToolkit::SetUseAccumBuffer( VistaWindow* pWindow, const b
 {
 	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
 
-	if( pInfo->m_iWindowID )
+	if( pInfo->m_iWindowID != -1 )
 	{
 		vstr::warnp() << "[GlutWindow]: Trying to change accum buffer mode on window ["
 				<< pWindow->GetNameForNameable() << "] - this can only be done before initialization"
@@ -632,7 +632,7 @@ bool VistaGlutWindowingToolkit::SetUseStencilBuffer( VistaWindow* pWindow, const
 {
 	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
 
-	if( pInfo->m_iWindowID )
+	if( pInfo->m_iWindowID != -1 )
 	{
 		vstr::warnp() << "[GlutWindow]: Trying to change stencil buffer mode on window ["
 				<< pWindow->GetNameForNameable() << "] - this can only be done before initialization"
