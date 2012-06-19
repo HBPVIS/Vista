@@ -513,7 +513,7 @@ VistaIniFileParser::VistaIniFileParser( const std::string& sFilename,
 , m_iMaxKeyIndent( 20 )
 , m_bFileIsValid( false )
 {
-	ReadProplistFromFile( sFilename );
+	this->ReadFile( sFilename );
 }
 
 VistaIniFileParser::VistaIniFileParser( const std::string& sFilename,
@@ -531,7 +531,7 @@ VistaIniFileParser::VistaIniFileParser( const std::string& sFilename,
 , m_iMaxKeyIndent( 20 )
 , m_bFileIsValid( false )
 {
-	ReadProplistFromFile( sFilename, liFileSearchPathes, m_sFilename );
+	this->ReadFile( sFilename, liFileSearchPathes);
 }
 
 VistaIniFileParser::~VistaIniFileParser()
