@@ -78,13 +78,13 @@ public:
 	TVdfnAggregateNode( const std::string &strInValue,
 						const bool bStoreNewestEntryLast )
 		: m_pInPort(NULL),
-		m_pOutPort(NULL),
+		m_pOutPort(new TVdfnPort<std::vector<T> >),
 		m_strInValue(strInValue),
 		m_pGetFunctor(NULL),
 		m_bStoreNewestEntryLast( bStoreNewestEntryLast )
 	{
-		RegisterInPortPrototype("history", new HistoryPortCompare);
-		RegisterOutPort( "values", new TVdfnPort<std::vector<T> > );
+		RegisterInPortPrototype("history", new HistoryPortCompare(&m_pInPort));
+		RegisterOutPort( "values", m_pOutPort );
 	}
 
 
@@ -102,10 +102,6 @@ public:
 
 	virtual bool PrepareEvaluationRun()
 	{
-		m_pInPort  = dynamic_cast<HistoryPort*>(GetInPort("history"));
-		m_pOutPort = dynamic_cast<TVdfnPort<std::vector<T> >*>(GetOutPort("values"));
-
-
 		if(m_pInPort)
 			m_pGetFunctor = dynamic_cast<IVistaMeasureTranscode::TTranscodeValueGet<T>*>(
 							   m_pInPort->GetValueConstRef()->m_pTranscode->GetMeasureProperty(m_strInValue));
