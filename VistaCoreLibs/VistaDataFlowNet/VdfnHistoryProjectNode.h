@@ -77,23 +77,32 @@
 class VISTADFNAPI VdfnHistoryProjectNode : public IVdfnReEvalNode
 {
 public:
+	enum eMode
+	{
+		MD_LAZY = 0,
+		MD_HOT,
+		MD_ITERATE,
+		MD_INDEXED
+	};
 	/**
 	 * @param liOutPorts the names of the properties to have as outports for this
 	          project node. The order is not important.
 	 */
-	VdfnHistoryProjectNode(const std::list<std::string> &liOutPorts);
+	VdfnHistoryProjectNode(const std::list<std::string> &liOutPorts, 
+			                   eMode eInitialMode = MD_LAZY );
 
 	/**
 	 * @todo check whether this code is legacy.
 	 */
 	virtual bool SetInPort(const std::string &sName, IVdfnPort*);
 
+
 	/**
 	 * The history project node is valid, as soon as a history is connected to it.
 	 * @return true iff the port "history" is properly set.
 	 */
 	virtual bool GetIsValid() const;
-	virtual bool PrepareEvaluationRun();
+//	virtual bool PrepareEvaluationRun();
 
 	/**
 	 * Since the history processing mode may need multiple evaluation runs per
@@ -144,7 +153,14 @@ private:
 	bool m_bInitDone;
 	HistoryPort    *m_pHistory;
 	TVdfnPort<int> *m_pSamplingMode;
-	int				m_nUnprocessedMeasures;
+	TVdfnPort<unsigned int> *m_pIterateState,
+							  *m_pBackwardIndex,
+							  *m_pOutputIndex;
+	unsigned int	m_nUnprocessedMeasures, m_nLastIndex;
+	eMode m_eInitialMode;
+
+	unsigned int m_nBackwardIndex;
+
 };
 
 /*============================================================================*/

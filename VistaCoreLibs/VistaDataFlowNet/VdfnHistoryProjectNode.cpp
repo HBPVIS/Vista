@@ -27,15 +27,6 @@
 
 #include <VistaAspects/VistaAspectsUtils.h>
 
-namespace
-{
-	enum
-	{
-		MD_LAZY = 0,
-		MD_HOT,
-		MD_ITERATE
-	};
-}
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
@@ -44,13 +35,19 @@ namespace
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
-VdfnHistoryProjectNode::VdfnHistoryProjectNode(const std::list<std::string> &liOutPorts)
+VdfnHistoryProjectNode::VdfnHistoryProjectNode(const std::list<std::string> &liOutPorts,
+        										eMode eInitialMode )
 : IVdfnReEvalNode(),
   m_liOutPorts(),
   m_liOriginalPorts(liOutPorts),
   m_pHistory(NULL),
   m_pSamplingMode(NULL),
   m_nUnprocessedMeasures( 0 )
+, m_nLastIndex(0)
+, m_pIterateState( new TVdfnPort<unsigned int> )
+, m_pBackwardIndex( NULL )
+, m_pOutputIndex( new TVdfnPort<unsigned int> )
+, m_eInitialMode(eInitialMode)
 {
 	// create initial mapping
 	for( std::list<std::string>::const_iterator cit = m_liOriginalPorts.begin();
@@ -60,11 +57,16 @@ VdfnHistoryProjectNode::VdfnHistoryProjectNode(const std::list<std::string> &liO
 	}
 	// we project from a history to a sampled
 	// value of specified sample types as given in liOutPorts
-	RegisterInPortPrototype( "history", new HistoryPortCompare);
+	RegisterInPortPrototype( "history", new HistoryPortCompare( &m_pHistory ));
 
 	// 0 for lazy
 	// all other for hot
-	RegisterInPortPrototype( "sampling_mode", new TVdfnPortTypeCompare<TVdfnPort<int> > );
+	RegisterInPortPrototype( "sampling_mode", new TVdfnPortTypeCompare<TVdfnPort<int> >( &m_pSamplingMode ) );
+	RegisterInPortPrototype( "backward_index", new TVdfnPortTypeCompare<TVdfnPort<unsigned int> >( &m_pBackwardIndex ) );
+
+
+	RegisterOutPort( "__iteratestate", m_pIterateState );
+	RegisterOutPort( "__projected_index", m_pOutputIndex );
 }
 
 bool VdfnHistoryProjectNode::SetInPort(const std::string &sName, IVdfnPort *pPort)
@@ -89,17 +91,10 @@ bool VdfnHistoryProjectNode::GetIsValid() const
 	return (m_pHistory != NULL);
 }
 
-bool VdfnHistoryProjectNode::PrepareEvaluationRun()
-{
-	m_pHistory = VdfnUtil::GetInPortTyped<HistoryPort*>("history", this);
-	m_pSamplingMode = VdfnUtil::GetInPortTyped<TVdfnPort<int>*>("sampling_mode", this);
-
-	return GetIsValid();
-}
 
 bool VdfnHistoryProjectNode::DoEvalNode()
 {
-	int nMode = ( m_pSamplingMode ? m_pSamplingMode->GetValue() : 0 );
+	eMode nMode = ( m_pSamplingMode ? eMode(m_pSamplingMode->GetValue()) : m_eInitialMode );
 	const VistaSensorMeasure *pMeasure = NULL;
 
 	switch( nMode )
@@ -113,14 +108,29 @@ bool VdfnHistoryProjectNode::DoEvalNode()
 			if( m_nUnprocessedMeasures == 0 ) //no re-evaluation, thus read history
 				m_nUnprocessedMeasures = m_pHistory->GetValue()->m_nNewMeasures;
 
-			--m_nUnprocessedMeasures;
-			pMeasure = m_pHistory->GetValue()->m_oHistory.GetPast( m_nUnprocessedMeasures );
+			m_pIterateState->SetValue( m_nUnprocessedMeasures, GetUpdateTimeStamp() );
+
+			if( --m_nUnprocessedMeasures != ~0 )
+				pMeasure = m_pHistory->GetValue()->m_oHistory.GetPast( m_nUnprocessedMeasures );
+			else
+			{
+				pMeasure = NULL;
+				m_nUnprocessedMeasures = 0;
+			}
 			break;
 		}
 		case MD_HOT:
 		{
 			//Hot sampling: take most current value
 			pMeasure = m_pHistory->GetValue()->m_oHistory.GetMostCurrent();
+			break;
+		}
+		case MD_INDEXED:
+		{
+			unsigned int nPast = m_pBackwardIndex ? m_pBackwardIndex->GetValue() : 0;
+			pMeasure = m_pHistory->GetValue()->m_oHistory.GetPast( nPast );
+			if( (pMeasure->m_nMeasureIdx == 0) || (pMeasure->m_nDeliverTs > (*m_pHistory->GetValue()).m_oHistory.m_nUpdateTs) )
+					pMeasure = NULL; // invalid read
 			break;
 		}
 		default:
@@ -133,7 +143,9 @@ bool VdfnHistoryProjectNode::DoEvalNode()
 	}
 
 	if( pMeasure == NULL )
-		return true; // there just are no samples in the history yet
+		return true; // there just are no samples in the history yet / can this happen?
+
+	m_pOutputIndex->SetValue( pMeasure->m_nMeasureIdx, GetUpdateTimeStamp() );
 
 	for( std::list<_sPortMap>::const_iterator itPort = m_liOutPorts.begin();
 			itPort != m_liOutPorts.end(); ++itPort )
@@ -181,10 +193,19 @@ void VdfnHistoryProjectNode::UpdateOutPortMap()
 	if(m_pHistory->GetValue()) // check for history set (should be always true,
 							   // otherwise it is a driver error (might happen)
 	{
-		VdfnHistoryPortData       *pData  = m_pHistory->GetValue();
+		VdfnHistoryPortData        *pData  = m_pHistory->GetValue();
 		IVistaMeasureTranscode     *pTrans = pData->m_pTranscode;
+		if( pTrans == NULL )
+			return; // no transcode... no output
 
 		VdfnPortFactory *pFac = VdfnPortFactory::GetSingleton();
+		if( !m_liOriginalPorts.empty() && (m_liOriginalPorts.size() == 1) && (m_liOriginalPorts.front() == "*") )
+		{
+			// special case: wildcard, map out any transcode we have
+			std::set<std::string> all = pTrans->GetMeasureProperties();
+			m_liOriginalPorts.clear();
+			m_liOriginalPorts.assign( all.begin(), all.end() ); 
+		}
 
 		std::list<_sPortMap> liSetOutPort;
 
@@ -195,9 +216,10 @@ void VdfnHistoryProjectNode::UpdateOutPortMap()
 			IVistaMeasureTranscode::ITranscodeGet *pGet = pTrans->GetMeasureProperty(*cit);
 			if(pGet == NULL) // should not happen when user is sane
 			{
-				vstr::warnp() << "VdfnHistoryProjectNode::UpdateOutPortMap() -- Measure property ["
-						<< *cit << "] doesn't exist" << std::endl;
 #if defined(DEBUG)
+				vstr::warnp() << "VdfnHistoryProjectNode::UpdateOutPortMap() -- Measure property ["
+						<< *cit << "] doesn't exist." << std::endl;
+				vstr::warnp() << "This is what we have: -- BEGIN..." << std::endl;
 				std::set<std::string> oSet = pTrans->GetMeasureProperties();
 				vstr::IndentObject oIndent;
 				for(std::set<std::string>::const_iterator cit1 = oSet.begin();
@@ -205,19 +227,19 @@ void VdfnHistoryProjectNode::UpdateOutPortMap()
 				{
 					vstr::warnp() << vstr::singleindent << "[" << *cit1 << "]" << std::endl;
 				}
+				vstr::warnp() << "-- END." << std::endl;
 #endif
 				continue;
 			}
 
 			// IAR: hack, for now, we use the type of the transcoder to determine
-			// a good port setter, currently, we have two: value get and indexed get as double
+			// a good port setter, currently, we have two: value get and indexed get.
+			// note, this is a downcast, and not good design, but the indexed gets
+			// were just a hack for quick debugging, so it might be all removed.
 
-			// first: try indexed double get
-			//IVistaMeasureTranscode::CScalarDoubleGet *pIdxTrans
-			//	= dynamic_cast<IVistaMeasureTranscode::CScalarDoubleGet *>(pGet);
-			IVistaMeasureTranscode::ITranscodeIndexedGet* pIndexedGet = 
-						dynamic_cast<IVistaMeasureTranscode::ITranscodeIndexedGet*>( pGet );
-			if( pIndexedGet ) // yes...
+			IVistaMeasureTranscode::ITranscodeIndexedGet *pIdxTrans
+				= dynamic_cast<IVistaMeasureTranscode::ITranscodeIndexedGet *>(pGet);
+			if(pIdxTrans) // yes...
 			{
 				// a side note: few getters may be index get getters, so the pIdxTrans will usually
 				// evaluate to NULL, one might think it is faster then to check on the ordinary
@@ -225,8 +247,8 @@ void VdfnHistoryProjectNode::UpdateOutPortMap()
 				// called at a <i>very</i> low frequency...
 
 				// add a new outport for every scalar we can get
-				unsigned int nNumberOfIndices = pIndexedGet->GetNumberOfIndices();
-				if( nNumberOfIndices == -1 )
+				unsigned int nNumberOfIndices = pIdxTrans->GetNumberOfIndices();
+				if( nNumberOfIndices == IVistaMeasureTranscode::ITranscodeIndexedGet::UNKNOWN_NUMBER_OF_INDICES )
 					nNumberOfIndices = pTrans->GetNumberOfScalars();
 				for(unsigned int n=0; n < nNumberOfIndices; ++n)
 				{
@@ -253,7 +275,7 @@ void VdfnHistoryProjectNode::UpdateOutPortMap()
 			}
 			else
 			{
-				// it is no indexed double get, so it must be an 'ordinary' get
+				// it is no indexed get, so it must be an 'ordinary' get
 				VdfnPortFactory::CPortAccess *pAccess = pFac->GetPortAccess( pGet->GetReturnType().name() );
 				if(pAccess)
 				{

@@ -271,9 +271,24 @@ IVdfnNode *VdfnHistoryProjectNodeCreate::CreateNode( const VistaPropertyList &oP
 	{
 		const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
 		std::list<std::string> liProjects;
-		subs.GetValue( "project", liProjects );
+		subs.GetValue<std::list<std::string> >("project", liProjects );
 
-		return new VdfnHistoryProjectNode(liProjects);
+		std::string sMode("LAZY");
+		if( subs.HasProperty("mode") )
+			sMode = subs.GetValue<std::string>("mode");
+
+		VdfnHistoryProjectNode::eMode eMode = VdfnHistoryProjectNode::MD_LAZY;
+		if( sMode == "HOT" )
+			eMode = VdfnHistoryProjectNode::MD_HOT;
+		else if( sMode == "ITERATE" )
+			eMode = VdfnHistoryProjectNode::MD_ITERATE;
+		else if( sMode == "INDEXED" )
+			eMode = VdfnHistoryProjectNode::MD_INDEXED;
+
+		if( liProjects.empty() )
+			liProjects.push_back( std::string("*") );
+
+		return new VdfnHistoryProjectNode(liProjects, eMode);
 	}
 	catch(VistaExceptionBase &x)
 	{
@@ -281,6 +296,9 @@ IVdfnNode *VdfnHistoryProjectNodeCreate::CreateNode( const VistaPropertyList &oP
 	}
 	return NULL;
 }
+
+
+
 
 
 // #############################################################################
