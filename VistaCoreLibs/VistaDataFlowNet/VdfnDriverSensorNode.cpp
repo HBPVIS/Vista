@@ -51,6 +51,7 @@ VdfnDriverSensorNode::VdfnDriverSensorNode( VistaDeviceSensor *pSensor )
 
 VdfnDriverSensorNode::~VdfnDriverSensorNode()
 {
+	delete m_pHistoryPort->GetValue();
 }
 
 bool VdfnDriverSensorNode::GetIsValid() const
