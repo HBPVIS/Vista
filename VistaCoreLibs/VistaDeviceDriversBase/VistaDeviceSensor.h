@@ -277,7 +277,7 @@ public:
 	 * a full virtual GetReturnType() API to query the type_info()
 	 * of the value that is supposed to be returned from the getter.
 	 */
-	class ITranscodeGet : public IVistaPropertyGetFunctor
+	class VISTADEVICEDRIVERSAPI ITranscodeGet : public IVistaPropertyGetFunctor
 	{
 	public:
 		ITranscodeGet(const std::string &sPropname,
@@ -358,7 +358,7 @@ public:
 	 * values by defining an API GetValueIndexed() with an index as a stack
 	 * return or be side-effect.
 	 */
-	class ITranscodeIndexedGet : public ITranscodeGet
+	class VISTADEVICEDRIVERSAPI ITranscodeIndexedGet : public ITranscodeGet
 	{
 	public:
 		ITranscodeIndexedGet(const std::string &sPropname,
