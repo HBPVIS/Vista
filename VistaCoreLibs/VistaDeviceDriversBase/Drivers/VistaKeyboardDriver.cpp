@@ -77,7 +77,7 @@ public:
 		if(!pMeasure || nIndex > 2)
 			return false;
 
-		const IVistaKeyboardDriver::_sKeyboardMeasure *m = TrcU::To<const IVistaKeyboardDriver::_sKeyboardMeasure>(pMeasure);
+		const IVistaKeyboardDriver::_sKeyboardMeasure *m = pMeasure->getRead<IVistaKeyboardDriver::_sKeyboardMeasure>();
 		if(nIndex == 0)
 			dScalar = m->m_nKey;
 		else
@@ -99,7 +99,7 @@ public:
 
 	virtual int GetValue(const VistaSensorMeasure *pMeasure ) const
 	{
-		const IVistaKeyboardDriver::_sKeyboardMeasure *m = TrcU::To<const IVistaKeyboardDriver::_sKeyboardMeasure>(pMeasure);
+		const IVistaKeyboardDriver::_sKeyboardMeasure *m = pMeasure->getRead<IVistaKeyboardDriver::_sKeyboardMeasure>();
 		if(m_nIdx == 0)
 			return m->m_nKey;
 		else
@@ -166,7 +166,7 @@ bool IVistaKeyboardDriver::UpdateKey(int nKey, int nModifier)
 	if(pM == NULL)
 		return false;
 
-	_sKeyboardMeasure *m = TrcU::ToNc<_sKeyboardMeasure>(pM);
+	_sKeyboardMeasure *m = pM->getWrite<_sKeyboardMeasure>();
 	m->m_nKey      = nKey;
 	m->m_nModifier = nModifier;
 
