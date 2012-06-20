@@ -74,35 +74,37 @@ class VISTADEVICEDRIVERSAPI VistaSensorMeasure
 {
 public:
 	VistaSensorMeasure()
-		: m_nMeasureIdx(0),
-		  m_nMeasureTs(0),
-		  m_nSwapTime(0),
-		  m_nDeliverTs(0),
-		  m_nAverageDeliverTime(0),
-		  m_nEndianess(VistaSerializingToolset::GetPlatformEndianess())
+		: m_nMeasureIdx(0)
+		, m_nMeasureTs(0)
+		, m_nSwapTime(0)
+		, m_nDeliverTs(0)
+		, m_nAverageDeliverTime(0)
+		, m_nEndianess(VistaSerializingToolset::GetPlatformEndianess())
 	{
 	}
 
-	VistaSensorMeasure(unsigned int nMeasureIdx,
+	VistaSensorMeasure( unsigned int nMeasureIdx,
 						VistaType::microtime nTs,
-						unsigned int nSize)
-		:m_nMeasureIdx(nMeasureIdx),
-		 m_nMeasureTs(nTs),
-		 m_nSwapTime(0),
-		 m_nDeliverTs(0),
-		 m_nAverageDeliverTime(0),
-		 m_nEndianess(VistaSerializingToolset::GetPlatformEndianess()),
-		 m_vecMeasures(nSize)
+						unsigned int nSize )
+		: m_nMeasureIdx(nMeasureIdx)
+		, m_nMeasureTs(nTs)
+		, m_nSwapTime(0)
+	    , m_nDeliverTs(0)
+		, m_nAverageDeliverTime(0)
+		, m_nEndianess(VistaSerializingToolset::GetPlatformEndianess())
+		, m_vecMeasures(nSize)
 	{}
 
 	VistaType::uint32        m_nMeasureIdx;
 	VistaType::microtime     m_nMeasureTs;
 	VistaType::microtime     m_nSwapTime;
-	VistaType::uint32        m_nEndianess; //<** 0: unknown, 1: LITTLE, 2: MIDDLE, 3: BIG */
-	typedef std::vector<VistaType::byte> MEASUREVEC;
-	MEASUREVEC m_vecMeasures;
 	VistaType::microtime     m_nDeliverTs; /**< age of sample in history */
     VistaType::microtime     m_nAverageDeliverTime;
+    VistaType::uint32        m_nEndianess; //<** 0: unknown, 1: LITTLE, 2: MIDDLE, 3: BIG */
+
+    typedef std::vector<VistaType::byte> MEASUREVEC;
+	MEASUREVEC 				 m_vecMeasures;
+
 
     template<class T>
     const T *getRead() const
@@ -255,6 +257,7 @@ public:
  */
 class VISTADEVICEDRIVERSAPI IVistaMeasureTranscode : public IVistaReflectionable
 {
+	typedef IVistaReflectionable SuperClass;
 public:
 	virtual ~IVistaMeasureTranscode();
 
@@ -308,6 +311,8 @@ public:
 		 * @todo think about avoiding RTTI
 		 */
 		virtual const std::type_info &GetReturnType() const = 0;
+
+		virtual size_t GetReturnSize() const = 0;
 	};
 
 	/**
@@ -344,6 +349,8 @@ public:
 		 * generic implementation, returns the RTTI typeid()
 		 */
 		const std::type_info &GetReturnType() const { return typeid( T ); }
+
+		virtual size_t GetReturnSize() const { return sizeof( T ); }
 	};
 
 	/**
@@ -360,13 +367,14 @@ public:
 		: ITranscodeGet(sPropname, sClassName, sDescription)
 		{}
 
-		virtual unsigned int GetNumberOfIndices() const { return -1; }
+		static unsigned int UNKNOWN_NUMBER_OF_INDICES;
+		virtual unsigned int GetNumberOfIndices() const { return UNKNOWN_NUMBER_OF_INDICES; }
 	};
 
 	template <class T> class TTranscodeIndexedGet : public ITranscodeIndexedGet
 	{
 	public:
-	TTranscodeIndexedGet(const std::string &sPropname,
+		TTranscodeIndexedGet(const std::string &sPropname,
 						 const std::string &sClassName,
 						 const std::string &sDescription = "<none>")
 		: ITranscodeIndexedGet(sPropname, sClassName, sDescription)
@@ -384,6 +392,7 @@ public:
 		 * generic implementation, returns the RTTI type.
 		 */
 		const std::type_info &GetReturnType() const { return typeid( T ); }
+		virtual size_t GetReturnSize() const { return sizeof( T ); }
 	};
 
 	/**
@@ -439,18 +448,8 @@ protected:
 	const VistaSensorMeasure *m_pMeasure;
 	unsigned int               m_nNumberOfScalars;
 
-	mutable std::list<std::string> m_BtList;
+	mutable std::list<std::string> m_BtList, m_MpList;
 };
-
-
-namespace TrcU
-{
-	template<class T>
-	const T *To( const VistaSensorMeasure *m ) { return (const T*)&(*m).m_vecMeasures[0]; }
-
-	template<class T>
-	T *ToNc( VistaSensorMeasure *m ) { return (T*)&(*m).m_vecMeasures[0]; }
-}
 
 /**
  * Base class for the creation of transcoders of a
@@ -485,7 +484,10 @@ public:
 
 	virtual IVistaMeasureTranscode *CreateTranscoder()
 	{
-		return new T;
+		T *r = new T;
+		if( r )
+			r->SetNameForNameable( m_strName );
+		return r;
 	}
 
 	virtual void DestroyTranscoder( IVistaMeasureTranscode *trans )
