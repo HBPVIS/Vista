@@ -34,8 +34,6 @@
 
 #include <cassert>
 
-//#define VISTA_USE_ATOMICS
-
 unsigned int IVistaMeasureTranscode::ITranscodeIndexedGet::UNKNOWN_NUMBER_OF_INDICES = ~0;
 
 
@@ -77,16 +75,18 @@ public:
 	#elif defined(__GNUC__) && ( defined(__i386__) || defined(__x86_64__) || defined( __LP32__) || defined(__LP64__) )
 			return intel_gnuc_atomicswap((VistaType::uint32*)v1, (VistaType::uint32)v2); //atomic_xchg(v1, v2);
 	#else
-			VistaSemaphoreLock l(m_lock);
-			*((VistaType::uint32*)v1) = v2;
-			return *((VistaType::uint32*)v1);
+		VistaSemaphoreLock l(m_lock);
+		VistaType::uint32 vOld = *((VistaType::uint32*)v1); // assign old value
+		*((VistaType::uint32*)v1) = v2; // store new one, we assume that this works using
+							 // a semaphore
+		return vOld; // return the prior-value.
 	#endif
 #endif // VISTA_USE_ATOMICS
 	}
 
 	VistaType::uint64 AtomicSet64(SWAPADDRESS v1, VistaType::uint64 v2)
 	{
-#if !defined(VISTA_USE_ATOMICS)
+#if !defined(VISTA_USE_ATOMICS) || defined(VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE)
 		VistaSemaphoreLock l(m_lock);
 		VistaType::uint64 vOld = *((VistaType::uint64*)v1); // assign old value
 		*((VistaType::uint64*)v1) = v2; // store new one, we assume that this works using
@@ -94,19 +94,19 @@ public:
 		return vOld; // return the prior-value.
 #else
 	#if defined(WIN32)
-			/** LONG is always 32bit, even on win64 */
-#if _MSC_VER < 1900
-		return InterlockedExchange64((LONGLONG*)v1, (LONGLONG)v2);
-#else
-		return InterlockedExchange64((unsigned __int64*)v1, (unsigned __int64)v2);
-#endif
-
+		#if _MSC_VER < 1900 // old versions have a different prototype
+				return InterlockedExchange64((LONGLONG*)v1, (LONGLONG)v2);
+		#else
+				return InterlockedExchange64((unsigned __int64*)v1, (unsigned __int64)v2);
+		#endif // _MSC_VER
 	#elif defined(__GNUC__) && ( defined(__i386__) || defined(__x86_64__) || defined( __LP32__) || defined(__LP64__) )
 			return intel_gnuc_atomicswap64((VistaType::uint64*)v1, (VistaType::uint64)v2); //atomic_xchg(v1, v2);
 	#else
-			VistaSemaphoreLock l(m_lock);
-			*((VistaType::uint64*)v1) = v2;
-			return *((VistaType::uint64*)v1);
+		VistaSemaphoreLock l(m_lock);
+		VistaType::uint64 vOld = *((VistaType::uint64*)v1); // assign old value
+		*((VistaType::uint64*)v1) = v2; // store new one, we assume that this works using
+							 // a semaphore
+		return vOld; // return the prior-value.
 	#endif
 #endif // VISTA_USE_ATOMICS
 	}
@@ -165,7 +165,7 @@ public:
 #endif
 	}
 
-#if !defined(VISTA_USE_ATOMICS) || defined(SUNOS)
+#if !defined(VISTA_USE_ATOMICS) || defined(SUNOS) || defined(VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE)
 	VistaSemaphore m_lock;
 #endif
 
@@ -180,7 +180,7 @@ public:
 
 	static std::string GetAtomicState()
 	{
-#if defined(VISTA_USE_ATOMICS)
+#if defined(VISTA_USE_ATOMICS) && !defined(VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE)
 		return "VISTA_USE_ATOMICS SET!";
 #else
 		return "SEMAPHORE LOCKED ACCESS";
