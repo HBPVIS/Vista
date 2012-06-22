@@ -78,7 +78,7 @@
 
 #include <VistaDeviceDriversBase/VistaDriverUtils.h>
 #include <VistaDeviceDriversBase/VistaDeviceDriver.h>
-#include <VistaDeviceDriversBase/VistaShallowDriver.h>
+#include <VistaDeviceDriversBase/Drivers/VistaShallowDriver.h>
 #include <VistaDeviceDriversBase/VistaDriverUtils.h>
 #include <VistaDeviceDriversBase/VistaDriverMap.h>
 #include <VistaDeviceDriversBase/DriverAspects/VistaDriverConnectionAspect.h>
@@ -2009,10 +2009,38 @@ void VistaSystem::CreateDeviceDrivers()
 				if( oSensorSection.GetValue( "NAME", strName ) )
 					continue; // no need to set name
 
+				std::string sSensorType;
+				oSensorSection.GetValue("TYPE", sSensorType);
+
 				// get sensor by index
-				VistaDeviceSensor *pSensor = (*itDriverNode)->m_oElement->m_pDriver->GetSensorByIndex(nIdx);
+				IVistaDeviceDriver *pDriver = (*itDriverNode)->m_oElement->m_pDriver;
+				VistaDeviceSensor *pSensor = pDriver->GetSensorByIndex(nIdx);
 				if(pSensor)
+				{
+					int nHistory = oSensorSection.GetValueOrDefault<int>( "HISTORY", 5 );
+					VistaDriverMeasureHistoryAspect *pHist
+						= dynamic_cast<VistaDriverMeasureHistoryAspect*>(
+								pDriver->GetAspectById( VistaDriverMeasureHistoryAspect::GetAspectId() ) );
+					if(pHist) // should never be NULL
+					{
+						unsigned int nUpdateRateOfSensorInHz = pDriver->GetFactory()->GetUpdateEstimatorFor( pSensor->GetTypeHint() );
+						if( nUpdateRateOfSensorInHz == IVistaDriverCreationMethod::INVALID_TYPE )
+						{
+							vstr::warnp() << "DriverCreationMethod of driver ["
+									<< (*itDriverNode)->m_oElement->m_strName << "] does not report an Update Rate for Sensor Type ["
+									<< sSensorType << "]" << std::endl;
+							continue;
+						}
+
+						int nNum = int( ceilf( 66.6f / ( 1000.0f / float(nUpdateRateOfSensorInHz) ) ) );
+						unsigned int nMeasureSize = pDriver->GetFactory()->GetMeasureSizeFor( pSensor->GetTypeHint() );
+						if( nMeasureSize == ~0 )
+							nMeasureSize = 0;
+
+						pHist->SetHistorySize( pSensor, nHistory, 2*nNum, nMeasureSize );
+					}
 					pSensor->SetSensorName( strName ); // set name
+				}
 			}
 		}
 	}
