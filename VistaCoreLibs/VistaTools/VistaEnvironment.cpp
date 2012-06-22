@@ -33,6 +33,7 @@
 #define SYSTEM "IRIX"
 #elif LINUX
 #define SYSTEM "LINUX"
+#include <stdio.h>
 #elif SUNOS
 #define SYSTEM "SUNOS"
 #else
@@ -137,7 +138,18 @@ std::string VistaEnvironment::GetEnv(const std::string &sEnv)
 
 void VistaEnvironment::SetEnv(const std::string &sKey, const std::string &sValue)
 {
-	putenv((char*)(sKey+std::string("=")+sValue).c_str());
+#if defined(LINUX)
+	// on linux, the memory is 'referenced'
+	// note that this is a potential memory leak, one has to reset with "sKey=" to erase
+	// the memory and then delete the string manually.
+	char *buffer = new char[ sKey.size() + sValue.size() + 2 ];
+	sprintf( buffer, "%s=%s", sKey.c_str(), sValue.c_str() );
+	putenv(buffer);
+#elif defined( WIN32 )
+	_putenv_s( sKey.c_str(), sValue.c_str() );
+#elif defined( DARWIN )
+	setenv( sKey.c_str(), sValue.c_str(), 1 );
+#endif
 };
 
 std::string VistaEnvironment::GetLibraryPathEnv()
@@ -154,11 +166,11 @@ std::string VistaEnvironment::GetLibraryPathEnv()
 void VistaEnvironment::SetLibraryPathEnv( const std::string &sValue )
 {
 #if defined WIN32 
-	putenv( ( "PATH=" + sValue ).c_str() );
+	SetEnv( "PATH", sValue );
 #elif defined DARWIN
-	putenv( ( "DYLD_LIBRARY_PATH=" + sValue ).c_str() );
+	SetEnv( "DYLD_LIBRARY_PATH", sValue ) );
 #else // UNIX
-	putenv( (char*)( "LD_LIBRARY_PATH=" + sValue ).c_str() );
+	SetEnv( "LD_LIBRARY_PATH", sValue );
 #endif
 };
 
@@ -171,14 +183,14 @@ void VistaEnvironment::AddPathToLibraryPathEnv( const std::string &sValue, bool 
 		sNewPath = sNewPath + ";" + sValue;
 	else
 		sNewPath = sValue + ";" + sNewPath;
-	putenv( ( "PATH=" + sNewPath ).c_str() );
+	SetEnv( "PATH", sNewPath );
 #elif defined DARWIN
 	std::string sNewPath = getenv( "DYLD_LIBRARY_PATH" );
 	if( bAddAtBack )
 		sNewPath = sNewPath + ":" + sValue;
 	else
 		sNewPath = sValue + ":" + sNewPath;
-	putenv( ( "DYLD_LIBRARY_PATH=" + sNewPath ).c_str() );
+	SetEnv( "DYLD_LIBRARY_PATH", sNewPath );
 #else // UNIX
 	std::string sNewPath = GetEnv( "LD_LIBRARY_PATH" );
 	if( bAddAtBack )
