@@ -125,11 +125,13 @@ public:
 	/**
 	 * Implement this function for the initial device-setup. The device should
 	 * perform all initialization and feature detection up to the point where
-	 * processing/measureing could be started right away.
+	 * processing/measuring could be started right away.
 	 * The starting/stopping of the actual measurement is then done via the
 	 * PhysicalEnable API.
 	 */
 	virtual bool Connect();
+
+	virtual bool Disconnect();
 
 	// #####################################################################
 	// SENSOR QUERY API
@@ -159,12 +161,43 @@ public:
 	 */
 	VistaDeviceSensor *GetSensorByName( const std::string &strName ) const;
 
+	static size_t ANYPOS;
+	static unsigned int INVALID_INDEX;
+
+	class VISTADEVICEDRIVERSAPI AllocMemoryFunctor : public std::unary_function< VistaSensorMeasure &, void >
+	{
+	public:
+		virtual void operator()( VistaSensorMeasure &m ) const = 0;
+	};
+
+	class VISTADEVICEDRIVERSAPI DefaultAllocFunctor : public AllocMemoryFunctor
+	{
+	public:
+		virtual void operator()( VistaSensorMeasure &m ) const {}
+	};
+
+
+	class VISTADEVICEDRIVERSAPI ClaimMemoryFunctor : public std::unary_function< VistaSensorMeasure &, void >
+	{
+	public:
+		virtual void operator()( VistaSensorMeasure & ) const = 0;
+	};
+
+	class VISTADEVICEDRIVERSAPI DefaultClaimFunctor : public ClaimMemoryFunctor
+	{
+	public:
+		virtual void operator()( VistaSensorMeasure & ) const {}
+	};
+
 	/**
 	 * Can by used by client code to add dynamically configured sensors.
 	 * Usually, this is not necessary for plain user code. Do not
 	 * use this API unless you know what you are doing.
 	 */
-	virtual unsigned int AddDeviceSensor(VistaDeviceSensor *pSensor);
+	virtual unsigned int AddDeviceSensor(VistaDeviceSensor *pSensor, size_t pos = ANYPOS, 
+		                                 AllocMemoryFunctor *amf = NULL,
+										 ClaimMemoryFunctor *cmf = NULL );
+
 
 	/**
 	 * remove a sensor by pointer. Do not use this API unless you know what
@@ -203,7 +236,8 @@ public:
 	 * This method can be used to realize, e.g., polling requests and is called
 	 * right before update. Note that the call to PreUpdate() is realized independent
 	 * of the driver's enable state.
-	 * @return true iff anything was all right, false if problems occured (see driver
+	 * This method must be called by the same thread that calls Update() later on.
+	 * @return true iff anything was all right, false if problems occurred (see driver
 					Specific documentation)
 	 * @see Update()
 	 * @see PostUpdate()
@@ -226,7 +260,8 @@ public:
 	/**
 	 * This method is called right after a call to Update, regardless of the Update()
 	 * method's return value. Can be overridden by special drivers to realize a kind of
-	 * cleanup after the call to update (e.g., clearance of flags)
+	 * cleanup after the call to update (e.g., clearance of flags).
+	 * This method must be called by the same thread that calls Update() later on.
 	 * @return true iff anything was all right, false else (see driver specific documentation
 					for a meaning of a false return)
 	 * @see PreUpdate()
@@ -295,6 +330,8 @@ public:
 		 * and is then fixed during the complete run-time.
 		 */
 		static void SetAspectId(int);
+
+		virtual void Print( std::ostream& ) const;
 	protected:
 		/**
 		 * Can be used by subclasses to set an instance's class id,
@@ -333,6 +370,13 @@ public:
 	 */
 	IVistaDeviceDriverAspect *GetAspectById(int nId) const;
 
+	template<class aspType>
+	aspType *GetAspectAs( int nId ) const
+	{
+		return dynamic_cast<aspType*>( GetAspectById(nId ) );
+	}
+
+
 	/**
 	 * Registers an aspect with this instance. Registered instances belong to the
 	 * driver and will be deleted once the driver is deleted.
@@ -350,10 +394,13 @@ public:
 	 * @param pAspect the aspect instance to unregister.
 	 * @param bDelete true iff delete is to be called on the pointer after the
 					  unregistration process.
+	 * @param bForce  force unregistration regardless of the flag that was used
+	 *                during construction of the aspect.
 	 * @return false iff the aspect was not registered with the driver instance
 	 */
 	virtual bool UnregisterAspect(IVistaDeviceDriverAspect *pAspect,
-						  bool bDelete = true);
+						  bool bDelete = true,
+						  bool bForce  = false);
 
 	/**
 	 * Claim list of registered aspects for this driver.
@@ -364,7 +411,7 @@ public:
 
 	//@}
 	// ################################################################
-	// NEW INTERACTION MANAGER API
+	// CLIENT READER API
 	// ################################################################
 	//@{
 	/**
@@ -496,6 +543,7 @@ protected:
 	 */
 	void         DeleteAllSensors();
 
+	bool HasSensorPointer( VistaDeviceSensor * ) const;
 
 private:
 	eUpdateType                                      m_eUpdType;

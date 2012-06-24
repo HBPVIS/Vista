@@ -96,7 +96,7 @@
 class VISTADEVICEDRIVERSAPI VistaDriverMeasureHistoryAspect : public IVistaDeviceDriver::IVistaDeviceDriverAspect
 {
 public:
-	VistaDriverMeasureHistoryAspect();
+	VistaDriverMeasureHistoryAspect(unsigned int nDefHistSize = ~0);
 	virtual ~VistaDriverMeasureHistoryAspect();
 
 
@@ -157,30 +157,39 @@ public:
 	 */
 	unsigned int         GetHistorySize(VistaDeviceSensor *) const;
 
+	unsigned int         GetDriverWriteHistorySize( VistaDeviceSensor * ) const;
+	unsigned int         GetUserReadHistorySize( VistaDeviceSensor * ) const;
+
 	/**
 	 * register a sensor. The registration is pointer-wise, registering a sensor
 	 * more than once is a waste of cycles, and may reset the history on the sensor,
 	 * in case a default history size is given.
+	 * @see SetDefaultHistorySize()
 	 */
-	bool                 RegisterSensor(VistaDeviceSensor *);
+	bool                 RegisterSensor(VistaDeviceSensor *, IVistaDeviceDriver::AllocMemoryFunctor *amf = NULL 
+		                                                   , IVistaDeviceDriver::ClaimMemoryFunctor *cmf = NULL,
+														   bool bReRegister = false );
 
 	/**
 	 * Unregisters a sensor from this history. A sensor that was not registered
 	 * can not be unregistered.
 	 * @return true
 	 */
-	bool                 UnregisterSensor(VistaDeviceSensor *);
+	bool                 UnregisterSensor(VistaDeviceSensor * );
 
 	/**
 	 * query, whether a sensor is registered with this history.
 	 */
 	bool                 GetIsRegistered(VistaDeviceSensor *) const;
 
+
 	// #########################################
 	// OVERWRITE IN SUBCLASSES
 	// #########################################
 	static int  GetAspectId();
 	static void SetAspectId(int);
+
+	static unsigned int INVALID_READING;
 
 protected:
 private:
@@ -191,21 +200,35 @@ private:
 	{
 		_sL()
 			: m_pMeasures(NULL)
+			, m_amf(NULL)
+			, m_cmf(NULL)
+			, m_bInitialized(false)
 		{
 		}
 
-		_sL(VistaMeasureHistory *pMeasures)
-			: m_pMeasures(pMeasures),
-			m_nIt(m_pMeasures->m_rbHistory.GetCurrent())
+		_sL(VistaMeasureHistory *pMeasures,
+			IVistaDeviceDriver::AllocMemoryFunctor *amf = NULL,
+			IVistaDeviceDriver::ClaimMemoryFunctor *cmf = NULL,
+			bool bInitialized = false )
+			: m_pMeasures(pMeasures)
+			, m_nIt(m_pMeasures->m_rbHistory.GetCurrent())
+			, m_amf(amf)
+			, m_cmf(cmf)
+			, m_bInitialized(bInitialized)
 		{
 		}
 
 		VistaMeasureHistory *m_pMeasures;
+		bool m_bInitialized;
+		IVistaDeviceDriver::AllocMemoryFunctor *m_amf;
+		IVistaDeviceDriver::ClaimMemoryFunctor *m_cmf;
+
 		TVistaRingBuffer<VistaSensorMeasure>::iterator m_nIt;
 	};
 
 	typedef std::map<VistaDeviceSensor*, _sL> HISTORY;
 	HISTORY m_mapHistories;
+	unsigned int m_nDefHistSize;
 };
 
 /*============================================================================*/

@@ -43,6 +43,9 @@
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
 
+size_t IVistaDeviceDriver::ANYPOS = ~0;
+unsigned int IVistaDeviceDriver::INVALID_INDEX = ~0;
+
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
@@ -60,7 +63,7 @@ IVistaDeviceDriver::IVistaDeviceDriver(IVistaDriverCreationMethod *fac, unsigned
 
 IVistaDeviceDriver::~IVistaDeviceDriver()
 {
-	UnregisterAspect(m_pHistoryAspect, false);
+	UnregisterAspect(m_pHistoryAspect, false, true);
 	delete m_pHistoryAspect;
 
 	delete m_pFrequencyTimer;
@@ -160,27 +163,38 @@ VistaDeviceSensor *IVistaDeviceDriver::GetSensorByName( const std::string &strNa
 	return NULL;
 }
 
-unsigned int IVistaDeviceDriver::AddDeviceSensor(VistaDeviceSensor *pSensor)
+bool IVistaDeviceDriver::HasSensorPointer( VistaDeviceSensor *pSensor ) const
 {
-	m_vecSensors.push_back(pSensor);
-	// prepare history
-	m_pHistoryAspect->RegisterSensor(pSensor);
-	pSensor->SetParent(this);
-	if(m_nDefaultHistorySize != ~0)
+	return (std::find( m_vecSensors.begin(), m_vecSensors.end(), pSensor ) != m_vecSensors.end());
+}
+
+unsigned int IVistaDeviceDriver::AddDeviceSensor(VistaDeviceSensor *pSensor, size_t pos, AllocMemoryFunctor *amf, ClaimMemoryFunctor *cmf )
+{
+	bool bReRegister = true;
+	if( !HasSensorPointer( pSensor ) )
 	{
-		SetupSensorHistory( pSensor, m_nDefaultHistorySize, 66.6 );
+		if( pos == ANYPOS || m_vecSensors.empty() )
+			m_vecSensors.push_back(pSensor);
+		else
+			m_vecSensors.insert( m_vecSensors.begin()+pos, pSensor );
+
+		pSensor->SetParent(this);
+		bReRegister = false;
 	}
+
+	// prepare history
+	m_pHistoryAspect->RegisterSensor( pSensor, amf, cmf, bReRegister );
 	return (unsigned int)m_vecSensors.size() - 1;
 }
 
-bool IVistaDeviceDriver::RemDeviceSensor(VistaDeviceSensor *pSensor)
+bool IVistaDeviceDriver::RemDeviceSensor( VistaDeviceSensor *pSensor )
 {
 	std::vector<VistaDeviceSensor*>::iterator beg = std::remove(m_vecSensors.begin(),
 																 m_vecSensors.end(),
 																 pSensor);
 	if(beg != m_vecSensors.end())
 	{
-		m_pHistoryAspect->UnregisterSensor(pSensor);
+		m_pHistoryAspect->UnregisterSensor( pSensor );
 		m_vecSensors.erase(beg, m_vecSensors.end());
 		pSensor->SetParent(NULL);
 		return true;
@@ -303,6 +317,10 @@ bool IVistaDeviceDriver::Connect()
 	return true;
 }
 
+bool IVistaDeviceDriver::Disconnect()
+{
+	return true;
+}
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 const unsigned int IVistaDriverCreationMethod::INVALID_TYPE = ~0;
@@ -552,6 +570,15 @@ void IVistaDeviceDriver::IVistaDeviceDriverAspect::SetId(int id)
 	m_nMyAspectId = id;
 }
 
+void IVistaDeviceDriver::IVistaDeviceDriverAspect::Print( std::ostream &out ) const
+{
+	out << "aspect has id [ " << m_nMyAspectId << "] and is of type [" << VistaConversion::CleanOSTypeName( typeid( *this ).name() ) << "]" << std::endl;
+	vstr::indent(out);
+	out << "This aspect can " << ( m_bCanBeUnregistered ? "" : "not") << " be unregistered without force." << std::endl;
+}
+
+
+
 IVistaDeviceDriver::IVistaDeviceDriverAspect *IVistaDeviceDriver::GetAspectById(int nId) const
 {
 	ASPECTMAP::const_iterator it = m_mapAspects.find(nId);
@@ -572,12 +599,13 @@ bool IVistaDeviceDriver::RegisterAspect(IVistaDeviceDriverAspect *pDriverAspect)
 }
 
 bool IVistaDeviceDriver::UnregisterAspect(IVistaDeviceDriverAspect *pDriverAspect,
-										  bool bDelete)
+										  bool bDelete,
+										  bool bForce )
 {
     if(pDriverAspect == NULL)
         return true; // that is ok ;)
 
-	if(!pDriverAspect->m_bCanBeUnregistered)
+	if(!pDriverAspect->m_bCanBeUnregistered && !bForce)
 		return false;
 
 	ASPECTMAP::iterator it = m_mapAspects.find(pDriverAspect->GetId());
