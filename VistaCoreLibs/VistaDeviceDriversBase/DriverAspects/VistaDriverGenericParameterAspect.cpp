@@ -95,6 +95,23 @@ void VistaDriverGenericParameterAspect::SetAspectId(int nId)
 	m_nAspectId = nId;
 }
 
+void VistaDriverGenericParameterAspect::Print( std::ostream &out ) const
+{
+	 IVistaDeviceDriver::IVistaDeviceDriverAspect::Print(out);
+	 out << "This aspect represents to following properties:" << std::endl;
+
+	 VistaDriverGenericParameterAspect::IParameterContainer *c = GetParameterContainer();
+	 if(c)
+	 {
+		 VistaPropertyList list;
+		 c->GetPropertiesByList(list);
+		 list.Print( out, 1 );
+	 }
+	 else
+	 {
+		 out << "Could not create container?" << std::endl;
+	 }
+}
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/

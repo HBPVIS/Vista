@@ -89,6 +89,8 @@ public:
 	static int  GetAspectId();
 	static void SetAspectId(int);
 
+	virtual void Print( std::ostream& ) const;
+
 protected:
 private:
 	IContainerCreate    *m_pCreate;
@@ -96,6 +98,22 @@ private:
 	static int m_nAspectId;
 };
 
+template<class parent>
+class TParameterContainer : public VistaDriverGenericParameterAspect::IParameterContainer
+{
+	REFL_INLINEIMP( TParameterContainer, VistaDriverGenericParameterAspect::IParameterContainer );
+public:
+	TParameterContainer( parent *pparent )
+	: VistaDriverGenericParameterAspect::IParameterContainer()
+	, m_parent(pparent)
+	{
+
+	}
+	parent *GetParent() const { return m_parent; }
+
+private:
+	parent *m_parent;
+};
 
 template<class T, class Kreator>
 class TParameterCreate : public VistaDriverGenericParameterAspect::IContainerCreate
@@ -120,6 +138,60 @@ public:
 
 	T *m_pDriver;
 };
+
+
+#if !defined(WIN32)
+ #define PARAMETER_CLEANUP( gettervarname, settervarname ) \
+	static void releaseParameterProps() __attribute__ ((destructor)); \
+	\
+	static void releaseParameterProps() \
+	{ \
+	IVistaPropertyGetFunctor **git = gettervarname; \
+	IVistaPropertySetFunctor **sit = settervarname; \
+	\
+		while( *git ) \
+			delete *git++; \
+	\
+		while( *sit ) \
+			delete *sit++; \
+	}
+
+#else // !WIN32
+ #include <windows.h>
+ #define PARAMETER_CLEANUP( gettervarname, settervarname ) \
+	\
+	static void releaseParameterProps(); \
+	\
+	BOOL APIENTRY DllMain( HANDLE hModule, \
+						   DWORD  ul_reason_for_call, \
+						   LPVOID lpReserved \
+						 ) \
+	{ \
+		switch (ul_reason_for_call) \
+		{ \
+		case DLL_PROCESS_ATTACH: \
+		case DLL_THREAD_ATTACH: \
+		case DLL_THREAD_DETACH: \
+			break; \
+		case DLL_PROCESS_DETACH: \
+			if( lpReserved == 0 ) \
+				releaseParameterProps(); \
+			break; \
+		} \
+		return TRUE; \
+	} \
+	static void releaseParameterProps() \
+	{ \
+	IVistaPropertyGetFunctor **git = gettervarname; \
+	IVistaPropertySetFunctor **sit = settervarname; \
+	\
+		while( *git ) \
+			delete *git++; \
+	\
+		while( *sit ) \
+			delete *sit++; \
+	}
+#endif // !WIN32
 
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
