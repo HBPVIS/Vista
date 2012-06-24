@@ -210,6 +210,7 @@ public:
 	// #########################################
 	static int  GetAspectId();
 	static void SetAspectId(int);
+	static unsigned int INVALID_TYPE;
 protected:
 private:
 	static int m_nAspectId;

@@ -38,6 +38,8 @@
 /*============================================================================*/
 
 int VistaDriverSensorMappingAspect::m_nAspectId = -1;
+unsigned int VistaDriverSensorMappingAspect::INVALID_TYPE = ~0;
+
 
 int  VistaDriverSensorMappingAspect::GetAspectId()
 {
@@ -88,7 +90,7 @@ unsigned int VistaDriverSensorMappingAspect::RegisterType(const std::string &str
 		m_vecTypeMapping.push_back(_sL(strTypeName) );
 		return (unsigned int)m_vecTypeMapping.size() - 1;
 	}
-	return ~0;
+	return INVALID_TYPE;
 }
 
 unsigned int VistaDriverSensorMappingAspect::GetNumberOfRegisteredTypes() const
@@ -151,7 +153,7 @@ unsigned int VistaDriverSensorMappingAspect::GetTypeId(const std::string &sTypeN
 		}
 	}
 
-	return ~0;
+	return INVALID_TYPE;
 }
 
 unsigned int VistaDriverSensorMappingAspect::GetSensorIdByRawId( unsigned int nRawSensorId ) const
@@ -159,10 +161,10 @@ unsigned int VistaDriverSensorMappingAspect::GetSensorIdByRawId( unsigned int nR
 	for( MAPVEC::size_type n = 0; n < m_vecTypeMapping.size(); ++n )
 	{
 		unsigned int id = GetSensorId( (unsigned int)n, nRawSensorId );
-		if( id != ~0 )
+		if( id != (unsigned int)~0 )
 			return id;
 	}
-	return ~0;
+	return INVALID_TYPE;
 }
 
 
@@ -175,7 +177,7 @@ unsigned int VistaDriverSensorMappingAspect::GetSensorId(unsigned int nSensorTyp
 	const _sL &l = m_vecTypeMapping[nSensorType];
 	std::map<unsigned int, unsigned int>::const_iterator cit = l.m_mapIds.find(nRawSensorId);
 	if(cit == l.m_mapIds.end())
-		return ~0;
+		return (unsigned int)~0;
 	else
 		return (*cit).second;
 }
@@ -183,7 +185,7 @@ unsigned int VistaDriverSensorMappingAspect::GetSensorId(unsigned int nSensorTyp
 unsigned int VistaDriverSensorMappingAspect::GetRawIdByMappedId( unsigned int nSensorType, unsigned int nMappedId ) const
 {
 	if(nSensorType >= m_vecTypeMapping.size())
-		return ~0;
+		return INVALID_TYPE;
 
 	const _sL &l = m_vecTypeMapping[nSensorType];
 	// will have to iterate over the entire list :(
@@ -193,7 +195,7 @@ unsigned int VistaDriverSensorMappingAspect::GetRawIdByMappedId( unsigned int nS
 		if( (*cit).second == nMappedId )
 			return (*cit).first;
 	}
-	return ~0; // not found
+	return INVALID_TYPE; // not found
 }
 
 bool VistaDriverSensorMappingAspect::SetSensorId(unsigned int nSensorType,
