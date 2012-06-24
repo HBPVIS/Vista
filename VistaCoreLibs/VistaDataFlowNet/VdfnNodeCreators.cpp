@@ -346,7 +346,7 @@ IVdfnNode *VdfnDriverSensorNodeCreate::CreateNode( const VistaPropertyList &oPar
 		{
 			std::string sSensorType = subs.GetValueOrDefault<std::string>( "type", "" );
 			unsigned int nType = pMappingAspect->GetTypeId( sSensorType );
-			if( nType == ~0 )
+			if( nType == VistaDriverSensorMappingAspect::INVALID_TYPE )
 			{
 				vstr::warnp() << "[SensorNodeCreate]: - "
 						<< "Driver [" << sDriver << "] has a sensor mapping aspect, "
