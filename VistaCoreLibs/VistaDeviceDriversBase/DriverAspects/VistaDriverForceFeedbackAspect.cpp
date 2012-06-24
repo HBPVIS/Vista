@@ -107,7 +107,7 @@ IVistaDriverForceFeedbackAspect::IForceAlgorithm *IVistaDriverForceFeedbackAspec
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 IVistaDriverForceFeedbackAspect::IForceAlgorithm::IForceAlgorithm( unsigned int nStorageSize )
 : m_pSensor( new VistaDeviceSensor ),
-  m_pHistoryAspect( new VistaDriverMeasureHistoryAspect )
+  m_pHistoryAspect( new VistaDriverMeasureHistoryAspect(~0) )
 {
 	m_pHistoryAspect->RegisterSensor( m_pSensor );
 
