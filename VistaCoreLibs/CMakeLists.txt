@@ -32,7 +32,7 @@ include_directories( ${VistaCoreLibs_SOURCE_DIR} )
 vista_enable_most_compiler_warnings()
 
 # the version type can be either HEAD, RELASE, BRANCH, or TAG
-vista_set_version( VistaCoreLibs BRANCH SYNC svn_rev )
+vista_set_version( VistaCoreLibs HEAD HEAD svn_rev )
 
 vista_find_package( OpenGL QUIET )
 vista_find_package( OpenSG 1.8 QUIET )
