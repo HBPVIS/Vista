@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaTCPIPClusterDataCollect.cpp 29118 2012-02-06 18:29:09Z dr165799 $
+// $Id$
 
 #include "VistaTCPIPClusterDataCollect.h"
 

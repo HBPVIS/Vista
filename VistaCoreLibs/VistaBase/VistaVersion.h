@@ -66,7 +66,7 @@
 
 #define VISTA_HEAD
 
-#define VISTA_RELEASE_NAME "HEAD branch $Revision$ $Date$"
+#define VISTA_RELEASE_NAME "HEAD branch $Revision: 29136 $ $Date: 2012-02-08 10:35:49 +0100 (Mi, 08. Feb 2012) $"
 //#define VISTA_RELEASE_NAME "FANCYNAME" 
 #define VISTA_VERSION "1.12.0"
 #define VISTA_MAJOR    1

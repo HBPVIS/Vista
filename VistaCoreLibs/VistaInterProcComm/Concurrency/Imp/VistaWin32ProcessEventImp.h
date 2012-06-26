@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaWin32ProcessEventImp.h 29146 2012-02-08 15:13:47Z dr165799 $
+// $Id$
 
 #if defined(VISTA_THREADING_WIN32)
 

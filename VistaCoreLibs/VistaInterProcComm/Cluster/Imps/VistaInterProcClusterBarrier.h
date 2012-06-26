@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaInterProcClusterBarrier.h 29428 2012-03-02 13:46:32Z dr165799 $
+// $Id$
 
 #ifndef _VISTAINTERPROCCLUSTERBARRIER_H
 #define _VISTAINTERPROCCLUSTERBARRIER_H

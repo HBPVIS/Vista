@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDataTunnel.cpp 23946 2011-10-29 16:52:36Z dr165799 $
+// $Id$
 
 #include "VistaGSyncSwapBarrier.h"
 

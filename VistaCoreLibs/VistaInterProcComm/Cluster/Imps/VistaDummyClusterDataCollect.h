@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDummyClusterDataSync.h 29075 2012-02-01 17:51:25Z dr165799 $
+// $Id$
 
 #ifndef _VISTADUMMYCLUSTERCOLLECT_H
 #define _VISTADUMMYCLUSTERCOLLECT_H

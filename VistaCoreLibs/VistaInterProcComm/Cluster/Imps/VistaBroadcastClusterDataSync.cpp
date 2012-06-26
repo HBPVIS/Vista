@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaBroadcastClusterDataSync.cpp 29252 2012-02-13 16:29:40Z dr165799 $
+// $Id$
 
 #include "VistaBroadcastClusterDataSync.h"
 

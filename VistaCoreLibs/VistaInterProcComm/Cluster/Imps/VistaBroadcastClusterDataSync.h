@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaBroadcastClusterDataSync.h 29141 2012-02-08 14:37:45Z dr165799 $
+// $Id$
 
 #ifndef _VISTABROADCASTCLUSTERSYNC_H
 #define _VISTABROADCASTCLUSTERSYNC_H

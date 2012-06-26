@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaNewClusterSlave.cpp 24616 2012-01-09 16:33:39Z dr165799 $
+// $Id$
 
 #include "VistaNewClusterSlave.h"
 

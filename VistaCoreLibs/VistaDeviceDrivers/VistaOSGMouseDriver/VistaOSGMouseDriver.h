@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOSGMouseDriver.h 29146 2012-02-08 15:13:47Z dr165799 $
+// $Id$
 
 #ifndef _VISTAOSGMOUSEDRIVER_H
 #define _VISTAOSGMOUSEDRIVER_H

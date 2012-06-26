@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaMulticastClusterBarrier.cpp 29293 2012-02-14 17:47:59Z dr165799 $
+// $Id$
 
 #include "VistaMulticastClusterBarrier.h"
 

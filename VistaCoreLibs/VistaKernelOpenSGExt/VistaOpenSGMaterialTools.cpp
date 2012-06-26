@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaOpenSGMaterialDrawableTools.cpp 28992 2012-01-27 09:12:29Z dr165799 $
+// $Id$
 
 #if defined(WIN32)
 #pragma warning(disable: 4127)

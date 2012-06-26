@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaDummyClusterDataSync.cpp 29107 2012-02-03 17:08:15Z dr165799 $
+// $Id$
 
 #include "VistaDummyClusterDataCollect.h"
 

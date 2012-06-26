@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaTCPIPClusterDataSync.h 29861 2012-04-10 15:04:51Z dr165799 $
+// $Id$
 
 #ifndef _VISTAZEROMQCOMMON_H
 #define _VISTAZEROMQCOMMON_H

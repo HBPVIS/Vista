@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaConnectionPipe.h 29146 2012-02-08 15:13:47Z dr165799 $
+// $Id$
 
 #ifndef _VISTACONNECTIONNAMEDPIPE_H__
 #define _VISTACONNECTIONNAMEDPIPE_H__

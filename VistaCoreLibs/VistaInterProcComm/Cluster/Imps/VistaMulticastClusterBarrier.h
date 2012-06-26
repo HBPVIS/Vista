@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaMulticastClusterBarrier.h 29293 2012-02-14 17:47:59Z dr165799 $
+// $Id$
 
 #ifndef _VISTAMULTICASTCLUSTERBARRIER_H
 #define _VISTAMULTICASTCLUSTERBARRIER_H

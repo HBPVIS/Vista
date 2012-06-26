@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnConditionalRouteNode.cpp 29146 2012-02-08 15:13:47Z dr165799 $
+// $Id$
 
 #include "VdfnMultiplexNode.h"
 

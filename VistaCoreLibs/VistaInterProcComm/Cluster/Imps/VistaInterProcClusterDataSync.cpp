@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaInterProcClusterDataSync.cpp 29428 2012-03-02 13:46:32Z dr165799 $
+// $Id$
 
 #include "VistaInterProcClusterDataSync.h"
 

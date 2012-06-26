@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnInvertNode.h 29146 2012-02-08 15:13:47Z dr165799 $
+// $Id$
 
 #ifndef _VDFNRANGECHECKNODE_H
 #define _VDFNRANGECHECKNODE_H

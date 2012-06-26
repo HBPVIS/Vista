@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaInterProcClusterDataSync.h 29428 2012-03-02 13:46:32Z dr165799 $
+// $Id$
 
 #ifndef _VISTAINTERPROCCLUSTERDATASYNC_H
 #define _VISTAINTERPROCCLUSTERDATASYNC_H

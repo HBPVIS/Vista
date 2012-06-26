@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VdfnConfig.h 29136 2012-02-08 09:35:49Z dr165799 $
+// $Id$
 
 #ifndef _VDFNBINARYOPS_H
 #define _VDFNBINARYOPS_H

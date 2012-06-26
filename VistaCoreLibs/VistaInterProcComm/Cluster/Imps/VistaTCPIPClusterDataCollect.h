@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaTCPIPClusterDataCollect.h 29107 2012-02-03 17:08:15Z dr165799 $
+// $Id$
 
 #ifndef _VISTATCPIPCLUSTERCOLLECT_H
 #define _VISTATCPIPCLUSTERCOLLECT_H

@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaClusterBarrier.h 24695 2012-01-17 12:45:08Z dr165799 $
+// $Id$
 
 #ifndef _VISTACLUSTERSYNCENTITY_H
 #define _VISTACLUSTERSYNCENTITY_H

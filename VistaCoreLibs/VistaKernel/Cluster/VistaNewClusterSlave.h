@@ -20,7 +20,7 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id: VistaNewClusterSlave.h 23563 2011-09-27 11:33:41Z dr165799 $
+// $Id$
 
 #ifndef _VISTANEWCLUSTERSLAVE_H
 #define _VISTANEWCLUSTERSLAVE_H
