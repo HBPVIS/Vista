@@ -36,6 +36,7 @@
 #include <VistaKernel/OpenSG/VistaOpenSGNodeBridge.h>
 #include <VistaBase/VistaStreamUtils.h>
 #include <VistaBase/VistaTimer.h>
+#include <VistaBase/VistaTimeUtils.h>
 #include <VistaTools/VistaFileSystemFile.h>
 
 #include <OpenSG/OSGConfig.h>
@@ -332,7 +333,13 @@ bool VistaOpenSGModelOptimizer::OptimizeFile( const std::string& sFilename,
 		vstr::outi() << "[VistaOpenSGModelOptimizer::OptimizeFile] -- "
 				<< "Writing optimized file [" << sOutName << "]" << std::endl;
 	}
-	bool bRes = osg::SceneFileHandler::the().write( pModelNode, sOutName.c_str() );	
+	// we check again that the file does not exist - maybe some other instance
+	// started writing it in the meantime, e.g. in clustermode
+	bool bRes = true;
+	if( VistaFileSystemFile( sOutName ).Exists() == false )
+		bRes = osg::SceneFileHandler::the().write( pModelNode, sOutName.c_str() );	
+	else
+		VistaTimeUtils::Sleep( 1000 ); // wait a little to let the other instance finish writing
 
 	if( bDoExit )
 		OSG::osgExit();
@@ -363,7 +370,15 @@ bool VistaOpenSGModelOptimizer::OptimizeAndSaveNode( IVistaNode* pNode,
 
 	pData->SetNode( pOSGNode );
 
-	return osg::SceneFileHandler::the().write( pOSGNode, sOutputFilename.c_str() );	
+	// we check again that the file does not exist - maybe some other instance
+	// started writing it in the meantime, e.g. in clustermode
+	bool bRes = true;
+	if( VistaFileSystemFile( sOutputFilename ).Exists() == false )
+		bRes = osg::SceneFileHandler::the().write( pOSGNode, sOutputFilename.c_str() );	
+	else
+		VistaTimeUtils::Sleep( 1000 ); // wait a little to let the other instance finish writing
+
+	return bRes;	
 }
 
 IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* pSceneGraph,
@@ -400,6 +415,20 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 			sOptSting += "_CG";
 		}
 	}
+
+#ifdef WIN32
+	sOptSting += "Win";
+#elif LINUX
+	sOptSting += "Linux";
+#elif DARWIN
+	sOptSting += "Darwin";
+#endif
+
+#ifdef VISTA_64BIT
+	sOptSting += "64";
+#else
+	sOptSting += "32";
+#endif
 
 	std::size_t nDotPos = sFilename.rfind( '.' );
 	std::string sOwnExtension = sFilename.substr( nDotPos + 1 );
