@@ -40,7 +40,7 @@
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-class VISTAKERNELAPI VistaStandaloneNetworkSync : public IVistaNetworkSync
+class VISTAKERNELAPI VistaStandaloneNetworkSync : public IVistaClusterSync
 {
 public:
 	VistaStandaloneNetworkSync();

@@ -226,13 +226,16 @@ void VistaNode::Debug(std::ostream& out, int nLevel) const
 		VistaVector3D v3Position;
 		GetWorldPosition( v3Position );
 		VistaVector3D v3Min, v3Max;
-		GetBoundingBox( v3Min, v3Max );
+		GetWorldBoundingBox( v3Min, v3Max );
 		out << vstr::indent;
 		for(int j=0; j<nLevel; j++)
 			out << "  ";
 		out << "   Leaf Position: "
-			<< v3Position
-			<< " - BoundingBox: ( "
+			<< v3Position << "\n";
+		out << vstr::indent;
+		for(int j=0; j<nLevel; j++)
+			out << "  ";
+		out << "   Leaf Global Bounds: ( "
 			<< v3Min[0] << ", " << v3Min[1] << ", " << v3Min[2] << " ) - ( "
 			<< v3Max[0] << ", " << v3Max[1] << ", " << v3Max[2] << " )" << std::endl;
 	}
@@ -248,6 +251,53 @@ bool VistaNode::GetBoundingBox(VistaVector3D &pMin, VistaVector3D &pMax) const
 {
 	return m_pBridge->GetBoundingBox(pMin, pMax, m_pData);
 }
+
+bool VistaNode::GetBoundingBox( VistaBoundingBox& oBox ) const
+{
+	return GetBoundingBox( oBox.m_v3Min, oBox.m_v3Max );
+}
+
+VistaBoundingBox VistaNode::GetBoundingBox() const
+{
+	VistaBoundingBox oBox;
+	if( GetBoundingBox( oBox.m_v3Min, oBox.m_v3Max ) == false )
+		return VistaBoundingBox();
+	return oBox;
+}
+
+
+bool VistaNode::GetWorldBoundingBox( VistaVector3D& v3Min, VistaVector3D& v3Max ) const
+{
+	VistaBoundingBox oBox;
+	if( GetWorldBoundingBox( oBox ) == false )
+		return false;
+	v3Min = oBox.m_v3Min;
+	v3Max = oBox.m_v3Max;
+	return true;
+}
+
+bool VistaNode::GetWorldBoundingBox( VistaBoundingBox& oBox ) const
+{
+	VistaVector3D v3Min, v3Max;
+	if( GetBoundingBox( v3Min, v3Max ) == false )
+		return false;
+	VistaTransformMatrix matToWorldTransform;
+	if( GetParentWorldTransform( matToWorldTransform ) == false )
+		return false;
+	return VistaBoundingBox::ComputeAABB( v3Min, v3Max,
+									matToWorldTransform, oBox );
+}
+
+VistaBoundingBox VistaNode::GetWorldBoundingBox() const
+{
+	VistaBoundingBox oBox;
+	if( GetWorldBoundingBox( oBox ) == false )
+		return VistaBoundingBox();
+	return oBox;
+}
+
+
+
 /*============================================================================*/
 /*                                                                            */
 /*  NAME    :   GetData                                                       */
@@ -564,4 +614,3 @@ bool VistaNode::GetParentWorldTransform( double a16dTransform[16], const bool bC
 		matTransform.GetValues( a16dTransform );
 	return true;
 }
-

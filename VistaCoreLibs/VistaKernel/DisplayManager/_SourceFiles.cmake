@@ -2,7 +2,14 @@
 
 set( RelativeDir "./DisplayManager" )
 set( RelativeSourceGroup "Source Files\\DisplayManager" )
-set( SubDirs GlutWindowImp )
+set( SubDirs )
+
+if( VISTACORELIBS_BUILD_WINDOWIMP_GLUT )
+	list( APPEND SubDirs GlutWindowImp )
+endif()
+if( VISTACORELIBS_BUILD_WINDOWIMP_OSG )
+	list( APPEND SubDirs OpenSceneGraphWindowImp )
+endif()
 
 set( DirFiles
 	Vista2DDrawingObjects.cpp

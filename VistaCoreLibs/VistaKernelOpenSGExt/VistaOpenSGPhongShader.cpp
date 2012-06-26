@@ -67,6 +67,8 @@ const std::string VistaOpenSGPhongShader::m_sVertexShader = \
 "	v3WorldPos = vec3( gl_ModelViewMatrix * gl_Vertex );\n"
 "	gl_TexCoord[0] = gl_MultiTexCoord0;		\n"
 "	gl_Position = ftransform();\n"
+"	gl_FrontColor = gl_Color;\n"
+"	gl_BackColor = gl_Color;\n"
 "}\n";
 
 const std::string VistaOpenSGPhongShader::m_sFragmentShader = \
@@ -141,7 +143,7 @@ const std::string VistaOpenSGPhongShader::m_sFragmentShader = \
 "		fNdotHV = max( dot( v3Normal, v3HalfVec ), 0.0 );\n"
 "\n"
 "		//Diffuse Term\n"
-"		v4LocalColor += gl_FrontMaterial.diffuse * gl_LightSource[iLight].diffuse\n"
+"		v4LocalColor += gl_Color * gl_LightSource[iLight].diffuse\n"
 "				* fNdotL;\n"
 "		//Specular Term\n"
 "       if( gl_FrontMaterial.shininess > 0.0 )\n"

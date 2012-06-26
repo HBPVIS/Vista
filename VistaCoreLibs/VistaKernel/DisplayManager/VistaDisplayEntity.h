@@ -126,11 +126,10 @@ public:
 
 	IVistaDisplayEntityProperties *GetProperties() const;
 
+	IVistaDisplayBridge *GetDisplayBridge() const;
 protected:
 	virtual IVistaDisplayEntityProperties *CreateProperties() = 0;
-	virtual bool DeleteProperties();
-
-	IVistaDisplayBridge *GetDisplayBridge() const;
+	virtual bool DeleteProperties();	
 
 	VistaDisplayEntity(IVistaDisplayEntityData *pData, IVistaDisplayBridge *pBridge);
 

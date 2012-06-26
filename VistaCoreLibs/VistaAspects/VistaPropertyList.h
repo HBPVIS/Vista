@@ -69,7 +69,7 @@ class VISTAASPECTSAPI VistaPropertyList : public std::map<std::string,
 									VistaAspectsComparisonStuff::StringLessObject>
 {
 public:
-	explicit VistaPropertyList( const bool bCaseSensitive = true );
+	explicit VistaPropertyList( const bool bCaseSensitive = false );
 	VistaPropertyList( const VistaPropertyList& oCopy );
 	virtual ~VistaPropertyList();
 

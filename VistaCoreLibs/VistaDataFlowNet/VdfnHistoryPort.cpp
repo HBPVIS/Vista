@@ -41,7 +41,8 @@ VdfnHistoryPortData::VdfnHistoryPortData( const VistaMeasureHistory &oHistory,
 		  m_nRealNewMeasures(0),
 		  m_nUpdateIndex(0),
 		  m_nAvgDriverUpdTime(0),
-		  m_nAvgUpdFreq(0)
+		  m_nAvgUpdFreq(0),
+		  m_nLastSelializedMeasure(0)
 {
 }
 
@@ -49,6 +50,7 @@ VdfnHistoryPortData::VdfnHistoryPortData( const VistaMeasureHistory &oHistory,
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
 
+#ifndef VISTA_TRANSMIT_INCREMENTAL_HISTORIES
 IVistaDeSerializer &operator>>(IVistaDeSerializer &oDeSer,
 							   VistaSensorMeasure &oMeasure)
 {
@@ -193,6 +195,150 @@ IVistaSerializer   &operator<<(IVistaSerializer &oSer,
 
 	return oSer;
 }
+
+#else // use incremental histories
+
+int SerializeMeasure( IVistaSerializer& oSer,
+					   const VistaSensorMeasure& oMeasure )
+{
+	int nRet = 0;
+	nRet += oSer.WriteInt32( oMeasure.m_nMeasureIdx );
+	nRet += oSer.WriteDouble( oMeasure.m_nMeasureTs );
+	nRet += oSer.WriteDouble( oMeasure.m_nSwapTime );
+	nRet += oSer.WriteInt32( oMeasure.m_nEndianess );
+	nRet += oSer.WriteInt32( VistaType::uint32( oMeasure.m_vecMeasures.size() ) );
+	nRet += oSer.WriteRawBuffer( &oMeasure.m_vecMeasures[0], (int)oMeasure.m_vecMeasures.size() );
+	return nRet;
+}
+
+int DeSerializeMeasure( IVistaDeSerializer& oDeSer,
+					   VistaSensorMeasure& oMeasure)
+{
+	int nRet = 0;
+	nRet += oDeSer.ReadInt32( oMeasure.m_nMeasureIdx );
+	nRet += oDeSer.ReadDouble( oMeasure.m_nMeasureTs );
+	nRet += oDeSer.ReadDouble( oMeasure.m_nSwapTime );
+	nRet += oDeSer.ReadInt32( oMeasure.m_nEndianess );
+#if defined(DEBUG)
+	if( oMeasure.m_nEndianess != VistaSerializingToolset::GetPlatformEndianess() )
+	{
+		vstr::warnp() << "[VistaDeSerializer]: Endianess mismatch" << std::endl;
+	}
+#endif
+
+	VistaType::uint32 nSize = 0;
+	nRet += oDeSer.ReadInt32( nSize );
+	oMeasure.m_vecMeasures.resize( nSize );
+
+	// reading the raw buffer as is assumes at this stage that the content
+	// here has a good endianess.
+	nRet += oDeSer.ReadRawBuffer( &oMeasure.m_vecMeasures[0], nSize );
+	return nRet;
+}
+
+int SerializeHistoryIncremental( IVistaSerializer& oSer,
+							   const VistaMeasureHistory& oHist,
+							   const unsigned int m_nLastSerializeCount )
+{
+	// it is possible that a driver is writing concurrently to this history.
+	// that means that some values might be crashed during the read off this
+	// history. The current past should be ok to read off, so we ignore this
+	// here. However, we have to think about concurrent device access in a cluster
+	// environment. Does not seem to be easy.
+	int nRet = 0;
+	nRet += oSer.WriteInt32( oHist.m_nClientReadSize );
+	nRet += oSer.WriteInt32( oHist.m_nDriverWriteSize );
+	nRet += oSer.WriteDouble( oHist.m_nUpdateTs );
+	nRet += oSer.WriteInt32( oHist.m_nMeasureCount );
+	nRet += oSer.WriteInt32( oHist.m_nSwapCount );
+	nRet += oSer.WriteInt32( oHist.m_nSnapshotWriteHead );
+
+	VistaType::uint32 nNewMeasures = oHist.m_nMeasureCount - m_nLastSerializeCount;
+	// never transmit more measures than the data size
+	nNewMeasures = std::min( nNewMeasures, (VistaType::uint32)oHist.m_rbHistory.GetBufferSize() );
+	nRet += oSer.WriteInt32( nNewMeasures );
+	
+	TVistaRingBuffer<VistaSensorMeasure>::const_iterator itMeasure
+				= oHist.m_rbHistory.index( oHist.m_nSnapshotWriteHead );
+	for( VistaType::uint32 i = 0; i < nNewMeasures; ++i )
+	{
+		--itMeasure;
+		nRet += SerializeMeasure( oSer, (*itMeasure) );
+	}
+	
+	return nRet;
+}
+
+int DeSerializeHistoryIncremental( IVistaDeSerializer& oDeSer,
+							   VistaMeasureHistory& oHist,
+							   const unsigned int m_nLastSerializeCount )
+{
+	/** @todo hmm... this effectively can f*ck up all concurrent */
+	// readers to this history, as it is part of a sensor that
+	// might be attached to the sensor of this history.
+	int nRet = 0;
+	nRet += oDeSer.ReadInt32( oHist.m_nClientReadSize );
+	nRet += oDeSer.ReadInt32( oHist.m_nDriverWriteSize );
+	nRet += oDeSer.ReadDouble( oHist.m_nUpdateTs );
+	nRet += oDeSer.ReadInt32( oHist.m_nMeasureCount );
+	nRet += oDeSer.ReadInt32( oHist.m_nSwapCount );
+	nRet += oDeSer.ReadInt32( oHist.m_nSnapshotWriteHead );
+
+	VistaType::uint32 nNewMeasures;
+	nRet += oDeSer.ReadInt32( nNewMeasures );
+
+	assert( nNewMeasures == std::min( oHist.m_nMeasureCount - m_nLastSerializeCount,
+			(VistaType::uint32)oHist.m_rbHistory.GetBufferSize() ) );
+	
+	TVistaRingBuffer<VistaSensorMeasure>::iterator itMeasure
+				= oHist.m_rbHistory.index( oHist.m_nSnapshotWriteHead );
+	for( VistaType::uint32 i = 0; i < nNewMeasures; ++i )
+	{
+		--itMeasure;
+		nRet += DeSerializeMeasure( oDeSer, (*itMeasure) );
+	}
+	
+	return nRet;
+}
+
+
+IVistaSerializer   &operator<<( IVistaSerializer& oSer,
+							   const VdfnHistoryPortData* pPort )
+{
+	int nRet = SerializeHistoryIncremental( oSer, pPort->m_oHistory, pPort->m_nLastSelializedMeasure );
+	nRet += oSer.WriteInt32( (VistaType::uint32)pPort->m_nNewMeasures );
+	nRet += oSer.WriteInt32( (VistaType::uint32)pPort->m_nRealNewMeasures );
+	nRet += oSer.WriteInt32( (VistaType::uint32)pPort->m_nUpdateIndex );
+	nRet += oSer.WriteDouble( pPort->m_nAvgDriverUpdTime );
+	nRet += oSer.WriteDouble( pPort->m_nAvgUpdFreq );
+
+	pPort->m_nLastSelializedMeasure = pPort->m_oHistory.m_nMeasureCount;
+	return oSer;
+}
+
+IVistaDeSerializer &operator>>( IVistaDeSerializer& oDeSer,
+							   VdfnHistoryPortData* pPort )
+{
+	int nRet = DeSerializeHistoryIncremental( oDeSer,
+							const_cast<VistaMeasureHistory& >( pPort->m_oHistory ),
+							pPort->m_nLastSelializedMeasure );
+	VistaType::uint32 nDummy;
+	nRet += oDeSer.ReadInt32( nDummy );
+	pPort->m_nNewMeasures = nDummy;
+	nRet += oDeSer.ReadInt32( nDummy );
+	pPort->m_nRealNewMeasures = nDummy;
+	nRet += oDeSer.ReadInt32( nDummy );
+	pPort->m_nUpdateIndex = nDummy;
+	nRet += oDeSer.ReadDouble( pPort->m_nAvgDriverUpdTime );
+	nRet += oDeSer.ReadDouble( pPort->m_nAvgUpdFreq );
+
+	pPort->m_nLastSelializedMeasure = pPort->m_oHistory.m_nMeasureCount;
+	return oDeSer;
+}
+
+
+
+#endif
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/

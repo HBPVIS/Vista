@@ -69,7 +69,7 @@ VistaDriverSensorMappingAspect::VistaDriverSensorMappingAspect(IVistaDriverCreat
 			itIndex != liTypes.end(); ++itIndex )
 	{
 		crm->GetTypeNameFor( (*itIndex), sTypeName );
-		int nRet = RegisterType( sTypeName );
+		unsigned int nRet = RegisterType( sTypeName );
 		assert( (*itIndex) == nRet );
 	}
 }

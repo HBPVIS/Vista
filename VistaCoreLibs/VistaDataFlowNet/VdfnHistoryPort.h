@@ -73,17 +73,18 @@ public:
 			  IVistaMeasureTranscode *pTranscode,
 			  VistaDeviceSensor *pSensor);
 
-	const VistaMeasureHistory &m_oHistory; /**< the history to look at */
-	IVistaMeasureTranscode     *m_pTranscode; /**< the transcode to access the history */
-	VistaDeviceSensor         *m_pSensor; /**< the sensor that this history belongs to
+	const VistaMeasureHistory&	m_oHistory; /**< the history to look at */
+	IVistaMeasureTranscode*		m_pTranscode; /**< the transcode to access the history */
+	VistaDeviceSensor*			m_pSensor; /**< the sensor that this history belongs to
 												this is a system specific parameter. user code
 												is discouraged to use this parameter, as it might
 												not be consistent on all nodes in a cluster. */
-	unsigned int                m_nNewMeasures, /**< experimental: the number of new measures since last evaluate */
-								m_nRealNewMeasures; /**< experimental: the actual (unskimmed) number of new measures */
-	unsigned int                m_nUpdateIndex; /**< the current update index. reflects VistaSensor::GetDataCount() */
-	VistaType::microtime                   m_nAvgDriverUpdTime;
-	double                      m_nAvgUpdFreq;
+	unsigned int				m_nNewMeasures; /**< experimental: the number of new measures since last evaluate */
+	unsigned int				m_nRealNewMeasures; /**< experimental: the actual (unskimmed) number of new measures */
+	mutable unsigned int		m_nLastSelializedMeasure;
+	unsigned int				m_nUpdateIndex; /**< the current update index. reflects VistaSensor::GetDataCount() */
+	VistaType::microtime		m_nAvgDriverUpdTime;
+	double						m_nAvgUpdFreq;
 };
 
 /**
@@ -130,7 +131,7 @@ public:
 				  unsigned int nIndex)
 	{
 		// this marks that the property is not an indexed get!
-		if(nIndex == ~0)
+		if(nIndex == (unsigned int)~0)
 		{
 			// that's why this downcast will probably work ;)
 			// note that we cast to TTranscodeValueGet<F>* !!

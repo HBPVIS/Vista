@@ -67,8 +67,6 @@ public:
 	virtual bool DisconnectUpstreamOutput();
 	virtual bool DisconnectDownstreamInput();
 	virtual bool DisconnectDownstreamOutput();
-protected:
-private:
 };
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */

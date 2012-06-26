@@ -48,6 +48,9 @@
 #include <VistaKernel/DisplayManager/VistaVirtualPlatform.h>
 #include <VistaKernel/DisplayManager/VistaWindowingToolkit.h>
 #include <VistaKernel/DisplayManager/GlutWindowImp/VistaGlutWindowingToolkit.h>
+#ifdef VISTA_WITH_OSG
+#include <VistaKernel/DisplayManager/OpenSceneGraphWindowImp/VistaOSGWindowingToolkit.h>
+#endif
 
 #include <VistaKernel/OpenSG/VistaOpenSGNodeBridge.h>
 #include <VistaKernel/OpenSG/VistaOpenSGGraphicsBridge.h>
@@ -132,7 +135,7 @@ VistaVector3D VistaOpenSGDisplayBridge::DisplaySystemData::GetPlatformTranslatio
 	osg::TransformPtr t = osg::TransformPtr::dcast(m_ptrPlatformBeacon->getCore());
 	osg::Pnt3f &trans = (osg::Pnt3f&) t->getMatrix() [3];
 
-	return VistaVector3D(trans[0], trans[1], trans[2], trans[3]);
+	return VistaVector3D(trans[0], trans[1], trans[2]);
 }
 
 void VistaOpenSGDisplayBridge::DisplaySystemData::SetPlatformOrientation( const VistaQuaternion & qOri )
@@ -209,7 +212,7 @@ VistaVector3D VistaOpenSGDisplayBridge::DisplaySystemData::GetCameraPlatformTran
 	osg::TransformPtr t = osg::TransformPtr::dcast(m_ptrCameraBeacon->getCore());
 	osg::Pnt3f &trans = (osg::Pnt3f&) t->getMatrix() [3];
 
-	return VistaVector3D(trans[0], trans[1], trans[2], trans[3]);
+	return VistaVector3D( trans[0], trans[1], trans[2] );
 }
 
 void VistaOpenSGDisplayBridge::DisplaySystemData::SetCameraPlatformOrientation( const VistaQuaternion & qOri )
@@ -1483,6 +1486,13 @@ IVistaWindowingToolkit* VistaOpenSGDisplayBridge::CreateWindowingToolkit( const 
 		// compare the string once and store the result as enum
 		m_pWindowingToolkit = new VistaGlutWindowingToolkit( m_pDisplayManager );		
 	}
+#ifdef VISTA_WITH_OSG
+	else if( VistaAspectsComparisonStuff::StringEquals( sName, "OSG", false ) )
+	{
+		// compare the string once and store the result as enum
+		m_pWindowingToolkit = new VistaOSGWindowingToolkit( m_pDisplayManager );		
+	}
+#endif
 	else
 	{
 		vstr::errp() << "[VistaOpenSGSystemClassFactory::CreateWindowingToolkit] " 

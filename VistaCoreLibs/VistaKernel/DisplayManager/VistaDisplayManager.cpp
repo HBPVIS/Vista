@@ -490,7 +490,7 @@ VistaDisplay *VistaDisplayManager::CreateDisplay(const VistaPropertyList &refPro
 		
 		if (strDisplayName.empty())
 		{
-			strDisplayName = string("DISPLAY_")+pDisplay->GetNameableIdAsString();
+			strDisplayName = string( "DISPLAY_" ) + pDisplay->GetNameableIdAsString();
 			pDisplay->SetNameForNameable(strDisplayName);
 
 			vstr::warnp() << "[VistaDisplayManager] - trying to create unnamed display - dafaulting to " 
@@ -560,6 +560,7 @@ VistaWindow *VistaDisplayManager::CreateVistaWindow( const std::string& sSection
 	{
 		vstr::errp() << "Cannot create window - section [" 
 					<< sSectionName << "] does not exist" << std::endl;
+		return NULL;
 	}
 	const VistaPropertyList& oSection = oConfig.GetSubListConstRef( sSectionName );
 
@@ -1069,7 +1070,7 @@ Vista2DText* VistaDisplayManager::New2DText(const std::string& sViewportName)
 			return m_pBridge->New2DText((*mp.begin()).first);
 		}
 		vstr::warnp()
-					<< "[ViDiMa]: Warning: Can not add 2D Text without given viewport name,"
+					<< "[ViDiMa]: Warning: Cannot add 2D Text without given viewport name,"
 					<< "when more than one viewport is registered." << std::endl;
 		return NULL;
 	}

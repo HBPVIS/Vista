@@ -74,15 +74,21 @@ namespace VistaStreams
 	 * THREADSAFE = TRUE | FALSE			determines wether or not default streams should be threadsafe (default TRUE)
 	 * OUT | WARN | ERR | DEBUG | customname = 
 	 *			COUT | CLOG | CERR			outputs to standard output stream
-	 *			stream					    outputs to another stream (defined in this section)
+	 *			stream					    outputs to another stream (defined in this section or already registered with stream manager)
 	 *			NULL						outputs nothing
 	 *			FILE( filename, [ADD_TIME], [ADD_NODENAME], [APPEND_TO_FILE] )	outputs to a file
-	 *			COLOR( textcolor, [backgroundcolor] )	outputs to a color stream
+	 *			COLOR( textcolor, [backgroundcolor], [USE_ERROR_STREAM] )	outputs to a color stream
 	 *			SPLIT( stream1, stream2 ... )	outputs to all streams in the list
-	 *          BUILDTYPE( releasestream, debugstream )	outputs to where stream1 is used in release mode and stream2 in debug
-	 * may be used recursive, e.g. BUILDTYPE( COLOR( GREEN ), NULL )
+	 *          BUILDTYPE( releasestream, debugstream )	outputs to where stream1 is used in release mode and stream2 in debug	 	 
+	 *          PREFIX( stream, prefix, [INDENT], [ADD_NODENAME] )
+	 *										for each newline written to PREFIX, the prefix string is written to (minus optional surrounding "")
+	 *										if ADD_NODENAME is set, a nodename (formatted '[nodename]: ' ) ist prepended to the prefix
+	 *										if INDENT is set, the vtsr::indent is preprended
+	 * may be used recursive, e.g. BUILDTYPE( PREFIX( COLOR( GREEN ), "GreenStream - " ), NULL )
 	 */
 	VISTATOOLSAPI bool CreateStreamsFromProplist( const VistaPropertyList& oConfig );
+	VISTATOOLSAPI bool CreateStreamsFromProplist( const VistaPropertyList& oConfig,
+													const std::string& sNodename );
 }
 
 /**
@@ -119,6 +125,7 @@ public:
 public:
 	VistaColorOutstream( const CONSOLE_COLOR iTextColor = CC_DEFAULT,
 						const CONSOLE_COLOR iBackgroundColor = CC_DEFAULT,
+						const bool bUseErrorStream = false,
 						const size_t iBufferSize = 50 );
 	VistaColorOutstream( const VistaColorOutstream& oCopy );
 	virtual ~VistaColorOutstream();
@@ -157,6 +164,28 @@ public:
 private:
 	class VistaSplitOutstreamBuffer;
 	VistaSplitOutstreamBuffer* m_pBuffer;
+};
+
+/**
+ * class VistaPrefixOutstream:
+ */
+class VISTATOOLSAPI VistaPrefixOutstream : public std::ostream
+{		
+public:
+	VistaPrefixOutstream( std::ostream* oOriginalStream );
+	VistaPrefixOutstream( const VistaPrefixOutstream& oCopy );
+	virtual ~VistaPrefixOutstream();
+
+	bool GetPrefixWithIndent() const;
+	void SetPrefixWithIndent( const bool bSet );
+
+	std::string GetPrefixString() const;
+	void SetPrefixString( const std::string sPrefix );
+
+	std::ostream* GetOriginalStream() const;
+private:
+	class VistaPrefixOutstreamBuffer;
+	VistaPrefixOutstreamBuffer* m_pBuffer;
 };
 
 /**

@@ -23,14 +23,18 @@
 // $Id$
 
 #if defined(WIN32)
-#include <winsock2.h>
+	#include <winsock2.h>
 #elif defined (LINUX) || defined(DARWIN)
 	#include <netinet/tcp.h>
+	#include <netinet/in.h>
 	#include <unistd.h>
 	#include <netdb.h>
 	#include <sys/socket.h>
 	#include <sys/ioctl.h>
 	#include <arpa/inet.h>
+	#include <sys/types.h>
+	#include <sys/select.h>
+	#include <errno.h>
 
 #elif defined (SUNOS) || defined (IRIX)
 	#include <unistd.h>
@@ -135,8 +139,16 @@ bool VistaTCPSocket::CloseSocket(bool bSkipRead)
 		// shutdown write channel, will send FIN to the other side.
 		if(shutdown(SOCKET(GetSocketID()), 1) < 0)
 		{
-			// ERROR, we should do something here (print some info)
-			PrintErrorMessage("Error on Shutdown write channel. Bogus.\n");
+			// NOTCONN errors are okay
+#ifdef WIN32
+			if( WSAGetLastError() != WSAENOTCONN )			
+#else
+			if( errno != ENOTCONN )
+#endif
+			{
+				// ERROR, we should do something here (print some info)
+				PrintErrorMessage("Error on Shutdown write channel. Bogus.\n");
+			}
 		}
 	}
 
@@ -161,9 +173,16 @@ bool VistaTCPSocket::CloseSocket(bool bSkipRead)
 		iPrm = 0; // shutdown RD, both should be closed now
 		if(shutdown(SOCKET(GetSocketID()), iPrm) < 0)
 		{
-			// ERROR, we should do something here (print some info)
-			PrintErrorMessage("Error on Shutdown -- socket may not be marked closed!\n");
-					//return false;
+ 			// NOTCONN errors are okay
+#ifdef WIN32
+			if( WSAGetLastError() != WSAENOTCONN )			
+#else
+			if( errno != ENOTCONN )
+#endif
+			{
+				// ERROR, we should do something here (print some info)
+				PrintErrorMessage("Error on Shutdown -- socket may not be marked closed!\n");			
+			}
 		}
 	}
 	return IVistaSocket::CloseSocket(); // close me

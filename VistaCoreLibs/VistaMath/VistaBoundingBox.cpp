@@ -92,7 +92,7 @@ bool VistaBoundingBox::ComputeAABB( const VistaVector3D& v3Min,
 			v3MaxTrans[Vista::Z] = v[i][Vista::Z];	
 	}
 
-	oBBOut = VistaBoundingBox(&v3Min[0], &v3Max[0]);
+	oBBOut = VistaBoundingBox( v3MinTrans, v3MaxTrans );
 	return true;
 }
 

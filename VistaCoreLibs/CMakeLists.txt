@@ -32,11 +32,11 @@ include_directories( ${VistaCoreLibs_SOURCE_DIR} )
 vista_enable_most_compiler_warnings()
 
 # the version type can be either HEAD, RELASE, BRANCH, or TAG
-vista_set_version( VistaCoreLibs HEAD HEAD svn_rev )
+vista_set_version( VistaCoreLibs BRANCH SYNC svn_rev )
 
 vista_find_package( OpenGL QUIET )
-vista_find_package( GLUT QUIET )
 vista_find_package( OpenSG 1.8 QUIET )
+vista_find_package( GLUT QUIET )
 
 set( BUILD_KERNEL_DEFAULT OFF )
 
@@ -50,9 +50,15 @@ if( FIRST_CONFIGURE_RUN )
 	else()
 		set( BUILD_KERNEL_DEFAULT ON )
 	endif( NOT OPENGL_FOUND )
+	
 endif( FIRST_CONFIGURE_RUN )
 
 set( VISTACORELIBS_CREATE_CONFIG_PER_LIBRARY OFF CACHE BOOL "If set to true, a <Package>Config.cmake file will be created and installed for each library, not just one for the CoreLibs" )
+
+set( VISTACORELIBS_BUILD_WINDOWIMP_GLUT ${GLUT_FOUND} CACHE BOOL "Determines if the GLUT-based WindowToolit Implementation will be built" )
+set( VISTACORELIBS_BUILD_WINDOWIMP_OSG FALSE CACHE BOOL "Determines if the OpenSceneGraph-based WindowToolit Implementation will be built" )
+
+vista_enable_most_compiler_warnings()
 
 # Let the user decide which libraries to build
 vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_BASE 				VistaBase				ON ADVANCED   ADD_TO_LIST VISTACORELIBS_COMPONENTS )

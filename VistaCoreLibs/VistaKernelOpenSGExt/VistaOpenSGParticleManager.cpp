@@ -69,7 +69,7 @@ VistaOpenSGParticleManager::VistaOpenSGParticleManager(VistaGroupNode *pParent, 
 , m_dRemainingSeedTime( 0 )
 , m_bParticleManagerActive( false )
 , m_pParticles( new VistaOpenSGParticles(pSG, pParent) )
-, m_pRand( VistaRandomNumberGenerator::GetSingleton() )
+, m_pRand( VistaRandomNumberGenerator::GetStandardRNG() )
 {
 	m_pParticles->BeginEdit();
 	m_pParticles->SetColorsWithAlpha();
@@ -470,7 +470,7 @@ float VistaOpenSGParticleManager::IParticleChanger::GetLifetime()
 }
 
 VistaOpenSGParticleManager::IParticleChanger::IParticleChanger()
-: m_pRand( VistaRandomNumberGenerator::GetSingleton() )
+: m_pRand( VistaRandomNumberGenerator::GetStandardRNG() )
 , m_fLifetime( -1 )
 {
 }

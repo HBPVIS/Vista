@@ -107,6 +107,13 @@ public:
 		VISTA_BLUE		  		= 0x0066CC,
 	};
 
+	/**
+	 * Interpretes a string as a color. The string has to contain a color name as it
+	 * is listed in the above enum. Names are case-insensitive and may use spaces and
+	 * underscores interchangeably
+	 */
+	static bool GetColorFromName( const std::string& sColorName, VistaColor& oResult );
+
 	enum EFormat
 	{
 		RGB,

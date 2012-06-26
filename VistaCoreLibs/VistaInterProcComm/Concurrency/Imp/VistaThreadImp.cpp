@@ -161,6 +161,12 @@ long IVistaThreadImp::GetCallingThreadIdentity( bool bBypassFactory )
 	}
 }
 
+void IVistaThreadImp::DeleteThreadImpFactory()
+{
+	delete m_pSImpFactory;
+	m_pSImpFactory = NULL;
+}
+
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/

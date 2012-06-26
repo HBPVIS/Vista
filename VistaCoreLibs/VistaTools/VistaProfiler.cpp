@@ -999,19 +999,24 @@ int	VistaProfiler::SetTheProfileString (	      const string &IniSectionName,
 
 		// Ist der Beginn der Sektion gefunden
 		if ( (LineBuffer[0]=='[') )
+		{
 			if ( strstr(LineBuffer.c_str(),SectionBuffer.c_str())==LineBuffer.c_str() )
 				SectionFound	=	1;
 			else
 				SectionFound	=	0;
+		}
  
 		// Wenn Eintrag nicht existierte, dann einfach kopieren,
 		// ansonsten gegebenenfalls weglassen
 		if ( !bSectionFound || !SectionFound )
+		{
 			if ( fin1.eof() )
 				fout1 << LineBuffer.c_str();
 			else
 				fout1 << LineBuffer.c_str() << "\n";
+		}
 		else
+		{
 			if ( SectionFound && !( (strstr(LineBuffer.c_str(),Entry0.c_str())==LineBuffer.c_str()) ||
 						(strstr(LineBuffer.c_str(),Entry1.c_str())==LineBuffer.c_str()) ||
 						(strstr(LineBuffer.c_str(),Entry2.c_str())==LineBuffer.c_str()) ) )
@@ -1019,6 +1024,7 @@ int	VistaProfiler::SetTheProfileString (	      const string &IniSectionName,
 					fout1 << LineBuffer.c_str();
 				else
 					fout1 << LineBuffer.c_str() << "\n";
+		}
 	}
 
 	// Dateien schliessen und in umgekehrter Form wieder oeffnen
@@ -1044,10 +1050,12 @@ int	VistaProfiler::SetTheProfileString (	      const string &IniSectionName,
 		// Wenn Sektionsanfang gefunden, dann den neuen Eintrag 
 		// anhaengen.
 		if ( strstr(LineBuffer.c_str(),SectionBuffer.c_str())==LineBuffer.c_str() )
+		{
 			if ( fin2.eof() )
 				fout2 << EntryName.c_str() << " = " << ValueString.c_str();
 			else
 				fout2 << EntryName.c_str() << " = " << ValueString.c_str() << "\n";
+		}
 	}
 
 	// Dateien wieder schliessen und temporaere Datei loeschen.

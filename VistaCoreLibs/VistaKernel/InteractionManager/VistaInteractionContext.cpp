@@ -53,14 +53,14 @@ using namespace std;
 int VistaInteractionContext::SerializeContext( IVistaSerializer& oSerializer,
 											   const VistaInteractionContext& oContext )
 {
-    oSerializer.WriteInt32( oContext.m_nUpdateIndex );
+	int nRet = 0;
+    nRet += oSerializer.WriteInt32( oContext.m_nUpdateIndex );
 
 	VdfnGraph *pGraph = oContext.GetTransformGraph();
 	if(pGraph != NULL)
 	{
-		int nRet = 0;
 		unsigned int nCnt = (*pGraph).GetMasterSimCount();
-		oSerializer.WriteInt32( (VistaType::sint32)nCnt );
+		nRet += oSerializer.WriteInt32( (VistaType::sint32)nCnt );
 		if(nCnt > 0)
 		{
 			const VdfnGraph::Nodes &nodes = (*pGraph).GetNodes();
@@ -80,8 +80,7 @@ int VistaInteractionContext::SerializeContext( IVistaSerializer& oSerializer,
 						continue;
 					}
 
-					nRet += oSerializer.WriteInt32( (VistaType::sint32)sNodeName.size() );
-					nRet += oSerializer.WriteString( sNodeName );
+					nRet += oSerializer.WriteEncodedString( sNodeName );
 
 					 std::list<std::string> liOutPorts = (*cit)->GetOutPortNames();
 
@@ -90,7 +89,7 @@ int VistaInteractionContext::SerializeContext( IVistaSerializer& oSerializer,
 					 {
 						 IVdfnPort *pPort = (*cit)->GetOutPort( *lit );
 						 VdfnPortSerializeAdapter *pAdp = pPort->GetSerializeAdapter();
-						 oSerializer.WriteSerializable( *pAdp );
+						 nRet += oSerializer.WriteSerializable( *pAdp );
 					 }
 				}
 			}
@@ -117,9 +116,7 @@ int VistaInteractionContext::DeSerializeContext(IVistaDeSerializer& oDeSerialize
 			for(unsigned int n=0; n < nCnt; ++n)
 			{
 				// read name
-				VistaType::sint32 nLength = 0;
-				oDeSerializer.ReadInt32( nLength );
-				oDeSerializer.ReadString( strNodeName, nLength );
+				oDeSerializer.ReadEncodedString( strNodeName );
 
 				IVdfnNode *pNode = pGraph->GetNodeByName( strNodeName );
 				if(pNode)

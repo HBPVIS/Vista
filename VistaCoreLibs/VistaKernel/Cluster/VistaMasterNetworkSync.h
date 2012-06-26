@@ -47,7 +47,7 @@ class VistaConnectionIP;
  * Master node implementation of the network synchronization mechanism defined
  * by VistaNetworkSync.
  */
-class VISTAKERNELAPI VistaMasterNetworkSync : public IVistaNetworkSync
+class VISTAKERNELAPI VistaMasterNetworkSync : public IVistaClusterSync
 {
 public:
 	enum SYNC_TYPE

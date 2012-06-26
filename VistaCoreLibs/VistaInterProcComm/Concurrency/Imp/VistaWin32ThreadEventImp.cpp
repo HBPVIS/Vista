@@ -39,13 +39,13 @@
 
 VistaWin32ThreadEventImp::VistaWin32ThreadEventImp()
 {
-  m_EventHandle = ::CreateEvent(NULL, false, false, NULL);
+	m_EventHandle = ::CreateEvent(NULL, false, false, NULL);
 } 
 
 
 VistaWin32ThreadEventImp::~VistaWin32ThreadEventImp()
 {
-  ::CloseHandle(m_EventHandle);
+	::CloseHandle(m_EventHandle);
 } 
 
 
@@ -59,30 +59,30 @@ VistaWin32ThreadEventImp::~VistaWin32ThreadEventImp()
 
 void VistaWin32ThreadEventImp::SignalEvent()
 {
-  ::SetEvent(m_EventHandle);
+	::SetEvent(m_EventHandle);
 } 
 
 long VistaWin32ThreadEventImp::WaitForEvent(int iBlockTime)
 {
-  if(WaitForSingleObject(m_EventHandle, iBlockTime)==WAIT_OBJECT_0)
-		  return 0;
-  return -1;
+	if(WaitForSingleObject(m_EventHandle, iBlockTime)==WAIT_OBJECT_0)
+		return 0;
+	return -1;
 } 
 
 long VistaWin32ThreadEventImp::WaitForEvent(bool bBlock)
 {
 
-  if(bBlock)
-  {
-	  if(WaitForSingleObject(m_EventHandle, INFINITE)==WAIT_OBJECT_0)
-		  return 0;
-  }
-  else
-  {
-	  if(WaitForSingleObject(m_EventHandle, 0)==WAIT_OBJECT_0)
-		  return 1;
-  } 
-  return -1;
+	if(bBlock)
+	{
+		if(WaitForSingleObject(m_EventHandle, INFINITE)==WAIT_OBJECT_0)
+			return 0;
+	}
+	else
+	{
+		if(WaitForSingleObject(m_EventHandle, 0)==WAIT_OBJECT_0)
+			return 1;
+	} 
+	return -1;
 } 
 
 HANDLE VistaWin32ThreadEventImp::GetEventSignalHandle() const

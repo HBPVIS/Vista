@@ -43,6 +43,7 @@ using namespace std;
 VistaByteBufferSerializer::VistaByteBufferSerializer(unsigned int uiInitialBufferSize)
 : IVistaSerializer(),
   m_iWriteHead(0),
+  m_iOverwritePosition(-1),
   //m_uiCapacity(0),
   m_bRetrimSize(true)
 {
@@ -64,32 +65,63 @@ VistaByteBufferSerializer::~VistaByteBufferSerializer()
 /*============================================================================*/
 int VistaByteBufferSerializer::WriteValue( const VistaType::byte* pValue, int iLength )
 {
-	int iSum = m_iWriteHead+iLength;
-	if( m_uiCapacity < (unsigned int)iSum )
+	register VistaType::byte* pTarget;
+	if( m_iOverwritePosition < 0 ) // no overwrite requested
 	{
-		// we shall not retrim the size
-		if( !m_bRetrimSize )
+		int iSum = m_iWriteHead + iLength;
+		if( m_uiCapacity < (unsigned int)iSum )
 		{
-			return -1;
-		}
-		else
-		{
-			// resize, make some space
-			// 2*oldCapacity+oldSpace+newNeed (iSum)
-			m_vecBuffer.resize((2*m_uiCapacity)+iSum);
+			if( !m_bRetrimSize )
+			{
+				// we shall not retrim the size -> fail
+				return -1;
+			}
+			else
+			{
+				// resize, make some space
+				// 2*oldCapacity+oldSpace+newNeed (iSum)
+				m_vecBuffer.resize( ( 2 * m_uiCapacity ) + iSum );
 
-			// cache capacity
-			m_uiCapacity = (unsigned int)m_vecBuffer.capacity();
+				// cache capacity
+				m_uiCapacity = (unsigned int)m_vecBuffer.capacity();
 
-			// STL vectors might copy memory to
-			// a new region if necessary, se recache the head pointer
-			m_pHead = &(m_vecBuffer[0]);
+				// STL vectors might copy memory to
+				// a new region if necessary, se recache the head pointer
+				m_pHead = &(m_vecBuffer[0]);
+			}
 		}
+		pTarget = m_pHead + m_iWriteHead;
+		m_iWriteHead += iLength;
 	}
-	register VistaType::byte* pTarget = m_pHead + m_iWriteHead;
+	else // overwrite flag has been set
+	{
+		int iSum = m_iOverwritePosition + iLength;
+		if( m_uiCapacity < (unsigned int)iSum )
+		{			
+			if( !m_bRetrimSize )
+			{
+				// we shall not retrim the size -> fail
+				return -1;
+			}
+			else
+			{
+				// resize, make some space
+				// 2*oldCapacity+oldSpace+newNeed (iSum)
+				m_vecBuffer.resize( ( 2 * m_uiCapacity ) + iSum );
 
-	memcpy( pTarget, pValue, iLength*sizeof(VistaType::byte));
-	m_iWriteHead += iLength;
+				// cache capacity
+				m_uiCapacity = (unsigned int)m_vecBuffer.capacity();
+
+				// STL vectors might copy memory to
+				// a new region if necessary, se recache the head pointer
+				m_pHead = &(m_vecBuffer[0]);
+			}
+		}
+		pTarget = m_pHead + m_iOverwritePosition;
+		m_iOverwritePosition = -1;
+	}
+
+	memcpy( pTarget, pValue, iLength * sizeof(VistaType::byte) );	
 
 	return iLength;
 }
@@ -175,6 +207,17 @@ int VistaByteBufferSerializer::WriteString( const string &sString)
 	int iSize = WriteValue( reinterpret_cast<const VistaType::byte*>( sString.c_str() ), iLength);
 	return iSize;
 }
+
+int VistaByteBufferSerializer::WriteEncodedString( const std::string &sString )
+{
+	VistaType::sint32 iLength = (VistaType::sint32)sString.size();
+	int iSize = WriteInt32( iLength );
+	if( iSize != sizeof(VistaType::sint32) )
+		return iSize;
+	iSize += WriteValue( reinterpret_cast<const VistaType::byte*>( sString.c_str() ), iLength );	
+	return iSize;
+}
+
 
 int VistaByteBufferSerializer::WriteRawBuffer( const void *pBuffer, const int iLen)
 {
@@ -270,6 +313,15 @@ void VistaByteBufferSerializer::DumpCurrentBuffer() const
 	}
 	printf("\n");
 }
+
+bool VistaByteBufferSerializer::SetBufferRewritePosition( const int nOverridePosition )
+{
+	if( nOverridePosition >= m_iWriteHead )
+		return false;
+	m_iOverwritePosition = nOverridePosition;
+	return true;
+}
+
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/

@@ -1,6 +1,8 @@
 #include "VistaColor.h"
 #include "VistaExceptionBase.h"
 
+#include <algorithm>
+
 //// Constructors
 
 VistaColor::VistaColor(
@@ -808,4 +810,114 @@ void VistaColor::RGBtoHSV(const float a3fRGB[3], float a3fHSV[3])
 	float a3fHSL[3];
 	RGBtoHSL(a3fRGB, a3fHSL);
 	HSLtoHSV(a3fHSL, a3fHSV);
+}
+
+bool VistaColor::GetColorFromName( const std::string& sColorName, VistaColor& oResult )
+{
+	std::string sClearName = sColorName;
+	std::transform( sClearName.begin(), sClearName.end(), sClearName.begin(), ::toupper );
+	std::replace( sClearName.begin(), sClearName.end(), ' ', '_' );
+
+	if( sClearName == "AQUAMARINE" )
+		oResult = AQUAMARINE;
+	else if( sClearName == "BLACK" )
+		oResult = BLACK;
+	else if( sClearName == "BLUE" )
+		oResult = BLUE;
+	else if( sClearName == "BRICK_RED" )
+		oResult = BRICK_RED;
+	else if( sClearName == "BROWN" )
+		oResult = BROWN;
+	else if( sClearName == "CORAL" )
+		oResult = CORAL;
+	else if( sClearName == "CYAN" )
+		oResult = CYAN;
+	else if( sClearName == "FOREST_GREEN" )
+		oResult = FOREST_GREEN;
+	else if( sClearName == "GOLD" )
+		oResult = GOLD;
+	else if( sClearName == "GRAY" )
+		oResult = GRAY;
+	else if( sClearName == "GREEN" )
+		oResult = GREEN;
+	else if( sClearName == "GREEN_YELLOW" )
+		oResult = GREEN_YELLOW;
+	else if( sClearName == "INDIGO" )
+		oResult = INDIGO;
+	else if( sClearName == "KHAKI" )
+		oResult = KHAKI;
+	else if( sClearName == "LAWN_GREEN" )
+		oResult = LAWN_GREEN;
+	else if( sClearName == "LIME" )
+		oResult = LIME;
+	else if( sClearName == "MAGENTA" )
+		oResult = MAGENTA;
+	else if( sClearName == "MAROON" )
+		oResult = MAROON;
+	else if( sClearName == "NAVY" )
+		oResult = NAVY;
+	else if( sClearName == "OLIVE" )
+		oResult = OLIVE;
+	else if( sClearName == "ORANGE" )
+		oResult = ORANGE;
+	else if( sClearName == "ORANGE_RED" )
+		oResult = ORANGE_RED;
+	else if( sClearName == "PINK" )
+		oResult = PINK;
+	else if( sClearName == "PURPLE" )
+		oResult = PURPLE;
+	else if( sClearName == "SKY_BLUE" )
+		oResult = SKY_BLUE;
+	else if( sClearName == "RED" )
+		oResult = RED;
+	else if( sClearName == "ROYAL_BLUE" )
+		oResult = ROYAL_BLUE;
+	else if( sClearName == "SALMON" )
+		oResult = SALMON;
+	else if( sClearName == "VIOLET" )
+		oResult = VIOLET;
+	else if( sClearName == "WHITE" )
+		oResult = WHITE;
+	else if( sClearName == "YELLOW" )
+		oResult = YELLOW;
+	else if( sClearName == "LIGHT_BLUE" )
+		oResult = LIGHT_BLUE;
+	else if( sClearName == "LIGHT_GRAY" )
+		oResult = LIGHT_GRAY;
+	else if( sClearName == "LIGHT_GREEN" )
+		oResult = LIGHT_GREEN;
+	else if( sClearName == "LIGHT_ORANGE" )
+		oResult = LIGHT_ORANGE;
+	else if( sClearName == "LIGHT_PINK" )
+		oResult = LIGHT_PINK;
+	else if( sClearName == "LIGHT_SKY_BLUE" )
+		oResult = LIGHT_SKY_BLUE;
+	else if( sClearName == "LIGHT_STEEL_BLUE" )
+		oResult = LIGHT_STEEL_BLUE;
+	else if( sClearName == "DARK_BLUE" )
+		oResult = DARK_BLUE;
+	else if( sClearName == "DARK_CYAN" )
+		oResult = DARK_CYAN;
+	else if( sClearName == "DARK_GREEN" )
+		oResult = DARK_GREEN;
+	else if( sClearName == "DARK_MAGENTA" )
+		oResult = DARK_MAGENTA;
+	else if( sClearName == "DARK_RED" )
+		oResult = DARK_RED;
+	else if( sClearName == "DARK_OLIVE" )
+		oResult = DARK_OLIVE;
+	else if( sClearName == "DARK_ORANGE" )
+		oResult = DARK_ORANGE;
+	else if( sClearName == "DARK_ORCHID" )
+		oResult = DARK_ORCHID;
+	else if( sClearName == "DARK_SALMON" )
+		oResult = DARK_SALMON;
+	else if( sClearName == "DARK_TURQUOISE" )
+		oResult = DARK_TURQUOISE;
+	else if( sClearName == "VISTA_BLUE" )
+		oResult = VISTA_BLUE;
+	else
+		return false;
+	return true;
+
 }

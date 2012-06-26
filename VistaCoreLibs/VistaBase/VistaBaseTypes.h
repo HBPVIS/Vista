@@ -32,21 +32,21 @@
 /*============================================================================*/
 
 #if !defined(WIN32)
- #if defined(HANDLE)
-  #error HANDLE already defined?
- #else
-  typedef long unsigned int HANDLE;
- #endif
+	#if defined(HANDLE)
+		#error HANDLE already defined?
+	#else
+		typedef long unsigned int HANDLE;
+	#endif
 #else
- #if !defined(HANDLE)
-  typedef void* HANDLE;
- #endif
+	#if !defined(HANDLE)
+		typedef void* HANDLE;
+	#endif
 #endif
 
 #if !defined(WIN32)
- #if !defined(SOCKET)
- typedef int SOCKET;
- #endif
+	#if !defined(SOCKET)
+		typedef int SOCKET;
+	#endif
 #endif
 
 

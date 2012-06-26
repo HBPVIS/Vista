@@ -26,7 +26,6 @@
 
 #include <VistaKernel/Cluster/VistaClusterMode.h>
 #include <VistaKernel/Cluster/VistaMasterDataTunnel.h>
-#include <VistaKernel/Cluster/VistaMasterNetworkSync.h>
 #include <VistaKernel/EventManager/VistaEventManager.h>
 #include <VistaKernel/EventManager/VistaEventObserver.h>
 #include <VistaKernel/EventManager/VistaSystemEvent.h>
@@ -37,8 +36,10 @@
 #include <VistaInterProcComm/Connections/VistaConnectionIP.h>
 #include <VistaInterProcComm/Connections/VistaByteBufferSerializer.h>
 #include <VistaInterProcComm/IPNet/VistaSocketAddress.h>
-#include <VistaInterProcComm/IPNet/VistaIPAddress.h>
 #include <VistaInterProcComm/IPNet/VistaUDPSocket.h>
+#include <VistaInterProcComm/Cluster/Imps/VistaTCPIPClusterBarrier.h>
+#include <VistaInterProcComm/Cluster/Imps/VistaTCPIPClusterDataSync.h>
+#include <VistaInterProcComm/Cluster/Imps/VistaTCPIPClusterDataCollect.h>
 
 #include <VistaBase/VistaExceptionBase.h>
 #include <VistaBase/VistaTimer.h>
@@ -50,6 +51,7 @@
 
 #include <cassert>
 #include <algorithm>
+
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
@@ -893,6 +895,8 @@ VistaClusterMaster::VistaClusterMaster( VistaEventManager *pEventManager,
 , m_sMasterSectionName( sMasterName )
 , m_pEventObserver( NULL )
 , m_pAvgBc( new VistaWeightedAverageTimer )
+, m_pDefaultBarrier( NULL )
+, m_pDefaultDataSync( NULL )
 {
 	m_pEventObserver = new EventObserver;
 	m_pEventManager->RegisterObserver( m_pEventObserver, VistaSystemEvent::GetTypeId() );
@@ -1056,7 +1060,7 @@ void VistaClusterMaster::SwapSync()
 			liRemoveList.push_back( *itSlave );
 		}
 	}
-
+	
 	// sync using broadcast
 	m_pEventObserver->SyncBC();
 
@@ -1102,33 +1106,35 @@ bool VistaClusterMaster::CreateNamedConnections(
 	}
 	return true;
 }
-IVistaNetworkSync* VistaClusterMaster::CreateNetworkSync( bool bUseExistingConnections )
-{
-	VistaMasterNetworkSync* pNetSync = new VistaMasterNetworkSync;
+//
+//IVistaClusterSync* VistaClusterMaster::CreateClusterSync( bool bUseExistingConnections )
+//{
+//	VistaMasterNetworkSync* pNetSync = new VistaMasterNetworkSync;
+//
+//	for( std::vector<Slave*>::iterator itSlave = m_pEventObserver->m_vecSendList.begin();
+//			itSlave != m_pEventObserver->m_vecSendList.end(); ++itSlave )
+//	{
+//		if( bUseExistingConnections )
+//		{
+//			pNetSync->AddSlave( (*itSlave)->m_sName, (*itSlave)->m_pAckCon, false );
+//		}
+//		else
+//		{
+//			VistaConnectionIP* pConnection = CreateConnectionToSlave( (*itSlave) );	
+//			if( pConnection == NULL )
+//			{
+//				vstr::errp() << "VistaClusterMaster::CreateIPConnections() -- "
+//						<< "Could not establish connection to ["
+//						<< (*itSlave)->m_sName << "]" << std::endl;
+//				continue;
+//			}
+//			pNetSync->AddSlave( (*itSlave)->m_sName, pConnection, true );
+//		}
+//	}
+//	
+//	return pNetSync;
+//}
 
-	for( std::vector<Slave*>::iterator itSlave = m_pEventObserver->m_vecSendList.begin();
-			itSlave != m_pEventObserver->m_vecSendList.end(); ++itSlave )
-	{
-		if( bUseExistingConnections )
-		{
-			pNetSync->AddSlave( (*itSlave)->m_sName, (*itSlave)->m_pAckCon, false );
-		}
-		else
-		{
-			VistaConnectionIP* pConnection = CreateConnectionToSlave( (*itSlave) );	
-			if( pConnection == NULL )
-			{
-				vstr::errp() << "VistaClusterMaster::CreateIPConnections() -- "
-						<< "Could not establish connection to ["
-						<< (*itSlave)->m_sName << "]" << std::endl;
-				continue;
-			}
-			pNetSync->AddSlave( (*itSlave)->m_sName, pConnection, true );
-		}
-	}
-	
-	return pNetSync;
-}
 IVistaDataTunnel* VistaClusterMaster::CreateDataTunnel( IDLVistaDataPacket* pPacketProto )
 {
 	std::vector<VistaConnectionIP*> vecConnections;
@@ -1269,7 +1275,24 @@ bool VistaClusterMaster::Init( const std::string& sClusterSection,
 			AddSlave( (*itSlave), sSlaveIP, nPort, bDoSwap, bDoSync );
 		}
 
-		m_pEventObserver->TransmitClusterSetupInfo( m_sMasterName );		
+		m_pEventObserver->TransmitClusterSetupInfo( m_sMasterName );
+		
+		// transfer info to ClusterInfo construct
+		VistaClusterMode::NodeInfo oNodeInfo;
+		oNodeInfo.m_iNodeID = 0;
+		oNodeInfo.m_bIsActive = true;
+		oNodeInfo.m_eNodeType = NT_MASTER;
+		oNodeInfo.m_sNodeName = m_sMasterName;
+		m_oClusterInfo.m_vecNodeInfos.push_back( oNodeInfo );
+		oNodeInfo.m_eNodeType = NT_SLAVE;
+		for( std::vector<Slave*>::const_iterator itSlave = m_pEventObserver->m_vecSlaves.begin();
+				itSlave != m_pEventObserver->m_vecSlaves.end(); ++itSlave )
+		{
+			oNodeInfo.m_bIsActive = ( (*itSlave)->m_pCon != NULL );
+			oNodeInfo.m_sNodeName = (*itSlave)->m_sName;
+			++oNodeInfo.m_iNodeID;
+			m_oClusterInfo.m_vecNodeInfos.push_back( oNodeInfo );
+		}
 	}
 	vstr::outi() << "[VistaClusterMaster]: Initialization finished" << std::endl;
 	return true;
@@ -1291,8 +1314,8 @@ bool VistaClusterMaster::PostInit()
 		std::string sTmp;
 		int iAlive = 0;
 
-		vstr::outi() << "Waiting for alive signal from slave ["
-		          << (*cit)->m_pCon->GetPeerAddress().GetIPAddress().GetHostNameC()
+		vstr::outi() << "Waiting for alive signal from slave at ["
+		          << (*cit)->m_pCon->GetPeerName()
 				  << "] ..." << std::flush;
 
 		try
@@ -1345,6 +1368,83 @@ bool VistaClusterMaster::AddSlave( const std::string& sName,
 	bool bSuc = m_pEventObserver->EstablishConnection( pSlave, m_dFrameClock );
 	m_pEventObserver->RegisterSlave( pSlave, bSuc );
 	return bSuc;
+}
+
+IVistaClusterDataSync* VistaClusterMaster::CreateDataSync()
+{
+	VistaTCPIPClusterLeaderDataSync* pSync = new VistaTCPIPClusterLeaderDataSync;
+
+	for( std::vector<Slave*>::iterator itSlave = m_pEventObserver->m_vecSendList.begin();
+			itSlave != m_pEventObserver->m_vecSendList.end(); ++itSlave )
+	{
+		VistaConnectionIP* pConnection = CreateConnectionToSlave( (*itSlave) );	
+		if( pConnection == NULL )
+		{
+			vstr::errp() << "VistaClusterMaster::CreateIPConnections() -- "
+					<< "Could not establish connection to ["
+					<< (*itSlave)->m_sName << "]" << std::endl;
+			continue;
+		}
+		pSync->AddFollower( (*itSlave)->m_sName, pConnection );
+	}
+	
+	return pSync;
+}
+
+IVistaClusterDataSync* VistaClusterMaster::GetDefaultDataSync()
+{
+	if( m_pDefaultDataSync == NULL )
+		m_pDefaultDataSync = CreateDataSync();
+	return m_pDefaultDataSync;
+}
+
+IVistaClusterBarrier* VistaClusterMaster::CreateBarrier()
+{
+	VistaTCPIPClusterLeaderBarrier* pBarrier = new VistaTCPIPClusterLeaderBarrier;
+
+	for( std::vector<Slave*>::iterator itSlave = m_pEventObserver->m_vecSendList.begin();
+			itSlave != m_pEventObserver->m_vecSendList.end(); ++itSlave )
+	{
+		VistaConnectionIP* pConnection = CreateConnectionToSlave( (*itSlave) );	
+		if( pConnection == NULL )
+		{
+			vstr::errp() << "VistaClusterMaster::CreateIPConnections() -- "
+					<< "Could not establish connection to ["
+					<< (*itSlave)->m_sName << "]" << std::endl;
+			continue;
+		}
+		pBarrier->AddFollower( (*itSlave)->m_sName, pConnection );
+	}
+	
+	return pBarrier;
+}
+
+IVistaClusterBarrier* VistaClusterMaster::GetDefaultBarrier()
+{
+	if( m_pDefaultBarrier == NULL )
+		m_pDefaultBarrier = CreateBarrier();
+	return m_pDefaultBarrier;
+}
+
+IVistaClusterDataCollect* VistaClusterMaster::CreateDataCollect()
+{
+	VistaTCPIPClusterLeaderDataCollect* pCollect = new VistaTCPIPClusterLeaderDataCollect;
+
+	for( std::vector<Slave*>::iterator itSlave = m_pEventObserver->m_vecSendList.begin();
+			itSlave != m_pEventObserver->m_vecSendList.end(); ++itSlave )
+	{
+		VistaConnectionIP* pConnection = CreateConnectionToSlave( (*itSlave) );	
+		if( pConnection == NULL )
+		{
+			vstr::errp() << "VistaNewClusterMaster::CreateIPConnections() -- "
+					<< "Could not establish connection to ["
+					<< (*itSlave)->m_sName << "]" << std::endl;
+			continue;
+		}
+		pCollect->AddFollower( (*itSlave)->m_sName, pConnection, true );
+	}
+	
+	return pCollect;
 }
 
 

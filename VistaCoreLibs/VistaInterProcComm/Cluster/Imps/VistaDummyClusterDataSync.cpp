@@ -1,6 +1,6 @@
 /*============================================================================*/
 /*                              ViSTA VR toolkit                              */
-/*               Copyright (c) 1997-2012 RWTH Aachen University               */
+/*               Copyright (c) 1997-2011 RWTH Aachen University               */
 /*============================================================================*/
 /*                                  License                                   */
 /*                                                                            */
@@ -22,32 +22,72 @@
 /*============================================================================*/
 // $Id$
 
-#include "VistaNetworkSync.h"
+#include "VistaDummyClusterDataSync.h"
+
+#include <VistaBase/VistaTimeUtils.h>
 
 /*============================================================================*/
 /*  MAKROS AND DEFINES                                                        */
 /*============================================================================*/
 
-/*============================================================================*/
-/* CONSTRUCTORS / DESTRUCTOR                                                  */
-/*============================================================================*/
-IVistaNetworkSync::IVistaNetworkSync()
+
+VistaDummyClusterDataSync::VistaDummyClusterDataSync()
+: IVistaClusterDataSync( false, true )
 {
 }
 
-IVistaNetworkSync::IVistaNetworkSync( const IVistaNetworkSync& )
-{
-}	
-
-IVistaNetworkSync::~IVistaNetworkSync()
+VistaDummyClusterDataSync::~VistaDummyClusterDataSync()
 {
 }
-/*============================================================================*/
-/*  IMPLEMENTATION                                                            */
-/*============================================================================*/
 
-IVistaNetworkSync& IVistaNetworkSync::operator= ( const IVistaNetworkSync& )
+VistaType::systemtime VistaDummyClusterDataSync::GetSyncTime()
 {
-	return (*this);
+	return VistaTimeUtils::GetStandardTimer().GetSystemTime();
 }
 
+bool VistaDummyClusterDataSync::SyncTime( VistaType::systemtime& nTime )
+{
+	return true;
+}
+
+bool VistaDummyClusterDataSync::SyncData( VistaPropertyList& oList )
+{
+	return true;
+}
+
+bool VistaDummyClusterDataSync::SyncData( IVistaSerializable& oSerializable )
+{
+	return true;
+}
+
+bool VistaDummyClusterDataSync::SyncData( VistaType::byte* pData, const int iDataSize )
+{
+	return true;
+}
+
+bool VistaDummyClusterDataSync::SyncData( VistaType::byte* pDataBuffer,
+									 const int iBufferSize,
+									 int& iDataSize )
+{
+	return true;
+}
+
+bool VistaDummyClusterDataSync::GetIsValid() const
+{
+	return true;
+}
+
+std::string VistaDummyClusterDataSync::GetDataSyncType() const
+{
+	return "DummySync";
+}
+
+bool VistaDummyClusterDataSync::SetSendBlockingThreshold( const int nNumBytes )
+{
+	return false;
+}
+
+int VistaDummyClusterDataSync::GetSendBlockingThreshold() const
+{
+	return -1;
+}

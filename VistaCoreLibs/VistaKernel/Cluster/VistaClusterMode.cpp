@@ -25,8 +25,13 @@
 
 #include "VistaClusterMode.h"
 
-#include <VistaInterProcComm/Connections/VistaNetworkSync.h>
+#include <VistaAspects/VistaSerializer.h>
+#include <VistaAspects/VistaDeSerializer.h>
 
+#include <VistaInterProcComm/Cluster/VistaClusterDataSync.h>
+#include <VistaInterProcComm/Cluster/VistaClusterBarrier.h>
+
+#include <cassert>
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
@@ -38,13 +43,13 @@
 VistaClusterMode::VistaClusterMode()
 : m_iFrameCount( -1 )
 , m_dFrameClock( 0 )
-, m_pDefaultNetSync( NULL )
+, m_pDefaultDataSync( NULL )
 {
 }
 
 VistaClusterMode::~VistaClusterMode()
 {
-	delete m_pDefaultNetSync;
+	delete m_pDefaultDataSync;
 }
 
 /*============================================================================*/
@@ -61,15 +66,108 @@ int VistaClusterMode::GetFrameCount() const
 	return m_iFrameCount;
 }
 
-IVistaNetworkSync* VistaClusterMode::GetDefaultNetworkSync()
+int VistaClusterMode::GetNumberOfNodes() const
 {
-	if( m_pDefaultNetSync == NULL )
-		m_pDefaultNetSync = CreateNetworkSync( true );
-	return m_pDefaultNetSync;
+	return (int)m_oClusterInfo.m_vecNodeInfos.size();
+}
+
+std::string VistaClusterMode::GetNodeName( const int iNodeID ) const
+{
+	assert( iNodeID >= 0 && iNodeID < (int)m_oClusterInfo.m_vecNodeInfos.size() );
+	return m_oClusterInfo.m_vecNodeInfos[iNodeID].m_sNodeName;
+}
+
+bool VistaClusterMode::GetNodeIsActive( const int iNodeID ) const
+{
+	assert( iNodeID >= 0 && iNodeID < (int)m_oClusterInfo.m_vecNodeInfos.size() );
+	return m_oClusterInfo.m_vecNodeInfos[iNodeID].m_bIsActive;
+}
+
+VistaClusterMode::CLUSTER_NODE_TYPE VistaClusterMode::GetNodeType( const int iNodeID ) const
+{
+	assert( iNodeID >= 0 && iNodeID < (int)m_oClusterInfo.m_vecNodeInfos.size() );
+	return m_oClusterInfo.m_vecNodeInfos[iNodeID].m_eNodeType;
+}
+
+VistaClusterMode::NodeInfo VistaClusterMode::GetNodeInfo( const int iNodeID ) const
+{
+	assert( iNodeID >= 0 && iNodeID < (int)m_oClusterInfo.m_vecNodeInfos.size() );
+	return m_oClusterInfo.m_vecNodeInfos[iNodeID];
+}
+
+bool VistaClusterMode::GetNodeInfo( const int iNodeID, NodeInfo& oInfo ) const
+{
+	if( iNodeID >= 0 && iNodeID < (int)m_oClusterInfo.m_vecNodeInfos.size() )
+		return false;
+	oInfo = m_oClusterInfo.m_vecNodeInfos[iNodeID];
+	return true;
+}
+
+int VistaClusterMode::GetNumberOfActiveNodes() const
+{
+	int nCount = 0;
+	for( std::vector<NodeInfo>::const_iterator itNode = m_oClusterInfo.m_vecNodeInfos.begin();
+			itNode != m_oClusterInfo.m_vecNodeInfos.end(); ++itNode )
+	{
+		if( (*itNode).m_bIsActive )
+			++nCount;
+	}
+	return nCount;
+}
+
+int VistaClusterMode::GetNumberOfDeadNodes() const
+{
+	int nCount = 0;
+	for( std::vector<NodeInfo>::const_iterator itNode = m_oClusterInfo.m_vecNodeInfos.begin();
+			itNode != m_oClusterInfo.m_vecNodeInfos.end(); ++itNode )
+	{
+		if( (*itNode).m_bIsActive == false )
+			++nCount;
+	}
+	return nCount;
 }
 
 /*============================================================================*/
-/* LOCAL VARS AND FUNCS                                                       */
+/* VistaClusterInfo                                                       */
 /*============================================================================*/
 
+
+
+
+int VistaClusterMode::ClusterInfo::Serialize( IVistaSerializer& oSer ) const
+{
+	int nRet = 0;
+	nRet += oSer.WriteInt32( (VistaType::sint32)m_vecNodeInfos.size() );
+	for( std::size_t i = 0; i < m_vecNodeInfos.size(); ++i )
+	{
+		nRet += oSer.WriteInt32( (VistaType::sint32)m_vecNodeInfos[i].m_iNodeID );
+		nRet += oSer.WriteInt32( (VistaType::sint32)m_vecNodeInfos[i].m_eNodeType );
+		nRet += oSer.WriteBool( m_vecNodeInfos[i].m_bIsActive );
+		nRet += oSer.WriteEncodedString( m_vecNodeInfos[i].m_sNodeName );
+	}
+	return nRet;
+}
+
+int VistaClusterMode::ClusterInfo::DeSerialize( IVistaDeSerializer& oDeSer )
+{
+	int nRet = 0;
+	VistaType::sint32 nDummy;
+	nRet += oDeSer.ReadInt32( nDummy );
+	m_vecNodeInfos.resize( nDummy );
+	for( std::size_t i = 0; i < m_vecNodeInfos.size(); ++i )
+	{
+		nRet += oDeSer.ReadInt32( nDummy );
+		m_vecNodeInfos[i].m_iNodeID = nDummy;
+		nRet += oDeSer.ReadInt32( nDummy );
+		m_vecNodeInfos[i].m_eNodeType = (CLUSTER_NODE_TYPE)nDummy;
+		nRet += oDeSer.ReadBool( m_vecNodeInfos[i].m_bIsActive );
+		nRet += oDeSer.ReadEncodedString( m_vecNodeInfos[i].m_sNodeName );
+	}
+	return nRet;
+}
+
+std::string VistaClusterMode::ClusterInfo::GetSignature() const
+{
+	return "VistaClusterMode::ClusterInfo";
+}
 

@@ -31,6 +31,8 @@
 #include <VistaKernel/VistaKernelConfig.h>
 #include "VistaKernel/GraphicsManager/VistaNodeInterface.h"
 
+#include <VistaMath/VistaBoundingBox.h>
+
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
@@ -63,7 +65,12 @@ public:
 
 	void					Debug(std::ostream &out, int nLevel=0) const;
 
-	virtual bool	GetBoundingBox(VistaVector3D &pMin, VistaVector3D &pMax) const;
+	virtual bool GetBoundingBox( VistaVector3D& v3Min, VistaVector3D& v3Max ) const;
+	virtual bool GetBoundingBox( VistaBoundingBox& oBox ) const;
+	virtual VistaBoundingBox GetBoundingBox() const;
+	virtual bool GetWorldBoundingBox( VistaVector3D& v3Min, VistaVector3D& v3Max ) const;
+	virtual bool GetWorldBoundingBox( VistaBoundingBox& oBox ) const;
+	virtual VistaBoundingBox GetWorldBoundingBox() const;
 
 	IVistaNodeData*		GetData() const;
 	virtual VistaType::uint64 GetTransformScore() const;

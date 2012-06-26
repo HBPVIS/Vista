@@ -30,7 +30,9 @@
 /*============================================================================*/
 
 #include <VistaInterProcComm/VistaInterProcCommConfig.h>
+
 #include "VistaUDPSocket.h"
+#include "VistaMcastSocketAddress.h"
 
 
 /*============================================================================*/

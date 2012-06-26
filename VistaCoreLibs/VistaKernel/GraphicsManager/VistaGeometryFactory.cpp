@@ -46,13 +46,7 @@ bool ReadColorFromProplist( const VistaPropertyList& oPropList,
 								   const std::string& sPropName,
 								   VistaColor& oColorTarget )
 {
-	if( oPropList.HasProperty( sPropName ) )
-		return false;
-	float a3fColorValues[3];
-	if( oPropList.GetValueAsArray<3>( sPropName, a3fColorValues ) == false )
-		return false;
-	oColorTarget = VistaColor( a3fColorValues );
-	return true;
+	return oPropList.GetValue<VistaColor>( sPropName, oColorTarget );
 }
 
 
@@ -1162,12 +1156,12 @@ VistaGeometry* VistaGeometryFactory::CreateEllipsoid(
 	for(i=0; i<=thetaPrecision; i++)
 		for(j=1; j<phiPrecision-1; j++)
 			listTextureCoords2D[tidx++] = VistaVector3D((float)i/(float)thetaPrecision,
-										1-(float)j/((float)phiPrecision-1),0.0);
+										(float)j/((float)phiPrecision-1),0.0);
 
 	for(j=0; j<2; j++)
 		for(i=0; i<thetaPrecision; i++)
 			listTextureCoords2D[tidx++] = VistaVector3D((2.0f*(float)i+1)/(2.0f*(float)thetaPrecision),
-										j?0.0f:1.0f, 0.0f);
+										j?1.0f:0.0f, 0.0f);
 
 
 	// Generate vertices and faces
@@ -1379,7 +1373,9 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 		return NULL;
 	}
 
-	if( VistaAspectsComparisonStuff::StringEquals( sType, "PLANE", false ) )
+	VistaAspectsComparisonStuff::StringCompareObject oCompare( false );
+
+	if( oCompare( sType, "PLANE" ) )
 	{
 		float fSizeX = oPropList.GetValueOrDefault<float>( "SIZEX", fSizeX, 1.0f );
 		float fSizeY = oPropList.GetValueOrDefault<float>( "SIZEZ", fSizeY, 1.0f );
@@ -1391,7 +1387,7 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 		ReadColorFromProplist( oPropList, "COLOR", oColor );
 		return CreatePlane( fSizeX, fSizeY, iResolutionX, iResolutionZ, nFacing, oColor );
 	}
-	else if( VistaAspectsComparisonStuff::StringEquals( sType, "BOX", false ) )
+	else if( oCompare( sType, "BOX" ) )
 	{
 		float fSizeX = oPropList.GetValueOrDefault<float>( "SIZEX", 1.0f );
 		float fSizeY = oPropList.GetValueOrDefault<float>( "SIZEY", 1.0f );
@@ -1407,7 +1403,7 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 				iResolutionX, iResolutionY, iResolutionZ,
 				oColor );
 	}
-	else if( VistaAspectsComparisonStuff::StringEquals( sType, "DISK", false ) )
+	else if( oCompare( sType, "DISK" ) )
 	{
 		float fRadius = oPropList.GetValueOrDefault<float>( "RADIUS", 0.5f );
 		int iResolutionC = oPropList.GetValueOrDefault<int>( "RESOLUTIONC", 16 );
@@ -1421,7 +1417,7 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 							iResolutionC, iResolutionD,
 							nNormal,color );
 	}
-	else if( VistaAspectsComparisonStuff::StringEquals( sType, "CONE", false ) )
+	else if( oCompare( sType, "CONE" ) )
 	{
 		float fRadiusBottom = oPropList.GetValueOrDefault<float>( "RADIUSBOTTOM", 0.5f );
 		float fRadiusTop = oPropList.GetValueOrDefault<float>( "RADIUSTOP", 0.5f );
@@ -1442,7 +1438,27 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 				color, fBottom, fTop, fSsides
 			);
 	}
-	else if( VistaAspectsComparisonStuff::StringEquals( sType, "TORUS", false ) )
+	else if( oCompare( sType, "CYLINDER" ) )
+	{
+		float fRadius = oPropList.GetValueOrDefault<float>( "RADIUS", 0.5f );
+		float fHeight = oPropList.GetValueOrDefault<float>( "HEIGHT", 1.0f );
+		int fResolutionC = oPropList.GetValueOrDefault<int>( "RESOLUTIONC", 16 );
+		int fResolutionD = oPropList.GetValueOrDefault<int>( "RESOLUTIOND", 1 );
+		int fResolutionY = oPropList.GetValueOrDefault<int>( "RESOLUTIONY", 1 );
+		bool fBottom = oPropList.GetValueOrDefault<bool>( "BOTTOM", true );
+		bool fTop = oPropList.GetValueOrDefault<bool>( "TOP", true );
+		bool fSsides = oPropList.GetValueOrDefault<bool>( "SIDES", true );
+
+		VistaColor color = VistaColor::WHITE;
+		ReadColorFromProplist( oPropList, "COLOR", color );
+
+		return CreateCone(
+				fRadius, fRadius, fHeight,
+				fResolutionC, fResolutionD, fResolutionY,
+				color, fBottom, fTop, fSsides
+			);
+	}
+	else if( oCompare( sType, "TORUS" ) )
 	{
 
 		float ringRadius = oPropList.GetValueOrDefault<float>( "RINGRADIUS", 0.1f );
@@ -1460,7 +1476,7 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 		);
 
 	}
-	else if( VistaAspectsComparisonStuff::StringEquals( sType, "SPHERE", false ) )
+	else if( oCompare( sType, "SPHERE" ) )
 	{
 
 		float radius = oPropList.GetValueOrDefault<float>( "RADIUS", 0.5f );
@@ -1470,7 +1486,7 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 
 		return CreateSphere( radius, resolution, color );
 	}
-	else if( VistaAspectsComparisonStuff::StringEquals( sType, "ELLIPSOID", false ) )
+	else if( oCompare( sType, "ELLIPSOID" ) )
 	{
 		float radius_a = oPropList.GetValueOrDefault<float>( "RADIUS_A", 0.5f );
 		float radius_b = oPropList.GetValueOrDefault<float>( "RADIUS_B", 0.5f );
@@ -1483,7 +1499,7 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 
 		return CreateEllipsoid( radius_a, radius_b, radius_c, thetaPrecision, phiPrecision, color );
 	}
-	else if( VistaAspectsComparisonStuff::StringEquals( sType, "TRIANGLE", false ) )
+	else if( oCompare( sType, "TRIANGLE" ) )
 	{
 		VistaVector3D v3PointA = oPropList.GetValueOrDefault<VistaVector3D>(
 											"POINT_A", VistaVector3D( 0.5f, 0.5f,0 ) );

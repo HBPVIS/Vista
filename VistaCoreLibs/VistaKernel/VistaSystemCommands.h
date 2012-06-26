@@ -46,7 +46,7 @@
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
 class VistaSystem;
-class VistaFrameLoop;
+class VistaFramerateDisplay;
 class VistaGraphicsManager;
 class VistaDisplayManager;
 class VistaKeyboardSystemControl;
@@ -54,6 +54,7 @@ class VistaEventManager;
 class VistaInteractionManager;
 class VistaInteractionContext;
 class VistaClusterMode;
+class VistaEyeTester;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -72,11 +73,11 @@ public:
 class VISTAKERNELAPI VistaToggleFramerateCommand : public IVistaExplicitCallbackInterface
 {
 public:
-	VistaToggleFramerateCommand( VistaFrameLoop* pLoop );
+	VistaToggleFramerateCommand( VistaFramerateDisplay* pFramerateDisplay );
 
 	virtual bool Do();
 
-	VistaFrameLoop* m_pLoop;
+	VistaFramerateDisplay* m_pFramerateDisplay;
 };
 
 class VISTAKERNELAPI VistaToggleCursorCommand : public IVistaExplicitCallbackInterface
@@ -198,6 +199,17 @@ private:
 	VistaDisplayManager*	m_pDisplayManager;
 };
 
+class VISTAKERNELAPI VistaToggleEyeTesterCommand : public IVistaExplicitCallbackInterface
+{
+public:
+	VistaToggleEyeTesterCommand( VistaSystem* pSystem );
+	~VistaToggleEyeTesterCommand();
+	virtual bool Do();
+private:
+	VistaSystem*			m_pSystem;
+	VistaEyeTester*			m_pTester;
+};
+
 class VISTAKERNELAPI VistaToggleVSyncCommand : public IVistaExplicitCallbackInterface
 {
 public:
@@ -206,6 +218,16 @@ public:
 private:
 	VistaDisplayManager*	m_pDisplayManager;
 };
+
+class VISTAKERNELAPI VistaToggleFullscreenCommand : public IVistaExplicitCallbackInterface
+{
+public:
+	VistaToggleFullscreenCommand( VistaDisplayManager* pDisplayManager );
+	virtual bool Do();
+private:
+	VistaDisplayManager*	m_pDisplayManager;
+};
+
 
 
 /*============================================================================*/

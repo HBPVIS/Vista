@@ -134,9 +134,9 @@ void VistaMcastIPAddress::SetHostName(const string &sHostName)
 				int iReservedL3 = ntohl(inet_addr("239.0.0.0"));
 				int iReservedU3 = ntohl(inet_addr("239.25.255.255"));
 
-				if(  iAddrHl>=iReservedL1 && iAddrHl<=iReservedU1
-					|| iAddrHl>=iReservedL2 && iAddrHl<=iReservedU2
-					|| iAddrHl>=iReservedL3 && iAddrHl<=iReservedU3 )
+				if( ( iAddrHl>=iReservedL1 && iAddrHl<=iReservedU1 )
+					|| ( iAddrHl>=iReservedL2 && iAddrHl<=iReservedU2 )
+					|| ( iAddrHl>=iReservedL3 && iAddrHl<=iReservedU3 ) )
 				{
 					vstr::err() << "VistaMcastIPAddress::SetHostName() -- ["
 						<< sHostName
@@ -203,9 +203,9 @@ void VistaMcastIPAddress::SetAddress(const string &sAddress)
 				int iReservedL3 = inet_addr("239.0.0.0");
 				int iReservedU3 = inet_addr("224.25.255.255");
 
-				if(  iAddr>=iReservedL1 && iAddr<=iReservedU1
-					|| iAddr>=iReservedL2 && iAddr<=iReservedU2
-					|| iAddr>=iReservedL3 && iAddr<=iReservedU3 )
+				if( ( iAddr>=iReservedL1 && iAddr<=iReservedU1 )
+					|| ( iAddr>=iReservedL2 && iAddr<=iReservedU2  )
+					|| ( iAddr>=iReservedL3 && iAddr<=iReservedU3 ) )
 				{
 					vstr::errp() << "VistaMcastIPAddress::SetAddress() error: ["
 						<< sAddress
@@ -214,14 +214,12 @@ void VistaMcastIPAddress::SetAddress(const string &sAddress)
 					
 					m_bIsValid     = false;
 					return;
-
-				}else{
-
-
-					
+				}
+				else
+				{					
 					m_sHostName    = inet_ntoa( *((in_addr *)&iAddr) ); // string ip address for multicast
 					m_sInAddress.resize(sizeof(in_addr));
-					m_sInAddress.assign((char *)&iAddr, sizeof(in_addr));
+					m_sInAddress.assign( reinterpret_cast<char *>( &iAddr ), sizeof(in_addr));
 
 					m_iAddressType = AF_INET;
 					m_bIsValid     = true;				

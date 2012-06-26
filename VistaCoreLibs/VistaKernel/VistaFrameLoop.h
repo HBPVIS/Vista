@@ -71,9 +71,6 @@ public:
 	int GetFrameCount();
 	VistaType::microtime GetAverageLoopTime();
 
-	bool GetFrameRateDisplayEnabled() const;
-	bool SetFrameRateDisplayEnabled( const bool bSet );
-
 protected:
 	void EmitSystemEvent( const int iSystemEventId );
 
@@ -88,10 +85,6 @@ protected:
 	VistaWeightedAverageTimer*	m_pAvgLoopTime;
 	VistaWindowAverageTimer*	m_pFrameRate;
 	int							m_iFrameCount;
-
-	Vista2DText*				m_pFrameRateDisplay;
-	VistaType::systemtime		m_nLastFramerateUpdate;
-	std::string					m_sFramerateText;
 
 };
 

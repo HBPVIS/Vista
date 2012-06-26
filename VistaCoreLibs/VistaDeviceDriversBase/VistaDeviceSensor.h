@@ -203,8 +203,8 @@ public:
 	// public for debugging purposes. SO DO NOT USE THE BELOW MEMBERS IN YOUR
 	// CODE, use the above given access API instead.
 	TVistaRingBuffer<VistaSensorMeasure> m_rbHistory;
-	VistaType::microtime                             m_nUpdateTs; /**< strong monotonic clock value, ordinal scale at least */
-	VistaType::uint32                                m_nDriverWriteSize, /**< statics, but nice for debugging, determined upon creation of the history. */
+	VistaType::microtime                  m_nUpdateTs; /**< strong monotonic clock value, ordinal scale at least */
+	VistaType::uint32                     m_nDriverWriteSize, /**< statics, but nice for debugging, determined upon creation of the history. */
 										  m_nMeasureCount, /**< the index count, e.g. the absolute number of measures */
 										  m_nSwapCount, /**< the number of swaps on the history, is less or equal to measure count */
 										  m_nClientReadSize, /**< statics, but nice for debugging (is determined upon creation of the history) */

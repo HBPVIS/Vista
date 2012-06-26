@@ -63,6 +63,7 @@ class VistaEventManager;
 class VistaDisplayManager;
 class VistaInteractionManager;
 class VistaFrameLoop;
+class VistaFramerateDisplay;
 
 class VistaClusterMode;
 
@@ -161,6 +162,8 @@ public:
 	VistaDriverPropertyConfigurator* GetDriverConfigurator() const;
 	IVistaSystemClassFactory* GetSystemClassFactory() const;
 
+	VistaFramerateDisplay* GetFramerateDisplay() const;
+
 	VistaFrameLoop* GetFrameLoop() const;
 	/**
 	 * Replaces the current frame loop with a new one, allowing to change
@@ -234,6 +237,7 @@ private:
 	bool SetupBasicInteraction();
 	VistaInteractionContext* SetupInteractionContext( const std::string& strContextSec );
 	void BindKeyboardActions();
+	void CreateFramerateDisplay();
 	void RegisterConfigurators();
 	void CreateDeviceDrivers();
 	bool LoadDriverPlugin( const std::string& sDriverType,
@@ -249,7 +253,6 @@ private:
 
 	std::string FindFileInIniSearchPath(const std::string& file,
 										std::ostream *logger = NULL) const;
-
 private:
 	IVistaSystemClassFactory*			m_pSystemClassFactory;
 
@@ -271,6 +274,7 @@ private:
 	VistaDriverPropertyConfigurator*	m_pConfigurator;
 	VistaClusterMode*					m_pClusterMode;
 	VistaFrameLoop*						m_pFrameLoop;
+	VistaFramerateDisplay*				m_pFramerateDisplay;
 
 	std::map<VistaDisplaySystem*, VistaUserPlatform*> m_mapUserPlatforms;
 	std::list<VistaInteractionContext*> m_liCreateCtxs;
@@ -289,6 +293,7 @@ private:
 	std::string					m_sModelFile;
 	float						m_nModelScale;
 
+	bool						m_bUseNewClusterMaster;
 	int							m_nClusterNodeType;
 	std::string					m_sClusterNodeName;
 	std::string					m_sApplicationName;

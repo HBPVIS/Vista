@@ -12,10 +12,14 @@ set( DirFiles
 	VistaPosixSemaphoreImp.h
 	VistaPosixThreadEventImp.cpp
 	VistaPosixThreadEventImp.h
+	VistaPosixProcessEventImp.cpp
+	VistaPosixProcessEventImp.h
 	VistaPriorityImp.cpp
 	VistaPriorityImp.h
 	VistaProcessImp.cpp
 	VistaProcessImp.h
+	VistaProcessEventImp.cpp
+	VistaProcessEventImp.h
 	VistaPthreadReaderWriterLockImp.cpp
 	VistaPthreadReaderWriterLockImp.h
 	VistaPthreadThreadEventImp.cpp
@@ -50,6 +54,8 @@ set( DirFiles
 	VistaWin32PriorityImp.h
 	VistaWin32ProcessImp.cpp
 	VistaWin32ProcessImp.h
+	VistaWin32ProcessEventImp.cpp
+	VistaWin32ProcessEventImp.h
 	VistaWin32SemaphoreImp.cpp
 	VistaWin32SemaphoreImp.h
 	VistaWin32ThreadConditionImp.cpp

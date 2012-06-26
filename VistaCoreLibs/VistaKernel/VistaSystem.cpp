@@ -33,6 +33,8 @@
 #include <VistaKernel/Cluster/VistaClusterStandalone.h>
 #include <VistaKernel/Cluster/VistaClusterMaster.h>
 #include <VistaKernel/Cluster/VistaClusterSlave.h>
+#include <VistaKernel/Cluster/VistaNewClusterMaster.h>
+#include <VistaKernel/Cluster/VistaNewClusterSlave.h>
 
 #include <VistaKernel/EventManager/VistaEventManager.h>
 #include <VistaKernel/EventManager/VistaSystemEvent.h>
@@ -53,6 +55,7 @@
 
 #include <VistaKernel/Stuff/VistaStreamManagerExt.h>
 #include <VistaKernel/Stuff/VistaKernelProfiling.h>
+#include <VistaKernel/Stuff/VistaFramerateDisplay.h>
 
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
 #include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
@@ -291,6 +294,7 @@ VistaSystem::VistaSystem()
 , m_pFrameLoop( new VistaFrameLoop )
 , m_nClusterNodeType( VistaClusterMode::NT_STANDALONE )
 , m_sClusterNodeName( "VistaSystem" )
+, m_bUseNewClusterMaster( false )
 , m_pMessagePort( NULL )
 , m_pDriverMap( new VistaDriverMap )
 , m_pConfigurator( new VistaDriverPropertyConfigurator )
@@ -298,6 +302,7 @@ VistaSystem::VistaSystem()
 , m_bLockSearchPath( false )
 , m_pExternalMsg( NULL )
 , m_iInitProgressIndicator( -1 )
+, m_pFramerateDisplay( NULL )
 {
 	VddUtil::InitVdd();
 
@@ -405,8 +410,6 @@ VistaSystem::~VistaSystem()
 		delete (*pit).second;
 	}
 
-	delete m_pKeyboardSystemControl;
-
 	// reverse destruction order
 
 	if( m_pSystemClassFactory )
@@ -438,6 +441,8 @@ VistaSystem::~VistaSystem()
 		}
 	}
 
+	delete m_pKeyboardSystemControl;
+	delete m_pFramerateDisplay;
 	delete m_pFrameLoop;
 	delete m_pClusterMode;
 
@@ -697,7 +702,7 @@ bool VistaSystem::DoInit( int argc, char **argv )
 			VistaSceneGraph* pSG = m_pGraphicsManager->GetSceneGraph();
 			VistaGroupNode* pSGRoot = pSG->GetRoot();
 			pSGRoot->AddChild( pSG->LoadNode( m_sModelFile, VistaSceneGraph::OPT_NONE, m_nModelScale ) );
-		}		
+		}
 	}
 
 	m_pClusterMode->PostInit();
@@ -772,20 +777,36 @@ void VistaSystem::CreateClusterMode()
 		}
 		case VistaClusterMode::NT_MASTER:
 		{
-			m_pClusterMode = new VistaClusterMaster( m_pEventManager, m_sClusterNodeName );
-			vstr::outi() << "Creating ClusterNode as [MASTER]" << std::endl;
+			if( m_bUseNewClusterMaster )
+			{
+				m_pClusterMode = new VistaNewClusterMaster( this, m_sClusterNodeName );
+				vstr::outi() << "Creating ClusterNode as [NEWMASTER]" << std::endl;
+			}
+			else
+			{
+				m_pClusterMode = new VistaClusterMaster( m_pEventManager, m_sClusterNodeName );
+				vstr::outi() << "Creating ClusterNode as [MASTER]" << std::endl;
+			}
+			
 			break;
 		}
 		case VistaClusterMode::NT_SLAVE:
 		{
-			m_pClusterMode = new VistaClusterSlave( m_pEventManager, m_sClusterNodeName,
-													m_pInteractionManager );
-			vstr::outi() << "Creating ClusterNode as [SLAVE]" << std::endl;
+			if( m_bUseNewClusterMaster )
+			{
+				m_pClusterMode = new VistaNewClusterSlave( this, m_sClusterNodeName );
+				vstr::outi() << "Creating ClusterNode as [NEWSLAVE]" << std::endl;
+			}
+			else
+			{
+				m_pClusterMode = new VistaClusterSlave( m_pEventManager, m_sClusterNodeName, m_pInteractionManager );
+				vstr::outi() << "Creating ClusterNode as [SLAVE]" << std::endl;
+			}
 			break;
 		}
 		default:
 		{
-			vstr::errp() << "Unkown cluster Mode ["
+			vstr::errp() << "Unknown cluster Mode ["
 					<< m_nClusterNodeType << "]" << std::endl;
 			VISTA_THROW( "UNKNOWN_CLUSTER_MODE", 0x00000066 );
 		}
@@ -814,7 +835,7 @@ bool VistaSystem::LoadIniFiles()
 	if( oParser.ReadFile( m_sVistaConfigFile, m_liSearchPathes ) == false )
 	{
 		vstr::errp() << "Vista-ini ["
-			<< m_sVistaConfigFile << "] not found!" << std::endl;
+					<< m_sVistaConfigFile << "] not found!" << std::endl;
 		return false;
 	}
 	m_oVistaConfig = oParser.GetPropertyList();
@@ -823,8 +844,8 @@ bool VistaSystem::LoadIniFiles()
 	if( m_oVistaConfig.HasSubList( GetSystemSectionName() ) == false )
 	{
 		vstr::errp() << "Vista-ini ["
-			<< m_sVistaConfigFile << "] invalid - no system section ["
-			<< GetSystemSectionName() << "]!" << std::endl;
+					<< m_sVistaConfigFile << "] invalid - no system section ["
+					<< GetSystemSectionName() << "]!" << std::endl;
 		return false;
 	}
 
@@ -915,7 +936,6 @@ bool VistaSystem::LoadIniFiles()
 		m_oClusterConfig = oParser.GetPropertyList();
 		m_sClusterConfigFile = oParser.GetFilename();
 	}
-
 
 	vstr::outi() << "Loaded INI files:\n";
 	vstr::IndentObject oIndent;
@@ -1041,6 +1061,8 @@ bool VistaSystem::SetupGraphicsManager()
 
 bool VistaSystem::SetupBasicInteraction()
 {
+	CreateFramerateDisplay();
+
 	BindKeyboardActions();
 
 	RegisterConfigurators();	
@@ -1113,7 +1135,7 @@ void VistaSystem::BindKeyboardActions()
 								new VistaShowAvailableCommands( m_pKeyboardSystemControl, this ),
 								"Show avaliable keys");
 	m_pKeyboardSystemControl->BindAction('F',
-								new VistaToggleFramerateCommand( m_pFrameLoop ),
+								new VistaToggleFramerateCommand( m_pFramerateDisplay ),
 								"Toggle framerate info");
 	m_pKeyboardSystemControl->BindAction('E',
 								 new TVistaDebugToConsoleCommand<VistaEventManager>(GetEventManager()),
@@ -1139,6 +1161,12 @@ void VistaSystem::BindKeyboardActions()
 	m_pKeyboardSystemControl->BindAction( VISTA_KEY_UPARROW, VISTA_KEYMOD_CTRL,
 								 new VistaChangeEyeDistanceCommand( 0.001f,	GetDisplayManager() ),
 								 "Increase x eye offset by 0.001" );
+	m_pKeyboardSystemControl->BindAction( VISTA_KEY_F5, VISTA_KEYMOD_CTRL,
+								 new VistaToggleEyeTesterCommand( this ),
+								 "Enable / Disable EyeTester" );
+	m_pKeyboardSystemControl->BindAction( VISTA_KEY_ENTER, VISTA_KEYMOD_ALT,
+								 new VistaToggleFullscreenCommand(	GetDisplayManager() ),
+								 "Toggle Fullscreen Windows" );
 	m_pKeyboardSystemControl->BindAction( '*',
 								new TVistaDebugToConsoleCommand<VistaClusterMode>( m_pClusterMode ),
 								"Show ClusterMode debug output" );
@@ -2331,13 +2359,13 @@ bool VistaSystem::IndicateSystemProgress(const std::string& sProgressMessageText
 int VistaSystem::GenerateRandomNumber(int iLowerBound, int iMaxBound) const
 {
 	//return m_pClusterMode->GenerateRandomNumber(iLowerBound, iMaxBound);
-	return VistaRandomNumberGenerator::GetSingleton()->GenerateInt32( iLowerBound, iMaxBound );
+	return VistaRandomNumberGenerator::GetStandardRNG()->GenerateInt32( iLowerBound, iMaxBound );
 }
 
 void VistaSystem::SetRandomSeed(int iSeed)
 {
 	//m_pClusterMode->SetRandomSeed(iSeed);
-	VistaRandomNumberGenerator::GetSingleton()->SetSeed( iSeed );
+	VistaRandomNumberGenerator::GetStandardRNG()->SetSeed( iSeed );
 }
 
 bool VistaSystem::PrintMsg( const char* pMsg, std::ostream* pStream) const
@@ -2533,6 +2561,26 @@ bool VistaSystem::ArgParser (int argc, char *argv[])
 				m_nClusterNodeType = VistaClusterMode::NT_SLAVE;
 			}
 		}
+		else if( oStringCompare( strArg, "-newclustermaster" ) )
+		{
+			++arg;
+			if( arg < argc)
+			{
+				m_sClusterNodeName = argv[arg];
+				m_nClusterNodeType = VistaClusterMode::NT_MASTER;
+				m_bUseNewClusterMaster = true;
+			}
+		}
+		else if( oStringCompare( strArg, "-newclusterslave" ) )
+		{
+			++arg;
+			if( arg < argc)
+			{
+				m_sClusterNodeName = argv[arg];
+				m_nClusterNodeType = VistaClusterMode::NT_SLAVE;
+				m_bUseNewClusterMaster = true;
+			}
+		}
 
 		else if( oStringCompare( strArg, "-inisearchpath" ) )
 		{
@@ -2554,12 +2602,6 @@ bool VistaSystem::ArgParser (int argc, char *argv[])
 				}
 				m_bLockSearchPath = true;
 			}
-		}
-		else
-		{
-			// unknown command line argument - utter a warning
-			vstr::warnp() << "[VistaSystem]: Unknown command line parameter ["
-						<< strArg << "]" << std::endl;
 		}
 	}
 	return true;
@@ -2934,7 +2976,8 @@ bool VistaSystem::SetupOutputStreams()
 						<< "] requested, but does not exist" << std::endl;
 			return false;
 		}
-		return VistaStreams::CreateStreamsFromProplist( m_oClusterConfig.GetSubListConstRef( sOutputConfigSection ) );
+		return VistaStreams::CreateStreamsFromProplist( m_oClusterConfig.GetSubListConstRef( sOutputConfigSection ),
+																m_sClusterNodeName );
 	}
 	else if( m_oVistaConfig.GetValueInSubList( "OUTPUT", GetSystemSectionName(), sOutputConfigSection ) )
 	{
@@ -2944,9 +2987,39 @@ bool VistaSystem::SetupOutputStreams()
 						<< "] requested, but does not exist" << std::endl;
 			return false;
 		}
-		return VistaStreams::CreateStreamsFromProplist( m_oVistaConfig.GetSubListConstRef( sOutputConfigSection ) );
+		return VistaStreams::CreateStreamsFromProplist( m_oVistaConfig.GetSubListConstRef( sOutputConfigSection ),
+																m_sClusterNodeName );
 	}
 	return true;
+}
+
+VistaFramerateDisplay* VistaSystem::GetFramerateDisplay() const
+{
+	return m_pFramerateDisplay;
+}
+
+void VistaSystem::CreateFramerateDisplay()
+{
+	std::string sFramerateSection;
+	if( m_oGraphicsConfig.GetValueInSubList( "FRAMERATE_DISPLAY", "GRAPHICS", sFramerateSection ) )
+	{
+		if( m_oGraphicsConfig.HasSubList( sFramerateSection ) == false )
+		{
+			vstr::warnp() << "Could not fint section [" << sFramerateSection
+				<< "] containing the framerate display config" << std::endl;
+			m_pFramerateDisplay = new VistaFramerateDisplay( m_pDisplayManager, m_pFrameLoop );
+		}
+		else
+		{
+			m_pFramerateDisplay = new VistaFramerateDisplay( m_pDisplayManager,
+					m_pFrameLoop, m_oGraphicsConfig.GetSubListConstRef( sFramerateSection ) );
+		}
+	}
+	else
+	{
+		m_pFramerateDisplay = new VistaFramerateDisplay( m_pDisplayManager, m_pFrameLoop );
+	}
+	m_pEventManager->RegisterObserver( m_pFramerateDisplay, VistaSystemEvent::GetTypeId() );
 }
 
 /*============================================================================*/

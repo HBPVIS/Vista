@@ -376,13 +376,17 @@ bool VistaConnectionIP::Connect(const VistaSocketAddress &adr, bool bBlockingCon
 	if(m_pSocket)
 	{
 		if(GetProtocol() == CT_TCP)
+		{
 			if(m_pSocket->GetIsConnected())
+			{
 				return false;
+			}
 			else
 			{
 				return Connect(adr.GetIPAddress().GetHostNameC(),
 							   adr.GetPortNumber(), bBlockingConnect);
 			}
+		}
 
 		// this is either UPD or unconnected TCP
 		// reconnecting UDP is ok

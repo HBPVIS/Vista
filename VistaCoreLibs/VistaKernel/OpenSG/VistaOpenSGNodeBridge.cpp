@@ -254,6 +254,150 @@ static IVistaNode *dive(VistaOpenSGNodeBridge *pNodeBridge,
 		return pNode;
 }
 
+static IVistaNode* NameCopyDive(VistaOpenSGNodeBridge *pNodeBridge,
+						VistaOpenSGGraphicsBridge *pGraphicsBridge,
+						const osg::NodePtr& node,
+						const osg::NodePtr& sourcenode )
+{
+	IVistaNode *pNode = NULL;
+
+	//cout << node->getCore()->getTypeName() << std::endl;
+#ifdef DEBUG
+	if( node->getType() != sourcenode->getType() )
+	{
+		vstr::warnp() << "[OpenSG::CloneNode]: source and copy have different types!" << std::endl;
+	}
+#endif
+
+	if(node->getCore()->getType().isDerivedFrom(osg::Transform::getClassType()))
+	{
+		VistaOpenSGNodeData *pd = static_cast<VistaOpenSGNodeData*>(pNodeBridge->NewTransformNodeData());
+		const osg::Char8 *name = osg::getName(sourcenode);
+		osg::setName(node, name);
+		pd->SetCore(node->getCore());
+
+		VistaTransformNode *group = pNodeBridge->NewTransformNode(NULL, pd, name ? name : "<none>");
+
+		for(osg::UInt32 n=0; n < node->getNChildren(); ++n)
+		{
+			IVistaNode *subnode;
+			if( sourcenode->getNChildren() < n+1 )
+			{
+				vstr::warnp() << "[OpenSG::CloneNode]: source and copy have different children count!" << std::endl;
+				subnode = dive(pNodeBridge, pGraphicsBridge, node->getChild(n));
+			}
+			else
+				subnode = NameCopyDive(pNodeBridge, pGraphicsBridge, node->getChild(n), sourcenode->getChild(n));
+			if(subnode)
+				group->AddChild(subnode);
+		}
+		//osg::TransformPtr trans = osg::TransformPtr::dcast(node->getCore());
+		//pd->SetTransform(trans->getMatrix());
+
+		pNode = group;
+
+	}
+	else if(node->getCore()->getType().isDerivedFrom(osg::DistanceLOD::getClassType()))
+	{
+		VistaOpenSGNodeData *pd = dynamic_cast<VistaOpenSGNodeData*>(pNodeBridge->NewLODNodeData());
+		pd->SetCore(node->getCore());
+		const osg::Char8 *name = osg::getName(sourcenode);
+		osg::setName(node, name);
+		VistaLODNode *group = pNodeBridge->NewLODNode(NULL, pd, name ? name : "<none>");
+		for(osg::UInt32 n=0; n < node->getNChildren(); ++n)
+		{
+			IVistaNode *subnode;
+			if( sourcenode->getNChildren() < n+1 )
+			{
+				vstr::warnp() << "[OpenSG::CloneNode]: source and copy have different children count!" << std::endl;
+				subnode = dive(pNodeBridge, pGraphicsBridge, node->getChild(n));
+			}
+			else
+				subnode = NameCopyDive(pNodeBridge, pGraphicsBridge, node->getChild(n), sourcenode->getChild(n));
+			if(subnode)
+				group->AddChild(subnode);
+		}
+		pNode = group;
+	}
+	else if(node->getCore()->getType().isDerivedFrom(osg::Switch::getClassType()))
+	{
+		VistaOpenSGNodeData *pd = dynamic_cast<VistaOpenSGNodeData*>(pNodeBridge->NewSwitchNodeData());
+		pd->SetCore(node->getCore());
+		const osg::Char8 *name = osg::getName(sourcenode);
+		osg::setName(node, name);
+		VistaSwitchNode *group = pNodeBridge->NewSwitchNode(NULL, pd, name ? name : "<none>");
+		for(osg::UInt32 n=0; n < node->getNChildren(); ++n)
+		{
+			IVistaNode *subnode;
+			if( sourcenode->getNChildren() < n+1 )
+			{
+				vstr::warnp() << "[OpenSG::CloneNode]: source and copy have different children count!" << std::endl;
+				subnode = dive(pNodeBridge, pGraphicsBridge, node->getChild(n));
+			}
+			else
+				subnode = NameCopyDive(pNodeBridge, pGraphicsBridge, node->getChild(n), sourcenode->getChild(n));
+			if(subnode)
+				group->AddChild(subnode);
+		}
+
+		pNode = group;
+	}
+	else
+		if(node->getCore()->getType().isDerivedFrom(osg::Group::getClassType()))
+		{
+			// its a group
+// 			cout << "node has [" << node->getNChildren() << "] children\n";
+			VistaOpenSGNodeData *pd = static_cast<VistaOpenSGNodeData*>(pNodeBridge->NewGroupNodeData());
+			pd->SetCore(node->getCore());
+			const osg::Char8 *name = osg::getName(sourcenode);
+			osg::setName(node, name);
+			VistaGroupNode *group = pNodeBridge->NewGroupNode(NULL, pd, name ? name : "<none>" );
+
+// 			cout << "node has [" << node->getNChildren() << "] children\n";
+			for(osg::UInt32 n=0; n < node->getNChildren(); ++n)
+			{
+				IVistaNode *subnode;
+				if( sourcenode->getNChildren() < n+1 )
+				{
+					vstr::warnp() << "[OpenSG::CloneNode]: source and copy have different children count!" << std::endl;
+					subnode = dive(pNodeBridge, pGraphicsBridge, node->getChild(n));
+				}
+				else
+					subnode = NameCopyDive(pNodeBridge, pGraphicsBridge, node->getChild(n), sourcenode->getChild(n));
+				if(subnode)
+					group->AddChild(subnode);
+			}
+
+			pNode = group;
+		}
+		else if(node->getCore()->getType().isDerivedFrom(osg::Geometry::getClassType()))
+		{
+			VistaOpenSGGeometryData *pd = static_cast<VistaOpenSGGeometryData*>(pGraphicsBridge->NewGeometryData());
+			pd->SetGeometry(osg::GeometryPtr::dcast(node->getCore()));
+			IVistaNodeData *nd = pNodeBridge->NewGeomNodeData(pd);
+			VistaGeometry *geom = pGraphicsBridge->NewGeometry(pd);
+			const osg::Char8 *name = osg::getName(sourcenode);
+			osg::setName(node, name);
+			pNode = pNodeBridge->NewGeomNode(NULL, geom, nd, name ? name : "<none>");
+		}
+		else if(node->getCore()->getType().isDerivedFrom(osg::Light::getClassType()))
+		{
+		}
+		else
+		{
+			VistaOpenSGExtensionNodeData *nd = dynamic_cast<VistaOpenSGExtensionNodeData*>(pNodeBridge->NewExtensionNodeData());
+			if(nd)
+				nd->SetNode(node);
+			// attach to parent
+			const osg::Char8 *name = osg::getName(sourcenode);
+			osg::setName(node, name);
+			pNode = pNodeBridge->NewExtensionNode(NULL, NULL, nd, name ? name : "<none>");
+		}
+
+
+		return pNode;
+}
+
 /*============================================================================*/
 /*  CONSTRUCTORS / DESTRUCTOR                                                 */
 /*============================================================================*/
@@ -884,7 +1028,7 @@ private:
 
 			mat->setLit(false);
 			mat->setDiffuse(osg::Color3f(col[0], col[1], col[2]));
-			mat->setTransparency(osg::Real32(col[4]));
+			mat->setTransparency(osg::Real32(col[3]));
 
 			endEditCP  (mat, osg::SimpleMaterial::DiffuseFieldMask |
 							 osg::SimpleMaterial::TransparencyFieldMask|
@@ -1574,11 +1718,10 @@ bool VistaOpenSGNodeBridge::GetWorldTransform(VistaTransformMatrix& pTrans,
 	}
 	// get results from m and store
 	osg::Real32 * val = m.getValues();
-	pTrans = VistaTransformMatrix
-		( val[0], val[4], val[8],  val[12],
-		  val[1], val[5], val[9],  val[13],
-		  val[2], val[6], val[10], val[14],
-		  val[3], val[7], val[11], val[15] );
+	pTrans = VistaTransformMatrix( val[0], val[4], val[8],  val[12],
+								  val[1], val[5], val[9],  val[13],
+								  val[2], val[6], val[10], val[14],
+								  val[3], val[7], val[11], val[15] );
 
 	return true;
 }
@@ -2673,7 +2816,11 @@ bool VistaOpenSGNodeBridge::GetAmbientLightState() const
 IVistaNode* VistaOpenSGNodeBridge::CloneSubtree( IVistaNodeData* pNodeData )
 {
 	VistaOpenSGNodeData* pOpenSGData = static_cast<VistaOpenSGNodeData*>( pNodeData );
-	osg::NodePtr pNewOSGNode = pOpenSGData->GetNode()->clone();
-	IVistaNode* pRet = dive( this, static_cast<VistaOpenSGGraphicsBridge*>(GetVistaSceneGraph()->GetGraphicsBridge()), pNewOSGNode );
+	std::vector<osg::UInt16> vecExcludes;
+	vecExcludes.push_back( osg::Geometry::getClassTypeId() );
+	osg::NodePtr pNewOSGNode = deepCloneTree( pOpenSGData->GetNode(), vecExcludes );
+	IVistaNode* pRet = NameCopyDive( this,
+						static_cast<VistaOpenSGGraphicsBridge*>(GetVistaSceneGraph()->GetGraphicsBridge()),
+						pNewOSGNode, pOpenSGData->GetNode() );
 	return pRet;
 }

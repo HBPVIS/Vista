@@ -555,7 +555,7 @@ namespace VistaConversion
 			}
 			if( nOnError & ON_ERROR_THROW_EXCEPTION )
 			{
-				VISTA_THROW( ("Conversion from " + GetTypeName<T>() + " to std::string failed!").c_str(), -1 );
+				VISTA_THROW( ("Conversion from std::string [" + sSource + "]to " + GetTypeName<T>() + " failed!").c_str(), -1 );
 			}
 		}
 		return oValue;
@@ -1541,7 +1541,10 @@ namespace VistaConversion
 
 			if( StringConvertObject<std::vector<float> >::FromString(
 									sCleanedSource, vecEntries, cSeparator ) == false )
-				return false;
+			{
+				// no float list - maybe it's a predefined name
+				return VistaColor::GetColorFromName( sSource, oTarget );
+			}
 
 			if( vecEntries.size() == 3 )
 			{

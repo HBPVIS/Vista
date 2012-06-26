@@ -26,9 +26,13 @@
 
 #include <VistaInterProcComm/Connections/VistaConnectionIP.h>
 #include <VistaInterProcComm/Connections/VistaMsg.h>
+#include <VistaInterProcComm/Connections/VistaByteBufferDeSerializer.h>
 #include <VistaInterProcComm/IPNet/VistaTCPServer.h>
 #include <VistaInterProcComm/IPNet/VistaTCPSocket.h>
 #include <VistaInterProcComm/IPNet/VistaUDPSocket.h>
+#include <VistaInterProcComm/Cluster/Imps/VistaTCPIPClusterBarrier.h>
+#include <VistaInterProcComm/Cluster/Imps/VistaTCPIPClusterDataSync.h>
+#include <VistaInterProcComm/Cluster/Imps/VistaTCPIPClusterDataCollect.h>
 
 #include <VistaAspects/VistaAspectsUtils.h>
 #include <VistaBase/VistaExceptionBase.h>
@@ -42,7 +46,6 @@
 #include <VistaKernel/InteractionManager/VistaInteractionEvent.h>
 #include <VistaKernel/Stuff/VistaKernelProfiling.h>
 #include <VistaKernel/Cluster/VistaClusterMode.h>
-#include <VistaKernel/Cluster/VistaSlaveNetworkSync.h>
 #include <VistaKernel/Cluster/VistaSlaveDataTunnel.h>
 #include <VistaKernel/VistaSystem.h>
 
@@ -91,6 +94,8 @@ VistaClusterSlave::VistaClusterSlave(VistaEventManager* pEventManager,
 , m_iDataTunnelQueueSize( 2 )
 , m_pMessageDeSer( new VistaByteBufferDeSerializer )
 , m_nSyncTimeout( 0 )
+, m_pDefaultBarrier( NULL )
+, m_pDefaultDataSync( NULL )
 {
 	m_pExternalMsgEvent->SetThisMsg( m_pMsg );
 	m_pInteractionEvent = new VistaInteractionEvent( pInteractionMngr );
@@ -328,10 +333,9 @@ bool VistaClusterSlave::PostInit()
 			bSucces = false;
 		}
 	}
-	catch( VistaExceptionBase& x )
+	catch( VistaExceptionBase& )
 	{
-		vstr::errp() << "VistaClusterSlave::PostInit() could not write alive token - received Exception:\n"
-				<< x.GetPrintStatement() << std::endl;
+		vstr::errp() << "VistaClusterSlave::PostInit() could not write alive token" << std::endl;
 		bSucces = false;
 	}
 	if( bSucces == false )
@@ -558,26 +562,7 @@ bool VistaClusterSlave::CreateNamedConnections(
 
 	return true;
 }
-IVistaNetworkSync* VistaClusterSlave::CreateNetworkSync( bool bUseExistingConnections )
-{
-	VistaSlaveNetworkSync* pSync = new VistaSlaveNetworkSync;
-	if( bUseExistingConnections )
-	{
-		pSync->InitMasterConnection( m_pAckConnection, true );
-	}
-	else
-	{
-		VistaConnectionIP* pConnection = CreateConnectionToMaster();
-		if( pConnection == NULL )
-		{
-			vstr::warnp() << "VistaClusterSlave::CreateNetworkSync() -- "
-				<< "Could not establish connection for syncing" << std::endl;
-			return NULL;
-		}
-		pSync->InitMasterConnection( pConnection, true );
-	}
-	return pSync;
-}
+
 IVistaDataTunnel* VistaClusterSlave::CreateDataTunnel( IDLVistaDataPacket* pPacketProto )
 {
 	VistaConnectionIP* pConnection = CreateConnectionToMaster();
@@ -780,6 +765,7 @@ void VistaClusterSlave::SwapSync()
 			VistaTimeUtils::Sleep(m_nAfterSwapSyncDelay);
 	}
 
+		
 	m_pAvgSwap->RecordTime();
 }
 
@@ -924,8 +910,58 @@ void VistaClusterSlave::ReadStringFromMsg( std::string& sTarget )
 	VistaType::sint32 nSize;
 	if( m_pMessageDeSer->ReadInt32( nSize ) != sizeof(VistaType::sint32) )
 		VISTA_THROW( "CLUSTER_SLAVE_INCOMPLETE_MESSAGE", -1 );
-	if( m_pMessageDeSer->ReadString( sTarget, nSize ) != nSize * sizeof(char) )
+	if( m_pMessageDeSer->ReadString( sTarget, nSize ) != (int)( nSize * sizeof(char) ) )
 		VISTA_THROW( "CLUSTER_SLAVE_INCOMPLETE_MESSAGE", -1 );
+}
+
+IVistaClusterDataSync* VistaClusterSlave::CreateDataSync()
+{
+	VistaConnectionIP* pConnection = CreateConnectionToMaster();
+	if( pConnection == NULL )
+	{
+		vstr::warnp() << "VistaClusterSlave::CreateNetworkSync() -- "
+			<< "Could not establish connection for syncing" << std::endl;
+		return NULL;
+	}
+	return new VistaTCPIPClusterFollowerDataSync( pConnection, m_bDoSwap, true );
+}
+
+IVistaClusterDataSync* VistaClusterSlave::GetDefaultDataSync()
+{
+	if( m_pDefaultDataSync == NULL )
+		m_pDefaultDataSync = CreateDataSync();
+	return m_pDefaultDataSync;
+}
+
+IVistaClusterBarrier* VistaClusterSlave::CreateBarrier()
+{
+	VistaConnectionIP* pConnection = CreateConnectionToMaster();
+	if( pConnection == NULL )
+	{
+		vstr::warnp() << "VistaClusterSlave::CreateNetworkSync() -- "
+			<< "Could not establish connection for syncing" << std::endl;
+		return NULL;
+	}
+	return new VistaTCPIPClusterFollowerBarrier( pConnection, true );
+}
+
+IVistaClusterBarrier* VistaClusterSlave::GetDefaultBarrier()
+{
+	if( m_pDefaultBarrier == NULL )
+		m_pDefaultBarrier = CreateBarrier();
+	return m_pDefaultBarrier;
+}
+
+IVistaClusterDataCollect* VistaClusterSlave::CreateDataCollect()
+{
+	VistaConnectionIP* pConnection = CreateConnectionToMaster();
+	if( pConnection == NULL )
+	{
+		vstr::warnp() << "VistaNewClusterSlave::CreateNetworkSync() -- "
+			<< "Could not establish connection for syncing" << std::endl;
+		return NULL;
+	}
+	return new VistaTCPIPClusterFollowerDataCollect( pConnection, m_bDoSwap, true );
 }
 
 /*============================================================================*/

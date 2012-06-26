@@ -45,7 +45,8 @@
 template<typename TProduct>
 class IVistaCreator
 {
-public: 
+public:
+	virtual ~IVistaCreator() {}
 	virtual TProduct *CreateInstance() = 0;
 };
 

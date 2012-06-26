@@ -121,6 +121,7 @@ public:
 
 	static void RegisterThreadImpFactory(IVistaThreadImpFactory *);
 	static IVistaThreadImpFactory *GetThreadImpFactory();
+	static void DeleteThreadImpFactory();
 
 
 protected:

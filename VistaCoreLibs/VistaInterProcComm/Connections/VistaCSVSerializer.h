@@ -84,10 +84,11 @@ public:
 	virtual int WriteRawBuffer( const void *pBuffer, const int iLen) ;
 	virtual int WriteBool( bool bVal) ;
 
-	virtual int WriteString( const std::string &sString) ;
+	virtual int WriteString( const std::string &sString) ;	
+	virtual int WriteDelimitedString( const std::string &sString, char cDelim = '\0');
+	virtual int WriteEncodedString( const std::string& sString );
 
 	virtual int WriteSerializable(const IVistaSerializable &obj);
-	virtual int WriteDelimitedString( const std::string &sString, char cDelim = '\0');
 
 	void ClearBuffer();
 };

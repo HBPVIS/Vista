@@ -499,8 +499,10 @@ int  VistaPosixSerialPortImp::Receive(void *buffer, const int length, int iTimeo
 		return -1;
 
 	if(iTimeout)
+	{
 		if(WaitForIncomingData(iTimeout) == ~0)
 			return 0; // timeout!
+	}
 
 	int charsRead = 0;
 	if ( (charsRead = read( m_iFileHandle, buffer, length ) ) < 0  )

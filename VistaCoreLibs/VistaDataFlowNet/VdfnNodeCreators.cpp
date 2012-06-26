@@ -38,6 +38,7 @@
 
 #include "VdfnLoggerNode.h"
 #include "VdfnCompositeNode.h"
+#include "VdfnToggleNode.h"
 
 
 #include "VdfnHistoryProjectNode.h"
@@ -439,11 +440,11 @@ IVdfnNode *VdfnDriverSensorNodeCreate::CreateNode( const VistaPropertyList &oPar
 					vstr::warnp() << "[SensorNodeCreate]: - "
 						<< "Driver [" << sDriver << "] has no sensor with Id [" << nSensorID << "].\n";					
 				}
-				vstr::warn() << "Available sensors are: \n";
+				vstr::warni() << "Available sensors are: \n";
 				vstr::IndentObject oIndent;
 				for( int i = 0; i < (int)pDriver->GetNumberOfSensors(); ++i  )
 				{
-					vstr::warn() << "Id: " << i 
+					vstr::warni() << "Id: " << i 
 							<<  "\tName: " << pDriver->GetSensorByIndex(i)->GetSensorName() 
 							<< std::endl;
 				}
@@ -608,6 +609,37 @@ IVdfnNode *VdfnEnvStringValueNodeCreate::CreateNode( const VistaPropertyList &oP
 	return pEnvNode;
 }
 
+// #############################################################################
+
+IVdfnNode* VdfnToggleNodeCreate::CreateNode( const VistaPropertyList& oParams ) const
+{
+	const VistaPropertyList& oSubs = oParams.GetSubListConstRef( "param" );
+	bool bInitState = oSubs.GetValueOrDefault<bool>( "initial_state", false );
+	std::string sMode;
+	VdfnToggleNode::ToggleMode eMode = VdfnToggleNode::TM_ON_CHANGE_TO_TRUE;
+	if( oSubs.GetValue( "mode", sMode ) )
+	{
+		if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sMode, "on_any_update" ) )
+			eMode = VdfnToggleNode::TM_ON_ANY_UPDATE;
+		else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sMode, "on_update_if_false" )  )
+			eMode = VdfnToggleNode::TM_ON_UPDATE_IF_FALSE;
+		else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sMode, "on_update_if_true" )  )
+			eMode = VdfnToggleNode::TM_ON_UPDATE_IF_TRUE;
+		else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sMode, "on_any_change" )  )
+			eMode = VdfnToggleNode::TM_ON_ANY_CHANGE;
+		else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sMode, "on_change_to_true" )  )
+			eMode = VdfnToggleNode::TM_ON_CHANGE_TO_TRUE;
+		else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sMode, "on_change_to_false" )  )
+			eMode = VdfnToggleNode::TM_ON_CHANGE_TO_FALSE;
+		else
+		{
+			vstr::warnp() << "[VdfnToggleNodeCreate]: Unknown mode ["
+				<< sMode << std::endl;
+			return NULL;
+		}
+	}
+	return new VdfnToggleNode( eMode, bInitState );
+}
 
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */

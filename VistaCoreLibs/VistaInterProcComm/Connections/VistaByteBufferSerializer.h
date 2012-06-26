@@ -114,6 +114,7 @@ public:
 
 	virtual int WriteString( const std::string &sString) ;
 	virtual int WriteDelimitedString( const std::string &sString, char cDelim = '\0') ;
+	virtual int WriteEncodedString( const std::string &sString ) ;
 
 	virtual int WriteSerializable(const IVistaSerializable &obj);
 
@@ -170,9 +171,26 @@ public:
 				   int iBufferSize,
 				   int iWriteHead = 0);
 
+	/**
+	 * Sets the write position to the specified position (in bytes) for the next write operation.
+	 * Thus, the next call to any Write*()-Api will not append data to the end of the buffer,
+	 * but instead it will rewrite the data at the specified location, so use with care!
+	 * An example for a sue-case is writing the size of the buffer as first entry, without knowing it
+	 * when writing to the buffer starts. In this case, one can write a dummy as first entry, and then
+	 * rewrite it after all data has been written and the size is known.
+	 * The Rewrite will only be valid for a SINGLE write operation. If multiple data values
+	 * have to be rewritten, the RewritePosition has to be set multiple times.
+	 * Passing a negative value will disable a previously ordered override.
+	 * @param byte index of the data to be rewritten
+	 * @return true if value was successfully set (i.e. if param is negative (for un-setting)
+	 *         or in the range of the buffer
+	 */
+	bool SetBufferRewritePosition( const int nOverridePosition );
+
 protected:
 	std::vector<VistaType::byte>	m_vecBuffer;
 	int					m_iWriteHead;
+	int					m_iOverwritePosition;
 	VistaType::byte*	m_pHead;
 	unsigned int		m_uiCapacity;
 	bool				m_bDoSwap;

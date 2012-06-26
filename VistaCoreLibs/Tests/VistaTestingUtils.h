@@ -29,8 +29,6 @@
 /* INCLUDES                                                                   */
 /*============================================================================*/
 
-#include <gtest/gtest.h>
-
 #include <VistaAspects/VistaConversion.h>
 #include <VistaAspects/VistaPropertyList.h>
 #include <time.h>
@@ -46,7 +44,7 @@ namespace VistaTestingRandom
 
 	static int InitializeRandomSeed()
 	{
-		unsigned int nSeed = (unsigned int)time(NULL);
+		unsigned int nSeed = (unsigned int)( 100000.0 * time(NULL) );
 		srand( nSeed );
 		return nSeed;
 	}

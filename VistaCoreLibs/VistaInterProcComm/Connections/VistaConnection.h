@@ -215,6 +215,8 @@ public:
 
 	virtual int WriteString( const std::string& sValue );
 	virtual int WriteDelimitedString( const std::string&, char cDelim = '\0' );
+	virtual int WriteEncodedString( const std::string& );
+
 	virtual int WriteSerializable( const IVistaSerializable& );
 
 
@@ -233,6 +235,8 @@ public:
 
 	virtual int ReadString( std::string& sTarget, const int iMaxLen );
 	virtual int ReadDelimitedString( std::string& sTarget, char cDelim = '\0' );
+	virtual int ReadEncodedString( std::string& sTarget );
+
 	virtual int ReadSerializable( IVistaSerializable & );
 
 

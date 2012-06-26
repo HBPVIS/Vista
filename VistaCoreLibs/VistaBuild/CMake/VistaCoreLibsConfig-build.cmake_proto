@@ -114,13 +114,11 @@ else( NOT VistaCoreLibs_FIND_COMPONENTS )
 	endforeach( _COMPONENT ${VistaCoreLibs_FIND_COMPONENTS} )
 endif( NOT VistaCoreLibs_FIND_COMPONENTS )
 
-# depending on whether or not the Kernel is used, we may need OpenSG and glut
-if( VISTAKERNELOPENSGEXT_FOUND )
-	set( VISTACORELIBS_DEPENDENCIES @VISTAKERNELOPENSGEXT_DEPENDENCIES@ )
-elseif( VISTAKERNEL_FOUND )
+# depending on whether or not the Kernel is used, we may need additional dependencies
+if( VISTAKERNEL_FOUND )
 	set( VISTACORELIBS_DEPENDENCIES @VISTAKERNEL_DEPENDENCIES@ )
-else( VISTAKERNELOPENSGEXT_FOUND )
+else()
 	set( VISTACORELIBS_DEPENDENCIES )
-endif( VISTAKERNELOPENSGEXT_FOUND )
+endif()
 
 set( VISTACORELIBS_FOUND TRUE )

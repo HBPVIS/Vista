@@ -37,24 +37,6 @@
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
-namespace
-{
-
-// not tested, the naming is probably wrong!
-/*	VistaQuaternion EulerToQuat(float pitch, float yaw, float roll)
-	{
-		VistaQuaternion q;
-		q[0] = cosf(pitch/2.0f)*cosf(yaw/2.0f)*cosf(roll/2.0f) +
-               sinf(pitch/2.0f)*sinf(yaw/2.0f)*sinf(roll/2.0f);
-		q[1] = sinf(pitch/2.0f)*cosf(yaw/2.0f)*cosf(roll/2.0f) -
-               cosf(pitch/2.0f)*sinf(yaw/2.0f)*sinf(roll/2.0f);
-		q[2] = cosf(pitch/2.0f)*sinf(yaw/2.0f)*cosf(roll/2.0f) +
-               sinf(pitch/2.0f)*cosf(yaw/2.0f)*sinf(roll/2.0f);
-		q[3] = cosf(pitch/2.0f)*cosf(yaw/2.0f)*sinf(roll/2.0f) -
-               sinf(pitch/2.0f)*sinf(yaw/2.0f)*cosf(roll/2.0f);
-	}
-*/
-}
 
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
@@ -62,17 +44,30 @@ namespace
 VistaDfnNavigationNode::VistaDfnNavigationNode( 
 							const int iDefaultNavigationMode,
 							const float fDefaultLinearVelocity,
-							const float fDefaultAngularVelocity ) :
-	m_pTransform(NULL),
-	m_pOut(new TVdfnPort<VistaTransformMatrix>),
-	m_pTranslation(NULL),
-	m_pRotation(NULL),
-	m_pDeltaTime(NULL),
-	m_pNavigationMode(NULL),
-	m_iDefaultNavigationMode( iDefaultNavigationMode ),
-	m_fDefaultLinearVelocity( fDefaultLinearVelocity ),
-	m_fDefaultAngularVelocity( fDefaultAngularVelocity ),
-	m_nLastDTUpateCount(0)
+							const float fDefaultAngularVelocity,
+							const float fDefaultLinearAcceleration,
+							const float fDefaultLinearDecceleration,
+							const float fDefaultAngularAcceleration,
+							const float fDefaultAngularDecceleration )
+: IVdfnNode()
+, m_pTransform(NULL)
+, m_pOut( new TVdfnPort<VistaTransformMatrix> )
+, m_pTranslation( NULL )
+, m_pRotation( NULL )
+, m_pRotationPivot( NULL )
+, m_pDeltaTime( NULL )
+, m_pNavigationMode( NULL )
+, m_iNavigationMode( iDefaultNavigationMode )
+, m_fTargetLinearVelocity( fDefaultLinearVelocity )
+, m_fCurrentLinearVelocity( 0 )
+, m_fLinearAcceleration( fDefaultLinearDecceleration )
+, m_fLinearDecceleration( fDefaultLinearAcceleration )
+, m_fTargetAngularVelocity( fDefaultAngularVelocity )
+, m_fCurrentAngularVelocity( 0 )
+, m_fAngularAcceleration( fDefaultAngularDecceleration )
+, m_fAngularDecceleration( fDefaultAngularAcceleration )
+, m_nLastDTUpateCount(0)
+, m_fDeltaTime( 0 )
 {
 	// in-ports:
 	// - navigation mode (heli, object in hand, ...) : int
@@ -84,6 +79,7 @@ VistaDfnNavigationNode::VistaDfnNavigationNode(
 	RegisterInPortPrototype( "navigation_mode", new TVdfnPortTypeCompare<TVdfnPort<int> > );
 	RegisterInPortPrototype( "translation", new TVdfnPortTypeCompare<TVdfnPort<VistaVector3D> > );
 	RegisterInPortPrototype( "rotation", new TVdfnPortTypeCompare<TVdfnPort<VistaQuaternion> > );
+	RegisterInPortPrototype( "pivot", new TVdfnPortTypeCompare<TVdfnPort<VistaVector3D> > );
 	RegisterInPortPrototype( "transform", new TVdfnPortTypeCompare<TVdfnPort<VistaTransformMatrix> > );
 	RegisterInPortPrototype( "linear_velocity", new TVdfnPortTypeCompare<TVdfnPort<float> > );
 	RegisterInPortPrototype( "angular_velocity", new TVdfnPortTypeCompare<TVdfnPort<float> > );
@@ -106,6 +102,7 @@ bool VistaDfnNavigationNode::PrepareEvaluationRun()
 	m_pTransform = dynamic_cast<TVdfnPort<VistaTransformMatrix>*>(GetInPort("transform"));
 	m_pTranslation = dynamic_cast<TVdfnPort<VistaVector3D>*>(GetInPort("translation"));
 	m_pRotation = dynamic_cast<TVdfnPort<VistaQuaternion>*>(GetInPort("rotation"));
+	m_pRotationPivot = dynamic_cast<TVdfnPort<VistaVector3D>*>(GetInPort("pivot"));
 	m_pDeltaTime = dynamic_cast<TVdfnPort<double>*>(GetInPort("dt"));
 	m_pNavigationMode = dynamic_cast<TVdfnPort<int>*>(GetInPort("navigation_mode"));
 	m_pLinearVelocity = dynamic_cast<TVdfnPort<float>*>(GetInPort("linear_velocity"));
@@ -119,54 +116,52 @@ bool VistaDfnNavigationNode::GetIsValid() const
 }
 
 bool VistaDfnNavigationNode::DoEvalNode()
-{
-	int iNavigationMode = ( m_pNavigationMode != NULL ) 
-							? m_pNavigationMode->GetValueConstRef()
-							: m_iDefaultNavigationMode;
- 
+{ 
 	if( m_pDeltaTime->GetUpdateCounter() == m_nLastDTUpateCount )
 		return false;
+	
+	if( m_pNavigationMode )
+		m_iNavigationMode = m_pNavigationMode->GetValue();
+	if( m_pLinearVelocity )
+		m_fTargetLinearVelocity = m_pLinearVelocity->GetValue();
+	if( m_pAngularVelocity )
+		m_fTargetAngularVelocity = m_pAngularVelocity->GetValue();
 
 	m_nLastDTUpateCount = m_pDeltaTime->GetUpdateCounter();
 
-	float fDeltaTime = float(m_pDeltaTime->GetValueConstRef());
-	if( fDeltaTime < Vista::Epsilon )
+	// += ensures that we don't loose time on many very small updates
+	m_fDeltaTime += float(m_pDeltaTime->GetValueConstRef());
+	if( m_fDeltaTime < Vista::Epsilon )
 		return true;
 
-	float fTranslationFraction = ( m_pLinearVelocity != NULL )
-		? m_pLinearVelocity->GetValueConstRef()*fDeltaTime
-		: m_fDefaultLinearVelocity*fDeltaTime;
-
-	float fRotationFraction = ( m_pAngularVelocity != NULL )
-		? m_pAngularVelocity->GetValueConstRef()*fDeltaTime
-		: m_fDefaultAngularVelocity*fDeltaTime;
+	UpdateVelocities();
 
 	VistaTransformMatrix matTransform;
 	if( m_pTransform )
 		matTransform = m_pTransform->GetValueConstRef();
 	
-	switch( iNavigationMode )
+	switch( m_iNavigationMode )
 	{
 		case 1:
 		{
 			// Helicopter Mode: No roll, no pitch, just yaw
-			ApplyRotationYawOnly( fRotationFraction, matTransform );
-			ApplyTranslation( fTranslationFraction, matTransform );
+			ApplyRotationYawOnly( matTransform );
+			ApplyTranslation( matTransform );
 			break;
 		}
 		case 2:
 		{
 			// Camera Mode: No roll, just yaw/pitch
-			ApplyRotationNoRoll( fRotationFraction, matTransform );
-			ApplyTranslation( fTranslationFraction, matTransform );
+			ApplyRotationNoRoll( matTransform );
+			ApplyTranslation( matTransform );
 			break;
 		}
 		case 0:
 		default:
 		{
 			// Free Mode: All rotations allowed
-			ApplyRotationFull( fRotationFraction, matTransform );
-			ApplyTranslation( fTranslationFraction, matTransform );
+			ApplyRotationFull( matTransform );
+			ApplyTranslation( matTransform );
 			break;
 		}
 	}
@@ -174,94 +169,116 @@ bool VistaDfnNavigationNode::DoEvalNode()
 	m_pOut->GetValueRef() = matTransform;
 	m_pOut->IncUpdateCounter();
 
+	m_fDeltaTime = 0;
+
 	return true;
 }
 
 void VistaDfnNavigationNode::ApplyTranslation( 
-							const float fTranslationFraction,
 							VistaTransformMatrix& matTransform )
 {
-	if( m_pTranslation == NULL )
+	if( m_pTranslation == NULL || m_fCurrentLinearVelocity == 0 )
 		return;
 
-	VistaVector3D v3Change( fTranslationFraction * m_pTranslation->GetValueConstRef() );
+	VistaVector3D v3Change = m_fDeltaTime * m_fCurrentLinearVelocity
+							* m_pTranslation->GetValueConstRef();
 
-	v3Change[3] = 0.0f;
-	v3Change = matTransform.Transform( v3Change );
+	v3Change = matTransform.TransformVector( v3Change );
 
 	VistaVector3D v3Trans;
-	matTransform.GetTranslation(v3Trans);
-	matTransform.SetTranslation(v3Trans+v3Change);
+	matTransform.GetTranslation( v3Trans );
+	matTransform.SetTranslation( v3Trans + v3Change );
 }
 
 void VistaDfnNavigationNode::ApplyRotationFull( 
-							const float fRotationFraction,
 							VistaTransformMatrix& matTransform )
 {
-	if( m_pRotation == NULL )
+	if( m_pRotation == NULL || m_fCurrentAngularVelocity == 0 )
 		return;
 
-	const VistaQuaternion& qRotation( m_pRotation->GetValueConstRef() );
+	const VistaQuaternion& qRotation = m_pRotation->GetValueConstRef();
+
+	VistaVector3D v3Pivot;
+	if( m_pRotationPivot )
+		v3Pivot = m_pRotationPivot->GetValue();
 		
 	// calculate rotation slerp-interpolated by the fraction
-	float fDtFrac = fRotationFraction / ( 2 * Vista::Pi );
+	float fDtFrac = m_fDeltaTime * m_fCurrentAngularVelocity / ( 2 * Vista::Pi );
 	fDtFrac = fDtFrac - int(fDtFrac);
 	VistaQuaternion qRotDt = VistaQuaternion().Slerp( qRotation, fDtFrac );
 	
-	VistaVector3D v3Trans;
-	matTransform.GetTranslation(v3Trans);
-	matTransform.SetTranslation(VistaVector3D(0,0,0));
-	matTransform = matTransform * VistaTransformMatrix( qRotDt );
-	matTransform.SetTranslation(v3Trans);
+	// apply rotation relative to pivot point
+	matTransform = matTransform
+					* VistaTransformMatrix( v3Pivot )
+					* VistaTransformMatrix( qRotDt )
+					* VistaTransformMatrix( -v3Pivot );
 }
 
 void VistaDfnNavigationNode::ApplyRotationYawOnly( 
-							const float fRotationFraction,
 							VistaTransformMatrix& matTransform )
 {
 	if( m_pRotation == NULL )
 		return;
 
-	VistaQuaternion qRot( m_pRotation->GetValue() );
-	qRot = VistaQuaternion().Slerp( qRot, fRotationFraction/(Vista::Pi*2.0f) );
+	const VistaQuaternion& qRotation = m_pRotation->GetValueConstRef();
 
-	VistaVector3D vY = qRot.Rotate(VistaVector3D(0,0,1));
+	VistaVector3D v3Pivot;
+	if( m_pRotationPivot )
+		v3Pivot = m_pRotationPivot->GetValue();
+		
+	// calculate rotation slerp-interpolated by the fraction
+	float fDtFrac = m_fDeltaTime * m_fCurrentAngularVelocity / ( 2 * Vista::Pi );
+	fDtFrac = fDtFrac - int(fDtFrac);
+	VistaQuaternion qRotDt = VistaQuaternion().Slerp( qRotation, fDtFrac );
+
+	VistaVector3D vY = qRotDt.Rotate( Vista::ViewVector );
 	vY[Vista::Y] = 0.0f;
 	vY.Normalize();
-	VistaQuaternion qY = VistaQuaternion( VistaVector3D(0,0,1), vY );
+	VistaQuaternion qY = VistaQuaternion( Vista::ViewVector, vY );
 
-	matTransform = matTransform * VistaTransformMatrix( qY );
+	// apply rotation relative to pivot point
+	matTransform = matTransform
+					* VistaTransformMatrix( v3Pivot )
+					* VistaTransformMatrix( qY )
+					* VistaTransformMatrix( -v3Pivot );
 }
 
 void VistaDfnNavigationNode::ApplyRotationNoRoll(
-							const float fRotationFraction,
 							VistaTransformMatrix& matTransform )
 {
 	if( m_pRotation == NULL )
 		return;
 
-	VistaQuaternion qRot( m_pRotation->GetValueConstRef() );
-	qRot = VistaQuaternion().Slerp( qRot, fRotationFraction/(Vista::Pi*2.0f) );
+	const VistaQuaternion& qRotation = m_pRotation->GetValueConstRef();
+
+	VistaVector3D v3Pivot;
+	if( m_pRotationPivot )
+		v3Pivot = m_pRotationPivot->GetValue();
+
+	// calculate rotation slerp-interpolated by the fraction
+	float fDtFrac = m_fDeltaTime * m_fCurrentAngularVelocity / ( 2 * Vista::Pi );
+	fDtFrac = fDtFrac - int(fDtFrac);
+	VistaQuaternion qRotDt = VistaQuaternion().Slerp( qRotation, fDtFrac );
 	
 	VistaVector3D v3OrigTranslation;
 	matTransform.GetTranslation( v3OrigTranslation );
 	VistaQuaternion qFullRot( matTransform );
-	qFullRot = qFullRot * qRot;
+	qFullRot = qFullRot * qRotDt;
 
 	//determine rotation around global y
-	VistaVector3D vY = qFullRot.Rotate(VistaVector3D(0,0,1));
+	VistaVector3D vY = qFullRot.Rotate( Vista::ViewVector );
 	vY[Vista::Y] = 0.0f;
 	vY.Normalize();
-	VistaQuaternion qY = VistaQuaternion( VistaVector3D(0,0,1), vY );
+	VistaQuaternion qY = VistaQuaternion( Vista::ViewVector, vY );
 
 	//Calculate reduced Rotation
 	qFullRot = qY.GetInverted() * qFullRot;
 
 	//determine rotation around global X	
-	VistaVector3D vX = qFullRot.Rotate(VistaVector3D(0,0,1));
+	VistaVector3D vX = qFullRot.Rotate( Vista::ViewVector );
 	vX[Vista::X] = 0.0f;
 	vX.Normalize();
-	VistaQuaternion qX = VistaQuaternion( VistaVector3D(0,0,1), vX );
+	VistaQuaternion qX = VistaQuaternion( Vista::ViewVector, vX );
 
 	//Prevent Gimbal Lock
 	VistaAxisAndAngle aaaX = qX.GetAxisAndAngle();
@@ -276,10 +293,61 @@ void VistaDfnNavigationNode::ApplyRotationNoRoll(
 		qX = VistaQuaternion( aaaX );
 	}
 
+	// @todo: use pivot in this mode
+
 	// Determine Final rotation
 	qFullRot = qY * qX;
-	matTransform = VistaTransformMatrix( qFullRot, v3OrigTranslation );
+	matTransform.SetBasisMatrix( qFullRot );
 
+}
+
+void VistaDfnNavigationNode::UpdateVelocities()
+{
+	if( m_fCurrentLinearVelocity > m_fTargetLinearVelocity )
+	{
+		if( m_fLinearDecceleration <= 0 )
+			m_fCurrentLinearVelocity = m_fTargetLinearVelocity;
+		else
+		{
+			m_fCurrentLinearVelocity -= m_fDeltaTime * m_fLinearDecceleration;
+			if( m_fCurrentLinearVelocity < m_fTargetLinearVelocity )
+				m_fCurrentLinearVelocity = m_fTargetLinearVelocity;
+		}
+	}
+	else if( m_fCurrentLinearVelocity < m_fTargetLinearVelocity )
+	{
+		if( m_fLinearAcceleration <= 0 )
+			m_fCurrentLinearVelocity = m_fTargetLinearVelocity;
+		else
+		{
+			m_fCurrentLinearVelocity += m_fDeltaTime * m_fLinearAcceleration;
+			if( m_fCurrentLinearVelocity > m_fTargetLinearVelocity )
+				m_fCurrentLinearVelocity = m_fTargetLinearVelocity;
+		}
+	}
+
+	if( m_fCurrentAngularVelocity > m_fTargetAngularVelocity )
+	{
+		if( m_fAngularDecceleration <= 0 )
+			m_fCurrentAngularVelocity = m_fTargetAngularVelocity;
+		else
+		{
+			m_fCurrentAngularVelocity -= m_fDeltaTime * m_fAngularDecceleration;
+			if( m_fCurrentAngularVelocity < m_fTargetAngularVelocity )
+				m_fCurrentAngularVelocity = m_fTargetAngularVelocity;
+		}
+	}
+	else if( m_fCurrentAngularVelocity < m_fTargetAngularVelocity )
+	{
+		if( m_fAngularAcceleration <= 0 )
+			m_fCurrentAngularVelocity = m_fTargetAngularVelocity;
+		else
+		{
+			m_fCurrentAngularVelocity += m_fDeltaTime * m_fAngularAcceleration;
+			if( m_fCurrentAngularVelocity > m_fTargetAngularVelocity )
+				m_fCurrentAngularVelocity = m_fTargetAngularVelocity;
+		}
+	}
 }
 
 /*============================================================================*/

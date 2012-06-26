@@ -99,6 +99,7 @@ public:
 	virtual int ReadBool(bool &bVal) = 0;
 	virtual int ReadString(std::string &, const int iMaxLen) = 0;
 	virtual int ReadDelimitedString(std::string &, char cDelim = '\0') = 0;
+	virtual int ReadEncodedString( std::string& ) = 0;
 
 	virtual int ReadSerializable(IVistaSerializable &) = 0;
 

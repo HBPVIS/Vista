@@ -132,8 +132,8 @@ IDLVistaDataPacket *DLVistaRamQueuePipe::ReturnPacket()
 	if(!m_bCanRecycle && !m_bDoesBlockOnReturn) // shortcut, avoid mutex grab!
 	{
 //#ifdef DEBUG
-//		printf("***WARNING *** [DLVistaRamQueuePipe::ReturnPacket] \
-//				Unable to return packet. Returning NULL!\n");
+//		printf("***WARNING *** [DLVistaRamQueuePipe::ReturnPacket] "
+//				"Unable to return packet. Returning NULL!\n");
 //#endif
 		return NULL;
 	}
@@ -142,8 +142,8 @@ IDLVistaDataPacket *DLVistaRamQueuePipe::ReturnPacket()
 	if(m_iNumDownstreamPackets <= 0)
 	{
 //#ifdef DEBUG
-//		printf("***WARNING *** [DLVistaRamQueuePipe::ReturnPacket] \
-//				No downstream packets. Returning NULL!\n");
+//		printf("***WARNING *** [DLVistaRamQueuePipe::ReturnPacket] "
+//				"No downstream packets. Returning NULL!\n");
 //#endif
 		return NULL;
 	}
@@ -178,8 +178,8 @@ IDLVistaDataPacket *DLVistaRamQueuePipe::ReturnPacket()
 //#ifdef DEBUG
 //	if(!pPacket)
 //	{
-//		printf("***WARNING *** [DLVistaRamQueuePipe::ReturnPacket] \
-//				Returning NULL!\n");
+//		printf("***WARNING *** [DLVistaRamQueuePipe::ReturnPacket] "
+//				"Returning NULL!\n");
 //	}
 //#endif
 	return pPacket;

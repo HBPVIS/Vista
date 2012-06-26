@@ -54,7 +54,7 @@
  *
  * @inport{delta,T,mandatory,inport for the value to be added to the current count}
  * @inport{reset_to_value,T,optional,resets the counter to the value at the inport}
- * @inport{modulo,T,optional,modulo value of the function
+ * @inport{modulo,T,optional,modulo value of the function}
  * @outport{out,T,current value of the counter}
  *
  * The ModuloCounterNode extents the functionality of the CounterNode by applying
@@ -128,6 +128,78 @@ protected:
 private:
 	TVdfnPort<T>	*m_pModulo;
 	T				m_oModuloValue;
+};
+
+
+/**
+ * class template for a modulo node
+ *
+ * @inport{value,T,mandatory,inport for the value to set}
+ * @inport{modulo,T,optional,modulo value of the function}
+ * @outport{out,T,current modulo}
+ *
+ * The ModuloCounterNode extents the functionality of the CounterNode by applying
+ * a modulo-m operation, i.e. clamping the accumulated value to the range [0,m].
+ * The modulo value can either be passed as ctor parameter, or adjusted dynamically
+ * by the port "modulo".
+ * @see TVdfnCounterNode
+ */
+template<class T>
+class TVdfnModuloNode : public IVdfnNode
+{
+public:
+	TVdfnModuloNode( T oModulo )
+		: IVdfnNode(),
+		  m_pModuloPort( NULL ),
+		  m_pInPort( NULL ),
+		  m_pOutPort( new TVdfnPort<T> ),
+		  m_nModuloValue( oModulo )
+	{
+		RegisterInPortPrototype( "in", new TVdfnPortTypeCompare<TVdfnPort<T> > );
+		RegisterInPortPrototype( "modulo", new TVdfnPortTypeCompare<TVdfnPort<T> > );
+		RegisterOutPort( "out", m_pOutPort );
+	}
+
+	bool PrepareEvaluationRun()
+	{
+		m_pInPort = VdfnUtil::GetInPortTyped<TVdfnPort<T>*>( "in", this );
+		m_pModuloPort = VdfnUtil::GetInPortTyped<TVdfnPort<T>*>( "modulo", this );
+		return GetIsValid();
+	}
+
+	bool GetIsValid() const
+	{
+		return ( m_pInPort != NULL );
+	}
+
+
+protected:
+	bool DoEvalNode()
+	{
+		// Check if modulo is set, and if so, use the inport value
+		if( m_pModuloPort )
+		{
+			m_nModuloValue = m_pModuloPort->GetValue();
+			if( m_nModuloValue <= 0 )
+				vstr::warnp() << "[VdfnModuloCounterNode] Encountered Modulo <= 0!" << std::endl;
+				return false;
+		}
+
+		T nValue = m_pInPort->GetValue();
+		//m_oValue = m_oValue - T( int( m_oValue / m_oModulo ) ) * m_oModulo;
+		while( nValue >= m_nModuloValue )
+			nValue -= m_nModuloValue;
+		while( nValue < 0 )
+			nValue += m_nModuloValue;
+		m_pOutPort->SetValue( nValue, GetUpdateTimeStamp() );
+		return true;
+	}
+
+private:
+	TVdfnPort<T>*	m_pInPort;
+	TVdfnPort<T>*	m_pOutPort;
+	TVdfnPort<T>*	m_pModuloPort;
+	T				m_nModuloValue;
 };
 
 /*============================================================================*/

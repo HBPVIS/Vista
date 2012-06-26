@@ -33,13 +33,16 @@
 
 
 #if defined(WIN32)
-#include <Windows.h>
+	#include <WinSock2.h>
+	#include <Windows.h>
+	#include <ws2tcpip.h>
 #elif defined (LINUX) || defined (DARWIN)
 	#include <unistd.h>
 	#include <netdb.h>
 	#include <sys/socket.h>
 	#include <sys/ioctl.h>
 	#include <arpa/inet.h>
+	#include <errno.h>
 
 #elif defined (SUNOS) || defined (IRIX)
 	#include <unistd.h>
@@ -68,10 +71,10 @@ using namespace std;
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
+#ifdef WIN32
 static void TranslateHostResolveError(int iErrno)
 {
 	vstr::errp() << "VistaIPAddress::HostResolveError: ";
-#ifdef WIN32
 	switch ( iErrno )
 	{
 	case WSAEACCES:
@@ -237,34 +240,9 @@ static void TranslateHostResolveError(int iErrno)
 		vstr::err() << "Unknown error number." << iErrno;
 		break;
 	}
-#else
-	switch (iErrno)
-	{
-		case HOST_NOT_FOUND:
-			{
-				vstr::err() << "HOST NOT FOUND";
-				break;
-			}
-		case NO_ADDRESS:
-			{
-				vstr::err() << "NO IP ADDRESS";
-				break;
-			}
-		case NO_RECOVERY:
-		case TRY_AGAIN:
-			{
-				vstr::err() << "DNS ERROR? (NO RECOVERY OR TRY AGAIN LATER)";
-				break;
-			}
-		default:
-			{
-				vstr::err() << "UNKNOWN ERROR (" << iErrno << ")";
-				break;
-			}
-	}
-#endif
 	vstr::err() << std::endl;
 }
+#endif
 
 
 /*============================================================================*/
@@ -308,7 +286,6 @@ VistaIPAddress::~VistaIPAddress()
 
 bool VistaIPAddress::ResolveHostName(const string &sHostName)
 {
-
 	struct hostent  *pheDetails;
 
 	if(isalpha(sHostName[0]))
@@ -326,22 +303,44 @@ bool VistaIPAddress::ResolveHostName(const string &sHostName)
 		pheDetails = gethostbyaddr((char*)&iAddr, sizeof(iAddr), AF_INET);
 	}
 
-	if(!pheDetails)
+	if(pheDetails)
 	{
-		vstr::warnp() << "[VistaIpAddress]: gethostbyname failed on " 
-						<< sHostName.c_str() << std::endl;
-		#if !defined(HPUX)
-		/** @todo fix this 'compatibility' feature */
-		TranslateHostResolveError(h_errno);
-		#endif
+		m_sHostName    = pheDetails->h_name; // ok, hostname resolved
+		m_sInAddress.resize(pheDetails->h_length);
+		m_sInAddress.assign(pheDetails->h_addr_list[0], pheDetails->h_length);
+		m_iAddressType = pheDetails->h_addrtype;
+		return true;
+	}
+
+	// gethostbyname/addr failed - lets try getaddrinfo
+	int nStatus;
+	struct addrinfo oHints;
+	struct addrinfo* pServInfo;
+
+	memset( &oHints, 0, sizeof(addrinfo) ); // make sure the struct is empty
+	oHints.ai_family = AF_INET;     // we only support IPv4
+	oHints.ai_socktype = 0;
+	oHints.ai_flags = AI_CANONNAME;
+
+	if( ( nStatus = getaddrinfo( sHostName.c_str(), NULL, &oHints, &pServInfo ) ) != 0 )
+	{
+		vstr::warnp() << "[VistaIpAddress]: resolving hostname [" 
+			<< sHostName.c_str() << "] failed with error: "
+			<< gai_strerror( errno ) << std::endl;
 		m_bIsValid     = false;
 		return false;
 	}
-
-	m_sHostName    = pheDetails->h_name; // ok, hostname resolved
-	m_sInAddress.resize(pheDetails->h_length);
-	m_sInAddress.assign(pheDetails->h_addr_list[0], pheDetails->h_length);
-	m_iAddressType = pheDetails->h_addrtype;
+	
+	if( pServInfo->ai_canonname )
+		m_sHostName = pServInfo->ai_canonname; // ok, hostname resolved
+	else
+		m_sHostName = ""; // no hostname
+			
+	m_sInAddress.resize( pServInfo->ai_addrlen );
+	m_sInAddress.assign( (char*)pServInfo->ai_addr + 4, pServInfo->ai_addrlen - 4 );
+	m_iAddressType = pServInfo->ai_family;	
+	
+	freeaddrinfo( pServInfo );
 
 	return true;
 }
@@ -350,14 +349,65 @@ void VistaIPAddress::SetHostName(const string &sHostName)
 {
 	if(sHostName != m_sHostName)
 		m_bIsValid = ResolveHostName(sHostName);   
-//    string s;
-//    GetAddressString(s);
-	//printf("hostname = %s, addr: %s\n", m_sHostName.c_str(), s.c_str());
 }
 
 void VistaIPAddress::SetAddress(const string &sAddress)
 {
+#ifdef LINUX
+	char acHost[1024];
+	char acService[20];
+		
+	sockaddr_in* pAddr = new sockaddr_in;
+	memset(pAddr, 0, sizeof(sockaddr_in));
+	pAddr->sin_family = AF_INET;
+	pAddr->sin_port = htons ( 0 );
+	memcpy( (void*)&pAddr->sin_addr, (void*)sAddress.data(), sAddress.length());
+		
+	int nRes = getnameinfo( (sockaddr*)pAddr, sizeof(sockaddr_in), acHost, 1024, acService, 20, 0 );
+	if( nRes != 0 )
+	{
+		
+		vstr::warnp() << "[VistaIpAddress]: getnameinfo failed with error:\n";
+		
+		switch(  nRes )
+		{
+			case EAI_AGAIN:
+				vstr::warni() << "[EAI_AGAIN] The name could nor be resolved at this time. Try again later." << std::endl;
+				break;
+			case EAI_BADFLAGS:
+				vstr::warni() << "EAI_BADFLAGS" << std::endl;
+				break;
+			case EAI_FAIL:
+				vstr::warni() << "EAI_FAIL" << std::endl;
+				break;
+			case EAI_FAMILY:
+				vstr::warni() << "EAI_FAMILY" << std::endl;
+				vstr::outi() << sAddress.length() << std::endl;
+				break;
+			case EAI_MEMORY:
+				vstr::warni() << "TEAI_MEMORY" << std::endl;
+				break;
+			case EAI_NONAME:
+				vstr::warni() << "EAI_NONAME" << std::endl;
+				break;
+			case EAI_OVERFLOW:
+				vstr::warni() << "EAI_OVERFLOW" << std::endl;
+				break;
+			case EAI_SYSTEM:
+				vstr::warni() << "EAI_SYSTEM" << std::endl;
+				break;
+		}
+		
+		m_bIsValid = false;
+		return;
+	}
+
+	m_sHostName    = acHost; // ok, hostname resolved
+	m_sInAddress = sAddress;
+	m_iAddressType = (int)( (sockaddr*)sAddress.data() )->sa_family;
+	m_bIsValid     = true;
 	
+#else
 	struct hostent *pheDetails = gethostbyaddr(sAddress.data(), (int)sAddress.length(), AF_INET);
 
 	if( !pheDetails )
@@ -374,13 +424,10 @@ void VistaIPAddress::SetAddress(const string &sAddress)
 	m_sInAddress.resize(pheDetails->h_length);
 	m_sInAddress.assign(pheDetails->h_addr_list[0], pheDetails->h_length);
 
-//    string s;
-//    GetAddressString(s);
-	//printf("hostname = %s, addr: %s\n", m_sHostName.c_str(), s.c_str());
-
 
 	m_iAddressType = pheDetails->h_addrtype;
 	m_bIsValid     = true;
+#endif
 }
 
 void VistaIPAddress::GetHostName(string &sHostName) const

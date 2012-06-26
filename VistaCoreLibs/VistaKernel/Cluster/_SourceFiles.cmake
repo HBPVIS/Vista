@@ -16,16 +16,26 @@ set( DirFiles
 	VistaDataTunnel.h
 	VistaMasterDataTunnel.cpp
 	VistaMasterDataTunnel.h
-	VistaMasterNetworkSync.cpp
-	VistaMasterNetworkSync.h
+	#VistaMasterNetworkSync.cpp
+	#VistaMasterNetworkSync.h
 	VistaSlaveDataTunnel.cpp
 	VistaSlaveDataTunnel.h
-	VistaSlaveNetworkSync.cpp
-	VistaSlaveNetworkSync.h
+	#VistaSlaveNetworkSync.cpp
+	#VistaSlaveNetworkSync.h
 	VistaStandaloneDataTunnel.cpp
 	VistaStandaloneDataTunnel.h
-	VistaStandaloneNetworkSync.cpp
-	VistaStandaloneNetworkSync.h
+	#VistaStandaloneNetworkSync.cpp
+	#VistaStandaloneNetworkSync.h
+	VistaNewClusterMaster.cpp
+	VistaNewClusterMaster.h
+	VistaNewClusterSlave.cpp
+	VistaNewClusterSlave.h
+	VistaClusterMessage.cpp
+	VistaClusterMessage.h
+	VistaNetSyncedTimerImp.cpp
+	VistaNetSyncedTimerImp.h
+	VistaGSyncSwapBarrier.cpp
+	VistaGSyncSwapBarrier.h
 	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
@@ -37,3 +47,7 @@ foreach( File ${DirFiles} )
 endforeach()
 source_group( ${DirFiles_SourceGroup} FILES ${LocalSourceGroupFiles} )
 
+
+if( VISTACORELIBS_USE_ZEROMQ )
+	include( "${RelativeDir}/ZeroMQExt/_SourceFiles.cmake" )
+endif()

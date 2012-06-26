@@ -44,7 +44,7 @@
 
 class VistaEventManager;
 class VistaWeightedAverageTimer;
-class VistaMasterNetworkSync;
+//class VistaMasterNetworkSync;
 class VistaPropertyList;
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -88,7 +88,11 @@ public:
 															vecConnections );
 
 	virtual IVistaDataTunnel* CreateDataTunnel( IDLVistaDataPacket* pPacketProto );
-	virtual IVistaNetworkSync* CreateNetworkSync( bool bUseExistingConnections = false );
+	virtual IVistaClusterDataSync* CreateDataSync();
+	virtual IVistaClusterDataSync* GetDefaultDataSync();
+	virtual IVistaClusterBarrier* CreateBarrier();
+	virtual IVistaClusterBarrier* GetDefaultBarrier();
+	virtual IVistaClusterDataCollect* CreateDataCollect();
 
 	virtual void Debug( std::ostream& oStream ) const;
 
@@ -97,6 +101,7 @@ private:
 					const std::string &sIP, int iPort,
 					bool bDoSwap, bool bDoSync );
 	void WaitForSlaveInit();
+
 
 private:
 	VistaEventManager*		m_pEventManager;
@@ -110,6 +115,9 @@ private:
 	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	class EventObserver;
 	EventObserver*			m_pEventObserver;
+
+	IVistaClusterDataSync*		m_pDefaultDataSync;
+	IVistaClusterBarrier*	m_pDefaultBarrier;
 
 };
 

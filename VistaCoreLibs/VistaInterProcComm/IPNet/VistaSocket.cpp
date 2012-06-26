@@ -92,10 +92,10 @@ bool IVistaSocket::PrintErrorMessage(const string &sMethodName)
 // otherwise you will get an abundance of error messagesc
 // when using loops of non-blocking accepts
 #ifdef WIN32
-		if (err && err !=WSAEWOULDBLOCK)
+		if( err && ( err != WSAEWOULDBLOCK ) )
 #endif
 #if defined(IRIX) || defined(SUNOS) || defined(LINUX)
-		if (err & err !=EWOULDBLOCK)
+		if( err & ( err != EWOULDBLOCK ) )
 #endif
 	vstr::errp() << "IVistaSocket::" << sMethodName << " failed with code " << err << ": ";
 		vstr::IndentObject oIndent;

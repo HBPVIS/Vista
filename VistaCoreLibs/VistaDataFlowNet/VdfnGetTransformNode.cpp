@@ -103,33 +103,6 @@ bool VdfnGetTransformNode::GetIsValid() const
 
 bool VdfnGetTransformNode::DoEvalNode()
 {
-	//float m4x4[16];
- //   switch(m_eMode)
- //   {
- //   case TRANS_RELATIVE:
- //       {
-	//		/** @todo think about returning false here!? */
-	//		if(m_pTransform->GetTransform(m4x4)==false)
- //               return true; // did not work
- //           break;
- //       }
- //   case TRANS_WORLD:
- //       {
-	//		/** @todo think about returning false here!? */
- //           if(m_pTransform->GetWorldTransform(m4x4) == false)
- //               return true; // did not work...
- //           break;
- //       }
- //   }
-
- //   VistaTransformMatrix &m = m_pOutMat->GetValueRef();
- //   for(int r=0; r < 4; ++r)
-	//    for(int c=0; c < 4; ++c)
-	//	    m.SetValue(r,c, m4x4[(4*r) + c]);
-
- //   m_pOutMat->SetUpdateTimeStamp(GetUpdateTimeStamp());
- //   m_pOutMat->IncUpdateCounter();
-
 	VistaTransformMatrix& matTransform = m_pOutMat->GetValueRef();
     switch(m_eMode)
     {

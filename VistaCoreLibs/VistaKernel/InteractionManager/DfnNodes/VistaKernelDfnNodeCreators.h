@@ -47,7 +47,8 @@ class VistaEventManager;
 class VistaInteractionManager;
 class VistaClusterMode;
 class VistaKeyboardSystemControl;
-
+class VistaGraphicsManager;
+class VistaSceneGraph;
 /*============================================================================*/
 /* UTILITY                                                                    */
 /*============================================================================*/
@@ -259,17 +260,96 @@ private:
 	VistaDisplayManager *m_pMgr;
 };
 
-class VistaFrameclockNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+class VistaDfnFrameclockNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
 {
 public:
 	class TimerNodeFrameclockGet;
 
-	VistaFrameclockNodeCreate( VistaClusterMode* pClusterAux );
+	VistaDfnFrameclockNodeCreate( VistaClusterMode* pClusterAux );
 
 	virtual IVdfnNode* CreateNode( const VistaPropertyList &oParams ) const;
 	
 private:
 	VistaClusterMode* m_pClusterAux;
+};
+
+class VistaDfnCropViewportNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
+public:
+	VistaDfnCropViewportNodeCreate( VistaDisplayManager* pDisplayManager );
+
+	virtual IVdfnNode* CreateNode( const VistaPropertyList &oParams ) const;
+	
+private:
+	VistaDisplayManager* m_pDisplayManager;
+};
+
+class VistaDfnKeyCallbackNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
+public:
+	VistaDfnKeyCallbackNodeCreate( VistaKeyboardSystemControl* pKeyboard );
+
+	virtual IVdfnNode* CreateNode( const VistaPropertyList &oParams ) const;
+	
+private:
+	VistaKeyboardSystemControl* m_pKeyboard;
+};
+
+class VistaDfnProximityWarningNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
+public:
+	VistaDfnProximityWarningNodeCreate( VistaSystem* pVistaSystem );
+
+	virtual IVdfnNode* CreateNode( const VistaPropertyList &oParams ) const;
+	
+private:
+	VistaSystem* m_pVistaSystem;
+};
+
+class VistaDfnFadeoutNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
+public:
+	VistaDfnFadeoutNodeCreate( VistaClusterMode* pClusterMode,
+										VistaDisplayManager* pDisplayManager );
+
+	virtual IVdfnNode* CreateNode( const VistaPropertyList &oParams ) const;
+	
+private:
+	VistaClusterMode* m_pClusterMode;
+	VistaDisplayManager* m_pDisplayManager;
+};
+
+class VistaDfnSimpleTextNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
+public:
+	VistaDfnSimpleTextNodeCreate( VistaDisplayManager* pDisplayManager );
+
+	virtual IVdfnNode* CreateNode( const VistaPropertyList &oParams ) const;
+	
+private:
+	VistaDisplayManager* m_pDisplayManager;
+};
+
+class VistaDfnGeometryNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
+public:
+	VistaDfnGeometryNodeCreate( VistaSceneGraph* pSceneGraph );
+
+	virtual IVdfnNode* CreateNode( const VistaPropertyList &oParams ) const;
+	
+private:
+	VistaSceneGraph* m_pSceneGraph;
+};
+
+class VistaDfnPointingRayGeometryNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
+public:
+	VistaDfnPointingRayGeometryNodeCreate( VistaSceneGraph* pSceneGraph );
+
+	virtual IVdfnNode* CreateNode( const VistaPropertyList &oParams ) const;
+	
+private:
+	VistaSceneGraph* m_pSceneGraph;
 };
 
 

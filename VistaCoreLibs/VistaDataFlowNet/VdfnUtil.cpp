@@ -51,6 +51,7 @@ using namespace std;
 #include "Vdfn3DNormalizeNode.h"
 #include "VdfnReadWorkspaceNode.h"
 #include "VdfnInvertNode.h"
+#include "VdfnNegateNode.h"
 #include "VdfnValueToTriggerNode.h"
 #include "VdfnConditionalRouteNode.h"
 #include "VdfnDumpHistoryNode.h"
@@ -60,6 +61,9 @@ using namespace std;
 #include "VdfnCompose3DVectorNode.h"
 #include "VdfnDecompose3DVectorNode.h"
 #include "VdfnQuaternionSlerpNode.h"
+#include "VdfnMultiplexNode.h"
+#include "VdfnDemultiplexNode.h"
+
 
 #include "VdfnNodeCreators.h"
 
@@ -68,6 +72,7 @@ using namespace std;
 #include <VistaAspects/VistaAspectsUtils.h>
 #include <VistaAspects/VistaConversion.h>
 #include <VistaDeviceDriversBase/VistaDeviceSensor.h>
+
 
 namespace
 {
@@ -413,6 +418,7 @@ bool RegisterBasicNodeCreators(VistaDriverMap *pDrivers,
 	pFac->SetNodeCreator( "QuaternionSlerp", new TVdfnDefaultNodeCreate<VdfnQuaternionSlerpNode> );
 
 	pFac->SetNodeCreator( "And[bool]", new TVdfnBinOpCreate<bool,bool,bool>( new VdfnBinaryOps::AndOp<bool,bool,bool> ) );
+	pFac->SetNodeCreator( "Toggle", new VdfnToggleNodeCreate );
 
 	pFac->SetNodeCreator( "ValueToTrigger[int]", new TVdfnValueToTriggerNodeCreate<int> );
 	pFac->SetNodeCreator( "ValueToTrigger[unsigned int]", new TVdfnValueToTriggerNodeCreate<unsigned int> );
@@ -426,6 +432,11 @@ bool RegisterBasicNodeCreators(VistaDriverMap *pDrivers,
 	pFac->SetNodeCreator( "ModuloCounter[unsigned int]", new TVdfnModuloCounterNodeCreate<unsigned int> );
 	pFac->SetNodeCreator( "ModuloCounter[float]", new TVdfnModuloCounterNodeCreate<float> );
 	pFac->SetNodeCreator( "ModuloCounter[double]", new TVdfnModuloCounterNodeCreate<double> );
+
+	pFac->SetNodeCreator( "Modulo[int]", new TVdfnModuloNodeCreate<int> );
+	pFac->SetNodeCreator( "Modulo[unsigned int]", new TVdfnModuloNodeCreate<unsigned int> );
+	pFac->SetNodeCreator( "Modulo[float]", new TVdfnModuloNodeCreate<float> );
+	pFac->SetNodeCreator( "Modulo[double]", new TVdfnModuloNodeCreate<double> );
 
 	pFac->SetNodeCreator( "GetTransform", new VdfnGetTransformNodeCreate(pObjRegistry) );
 	pFac->SetNodeCreator( "SetTransform", new VdfnSetTransformNodeCreate(pObjRegistry) );
@@ -452,14 +463,43 @@ bool RegisterBasicNodeCreators(VistaDriverMap *pDrivers,
 	pFac->SetNodeCreator( "GetElement[VistaVector3D]", new TVdfnGetElementFromArrayNodeCreate<VistaVector3D, float, 4> );
 	pFac->SetNodeCreator( "GetElement[VistaQuaternion]", new TVdfnGetElementFromArrayNodeCreate<VistaQuaternion, float, 4> );
 	
-
-	pFac->SetNodeCreator( "Invert[VistaVector3D]", new TVdfnDefaultNodeCreate<TVdfnInvertNode<VistaVector3D> >);
 	pFac->SetNodeCreator( "Invert[VistaQuaternion]", new TVdfnDefaultNodeCreate<TVdfnInvertNode<VistaQuaternion> >);
 	pFac->SetNodeCreator( "Invert[VistaTransformMatrix]", new TVdfnDefaultNodeCreate<TVdfnInvertNode<VistaTransformMatrix> >);
 	pFac->SetNodeCreator( "Invert[bool]", new TVdfnDefaultNodeCreate<TVdfnInvertNode<bool> >);
+	pFac->SetNodeCreator( "Invert[float]", new TVdfnDefaultNodeCreate<TVdfnInvertNode<bool> >);
+	pFac->SetNodeCreator( "Invert[double]", new TVdfnDefaultNodeCreate<TVdfnInvertNode<bool> >);
+
+	pFac->SetNodeCreator( "Negate[int]", new TVdfnDefaultNodeCreate<TVdfnNegateNode<int> >);
+	pFac->SetNodeCreator( "Negate[VistaVector3D]", new TVdfnDefaultNodeCreate<TVdfnNegateNode<VistaVector3D> >);
+	pFac->SetNodeCreator( "Negate[float]", new TVdfnDefaultNodeCreate<TVdfnNegateNode<float> >);
+	pFac->SetNodeCreator( "Negate[double]", new TVdfnDefaultNodeCreate<TVdfnNegateNode<double> >);
+
+	pFac->SetNodeCreator( "RangeCheck[int]", new TVdfnRangeCheckNodeCreate<int> );
+	pFac->SetNodeCreator( "RangeCheck[unsigned int]", new TVdfnRangeCheckNodeCreate<unsigned int> );
+	pFac->SetNodeCreator( "RangeCheck[float]", new TVdfnRangeCheckNodeCreate<float> );
+	pFac->SetNodeCreator( "RangeCheck[double]", new TVdfnRangeCheckNodeCreate<double> );
 
 	pFac->SetNodeCreator( "Delay[VistaVector3D]", new VdfnDelayNodeCreate<VistaVector3D> );
 
+	pFac->SetNodeCreator( "Multiplex[int]", new TVdfnDefaultNodeCreate<TVdfnMultiplexNode<int> > );
+	pFac->SetNodeCreator( "Multiplex[unsigned int]", new TVdfnDefaultNodeCreate<TVdfnMultiplexNode<unsigned int> > );
+	pFac->SetNodeCreator( "Multiplex[bool]", new TVdfnDefaultNodeCreate<TVdfnMultiplexNode<bool> > );
+	pFac->SetNodeCreator( "Multiplex[float]", new TVdfnDefaultNodeCreate<TVdfnMultiplexNode<float> > );
+	pFac->SetNodeCreator( "Multiplex[double]", new TVdfnDefaultNodeCreate<TVdfnMultiplexNode<double> > );
+	pFac->SetNodeCreator( "Multiplex[VistaVector3D]", new TVdfnDefaultNodeCreate<TVdfnMultiplexNode<VistaVector3D> > );
+	pFac->SetNodeCreator( "Multiplex[VistaQuaternion]", new TVdfnDefaultNodeCreate<TVdfnMultiplexNode<VistaQuaternion> > );
+	pFac->SetNodeCreator( "Multiplex[VistaTransformMatrix]", new TVdfnDefaultNodeCreate<TVdfnMultiplexNode<VistaTransformMatrix> > );
+	pFac->SetNodeCreator( "Multiplex[string]", new TVdfnDefaultNodeCreate<TVdfnMultiplexNode<std::string> > );
+
+	pFac->SetNodeCreator( "Demultiplex[int]", new TVdfnDemultiplexNodeCreate<int> );
+	pFac->SetNodeCreator( "Demultiplex[unsigned int]", new TVdfnDemultiplexNodeCreate<unsigned int> );
+	pFac->SetNodeCreator( "Demultiplex[bool]", new TVdfnDemultiplexNodeCreate<bool> );
+	pFac->SetNodeCreator( "Demultiplex[float]", new TVdfnDemultiplexNodeCreate<float> );
+	pFac->SetNodeCreator( "Demultiplex[double]", new TVdfnDemultiplexNodeCreate<double> );
+	pFac->SetNodeCreator( "Demultiplex[VistaVector3D]", new TVdfnDemultiplexNodeCreate<VistaVector3D> );
+	pFac->SetNodeCreator( "Demultiplex[VistaQuaternion]", new TVdfnDemultiplexNodeCreate<VistaQuaternion> );
+	pFac->SetNodeCreator( "Demultiplex[VistaTransformMatrix]", new TVdfnDemultiplexNodeCreate<VistaTransformMatrix> );
+	pFac->SetNodeCreator( "Demultiplex[string]", new TVdfnDemultiplexNodeCreate<std::string> );
 	return true;
 }
 

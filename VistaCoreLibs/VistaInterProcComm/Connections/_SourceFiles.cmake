@@ -20,6 +20,8 @@ set( DirFiles
 	VistaConnectionFileTimed.h
 	VistaConnectionIP.cpp
 	VistaConnectionIP.h
+	VistaConnectionNamedPipe.cpp
+	VistaConnectionNamedPipe.h
 	VistaConnectionPipe.cpp
 	VistaConnectionPipe.h
 	VistaConnectionSerial.cpp
@@ -30,8 +32,6 @@ set( DirFiles
 	VistaMsg.h
 	VistaMsgChannel.cpp
 	VistaMsgChannel.h
-	VistaNetworkSync.cpp
-	VistaNetworkSync.h
 	VistaProgressMessage.cpp
 	VistaProgressMessage.h
 	_SourceFiles.cmake

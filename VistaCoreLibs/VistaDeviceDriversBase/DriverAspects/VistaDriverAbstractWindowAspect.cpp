@@ -109,9 +109,12 @@ std::list<VistaDriverAbstractWindowAspect::WindowHandle> VistaDriverAbstractWind
 
 ///////////////////////////////////////////////////////////////////////////
 
-VistaDriverAbstractWindowAspect::WindowHandle::WindowHandle( int iWindowID, OSHANDLE pHandle )
+VistaDriverAbstractWindowAspect::WindowHandle::WindowHandle( int iWindowID,
+															OSHANDLE pHandle,
+															VistaWindow* pWindow )
 : m_iID( iWindowID )
 , m_pHandle( pHandle )
+, m_pWindow( pWindow )
 {
 }
 
@@ -123,6 +126,11 @@ VistaDriverAbstractWindowAspect::WindowHandle::OSHANDLE VistaDriverAbstractWindo
 int VistaDriverAbstractWindowAspect::WindowHandle::GetID() const
 {
 	return m_iID;
+}
+
+VistaWindow* VistaDriverAbstractWindowAspect::WindowHandle::GetWindow() const
+{
+	return m_pWindow;
 }
 
 

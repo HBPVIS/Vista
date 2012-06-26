@@ -225,6 +225,18 @@ int VistaCSVDeSerializer::ReadDelimitedString(string &sIn, char cDelim)
 }
 
 
+int VistaCSVDeSerializer::ReadEncodedString( std::string& sString )
+{
+	VistaType::sint32 nSize;
+	int nRet = ReadInt32( nSize );
+	if( nRet != sizeof(VistaType::sint32 ) )
+		return -1;
+	nRet += ReadString( sString, nSize );
+	return nRet;
+}
+
+
+
 int VistaCSVDeSerializer::ReadRawBuffer(void *pBuffer, int iLen)
 {
 	if (iLen>0)

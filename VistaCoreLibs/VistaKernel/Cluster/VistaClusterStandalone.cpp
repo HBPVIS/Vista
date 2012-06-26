@@ -26,7 +26,9 @@
 #include "VistaClusterStandalone.h"
 
 #include <VistaKernel/Cluster/VistaStandaloneDataTunnel.h>
-#include <VistaKernel/Cluster/VistaStandaloneNetworkSync.h>
+#include <VistaInterProcComm/Cluster/Imps/VistaDummyClusterBarrier.h>
+#include <VistaInterProcComm/Cluster/Imps/VistaDummyClusterDataSync.h>
+#include <VistaInterProcComm/Cluster/Imps/VistaDummyClusterDataCollect.h>
 
 #include <VistaBase/VistaTimeUtils.h>
 
@@ -40,6 +42,8 @@
 /*============================================================================*/
 VistaClusterStandalone::VistaClusterStandalone()
 : VistaClusterMode()
+, m_pDefaultDataSync( NULL )
+, m_pDefaultBarrier( NULL )
 {
 }
 
@@ -170,15 +174,39 @@ IVistaDataTunnel* VistaClusterStandalone::CreateDataTunnel( IDLVistaDataPacket* 
 {
 	return new VistaStandaloneDataTunnel;
 }
-IVistaNetworkSync* VistaClusterStandalone::CreateNetworkSync(
-								bool bUseExistingConnections )
-{
-	return new VistaStandaloneNetworkSync;
-}
 
 void VistaClusterStandalone::Debug( std::ostream& oStream ) const
 {
 	oStream << "VistaClusterMode: STANDALONE" << std::endl;
+}
+
+IVistaClusterDataSync* VistaClusterStandalone::CreateDataSync()
+{
+	return new VistaDummyClusterDataSync;
+}
+
+IVistaClusterDataSync* VistaClusterStandalone::GetDefaultDataSync()
+{
+	if( m_pDefaultDataSync == NULL )
+		m_pDefaultDataSync = new VistaDummyClusterDataSync;
+	return m_pDefaultDataSync;
+}
+
+IVistaClusterBarrier* VistaClusterStandalone::CreateBarrier()
+{
+	return new VistaDummyClusterBarrier;
+}
+
+IVistaClusterBarrier* VistaClusterStandalone::GetDefaultBarrier()
+{
+	if( m_pDefaultBarrier == NULL )
+		m_pDefaultBarrier = new VistaDummyClusterBarrier;
+	return m_pDefaultBarrier;
+}
+
+IVistaClusterDataCollect* VistaClusterStandalone::CreateDataCollect()
+{
+	return new VistaDummyClusterDataCollect;
 }
 
 /*============================================================================*/

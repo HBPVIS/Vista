@@ -76,6 +76,7 @@ public:
 public:
 	VdfnThresholdNode( const T& m_oThresholdValue,
 						const bool bTestAbsoluteValue,
+						const bool bSubtractThreshold,
 						const int iMode )
 	: m_oThresholdValue( m_oThresholdValue )
 	, m_pIn(NULL)
@@ -83,6 +84,7 @@ public:
 	, m_pOut( new TVdfnPort<T> )
 	, m_iMode( iMode )
 	, m_bTestAbsoluteValue( bTestAbsoluteValue )
+	, m_bSubtractThreshold( bSubtractThreshold )
 	{
 		RegisterInPortPrototype( "in", 
 			new TVdfnPortTypeCompare<TVdfnPort<T> > );
@@ -117,7 +119,10 @@ protected:
 		
 		if( oValue >= m_oThresholdValue )		
 		{
-			m_pOut->SetValue( oValue, GetUpdateTimeStamp() );			
+			if( m_bSubtractThreshold )
+				m_pOut->SetValue( oValue, GetUpdateTimeStamp() - m_oThresholdValue );
+			else
+				m_pOut->SetValue( oValue, GetUpdateTimeStamp() );
 		}
 		// this second line may look a little strange, but is necessary for unsigned
 		// types: for them, y=-x is greater than zero, which may lead to wrong results.
@@ -129,7 +134,10 @@ protected:
 #endif
 		else if( m_bTestAbsoluteValue && -oValue >= m_oThresholdValue && oValue < T(0) )
 		{
-			m_pOut->SetValue( oValue, GetUpdateTimeStamp() );			
+			if( m_bSubtractThreshold )
+				m_pOut->SetValue( oValue, GetUpdateTimeStamp() + m_oThresholdValue );
+			else
+				m_pOut->SetValue( oValue, GetUpdateTimeStamp() );	
 		}
 #ifdef WIN32
 #pragma warning( push )
@@ -159,6 +167,7 @@ protected:
 
 private:
 	T					m_oThresholdValue;
+	T					m_bSubtractThreshold;
 	bool				m_bTestAbsoluteValue;
 	int					m_iMode;
 

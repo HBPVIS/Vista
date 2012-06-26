@@ -55,6 +55,7 @@
  *
  * @inport{translation,VistaVector3D,semi-mandatory,translation to be applied}
  * @inport{rotation,VistaQuaternion,semi-mandatory,rotation to be applied}
+ * @inport{pivot,VistaTransformMatrix,optional,center of rotation}
  * @inport{dt,double,mandatory,time delta to last evaluation}
  * @inport{transform,VistaTransformMatrix,optional,original matrix to be transformed}
  * @inport{navigation_mode,int,optional,navigation mode (0, 1, 2}
@@ -92,7 +93,11 @@ class VISTAKERNELAPI VistaDfnNavigationNode : public IVdfnNode
 public:
 	VistaDfnNavigationNode( const int iDefaultNavigationMode = 0,
 							const float fDefaultLinearVelocity = 1.0f,
-							const float fDefaultAngularVelocity = 3.14159f );
+							const float fDefaultAngularVelocity = 3.14159f,
+							const float fLinearAcceleration = 0,
+							const float fLinearDecceleration = 0,
+							const float fAngularAcceleration = 0,
+							const float fAngularDecceleration = 0 );
 	virtual ~VistaDfnNavigationNode();
 
 	virtual bool PrepareEvaluationRun();
@@ -104,8 +109,9 @@ protected:
 	 * Translates matTransform with the offset given by the translation
 	 * inport.
 	 */
-	void ApplyTranslation( const float fLinearVelocity,
-						   VistaTransformMatrix& matTransform );
+	void ApplyTranslation( VistaTransformMatrix& matTransform );
+
+	void UpdateVelocities();
 
 	/**
 	 * Helper functions that take the matrix matTransform and rotate it
@@ -114,26 +120,32 @@ protected:
 	 * matrix. The rotation is constraint differently in
 	 * the different functions.
 	 */
-	void ApplyRotationFull( const float fAngularVelocity,
-							VistaTransformMatrix& matTransform );
-	void ApplyRotationYawOnly( const float fAngularVelocity,
-							VistaTransformMatrix& matTransform );
-	void ApplyRotationNoRoll( const float fAngularVelocity,
-							VistaTransformMatrix& matTransform );
+	void ApplyRotationFull( VistaTransformMatrix& matTransform );
+	void ApplyRotationYawOnly( VistaTransformMatrix& matTransform );
+	void ApplyRotationNoRoll( VistaTransformMatrix& matTransform );
 
 private:
-	TVdfnPort<VistaTransformMatrix> *m_pTransform,
-									 *m_pOut;
+	TVdfnPort<VistaTransformMatrix>*	m_pTransform;
+	TVdfnPort<VistaTransformMatrix>*	m_pOut;
 	TVdfnPort<VistaVector3D>*		m_pTranslation;
 	TVdfnPort<double>*				m_pDeltaTime;
-	TVdfnPort<VistaQuaternion>*	m_pRotation;
+	TVdfnPort<VistaQuaternion>*		m_pRotation;
+	TVdfnPort<VistaVector3D>*		m_pRotationPivot;
 	TVdfnPort<int>*					m_pNavigationMode;
 	TVdfnPort<float>*				m_pLinearVelocity;
 	TVdfnPort<float>*				m_pAngularVelocity;
 
-	float				m_fDefaultAngularVelocity;
-	float				m_fDefaultLinearVelocity;
-	int					m_iDefaultNavigationMode;
+	float				m_fTargetAngularVelocity;
+	float				m_fCurrentAngularVelocity;
+	float				m_fAngularAcceleration;
+	float				m_fAngularDecceleration;
+	float				m_fTargetLinearVelocity;
+	float				m_fCurrentLinearVelocity;
+	float				m_fLinearAcceleration;
+	float				m_fLinearDecceleration;
+	int					m_iNavigationMode;
+
+	float				m_fDeltaTime;
 
 	// saves the revision of the delta-time inport from the last evaluation
 	// to see if the time-delta has really been updated.

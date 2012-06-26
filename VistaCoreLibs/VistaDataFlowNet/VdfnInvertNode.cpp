@@ -36,9 +36,16 @@
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
 template<> VISTADFNAPI
-bool TVdfnInvertNode<VistaVector3D>::DoEvalNode()
+bool TVdfnInvertNode<float>::DoEvalNode()
 {
-	m_pOut->SetValue( -m_pIn->GetValue(), GetUpdateTimeStamp() );
+	m_pOut->SetValue( 1.0f / m_pIn->GetValue(), GetUpdateTimeStamp() );
+	return true;
+}
+
+template<> VISTADFNAPI
+bool TVdfnInvertNode<double>::DoEvalNode()
+{
+	m_pOut->SetValue( 1.0 / m_pIn->GetValue(), GetUpdateTimeStamp() );
 	return true;
 }
 

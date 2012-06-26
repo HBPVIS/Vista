@@ -25,18 +25,22 @@
 #include "VistaSystemCommands.h"
 
 #include <VistaKernel/VistaSystem.h>
-#include <VistaKernel/VistaFrameLoop.h>
+#include <VistaKernel/Stuff/VistaFramerateDisplay.h>
 #include <VistaKernel/DisplayManager/VistaDisplayManager.h>
 #include <VistaKernel/DisplayManager/VistaDisplaySystem.h>
 #include <VistaKernel/DisplayManager/VistaDisplayBridge.h>
 #include <VistaKernel/DisplayManager/VistaWindow.h>
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
+#include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 #include <VistaKernel/EventManager/VistaEventManager.h>
 #include <VistaKernel/EventManager/VistaSystemEvent.h>
 #include <VistaKernel/Stuff/VistaKernelProfiling.h>
+#include <VistaKernel/Stuff/VistaEyeTester.h>
 #include <VistaKernel/InteractionManager/VistaKeyboardSystemControl.h>
 #include <VistaKernel/InteractionManager/VistaInteractionManager.h>
 #include <VistaKernel/InteractionManager/VistaInteractionContext.h>
+#include <VistaKernel/InteractionManager/VistaUserPlatform.h>
 #include <VistaKernel/Cluster/VistaClusterMode.h>
 
 #include <VistaDataFlowNet/VdfnPersistence.h>
@@ -80,14 +84,14 @@ bool VistaQuitCommand::Do()
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-VistaToggleFramerateCommand::VistaToggleFramerateCommand( VistaFrameLoop* pLoop )
-: m_pLoop( pLoop )
+VistaToggleFramerateCommand::VistaToggleFramerateCommand( VistaFramerateDisplay* pFramerateDisplay )
+: m_pFramerateDisplay( pFramerateDisplay )
 {
 }
 
 bool VistaToggleFramerateCommand::Do()
 {
-	m_pLoop->SetFrameRateDisplayEnabled( !m_pLoop->GetFrameRateDisplayEnabled() );
+	m_pFramerateDisplay->SetIsEnabled( !m_pFramerateDisplay->GetIsEnabled() );
 	return true;
 }
 
@@ -297,3 +301,75 @@ bool VistaToggleVSyncCommand::Do()
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/
 
+
+VistaToggleFullscreenCommand::VistaToggleFullscreenCommand( VistaDisplayManager* pDisplayManager )
+: IVistaExplicitCallbackInterface()
+, m_pDisplayManager( pDisplayManager )
+{
+}
+
+bool VistaToggleFullscreenCommand::Do()
+{
+	const std::map<std::string, VistaWindow*>& m_mapWindows = m_pDisplayManager->GetWindowsConstRef();
+	if( m_mapWindows.empty() )
+		return false;
+
+	bool bMode = !(*m_mapWindows.begin()).second->GetWindowProperties()->GetFullScreen();
+	for( std::map<std::string, VistaWindow*>::const_iterator itWin = m_mapWindows.begin();
+				itWin != m_mapWindows.end(); ++itWin )
+	{
+		if( (*itWin).second->GetWindowProperties()->SetFullScreen( bMode ) )
+		{
+			std::cout << "Fullscreen [" << ( bMode ? "Enabled" : "Disabled" )
+						<< "] for Window [" << (*itWin).second->GetNameForNameable()
+						<< "]" << std::endl;
+		}
+		else
+		{
+			vstr::warnp() << "Setting Fullscreen FAILED for Window ["
+					<< (*itWin).second->GetNameForNameable() << "]" << std::endl;
+		}
+	}
+	return true;
+}
+
+/*============================================================================*/
+/* LOCAL VARS AND FUNCS                                                       */
+/*============================================================================*/
+
+
+VistaToggleEyeTesterCommand::VistaToggleEyeTesterCommand( VistaSystem* pSystem )
+: m_pTester( NULL )
+, m_pSystem( pSystem )
+{	
+}
+
+VistaToggleEyeTesterCommand::~VistaToggleEyeTesterCommand()
+{
+	delete m_pTester;
+}
+
+bool VistaToggleEyeTesterCommand::Do()
+{
+	if( m_pTester )
+	{
+		delete m_pTester;
+		m_pTester = NULL;
+	}
+	else
+	{
+		if( m_pSystem->GetDisplayManager()->GetNumberOfDisplaySystems() > 0 )
+		{
+			VistaTransformNode* pNode = m_pSystem->GetPlatformFor( 
+								m_pSystem->GetDisplayManager()->GetDisplaySystem( 0 ) )->GetPlatformUserNode();
+			m_pTester = new VistaEyeTester( pNode, m_pSystem->GetGraphicsManager()->GetSceneGraph() );
+		}
+		else
+		{
+			vstr::warnp() << "[VistaToggleEyeTesterCommand]: "
+						<< "Cannot enable Eyetest - no Dispaly System available" << std::endl;
+			return false;
+		}		
+	}
+	return true;
+}

@@ -98,6 +98,8 @@ set( DirFiles
 	VdfnTimerNode.h
 	VdfnTypeConvertNode.cpp
 	VdfnTypeConvertNode.h
+	VdfnToggleNode.cpp
+	VdfnToggleNode.h
 	VdfnUpdateThresholdNode.cpp
 	VdfnUpdateThresholdNode.h
 	VdfnUtil.cpp
@@ -106,6 +108,15 @@ set( DirFiles
 	VdfnValueToTriggerNode.h
 	VdfnVectorDecomposeNode.cpp
 	VdfnVectorDecomposeNode.h
+	VdfnNegateNode.cpp
+	VdfnNegateNode.h
+	VdfnRangeCheckNode.cpp
+	VdfnRangeCheckNode.h
+	VdfnMultiplexNode.cpp
+	VdfnMultiplexNode.h
+	VdfnDemultiplexNode.cpp
+	VdfnDemultiplexNode.h
+	
 	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )

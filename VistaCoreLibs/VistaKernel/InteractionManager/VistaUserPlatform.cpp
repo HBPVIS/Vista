@@ -257,9 +257,18 @@ VistaUserPlatform::~VistaUserPlatform()
 			m_pUserNode->DisconnectChild(n); // disconnect to prevent deletion
 											 // as this might be user nodes
 		}
+		delete m_pUserNode;
 	}
+
 	if(m_pPlatformNode)
-		m_pSG->DeleteGroupNode(m_pPlatformNode, false);
+	{
+		for(unsigned int n=0; n < m_pPlatformNode->GetNumChildren(); ++n)
+		{
+			m_pPlatformNode->DisconnectChild(n); // disconnect to prevent deletion
+											 // as this might be user nodes
+		}
+		delete m_pPlatformNode;
+	}
 }
 
 

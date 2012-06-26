@@ -69,7 +69,7 @@ public:
 
 protected:
 	~VistaDefaultTimerImp();
-private:
+protected:
 #ifdef WIN32
 	mutable VistaType::microstamp		m_nInitialStamp;
 	mutable VistaType::microstamp		m_nLastStamp;	
@@ -77,9 +77,9 @@ private:
 	VistaType::microtime				m_nFrequencyDenom;
 	VistaType::microtime				m_nInitialSystemTime;
 #elif defined DARWIN
-	mach_timebase_info_data_t       m_sTimebaseInfo;
+	mach_timebase_info_data_t			m_sTimebaseInfo;
 #else
-	long					m_nInitialSecs;
+	double								m_nInitialTime;
 #endif
 };
 

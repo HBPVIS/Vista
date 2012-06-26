@@ -358,7 +358,8 @@ void VistaKeyboardSystemControl::SetDirectKeySink(IVistaDirectKeySink *pSink)
 
 std::string VistaKeyboardSystemControl::GetKeyName( const int nKeyCode )
 {
-	switch( nKeyCode )
+	int nActual = abs( nKeyCode );
+	switch( nActual )
 	{
 		case VISTA_KEY_UPARROW:
 			return "UP";
@@ -413,7 +414,7 @@ std::string VistaKeyboardSystemControl::GetKeyName( const int nKeyCode )
 		case VISTA_KEY_MIDDLE:
 			return "MID";
 		default:
-			return std::string( 1, (char)nKeyCode );
+			return std::string( 1, (char)nActual );
 	}
 }
 
@@ -449,6 +450,103 @@ std::string VistaKeyboardSystemControl::GetModifiersName( const int nModifiers )
 	return sReturn;
 }
 
+int VistaKeyboardSystemControl::GetKeyValueFromString( const std::string& sKeyString )
+{
+	if( sKeyString.size() == 1 )
+	{
+		// just one entry - use this
+		return sKeyString[0];
+	}
+
+	if( sKeyString == "VISTA_KEY_UPARROW" || sKeyString == "UP" )
+		return VISTA_KEY_UPARROW;
+	else if( sKeyString == "VISTA_KEY_DOWNARROW" || sKeyString == "DOWN" )
+		return VISTA_KEY_DOWNARROW;
+	else if( sKeyString == "VISTA_KEY_RIGHTARROW" || sKeyString == "RIGHT" )
+		return VISTA_KEY_RIGHTARROW;
+	else if( sKeyString == "VISTA_KEY_LEFTARROW" || sKeyString == "ESC" )
+		return VISTA_KEY_LEFTARROW;
+	else if( sKeyString == "VISTA_KEY_ESC" || sKeyString == "ESC" )
+		return VISTA_KEY_ESC;
+	else if( sKeyString == "VISTA_KEY_F1" || sKeyString == "F1" )
+		return VISTA_KEY_F1;
+	else if( sKeyString == "VISTA_KEY_F2" || sKeyString == "F2" )
+		return VISTA_KEY_F2;
+	else if( sKeyString == "VISTA_KEY_F3" || sKeyString == "F3" )
+		return VISTA_KEY_F3;
+	else if( sKeyString == "VISTA_KEY_F4" || sKeyString == "F4" )
+		return VISTA_KEY_F4;
+	else if( sKeyString == "VISTA_KEY_F5" || sKeyString == "F5" )
+		return VISTA_KEY_F5;
+	else if( sKeyString == "VISTA_KEY_F6" || sKeyString == "F6" )
+		return VISTA_KEY_F6;
+	else if( sKeyString == "VISTA_KEY_F7" || sKeyString == "F7" )
+		return VISTA_KEY_F7;
+	else if( sKeyString == "VISTA_KEY_F8" || sKeyString == "F8" )
+		return VISTA_KEY_F8;
+	else if( sKeyString == "VISTA_KEY_F9" || sKeyString == "F9" )
+		return VISTA_KEY_F9;
+	else if( sKeyString == "VISTA_KEY_F10" || sKeyString == "F10" )
+		return VISTA_KEY_F10;
+	else if( sKeyString == "VISTA_KEY_F11" || sKeyString == "F11" )
+		return VISTA_KEY_F11;
+	else if( sKeyString == "VISTA_KEY_F12" || sKeyString == "F12" )
+		return VISTA_KEY_F12;
+	else if( sKeyString == "VISTA_KEY_ENTER" || sKeyString == "ENTER" )
+		return VISTA_KEY_ENTER;
+	else if( sKeyString == "VISTA_KEY_TAB" || sKeyString == "TAB" || sKeyString == "TABULATOR" )
+		return VISTA_KEY_TAB;
+	else if( sKeyString == "VISTA_KEY_BACKSPACE" || sKeyString == "BACK" || sKeyString == "BACKSPACE" )
+		return VISTA_KEY_BACKSPACE;
+	else if( sKeyString == "VISTA_KEY_DELETE" || sKeyString == "DEL" || sKeyString == "DELETE" )
+		return VISTA_KEY_DELETE;
+	else if( sKeyString == "VISTA_KEY_HOME" || sKeyString == "HOME" || sKeyString == "POS1" )
+		return VISTA_KEY_HOME;
+	else if( sKeyString == "VISTA_KEY_END" || sKeyString == "END" )
+		return VISTA_KEY_END;
+	else if( sKeyString == "VISTA_KEY_PAGEUP" || sKeyString == "PG_UP" || sKeyString == "PAGE_UP" || sKeyString == "PAGEUP" )
+		return VISTA_KEY_PAGEUP;
+	else if( sKeyString == "VISTA_KEY_PAGEDOWN" || sKeyString == "PG_DN" || sKeyString == "PAGE_DOWN" || sKeyString == "PAGEUP" )
+		return VISTA_KEY_PAGEDOWN;
+	else if( sKeyString == "VISTA_KEY_MIDDLE" || sKeyString == "MID" || sKeyString == "MIDDLE" )
+		return VISTA_KEY_MIDDLE;
+
+	return -1;
+}
+
+int VistaKeyboardSystemControl::GetModifiersValueFromString( const std::string& sModString )
+{
+	std::size_t nStart = 0;
+	std::size_t nEnd;
+	int nModifier = 0;
+	std::string sSubString;
+
+	for( ;; )
+	{
+		nEnd = sModString.find( '+', nStart );
+		if( nEnd == std::string::npos )
+			sSubString = sModString.substr( nStart );
+		else
+			sSubString = sModString.substr( nStart, nEnd - nStart );
+
+		if( sSubString == "CTRL" || sSubString == "CONTROL" )
+			nModifier |= VISTA_KEYMOD_CTRL;
+		else if( sSubString == "SHIFT" )
+			nModifier |= VISTA_KEYMOD_SHIFT;
+		else if( sSubString == "ALT" )
+			nModifier |= VISTA_KEYMOD_ALT;		
+		else
+			return -1; // invalid
+
+		if( nEnd == std::string::npos )
+			break;
+		
+		nStart = nEnd + 1;
+
+	}
+	return nModifier;
+}
+
 std::string VistaKeyboardSystemControl::GetKeyBindingTableString() const
 {
 	std::stringstream oStream;
@@ -480,6 +578,7 @@ std::string VistaKeyboardSystemControl::GetKeyBindingTableString() const
 	oStream << "------------------------------------------------------------------------\n";
 	return oStream.str();
 }
+
 
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */

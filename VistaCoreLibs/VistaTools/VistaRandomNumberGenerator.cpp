@@ -47,7 +47,15 @@ static const unsigned int  LOWER_MASK = 0x7fffffff;
 /*  IMPLEMENTATION                                                            */
 /*============================================================================*/
 
-VistaRandomNumberGenerator *VistaRandomNumberGenerator::s_pSingleton = 0;
+// 
+VistaRandomNumberGenerator* S_pStandardRNG = NULL;
+
+// thread-local storage
+#ifdef WIN32
+	__declspec(thread) VistaRandomNumberGenerator* S_pThreadInstance = NULL;
+#else
+	__thread VistaRandomNumberGenerator* S_pThreadInstance = NULL;
+#endif
 
 VistaRandomNumberGenerator::VistaRandomNumberGenerator()
 {
@@ -61,14 +69,25 @@ VistaRandomNumberGenerator::~VistaRandomNumberGenerator()
 	delete[] m_mt;
 }
 
-VistaRandomNumberGenerator *VistaRandomNumberGenerator::GetSingleton()
+VistaRandomNumberGenerator *VistaRandomNumberGenerator::GetStandardRNG()
 {
-	if(s_pSingleton == 0)
+	if( S_pStandardRNG == NULL )
 	{
-		s_pSingleton = new VistaRandomNumberGenerator;
+		S_pStandardRNG = new VistaRandomNumberGenerator;
 	}
 
-	return s_pSingleton;
+	return S_pStandardRNG;
+}
+
+
+VistaRandomNumberGenerator* VistaRandomNumberGenerator::GetThreadLocalRNG()
+{
+	if( S_pThreadInstance == NULL )
+	{
+		S_pThreadInstance = new VistaRandomNumberGenerator;
+	}
+
+	return S_pThreadInstance;
 }
 
 
@@ -206,6 +225,12 @@ double VistaRandomNumberGenerator::GenerateGaussian( double dMean, double dStdDe
 {
 	return dMean + dStdDev * GenerateGaussian();
 }
+
+VistaRandomNumberGenerator* VistaRandomNumberGenerator::GetSingleton()
+{
+	return GetStandardRNG();
+}
+
 
 /*============================================================================*/
 /*  LOCAL VARS / FUNCTIONS                                                    */

@@ -65,6 +65,29 @@ public:
 	virtual bool SendEnableString(VistaConnection *pCon) const = 0;
 	virtual bool SendDisableString(VistaConnection *pCon) const = 0;
 	virtual bool SendStatusString(VistaConnection *pCon, bool &bIdle) const = 0;
+
+protected:
+	bool PrepareConnection( VistaConnection* pCon ) const
+	{
+		// ensure that the connection is open
+		return ( pCon->GetIsOpen() || pCon->Open() );
+	}
+
+	void FinalizeConnection( VistaConnection* pCon ) const
+	{
+		// if this is a tcp connection, we have to close it
+		// to prevent the DTrack server from locking up when the
+		// driver is not properly exited
+		VistaConnectionIP* pIPConn = dynamic_cast<VistaConnectionIP*>( pCon );
+		if( pIPConn == NULL || pIPConn->GetProtocol() != VistaConnectionIP::CT_TCP )
+			return; // nothing to do
+		pIPConn->WaitForSendFinish();
+		
+		// wait a bit just for the sake of it
+		VistaTimeUtils::Sleep(100);
+		
+		pIPConn->Close();
+	}
 };
 
 class VistaDTrack1Protocol : public IVistaDTrackProtocol
@@ -72,43 +95,81 @@ class VistaDTrack1Protocol : public IVistaDTrackProtocol
 public:
 	virtual bool SendAttachString(VistaConnection *pCon) const
 	{
-		pCon->WriteRawBuffer("dtrack 10 3\0",13);
-		VistaTimeUtils::Sleep(100);
+		if( PrepareConnection( pCon ) == false )
+			return false;
 
+		if( pCon->WriteRawBuffer( "dtrack 10 3\0", 13 ) != 13 )
+		{
+			vstr::warnp() << "[VistaDTrackDriver]: Sending attach string failed"
+							<< std::endl;
+			pCon->Close();
+			return false;
+		}
+
+		FinalizeConnection( pCon );
 		return true;
 	}
 
 	virtual bool SendDetachString(VistaConnection *pCon) const
-	{
-			// stop tracking data output
-		pCon->WriteRawBuffer("dtrack 32\0",11);
+	{		
+		if( PrepareConnection( pCon ) == false )
+			return false;
+
+		// stop tracking data output
+		if( pCon->WriteRawBuffer("dtrack 32\0",11) != 11 )
+		{
+			vstr::warnp() << "[VistaDTrackDriver]: Sending detach string failed"
+							<< std::endl;
+			pCon->Close();
+			return false;
+		}
 		pCon->WaitForSendFinish();
 
 		// stop measurement
-		pCon->WriteRawBuffer("dtrack 10 0\0",13);
+		if( pCon->WriteRawBuffer("dtrack 10 0\0",13) != 13 )
+		{
+			vstr::warnp() << "[VistaDTrackDriver]: Sending deatach string failed"
+							<< std::endl;
+			pCon->Close();
+			return false;
+		}
 		pCon->WaitForSendFinish();
 
-		// wait a bit just for the sake of it
-		VistaTimeUtils::Sleep(100);
-
+		FinalizeConnection( pCon );
 		return true;
 	}
 
 	virtual bool SendEnableString(VistaConnection *pCon) const
 	{
-		if(pCon->WriteRawBuffer("dtrack 31\0", 10)==10)
+		if( PrepareConnection( pCon ) == false )
+			return false;
+
+		if( pCon->WriteRawBuffer("dtrack 31\0", 10) != 10 )
 		{
-			VistaTimeUtils::Sleep(100);
-			return true;
+			vstr::warnp() << "[VistaDTrackDriver]: Sending enable string failed"
+							<< std::endl;
+			pCon->Close();
+			return false;
 		}
-		return false;
+
+		FinalizeConnection( pCon );
+		return true;
 	}
 
 	virtual bool SendDisableString(VistaConnection *pCon) const
 	{
-		if( pCon->WriteRawBuffer("dtrack 32\0", 10)==10 == false )
+		if( PrepareConnection( pCon ) == false )
 			return false;
-		VistaTimeUtils::Sleep(100);
+
+		if( pCon->WriteRawBuffer("dtrack 32\0", 10) != 10 )
+		{
+			vstr::warnp() << "[VistaDTrackDriver]: Sending disable string failed"
+							<< std::endl;
+			pCon->Close();
+			return false;
+		}
+		
+		FinalizeConnection( pCon );
 		return true;
 	}
 
@@ -124,37 +185,78 @@ class VistaDTrack2Protocol : public IVistaDTrackProtocol
 public:
 	virtual bool SendAttachString(VistaConnection *pCon) const
 	{
-		return (pCon->WriteRawBuffer("dtrack2 init\0", 13) == 13);
+		if( PrepareConnection( pCon ) == false )
+			return false;
+
+		if( pCon->WriteRawBuffer("dtrack2 init\0", 13) != 13 )
+		{
+			vstr::warnp() << "[VistaDTrackDriver]: Sending attach string failed"
+							<< std::endl;
+			pCon->Close();
+			return false;
+		}
+		
+		FinalizeConnection( pCon );
+		return true;
 	}
 
 	virtual bool SendDetachString(VistaConnection *pCon) const
 	{
-		if( SendDisableString(pCon) )
-			pCon->WaitForSendFinish(); // no information given
-		return true;
+		return SendDisableString( pCon );
 	}
 
 	virtual bool SendEnableString(VistaConnection *pCon) const
 	{
-		return (pCon->WriteRawBuffer("dtrack2 tracking start\0", 23) == 23);
+		if( PrepareConnection( pCon ) == false )
+			return false;
+
+		if( pCon->WriteRawBuffer("dtrack2 tracking start\0", 23) != 23 )
+		{
+			vstr::warnp() << "[VistaDTrackDriver]: Sending enable string failed"
+							<< std::endl;
+			pCon->Close();
+			return false;
+		}
+		
+		FinalizeConnection( pCon );
+		return true;
 	}
 
 	virtual bool SendDisableString(VistaConnection *pCon) const
 	{
-		return (pCon->WriteRawBuffer("dtrack2 tracking stop\0", 22) == 22);
+		if( PrepareConnection( pCon ) == false )
+			return false;
+
+		if( pCon->WriteRawBuffer("dtrack2 tracking stop\0", 22) != 22 )
+		{
+			vstr::warnp() << "[VistaDTrackDriver]: Sending disable string failed"
+							<< std::endl;
+			pCon->Close();
+			return false;
+		}
+		
+		FinalizeConnection( pCon );
+		return true;
 	}
 
 	virtual bool SendStatusString(VistaConnection *pCon, bool &bIdle) const
 	{
-		if(pCon->WriteRawBuffer( "dtrack2 get status active\0", 26) == 26)
-		{
-			std::string strAnswer;
-			pCon->ReadDelimitedString( strAnswer ); // read until 0x00 or failure
+		if( PrepareConnection( pCon ) == false )
+			return false;
 
-			// should evaluate the answer, how?
-			return true;
+		if( pCon->WriteRawBuffer( "dtrack2 get status active\0", 26) != 26 )
+		{
+			vstr::warnp() << "[VistaDTrackDriver]: Sending status string failed"
+							<< std::endl;
+			pCon->Close();
+			return false;
 		}
-		return false;
+		std::string strAnswer;
+		pCon->ReadDelimitedString( strAnswer ); // read until 0x00 or failure
+		// should evaluate the answer, how?
+		
+		FinalizeConnection( pCon );
+		return true;
 	}
 };
 
@@ -740,14 +842,12 @@ public:
 	virtual bool operator()(VistaConnection *pCon)
 	{
 		// nothing to do, we expect this connection to be open
-		if(!pCon->GetIsOpen())
-			return false;
-
 		if(m_bSendStopTracking)
 		{
 			m_pProtocol->GetProtocol()->SendDetachString(pCon);
 		}
-		pCon->Close();
+		if( pCon->GetIsOpen() )
+			pCon->Close();
 		return !pCon->GetIsOpen();
 	}
 

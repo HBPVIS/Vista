@@ -100,7 +100,11 @@ public:
 	virtual bool CreateNamedConnections( std::vector<std::pair<VistaConnectionIP*, std::string> >&
 															vecConnections );
 	virtual IVistaDataTunnel* CreateDataTunnel( IDLVistaDataPacket* pPacketProto );
-	virtual IVistaNetworkSync* CreateNetworkSync( bool bUseExistingConnections = false );
+	virtual IVistaClusterDataSync* CreateDataSync();
+	virtual IVistaClusterDataSync* GetDefaultDataSync();
+	virtual IVistaClusterBarrier* CreateBarrier();
+	virtual IVistaClusterBarrier* GetDefaultBarrier();
+	virtual IVistaClusterDataCollect* CreateDataCollect();
 
 	virtual void Debug( std::ostream& oStream ) const;
 
@@ -164,6 +168,9 @@ private:
 	std::vector<NodeInfo>		m_vecSlaveInfo;
 
 	std::list<std::pair<int,int> >	m_liFreePorts;
+
+	IVistaClusterDataSync*		m_pDefaultDataSync;
+	IVistaClusterBarrier*	m_pDefaultBarrier;
 };
 
 /*============================================================================*/

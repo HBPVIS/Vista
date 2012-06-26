@@ -27,6 +27,7 @@
 #include <VistaBase/VistaExceptionBase.h>
 #include <VistaBase/VistaStreamManager.h>
 #include <VistaBase/VistaStreamUtils.h>
+#include <VistaBase/VistaTimeUtils.h>
 
 #include <VistaAspects/VistaAspectsUtils.h>
 #include <VistaAspects/VistaPropertyList.h>
@@ -54,6 +55,7 @@
 
 namespace
 {
+
 #ifdef WIN32
 	// singletons for the Win console file handle, plus  areference count
 	HANDLE		m_hConsole = NULL;
@@ -310,18 +312,24 @@ const std::string S_aColorNames[] =
 class VistaColorOutstream::VistaColorOutstreamBuffer : public std::streambuf
 {
 public:
-	VistaColorOutstreamBuffer( const size_t iBufferSize )
+	VistaColorOutstreamBuffer( const size_t iBufferSize,
+								const bool bUseErrorStream )
 	: std::streambuf()
 	, m_iTextColor( VistaColorOutstream::CC_DEFAULT )
 	, m_iBackgroundColor( VistaColorOutstream::CC_DEFAULT )
 	, m_vecBuffer( iBufferSize )
 	, m_iReferenceCount( 1 )
+	, m_pConsoleStream( NULL )
 	{
 		char* pBase = &m_vecBuffer.front();
 		setp( pBase, pBase + m_vecBuffer.size() - 1 );
 
+		if( bUseErrorStream )
+			m_pConsoleStream = &std::cerr;
+		else
+			m_pConsoleStream = &std::cout;
+
 #ifdef WIN32
-		//m_hConsole = GetStdHandle( STD_OUTPUT_HANDLE );
 		if( m_ConsoleRefCount == 0 )
 		{
 			m_hConsole = CreateFile( "CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_WRITE,
@@ -429,10 +437,10 @@ protected:
 
 		LPDWORD oReturnChars = 0;
 
-		// WindowsXP problems with directly writing to the console, so we just use std::cout instead
+		// WindowsXP has problems with directly writing to the console, so we just use the stream instead
 		if( IsWinXPOrEarlier() )
 		{
-			std::cout.write( &m_vecBuffer[0], n );			
+			m_pConsoleStream->write( &m_vecBuffer[0], n );			
 		}
 		else
 		{
@@ -454,32 +462,36 @@ protected:
 
 		//ConsoleLock oLock;
 		
-		std::cout.write( m_sTag.c_str(), m_sTag.size() );
-		std::cout.write( &m_vecBuffer[0], n );
-		std::cout.write( sStdColorTag.c_str(), sStdColorTag.size() );
-		std::cout.flush();
+		m_pConsoleStream->write( m_sTag.c_str(), m_sTag.size() );
+		m_pConsoleStream->write( &m_vecBuffer[0], n );
+		m_pConsoleStream->write( sStdColorTag.c_str(), sStdColorTag.size() );
+		m_pConsoleStream->flush();
 		
 		pbump( -n );
 		return true;
 	}
 #endif
+
 private:
+
 #ifdef WIN32
 	WORD					m_oAttributes;
 #else
 	std::string				m_sTag;
 #endif
-	CONSOLE_COLOR		m_iTextColor;
-	CONSOLE_COLOR		m_iBackgroundColor;
+	CONSOLE_COLOR			m_iTextColor;
+	CONSOLE_COLOR			m_iBackgroundColor;
 	std::vector<char>		m_vecBuffer;
 	int						m_iReferenceCount;
+	std::ostream*			m_pConsoleStream;
 };	
 
 /* VistaColorOutstream                                                       */
 VistaColorOutstream::VistaColorOutstream( const CONSOLE_COLOR iTextColor,
 											const CONSOLE_COLOR iBackgroundColor,
+											const bool bUseErrorStream,
 											const size_t iBufferSize)
-: std::ostream( (std::streambuf*)( new VistaColorOutstreamBuffer( iBufferSize ) ) )
+: std::ostream( (std::streambuf*)( new VistaColorOutstreamBuffer( iBufferSize, bUseErrorStream ) ) )
 {
 	m_pBuffer = static_cast<VistaColorOutstreamBuffer*>( rdbuf() );
 	m_pBuffer->SetTextColor( iTextColor );
@@ -641,8 +653,116 @@ void VistaSplitOutstream::SetStreams( const std::vector<std::ostream*>& vecStrea
 {
 	return m_pBuffer->SetStreams( vecStreams );
 }
+/*============================================================================*/
+/*  PREFIXOUTSTREAM                                                            */
+/*============================================================================*/
+
+/* VistaPrefixOutstream::VistaPrefixOutstreamBuffer                           */
+class VistaPrefixOutstream::VistaPrefixOutstreamBuffer : public std::streambuf
+{
+public:
+	VistaPrefixOutstreamBuffer( std::ostream* pStream )
+	: std::streambuf()
+	, m_pStream( pStream )
+	, m_bPrefixIndent( false )
+	, m_bNewLinePending( false )
+	{		
+	}
+
+	~VistaPrefixOutstreamBuffer()
+	{
+	}
+
+	std::ostream* GetOriginalStream() const
+	{
+		return m_pStream;
+	}
+
+	bool GetPrefixIndent() const { return m_bPrefixIndent; }
+	void SetPrefixIndent( const bool oValue ) { m_bPrefixIndent = oValue; }
+	std::string GetPrefix() const { return m_sPrefix; }
+	void SetPrefix( const std::string& oValue ) { m_sPrefix = oValue; }
+
+protected:
+	virtual int_type overflow( int_type cChar )
+	{
+		if( m_bNewLinePending )
+		{				
+			if( m_bPrefixIndent )
+				(*m_pStream) << vstr::indent;
+			m_pStream->write( m_sPrefix.c_str(), m_sPrefix.size() );
+			m_bNewLinePending = false;
+		}	
+		m_pStream->put( cChar );
+		if( cChar == '\n' )
+		{				
+			m_bNewLinePending = true;
+		}		
+		return cChar;
+	}
+	virtual int sync()
+	{
+		m_pStream->flush();
+		return 0;
+	}
 
 
+private:
+	std::ostream*	m_pStream;
+	bool m_bPrefixIndent;
+	std::string m_sPrefix;
+	bool m_bNewLinePending;
+};	
+
+/* VistaPrefixOutstream                                                       */
+
+VistaPrefixOutstream::VistaPrefixOutstream( std::ostream* pStream )
+: std::ostream( new VistaPrefixOutstreamBuffer( pStream) )
+
+{	
+	m_pBuffer = static_cast<VistaPrefixOutstreamBuffer*>( rdbuf() );
+}
+
+
+VistaPrefixOutstream::VistaPrefixOutstream( const VistaPrefixOutstream& oCopy )
+: std::ostream( new VistaPrefixOutstreamBuffer( static_cast<VistaPrefixOutstreamBuffer*>( 
+												oCopy.rdbuf() )->GetOriginalStream() ) )
+{
+	const VistaPrefixOutstreamBuffer* pOrigBuffer = static_cast<VistaPrefixOutstreamBuffer*>( 
+												oCopy.rdbuf() );
+	m_pBuffer = static_cast<VistaPrefixOutstreamBuffer*>( rdbuf() );
+	m_pBuffer->SetPrefix( pOrigBuffer->GetPrefix() );
+	m_pBuffer->SetPrefixIndent( m_pBuffer->GetPrefixIndent() );
+}
+VistaPrefixOutstream::~VistaPrefixOutstream()
+{
+}
+
+std::ostream* VistaPrefixOutstream::GetOriginalStream() const
+{
+	return m_pBuffer->GetOriginalStream();
+}
+
+
+bool VistaPrefixOutstream::GetPrefixWithIndent() const
+{
+	return m_pBuffer->GetPrefixIndent();
+}
+
+void VistaPrefixOutstream::SetPrefixWithIndent( const bool bSet )
+{
+	m_pBuffer->SetPrefixIndent( bSet );
+}
+
+std::string VistaPrefixOutstream::GetPrefixString() const
+{
+	return m_pBuffer->GetPrefix();
+}
+
+void VistaPrefixOutstream::SetPrefixString( const std::string sPrefix )
+{
+	m_pBuffer->SetPrefix( sPrefix );
+}
 
 /*============================================================================*/
 /*  NULLOUTSTREAM                                                             */
@@ -827,11 +947,12 @@ VISTATOOLSAPI bool VistaStreams::MakeStreamThreadSafe( std::ostream* pStream,
 }
 
 
-// return: -1 = fail, 0 = delay (recursive), 1 = success
+// nResult: -1 = fail, 0 = delay (recursive), 1 = success
 std::ostream* CreateStreamFromDescription( const std::string& sDefinition,
 								const VistaPropertyList& oConfig,
 								const bool bThreadSafeStream,
 								const std::list<std::string>& liStreamsToCreate,
+								const std::string& sNodename,
 								int& nResult )
 {
 	std::string sCommand;
@@ -850,10 +971,8 @@ std::ostream* CreateStreamFromDescription( const std::string& sDefinition,
 						<< sDefinition << "\" - missing \")\"" << std::endl;
 			return NULL;
 		}
-		// @todo: recursion
 		sCommand = sDefinition.substr( 0, nBraceStart );
 
-		//VistaConversion::FromString( sDefinition.substr( nBraceStart + 1, nBraceEnd - nBraceStart - 1 ), vecArguments );
 		// make sure that we do not split sub-commands
 		vecArguments.clear();
 		int nInBraceDepth = 0;
@@ -941,16 +1060,25 @@ std::ostream* CreateStreamFromDescription( const std::string& sDefinition,
 			sExtension = sExtension.substr( nDotPos + 1 );
 			sFilename = sFilename.substr( 0, nDotPos );
 		}
-		bool bAddTime = false;
-		bool bAddNodename = false;
+
+		if( !sFilename.empty() && *sFilename.begin() == '\"' )
+			sFilename.erase( sFilename.begin() );
+		if( !sFilename.empty() && *(sFilename.end() - 1 ) == '\"' )
+			sFilename.erase( sFilename.end() - 1 );
+
 		bool bAppend = false;
 		for( std::vector<std::string>::const_iterator itParam = vecArguments.begin() + 1;
 				itParam != vecArguments.end(); ++itParam )
 		{
 			if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( (*itParam), "ADD_TIME" ) )
-				bAddTime = true;
+			{
+				sFilename += "_" + VistaTimeUtils::ConvertToLexicographicDateString( VistaTimeUtils::GetStandardTimer().GetSystemTime() );
+			}
 			else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( (*itParam), "ADD_NODENAME" ) )
-				bAddNodename = true;
+			{
+				if( sNodename.empty() == false )
+					sFilename += "_" + sNodename;
+			}
 			else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( (*itParam), "APPEND_TO_FILE" ) )
 				bAppend = true;
 			else
@@ -959,9 +1087,67 @@ std::ostream* CreateStreamFromDescription( const std::string& sDefinition,
 						<< "unknown parameter \"" << (*itParam) << "\" to stream \"FILE\"" << std::endl;
 			}
 		}
-		pStream = vstr::GetStreamManager()->CreateNewLogFileStream( sFilename, sExtension, true, bAddNodename, bAddTime, bAppend );
+		pStream = vstr::GetStreamManager()->CreateNewLogFileStream( sFilename, sExtension, true, false, false, bAppend );
 		if( pStream == NULL )
 			return NULL;
+		if( bThreadSafeStream )
+			VistaStreams::MakeStreamThreadSafe( pStream );
+
+	}
+	else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sCommand, "PREFIX" ) )
+	{
+		if( vecArguments.size() < 2 )
+		{
+			vstr::warnp() << "VistaStreams::CreateStreamsFromProplist -- "
+						<< "Call to \"PREFIX\" with invalid arguments - specify at least stream and prefix" << std::endl;
+			return NULL;
+		}
+
+		std::ostream* pSubStream = CreateStreamFromDescription( vecArguments[0], oConfig, false, liStreamsToCreate, sNodename, nResult );
+		if( pSubStream == NULL )
+		{
+			if( nResult == 0 )
+			{
+				return NULL; // delay until the stream is ready
+			}
+			else
+			{
+				vstr::warnp() << "VistaStreams::CreateStreamsFromProplist -- "
+							<< "\"PREFIX\"-command's substream \"" << vecArguments[0]
+							<< "\" could not be created" << std::endl;
+				nResult = -1;
+				return NULL;
+			}
+		}
+		
+		VistaPrefixOutstream* pPrefixStream = new VistaPrefixOutstream( pSubStream );
+
+		std::string sPrefix = vecArguments[1];
+		if( !sPrefix.empty() && *sPrefix.begin() == '\"' )
+			sPrefix.erase( sPrefix.begin() );
+		if( !sPrefix.empty() && *(sPrefix.end() - 1 ) == '\"' )
+			sPrefix.erase( sPrefix.end() - 1 );
+
+		for( std::size_t i = 2; i < vecArguments.size(); ++i )
+		{
+			if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( vecArguments[i], "ADD_NODENAME" ) )
+			{
+				sPrefix = "[" + sNodename + "]: " + sPrefix;
+			}
+			else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( vecArguments[i], "ADD_NODENAME" ) )
+			{
+				pPrefixStream->SetPrefixWithIndent( true );
+			}
+			else
+			{
+				vstr::warnp() << "VistaStreams::CreateStreamsFromProplist -- "
+						<< "Call to \"PREFIX\" with invalid argument [" << vecArguments[i] << "]" << std::endl;
+			}
+		}
+	
+		pPrefixStream->SetPrefixString( sPrefix );
+
+		pStream = pPrefixStream;
 		if( bThreadSafeStream )
 			VistaStreams::MakeStreamThreadSafe( pStream );
 
@@ -970,6 +1156,7 @@ std::ostream* CreateStreamFromDescription( const std::string& sDefinition,
 	{		
 		VistaColorOutstream::CONSOLE_COLOR oTextColor = VistaColorOutstream::CC_DEFAULT;
 		VistaColorOutstream::CONSOLE_COLOR oBackgroundColor = VistaColorOutstream::CC_DEFAULT;
+		bool bUseErrorStream = false;
 		if( vecArguments.size() > 0 )
 		{
 			oTextColor = VistaColorOutstream::GetConsoleColorFromString( vecArguments[0] );
@@ -982,15 +1169,28 @@ std::ostream* CreateStreamFromDescription( const std::string& sDefinition,
 		}
 		if( vecArguments.size() > 1 )
 		{
-			oTextColor = VistaColorOutstream::GetConsoleColorFromString( vecArguments[1] );
-			if( oTextColor == -1 )
+			if( vecArguments.size() == 2 
+				&&  VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( vecArguments[1], "USE_ERROR_STREAM" ) )
 			{
-				vstr::warnp() << "VistaStreams::CreateStreamsFromProplist -- "
-						<< "unknown color \"" << vecArguments[1] << "\" to stream \"COLOR\"" << std::endl;
-				return NULL;
+				bUseErrorStream = true;
+			}
+			else
+			{
+				oBackgroundColor = VistaColorOutstream::GetConsoleColorFromString( vecArguments[1] );
+				if( oBackgroundColor == -1 )
+				{
+					vstr::warnp() << "VistaStreams::CreateStreamsFromProplist -- "
+							<< "unknown color \"" << vecArguments[1] << "\" to stream \"COLOR\"" << std::endl;
+					return NULL;
+				}
+				if( vecArguments.size() > 2
+					&&  VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( vecArguments[2], "USE_ERROR_STREAM" ) )
+				{
+					bUseErrorStream = true;
+				}
 			}
 		}
-		pStream = new VistaColorOutstream( oTextColor, oBackgroundColor );
+		pStream = new VistaColorOutstream( oTextColor, oBackgroundColor, bUseErrorStream );
 		if( bThreadSafeStream )
 			VistaStreams::MakeStreamThreadSafe( pStream );
 	}
@@ -1022,7 +1222,7 @@ std::ostream* CreateStreamFromDescription( const std::string& sDefinition,
 		for( std::vector<std::string>::const_iterator itArg = vecArguments.begin();
 				itArg != vecArguments.end(); ++itArg )
 		{		
-			std::ostream* pSubStream = CreateStreamFromDescription( (*itArg), oConfig, false, liStreamsToCreate, nResult );
+			std::ostream* pSubStream = CreateStreamFromDescription( (*itArg), oConfig, false, liStreamsToCreate, sNodename, nResult );
 			if( pSubStream == NULL )
 			{
 				vstr::warnp() << "VistaStreams::CreateStreamsFromProplist -- "
@@ -1038,7 +1238,7 @@ std::ostream* CreateStreamFromDescription( const std::string& sDefinition,
 	}
 	else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sCommand, "BUILDTYPE" ) )
 	{
-		if( vecArguments.size() )
+		if( vecArguments.size() != 2 )
 		{
 			vstr::warnp() << "VistaStreams::CreateStreamsFromProplist -- "
 						<< "Call to \"BUILDTYPE\" requires exactly two parameters" << std::endl;
@@ -1056,7 +1256,7 @@ std::ostream* CreateStreamFromDescription( const std::string& sDefinition,
 			nResult = 0;
 			return NULL;
 		}
-		pStream = CreateStreamFromDescription( sBuildTypeName, oConfig, true, liStreamsToCreate, nResult );
+		pStream = CreateStreamFromDescription( sBuildTypeName, oConfig, true, liStreamsToCreate, sNodename, nResult );
 		if( nResult != 1 )
 			return NULL;
 		
@@ -1131,6 +1331,11 @@ std::ostream* CreateStreamFromDescription( const std::string& sDefinition,
 
 bool VistaStreams::CreateStreamsFromProplist( const VistaPropertyList& oConfig )
 {
+	return CreateStreamsFromProplist( oConfig, vstr::GetStreamManager()->GetNodeName() );
+}
+bool VistaStreams::CreateStreamsFromProplist( const VistaPropertyList& oConfig,
+											 const std::string& sNodename )
+{
 	std::list<std::string> liStreamsToCreate;
 	VistaAspectsComparisonStuff::StringCompareObject oCompare( false );
 
@@ -1155,7 +1360,7 @@ bool VistaStreams::CreateStreamsFromProplist( const VistaPropertyList& oConfig )
 		}
 	}
 
-	int nMaxIterations = oConfig.size() * oConfig.size();
+	int nMaxIterations = (int)oConfig.size() * (int)oConfig.size();
 	int nIterations = 0;
 
 	while( liStreamsToCreate.empty() == false )
@@ -1170,7 +1375,7 @@ bool VistaStreams::CreateStreamsFromProplist( const VistaPropertyList& oConfig )
 
 		int nRes;
 		std::ostream* pStream = CreateStreamFromDescription( oConfig.GetValue<std::string>( sStreamName ),
-															oConfig, bThreadSafe, liStreamsToCreate, nRes );
+															oConfig, bThreadSafe, liStreamsToCreate, sNodename, nRes );
 		if( nRes == 0 )
 		{
 			liStreamsToCreate.push_back( sStreamName );
@@ -1192,3 +1397,4 @@ bool VistaStreams::CreateStreamsFromProplist( const VistaPropertyList& oConfig )
 
 	return true;
 }
+

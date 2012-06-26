@@ -104,29 +104,23 @@ bool VdfnApplyTransformNode::PrepareEvaluationRun()
 bool VdfnApplyTransformNode::DoEvalNode()
 {
 	m_nTCount = m_pInTransform->GetUpdateCounter();
-	const VistaTransformMatrix &m = (*m_pInTransform).GetValueConstRef();
-
-	// @todo When the IVistaTransformable interface provides
-	// the Vista datatypes, use them here and do NOT cast
-	// around like it is done here.
+	const VistaTransformMatrix& m = (*m_pInTransform).GetValueConstRef();
 
 	// Get the internal matrix from the transformable
-	float transformMatrix[16];
-	m_pOutTransform->GetTransform(transformMatrix);
-
-	// Create a VistaTransformMatrix from the float arrays
-	VistaTransformMatrix m2(transformMatrix);
+	VistaTransformMatrix m2;
+	m_pOutTransform->GetTransform( m2 );
 
 	// Multiply the matrices and put the values in a float
 	// array again
 	// Apply the matrix from right or left hand side
+	VistaTransformMatrix matResult;
 	if( m_bApplyLocal )
-		(m2 * m).GetValues(transformMatrix);
+		matResult = m2 * m;
 	else
-		(m * m2).GetValues(transformMatrix);
+		matResult = m * m2;
 
 	// Set the matrix to the transformable
-	m_pOutTransform->SetTransform(transformMatrix);
+	m_pOutTransform->SetTransform(matResult);
 	return true;
 }
 

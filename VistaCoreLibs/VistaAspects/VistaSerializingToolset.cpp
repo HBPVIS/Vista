@@ -98,18 +98,19 @@ VistaSerializingToolset::eEndianess VistaSerializingToolset::GetPlatformEndianes
 {
 	if(thisMachine == VST_NONEENDIAN)
 	{
-		VistaType::uint32 iVal = 0; // make sure this int is 32bit wide
-		VistaType::byte ucTmp[4]; // 32bit == 4 byte, unsigned, please
-		ucTmp[0] = 1; // set the first one to 1
-		ucTmp[1] = ucTmp[2] = ucTmp[3] = 0; // set all others to 0
+		union
+		{
+			VistaType::uint32 m_nVal;
+			VistaType::byte m_ucTmp[4];
+		} iVal;
+		
+		iVal.m_ucTmp[0] = 1; // set the first one to 1
+		iVal.m_ucTmp[1] = iVal.m_ucTmp[2] = iVal.m_ucTmp[3] = 0; // set all others to 0
 
 		// ucTmp[0-3] = 01 00 00 00
 
-		// now look at this as an int32
-		iVal = *((VistaType::uint32*)ucTmp);
-
 		// do we think this is 1?
-		if(iVal == 1)
+		if(iVal.m_nVal == 1)
 			thisMachine = VST_LITTLEENDIAN; // well, we do... this is big-endian, then
 		else
 			thisMachine = VST_BIGENDIAN; // well, no, we do not... this is littleendian? (we might inspect this closer, but we do not ;)

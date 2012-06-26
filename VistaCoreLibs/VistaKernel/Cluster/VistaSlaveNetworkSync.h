@@ -49,7 +49,7 @@ class VistaConnectionIP;
  * VistaSlaveNetworkSync is the slave implementation of VistaNetworkSync
  * It is used to sync a slave node to some master node.
  */
-class VISTAKERNELAPI VistaSlaveNetworkSync : public IVistaNetworkSync
+class VISTAKERNELAPI VistaSlaveNetworkSync : public IVistaClusterSync
 {
 public:
 	VistaSlaveNetworkSync();

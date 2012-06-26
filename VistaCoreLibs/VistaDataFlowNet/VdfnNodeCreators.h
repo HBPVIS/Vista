@@ -45,6 +45,8 @@
 #include "VdfnModuloCounterNode.h"
 #include "VdfnThresholdNode.h"
 #include "VdfnGetElementNode.h"
+#include "VdfnRangeCheckNode.h"
+#include "VdfnDemultiplexNode.h"
 
 #include <cassert>
 
@@ -150,8 +152,8 @@ public:
 		double dThreshold = 0.0;
 		subs.GetValue( "threshold", dThreshold );
 
-		bool bUseAbsoluteValue = false;
-		subs.GetValue( "compare_absolute_value", bUseAbsoluteValue );
+		bool bUseAbsoluteValue = subs.GetValueOrDefault<bool>( "compare_absolute_value", false );
+		bool bSubtractThreshold = subs.GetValueOrDefault<bool>( "subtract_threshold", false );
 
 		std::string sModeName;		
 		if( subs.GetValue( "mode", sModeName ) )
@@ -167,7 +169,7 @@ public:
 		}
 
 
-		return new VdfnThresholdNode<T>( static_cast<T>(dThreshold), bUseAbsoluteValue, iMode );
+		return new VdfnThresholdNode<T>( static_cast<T>(dThreshold), bUseAbsoluteValue, bSubtractThreshold, iMode );
 	}
 };
 
@@ -433,7 +435,7 @@ public:
     virtual IVdfnNode *CreateNode(const VistaPropertyList &oParams) const;
 };
 
-class VdfnCompositeNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+class VISTADFNAPI VdfnCompositeNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
 {
 public:
     virtual IVdfnNode *CreateNode(const VistaPropertyList &oParams) const;
@@ -516,7 +518,37 @@ public:
 };
 
 
-class VdfnEnvStringValueNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+template<class T>
+class TVdfnModuloNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
+public:
+
+    virtual IVdfnNode *CreateNode(const VistaPropertyList &oParams) const
+	{
+        try
+		{
+            const VistaPropertyList &oSubs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
+
+			T oModulo = 1;			
+			if( oSubs.GetValue( "modulo", oModulo ) == false )
+			{
+				vstr::warnp() << "[TVdfnModuloNode]: -- Could not create node "
+							<< "- no [modulo] specified" << std::endl;
+				return NULL;
+			}
+
+			return new TVdfnModuloNode<T>( oModulo );
+        }
+		catch (VistaExceptionBase &x)
+		{
+            x.PrintException();
+        }
+        return NULL;
+    }
+};
+
+
+class VISTADFNAPI VdfnEnvStringValueNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
 {
 public:
 	virtual IVdfnNode *CreateNode( const VistaPropertyList &oParams ) const;
@@ -563,6 +595,60 @@ public:
         }
         return NULL;
     }
+};
+
+template<class T>
+class TVdfnRangeCheckNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator 
+{
+public:
+    virtual IVdfnNode *CreateNode( const VistaPropertyList& oParams ) const 
+	{
+        try 
+		{
+            const VistaPropertyList &oSubs = oParams.GetPropertyConstRef( "param" ).GetPropertyListConstRef();
+
+			T nMin = oSubs.GetValueOrDefault<T>( "min", -1 );
+			T nMax = oSubs.GetValueOrDefault<T>( "max", -1 );
+            return new TVdfnRangeCheckNode<T>( nMin, nMax );
+        } 
+		catch (VistaExceptionBase &x)
+		{
+            x.PrintException();
+        }
+        return NULL;
+    }
+};
+
+template<class T>
+class TVdfnDemultiplexNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator 
+{
+public:
+    virtual IVdfnNode *CreateNode( const VistaPropertyList& oParams ) const 
+	{
+        try 
+		{
+            const VistaPropertyList &oSubs = oParams.GetPropertyConstRef( "param" ).GetPropertyListConstRef();
+
+			int nNumPorts;
+			if( oSubs.GetValue<int>( "num_outports", nNumPorts ) == false )
+			{
+				vstr::warnp() << "[TVdfnDemultiplexNodeCreate]: no or invalid \"num_outports\" specified" << std::endl;
+				return NULL;
+			}
+            return new TVdfnDemultiplexNode<T>( nNumPorts );
+        } 
+		catch (VistaExceptionBase &x)
+		{
+            x.PrintException();
+        }
+        return NULL;
+    }
+};
+
+class VISTADFNAPI VdfnToggleNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
+public:
+    virtual IVdfnNode *CreateNode( const VistaPropertyList& oParams ) const ;
 };
 
 

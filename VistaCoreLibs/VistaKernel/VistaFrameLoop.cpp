@@ -37,7 +37,6 @@
 
 #include <VistaBase/VistaTimer.h>
 #include <VistaBase/VistaTimeUtils.h>
-#include <VistaBase/VistaStreamUtils.h>
 
 #include <VistaAspects/VistaExplicitCallbackInterface.h>
 
@@ -79,7 +78,6 @@ VistaFrameLoop::VistaFrameLoop()
 , m_iFrameCount( -1 )
 , m_pUpdateCallback( NULL )
 , m_pSystemEvent( NULL )
-, m_pFrameRateDisplay( NULL )
 {
 }
 
@@ -87,7 +85,6 @@ VistaFrameLoop::~VistaFrameLoop()
 {
 	delete m_pUpdateCallback;
 	delete m_pSystemEvent;
-	delete m_pFrameRateDisplay;
 	delete m_pFrameRate;
 	delete m_pAvgLoopTime;
 }
@@ -133,10 +130,9 @@ void VistaFrameLoop::FrameUpdate()
 {
 	if( m_iFrameCount >= 0 )
 		VistaKernelProfileStopNamedSection( "WINDOWTOOLKIT_LOOP" );
-
+	
 	++m_iFrameCount;
 	VistaKernelProfileNewFrame();
-	m_pAvgLoopTime->StartRecording();
 
 	m_pClusterMode->StartFrame();
 
@@ -159,16 +155,6 @@ void VistaFrameLoop::FrameUpdate()
 
 	m_pAvgLoopTime->RecordTime();
 
-	
-	if( GetFrameRateDisplayEnabled() && 
-		( VistaTimeUtils::GetStandardTimer().GetSystemTime() - m_nLastFramerateUpdate ) > 1.0 )
-	{
-		sprintf( (char*)m_sFramerateText.c_str(), "Framerate: %4.2f", GetFrameRate() );
-		m_pFrameRateDisplay->SetText( m_sFramerateText );
-		m_nLastFramerateUpdate = VistaTimeUtils::GetStandardTimer().GetSystemTime();
-	}
-	
-
 	{
 		VistaKernelProfileScope( "RENDER" );
 	
@@ -187,7 +173,10 @@ void VistaFrameLoop::FrameUpdate()
 
 float VistaFrameLoop::GetFrameRate()
 {
-	return ( 1.0f / (float)m_pFrameRate->GetAverageTime() );
+	VistaType::microtime nAverage = m_pFrameRate->GetAverageTime();
+	if( nAverage == 0 )
+		return 0;
+	return ( 1.0f / (float)nAverage );
 }
 
 int VistaFrameLoop::GetFrameCount()
@@ -205,44 +194,6 @@ void VistaFrameLoop::EmitSystemEvent( const int iSystemEventId )
 	VistaKernelProfileScope( VistaSystemEvent::GetIdString( iSystemEventId ) );
 	m_pSystemEvent->SetId( iSystemEventId );
 	m_pEventManager->ProcessEvent( m_pSystemEvent );
-}
-
-bool VistaFrameLoop::GetFrameRateDisplayEnabled() const
-{
-	return ( m_pFrameRateDisplay && m_pFrameRateDisplay->GetEnabled() );
-}
-
-bool VistaFrameLoop::SetFrameRateDisplayEnabled( const bool bSet )
-{
-	if( m_pFrameRateDisplay != NULL )
-	{
-		m_pFrameRateDisplay->SetEnabled( bSet );
-		return true;
-	}
-
-	if( bSet == false )
-		return true;
-
-	if( m_pDisplayManager->GetViewportsConstRef().empty() )
-	{
-		vstr::warnp() << "[VistaFrameLoop]: Trying to enable"
-			<< " FramerateDisplay, but no viewports exist" << std::endl;
-		return false;
-	}
-	m_pFrameRateDisplay = m_pDisplayManager->New2DText(
-				(*m_pDisplayManager->GetViewportsConstRef().begin()).first );
-	if( m_pFrameRateDisplay == NULL )
-		{
-		vstr::warnp() << "[VistaFrameLoop]: Trying to enable"
-			<< " FramerateDisplay, but 2DText creation failed" << std::endl;
-		return false;
-	}
-
-	m_sFramerateText.resize( 30 );
-	sprintf( (char*)m_sFramerateText.c_str(), "Framerate: %4.2f", GetFrameRate() );
-	m_pFrameRateDisplay->Init( m_sFramerateText, 0.05f, 0.9f, 255, 255, 0 );
-	m_nLastFramerateUpdate = VistaTimeUtils::GetStandardTimer().GetSystemTime();
-	return true;
 }
 
 /*============================================================================*/

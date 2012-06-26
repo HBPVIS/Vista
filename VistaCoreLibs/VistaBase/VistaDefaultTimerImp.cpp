@@ -91,7 +91,7 @@ VistaDefaultTimerImp::VistaDefaultTimerImp()
 #else // unix-like os
 	struct timespec tv;
     clock_gettime( CLOCK_REALTIME, &tv );
-	m_nInitialSecs = tv.tv_sec;	
+	m_nInitialTime = (double)tv.tv_sec + 1e-9 * (double)tv.tv_nsec;
 #endif
 }
 
@@ -119,8 +119,7 @@ VistaType::microtime  VistaDefaultTimerImp::GetMicroTime()   const
     struct timespec tv;
     clock_gettime(CLOCK_REALTIME, &tv );
 	
-    return  ( (double)( tv.tv_sec - m_nInitialSecs )
-			  + ((double)tv.tv_nsec / 1000000000.0) );
+    return ( (double)tv.tv_sec + 1e-9 * (double)tv.tv_nsec - m_nInitialTime );
 #endif
 }
 
@@ -188,7 +187,7 @@ VistaType::microtime VistaDefaultTimerImp::GetSystemTime()  const
 	
 	return double(tv.tv_sec) + tv.tv_usec / 1000000.0;
 #else // unix-like os
-	return ( (double)m_nInitialSecs + GetMicroTime() );
+	return ( m_nInitialTime + GetMicroTime() );
 #endif
 }
 
@@ -203,6 +202,6 @@ VistaType::systemtime VistaDefaultTimerImp::ConvertToSystemTime( const VistaType
 	//     reference point, so the conversion is not meaningful IMO.
 	return 0;
 #else // unix-like os
-	return ( (double)m_nInitialSecs + mtTime );
+	return ( (double)m_nInitialTime + mtTime );
 #endif
 }

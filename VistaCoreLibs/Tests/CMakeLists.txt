@@ -54,5 +54,15 @@ if( VISTACORELIBS_BUILD_ASPECTS )
 		VistaAspects
 		${VISTA_USE_PACKAGE_LIBRARIES}
 	)
+endif()	
+
+if( VISTACORELIBS_BUILD_KERNEL )
+	configure_vista_test( VistaSerializablesTest VistaSerializablesTest.cpp VistaTestingUtils.h )
+	target_link_libraries( VistaSerializablesTest
+		VistaBase
+		VistaAspects
+		VistaInterProcComm
+		${VISTA_USE_PACKAGE_LIBRARIES}
+	)
 	
 endif()

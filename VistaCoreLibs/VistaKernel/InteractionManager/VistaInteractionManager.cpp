@@ -843,20 +843,24 @@ bool VistaInteractionManager::ReloadGraphForContext( VistaInteractionContext* pC
 												const bool bDumpGraphAsDot,
 												const bool bWritePortsToDump )
 {
-	VdfnGraph* pOldGraph = pContext->GetTransformGraph();
+	delete pContext->GetTransformGraph();
+	
 	if( LoadGraphForContext( pContext, sNodeTag ) == false )
 	{
-		return false;
+		pContext->SetTransformGraph( NULL );
+		return false;	
 	}
-	else
+
+	pContext->Evaluate(0);
+
+	if( bDumpGraphAsDot )
 	{
-		delete pOldGraph;
 		std::string sGraphName = GetRoleForId( pContext->GetRoleId() );
 		std::string sFileName = sGraphName + std::string(".dot");
 		VdfnPersistence::SaveAsDot( pContext->GetTransformGraph(), sFileName,
 									sGraphName, bWritePortsToDump, true );
-		return true;
 	}
+	return true;
 }
 
 void VistaInteractionManager::DumpGraphsToDot(bool bWritePorts) const

@@ -161,13 +161,12 @@ bool VistaPropertyList::SetIsCaseSensitive( const bool bSet,
 
 int VistaPropertyList::DeSerializePropertyList(IVistaDeSerializer &rDeSer, VistaPropertyList &rPropertyList, std::string &sName)
 {
+	rPropertyList.clear();
 	int iRet = 0;
 	int iCount = 0;
-	int iNameSize = 0;
 	bool bCaseSensitive = false;
 	iRet += rDeSer.ReadInt32(iCount);
-	iRet += rDeSer.ReadInt32(iNameSize);
-	iRet += rDeSer.ReadString(sName, iNameSize);
+	iRet += rDeSer.ReadEncodedString(sName);
 	iRet += rDeSer.ReadBool( bCaseSensitive );
 
 	for(int i=0; i < iCount; ++i)
@@ -186,10 +185,8 @@ int VistaPropertyList::DeSerializePropertyList(IVistaDeSerializer &rDeSer, Vista
 		}
 		else
 		{
-			iRet += rDeSer.ReadInt32(iKeySize);
-			iRet += rDeSer.ReadString(key, iKeySize);
-			iRet += rDeSer.ReadInt32(iValueSize);
-			iRet += rDeSer.ReadString(value, iValueSize);
+			iRet += rDeSer.ReadEncodedString(key);
+			iRet += rDeSer.ReadEncodedString(value);
 			iRet += rDeSer.ReadInt32(nListSubType);
 			rPropertyList.SetStringValueTyped(key, value,
 											  VistaProperty::GetPropTypeEnum(iType),
@@ -208,8 +205,7 @@ int VistaPropertyList::SerializePropertyList(IVistaSerializer &rSer,
 {
 	int iRet = 0;
 	iRet += rSer.WriteInt32(int(rPropertyList.size()));
-	iRet += rSer.WriteInt32(int(sPropertyListName.size()));
-	iRet += rSer.WriteString(sPropertyListName);
+	iRet += rSer.WriteEncodedString(sPropertyListName);
 	iRet += rSer.WriteBool( rPropertyList.GetIsCaseSensitive() );
 
 	for(VistaPropertyList::const_iterator cit = rPropertyList.begin();
@@ -227,10 +223,8 @@ int VistaPropertyList::SerializePropertyList(IVistaSerializer &rSer,
 		{
 			//std::string value = (*cit).second;
 			std::string sValue = (*cit).second.GetValue();
-			iRet += rSer.WriteInt32(int(key.size()));
-			iRet += rSer.WriteString(key);
-			iRet += rSer.WriteInt32(int(sValue.size()));
-			iRet += rSer.WriteString(sValue);
+			iRet += rSer.WriteEncodedString(key);
+			iRet += rSer.WriteEncodedString(sValue);
 			iRet += rSer.WriteInt32((int)(*cit).second.GetPropertyListSubType());
 		}
 	}

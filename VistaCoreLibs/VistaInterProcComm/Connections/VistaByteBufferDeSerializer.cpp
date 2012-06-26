@@ -217,6 +217,18 @@ int VistaByteBufferDeSerializer::ReadUInt64( VistaType::uint64 &ui64Val)
 	 return iLen;
  }
 
+ 
+int VistaByteBufferDeSerializer::ReadEncodedString( std::string& sString )
+{
+	VistaType::sint32 nSize;
+	int nRet = ReadInt32( nSize );
+	if( nRet != sizeof( VistaType::sint32) )
+		return -1;
+	nRet += ReadString( sString, nSize );
+	return nRet;
+}
+
+
 int VistaByteBufferDeSerializer::ReadRawBuffer(void *pBuffer, int iLen)
 {
 	/** @todo check me */

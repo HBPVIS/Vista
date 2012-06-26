@@ -44,35 +44,7 @@
 /*============================================================================*/
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
-//
-///**
-// *  little wrapper to allow structured access of a platform specific window
-// *  handle using the m_nHandle member and the id() method.
-// *  See the typedefs in this file.
-// */
-//template<class T>
-//class _windowHandle
-//{
-//public:
-//	/**
-//	 * Copy nHandle to m_nHandle.
-//	 */
-//	_windowHandle(T nHandle)
-//		: m_nHandle(nHandle) {}
-//
-//	/**
-//	 * plain accessor, return the private member (read protection)
-//	 */
-//	T id() const { return m_nHandle; }
-//
-//private:
-//	T m_nHandle;
-//};
-//
-//
-
-
-
+class VistaWindow;
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
@@ -98,9 +70,10 @@ public:
 		typedef void* OSHANDLE; /*<< wrap generic handles */
 #endif
 
-		WindowHandle( int iWindowID, OSHANDLE pHandle );
+		WindowHandle( int iWindowID, OSHANDLE pHandle, VistaWindow* pWindow );
 
 		OSHANDLE GetOSHandle() const;
+		VistaWindow* GetWindow() const; //@OSGTODO: think about this...
 		int GetID() const;
 
 		bool operator< ( const WindowHandle& oOther ) const
@@ -115,8 +88,9 @@ public:
 			return( m_iID == oOther.m_iID && m_pHandle == oOther.m_pHandle );
 		}
 	private:
-		int			m_iID;
-		OSHANDLE	m_pHandle;
+		int				m_iID;
+		OSHANDLE		m_pHandle;
+		VistaWindow*	m_pWindow;
 	};
 
 	/**

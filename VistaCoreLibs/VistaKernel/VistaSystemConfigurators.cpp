@@ -399,9 +399,9 @@ bool VistaWindowConfigurator::Configure( IVistaDeviceDriver* pDriver,
 		// so we have to lookup the "global-active-top-level" window
 		// from windows itself.
 		HWND oOSHandle = FindWindow( NULL, (*itWin)->GetWindowProperties()->GetTitle().c_str() );
-		VistaDriverAbstractWindowAspect::WindowHandle oHandle( nWindowId, oOSHandle );
+		VistaDriverAbstractWindowAspect::WindowHandle oHandle( nWindowId, oOSHandle, (*itWin) );
 #else
-		VistaDriverAbstractWindowAspect::WindowHandle oHandle( nWindowId, (void*)((long)nWindowId) );
+		VistaDriverAbstractWindowAspect::WindowHandle oHandle( nWindowId, (void*)((long)nWindowId), (*itWin) );
 #endif
 		pAsp->AttachToWindow( oHandle );
 	}
@@ -642,7 +642,7 @@ bool VistaConnectionConfigurator::Configure( IVistaDeviceDriver* pDriver,
 		}
 
 		unsigned int nRoleId = pConAsp->GetIndexForRole( sDriverRole );
-		if( nRoleId == ~0 )
+		if( nRoleId == (unsigned int)~0 )
 		{
 			vstr::warnp() << "[VistaConnectionConfigurator]: Requested connection ["
 						<< (*itConnName) << "] has unknown DRIVERROLE ["

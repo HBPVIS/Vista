@@ -124,8 +124,7 @@ int VistaInteractionEvent::Serialize(IVistaSerializer &ser) const
 		if(m_pEventNode)
 		{
 			std::string strName = m_pEventNode->GetNameForNameable();
-			nRet += ser.WriteInt32( (VistaType::sint32)strName.size() );
-			nRet += ser.WriteString( strName );
+			nRet += ser.WriteEncodedString( strName );
 		}
 	}
 
@@ -133,9 +132,7 @@ int VistaInteractionEvent::Serialize(IVistaSerializer &ser) const
 	for( PortList::const_iterator it = m_mpPortChangeMap.begin();
 		it != m_mpPortChangeMap.end(); ++it )
 	{
-		VistaType::sint32 nLength = (int)(*it).length();
-		nRet += ser.WriteInt32( nLength );
-		nRet += ser.WriteString( *it );
+		nRet += ser.WriteEncodedString( *it );
 	}
 
 	return nRet;
@@ -164,10 +161,8 @@ int VistaInteractionEvent::DeSerialize(IVistaDeSerializer &deSer)
 		nRet += deSer.ReadBool( bNode );
 		if( bNode )
 		{
-			VistaType::sint32 size = 0;
-			deSer.ReadInt32( size );
 			std::string strName;
-			deSer.ReadString( strName, size );
+			deSer.ReadEncodedString( strName );
 
 			if( bNode && m_pContext->GetTransformGraph() != NULL )
 				m_pEventNode = m_pContext->GetTransformGraph()->GetNodeByName( strName );
@@ -184,10 +179,8 @@ int VistaInteractionEvent::DeSerialize(IVistaDeSerializer &deSer)
 	m_mpPortChangeMap.clear();
 	for( VistaType::sint32 n=0; n < nCount;++ n)
 	{
-		VistaType::sint32 nLength = 0;
 		std::string strString;
-		deSer.ReadInt32( nLength );
-		deSer.ReadString( strString, nLength );
+		deSer.ReadEncodedString( strString );
 		m_mpPortChangeMap.push_back( strString );
 	}
 	return nRet;

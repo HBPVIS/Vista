@@ -31,6 +31,7 @@
 #include <VistaKernel/VistaKernelConfig.h>
 
 #include <VistaBase/VistaBaseTypes.h>
+#include <VistaAspects/VistaSerializable.h>
 
 #include <string>
 #include <vector>
@@ -45,7 +46,9 @@ class VistaPropertyList;
 class VistaInteractionContext;
 class IVistaDataTunnel;
 class VistaConnectionIP;
-class IVistaNetworkSync;
+class IVistaClusterDataSync;
+class IVistaClusterBarrier;
+class IVistaClusterDataCollect;
 class IDLVistaDataPacket;
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -85,10 +88,59 @@ public:
 	virtual int GetNodeID() const = 0;
 
 	virtual bool GetIsLeader() const = 0;
-	virtual bool GetIsFollower() const = 0;	
+	virtual bool GetIsFollower() const = 0;		
 
-	virtual int GetNumberOfNodes() const = 0;	
-	virtual std::string GetNodeName( const int iNodeID ) const = 0;
+	// Functions mainly to be called from the VistaFrameloop
+	virtual bool StartFrame() = 0;
+	virtual bool ProcessFrame() = 0;
+	virtual bool EndFrame() = 0;
+
+	virtual void SwapSync() = 0;
+	
+	/**
+	 * Creates a list of connections, which can be either zero (unconnected or standalone),
+	 * one for followers (conn to the leader), or multiple conns for leaders (one per follower)
+	 */
+	virtual bool CreateConnections( std::vector<VistaConnectionIP*>& vecConnections ) = 0;
+	virtual bool CreateNamedConnections( std::vector<std::pair<VistaConnectionIP*, std::string> >&
+															vecConnections ) = 0;
+
+	virtual IVistaDataTunnel* CreateDataTunnel( IDLVistaDataPacket* pPacketProto ) = 0;
+	/**
+	 * Creates a fully configured ClusterDataSync object. Always returns a non-NULL instance,
+	 * but it may not be valid if connections failed or the configuration is wrong
+	 */
+	virtual IVistaClusterDataSync* CreateDataSync() = 0;	
+	/**
+	 * Returns the default DataSync. Since this object may also be used by the clustermode itself,
+	 * take care that it is only used in the main thread!
+	 */
+	virtual IVistaClusterDataSync* GetDefaultDataSync() = 0;
+	/**
+	 * Creates a fully configured ClusterBarrier object. Always returns a non-NULL instance,
+	 * but it may not be valid if connections failed or the configuration is wrong
+	 */
+	virtual IVistaClusterBarrier* CreateBarrier() = 0;
+	/**
+	 * Returns the default barrier. Since this object may also be used by the clustermode itself,
+	 * take care that it is only used in the main thread!
+	 */
+	virtual IVistaClusterBarrier* GetDefaultBarrier() = 0;
+	/**
+	 * Creates a fully configured ClusterDataCollect object. Always returns a non-NULL instance,
+	 * but it may not be valid if connections failed or the configuration is wrong
+	 */
+	virtual IVistaClusterDataCollect* CreateDataCollect() = 0;
+
+	/**
+	 * Print debug output for the CLusterMode to the passed stream
+	 */
+	virtual void Debug( std::ostream& oStream ) const = 0;
+	
+
+	virtual VistaType::systemtime GetFrameClock() const;
+	virtual int GetFrameCount() const;
+
 	struct NodeInfo
 	{
 		std::string			m_sNodeName;
@@ -96,34 +148,36 @@ public:
 		int					m_iNodeID;
 		bool				m_bIsActive;
 	};
-	virtual bool GetNodeInfo( const int iNodeID, NodeInfo& oInfo ) const = 0;
-
-	virtual bool StartFrame() = 0;
-	virtual bool ProcessFrame() = 0;
-	virtual bool EndFrame() = 0;
-
-	virtual void SwapSync() = 0;
-	
-	virtual bool CreateConnections( std::vector<VistaConnectionIP*>& vecConnections ) = 0;
-	virtual bool CreateNamedConnections( std::vector<std::pair<VistaConnectionIP*, std::string> >&
-															vecConnections ) = 0;
-	virtual IVistaDataTunnel* CreateDataTunnel( IDLVistaDataPacket* pPacketProto ) = 0;
-	virtual IVistaNetworkSync* CreateNetworkSync( bool bUseExistingConnections = false ) = 0;
-	virtual IVistaNetworkSync* GetDefaultNetworkSync();
-
-	virtual void Debug( std::ostream& oStream ) const = 0;
-	
-	virtual VistaType::systemtime GetFrameClock() const;
-	virtual int GetFrameCount() const;
+	int GetNumberOfNodes() const;
+	int GetNumberOfActiveNodes() const;
+	int GetNumberOfDeadNodes() const;
+	std::string GetNodeName( const int iNodeID ) const;
+	bool GetNodeIsActive( const int iNodeID ) const;
+	CLUSTER_NODE_TYPE GetNodeType( const int iNodeID ) const;
+	NodeInfo GetNodeInfo( const int iNodeID ) const;
+	bool GetNodeInfo( const int iNodeID, NodeInfo& oInfo ) const;
 
 	
 protected:
 	VistaClusterMode();
 
 protected:
-	VistaType::systemtime			m_dFrameClock;
-	int					m_iFrameCount;
-	IVistaNetworkSync*	m_pDefaultNetSync;
+	VistaType::systemtime	m_dFrameClock;
+	int						m_iFrameCount;
+	IVistaClusterDataSync*	m_pDefaultDataSync;
+	IVistaClusterBarrier*	m_pDefaultBarrier;
+
+	class ClusterInfo : public IVistaSerializable
+	{
+	public:
+		virtual int Serialize( IVistaSerializer & ) const;
+		virtual int DeSerialize( IVistaDeSerializer & );
+		virtual std::string GetSignature() const;
+
+	public:
+		std::vector<NodeInfo>	m_vecNodeInfos;
+	};
+	ClusterInfo			m_oClusterInfo;
 };
 
 /*============================================================================*/

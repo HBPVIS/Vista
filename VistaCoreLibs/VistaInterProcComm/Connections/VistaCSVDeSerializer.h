@@ -95,11 +95,9 @@ class VISTAINTERPROCCOMMAPI VistaCSVDeSerializer : public IVistaDeSerializer
 
 	virtual int ReadBool(bool &bVal) ;
 
-	virtual int ReadString(std::string &sIn, const int iMaxLen) ;
-	//virtual int ReadString(string &sIn, char cDelim = '\0') ;
+	virtual int ReadString(std::string &sIn, const int iMaxLen);
 	virtual int ReadDelimitedString(std::string &, char cDelim = '\0');
-
-  //  virtual int ReadString (string &sString, char cDelim) { return 0;}
+	virtual int ReadEncodedString(std::string &);
 
 	virtual int ReadSerializable(IVistaSerializable &obj) ;
 

@@ -28,12 +28,23 @@
 #include <VistaDataFlowNet/VdfnTimerNode.h>
 
 #include <VistaBase/VistaStreamUtils.h>
+#include <VistaAspects/VistaAspectsUtils.h>
 
 #include <VistaKernel/VistaSystem.h>
 #include <VistaKernel/Cluster/VistaClusterMode.h>
 #include <VistaKernel/DisplayManager/VistaDisplaySystem.h>
 #include <VistaKernel/DisplayManager/VistaVirtualPlatform.h>
+#include <VistaKernel/DisplayManager/VistaProjection.h>
+#include <VistaKernel/DisplayManager/VistaViewport.h>
+#include <VistaKernel/GraphicsManager/VistaTransformNode.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
+#include <VistaKernel/GraphicsManager/VistaGeometryFactory.h>
+#include <VistaKernel/Stuff/ProximityWarning/VistaProximityFadeout.h>
+#include <VistaKernel/Stuff/ProximityWarning/VistaProximitySign.h>
+#include <VistaKernel/Stuff/ProximityWarning/VistaProximityBarrierTape.h>
+#include <VistaKernel/InteractionManager/VistaUserPlatform.h>
 
+#include <VistaKernel/InteractionManager/VistaKeyboardSystemControl.h>
 #include <VistaKernel/InteractionManager/DfnNodes/VistaDfnEventSourceNode.h>
 #include <VistaKernel/InteractionManager/DfnNodes/VistaDfnWindowSourceNode.h>
 #include <VistaKernel/InteractionManager/DfnNodes/VistaDfnTrackballNode.h>
@@ -50,11 +61,16 @@
 #include <VistaKernel/InteractionManager/DfnNodes/VistaDfnDumpHistoryNodeClusterCreate.h>
 #include <VistaKernel/InteractionManager/DfnNodes/VistaDfnClusterNodeInfoNode.h>
 #include <VistaKernel/InteractionManager/DfnNodes/VistaDfnDeviceDebugNode.h>
+#include <VistaKernel/InteractionManager/DfnNodes/VistaDfnCropViewportNode.h>
+#include <VistaKernel/InteractionManager/DfnNodes/VistaDfnKeyCallbackNode.h>
+#include <VistaKernel/InteractionManager/DfnNodes/VistaDfnProximityWarningNode.h>
+#include <VistaKernel/InteractionManager/DfnNodes/VistaDfnFadeoutNode.h>
+#include <VistaKernel/InteractionManager/DfnNodes/VistaDfnSimpleTextNode.h>
+#include <VistaKernel/InteractionManager/DfnNodes/VistaDfnGeometryNode.h>
 
 #include <list>
 #include <iomanip>
 #include <sstream>
-
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
@@ -100,7 +116,7 @@ bool VistaKernelDfnNodeCreators::RegisterNodeCreates( VistaSystem* pVistaSystem 
 	pFac->SetNodeCreator( "ClusterNodeInfo", 
 					new VdfnClusterNodeInfoNodeCreate( pVistaSystem->GetClusterMode() ) );
 	pFac->SetNodeCreator( "Frameclock",
-					new VistaFrameclockNodeCreate( pVistaSystem->GetClusterMode() ) );
+					new VistaDfnFrameclockNodeCreate( pVistaSystem->GetClusterMode() ) );
 
 	// this is an override, the old pointer is lost, so expect a memory lead
 	// in a profile. The policy of overriding is currently not defined. @todo
@@ -132,6 +148,21 @@ bool VistaKernelDfnNodeCreators::RegisterNodeCreates( VistaSystem* pVistaSystem 
 					new VistaDfnTextOverlayNodeCreate<VistaQuaternion>( pVistaSystem->GetDisplayManager() ) );
 	pFac->SetNodeCreator( "TextOverlay[VistaTransformMatrix]",
 					new VistaDfnTextOverlayNodeCreate<VistaTransformMatrix>( pVistaSystem->GetDisplayManager() ) );
+	pFac->SetNodeCreator( "SimpleText",
+					new VistaDfnSimpleTextNodeCreate( pVistaSystem->GetDisplayManager() ) );
+
+	pFac->SetNodeCreator( "CropViewport",
+					new VistaDfnCropViewportNodeCreate( pVistaSystem->GetDisplayManager() ) );
+	pFac->SetNodeCreator( "KeyCallback",
+					new VistaDfnKeyCallbackNodeCreate( pVistaSystem->GetKeyboardSystemControl() ) );
+	pFac->SetNodeCreator( "ProximityWarning",
+					new VistaDfnProximityWarningNodeCreate( pVistaSystem ) );
+	pFac->SetNodeCreator( "Fadeout",
+					new VistaDfnFadeoutNodeCreate( pVistaSystem->GetClusterMode(),
+																pVistaSystem->GetDisplayManager() ) );
+	pFac->SetNodeCreator( "Geometry", new VistaDfnGeometryNodeCreate( pVistaSystem->GetGraphicsManager()->GetSceneGraph() ) );
+	pFac->SetNodeCreator( "PointingRay", new VistaDfnPointingRayGeometryNodeCreate( pVistaSystem->GetGraphicsManager()->GetSceneGraph() ) );
+
 
 	return true;
 }
@@ -292,18 +323,42 @@ IVdfnNode* VistaDfnEventSourceNodeCreate::CreateNode( const VistaPropertyList &o
 
 IVdfnNode *VistaDfnNavigationNodeCreate::CreateNode( const VistaPropertyList &oParams ) const
 {
-	assert( oParams.HasSubList("param" ) );
 	const VistaPropertyList &oPars = oParams.GetSubListConstRef( "param" );
 
-	int iDefaultMode = oPars.GetValueOrDefault<int>( "default_navigation_mode", 0 );
+	int iDefaultMode = 0;
+	if( oPars.GetValue<int>( "default_navigation_mode", iDefaultMode ) == false )
+	{
+		std::string sDefaultMode;
+		if( oPars.GetValue<std::string>( "default_navigation_mode", sDefaultMode ) )
+		{
+			if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sDefaultMode, "unconstrained" ) )
+				iDefaultMode = 0;
+			else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sDefaultMode, "yaw_only" ) )
+				iDefaultMode = 1;
+			else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sDefaultMode, "no_roll" ) )
+				iDefaultMode = 2;
+			else
+			{
+				vstr::warnp() << "[VistaDfnNavigationNodeCreate]: unknown value ["
+							<< sDefaultMode << "] for param \"default_navigation_mode\"" << std::endl;
+			}
+		}
+	}
 
 	float fDefaultLinearVelocity = oPars.GetValueOrDefault<float>( "default_linear_velocity", 1.0f );
-
 	float fDefaultAngularVelocity = oPars.GetValueOrDefault<float>( "default_angular_velocity", Vista::Pi );
+	float fLinearAcceleration = oPars.GetValueOrDefault<float>( "linear_acceleration", 0.0f );
+	float fLinearDeceleration = oPars.GetValueOrDefault<float>( "linear_deceleration", fLinearAcceleration );
+	float fAngularAcceleration = oPars.GetValueOrDefault<float>( "angular_acceleration", 0.0f );
+	float fAngularDeceleration = oPars.GetValueOrDefault<float>( "angular_deceleration", fAngularAcceleration );
 
 	return new VistaDfnNavigationNode( iDefaultMode,
 										fDefaultLinearVelocity,
-										fDefaultAngularVelocity );
+										fDefaultAngularVelocity,
+										fLinearAcceleration,
+										fLinearDeceleration,
+										fAngularAcceleration,
+										fAngularDeceleration );
 }
 
 
@@ -383,18 +438,36 @@ IVdfnNode *VistaDfnViewerSinkNodeCreate::CreateNode( const VistaPropertyList &oP
 {
 	try
 	{
-		const VistaPropertyList &subs = oParams.GetPropertyConstRef("param").GetPropertyListConstRef();
+		const VistaPropertyList& oSubs = oParams.GetSubListConstRef( "param" );
 
-		if(subs.HasProperty("displaysystem"))
+		VistaDisplaySystem* pSystem = NULL;
+		std::string sDisplaySystemName;
+		if( oSubs.GetValue( "displaysystem", sDisplaySystemName ) )
 		{
-			std::string strDispSysName;
-			subs.GetValue( "displaysystem", strDispSysName );
-			VistaDisplaySystem *pSystem = m_pMgr->GetDisplaySystemByName(strDispSysName);
-			if(pSystem)
+			pSystem = m_pMgr->GetDisplaySystemByName( sDisplaySystemName );
+			if( pSystem == NULL )
 			{
-				return new VistaDfnViewerSinkNode( pSystem );
+				vstr::warnp() << "[VistaDfnViewerSinkNodeCreate]:requested display system ["
+						<< sDisplaySystemName << "] does not exist!" << std::endl;
+				return NULL;
 			}
 		}
+		else if( m_pMgr->GetNumberOfDisplaySystems() == 0 )
+		{
+			vstr::warnp() << "[VistaDfnViewerSinkNodeCreate]: No display systems available!" << std::endl;
+			return NULL;
+		}
+		else if( m_pMgr->GetNumberOfDisplaySystems() == 1 )
+		{
+			pSystem = m_pMgr->GetDisplaySystem( 0 );
+		}
+		else
+		{
+			vstr::warnp() << "[VistaDfnViewerSinkNodeCreate]: More than one display system available "
+						" - please specify a \"displaysystem\" parameter!" << std::endl;
+		}
+
+		return new VistaDfnViewerSinkNode( pSystem );
 	}
 	catch(VistaExceptionBase &x)
 	{
@@ -440,9 +513,11 @@ VistaDfnReferenceFrameTransformNodeCreate::VistaDfnReferenceFrameTransformNodeCr
 IVdfnNode* VistaDfnReferenceFrameTransformNodeCreate::CreateNode( 
 												const VistaPropertyList &oParams ) const
 {
+	const VistaPropertyList& oSubs = oParams.GetSubListConstRef( "param" );
+
 	VistaDisplaySystem* pDisplaySystem;
 	std::string sDisplaySystemName;
-	if( oParams.GetValue( "displaysystem", sDisplaySystemName ) )
+	if( oSubs.GetValue( "displaysystem", sDisplaySystemName ) )
 	{		
 		pDisplaySystem = m_pDisplayManager->GetDisplaySystemByName( sDisplaySystemName );		
 	}
@@ -453,11 +528,9 @@ IVdfnNode* VistaDfnReferenceFrameTransformNodeCreate::CreateNode(
 	if( pDisplaySystem == NULL )
 			return NULL;
 
-	assert( oParams.HasSubList("param" ) );
-	const VistaPropertyList& oSubParams = oParams.GetSubListConstRef( "param" );
 	bool bTransformToFrame = false;
 	std::string sTransformMode;
-	if( oSubParams.GetValue( "transform_mode", sTransformMode ) )
+	if( oSubs.GetValue( "transform_mode", sTransformMode ) )
 	{
 		if( sTransformMode == "to_frame" )
 			bTransformToFrame = true;
@@ -472,9 +545,9 @@ IVdfnNode* VistaDfnReferenceFrameTransformNodeCreate::CreateNode(
 		}
 	}
 
-	int iNrPositionPorts = oSubParams.GetValueOrDefault<int>( "num_position_ports", 1 );
-	int iNrOrientationPorts = oSubParams.GetValueOrDefault<int>( "num_orientation_ports", 1 );
-	int iNrMatrixPorts = oSubParams.GetValueOrDefault<int>( "num_matrix_ports", 0 );
+	int iNrPositionPorts = oSubs.GetValueOrDefault<int>( "num_position_ports", 1 );
+	int iNrOrientationPorts = oSubs.GetValueOrDefault<int>( "num_orientation_ports", 1 );
+	int iNrMatrixPorts = oSubs.GetValueOrDefault<int>( "num_matrix_ports", 0 );
 
 	return ( new VistaDfnReferenceFrameTransformNode(
 									pDisplaySystem->GetReferenceFrame(),
@@ -519,7 +592,7 @@ IVdfnNode *VistaDfnProjectionSourceNodeCreate::CreateNode( const VistaPropertyLi
 
 // #############################################################################
 
-class VistaFrameclockNodeCreate::TimerNodeFrameclockGet : public VdfnTimerNode::CGetTime
+class VistaDfnFrameclockNodeCreate::TimerNodeFrameclockGet : public VdfnTimerNode::CGetTime
 {
 public:
 	TimerNodeFrameclockGet( VistaClusterMode* pClusterAux )
@@ -534,23 +607,495 @@ private:
 	VistaClusterMode* m_pClusterAux;
 };
 
-VistaFrameclockNodeCreate::VistaFrameclockNodeCreate( VistaClusterMode* pClusterAux ) 
+VistaDfnFrameclockNodeCreate::VistaDfnFrameclockNodeCreate( VistaClusterMode* pClusterAux ) 
 : VdfnNodeFactory::IVdfnNodeCreator()
 , m_pClusterAux( pClusterAux )
 {
 }
 
-IVdfnNode* VistaFrameclockNodeCreate::CreateNode( const VistaPropertyList &oParams ) const
+IVdfnNode* VistaDfnFrameclockNodeCreate::CreateNode( const VistaPropertyList &oParams ) const
 {
 	return new VdfnTimerNode( new TimerNodeFrameclockGet( m_pClusterAux ), false );
 }
 
 // #############################################################################
 
-// #############################################################################
+
+VistaDfnCropViewportNodeCreate::VistaDfnCropViewportNodeCreate( VistaDisplayManager* pDisplayManager )
+: m_pDisplayManager( pDisplayManager )
+{
+}
+
+IVdfnNode* VistaDfnCropViewportNodeCreate::CreateNode( const VistaPropertyList &oParams ) const
+{
+	const VistaPropertyList& oSubs = oParams.GetSubListConstRef( "param" );
+
+	std::vector<std::string> vecViewportNames;
+	std::vector<VistaViewport*> vecViewports;
+	if( oParams.GetValue( "viewports", vecViewportNames ) )
+	{
+		for( std::vector<std::string>::const_iterator itViewportName = vecViewportNames.begin();
+				itViewportName != vecViewportNames.end(); ++itViewportName )
+		{
+			VistaViewport* pViewport = m_pDisplayManager->GetViewportByName( (*itViewportName) );
+			if( pViewport )
+			{
+				vecViewports.push_back( pViewport );
+			}
+			else
+			{
+				vstr::warnp() << "[VistaCropViewportNodeCreate]: Viewport of name ["
+							<< (*itViewportName) << "] does not exist" << std::endl;
+			}
+		}
+	}
+	else
+	{
+		for( std::map<std::string, VistaViewport*>::const_iterator itViewport = m_pDisplayManager->GetViewportsConstRef().begin();
+				itViewport != m_pDisplayManager->GetViewportsConstRef().end(); ++itViewport )
+		{
+			vecViewports.push_back( (*itViewport).second );
+		}
+	}
+
+	bool bUseProjExtents = oSubs.GetValueOrDefault<bool>( "use_projection_extents", false );
+	float nLeft = oSubs.GetValueOrDefault<float>( "crop_left", 0.0f );
+	float nRight = oSubs.GetValueOrDefault<float>( "crop_right", 0.0f );
+	float nBottom = oSubs.GetValueOrDefault<float>( "crop_bottom", 0.0f );
+	float nTop = oSubs.GetValueOrDefault<float>( "crop_top", 0.0f );
+
+	VistaColor oCropColor = oSubs.GetValueOrDefault<VistaColor>( "color", VistaColor::BLACK );
+
+	VistaDfnCropViewportNode* pNode = new VistaDfnCropViewportNode( nLeft, nRight, nBottom, nTop, bUseProjExtents, oCropColor );
+
+	VistaVector3D v3Normal;
+	if( oSubs.GetValue( "filter_projection_normal", v3Normal ) )
+	{
+		v3Normal.Normalize();
+		for( std::vector<VistaViewport*>::const_iterator itViewport = vecViewports.begin();
+				itViewport != vecViewports.end(); ++itViewport )
+		{
+			VistaVector3D v3ProjectionNormal;
+			(*itViewport)->GetProjection()->GetProjectionProperties()->GetProjPlaneNormal(
+						v3ProjectionNormal[0], v3ProjectionNormal[1], v3ProjectionNormal[2] );
+			float nDot = v3ProjectionNormal.Dot( v3Normal );
+			if( 1.0 - nDot < Vista::Epsilon )
+			{
+				pNode->AddViewport( (*itViewport) );
+			}
+		}
+	}
+	else
+	{
+		for( std::vector<VistaViewport*>::const_iterator itViewport = vecViewports.begin();
+				itViewport != vecViewports.end(); ++itViewport )
+		{
+			pNode->AddViewport( (*itViewport) );
+		}
+	}
+
+	return pNode;
+}
+
 
 // #############################################################################
 
+VistaDfnKeyCallbackNodeCreate::VistaDfnKeyCallbackNodeCreate( VistaKeyboardSystemControl* pKeyboard )
+: m_pKeyboard( pKeyboard )
+{
+}
+
+IVdfnNode* VistaDfnKeyCallbackNodeCreate::CreateNode( const VistaPropertyList &oParams ) const
+{
+	const VistaPropertyList& oSubs = oParams.GetSubListConstRef( "param" );
+
+	
+	int nKeyCode;
+	int nModCode = VISTA_KEYMOD_NONE;
+	if( oSubs.GetValue<int>( "key_value", nKeyCode ) == false )
+	{
+		std::string sKey;
+		if( oSubs.GetValue<std::string>( "key", sKey ) )
+		{
+			nKeyCode = VistaKeyboardSystemControl::GetKeyValueFromString( sKey );
+			if( nKeyCode == -1 )
+			{
+				vstr::warnp() << "[DfnKeyCallbackNodeCreate]: invalid \"key\"-entry ["
+								<< sKey << "]" << std::endl;
+				return NULL;
+			}
+		}
+		else
+		{
+			vstr::warnp() << "[DfnKeyCallbackNodeCreate]: neither \"key\" nor \"key_value\" specified" << std::endl;
+			return NULL;
+		}
+	}
+	if( oSubs.GetValue<int>( "mod_value", nKeyCode ) == false )
+	{
+		std::string sMod;
+		if( oSubs.GetValue<std::string>( "mod", sMod ) )
+		{
+			nModCode = VistaKeyboardSystemControl::GetModifiersValueFromString( sMod );
+			if( nModCode == -1 )
+			{
+				vstr::warnp() << "[DfnKeyCallbackNodeCreate]: invalid \"mod\"-entry ["
+								<< sMod << "]" << std::endl;
+				return NULL;
+			}
+		}
+	}
+	std::string sHelpText = oSubs.GetValueOrDefault<std::string>( "description", "<none>" );
+	bool bForce = oSubs.GetValueOrDefault<bool>( "force", false );
+
+	VistaDfnKeyCallbackNode* pNode = new VistaDfnKeyCallbackNode(
+									m_pKeyboard, nKeyCode, nModCode, sHelpText, bForce );
+	return pNode;
+}
+
+// #############################################################################
+
+
+VistaDfnProximityWarningNodeCreate::VistaDfnProximityWarningNodeCreate( VistaSystem* pVistaSystem )
+: m_pVistaSystem( pVistaSystem )
+{
+}
+
+IVdfnNode* VistaDfnProximityWarningNodeCreate::CreateNode( const VistaPropertyList &oParams ) const
+{
+	const VistaPropertyList& oSubs = oParams.GetSubListConstRef( "param" );
+
+	bool bUseBox = false;
+	VistaBoundingBox oBox;
+	VistaQuaternion qBoxRotation;
+
+	if( oSubs.GetValue<VistaVector3D>( "box_min", oBox.m_v3Min )
+		&& oSubs.GetValue<VistaVector3D>( "box_max", oBox.m_v3Max ) )
+	{
+		qBoxRotation = oSubs.GetValueOrDefault<VistaQuaternion>( "box_orientation" );
+		bUseBox = true;
+	}
+	std::vector<float> vecPlanes;
+	oSubs.GetValue( "halfplanes", vecPlanes );
+
+	if( vecPlanes.size() % 6 != 0 )
+	{
+		vstr::warnp() << "[VistaDfnProximityWarningNodeCreate]: entry \"halfplanes\""
+						" must have exactly 3 values for center and 3 values for normal"
+						" per half plane" << std::endl;
+		return NULL;
+	}
+
+	if( bUseBox == false && vecPlanes.empty() )
+	{
+		vstr::warnp() << "[VistaDfnProximityWarningNodeCreate]: Neither \"halfplanes\""
+						" nor \"box_min\"+\"box_max\" specified" << std::endl;
+		return NULL;
+	}
+
+	float nSafeDistance = 0;
+	float nDangerDistance = 0;
+	if( oSubs.GetValue( "safe_distance", nSafeDistance ) == false
+		|| oSubs.GetValue( "danger_distance", nDangerDistance ) == false )
+	{
+		vstr::warnp() << "[VistaDfnProximityWarningNodeCreate]: \"safe_distance\""
+						" or \"danger_distance\" entry missing" << std::endl;
+		return NULL;
+	}	
+
+	std::string sType = oSubs.GetValueOrDefault<std::string>( "type", "" );
+
+	IVistaProximityWarningBase* pWarn;
+
+	if( sType.empty()
+		|| VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sType, "fadeout" ) )
+	{
+		VistaColor oColor = oSubs.GetValueOrDefault<VistaColor>( "color", VistaColor::BLACK );
+
+		VistaProximityFadeout* pFadeout = new VistaProximityFadeout( nSafeDistance, nDangerDistance );
+		pFadeout->SetFadeoutColor( oColor );
+		std::vector<std::string> vecViewports;
+		if( oSubs.GetValue( "viewports", vecViewports ) )
+		{
+			for( std::vector<std::string>::const_iterator itViewport = vecViewports.begin();
+					itViewport != vecViewports.end(); ++itViewport )
+			{
+				VistaViewport* pViewport = m_pVistaSystem->GetDisplayManager()->GetViewportByName( (*itViewport) );
+				if( pViewport == NULL )
+				{
+					vstr::warnp() << "[VistaDfnProximityFadeoutNodeCreate]: requested viewport ["
+						<< (*itViewport) << "] does not exist" << std::endl;
+				}
+				else
+					pFadeout->AddViewport( pViewport );
+			}
+		}
+		else
+		{
+			pFadeout->AddAllViewports( m_pVistaSystem->GetDisplayManager() );
+		}
+		pWarn = pFadeout;
+	}
+	else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sType, "sign" )  )
+	{
+		bool bDisableOcclusion = oSubs.GetValueOrDefault<bool>( "disable_occlusion", true );
+		VistaProximitySign* pSign = new VistaProximitySign( nSafeDistance, nDangerDistance,
+																bDisableOcclusion,
+																m_pVistaSystem->GetGraphicsManager() );
+		std::string sTexture;
+		if( oSubs.GetValue<std::string>( "texture", sTexture ) )
+		{
+			if( pSign->SetTexture( sTexture ) == false )
+			{
+				vstr::warnp() << "[VistaDfnProximityWarningNodeCreate]: specified \"texture\" "
+						<< " for warning type \"sign\" could not be loaded - using default texture" << std::endl;
+				pSign->SetDefaultTexture();
+			}			
+		}
+		else
+			pSign->SetDefaultTexture();
+		float nSize[2];
+		if( oSubs.GetValueAsArray<2, float>( "size", nSize ) == false )
+		{
+			if( oSubs.GetValue<float>( "size", nSize[0] ) )
+			{
+				nSize[1] = nSize[0];
+			}
+			else
+			{
+				nSize[0] = 1.0f;
+				nSize[1] = 1.0f;
+			}
+		}
+		
+		pSign->SetScale( nSize[0], nSize[1] );
+
+		if( m_pVistaSystem->GetDisplayManager()->GetNumberOfDisplaySystems() > 0 )
+		{
+			VistaUserPlatform* pPlatform = m_pVistaSystem->GetPlatformFor(
+								m_pVistaSystem->GetDisplayManager()->GetDisplaySystem(0) );
+			pSign->SetParentNode( pPlatform->GetPlatformNode() );
+		}
+
+		pWarn = pSign;
+	}
+	else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sType, "tape" )  )
+	{
+		if( bUseBox == false || vecPlanes.empty() == false )
+		{
+			vstr::warnp() << "[VistaDfnProximityWarningNodeCreate]: type \"tape\" "
+						<< " only supports box mode, but no halfplanes" << std::endl;
+			return NULL;
+		}
+		bool bDisableOcclusion = oSubs.GetValueOrDefault<bool>( "disable_occlusion", true );
+		VistaProximityBarrierTape* pTape = new VistaProximityBarrierTape( nSafeDistance, nDangerDistance,
+																		bDisableOcclusion,
+																		m_pVistaSystem->GetGraphicsManager() );
+		pTape->SetTapeHeight( oSubs.GetValueOrDefault( "tape_height", 1.2f ) );
+		pTape->SetTapeWidth( oSubs.GetValueOrDefault( "tape_width", 0.15f ) );
+		pTape->SetTapeSpacing( oSubs.GetValueOrDefault( "tape_spacing", 0.0f ) );
+		pTape->SetDistanceFromWall( oSubs.GetValueOrDefault( "distance_from_wall", 0.0f ) );
+		VistaProximityBarrierTape::HeightMode eMode = VistaProximityBarrierTape::HM_FIXED_HEIGHT;
+		std::string sHeightModeString;
+		if( oSubs.GetValue( "height_mode", sHeightModeString ) )
+		{
+			VistaAspectsComparisonStuff::StringCompareObject oCompare( false );
+			if( oCompare( sHeightModeString, "fixed" ) )
+				eMode = VistaProximityBarrierTape::HM_FIXED_HEIGHT;
+			else if( oCompare( sHeightModeString, "adjust_to_user" ) )
+				eMode = VistaProximityBarrierTape::HM_ADJUST_TO_VIEWER_POS;
+			else if( oCompare( sHeightModeString, "adjust_to_user_start" ) )
+				eMode = VistaProximityBarrierTape::HM_ADJUST_TO_VIEWER_POS_AT_START;
+			else if( oCompare( sHeightModeString, "adjust_to_object" ) )
+				eMode = VistaProximityBarrierTape::HM_ADJUST_TO_OBJECT_POS;
+			else if( oCompare( sHeightModeString, "adjust_to_object_start" ) )
+				eMode = VistaProximityBarrierTape::HM_ADJUST_TO_OBJECT_POS_AT_START;			
+			else
+			{
+				vstr::warnp() << "[VistaDfnProximityWarningNodeCreate]: Undefined mode ["
+						<< sHeightModeString << "] for parameter \"height_mode\"" << std::endl;
+				eMode = VistaProximityBarrierTape::HM_FIXED_HEIGHT;
+			}
+			pTape->SetHeightMode( eMode );
+		}
+
+		if( m_pVistaSystem->GetDisplayManager()->GetNumberOfDisplaySystems() > 0 )
+		{
+			VistaUserPlatform* pPlatform = m_pVistaSystem->GetPlatformFor(
+								m_pVistaSystem->GetDisplayManager()->GetDisplaySystem(0) );
+			pTape->SetParentNode( pPlatform->GetPlatformNode() );
+		}
+		pWarn = pTape;
+	}
+	else
+	{
+		vstr::warnp() << "[VistaDfnProximityWarningNodeCreate]: \"type\"-value ["
+					<< sType << "] invalid" << std::endl;
+		return NULL;
+	}
+
+	if( bUseBox )
+		pWarn->SetUseExtents( oBox, qBoxRotation );
+	for( std::size_t i = 0; i < vecPlanes.size(); i += 6 )
+	{
+		pWarn->AddHalfPlane( VistaVector3D( &vecPlanes[i+0] ), VistaVector3D( &vecPlanes[i+3] ) );
+	}
+		
+	VistaDfnProximityWarningNode* pNode = new VistaDfnProximityWarningNode;
+	pNode->AddWarning( pWarn );
+
+	return pNode;
+}
+
+// #############################################################################
+
+VistaDfnFadeoutNodeCreate::VistaDfnFadeoutNodeCreate( VistaClusterMode* pClusterMode,
+																	   VistaDisplayManager* pDisplayManager )
+: VdfnNodeFactory::IVdfnNodeCreator()
+, m_pDisplayManager( pDisplayManager )
+, m_pClusterMode( pClusterMode )
+{
+}
+
+IVdfnNode* VistaDfnFadeoutNodeCreate::CreateNode( const VistaPropertyList &oParams ) const
+{
+	const VistaPropertyList& oSubs = oParams.GetSubListConstRef( "param" );
+
+	VistaDfnFadeoutNode* pNode = new VistaDfnFadeoutNode( m_pClusterMode );
+	std::vector<std::string> vecViewports;
+	if( oSubs.GetValue( "viewports", vecViewports ) )
+	{
+		for( std::vector<std::string>::const_iterator itViewport = vecViewports.begin();
+				itViewport != vecViewports.end(); ++itViewport )
+		{
+			VistaViewport* pViewport = m_pDisplayManager->GetViewportByName( (*itViewport) );
+			if( pViewport == NULL )
+			{
+				vstr::warnp() << "[VistaDfnProximityFadeoutNodeCreate]: requested viewport ["
+					<< (*itViewport) << "] does not exist" << std::endl;
+			}
+			else
+				pNode->AddToViewport( pViewport );
+		}
+	}
+	else
+	{
+		pNode->AddToAllViewports( m_pDisplayManager );
+	}
+	pNode->SetColor( oSubs.GetValueOrDefault<VistaColor>( "color", VistaColor::GRAY ) );
+	pNode->SetFadeinTime( oSubs.GetValueOrDefault<VistaType::microtime>( "fadein_time", 1.0 ) );
+	pNode->SetFadeoutTime( oSubs.GetValueOrDefault<VistaType::microtime>( "fadeout_time", 1.0 ) );
+		
+	return pNode;
+}
+
+// #############################################################################
+
+VistaDfnSimpleTextNodeCreate::VistaDfnSimpleTextNodeCreate( VistaDisplayManager* pDisplayManager )
+: m_pDisplayManager( pDisplayManager )
+{
+}
+
+IVdfnNode* VistaDfnSimpleTextNodeCreate::CreateNode( const VistaPropertyList &oParams ) const
+{
+	const VistaPropertyList& oSubs = oParams.GetSubListConstRef( "param" );
+
+	VistaDfnSimpleTextNode* pNode = new VistaDfnSimpleTextNode( m_pDisplayManager );
+	pNode->SetTextSize( oSubs.GetValueOrDefault<int>( "textsize", 20 ) );
+	pNode->SetCaptionColumnWidth( oSubs.GetValueOrDefault<int>( "caption_column_width", 0 ) );
+	pNode->SetColor( oSubs.GetValueOrDefault<VistaColor>( "color", VistaColor::RED ) );
+
+	return pNode;
+}
+
+// #############################################################################
+
+VistaDfnGeometryNodeCreate::VistaDfnGeometryNodeCreate( VistaSceneGraph* pSceneGraph )
+: m_pSceneGraph( pSceneGraph )
+{
+}
+
+IVdfnNode* VistaDfnGeometryNodeCreate::CreateNode( const VistaPropertyList &oParams ) const
+{
+	const VistaPropertyList& oSubs = oParams.GetSubListConstRef( "param" );
+	VistaDfnGeometryNode* pNode = NULL;
+	std::string sFilename;
+	if( oSubs.GetValue( "modelfile", sFilename ) )
+	{
+		// @todo map optimizations
+		IVistaNode* pModelNode = m_pSceneGraph->LoadNode( sFilename );
+		if( pModelNode == NULL )
+		{
+			vstr::warnp() << "[VistaDfnGeometryNodeCreate]: could not load model file ["
+							<< sFilename << "]" << std::endl;
+			return NULL;
+		}
+		pNode = new VistaDfnGeometryNode( pModelNode, m_pSceneGraph );
+	}
+	else
+	{
+		// interpret it as proplist config
+		pNode = new VistaDfnGeometryNode( oSubs, m_pSceneGraph );
+	}
+
+	if( pNode->GetIsValid() == false )
+	{
+		vstr::warnp() << "[VistaDfnGeometryNodeCreate]: configuration of geometry failed" << std::endl;
+	}
+	else
+	{
+		VistaVector3D v3OffsetTrans;
+		VistaVector3D v3OffsetScale;
+		float nOffsetScaleUniform;
+		VistaQuaternion qOffsetRotation;
+		VistaTransformMatrix matOffsetTrans;
+		if( oSubs.GetValue( "offset_translation", v3OffsetTrans ) )
+			pNode->GetOffsetNode()->SetTranslation( v3OffsetTrans );
+		if( oSubs.GetValue( "offset_scale", v3OffsetScale ) )
+			pNode->GetOffsetNode()->SetScale( v3OffsetScale );
+		if( oSubs.GetValue( "offset_uniform_scale", nOffsetScaleUniform ) )
+			pNode->GetOffsetNode()->SetScale( nOffsetScaleUniform, nOffsetScaleUniform, nOffsetScaleUniform );
+		if( oSubs.GetValue( "offset_rotation", qOffsetRotation ) )
+			pNode->GetOffsetNode()->SetRotation( qOffsetRotation );
+		if( oSubs.GetValue( "offset_transform", matOffsetTrans ) )
+			pNode->GetOffsetNode()->SetTransform( matOffsetTrans );
+	}
+
+	return pNode;
+}
+
+// #############################################################################
+
+VistaDfnPointingRayGeometryNodeCreate::VistaDfnPointingRayGeometryNodeCreate( VistaSceneGraph* pSceneGraph )
+: m_pSceneGraph( pSceneGraph )
+{
+}
+
+IVdfnNode* VistaDfnPointingRayGeometryNodeCreate::CreateNode( const VistaPropertyList &oParams ) const
+{
+	const VistaPropertyList& oSubs = oParams.GetSubListConstRef( "param" );
+
+	int nNumSides = oSubs.GetValueOrDefault( "sides", 24 );
+	float nRadius = oSubs.GetValueOrDefault( "radius", 0.0075f );
+	float nRadiusTip = oSubs.GetValueOrDefault( "tip_radius", nRadius );
+	float nLength = oSubs.GetValueOrDefault( "length", 2.0f );
+	VistaColor oColor = oSubs.GetValueOrDefault<VistaColor>( "color", VistaColor( 0.8f, 0.8f, 0.83f ) );
+
+	VistaGeometryFactory oFactory( m_pSceneGraph );
+	VistaGeometry* pGeom = oFactory.CreateCone( nRadius, nRadiusTip, nLength,
+											nNumSides, 1, 1, oColor );
+
+	VistaDfnGeometryNode* pNode = new VistaDfnGeometryNode( pGeom, m_pSceneGraph );
+
+	// rotate and translate pointer to start at center and point towards -z );
+	VistaTransformMatrix matTransform( VistaQuaternion( 0.70710778f, 0, 0, -0.70710778f ),
+										VistaVector3D( 0, 0, -0.5f * nLength ) );
+	pNode->GetOffsetNode()->SetTransform( matTransform );
+
+	return pNode;
+}
+
+// #############################################################################
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/

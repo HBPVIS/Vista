@@ -3326,7 +3326,7 @@ bool VistaOpenSGGraphicsBridge::SetMaterial(const VistaMaterial& oMaterial, IVis
 		matchunk->setSpecular(osg::Color4f(spe[0],spe[1],spe[2],1.0f));
 		matchunk->setEmission(osg::Color4f(emi[0],emi[1],emi[2],1.0f));
 		matchunk->setShininess(nShininess);
-		matchunk->setLit(true);
+		matchunk->setLit(true);		
 	}
 	endEditCP(matchunk);
 

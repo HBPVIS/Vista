@@ -157,8 +157,7 @@ void VistaOpenSGSystemClassFactory::Debug(std::ostream &out, bool bVerbose) cons
 
 VistaOpenSGSystemClassFactory::~VistaOpenSGSystemClassFactory()
 {
-	IVistaThreadImp::IVistaThreadImpFactory *pF = IVistaThreadImp::GetThreadImpFactory();
-	delete pF;
+	IVistaThreadImp::DeleteThreadImpFactory();
 
 	delete m_pRenderAction;
 

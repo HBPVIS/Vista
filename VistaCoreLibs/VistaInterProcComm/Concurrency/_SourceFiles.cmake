@@ -18,6 +18,8 @@ set( DirFiles
 	VistaPriority.h
 	VistaProcess.cpp
 	VistaProcess.h
+	VistaProcessEvent.cpp
+	VistaProcessEvent.h
 	VistaReaderWriterLock.cpp
 	VistaReaderWriterLock.h
 	VistaSemaphore.cpp

@@ -89,7 +89,7 @@ IVistaDeSerializer &IVistaDeSerializer::operator>> ( VistaType::float64 &val)
 
 IVistaDeSerializer &IVistaDeSerializer::operator>> ( string &val)
 {
-	ReadDelimitedString( val );
+	ReadEncodedString(val);
 	return *this;
 }
 
@@ -98,4 +98,3 @@ IVistaDeSerializer &IVistaDeSerializer::operator>> ( bool &val)
 	ReadBool(val);
 	return *this;
 }
-

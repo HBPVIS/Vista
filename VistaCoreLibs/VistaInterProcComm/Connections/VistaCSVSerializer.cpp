@@ -134,14 +134,23 @@ int VistaCSVSerializer::WriteString( const string &sString)
 int VistaCSVSerializer::WriteDelimitedString( const string &sString, char cDelim)
 {
 	int iRet = WriteString(sString);
-		char c[2];
-		c[0] = cDelim;
-		c[1] = 0x0;
+	char c[2];
+	c[0] = cDelim;
+	c[1] = 0x0;
 
-		iRet += WriteString(std::string(c));
+	iRet += WriteString(std::string(c));
 
-		return iRet;
+	return iRet;
 }
+
+
+int VistaCSVSerializer::WriteEncodedString( const std::string& sString )
+{
+	int nRet = WriteInt32( (VistaType::sint32)sString.size() );
+	nRet += WriteString( sString );
+	return nRet;
+}
+
 
 
 int VistaCSVSerializer::WriteRawBuffer( const void *pBuffer, const int iLen)

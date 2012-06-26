@@ -8,12 +8,18 @@ set( DirFiles
 	VistaDfn3DMouseTransformNode.h
 	VistaDfnClusterNodeInfoNode.cpp
 	VistaDfnClusterNodeInfoNode.h
+	VistaDfnProximityWarningNode.cpp
+	VistaDfnProximityWarningNode.h
 	VistaDfnDeviceDebugNode.cpp
 	VistaDfnDeviceDebugNode.h
 	VistaDfnDumpHistoryNodeClusterCreate.cpp
 	VistaDfnDumpHistoryNodeClusterCreate.h
 	VistaDfnEventSourceNode.cpp
 	VistaDfnEventSourceNode.h
+	VistaDfnFadeoutNode.cpp
+	VistaDfnFadeoutNode.h
+	VistaDfnGeometryNode.cpp
+	VistaDfnGeometryNode.h
 	VistaDfnMouseWheelChangeDetectNode.cpp
 	VistaDfnMouseWheelChangeDetectNode.h
 	VistaDfnNavigationNode.cpp
@@ -32,6 +38,8 @@ set( DirFiles
 	VistaDfnTextOverlayNode.h
 	VistaDfnTrackballNode.cpp
 	VistaDfnTrackballNode.h
+	VistaDfnSimpleTextNode.cpp
+	VistaDfnSimpleTextNode.h
 	VistaDfnViewerSinkNode.cpp
 	VistaDfnViewerSinkNode.h
 	VistaDfnViewerSourceNode.cpp
@@ -42,6 +50,10 @@ set( DirFiles
 	VistaDfnWindowSourceNode.h
 	VistaKernelDfnNodeCreators.cpp
 	VistaKernelDfnNodeCreators.h
+	VistaDfnCropViewportNode.cpp
+	VistaDfnCropViewportNode.h
+	VistaDfnKeyCallbackNode.cpp
+	VistaDfnKeyCallbackNode.h
 	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )

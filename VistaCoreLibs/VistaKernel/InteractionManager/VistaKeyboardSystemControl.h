@@ -287,6 +287,9 @@ public:
 	static std::string GetKeyName( const int nKeyCode );
 	static std::string GetModifiersName( const int nModifiers );
 
+	static int GetKeyValueFromString( const std::string& sKeyString );
+	static int GetModifiersValueFromString( const std::string& sModString );
+
 private:
 	IVistaDirectKeySink         *m_pKeySink;
 

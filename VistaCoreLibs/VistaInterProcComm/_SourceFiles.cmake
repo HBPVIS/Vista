@@ -2,11 +2,10 @@
 
 set( RelativeDir "." )
 set( RelativeSourceGroup "Source Files" )
-set( SubDirs AsyncIO Concurrency Connections DataLaVista Hardware IPNet SharedMemory )
+set( SubDirs AsyncIO Cluster Concurrency Connections DataLaVista Hardware IPNet SharedMemory )
 
 set( DirFiles
 	VistaInterProcCommConfig.h
-	_SourceFiles.cmake
 	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )

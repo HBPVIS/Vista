@@ -105,9 +105,10 @@ int VdfnPortSerializeAdapter::Serialize(IVistaSerializer &oSer) const
 	if(m_pPort == NULL)
 		return 0;
 
-	oSer << (*m_pPort).m_nLastUpdate
-					<< (VistaType::sint32)(*m_pPort).m_nUpdateCounter;
-	return sizeof(double)+sizeof(unsigned int);
+	int nRet = 0;
+	nRet += oSer.WriteDouble( (*m_pPort).m_nLastUpdate );
+	nRet += oSer.WriteInt32( (VistaType::sint32)(*m_pPort).m_nUpdateCounter );
+	return nRet;
 }
 
 int VdfnPortSerializeAdapter::DeSerialize(IVistaDeSerializer &oDeSer)
@@ -115,13 +116,15 @@ int VdfnPortSerializeAdapter::DeSerialize(IVistaDeSerializer &oDeSer)
 	if(m_pPort == NULL)
 		return 0;
 
+	int nRet = 0;
+
 	VistaType::sint32 updCnt=0;
-	oDeSer >> (*m_pPort).m_nLastUpdate
-		>> updCnt;
+	nRet += oDeSer.ReadDouble( (*m_pPort).m_nLastUpdate );
+	nRet += oDeSer.ReadInt32( updCnt );
 
 	(*m_pPort).m_nUpdateCounter = updCnt;
 
-	return sizeof(double)+sizeof(unsigned int);
+	return nRet;
 }
 
 std::string VdfnPortSerializeAdapter::GetSignature() const

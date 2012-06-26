@@ -166,6 +166,13 @@ public:
 	virtual int WriteDelimitedString( const std::string &sString, char cDelim = '\0') = 0;
 
 	/**
+	 * This method is to write a std::string including a size encoding.
+	 * @param sString the std::string to be written
+	 * @return the number of bytes written or -1 on failure
+	 */
+	virtual int WriteEncodedString( const std::string &sString ) = 0;
+
+	/**
 	 * This method is to write a binary byte field of length iLen, without forcing its encoding for the
 	 * transport layer. Some implementations may chose to send the length as 32bit-int
 	 * first prepended by the byte field itself, some may totally ignore the length or chose

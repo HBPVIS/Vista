@@ -585,7 +585,7 @@ bool VistaDisplaySystem::VistaDisplaySystemProperties::SetHMDModeActive(bool bSe
 	else
 	{
 		GetDisplayBridge()->SetHMDModeActive( bSet , pDS);
-		//Notify(MSG_LOCAL_VIEWER_CHANGE); / @todo ?
+		Notify(MSG_HMDMODE_CHANGE);
 		return true;
 	}
 }

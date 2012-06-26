@@ -41,38 +41,65 @@
 class VISTATOOLSAPI VistaRandomNumberGenerator
 {
 public:
-	static VistaRandomNumberGenerator *GetSingleton();
+	VistaRandomNumberGenerator();
+	~VistaRandomNumberGenerator();
+
+	/**
+	 * returns standard RNG - only use from the main thread.
+	 * The standard RNG is created on first call, and is initialized
+	 * with the default seed. However, the VistaSystem will set a random
+	 * seed (same on all nodes in a cluster) during its initialization.
+	 */
+	static VistaRandomNumberGenerator* GetStandardRNG();
+	/**
+	 * @CLUSTERTODO: temporary duplicate of GetStandardRNG
+	 * to keep dll/API compatibility
+	 */
+	static VistaRandomNumberGenerator* GetSingleton();
+	/**
+	 * returns a specific RNG for the calling thread.
+	 * Will be created on first request with the default seed.
+	 */
+	static VistaRandomNumberGenerator* GetThreadLocalRNG();
 
 	void          SetSeed(unsigned int);
 	void          SetSeedByArray(unsigned int init_key[], int key_length);
 
-	unsigned int GenerateInt32() ;
-
 	/**
-	* [iLowerBound, iUpperBound]
-	*/
-	unsigned int GenerateInt32(unsigned int iLowerBound, unsigned int iUpperBound);
-
+	 * unsigned int, 32bit resolution
+	 * [0, 4294967296) <-> [0, 2^32)
+	 */
+	unsigned int GenerateInt32() ;
+	/**
+	 * signed int, 31bit resolution
+	 * [0, 2147483648) <-> [0, 2^31)
+	 */
 	int           GenerateInt31() ;
 
 	/**
-	* [0,1)
-	*/
+	 * [iLowerBound, iUpperBound]
+	 */
+	unsigned int GenerateInt32(unsigned int iLowerBound, unsigned int iUpperBound);
+
+
+	/**
+	 * [0,1)
+	 */
 	double        GenerateDouble1() ;
 	/**
-	* [0,1]
-	*/
+	 * [0,1]
+	 */
 	double        GenerateDouble2() ;
 
 	/**
-	* (0,1)
-	*/
+	 * (0,1)
+	 */
 	double        GenerateDouble3() ;
 
 
 	/**
-	* [0,1), 53bit resolution
-	*/
+	 * [0,1), 53bit resolution
+	 */
 	double        GenerateDouble53() ;
 
 	/** 
@@ -92,16 +119,12 @@ public:
 
 protected:
 private:
-	VistaRandomNumberGenerator();
-	~VistaRandomNumberGenerator();
 
 
 	//MEMBERS
 	//unsigned long m_mt[N]; /* the array for the state vector  */
 	unsigned int *m_mt;
 	unsigned int m_mti; //=N+1; /* mti==N+1 means mt[N] is not initialized */
-
-	static VistaRandomNumberGenerator *s_pSingleton;
 };
 
 

@@ -119,7 +119,7 @@ std::ostream* VistaStreamManager::CreateNewLogFileStream( const std::string& sFi
 		oStream = new std::ofstream( sFullName.c_str() );
 
 	
-	if( oStream->bad() )
+	if( oStream->bad() || oStream->is_open() == false )
 	{		
 		delete oStream;
 		return NULL;

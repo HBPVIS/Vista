@@ -347,17 +347,16 @@ namespace
 				{
 					vstr::warnp() << "[Vdfn::CreateGraph]: ERROR in graph [" << strTag << "], line "
 							<< edge->Row() << std::endl;
-					vstr::warni() << vstr::singleindent
-							<< "Construction of edge from [" << pcFromPort << ", "
-							<< pFrom->GetNameForNameable() << "] to ["
-							<< pcToPort << ", "
-							<< pTo->GetNameForNameable() 
+					vstr::IndentObject oIndent;
+					vstr::warni() << "Construction of edge from [" << pFrom->GetNameForNameable()
+							<< "::"	<< pcFromPort << "] to ["
+							<< pTo->GetNameForNameable()  << "::"
+							<< pcToPort
 							<< "] failed\n";
-					vstr::warni() << vstr::singleindent
-							<< "Outport does not exist" << std::endl;
-					vstr::warni() << vstr::singleindent
-							<< "Available outports of node [" 
+					vstr::warni() << "Outport [" << pcFromPort << "] does not exist" << std::endl;
+					vstr::warni() << "Available outports of node [" 
 							<< pFrom->GetNameForNameable() << "]:" << std::endl;
+					vstr::IndentObject oIndent2;
 					std::list<std::string> liOutPorts = pFrom->GetOutPortNames();
 					if( liOutPorts.empty() )
 						vstr::warni() << vstr::singleindent << "None" << std::endl;
@@ -368,7 +367,7 @@ namespace
 						{
 							vstr::warni() << vstr::singleindent
 										<< *it << " ["
-										<< VistaConversion::GetTypeName( *pFrom->GetOutPort(*it) )
+										<< VistaConversion::CleanOSTypeName( pFrom->GetOutPort( (*it) )->GetTypeDescriptor() )
 										<< "]" << std::endl;
 						}
 					}
@@ -377,34 +376,35 @@ namespace
 				else
 				{
 					// set this out port to the given in port
-					if(pTo->SetInPort( pcToPort, pFromPort ) == false)
+					if( pTo->SetInPort( pcToPort, pFromPort ) == false )
 					{
+						const IVdfnPortTypeCompare& oPortType = pFrom->GetPortTypeCompareFor( pcFromPort );
 						// did not work
 						vstr::warnp() << "[Vdfn::CreateGraph]: ERROR in graph [" << strTag << "], line "
 									<< edge->Row() << std::endl;
-						vstr::warni() << vstr::singleindent
-									<< "Construction of edge from [" 
-									<< pcFromPort << ", "
-									<< pFrom->GetNameForNameable() << "] to ["
-									<< pcToPort << ", "
-									<< pTo->GetNameForNameable() 
-									<< "] failed - \tInport does not exist" << std::endl;
+						vstr::IndentObject oIndent;
+						vstr::warni() << "Construction of edge from [" 
+									<< pFrom->GetNameForNameable() << "::" << pcFromPort << "] to ["
+									<< pTo->GetNameForNameable() << "::" << pcToPort
+									<< "] failed.\n";
+						vstr::warni() << "Inport [" << pTo->GetNameForNameable() << "] with type ["
+									<< VistaConversion::CleanOSTypeName( oPortType.GetTypeDescriptor() )
+									<< "] does not exist" << std::endl;
 
-						vstr::warni() << vstr::singleindent
-									<< "Available inports of node [" 
+						vstr::warni() << "Available inports of node [" 
 									<< pTo->GetNameForNameable() << "]:" << std::endl;
+						vstr::IndentObject oIndent2;
 						std::list<std::string> liInPorts = pTo->GetInPortNames();
 						if( liInPorts.empty() )
-							vstr::warni() << vstr::singleindent << "None" << std::endl;
+							vstr::warni() << "None" << std::endl;
 						else
 						{
 							for( std::list<std::string>::const_iterator it = liInPorts.begin() ;
 								 it != liInPorts.end() ; it++ )
 							{
 								const IVdfnPortTypeCompare *pPortTC = &(pTo->GetPortTypeCompareFor(*it));
-								vstr::warni() << vstr::singleindent
-											<< *it << " ["
-											<< typeid(*(pPortTC)).name()
+								vstr::warni() << *it << " ["
+											<< VistaConversion::CleanOSTypeName( pPortTC->GetTypeDescriptor() )
 											<< "]" << std::endl;
 							}
 						}
@@ -414,17 +414,17 @@ namespace
 			}
 			else
 			{
-				// total failure. Node not found.
+				// One of the nodes was not found.
 				vstr::warnp() << "[Vdfn::CreateGraph]: ERROR in graph [" << strTag << "], line "
 							<< edge->Row() << std::endl;
-				vstr::warni() << vstr::singleindent
-							<< "Construction of edge from [" 
+				vstr::IndentObject oIndent;
+				vstr::warni() << "Construction of edge from [" 
 							<< ( (pFrom) ? (pFrom->GetNameForNameable()) : ("<null>") )
-							<< ", "
+							<< "::"
 							<< pcFromPort
 							<< "] to ["
 							<< ( (pTo) ? (pTo->GetNameForNameable()) : ("<null>") )
-							<< ", "
+							<< "::"
 							<< pcToPort
 							<< "] failed."
 							<< std::endl;

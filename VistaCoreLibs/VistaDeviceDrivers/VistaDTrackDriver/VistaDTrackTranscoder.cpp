@@ -664,19 +664,19 @@ namespace
 		}
 	};
 
-	class VistaDTrackStick2ControllerGet : public IVistaMeasureTranscode::CScalarDoubleGet
+	class VistaDTrackStick2ControllerGet : public IVistaMeasureTranscode::TTranscodeIndexedGet<float>
 	{
 	public:
 		VistaDTrackStick2ControllerGet()
-			: IVistaMeasureTranscode::CScalarDoubleGet( "CONTROLLER",
-				"VistaDTrackStick2Transcode", "Flystick2 controller")
+			: IVistaMeasureTranscode::TTranscodeIndexedGet<float>( "CONTROLLER",
+				"VistaDTrackStick2Transcode", "Flystick2 controller (i.e. axes)")
 		{
 		}
 
 		virtual unsigned int GetNumberOfIndices() const { return 8; }
 
 		bool GetValueIndexed( const VistaSensorMeasure *pMeasure,
-							double& dScalar, unsigned int nIndex ) const
+							float& dScalar, unsigned int nIndex ) const
 		{
 			if(!pMeasure)
 				return false;

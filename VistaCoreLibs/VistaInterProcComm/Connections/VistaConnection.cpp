@@ -180,6 +180,15 @@ int VistaConnection::WriteString( const string &sString)
 	return Send((void*)sString.data(), (int)sString.length());
 }
 
+
+int VistaConnection::WriteEncodedString( const std::string& sString )
+{
+	int iSize = WriteInt32( (VistaType::sint32)sString.length() );
+	if( sString.size() > 0 )
+		iSize += Send( (void*)sString.data(), (int)sString.length() );
+	return iSize;
+}
+
 int VistaConnection::WriteDelimitedString( const string &sString, char cDelim)
 {
 	int iSize = Send( (void*)sString.data(), (int)sString.length() );
@@ -277,6 +286,8 @@ int VistaConnection::ReadDouble( double &dVal)
 
 int VistaConnection::ReadString(string &sString, const int iMaxLen)
 {
+	if( iMaxLen == 0 )
+		return 0;
 	vector<char> ve(iMaxLen);
 	int iRet = Receive(&ve[0], iMaxLen, m_nReadTimeout);
 	sString.assign(&(ve[0]), iRet);
@@ -324,6 +335,20 @@ int VistaConnection::ReadDelimitedString(string &sString, char cDelim)
 	 }
 
 	 return iReadLength;
+}
+
+int VistaConnection::ReadEncodedString( std::string& sTarget )
+{
+	VistaType::sint32 nSize;
+	int nRet = ReadInt32( nSize );
+	if( nRet != sizeof(VistaType::sint32) )
+		return -1;
+	int nStringRead = ReadString( sTarget, nSize );
+	if( nStringRead != nStringRead )
+	{
+		return false;
+	}
+	return nRet + nStringRead;
 }
 
 int VistaConnection::ReadRawBuffer(void *pBuffer, int iLen)
@@ -398,6 +423,7 @@ bool VistaConnection::SetReadTimeout( int nReadTimeout )
 	m_nReadTimeout = nReadTimeout;
 	return true;
 }
+
 
 /*============================================================================*/
 /*                                                                            */
