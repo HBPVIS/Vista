@@ -36,7 +36,7 @@
 #include <VistaInterProcComm/Connections/VistaMsg.h>
 #include <VistaInterProcComm/Connections/VistaProgressMessage.h>
 #include <VistaInterProcComm/DataLaVista/Base/VistaDataPacket.h>
-#include <VistaKernel/Cluster/VistaClusterMessage.h>
+#include <VistaKernel/Cluster/Utils/VistaMasterSlaveUtils.h>
 #include <VistaKernel/Cluster/VistaClusterMode.h>
 
 // Derived from IVistaSerializable:
