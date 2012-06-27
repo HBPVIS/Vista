@@ -1,6 +1,9 @@
 import os, sys, shutil, re
 
+BackupName ="UPDATE_TO_TRUNK"
+
 cppreplaces = [	
+	( re.compile( r'VistaRandomNumberGenerator::GetSingleton', re.MULTILINE ), r'VistaRandomNumberGenerator::GetStandardRNG' ),
 ]
 
 inireplaces = [	
@@ -12,7 +15,7 @@ xmlreplaces = [
 
 
 replacementrules = [
-	#( r'.+\.(cpp|h)$', cppreplaces ),
+	( r'.+\.(cpp|h)$', cppreplaces ),
 	#( r'.+\.(ini)$', inireplaces ),
 	#( r'.+\.(xml)$', xmlreplaces ),
 ]
@@ -31,7 +34,7 @@ def ReplaceContent( file, replacelist ):
 
 	if replaceCount > 0:
 		print ( ' performed', replaceCount, 'replacements in ' + file )
-		backupFile = file + '.BEFORE_CLUSTERMODE_UPDATE.BAK'
+		backupFile = file + '.' + BackupName + '.BAK'
 		if os.path.isfile( backupFile ) == False:
 			print ( '        backing up original file to ' + backupFile )
 			shutil.copy2( file, backupFile )
@@ -56,7 +59,7 @@ def ProcessFiles( root, files ):
 			
 def UndoBackup( root, files ):
 	for name in files:
-		match = re.search( r'(.+)\.BEFORE_CLUSTERMODE_UPDATE\.BAK$', name )
+		match = re.search( r'(.+)\.' + BackupName + '\.BAK$', name )
 		if match:
 			fullName = os.path.join( root, name )
 			fullRestoreName = os.path.join( root, match.group(1) )
@@ -80,6 +83,6 @@ if len(sys.argv) > 1 and sys.argv[1] != "":
 			ProcessFiles( root, files )
 else:
 	print( 'Usage:' )
-	print( 'VistaTo1.11.py ConversionRootDir [-undo]' )
+	print( 'VistaToTrunk.py ConversionRootDir [-undo]' )
 	print( '  ConversionRootDir specifies toplevel dir from which on all files and subfolders will be converted, automatically backing up changed files' )
 	print( '  -undo - If provided, the backups from a prior conversion will be restored. NOTE: This removes all changes from th econversion, but also all amnual changes after the backup!' )
