@@ -184,6 +184,11 @@ unsigned int IVistaDeviceDriver::AddDeviceSensor(VistaDeviceSensor *pSensor, siz
 
 	// prepare history
 	m_pHistoryAspect->RegisterSensor( pSensor, amf, cmf, bReRegister );
+	pSensor->SetParent(this);
+	if( m_nDefaultHistorySize != ~0 )
+	{
+		SetupSensorHistory( pSensor, m_nDefaultHistorySize, 66.6 );
+	}
 	return (unsigned int)m_vecSensors.size() - 1;
 }
 
