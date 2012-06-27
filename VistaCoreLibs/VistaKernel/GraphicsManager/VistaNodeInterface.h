@@ -32,6 +32,7 @@
 #include <VistaAspects/VistaLocatable.h>
 #include <VistaBase/VistaVectorMath.h>
 #include <VistaBase/VistaBaseTypes.h> // VistaType::uint64
+#include <VistaMath/VistaBoundingBox.h>
 
 #include <vector>
 
@@ -135,13 +136,25 @@ public:
 	virtual void Debug( std::ostream& out, int nLevel = 0 ) const = 0;
 
 	/** Inquire nodes bounding box information
-	  * NOTE: It is still unclear, which coordinate frame is used as reference
-	  * frame for BB information
+	  * bounding box is return in local coordinates
 	  * @param pMin the 'lower left' edge
 	  * @param pMax the 'upper right' edge
 	  * @return bool true/false
 	  */
 	virtual bool GetBoundingBox(VistaVector3D &pMin, VistaVector3D &pMax) const = 0;
+	virtual bool GetBoundingBox( VistaBoundingBox& oBox ) const = 0;
+	virtual VistaBoundingBox GetBoundingBox() const = 0;
+
+	/** Inquire nodes bounding box information
+	  * bounding box is return in world coordinates
+	  * @param pMin the 'lower left' edge
+	  * @param pMax the 'upper right' edge
+	  * @return bool true/false
+	  */
+	virtual bool GetWorldBoundingBox( VistaVector3D& v3Min, VistaVector3D& v3Max ) const = 0;
+	virtual bool GetWorldBoundingBox( VistaBoundingBox& oBox ) const = 0;
+	virtual VistaBoundingBox GetWorldBoundingBox() const = 0;
+
 
 	/**
 	 * Query method to check for transformation changes of the parent path of this
