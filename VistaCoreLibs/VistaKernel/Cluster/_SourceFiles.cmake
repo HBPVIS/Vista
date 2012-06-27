@@ -2,6 +2,11 @@
 
 set( RelativeDir "./Cluster" )
 set( RelativeSourceGroup "Source Files\\Cluster" )
+set( SubDirs Utils )
+
+if( VISTACORELIBS_USE_ZEROMQ )
+	list( APPEND SubDirs ZeroMQExt )
+endif()
 
 set( DirFiles
 	VistaClusterMaster.cpp
@@ -12,30 +17,14 @@ set( DirFiles
 	VistaClusterSlave.h
 	VistaClusterStandalone.cpp
 	VistaClusterStandalone.h
+	VistaClusterSyncedTimerImp.cpp
+	VistaClusterSyncedTimerImp.h
 	VistaDataTunnel.cpp
 	VistaDataTunnel.h
-	VistaMasterDataTunnel.cpp
-	VistaMasterDataTunnel.h
-	#VistaMasterNetworkSync.cpp
-	#VistaMasterNetworkSync.h
-	VistaSlaveDataTunnel.cpp
-	VistaSlaveDataTunnel.h
-	#VistaSlaveNetworkSync.cpp
-	#VistaSlaveNetworkSync.h
-	VistaStandaloneDataTunnel.cpp
-	VistaStandaloneDataTunnel.h
-	#VistaStandaloneNetworkSync.cpp
-	#VistaStandaloneNetworkSync.h
 	VistaNewClusterMaster.cpp
 	VistaNewClusterMaster.h
 	VistaNewClusterSlave.cpp
 	VistaNewClusterSlave.h
-	VistaClusterMessage.cpp
-	VistaClusterMessage.h
-	VistaNetSyncedTimerImp.cpp
-	VistaNetSyncedTimerImp.h
-	VistaGSyncSwapBarrier.cpp
-	VistaGSyncSwapBarrier.h
 	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
@@ -47,7 +36,12 @@ foreach( File ${DirFiles} )
 endforeach()
 source_group( ${DirFiles_SourceGroup} FILES ${LocalSourceGroupFiles} )
 
+set( SubDirFiles "" )
+foreach( Dir ${SubDirs} )
+	list( APPEND SubDirFiles "${RelativeDir}/${Dir}/_SourceFiles.cmake" )
+endforeach()
 
-if( VISTACORELIBS_USE_ZEROMQ )
-	include( "${RelativeDir}/ZeroMQExt/_SourceFiles.cmake" )
-endif()
+foreach( SubDirFile ${SubDirFiles} )
+	include( ${SubDirFile} )
+endforeach()
+

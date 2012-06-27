@@ -23,8 +23,8 @@
 // $Id$
 
 
-#ifndef _VISTANETSYNCEDTIMERIMP_H
-#define _VISTANETSYNCEDTIMERIMP_H
+#ifndef _VISTACLUSTERSYNCEDTIMERIMP_H
+#define _VISTACLUSTERSYNCEDTIMERIMP_H
 
 /*============================================================================*/
 /* INCLUDES                                                                   */
@@ -49,18 +49,37 @@ class VistaConnectionIP;
 /*============================================================================*/
 
 /**
- * Default implementation of IVistaTimerImp
- * Should not be used directly - use VistaTimer instead, which automatically
- * retrieves the TimerImpl singleton
+ * Implementation of the TimerImp that provides mostly synchronous local clocks
+ * in cluster mode. Mostly for testing reasons, pretty inefficient, and not
+ * fully reliable, but okay for testing synchronity etc. in ClusterMode
+ * Directly after calling sync, the clocks should be in sync with a delta of
+ * less than a microsecond (if Network performance is good, at least).
+ * However, due to local clock drifting, a re-syncing has to be performed perio-
+ * dically to maintain precision.
+ * Usage: Create instance of TmierImp, and either use directly to initialize
+ *       your timers, or set as VistaTimerImp-singleton to create all timers
+ *       as netsync by default (before VistaSystem::Init), then initialize
+ *       the TimerImp either using custom connections or the ClusterMode.
+ *       Finally, perform at least on call to Sync()
+ * Note: timestamps will not be necessarily monotonous when calling Sync()
  */
-class VISTAKERNELAPI VistaNetSyncedTimerImp : public VistaDefaultTimerImp
+class VISTAKERNELAPI VistaClusterSyncedTimerImp : public VistaDefaultTimerImp
 {
 public:
-	VistaNetSyncedTimerImp();	
-	virtual ~VistaNetSyncedTimerImp();
+	VistaClusterSyncedTimerImp();	
+	virtual ~VistaClusterSyncedTimerImp();
 
-	void Sync( VistaClusterMode* pCluster, int nIterations = 1000 );
-	void Sync( VistaConnectionIP* pConn, bool bIsSlave, int nIterations = 1000 );
+	bool Init( VistaClusterMode* pMode );
+	bool InitAsLeader( VistaConnectionIP* pConn, bool bManageConnDeletion = true );
+	bool InitAsFollower( std::vector<VistaConnectionIP*> vecConns, 
+							bool bManageConnDeletion = true );
+
+	bool Sync( int nIterations = 1000 );
+
+private:
+	bool m_bIsLeader;
+	bool m_bOwnConnections;
+	std::vector<VistaConnectionIP*> m_vecConnections;
 };
 
 
@@ -68,4 +87,4 @@ public:
 /* END OF FILE                                                                */
 /*============================================================================*/
 
-#endif /* _VISTANETSYNCEDTIMERIMP_H */
+#endif /* _VISTACLUSTERSYNCEDTIMERIMP_H */

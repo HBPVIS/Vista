@@ -26,8 +26,8 @@
 
 #include <VistaKernel/VistaSystem.h>
 #include <VistaKernel/Cluster/VistaClusterMode.h>
-#include <VistaKernel/Cluster/VistaMasterDataTunnel.h>
-#include <VistaKernel/Cluster/VistaGSyncSwapBarrier.h>
+#include <VistaKernel/Cluster/Utils/VistaMasterDataTunnel.h>
+#include <VistaKernel/Cluster/Utils/VistaGSyncSwapBarrier.h>
 #include <VistaKernel/EventManager/VistaEventManager.h>
 #include <VistaKernel/EventManager/VistaEventObserver.h>
 #include <VistaKernel/EventManager/VistaSystemEvent.h>

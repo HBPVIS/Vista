@@ -22,7 +22,7 @@
 /*============================================================================*/
 // $Id$
 
-#include "VistaClusterMessage.h"
+#include "VistaMasterSlaveUtils.h"
 
 #include <VistaKernel/EventManager/VistaEvent.h>
 
@@ -74,7 +74,7 @@ int VistaMasterSlave::Message::Serialize( IVistaSerializer& oSer ) const
 		case CMSG_EVENT:
 		{
 			if( m_pSendEvent == NULL )
-				VISTA_THROW( "VistaClusterMessage invalid during serialization", -1 );
+				VISTA_THROW( "VistaMasterSlaveUtils invalid during serialization", -1 );
 			nRet += oSer.WriteInt32( m_nEventType );
 			nRet += oSer.WriteSerializable( *m_pSendEvent );
 			break;
@@ -93,7 +93,7 @@ int VistaMasterSlave::Message::Serialize( IVistaSerializer& oSer ) const
 		case CMSG_INVALID:
 		default:
 		{
-			VISTA_THROW( "VistaClusterMessage invalid during serialization", -1 );
+			VISTA_THROW( "VistaMasterSlaveUtils invalid during serialization", -1 );
 		}
 	}
 	return nRet;
@@ -118,7 +118,7 @@ int VistaMasterSlave::Message::DeSerialize( IVistaDeSerializer& oDeSer )
 			std::map<int, VistaEvent*>::iterator itEvent = m_mapRegisteredEvents.find( m_nEventType );
 			if( itEvent == m_mapRegisteredEvents.end() )
 			{
-				VISTA_THROW( "VistaClusterMessage: invalid event type during deserialization", -1 );
+				VISTA_THROW( "VistaMasterSlaveUtils: invalid event type during deserialization", -1 );
 				break;
 			}
 			nRet += oDeSer.ReadSerializable( *(*itEvent).second );
@@ -134,7 +134,7 @@ int VistaMasterSlave::Message::DeSerialize( IVistaDeSerializer& oDeSer )
 		case CMSG_INVALID:
 		default:
 		{
-			VISTA_THROW( "VistaClusterMessage invalid during deserialization", -1 );
+			VISTA_THROW( "VistaMasterSlaveUtils invalid during deserialization", -1 );
 		}
 	}
 	return nRet;
@@ -166,7 +166,7 @@ VistaEvent* VistaMasterSlave::Message::GetEvent() const
 	std::map<int, VistaEvent*>::const_iterator itEvent = m_mapRegisteredEvents.find( m_nEventType );
 	if( itEvent == m_mapRegisteredEvents.end() )
 	{
-		VISTA_THROW( "VistaClusterMessage: requested invalid event", -1 );
+		VISTA_THROW( "VistaMasterSlaveUtils: requested invalid event", -1 );
 	}
 	return (*itEvent).second;
 }

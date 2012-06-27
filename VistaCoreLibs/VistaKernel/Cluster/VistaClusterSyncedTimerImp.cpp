@@ -22,7 +22,7 @@
 /*============================================================================*/
 // $Id$
 
-#include "VistaNetSyncedTimerImp.h"
+#include "VistaClusterSyncedTimerImp.h"
 
 #include "VistaClusterMode.h"
 
@@ -41,18 +41,54 @@
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
 
-VistaNetSyncedTimerImp::VistaNetSyncedTimerImp()
+VistaClusterSyncedTimerImp::VistaClusterSyncedTimerImp()
+: m_bIsLeader( false )
+, m_bOwnConnections( false )
 {
 }
 
-VistaNetSyncedTimerImp::~VistaNetSyncedTimerImp()
+VistaClusterSyncedTimerImp::~VistaClusterSyncedTimerImp()
 {
-}
-
-void VistaNetSyncedTimerImp::Sync( VistaConnectionIP* pConn, bool bIsSlave, int nIterations )
-{
-	if( bIsSlave )
+	if( m_bOwnConnections )
 	{
+		for( std::vector<VistaConnectionIP*>::iterator itConn = m_vecConnections.begin();
+				itConn != m_vecConnections.end(); ++itConn )
+		{
+			delete (*itConn);
+		}
+	}
+}
+
+
+bool VistaClusterSyncedTimerImp::Init( VistaClusterMode* pMode )
+{
+	m_bOwnConnections = true;
+	m_bIsLeader = pMode->GetIsLeader();
+	return ( pMode->CreateConnections( m_vecConnections ) && m_vecConnections.empty() == false );
+}
+
+bool VistaClusterSyncedTimerImp::InitAsLeader( VistaConnectionIP* pConn, bool bManageConnDeletion )
+{
+	m_bOwnConnections = bManageConnDeletion;
+	m_vecConnections.push_back( pConn );
+	return true;
+}
+
+bool VistaClusterSyncedTimerImp::InitAsFollower( std::vector<VistaConnectionIP*> vecConns, bool bManageConnDeletion /*= true */ )
+{
+	m_bOwnConnections = bManageConnDeletion;
+	m_vecConnections = vecConns;
+	return ( m_vecConnections.empty() == false );
+}
+
+
+bool VistaClusterSyncedTimerImp::Sync( int nIterations )
+{
+	if( m_vecConnections.empty() )
+		return false;
+	if( m_bIsLeader == false )
+	{
+		VistaConnectionIP* pConn = m_vecConnections.front();
 #ifdef WIN32
 		// read initial system time and stamp
 		pConn->ReadDouble( m_nInitialSystemTime );
@@ -107,42 +143,31 @@ void VistaNetSyncedTimerImp::Sync( VistaConnectionIP* pConn, bool bIsSlave, int 
 		m_nInitialTime += nAvgDelay;
 #endif		
 	}
-	else
+	else // m_bIsLeader
 	{
-#ifdef WIN32
-		// first, send initial system time and initial stamp
-		pConn->WriteDouble( m_nInitialSystemTime );
-		pConn->WriteInt64( VistaType::sint64( m_nInitialStamp ) );
-#elif LINUX
-		pConn->WriteDouble( m_nInitialTime );
-#else
-		VISTA_THROW_NOT_IMPLEMENTED;
-#endif
-		// write num iterations 
-		pConn->WriteInt32( VistaType::sint32( nIterations ) );
-		VistaType::microtime nTime;
-		for( int i = 0; i < nIterations; ++i )
+		for( std::vector<VistaConnectionIP*>::iterator itConn = m_vecConnections.begin();
+				itConn != m_vecConnections.end(); ++itConn )
 		{
-			nTime = GetMicroTime();
-			pConn->WriteDouble( nTime );
-			pConn->ReadDouble( nTime );
+#ifdef WIN32
+			// first, send initial system time and initial stamp
+			(*itConn)->WriteDouble( m_nInitialSystemTime );
+			(*itConn)->WriteInt64( VistaType::sint64( m_nInitialStamp ) );
+#elif LINUX
+			(*itConn)->WriteDouble( m_nInitialTime );
+#else
+			VISTA_THROW_NOT_IMPLEMENTED;
+#endif
+			// write num iterations 
+			(*itConn)->WriteInt32( VistaType::sint32( nIterations ) );
+			VistaType::microtime nTime;
+			for( int i = 0; i < nIterations; ++i )
+			{
+				nTime = GetMicroTime();
+				(*itConn)->WriteDouble( nTime );
+				(*itConn)->ReadDouble( nTime );
+			}
 		}
 	}
-}
 
-void VistaNetSyncedTimerImp::Sync( VistaClusterMode* pCluster, int nIterations )
-{
-	std::vector<VistaConnectionIP*> vecConns;
-	pCluster->CreateConnections( vecConns );
-	if( vecConns.empty() )
-		return;
-	if( pCluster->GetIsLeader() )
-	{
-		for( std::size_t i = 0; i < vecConns.size(); ++i )
-			Sync( vecConns[i], false, nIterations );
-	}
-	else
-	{
-		Sync( vecConns.front(), true, nIterations );
-	}
+	return true;
 }

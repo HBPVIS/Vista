@@ -22,8 +22,8 @@
 /*============================================================================*/
 // $Id$
 
-#ifndef _VISTACLUSTERMESSAGE_H
-#define _VISTACLUSTERMESSAGE_H
+#ifndef _VISTAMASTERSLAVEUTILS_H
+#define _VISTAMASTERSLAVEUTILS_H
 
 /*============================================================================*/
 /* INCLUDES                                                                   */
@@ -145,5 +145,5 @@ namespace VistaMasterSlave
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/
 
-#endif //_VISTACLUSTERMESSAGE_H
+#endif //_VISTAMASTERSLAVEUTILS_H
 

@@ -29,7 +29,8 @@
 /* INCLUDES                                                                   */
 /*============================================================================*/
 #include <VistaKernel/VistaKernelConfig.h>
-#include "VistaDataTunnel.h"
+
+#include <VistaKernel/Cluster/VistaDataTunnel.h>
 #include <string>
 #include <vector>
 /*============================================================================*/

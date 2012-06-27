@@ -22,84 +22,55 @@
 /*============================================================================*/
 // $Id$
 
-#ifndef _VISTAMASTERNETWORKSYNC_H
-#define _VISTAMASTERNETWORKSYNC_H
-
+#ifndef _VISTASTANDALONEDATATUNNEL_H
+#define _VISTASTANDALONEDATATUNNEL_H
 /*============================================================================*/
 /* INCLUDES                                                                   */
 /*============================================================================*/
 #include <VistaKernel/VistaKernelConfig.h>
-
-#include <VistaInterProcComm/Connections/VistaNetworkSync.h>
-#include <VistaInterProcComm/Connections/VistaByteBufferSerializer.h>
-
-#include <string>
-#include <vector>
+#include <VistaKernel/Cluster/VistaDataTunnel.h>
+/*============================================================================*/
+/* MACROS AND DEFINES                                                         */
+/*============================================================================*/
 
 /*============================================================================*/
-/* FORWARD DECLERATIONS                                                       */
+/* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
-class VistaConnectionIP;
+
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 /**
- * Master node implementation of the network synchronization mechanism defined
- * by VistaNetworkSync.
- */
-class VISTAKERNELAPI VistaMasterNetworkSync : public IVistaClusterSync
+* VistaStandaloneDataTunnel is a concrete implementation of IVistaDataTunnel for standalone applications,
+* i.e. applications not using ViSTA cluster capabilities. Basically this is just composed of two tubes,
+* through which data can be routed.
+*
+* The standalone version of the data tunnel just pumps the data through its two tubes. Therefore the given
+* producers and consumers are directly connected to each other. The pipes are therefore completely passive.
+*
+* For basic concepts see VistaDataTunnel.h.
+*
+*/
+
+class VISTAKERNELAPI VistaStandaloneDataTunnel : public IVistaDataTunnel
 {
 public:
-	enum SYNC_TYPE
-	{
-		ST_SYNC,
-		ST_BARRIERWAIT,
-		ST_TIME,
-		ST_PROPERTYLIST,
-		ST_SERIALIZABLE,
-		ST_RAWDATA,
-	};
-public:
-	VistaMasterNetworkSync();
-	virtual ~VistaMasterNetworkSync();
-	
-	/**
-	 * Try to connect to a slave @strSlaveHost:iPort and include
-	 * that client into the sync procedure
-	 */
-	bool AddSlave( const std::string& sName,
-					const std::string& strClientHost,
-					int iPort );
-	bool AddSlave(  const std::string& sName,
-					VistaConnectionIP* pConnection,
-					const bool bManageConnectionDeletion );
+	VistaStandaloneDataTunnel();
+	virtual ~VistaStandaloneDataTunnel();
 
-	virtual bool Sync( int iTimeOut = 0 );
-	virtual bool BarrierWait( int iTimeOut = 0 );
-	virtual VistaType::systemtime GetSyncTime();	
-	virtual bool SyncTime( VistaType::systemtime& nTime );
-	virtual bool SyncData( VistaPropertyList& oList );
-	virtual bool SyncData( IVistaSerializable& oSerializable );
-	virtual bool SyncData( VistaType::byte* pData, 
-							const int iDataSize );
-	virtual bool SyncData( VistaType::byte* pDataBuffer,
-							const int iBufferSize,
-							int& iDataSize  );
+	virtual bool ConnectUpstreamInput(IDLVistaPipeComponent* pInput);
+	virtual bool ConnectUpstreamOutput(IDLVistaPipeComponent *pOutput);
+	virtual bool ConnectDownstreamInput(IDLVistaPipeComponent* pInput);
+	virtual bool ConnectDownstreamOutput(IDLVistaPipeComponent *pOutput);
 
-private:
-	bool SendData( VistaType::sint32 bType, const bool bExternalData = false );
-private:
-	class SlaveInfo;
-	std::vector<SlaveInfo*>		m_vecSlaves;
-	VistaType::sint32			m_iSyncCounter;
-	VistaByteBufferSerializer	m_oBuffer;
-	VistaByteBufferSerializer	m_oHeader;
-	VistaType::byte*			m_pExtBuffer;
-	int							m_iExtBufferSize;
+	virtual bool DisconnectUpstreamInput();
+	virtual bool DisconnectUpstreamOutput();
+	virtual bool DisconnectDownstreamInput();
+	virtual bool DisconnectDownstreamOutput();
 };
-
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/
 
-#endif //_VISTAMASTERNETWORKSYNC_H
+#endif //_VISTASTANDALONEDATATUNNEL_H
+

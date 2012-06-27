@@ -30,9 +30,10 @@
 /*============================================================================*/
 #include <VistaKernel/VistaKernelConfig.h>
 #include <VistaKernel/Cluster/VistaClusterMode.h>
+#include <VistaKernel/Cluster/Utils/VistaMasterSlaveUtils.h>
 #include <VistaBase/VistaBaseTypes.h>
 
-#include "VistaClusterMessage.h"
+
 
 #include <string>
 #include <list>
