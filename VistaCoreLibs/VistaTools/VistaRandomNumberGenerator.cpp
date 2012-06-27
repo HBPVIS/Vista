@@ -226,11 +226,6 @@ double VistaRandomNumberGenerator::GenerateGaussian( double dMean, double dStdDe
 	return dMean + dStdDev * GenerateGaussian();
 }
 
-VistaRandomNumberGenerator* VistaRandomNumberGenerator::GetSingleton()
-{
-	return GetStandardRNG();
-}
-
 
 /*============================================================================*/
 /*  LOCAL VARS / FUNCTIONS                                                    */

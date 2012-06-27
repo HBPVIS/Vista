@@ -2403,7 +2403,7 @@ bool VistaSystem::IntroMsg (std::ostream *pStream) const
 	PrintMsg( "* Developed at:                                                              *\n", pStream );
 	PrintMsg( "* Virtual Reality Group, RWTH Aachen University                              *\n", pStream );
 	PrintMsg( "*                                                                            *\n", pStream );
-	PrintMsg( "* Torsten Kuhlen et al.,              1998-2010                              *\n", pStream );
+	PrintMsg( "* Torsten Kuhlen et al.,              1998-2012                              *\n", pStream );
 	PrintMsg( "*                                                                            *\n", pStream );
 	PrintMsg( "* use option -h for help                                                     *\n", pStream );
 	PrintMsg( "*                                                                            *\n", pStream );

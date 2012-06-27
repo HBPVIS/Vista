@@ -52,11 +52,6 @@ public:
 	 */
 	static VistaRandomNumberGenerator* GetStandardRNG();
 	/**
-	 * @CLUSTERTODO: temporary duplicate of GetStandardRNG
-	 * to keep dll/API compatibility
-	 */
-	static VistaRandomNumberGenerator* GetSingleton();
-	/**
 	 * returns a specific RNG for the calling thread.
 	 * Will be created on first request with the default seed.
 	 */
