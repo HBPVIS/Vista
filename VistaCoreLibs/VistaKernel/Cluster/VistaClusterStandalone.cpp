@@ -25,7 +25,7 @@
 
 #include "VistaClusterStandalone.h"
 
-#include <VistaKernel/Cluster/VistaStandaloneDataTunnel.h>
+#include <VistaKernel/Cluster/Utils/VistaStandaloneDataTunnel.h>
 #include <VistaInterProcComm/Cluster/Imps/VistaDummyClusterBarrier.h>
 #include <VistaInterProcComm/Cluster/Imps/VistaDummyClusterDataSync.h>
 #include <VistaInterProcComm/Cluster/Imps/VistaDummyClusterDataCollect.h>

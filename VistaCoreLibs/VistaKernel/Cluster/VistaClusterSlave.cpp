@@ -46,7 +46,7 @@
 #include <VistaKernel/InteractionManager/VistaInteractionEvent.h>
 #include <VistaKernel/Stuff/VistaKernelProfiling.h>
 #include <VistaKernel/Cluster/VistaClusterMode.h>
-#include <VistaKernel/Cluster/VistaSlaveDataTunnel.h>
+#include <VistaKernel/Cluster/Utils/VistaSlaveDataTunnel.h>
 #include <VistaKernel/VistaSystem.h>
 
 #include <cassert>
