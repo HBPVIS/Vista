@@ -65,7 +65,7 @@ public:
 	void GetValues( double& fX, double& fY, double& fZ, double& fW ) const;
 	VistaVector3D GetNormalized() const;
 	VistaVector3D GetHomogenized() const;
-	VistaVector3D GetAbolute() const;
+	VistaVector3D GetAbsolute() const;
 	float GetLength() const;
 	float GetLengthSquared() const;
 	VistaVector3D Interpolate( const VistaVector3D& v3End, float fFraction ) const;
@@ -78,7 +78,7 @@ public:
 	VistaVector3D Cross( const VistaVector3D& v3Other ) const;
 
 	/**
-	 * Checks wether the Vector is valid, i.e. wether or not it contains
+	 * Checks whether the Vector is valid, i.e. whether or not it contains
 	 * NaNs or INFs
 	 */
 	bool CheckForValidity() const;
@@ -314,6 +314,13 @@ inline VistaVector3D VistaVector3D::GetHomogenized() const
 							fScale * m_a4fValues[1],
 							fScale * m_a4fValues[2],
 							1.0f );
+}
+inline VistaVector3D VistaVector3D::GetAbsolute() const
+{	
+	return VistaVector3D( fabs( m_a4fValues[0] ),
+							fabs( m_a4fValues[1] ),
+							fabs( m_a4fValues[2] ),
+							fabs( m_a4fValues[3] ) );
 }
 inline float VistaVector3D::GetLength() const
 {
