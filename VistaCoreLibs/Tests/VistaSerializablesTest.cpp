@@ -76,13 +76,13 @@ namespace SerializableTest
 	T* RandomSerializable()
 	{
 		T* pT = new T;
-		pT = VistaTestingRandom::GenerateRandom<T>()
+		pT = VistaTestingRandom::GenerateRandom<T>();
 	}
 
 	template<typename T>
 	bool CompareSerializables( T* pLeft, T* pRight )
 	{
-		return ( &pLeft == &pRight )
+		return ( &pLeft == &pRight );
 	}
 }
 

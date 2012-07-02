@@ -33,7 +33,6 @@
 #include <VistaBase/VistaStreamUtils.h>
 #include <VistaBase/VistaTimer.h>
 #include <VistaBase/VistaTimeUtils.h>
-#include <VistaTools/VistaFileSystemDirectory.h>
 
 
 #include <sys/types.h>
@@ -92,9 +91,13 @@ int OpenFIFORead( const std::string& sName, int m_nMaxWait )
 
 bool CreateFifo( const std::string& sName )
 {
-	VistaFileSystemDirectory oFolder( sFifoFolder );
-	if( oFolder.Exists() == false )
-		oFolder.Create();
+	struct stat oAttributes;
+	if( stat( sFifoFolder.c_str(), &oAttributes ) != 0 
+		|| oAttributes.st_mode & S_IFDIR == false )
+	{
+		if( mkdir( sFifoFolder.c_str(), S_IRWXU|S_IRGRP|S_IXGRP ) != 0 )
+			return false;
+	}
 
 	int nRes = mkfifo( sName.c_str(), 0600 );
 	if( nRes != 0 && errno == EEXIST )

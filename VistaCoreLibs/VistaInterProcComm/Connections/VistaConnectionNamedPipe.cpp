@@ -28,8 +28,6 @@
 #include <VistaBase/VistaStreamUtils.h>
 #include <VistaBase/VistaTimer.h>
 #include <VistaBase/VistaTimeUtils.h>
-#include <VistaTools/VistaFileSystemDirectory.h>
-#include <VistaTools/VistaFileSystemFile.h>
 
 #if !defined(WIN32)
 	#include <poll.h>
@@ -70,7 +68,7 @@ namespace
 								<< sName
 								<< "] for writing failed with error [" << errno
 								<< "] (" << strerror( errno ) << ")" << std::endl;
-		}
+		}	
 		return nFile;
 	}
 	int OpenFIFORead( const std::string& sName, int m_nMaxWait = 10000 )
@@ -97,9 +95,13 @@ namespace
 	}
 	bool CreateFifo( const std::string& sName )
 	{
-		VistaFileSystemDirectory oFolder( S_sFifoFolder );
-		if( oFolder.Exists() == false )
-			oFolder.Create();
+		struct stat oAttributes;
+		if( stat( S_sFifoFolder.c_str(), &oAttributes ) != 0 
+			|| oAttributes.st_mode & S_IFDIR == false )
+		{
+			if( mkdir( S_sFifoFolder.c_str(), S_IRWXU|S_IRGRP|S_IXGRP ) != 0 )
+				return false;
+		}
 
 		int nRes = mkfifo( sName.c_str(), 0600 );
 		if( nRes != 0 && errno == EEXIST )
@@ -162,8 +164,8 @@ VistaConnectionNamedPipe::VistaConnectionNamedPipe( const std::string& sPipeName
 	std::string sLeftName = S_sFifoFolder + "/.VistaPipe_" + m_sPipeName + "_left";
 	std::string sRightName = S_sFifoFolder + "/.VistaPipe_" + m_sPipeName + "_right";
 
-	CreateFifo( sLeftName );
-	CreateFifo( sRightName );
+	CreateFifo( sLeftName.c_str() );
+	CreateFifo( sRightName.c_str() );
 	
 	m_nReadFifo = -1;
 	m_nWriteFifo = -1;
@@ -252,11 +254,13 @@ void VistaConnectionNamedPipe::Close(  )
 #if !defined(WIN32)
 	close( m_nReadFifo );
 	close( m_nWriteFifo );
-
-	VistaFileSystemFile oLeftFile( S_sFifoFolder + "/.VistaPipe_" + m_sPipeName + "_left" );
-	oLeftFile.Delete();
-	VistaFileSystemFile oRightFile( S_sFifoFolder + "/.VistaPipe_" + m_sPipeName + "_right" );
-	oRightFile.Delete();
+	
+	std::string sLeftFile = S_sFifoFolder + "/.VistaPipe_" + m_sPipeName + "_left";
+	std::string sRightFile = S_sFifoFolder + "/.VistaPipe_" + m_sPipeName + "_right";
+	
+	remove( sLeftFile.c_str() );
+	remove( sRightFile.c_str() );
+	
 #else
 	CloseHandle( m_oPipe );
 #endif
