@@ -167,12 +167,14 @@ public:
 	class VISTADEVICEDRIVERSAPI AllocMemoryFunctor : public std::unary_function< VistaSensorMeasure &, void >
 	{
 	public:
+		virtual ~AllocMemoryFunctor() {};
 		virtual void operator()( VistaSensorMeasure &m ) const = 0;
 	};
 
 	class VISTADEVICEDRIVERSAPI DefaultAllocFunctor : public AllocMemoryFunctor
 	{
 	public:
+		virtual ~DefaultAllocFunctor() {};
 		virtual void operator()( VistaSensorMeasure &m ) const {}
 	};
 
@@ -180,12 +182,14 @@ public:
 	class VISTADEVICEDRIVERSAPI ClaimMemoryFunctor : public std::unary_function< VistaSensorMeasure &, void >
 	{
 	public:
+		virtual ~ClaimMemoryFunctor() {};
 		virtual void operator()( VistaSensorMeasure & ) const = 0;
 	};
 
 	class VISTADEVICEDRIVERSAPI DefaultClaimFunctor : public ClaimMemoryFunctor
 	{
 	public:
+		virtual ~DefaultClaimFunctor() {};
 		virtual void operator()( VistaSensorMeasure & ) const {}
 	};
 
