@@ -298,7 +298,7 @@ inline void VistaVector3D::GetValues( double& fX, double& fY, double& fZ ) const
 inline VistaVector3D VistaVector3D::GetNormalized() const
 {
 	const float fScale = 1.0f / GetLength();
-	if( fScale < Vista::Epsilon )
+	if( Vista::IsValidNumber( fScale ) == false )
 		return VistaVector3D();
 	return VistaVector3D( fScale * m_a4fValues[0],
 						fScale * m_a4fValues[1], 
@@ -344,7 +344,7 @@ inline VistaVector3D VistaVector3D::Interpolate( const VistaVector3D& v3End, flo
 inline void VistaVector3D::Normalize()
 {
 	float fScale = 1.0f / GetLength();
-	if( fScale > Vista::Epsilon )
+	if( Vista::IsValidNumber( fScale ) )
 	{
 		m_a4fValues[0] *= fScale;
 		m_a4fValues[1] *= fScale;
