@@ -93,9 +93,6 @@ public:
 	virtual IVistaClusterBarrier* GetDefaultBarrier();
 	virtual IVistaClusterDataCollect* CreateDataCollect();
 
-	//@CLUSTERTODO for testing
-	virtual IVistaClusterBarrier* GetSwapSyncBarrier();
-
 	virtual void Debug( std::ostream& oStream ) const;
 
 
@@ -146,9 +143,8 @@ private:
 	void ParseSwapSyncType( const VistaPropertyList& oSection );
 	void ParseBarrierType( const VistaPropertyList& oSection);
 	void PrintClusterSetupInfo();
-//@CLUSTERTODO make private again
-//private:
-public:
+
+private:
 	VistaSystem*			m_pVistaSystem;
 	std::string				m_sMasterName;
 	std::string				m_sMasterSectionName;

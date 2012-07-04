@@ -1396,11 +1396,6 @@ bool VistaNewClusterMaster::CreateDefaultSyncs()
 	return ( m_pDefaultBarrier != NULL && m_pDefaultDataSync != NULL );
 }
 
-IVistaClusterBarrier* VistaNewClusterMaster::GetSwapSyncBarrier()
-{
-	return m_pSwapSyncBarrier;
-}
-
 IVistaClusterDataSync* VistaNewClusterMaster::CreateZeroMQDataSync()
 {
 #ifdef VISTA_WITH_ZEROMQ
