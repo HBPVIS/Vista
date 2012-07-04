@@ -252,20 +252,20 @@ VistaUserPlatform::~VistaUserPlatform()
 
 	if(m_pUserNode)
 	{
-		for(unsigned int n=0; n < m_pUserNode->GetNumChildren(); ++n)
+		while( m_pUserNode->GetNumChildren() > 0 )
 		{
-			m_pUserNode->DisconnectChild(n); // disconnect to prevent deletion
-											 // as this might be user nodes
+			// disconnect to prevent deletion as these might be user nodes
+			m_pUserNode->DisconnectChild( (unsigned int)0 );
 		}
 		delete m_pUserNode;
 	}
 
 	if(m_pPlatformNode)
 	{
-		for(unsigned int n=0; n < m_pPlatformNode->GetNumChildren(); ++n)
+		while( m_pPlatformNode->GetNumChildren() > 0 )
 		{
-			m_pPlatformNode->DisconnectChild(n); // disconnect to prevent deletion
-											 // as this might be user nodes
+			// disconnect to prevent deletion as these might be user nodes
+			m_pPlatformNode->DisconnectChild( (unsigned int)0 ); 
 		}
 		delete m_pPlatformNode;
 	}

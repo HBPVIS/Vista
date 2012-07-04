@@ -102,9 +102,6 @@ bool VistaBroadcastClusterLeaderDataSync::DoSendMessage()
 	{
 		try
 		{
-			// @CLUSTERTODO: set to false or true?
-			(*itSocket)->SetIsBlocking( true );
-
 			int nReturn = (*itSocket)->SendRaw( nSize, 2 * sizeof(VistaType::sint32) );
 			if( nReturn != 2 * sizeof(VistaType::sint32) )
 			{

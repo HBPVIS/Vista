@@ -1383,9 +1383,7 @@ void VistaNewClusterMaster::DeactivateSlaveAfterDrop( const std::string& sName )
 
 bool VistaNewClusterMaster::CreateDefaultSyncs()
 {
-	// @CLUSTERTODO default datasync block size
-	m_pDefaultDataSync = CreateTypedDataSync( m_nDataSyncMethod, true );	
-	m_pDefaultDataSync->SetSendBlockingThreshold( 1024 );
+	m_pDefaultDataSync = CreateTypedDataSync( m_nDataSyncMethod, true );
 	m_pDefaultBarrier = CreateTypedBarrier( m_nBarrierWaitMethod, true, false );
 	m_pSyncEntityObserver->Observe( m_pDefaultDataSync );
 	m_pSyncEntityObserver->Observe( m_pDefaultBarrier );

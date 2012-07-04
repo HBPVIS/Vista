@@ -95,7 +95,6 @@ private:
 	bool m_bActAsInterProcServer;
 };
 
-// @CLUSTERTODO: test properly
 class VISTAINTERPROCCOMMAPI VistaInterProcClusterRedirectDataSync : public VistaInterProcClusterLeaderDataSync
 {
 public:
