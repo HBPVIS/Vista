@@ -134,7 +134,6 @@ private:
 
 	IVistaClusterDataSync* CreateTypedDataSync( int nType, bool bUseDefaultConnection );
 	IVistaClusterDataSync* CreateTCPIPDataSync( bool bUseDefaultConnection );
-	IVistaClusterDataSync* CreateBroadcastDataSync( bool bUseDefaultConnection );
 	IVistaClusterDataSync* CreateZeroMqDataSync();
 	IVistaClusterDataSync* CreateInterProcDataSync();
 

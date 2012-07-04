@@ -46,6 +46,15 @@ class VistaUDPSocket;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
+/**
+ * EXPERIMENTAL - use with care
+ * This is a ClusterDataSync implementation that uses broadcasting to send
+ * packages. However, tests showed that this only works for small packages
+ * and with a low bytes/sec ratio, where packages/data was lost.
+ * If possible, use the ZeroMq-Datasync (if available) or the 
+ * TCP/IP DataSync (for small numbers of slaves)
+ */
+
 class VISTAINTERPROCCOMMAPI VistaBroadcastClusterLeaderDataSync : public VistaClusterBytebufferLeaderDataSyncBase
 {
 public:

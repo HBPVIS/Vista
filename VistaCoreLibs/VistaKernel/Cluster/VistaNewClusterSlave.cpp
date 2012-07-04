@@ -1149,11 +1149,6 @@ IVistaClusterDataSync* VistaNewClusterSlave::CreateTypedDataSync( int nType, boo
 				pSync = CreateTCPIPDataSync( bUseDefaultConnection );
 				break;
 			}
-			case VistaMasterSlave::DATASYNC_BROADCAST:
-			{
-				pSync = CreateBroadcastDataSync( bUseDefaultConnection );
-				break;
-			}
 			case VistaMasterSlave::DATASYNC_ZEROMQ:
 			{
 				pSync = CreateZeroMqDataSync();
@@ -1206,68 +1201,68 @@ IVistaClusterDataSync* VistaNewClusterSlave::CreateTCPIPDataSync( bool bUseDefau
 	return new VistaTCPIPClusterFollowerDataSync( pConnection, m_bDoByteSwap, !bUseDefaultConnection );
 }
 
-
-IVistaClusterDataSync* VistaNewClusterSlave::CreateBroadcastDataSync( bool bUseDefaultConnection )
-{
-	VistaBroadcastClusterFollowerDataSync* pDataSync = NULL;
-	try
-	{
-		// Send out broadcast group, and receive a corresponding port and ip
-		m_pConnection->WriteInt32( (VistaType::sint32)m_nBroadcastGroup );
-		VistaType::sint32 nPort = -1;
-		m_pConnection->ReadInt32( nPort );
-		if( nPort < 0 )
-		{
-			vstr::warnp() << "[VistaNewClusterSlave::CreateBCBarrier]: "
-						<< "Master did not report broadcast port - aborting" << std::endl;
-			return NULL;
-		}
-		std::string sIP;
-		m_pConnection->ReadEncodedString( sIP );
-
-		VistaUDPSocket* pSocket = new VistaUDPSocket;
-		if( pSocket->OpenSocket() ==  false )
-		{		
-			vstr::warnp() << "[VistaNewClusterSlave::CreateBCBarrier]: "
-						<< "Could not open broadcast socket. This slave will report it's rediness, "
-						<< "but not wait for the common go signal" << std::endl;
-			delete pSocket;
-			pSocket = NULL;
-		}
-		else
-		{
-			pSocket->SetIsBlocking( true );
-			pSocket->SetPermitBroadcast( 1 );
-			// set reuse, so that multiple clients can listen to one BC port
-			pSocket->SetSocketReuse( true );
-
-			VistaSocketAddress oAddress( sIP, nPort );
-			if( pSocket->BindToAddress( oAddress ) == false )
-			{
-				vstr::warnp() << "[VistaNewClusterSlave::CreateBCBarrier]: "
-								<< "Could not bind Broadcast-Socket to ["
-								<< sIP << ":" << nPort << "]. "
-								<< "This slave will report it's readiness, "
-								<< "but not wait for the common go signal" << std::endl;
-				delete pSocket;
-				pSocket = NULL;
-			}
-			pDataSync = new VistaBroadcastClusterFollowerDataSync( pSocket, m_bDoByteSwap, true );
-			pDataSync->WaitForConnection( m_pConnection );
-		}
-		
-	}
-	catch( VistaExceptionBase& e )
-	{
-		vstr::warnp() << "[VistaNewClusterSlave::CreateBCBarrier]: "
-					<< "Exception while creating broadcast barrier:\n" 
-					<< e.GetPrintStatement() << std::endl;
-		delete pDataSync;
-		return NULL;
-	}
-
-	return pDataSync;
-}
+// Broadcast datasync turned out to be unreliable
+//IVistaClusterDataSync* VistaNewClusterSlave::CreateBroadcastDataSync( bool bUseDefaultConnection )
+//{
+//	VistaBroadcastClusterFollowerDataSync* pDataSync = NULL;
+//	try
+//	{
+//		// Send out broadcast group, and receive a corresponding port and ip
+//		m_pConnection->WriteInt32( (VistaType::sint32)m_nBroadcastGroup );
+//		VistaType::sint32 nPort = -1;
+//		m_pConnection->ReadInt32( nPort );
+//		if( nPort < 0 )
+//		{
+//			vstr::warnp() << "[VistaNewClusterSlave::CreateBCBarrier]: "
+//						<< "Master did not report broadcast port - aborting" << std::endl;
+//			return NULL;
+//		}
+//		std::string sIP;
+//		m_pConnection->ReadEncodedString( sIP );
+//
+//		VistaUDPSocket* pSocket = new VistaUDPSocket;
+//		if( pSocket->OpenSocket() ==  false )
+//		{		
+//			vstr::warnp() << "[VistaNewClusterSlave::CreateBCBarrier]: "
+//						<< "Could not open broadcast socket. This slave will report it's rediness, "
+//						<< "but not wait for the common go signal" << std::endl;
+//			delete pSocket;
+//			pSocket = NULL;
+//		}
+//		else
+//		{
+//			pSocket->SetIsBlocking( true );
+//			pSocket->SetPermitBroadcast( 1 );
+//			// set reuse, so that multiple clients can listen to one BC port
+//			pSocket->SetSocketReuse( true );
+//
+//			VistaSocketAddress oAddress( sIP, nPort );
+//			if( pSocket->BindToAddress( oAddress ) == false )
+//			{
+//				vstr::warnp() << "[VistaNewClusterSlave::CreateBCBarrier]: "
+//								<< "Could not bind Broadcast-Socket to ["
+//								<< sIP << ":" << nPort << "]. "
+//								<< "This slave will report it's readiness, "
+//								<< "but not wait for the common go signal" << std::endl;
+//				delete pSocket;
+//				pSocket = NULL;
+//			}
+//			pDataSync = new VistaBroadcastClusterFollowerDataSync( pSocket, m_bDoByteSwap, true );
+//			pDataSync->WaitForConnection( m_pConnection );
+//		}
+//		
+//	}
+//	catch( VistaExceptionBase& e )
+//	{
+//		vstr::warnp() << "[VistaNewClusterSlave::CreateBCBarrier]: "
+//					<< "Exception while creating broadcast barrier:\n" 
+//					<< e.GetPrintStatement() << std::endl;
+//		delete pDataSync;
+//		return NULL;
+//	}
+//
+//	return pDataSync;
+//}
 
 
 void VistaNewClusterSlave::HandleMasterConnectionDrop()

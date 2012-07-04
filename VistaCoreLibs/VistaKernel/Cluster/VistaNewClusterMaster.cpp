@@ -399,21 +399,22 @@ void VistaNewClusterMaster::ParseDataSyncType( const VistaPropertyList& oSection
 	{
 		m_nDataSyncMethod = VistaMasterSlave::DATASYNC_TCP;
 	}
-	else if( oCmp( sDataSyncType, "BROADCAST" ) || oCmp( sDataSyncType, "BC" ) || sDataSyncType.empty() )
-	{
-		m_nDataSyncMethod = VistaMasterSlave::DATASYNC_BROADCAST;
-		if( m_sBroadcastIP.empty() )
-		{
-			vstr::warnp() << "DataSyncType BROADCAST required BROADCASTIP to be specified - "
-						<< "falling back to TCP DataSync" << std::endl;
-			m_nDataSyncMethod = VistaMasterSlave::DATASYNC_TCP;
-		}	
-		if( m_vecFreeBroadcastPorts.empty() )
-		{
-			vstr::warnp() << "No BROADCASTPORTS defined - using default [24000-24999]" << std::endl;
-			m_vecFreeBroadcastPorts.push_back( VistaMasterSlave::PortRange( 24000, 24999 ) );
-		}	
-	}
+	// Broadcast Datasync is unreliable, so we dont allow it natively
+	//else if( oCmp( sDataSyncType, "BROADCAST" ) || oCmp( sDataSyncType, "BC" ) || sDataSyncType.empty() )
+	//{
+	//	m_nDataSyncMethod = VistaMasterSlave::DATASYNC_BROADCAST;
+	//	if( m_sBroadcastIP.empty() )
+	//	{
+	//		vstr::warnp() << "DataSyncType BROADCAST required BROADCASTIP to be specified - "
+	//					<< "falling back to TCP DataSync" << std::endl;
+	//		m_nDataSyncMethod = VistaMasterSlave::DATASYNC_TCP;
+	//	}	
+	//	if( m_vecFreeBroadcastPorts.empty() )
+	//	{
+	//		vstr::warnp() << "No BROADCASTPORTS defined - using default [24000-24999]" << std::endl;
+	//		m_vecFreeBroadcastPorts.push_back( VistaMasterSlave::PortRange( 24000, 24999 ) );
+	//	}	
+	//}
 	else if( oCmp( sDataSyncType, "ZEROMQ" ) || oCmp( sDataSyncType, "ZMQ" ) )
 	{
 		if( m_vecZeroMQPorts.empty() || m_sZeroMQAddress.empty() )
@@ -1171,11 +1172,6 @@ IVistaClusterDataSync* VistaNewClusterMaster::CreateTypedDataSync( int nType,
 			pSync = CreateTCPIPDataSync( bUseDefaultConnection );
 			break;
 		}
-		case VistaMasterSlave::DATASYNC_BROADCAST:
-		{
-			pSync = CreateBroadcastDataSync( bUseDefaultConnection );
-			break;
-		}
 		case VistaMasterSlave::DATASYNC_ZEROMQ:
 		{
 			pSync = CreateZeroMQDataSync();
@@ -1235,95 +1231,95 @@ IVistaClusterDataSync* VistaNewClusterMaster::CreateTCPIPDataSync( bool bUseDefa
 	return pSync;
 }
 
-
-IVistaClusterDataSync* VistaNewClusterMaster::CreateBroadcastDataSync( bool bUseDefaultConnection )
-{
-	std::vector<int> vecBCPorts;
-	
-	// find free ports
-	for( int i = 0; i < m_nNumBroadcastGroups; ++i )
-	{
-		int nPort = GetNextFreeBroadcastPort();
-		if( nPort < 0 )
-		{
-			vstr::warnp() << "[VistaNewClusterMaster::CreateClusterBarrier]: "
-					<< "No more free broadcast port available, aborting"
-					<< std::endl;
-			return NULL;
-		}
-		vecBCPorts.push_back( nPort );
-	}
-
-	VistaBroadcastClusterLeaderDataSync* pSync = new VistaBroadcastClusterLeaderDataSync;
-
-	// create broadcast sockets
-	bool bSuccess = true;
-	for( int i = 0; i < m_nNumBroadcastGroups; ++i )
-	{
-		VistaSocketAddress oAdress( m_sBroadcastIP, vecBCPorts[i] );		
-		if( oAdress.GetIsValid() == false )
-		{
-			vstr::warnp() << "[VistaNewClusterMaster::CreateBCBarrier]: "
-					<< "Could not open swap sync socket. Address ["
-					<< m_sBroadcastIP << ":" << vecBCPorts[i] << "] is invalid " << std::endl;
-			bSuccess = false;
-			break;
-		}
-
-		VistaUDPSocket *pSyncSocket = new VistaUDPSocket;
-		if( pSyncSocket->OpenSocket() == false )
-		{
-			vstr::warnp() << "[VistaNewClusterMaster::CreateBCBarrier]: "
-						<< "Could not open socket" << std::endl;
-			bSuccess = false;
-			break;
-		}
-		pSyncSocket->SetPermitBroadcast(1);
-		if( pSyncSocket->ConnectToAddress( oAdress ) == false )
-		{
-			vstr::warnp() << "[VistaNewClusterMaster::CreateBCBarrier]: "
-						<< "Could not connect bc-socket to address ["
-						<< m_sBroadcastIP << ":" << vecBCPorts[i] << "]" << std::endl;
-			bSuccess = false;
-			break;
-		}
-
-		pSync->AddBroadcast( pSyncSocket, true );
-	}
-
-	if( bSuccess )
-	{
-		std::vector<VistaConnectionIP*> vecWaitConns;
-		for( std::vector<Slave*>::iterator itSlave = m_vecActiveSlaves.begin();
-				itSlave != m_vecActiveSlaves.end(); ++itSlave )
-		{
-			if( CheckSyncEntityDelay( (*itSlave) ) )
-				continue;
-
-			// read requested broadcast group from slave, and inform him of the requested bc ip:port
-			VistaType::sint32 nBCGroup;
-			(*itSlave)->m_pConnection->ReadInt32( nBCGroup );
-			if( nBCGroup < 0 || nBCGroup > m_nNumBroadcastGroups )
-			{
-				vstr::warnp() << "[VistaClusterMaster::CreateBCBarrier] Slave ["
-							<< (*itSlave)->m_sName << "] requested invalid broadcast group ["
-							<< nBCGroup << "] - reverting to group 0" << std::endl;
-				nBCGroup = 0;
-			}
-			(*itSlave)->m_pConnection->WriteInt32( (VistaType::sint32)vecBCPorts[nBCGroup] );
-			(*itSlave)->m_pConnection->WriteEncodedString( m_sBroadcastIP );
-			vecWaitConns.push_back( (*itSlave)->m_pConnection );
-		}
-		pSync->WaitForConnection( vecWaitConns );
-	}
-	else
-	{
-		delete pSync;
-		return NULL;
-	}	
-	
-	return pSync;
-}
+// Broadcast Datasync turned out to be unreliable
+//IVistaClusterDataSync* VistaNewClusterMaster::CreateBroadcastDataSync( bool bUseDefaultConnection )
+//{
+//	std::vector<int> vecBCPorts;
+//	
+//	// find free ports
+//	for( int i = 0; i < m_nNumBroadcastGroups; ++i )
+//	{
+//		int nPort = GetNextFreeBroadcastPort();
+//		if( nPort < 0 )
+//		{
+//			vstr::warnp() << "[VistaNewClusterMaster::CreateClusterBarrier]: "
+//					<< "No more free broadcast port available, aborting"
+//					<< std::endl;
+//			return NULL;
+//		}
+//		vecBCPorts.push_back( nPort );
+//	}
+//
+//	VistaBroadcastClusterLeaderDataSync* pSync = new VistaBroadcastClusterLeaderDataSync;
+//
+//	// create broadcast sockets
+//	bool bSuccess = true;
+//	for( int i = 0; i < m_nNumBroadcastGroups; ++i )
+//	{
+//		VistaSocketAddress oAdress( m_sBroadcastIP, vecBCPorts[i] );		
+//		if( oAdress.GetIsValid() == false )
+//		{
+//			vstr::warnp() << "[VistaNewClusterMaster::CreateBCBarrier]: "
+//					<< "Could not open swap sync socket. Address ["
+//					<< m_sBroadcastIP << ":" << vecBCPorts[i] << "] is invalid " << std::endl;
+//			bSuccess = false;
+//			break;
+//		}
+//
+//		VistaUDPSocket *pSyncSocket = new VistaUDPSocket;
+//		if( pSyncSocket->OpenSocket() == false )
+//		{
+//			vstr::warnp() << "[VistaNewClusterMaster::CreateBCBarrier]: "
+//						<< "Could not open socket" << std::endl;
+//			bSuccess = false;
+//			break;
+//		}
+//		pSyncSocket->SetPermitBroadcast(1);
+//		if( pSyncSocket->ConnectToAddress( oAdress ) == false )
+//		{
+//			vstr::warnp() << "[VistaNewClusterMaster::CreateBCBarrier]: "
+//						<< "Could not connect bc-socket to address ["
+//						<< m_sBroadcastIP << ":" << vecBCPorts[i] << "]" << std::endl;
+//			bSuccess = false;
+//			break;
+//		}
+//
+//		pSync->AddBroadcast( pSyncSocket, true );
+//	}
+//
+//	if( bSuccess )
+//	{
+//		std::vector<VistaConnectionIP*> vecWaitConns;
+//		for( std::vector<Slave*>::iterator itSlave = m_vecActiveSlaves.begin();
+//				itSlave != m_vecActiveSlaves.end(); ++itSlave )
+//		{
+//			if( CheckSyncEntityDelay( (*itSlave) ) )
+//				continue;
+//
+//			// read requested broadcast group from slave, and inform him of the requested bc ip:port
+//			VistaType::sint32 nBCGroup;
+//			(*itSlave)->m_pConnection->ReadInt32( nBCGroup );
+//			if( nBCGroup < 0 || nBCGroup > m_nNumBroadcastGroups )
+//			{
+//				vstr::warnp() << "[VistaClusterMaster::CreateBCBarrier] Slave ["
+//							<< (*itSlave)->m_sName << "] requested invalid broadcast group ["
+//							<< nBCGroup << "] - reverting to group 0" << std::endl;
+//				nBCGroup = 0;
+//			}
+//			(*itSlave)->m_pConnection->WriteInt32( (VistaType::sint32)vecBCPorts[nBCGroup] );
+//			(*itSlave)->m_pConnection->WriteEncodedString( m_sBroadcastIP );
+//			vecWaitConns.push_back( (*itSlave)->m_pConnection );
+//		}
+//		pSync->WaitForConnection( vecWaitConns );
+//	}
+//	else
+//	{
+//		delete pSync;
+//		return NULL;
+//	}	
+//	
+//	return pSync;
+//}
 
 
 

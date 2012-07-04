@@ -274,7 +274,6 @@ std::string VistaMasterSlave::GetDataSyncModeName( const int m_nDataSyncMethod )
 	switch( m_nDataSyncMethod )
 	{
 		case DATASYNC_TCP:			return "TCP/IP";
-		case DATASYNC_BROADCAST:	return "Broadcast";
 		case DATASYNC_ZEROMQ:		return "ZeroMQ";
 		case DATASYNC_INTERPROC:	return "InterProc";
 		case DATASYNC_DUMMY:		return "Dummy";
