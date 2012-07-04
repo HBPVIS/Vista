@@ -60,26 +60,24 @@ Alice::Alice(VistaKeyboardSystemControl *pCtrl, const std::string & sIniPath)
 	*/
 
 	VistaProfiler LocalProfiler;
-	std::string sHostname = LocalProfiler.GetTheProfileString("ALICE_DEMO","MSGCHANNELIP","localhost",sIniPath);
+	std::string sHostname = LocalProfiler.GetTheProfileString("ALICE_DEMO","MSGCHANNELIP","127.0.0.1",sIniPath);
 	std::string sPortNumber = LocalProfiler.GetTheProfileString("ALICE_DEMO","MSGCHANNELPORT","6666",sIniPath);
 	
 	//Create MessageChannel via IP Connection.
 	m_pChannel = new VistaMsgChannel;
-	VistaConnectionIP *conn = new VistaConnectionIP( VistaConnectionIP::CT_TCP);
-	conn->SetHostNameAndPort( sHostname, atoi(sPortNumber.c_str()) );
-	conn->Open();
-	m_pChannel->SetConnection( conn );
-	
-
-  if( conn == NULL )
-  {
-	  VISTA_THROW( "Failed to open connection", 1 );
-	  
-  }
-  else
-  {
-	  std::cout << "connected to " << sHostname << " on port " << sPortNumber << std::endl;
-  }
+	VistaConnectionIP* pConn = new VistaConnectionIP( VistaConnectionIP::CT_TCP );
+	pConn->SetHostNameAndPort( sHostname, atoi( sPortNumber.c_str() ) );
+	if( pConn->Open() == false )
+	{
+		std::cout << "Alice could not connect to " << sHostname << " on port " << sPortNumber << std::endl;
+		VISTA_THROW( "No connection", -1 );	
+	}
+	else
+	{
+		std::cout << "Alice connected to " << sHostname << " on port " << sPortNumber << std::endl;
+		pConn->SetIsBlocking( true );
+		m_pChannel->SetConnection( pConn );
+	}
 	
 	//Create Keyboard assignments for movements. These will get transferred to Bob ;)
 	pCtrl->BindAction( 'w', new AliceInitiateAction(m_pChannel,AliceInitiateAction::CMD_ZOOM_IN),"ZOOM IN");
@@ -98,8 +96,7 @@ Alice::Alice(VistaKeyboardSystemControl *pCtrl, const std::string & sIniPath)
 Alice::~Alice()
 {
 	m_pChannel->DisconnectL();
-
-	//Some free's are missing too...
+	delete m_pChannel;
 };
 
 AliceInitiateAction::AliceInitiateAction( VistaMsgChannel* pChannel, ALICE_COMMANDS eExecuteCommand )
@@ -120,7 +117,7 @@ bool AliceInitiateAction::Do()
 	bool MessageSuccessful = m_pChannel->WriteMsg(m_eExecuteCommand,oProps, oAnswer);
 
 	// Bob must have sent us a reply. Let's see...
-	if(MessageSuccessful)
+	if( MessageSuccessful )
 	{
 		std::cout << "Got a message from Bob: " 
 					<< oAnswer.GetValue<std::string>("message") 

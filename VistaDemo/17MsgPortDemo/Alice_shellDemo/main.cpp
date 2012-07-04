@@ -56,9 +56,11 @@ int main(int argc , char **argv)
 
 	if(pVistaSystem->Init(argc, argv))
 	{
-		new Alice(pVistaSystem->GetKeyboardSystemControl(),pVistaSystem->GetIniFile());
+		Alice* pAlice = new Alice(pVistaSystem->GetKeyboardSystemControl(),pVistaSystem->GetIniFile());
 		
 		return pVistaSystem->Run();
+
+		delete pAlice;
 	}
 
 	delete pVistaSystem;
