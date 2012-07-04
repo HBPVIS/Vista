@@ -1299,26 +1299,28 @@ VistaInteractionContext* VistaSystem::SetupInteractionContext( const std::string
 	std::string sReloadKey;
 	if( oSection.GetValue( "RELOADTRIGGER", sReloadKey ) )
 	{
-		// reload trigger was given by user:
-		int nTrigger = int(sReloadKey[0]);
-
-		if( m_pKeyboardSystemControl->GetActionForToken(nTrigger) )
+		int nKey, nMod;
+		if( VistaKeyboardSystemControl::GetKeyAndModifiersValueFromString( sReloadKey, nKey, nMod ) == false )
 		{
-			vstr::warnp() 
-					<< "RelaodTrigger [" << sReloadKey[0] << "] for context ["
-					<< sRole << "] already occupied" << std::endl;
-			vstr::warnp() << vstr::singleindent << "Current function: "
-					<< m_pKeyboardSystemControl->GetHelpTextForToken( nTrigger ) << std::endl;
+			vstr::warnp() << "RelaodTrigger [" << sReloadKey << "] for context ["
+					<< sRole << "] could not be interpreted as key" << std::endl;
+		}
+		else if( m_pKeyboardSystemControl->GetActionForToken( nKey, nMod ) )
+		{
+			vstr::warnp() << "RelaodTrigger [" << sReloadKey << "] for context ["
+					<< sRole << "] already occupied\n";
+			vstr::warni() << vstr::singleindent << "Current function: "
+					<< m_pKeyboardSystemControl->GetHelpTextForToken( nKey, nMod ) << std::endl;
 		}
 		else
 		{
 			bool bDumpGraphs = m_oInteractionConfig.GetValueInSubListOrDefault( "DUMPDFNGRAPHS", "SYSTEM", false );
 			bool bWritePorts = m_oInteractionConfig.GetValueInSubListOrDefault( "WRITEDFNPORTS", "SYSTEM", false );
 
-			m_pKeyboardSystemControl->BindAction( nTrigger, new VistaReloadContextGraphCommand( this, pContext,
+			m_pKeyboardSystemControl->BindAction( nKey, nMod, new VistaReloadContextGraphCommand( this, pContext,
 																			sRole, bDumpGraphs, bWritePorts ),
 																			"reload graph for ["+sRole+"]");
-			vstr::outi() << " [VistaSystem]: ReloadTrigger [" << sReloadKey[0] << "] for context ["
+			vstr::outi() << " [VistaSystem]: ReloadTrigger [" << sReloadKey << "] for context ["
 					<< sRole << "] applied" << std::endl;
 
 		}
@@ -1388,26 +1390,29 @@ VistaInteractionContext* VistaSystem::SetupInteractionContext( const std::string
 	pContext->SetDebuggingStream( pStream, bManageStream );
 	
 
-	char cDebugKey;
-	if( oSection.GetValue( "DEBUGTRIGGER", cDebugKey ) )
+	std::string sDebugKey;
+	if( oSection.GetValue( "DEBUGTRIGGER", sDebugKey ) )
 	{
 		// reload trigger was given by user:
-		int nTrigger = int(cDebugKey);
-
-		if( m_pKeyboardSystemControl->GetActionForToken(nTrigger) )
+		int nKey, nMod;
+		if( VistaKeyboardSystemControl::GetKeyAndModifiersValueFromString( sDebugKey, nKey, nMod ) == false )
 		{
-			vstr::warnp() 
-				<< "DebugTrigger [" << cDebugKey << "] for context ["
-				<< sRole << "] already occupied" << std::endl;
-			vstr::warnp() << vstr::singleindent << "Current function: "
-				<< m_pKeyboardSystemControl->GetHelpTextForToken( nTrigger ) << std::endl;
+			vstr::warnp() << "DebugTrigger [" << sDebugKey << "] for context ["
+					<< sRole << "] could not be interpreted as key" << std::endl;
+		}
+		else if( m_pKeyboardSystemControl->GetActionForToken( nKey, nMod ) )
+		{
+			vstr::warnp() << "DebugTrigger [" << sDebugKey << "] for context ["
+					<< sRole << "] already occupied\n";
+			vstr::warni() << vstr::singleindent << "Current function: "
+					<< m_pKeyboardSystemControl->GetHelpTextForToken( nKey, nMod ) << std::endl;
 		}
 		else
 		{
-			m_pKeyboardSystemControl->BindAction( nTrigger,
+			m_pKeyboardSystemControl->BindAction( nKey, nMod,
 						new VistaDebugContextGraphCommand( pContext ),
-						"reload graph for ["+sRole+"]");
-			vstr::outi() << " [VistaSystem]: DebugTrigger [" << cDebugKey << "] for context ["
+						"reload graph for [" + sRole + "]" );
+			vstr::outi() << " [VistaSystem]: DebugTrigger [" << sDebugKey << "] for context ["
 						<< sRole << "] applied" << std::endl;
 
 		}

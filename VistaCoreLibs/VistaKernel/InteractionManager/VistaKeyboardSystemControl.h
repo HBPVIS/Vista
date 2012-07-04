@@ -79,7 +79,7 @@
  * Bitmask values for modifier keys shift, control and alt
  * additionally, VISTA_KEYMOD_ANY matches any modifiers
  */
-#define VISTA_KEYMOD_ANY    (-1)
+#define VISTA_KEYMOD_ANY    (0x64)
 #define VISTA_KEYMOD_NONE   (0)
 #define VISTA_KEYMOD_SHIFT  (0x01)
 #define VISTA_KEYMOD_CTRL   (0x02)
@@ -293,16 +293,18 @@ public:
 	 *  -- a single ascii char ( e.g. "e", "E", "7" )
 	 *  -- a special key name (named equal to the keycode defined, either
 	 *      with or without VISTA_KEY, e.g. "VISTA_KEY_ENTER", "ENTER", "PAGEUP"
-	 *  -- a numeric representation with exactly (!) three digits, in order to
-	 *     distinguish it from numeric chars, e.g. "213", "014", "001"
-	 * @returnkey code on success, -1 on failure
+	 *  -- a numeric representation with at least tow digits, in order to
+	 *     distinguish it from numeric chars, e.g. "005", "213", "14", "01"
+	 * @return key code on success, -1 on failure
 	 */
 	static int GetKeyValueFromString( const std::string& sKeyString );
 	/**
-	 * Parses the string to interprete it as a (vombination of= modifier keys,
+	 * Parses the string to interprete it as a (combination of) modifier keys,
 	 * which may be "SHIFT", "ALT", or "CONTROL"/"CTRL", as well as any
-	 * combination separated by a plus. Note that the empty string is valid
+	 * combination separated by a plus. Additionally, non-combinable keys
+	 * "ANY" (or empty string) and "NONE" are vald, too.
 	 * to describe an empty mask
+	 * @return modifier mask on success, -1 on failure
 	 */
 	static int GetModifiersValueFromString( const std::string& sModString );
 	/**

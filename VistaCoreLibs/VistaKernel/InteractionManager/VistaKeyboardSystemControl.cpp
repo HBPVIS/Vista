@@ -455,64 +455,66 @@ int VistaKeyboardSystemControl::GetKeyValueFromString( const std::string& sKeySt
 {
 	if( sKeyString.size() == 1 )
 	{
-		// just one entry - use this
+		// just one entry - use this as ascii char
 		return sKeyString[0];
 	}
 
-	if( sKeyString == "VISTA_KEY_UPARROW" || sKeyString == "UP" )
+	VistaAspectsComparisonStuff::StringCompareObject oCompare( false );
+
+	if( oCompare( sKeyString, "VISTA_KEY_UPARROW" ) || oCompare( sKeyString, "UP" ) )
 		return VISTA_KEY_UPARROW;
-	else if( sKeyString == "VISTA_KEY_DOWNARROW" || sKeyString == "DOWN" )
+	else if( oCompare( sKeyString, "VISTA_KEY_DOWNARROW" ) || oCompare( sKeyString, "DOWN" ) )
 		return VISTA_KEY_DOWNARROW;
-	else if( sKeyString == "VISTA_KEY_RIGHTARROW" || sKeyString == "RIGHT" )
+	else if( oCompare( sKeyString, "VISTA_KEY_RIGHTARROW" ) || oCompare( sKeyString, "RIGHT" ) )
 		return VISTA_KEY_RIGHTARROW;
-	else if( sKeyString == "VISTA_KEY_LEFTARROW" || sKeyString == "ESC" )
+	else if( oCompare( sKeyString, "VISTA_KEY_LEFTARROW" ) || oCompare( sKeyString, "ESC" ) )
 		return VISTA_KEY_LEFTARROW;
-	else if( sKeyString == "VISTA_KEY_ESC" || sKeyString == "ESC" )
+	else if( oCompare( sKeyString, "VISTA_KEY_ESC" ) || oCompare( sKeyString, "ESC" ) )
 		return VISTA_KEY_ESC;
-	else if( sKeyString == "VISTA_KEY_F1" || sKeyString == "F1" )
+	else if( oCompare( sKeyString, "VISTA_KEY_F1" ) || oCompare( sKeyString, "F1" ) )
 		return VISTA_KEY_F1;
-	else if( sKeyString == "VISTA_KEY_F2" || sKeyString == "F2" )
+	else if( oCompare( sKeyString, "VISTA_KEY_F2" ) || oCompare( sKeyString, "F2" ) )
 		return VISTA_KEY_F2;
-	else if( sKeyString == "VISTA_KEY_F3" || sKeyString == "F3" )
+	else if( oCompare( sKeyString, "VISTA_KEY_F3" ) || oCompare( sKeyString, "F3" ) )
 		return VISTA_KEY_F3;
-	else if( sKeyString == "VISTA_KEY_F4" || sKeyString == "F4" )
+	else if( oCompare( sKeyString, "VISTA_KEY_F4" ) || oCompare( sKeyString, "F4" ) )
 		return VISTA_KEY_F4;
-	else if( sKeyString == "VISTA_KEY_F5" || sKeyString == "F5" )
+	else if( oCompare( sKeyString, "VISTA_KEY_F5" ) || oCompare( sKeyString, "F5" ) )
 		return VISTA_KEY_F5;
-	else if( sKeyString == "VISTA_KEY_F6" || sKeyString == "F6" )
+	else if( oCompare( sKeyString, "VISTA_KEY_F6" ) || oCompare( sKeyString, "F6" ) )
 		return VISTA_KEY_F6;
-	else if( sKeyString == "VISTA_KEY_F7" || sKeyString == "F7" )
+	else if( oCompare( sKeyString, "VISTA_KEY_F7" ) || oCompare( sKeyString, "F7" ) )
 		return VISTA_KEY_F7;
-	else if( sKeyString == "VISTA_KEY_F8" || sKeyString == "F8" )
+	else if( oCompare( sKeyString, "VISTA_KEY_F8" ) || oCompare( sKeyString, "F8" ) )
 		return VISTA_KEY_F8;
-	else if( sKeyString == "VISTA_KEY_F9" || sKeyString == "F9" )
+	else if( oCompare( sKeyString, "VISTA_KEY_F9" ) || oCompare( sKeyString, "F9" ) )
 		return VISTA_KEY_F9;
-	else if( sKeyString == "VISTA_KEY_F10" || sKeyString == "F10" )
+	else if( oCompare( sKeyString, "VISTA_KEY_F10" ) || oCompare( sKeyString, "F10" ) )
 		return VISTA_KEY_F10;
-	else if( sKeyString == "VISTA_KEY_F11" || sKeyString == "F11" )
+	else if( oCompare( sKeyString, "VISTA_KEY_F11" ) || oCompare( sKeyString, "F11" ) )
 		return VISTA_KEY_F11;
-	else if( sKeyString == "VISTA_KEY_F12" || sKeyString == "F12" )
+	else if( oCompare( sKeyString, "VISTA_KEY_F12" ) || oCompare( sKeyString, "F12" ) )
 		return VISTA_KEY_F12;
-	else if( sKeyString == "VISTA_KEY_ENTER" || sKeyString == "ENTER" )
+	else if( oCompare( sKeyString, "VISTA_KEY_ENTER" ) || oCompare( sKeyString, "ENTER" ) )
 		return VISTA_KEY_ENTER;
-	else if( sKeyString == "VISTA_KEY_TAB" || sKeyString == "TAB" || sKeyString == "TABULATOR" )
+	else if( oCompare( sKeyString, "VISTA_KEY_TAB" ) || oCompare( sKeyString, "TAB" ) || oCompare( sKeyString, "TABULATOR" ) )
 		return VISTA_KEY_TAB;
-	else if( sKeyString == "VISTA_KEY_BACKSPACE" || sKeyString == "BACK" || sKeyString == "BACKSPACE" )
+	else if( oCompare( sKeyString, "VISTA_KEY_BACKSPACE" ) || oCompare( sKeyString, "BACK" ) || oCompare( sKeyString, "BACKSPACE" ) )
 		return VISTA_KEY_BACKSPACE;
-	else if( sKeyString == "VISTA_KEY_DELETE" || sKeyString == "DEL" || sKeyString == "DELETE" )
+	else if( oCompare( sKeyString, "VISTA_KEY_DELETE" ) || oCompare( sKeyString, "DEL" ) || oCompare( sKeyString, "DELETE" ) )
 		return VISTA_KEY_DELETE;
-	else if( sKeyString == "VISTA_KEY_HOME" || sKeyString == "HOME" || sKeyString == "POS1" )
+	else if( oCompare( sKeyString, "VISTA_KEY_HOME" ) || oCompare( sKeyString, "HOME" ) || oCompare( sKeyString, "POS1" ) )
 		return VISTA_KEY_HOME;
-	else if( sKeyString == "VISTA_KEY_END" || sKeyString == "END" )
+	else if( oCompare( sKeyString, "VISTA_KEY_END" ) || oCompare( sKeyString, "END" ) )
 		return VISTA_KEY_END;
-	else if( sKeyString == "VISTA_KEY_PAGEUP" || sKeyString == "PG_UP" || sKeyString == "PAGE_UP" || sKeyString == "PAGEUP" )
+	else if( oCompare( sKeyString, "VISTA_KEY_PAGEUP" ) || oCompare( sKeyString, "PG_UP" ) || oCompare( sKeyString, "PAGE_UP" ) || oCompare( sKeyString, "PAGEUP" ) )
 		return VISTA_KEY_PAGEUP;
-	else if( sKeyString == "VISTA_KEY_PAGEDOWN" || sKeyString == "PG_DN" || sKeyString == "PAGE_DOWN" || sKeyString == "PAGEUP" )
+	else if( oCompare( sKeyString, "VISTA_KEY_PAGEDOWN" ) || oCompare( sKeyString, "PG_DN" ) || oCompare( sKeyString, "PAGE_DOWN" ) || oCompare( sKeyString, "PAGEUP" ) )
 		return VISTA_KEY_PAGEDOWN;
-	else if( sKeyString == "VISTA_KEY_MIDDLE" || sKeyString == "MID" || sKeyString == "MIDDLE" )
+	else if( oCompare( sKeyString, "VISTA_KEY_MIDDLE" ) || oCompare( sKeyString, "MID" ) || oCompare( sKeyString, "MIDDLE" ) )
 		return VISTA_KEY_MIDDLE;
 	
-	if( sKeyString.size() == 3 )
+	if( sKeyString.size() > 1 )
 	{
 		int nKeyCode;
 		if( VistaConversion::FromString<int>( sKeyString, nKeyCode )
@@ -530,6 +532,14 @@ int VistaKeyboardSystemControl::GetModifiersValueFromString( const std::string& 
 	int nModifier = 0;
 	std::string sSubString;
 
+	if( sSubString.empty() )
+		return VISTA_KEYMOD_ANY;
+
+	VistaAspectsComparisonStuff::StringCompareObject oCompare( false );
+
+	if( oCompare( sModString, "NONE" ) )
+		return VISTA_KEYMOD_NONE;
+
 	for( ;; )
 	{
 		nEnd = sModString.find( '+', nStart );
@@ -538,11 +548,11 @@ int VistaKeyboardSystemControl::GetModifiersValueFromString( const std::string& 
 		else
 			sSubString = sModString.substr( nStart, nEnd - nStart );
 
-		if( sSubString == "CTRL" || sSubString == "CONTROL" )
+		if( oCompare( sSubString, "CTRL" ) || oCompare( sSubString, "CONTROL" ) )
 			nModifier |= VISTA_KEYMOD_CTRL;
-		else if( sSubString == "SHIFT" )
+		else if( oCompare( sSubString, "SHIFT" ) )
 			nModifier |= VISTA_KEYMOD_SHIFT;
-		else if( sSubString == "ALT" )
+		else if( oCompare( sSubString, "ALT" ) )
 			nModifier |= VISTA_KEYMOD_ALT;		
 		else
 			return -1; // invalid
@@ -597,16 +607,16 @@ std::string VistaKeyboardSystemControl::GetKeyBindingTableString() const
 	oStream << "------------------------------------------------------------------------\n";
 	oStream << std::right << std::setw( 15 ) << " "
 			<< std::left << std::setw( 5 ) << " Key "
-			<< " | " << "ASCII "
-			<< " | " << "Description \n";
+			<< " ) | " << "ASCII "
+			<< " ) | " << "Description \n";
 	oStream << "------------------------------------------------------------------------\n";
 	for( CommandMap::const_iterator itAction = m_mapCommandMap.begin();
 				itAction != m_mapCommandMap.end(); ++itAction )
 	{
 		oStream << std::right << std::setw( 15 ) << " "
 				<< std::left << std::setw( 5 ) << GetKeyName( (*itAction).first )
-				<< " | " << std::setw(5) << (*itAction).first
-				<< " | " << (*itAction).second.m_strHelpText << "\n";
+				<< " ) | " << std::setw(5) << (*itAction).first
+				<< " ) | " << (*itAction).second.m_strHelpText << "\n";
 	}
 	for( int i = 0; i <= 7; ++i )
 	{
@@ -615,8 +625,8 @@ std::string VistaKeyboardSystemControl::GetKeyBindingTableString() const
 		{
 				oStream << std::right << std::setw( 14 ) << GetModifiersName( i ) << "+"
 					<< std::left << std::setw( 5 ) << GetKeyName( (*itAction).first )
-					<< " | " << std::setw(5) << (*itAction).first
-					<< " | " << (*itAction).second.m_strHelpText << "\n";
+					<< " ) | " << std::setw(5) << (*itAction).first
+					<< " ) | " << (*itAction).second.m_strHelpText << "\n";
 		}
 	}
 	oStream << "------------------------------------------------------------------------\n";
