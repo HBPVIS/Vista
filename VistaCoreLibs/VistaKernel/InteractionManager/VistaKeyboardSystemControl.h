@@ -287,8 +287,33 @@ public:
 	static std::string GetKeyName( const int nKeyCode );
 	static std::string GetModifiersName( const int nModifiers );
 
+	/**
+	 * Parses the string to interprete it as a key descriptor, wihich can
+	 * have the following values:
+	 *  -- a single ascii char ( e.g. "e", "E", "7" )
+	 *  -- a special key name (named equal to the keycode defined, either
+	 *      with or without VISTA_KEY, e.g. "VISTA_KEY_ENTER", "ENTER", "PAGEUP"
+	 *  -- a numeric representation with exactly (!) three digits, in order to
+	 *     distinguish it from numeric chars, e.g. "213", "014", "001"
+	 * @returnkey code on success, -1 on failure
+	 */
 	static int GetKeyValueFromString( const std::string& sKeyString );
+	/**
+	 * Parses the string to interprete it as a (vombination of= modifier keys,
+	 * which may be "SHIFT", "ALT", or "CONTROL"/"CTRL", as well as any
+	 * combination separated by a plus. Note that the empty string is valid
+	 * to describe an empty mask
+	 */
 	static int GetModifiersValueFromString( const std::string& sModString );
+	/**
+	 * Parses the string to interprete it as combination of (optional) modifier
+	 * keys and a (mandatory) key value, where modifiers and key are separated
+	 * by a plus, e.g. "ALT+F4", "CTRL+SHIFT+R", "ENTER"
+	 * @see GetKeyValueFromString
+	 * @see GetModifiersValueFromString
+	 */
+	static bool GetKeyAndModifiersValueFromString( const std::string& sKeyModString,
+												int& nKey, int& nModifiers );
 
 private:
 	IVistaDirectKeySink         *m_pKeySink;

@@ -28,6 +28,7 @@
 
 #include <VistaAspects/VistaExplicitCallbackInterface.h>
 #include <VistaAspects/VistaAspectsUtils.h>
+#include <VistaAspects/VistaConversion.h>
 
 #include <VistaBase/VistaExceptionBase.h>
 #include <VistaBase/VistaStreamUtils.h>
@@ -510,6 +511,14 @@ int VistaKeyboardSystemControl::GetKeyValueFromString( const std::string& sKeySt
 		return VISTA_KEY_PAGEDOWN;
 	else if( sKeyString == "VISTA_KEY_MIDDLE" || sKeyString == "MID" || sKeyString == "MIDDLE" )
 		return VISTA_KEY_MIDDLE;
+	
+	if( sKeyString.size() == 3 )
+	{
+		int nKeyCode;
+		if( VistaConversion::FromString<int>( sKeyString, nKeyCode )
+			&& nKeyCode >= 0 )
+			return nKeyCode;
+	}
 
 	return -1;
 }
@@ -545,6 +554,41 @@ int VistaKeyboardSystemControl::GetModifiersValueFromString( const std::string& 
 
 	}
 	return nModifier;
+}
+
+bool VistaKeyboardSystemControl::GetKeyAndModifiersValueFromString(
+												const std::string& sKeyModString,
+												int& nKey, int& nModifiers )
+{
+	std::string sKeyString;
+	std::string sModString;
+	// check for last plus, separating modifiers and keys
+	std::size_t nPlusPos = sKeyModString.rfind( '+' );
+	if( nPlusPos == std::string::npos )
+	{
+		// no +, so just the key value
+		sKeyString = sKeyModString;
+	}
+	else
+	{
+		sModString = sKeyModString.substr( 0, nPlusPos );
+		sKeyString = sKeyModString.substr( nPlusPos + 1 );
+	}
+	
+	int nKeyValue = GetKeyValueFromString( sKeyString );
+	int nModValue = 0;
+	if( nKeyValue == -1 )
+		return false;
+	if( sModString.empty() == false )
+	{
+		nModValue = GetModifiersValueFromString( sModString );
+		if( nModValue == -1 )
+			return false;
+	}
+	
+	nKey = nKeyValue;
+	nModifiers = nModValue;
+	return true;
 }
 
 std::string VistaKeyboardSystemControl::GetKeyBindingTableString() const

@@ -63,6 +63,7 @@ using namespace std;
 #include "VdfnQuaternionSlerpNode.h"
 #include "VdfnMultiplexNode.h"
 #include "VdfnDemultiplexNode.h"
+#include "VdfnAbsoluteNode.h"
 
 
 #include "VdfnNodeCreators.h"
@@ -461,6 +462,10 @@ bool RegisterBasicNodeCreators(VistaDriverMap *pDrivers,
 	pFac->SetNodeCreator( "Modulo[unsigned int]", new TVdfnModuloNodeCreate<unsigned int> );
 	pFac->SetNodeCreator( "Modulo[float]", new TVdfnModuloNodeCreate<float> );
 	pFac->SetNodeCreator( "Modulo[double]", new TVdfnModuloNodeCreate<double> );
+	
+	pFac->SetNodeCreator( "Absolute[int]", new TVdfnDefaultNodeCreate<TVdfnAbsoluteNode<int> > );
+	pFac->SetNodeCreator( "Absolute[float]", new TVdfnDefaultNodeCreate<TVdfnAbsoluteNode<float> > );
+	pFac->SetNodeCreator( "Absolute[double]", new TVdfnDefaultNodeCreate<TVdfnAbsoluteNode<double> > );
 
 	pFac->SetNodeCreator( "GetTransform", new VdfnGetTransformNodeCreate(pObjRegistry) );
 	pFac->SetNodeCreator( "SetTransform", new VdfnSetTransformNodeCreate(pObjRegistry) );
