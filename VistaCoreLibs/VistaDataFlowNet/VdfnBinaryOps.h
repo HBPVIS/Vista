@@ -107,6 +107,51 @@ namespace VdfnBinaryOps
 	};
 
 	template<class TLeft, class TRight, class TRes>
+	class OrOp : public BinOp<TLeft, TRight, TRes>
+	{
+		virtual TRes operator()( const TLeft& oLeft, const TRight& oRight ) const
+		{
+			return TRes( oLeft || oRight );
+		}
+	};
+
+	template<class T>
+	class MaxOp : public BinOp<T, T, T>
+	{
+		virtual T operator()( const T& oLeft, const T& oRight ) const
+		{
+			return ( oLeft > oRight ? oLeft : oRight );
+		}
+	};
+
+	template<class T>
+	class MinOp : public BinOp<T, T, T>
+	{
+		virtual T operator()( const T& oLeft, const T& oRight ) const
+		{
+			return ( oLeft < oRight ? oLeft : oRight );
+		}
+	};
+
+	template<class T>
+	class LessOp : public BinOp<T, T, bool>
+	{
+		virtual bool operator()( const T& oLeft, const T& oRight ) const
+		{
+			return ( oLeft < oRight );
+		}
+	};
+
+	template<class T>
+	class LessEqualOp : public BinOp<T, T, bool>
+	{
+		virtual bool operator()( const T& oLeft, const T& oRight ) const
+		{
+			return ( oLeft <= oRight );
+		}
+	};
+
+	template<class TLeft, class TRight, class TRes>
 	class TransformOp : public BinOp<TLeft, TRight, TRes>
 	{
 	public:

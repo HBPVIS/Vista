@@ -341,6 +341,9 @@ bool RegisterBasicNodeCreators(VistaDriverMap *pDrivers,
 
 	pFac->SetNodeCreator( "Substract[VistaVector3D]", new TVdfnBinOpCreate<VistaVector3D,VistaVector3D,VistaVector3D>( new VdfnBinaryOps::SubOp<VistaVector3D,VistaVector3D,VistaVector3D>) );
 	pFac->SetNodeCreator( "Substract[int]", new TVdfnBinOpCreate<int,int,int>( new VdfnBinaryOps::SubOp<int,int,int>) );
+	pFac->SetNodeCreator( "Substract[unsigned int]", new TVdfnBinOpCreate<unsigned int,unsigned int,unsigned int>( new VdfnBinaryOps::SubOp<unsigned int,unsigned int,unsigned int>) );
+	pFac->SetNodeCreator( "Substract[float]", new TVdfnBinOpCreate<float,float,float>( new VdfnBinaryOps::SubOp<float,float,float>) );
+	pFac->SetNodeCreator( "Substract[double]", new TVdfnBinOpCreate<double,double,double>( new VdfnBinaryOps::SubOp<double,double,double>) );
 
 	pFac->SetNodeCreator( "Multiply[int]", new TVdfnBinOpCreate<int,int,int>( new VdfnBinaryOps::MultOp<int,int,int> ) );
 	pFac->SetNodeCreator( "Multiply[unsigned int]", new TVdfnBinOpCreate<unsigned int,unsigned int,unsigned int>( new VdfnBinaryOps::MultOp<unsigned int,unsigned int,unsigned int> ) );
@@ -412,12 +415,33 @@ bool RegisterBasicNodeCreators(VistaDriverMap *pDrivers,
 	pFac->SetNodeCreator( "Equals[VistaQuaternion]", new TVdfnBinOpCreate<VistaQuaternion,VistaQuaternion,bool>( new VdfnBinaryOps::EqualsOp<VistaQuaternion,VistaQuaternion,bool> ) );
 	pFac->SetNodeCreator( "Equals[VistaTransformMatrix]", new TVdfnBinOpCreate<VistaTransformMatrix,VistaTransformMatrix,bool>( new VdfnBinaryOps::EqualsOp<VistaTransformMatrix,VistaTransformMatrix,bool> ) );
 
+	pFac->SetNodeCreator( "Max[int]", new TVdfnBinOpCreate<int, int, int>( new VdfnBinaryOps::MaxOp<int> ) );
+	pFac->SetNodeCreator( "Max[unsigned int]", new TVdfnBinOpCreate<unsigned int, unsigned int, unsigned int>( new VdfnBinaryOps::MaxOp<unsigned int> ) );
+	pFac->SetNodeCreator( "Max[float]", new TVdfnBinOpCreate<float, float, float>( new VdfnBinaryOps::MaxOp<float> ) );
+	pFac->SetNodeCreator( "Max[double]", new TVdfnBinOpCreate<double, double, double>( new VdfnBinaryOps::MaxOp<double> ) );
+
+	pFac->SetNodeCreator( "Min[int]", new TVdfnBinOpCreate<int, int, int>( new VdfnBinaryOps::MinOp<int> ) );
+	pFac->SetNodeCreator( "Min[unsigned int]", new TVdfnBinOpCreate<unsigned int, unsigned int, unsigned int>( new VdfnBinaryOps::MinOp<unsigned int> ) );
+	pFac->SetNodeCreator( "Min[float]", new TVdfnBinOpCreate<float, float, float>( new VdfnBinaryOps::MinOp<float> ) );
+	pFac->SetNodeCreator( "Min[double]", new TVdfnBinOpCreate<double, double, double>( new VdfnBinaryOps::MinOp<double> ) );
+
+	pFac->SetNodeCreator( "Less[int]", new TVdfnBinOpCreate<int, int, bool>( new VdfnBinaryOps::LessOp<int> ) );
+	pFac->SetNodeCreator( "Less[unsigned int]", new TVdfnBinOpCreate<unsigned int, unsigned int, bool>( new VdfnBinaryOps::LessOp<unsigned int> ) );
+	pFac->SetNodeCreator( "Less[float]", new TVdfnBinOpCreate<float, float, bool>( new VdfnBinaryOps::LessOp<float> ) );
+	pFac->SetNodeCreator( "Less[double]", new TVdfnBinOpCreate<double, double, bool>( new VdfnBinaryOps::LessOp<double> ) );
+
+	pFac->SetNodeCreator( "LessEqual[int]", new TVdfnBinOpCreate<int, int, bool>( new VdfnBinaryOps::LessEqualOp<int> ) );
+	pFac->SetNodeCreator( "LessEqual[unsigned int]", new TVdfnBinOpCreate<unsigned int, unsigned int, bool>( new VdfnBinaryOps::LessEqualOp<unsigned int> ) );
+	pFac->SetNodeCreator( "LessEqual[float]", new TVdfnBinOpCreate<float, float, bool>( new VdfnBinaryOps::LessEqualOp<float> ) );
+	pFac->SetNodeCreator( "LessEqual[double]", new TVdfnBinOpCreate<double, double, bool>( new VdfnBinaryOps::LessEqualOp<double> ) );
+
 	pFac->SetNodeCreator( "Compose3DVector", new TVdfnDefaultNodeCreate<VdfnCompose3DVectorNode> );
 	pFac->SetNodeCreator( "Decompose3DVector", new TVdfnDefaultNodeCreate<VdfnDecompose3DVectorNode> );
 
 	pFac->SetNodeCreator( "QuaternionSlerp", new TVdfnDefaultNodeCreate<VdfnQuaternionSlerpNode> );
 
 	pFac->SetNodeCreator( "And[bool]", new TVdfnBinOpCreate<bool,bool,bool>( new VdfnBinaryOps::AndOp<bool,bool,bool> ) );
+	pFac->SetNodeCreator( "Or[bool]", new TVdfnBinOpCreate<bool,bool,bool>( new VdfnBinaryOps::OrOp<bool,bool,bool> ) );
 	pFac->SetNodeCreator( "Toggle", new VdfnToggleNodeCreate );
 
 	pFac->SetNodeCreator( "ValueToTrigger[int]", new TVdfnValueToTriggerNodeCreate<int> );
