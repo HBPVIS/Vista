@@ -586,15 +586,12 @@ bool VistaKeyboardSystemControl::GetKeyAndModifiersValueFromString(
 	}
 	
 	int nKeyValue = GetKeyValueFromString( sKeyString );
-	int nModValue = 0;
 	if( nKeyValue == -1 )
 		return false;
-	if( sModString.empty() == false )
-	{
-		nModValue = GetModifiersValueFromString( sModString );
-		if( nModValue == -1 )
-			return false;
-	}
+
+	int nModValue = GetModifiersValueFromString( sModString );
+	if( nModValue == -1 )
+		return false;
 	
 	nKey = nKeyValue;
 	nModifiers = nModValue;
