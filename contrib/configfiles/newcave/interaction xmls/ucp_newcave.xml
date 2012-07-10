@@ -1,0 +1,122 @@
+<!-- $Id: ucp_cave.xml 22882 2011-08-08 15:54:40Z dr165799 $ -->
+<!--
+	User centered projection for the new cave
+	fills the ViewerSink, and a proximity warning
+-->
+<module>
+	<nodespace>
+	</nodespace>
+	<graph>
+		<node name="head_source" type="DriverSensor">
+			<param name="sensor_name" value="HEAD_SENSOR"/>
+			<param name="type" value="BODY"/>
+			<param name="driver" value="DTRACK"/>
+		</node>
+		<node name="head" type="HistoryProject">
+			<param name="project" value="POSITION, ORIENTATION, QUALITY"/>
+		</node>
+		<!--<node name="dd" type="DeviceDebug" />-->
+		
+		<!-- for UCP, we want hot sampling, i.e. the latest possible value -->
+		<node name="project_mode" type="ConstantValue[int]">
+			<param name="value" value="1"/>
+		</node>
+				
+		<!-- quality check - only forward pos and ori if quality is good enough -->
+		<node name="quality_threshold" type="Threshold[double]">
+			<param name="threshold" value="0.1"/>
+			<param name="mode" value="output_zero"/>
+		</node>
+		<node name="quality_to_bool" type="TypeConvert[double,bool]"/>
+		<node name="quality_check" type="ConditionalRoute" />
+
+		<!-- tracker conversion -->
+		<node name="scale_mm_to_m" type="ConstantValue[float]">
+			<param name="value" value="0.001"/>
+		</node>
+		<node name="scale_pos" type="Multiply[float,VistaVector3D]"/>
+		<node name="translate_pos" type="Add[VistaVector3D]"/>
+		<!-- offset in millimeters, because it is applied before scaling the pos -->
+		<node name="to_dtrack_origin" type="ConstantValue[VistaVector3D]">
+			<param name="value" value="0, 0, 25"/>
+		</node>
+		<node name="offset_rotate" type="Transform[VistaQuaternion,VistaVector3D]"/>
+		
+		<!-- sinks -->
+		<node name="ucp" type="ViewerSink">
+			<param name="displaysystem" value="MAIN"/>
+		</node>
+		
+		<!-- proximity warning node to indicate when one gets too close to walls -->
+		<!-- a cross-dfn variable that defines the proximity warning's enable state -->
+		<node name="proximity_warning_state" type="GetVariable[bool]" >
+			<param name="variable" value="proximity_warnings_enabled" />
+			<param name="initial_value" value="true" />
+		</node>
+		<!-- configuration of the proximity warning -->
+		<node name="proximity" type="ProximityWarning">
+			<!-- general settings -->
+			<param name="box_min" value="-2.625, -0.35, -2.625"/>
+			<param name="box_max" value=" 2.625, 10, 2.625"/>
+			<param name="safe_distance" value="0.75"/>
+			<param name="danger_distance" value="0.5"/>
+			
+			<!-- type selection - can be sign, tape, fadeout-->
+			<param name="type" value="sign"/>
+			
+			<!-- configuration for type "sign" -->
+			<param name="size" value="0.5"/> <!-- default: 1.0, can have one value for square, two for rectangle -->
+			<param name="disable_occlusion" value="true"/> <!-- default: true -->
+			<!-- optional: custom texture <param name="texture" value="somepic.png"/> -->
+			
+			<!-- configuration for type "tape" -->
+			<param name="height_mode" value="adjust_to_user_start"/> <!-- default: fixed -->
+			<!-- height_mode options:	"fixed"				always at tape_height
+								"adjust_to_user"			at dynamic eye height + tape_height
+								"adjust_to_user_start"		at eye height on entering danger zone + tape_height
+								"adjust_to_object"			at dynamic height of closest object + tape_height
+								"adjust_to_object_start"	at height of closest object on entering danger zone + tape_height
+			-->
+			<param name="tape_height" value="-0.2"/> <!-- default: 1.8 -->
+			<param name="tape_width" value="0.2"/>  <!-- default: 0.15 -->
+			<param name="tape_spacing" value="0"/> <!-- distance between repetitions, default 0 = no repetitions-->
+			<param name="distance_from_wall" value="0"/> <!-- along normal, default 0-->
+			<param name="disable_occlusion" value="true"/> <!-- default: true -->
+			
+			<!-- configuration for type "fadeout" -->
+			<param name="color" value="GRAY"/> <!-- default BLACK, may have transparency -->
+			
+		</node>
+
+	</graph>
+
+	<edges>
+		<edge fromnode="project_mode" tonode="head" fromport="value"   toport="sampling_mode"/>
+		<edge fromnode="head_source"  tonode="head" fromport="history" toport="history"/>
+		<!--<edge fromnode="head_source"  tonode="dd" fromport="history" toport="history"/>-->
+		
+		<!-- quality check -->
+		<edge fromnode="head" tonode="quality_threshold" fromport="QUALITY" toport="in" />
+		<edge fromnode="quality_threshold" tonode="quality_to_bool" fromport="out" toport="in" />
+		<edge fromnode="quality_to_bool" tonode="quality_check" fromport="out" toport="trigger" />
+		<edge fromnode="head" tonode="quality_check" fromport="POSITION" toport="position" />
+		<edge fromnode="head" tonode="quality_check" fromport="ORIENTATION" toport="orientation" />
+
+		<edge fromnode="quality_check" tonode="offset_rotate" fromport="orientation" toport="first"/>
+		<edge fromnode="to_dtrack_origin" tonode="offset_rotate" fromport="value" toport="second"/>
+		<edge fromnode="quality_check" tonode="translate_pos" fromport="position" toport="first"/>
+		<edge fromnode="offset_rotate" tonode="translate_pos" fromport="out" toport="second"/>
+
+		<edge fromnode="translate_pos" tonode="scale_pos" fromport="out" toport="second"/>
+		<edge fromnode="scale_mm_to_m" tonode="scale_pos" fromport="value" toport="first"/>
+
+		<edge fromnode="scale_pos" tonode="ucp" fromport="out" toport="position"/>
+		<edge fromnode="quality_check" tonode="ucp" fromport="orientation" toport="orientation"/>
+		
+		<edge fromnode="proximity_warning_state" tonode="proximity" fromport="value" toport="enabled"/>
+		<edge fromnode="scale_pos" tonode="proximity" fromport="out" toport="user_position"/>
+		<edge fromnode="quality_check" tonode="proximity" fromport="orientation" toport="user_orientation"/>
+
+	</edges>
+
+</module>

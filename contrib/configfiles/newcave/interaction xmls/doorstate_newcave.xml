@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Id: worldpointer_mouse.xml 29545 2012-03-13 13:04:03Z dr165799 $ -->
+<module>
+	<nodespace>
+	</nodespace>
+	<graph>
+		<node name="check_keypress" type="KeyCallback">
+			<param name="key" value="F10"/>
+			<param name="description" value="switch newcave's door viewport cropping between closed/partially closed/open"/>
+		</node>
+		
+		<node name="mod" type="Modulo[int]">
+			<param name="modulo" value="3"/>
+		</node>
+		
+		<node name="state_closed" type="ConstantValue[float]">
+			<param name="value" value="2.65"/>
+		</node>
+		<node name="state_half_closed" type="ConstantValue[float]">
+			<param name="value" value="0.97"/>
+		</node>
+		<node name="state_opened" type="ConstantValue[float]">
+			<param name="value" value="-2.65"/>
+		</node>
+		
+		<node name="mux" type="Multiplex[float]"/>
+		
+		<node name="crop_viewport" type="CropViewport">
+			<param name="crop_left" value="2.65.0"/>
+			<param name="crop_right" value="2.65.0"/>
+			<param name="crop_bottom" value="-1.8"/>
+			<param name="crop_top" value="1.8"/>
+			<param name="color" value="BLACK"/>
+			<param name="use_projection_extents" value="true"/>
+			<param name="filter_projection_normal" value="0,0,-1"/>
+		</node>
+	</graph>
+	<edges>
+		<edge fromnode="check_keypress" tonode="mod" fromport="value" toport="in" />
+		<edge fromnode="mod" tonode="mux" fromport="out" toport="select" />
+		<edge fromnode="mux" tonode="crop_viewport" fromport="out" toport="left" />
+		
+		<edge fromnode="state_closed" tonode="mux" fromport="value" toport="0" />
+		<edge fromnode="state_half_closed" tonode="mux" fromport="value" toport="1" />
+		<edge fromnode="state_opened" tonode="mux" fromport="value" toport="2" />		
+	</edges>
+</module>

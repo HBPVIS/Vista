@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Id: worldpointer_mouse.xml 29545 2012-03-13 13:04:03Z dr165799 $ -->
+<module>
+	<nodespace>
+	</nodespace>
+	<graph>
+		<node name="check_keypress" type="KeyCallback">
+			<param name="key" value="F9"/>
+			<param name="description" value="enable/disable the proximity warning functionality"/>
+		</node>
+		
+		<!-- we count modulo 2, thus toggling between true and false with every press -->
+		<node name="state_check" type="Modulo[int]" >
+			<param name="modulo" value="2"/> 
+		</node>
+	
+		<node name="state_convert" type="TypeConvert[int,bool]" />
+		
+		<!-- keypresses start at 0 = false, but we want to start enabled -> invert -->
+		<node name="state_invert" type="Invert[bool]" />
+				
+		<node name="state_variable" type="SetVariable[bool]">
+			<param name="variable" value="proximity_warnings_enabled"/>
+		</node>
+	</graph>
+	<edges>
+		<edge fromnode="check_keypress" tonode="state_check" fromport="value" toport="in" />
+		<edge fromnode="state_check" tonode="state_convert" fromport="out" toport="in" />
+		<edge fromnode="state_convert" tonode="state_invert" fromport="out" toport="in" />
+		<edge fromnode="state_invert" tonode="state_variable" fromport="out" toport="value" />
+	</edges>
+</module>

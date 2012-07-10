@@ -197,14 +197,14 @@ def CreateMasterSystemSection():
 							oFile.write( "\n" )
 						else:
 							oFile.write( ", " )
-		oFile.write( "BROADCASTIP          = " + sBCAddress + "\n" )
-		oFile.write( "BROADCASTPORTS       = 15000-15999\n" )
-		oFile.write( "ZEROMQ_ADDRESS       = " + sZeroMQAddress + "\n" )
-		oFile.write( "ZEROMQ_PORTS         = " + sZeroMQPorts + "\n" )
-		oFile.write( "BARRIERTYPE          = ${BARRIER_MODE}\n" )
-		oFile.write( "SWAPSYNCTYPE         = ${SWAPSYNC_MODE}\n" )
-		oFile.write( "DATASYNCTYPE         = ${DATASYNC_MODE}\n" )
-		oFile.write( "OUTPUT               = OUTSTREAMS_MASTER\n" )
+		oFile.write( "BROADCASTIP         = " + sBCAddress + "\n" )
+		oFile.write( "BROADCASTPORTS      = 15000-15999\n" )
+		oFile.write( "ZEROMQ_ADDRESS      = " + sZeroMQAddress + "\n" )
+		oFile.write( "ZEROMQ_PORTS        = " + sZeroMQPorts + "\n" )
+		oFile.write( "BARRIERTYPE         = ${BARRIER_MODE}\n" )
+		oFile.write( "SWAPSYNCTYPE        = ${SWAPSYNC_MODE}\n" )
+		oFile.write( "DATASYNCTYPE        = ${DATASYNC_MODE}\n" )
+		oFile.write( "OUTPUT              = OUTSTREAMS_MASTER\n" )
 		oFile.write( "\n\n" )
 		
 def CreateMasterDisplaySystem():
