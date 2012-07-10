@@ -686,7 +686,7 @@ public:
 				return NULL;
 			}
 
-			TVdfnGetVariableNode<T>::Variable* pVar;
+			typename TVdfnGetVariableNode<T>::Variable* pVar;
 			T oInitial;
 			if( oSubs.GetValue<T>( "initial_value", oInitial ) )
 				pVar = m_pRegistry->GetOrCreateVariable( sVariableName, oInitial );
@@ -717,7 +717,7 @@ private:
 };
 
 template<typename T>
-TVdfnTypedVariableRegistry<T>* TVdfnVariableNodeCreate<T>::m_pRegistry = new typename TVdfnTypedVariableRegistry<T>;
+TVdfnTypedVariableRegistry<T>* TVdfnVariableNodeCreate<T>::m_pRegistry = new TVdfnTypedVariableRegistry<T>;
 
 
 

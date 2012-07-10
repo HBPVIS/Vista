@@ -95,7 +95,7 @@ public:
 
 	Variable* GetVariable( const std::string& sName ) const
 	{
-		VariableMap::const_iterator it = m_mapVariables.find( sName );
+		typename VariableMap::const_iterator it = m_mapVariables.find( sName );
 		if( it == m_mapVariables.end() )
 			return NULL;
 		else
@@ -104,7 +104,7 @@ public:
 	}
 	Variable* GetOrCreateVariable( const std::string& sName, const T& nInitialValue )
 	{
-		VariableMap::iterator it = m_mapVariables.find( sName );
+		typename VariableMap::iterator it = m_mapVariables.find( sName );
 		if( it != m_mapVariables.end() )
 			return &(*it).second;
 		Variable* pVar = &m_mapVariables[sName];
