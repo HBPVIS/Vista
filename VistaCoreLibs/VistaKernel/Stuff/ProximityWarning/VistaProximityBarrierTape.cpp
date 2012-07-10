@@ -100,6 +100,7 @@ public:
 	, m_nTapeOffset( 0 )
 	, m_nTapeHeight( 1.5f )
 	, m_nWarningLevel( 0.0f )
+	, m_nOpacityFactor( 1.0f )
 	{
 		glGenTextures( 1, &m_nTextureId );
 
@@ -137,7 +138,10 @@ public:
 		glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
 
-		glColor4f( 1.0f, 1.0f, 0.0f, m_nWarningLevel );
+		if( m_bFlashState )
+			glColor4f( 1.0f, 0.0f, 0.0f, m_nWarningLevel * m_nOpacityFactor );
+		else
+			glColor4f( 1.0f, 1.0f, 0.0f, m_nWarningLevel * m_nOpacityFactor );
 
 		int nNumRepeats = 0;
 		if( m_nTapeOffset != 0 )
@@ -161,6 +165,12 @@ public:
 		return true;
 	}
 
+	void ClearCorners()
+	{
+		oSize = VistaBoundingBox();
+		m_vecCorners.clear();
+		m_vecCornerTextureCoordinats.clear();
+	}
 	void AddCorner( const VistaVector3D& v3Pos )
 	{
 		if( m_vecCornerTextureCoordinats.empty() )
@@ -174,19 +184,60 @@ public:
 		}
 
 		m_vecCorners.push_back( v3Pos );
+		
+		oSize.Include( v3Pos );	
+		CalcYSize();
 	}
 
 	virtual bool GetBoundingBox( VistaBoundingBox &bb ) 
 	{
-		bb.Expand( 1e24f );
+		bb = oSize;
 		return true;
 	}
 
-public: // too lazy for getter/setter in a private class...
+	float GetOpacityFactor() const { return m_nOpacityFactor; }
+	void SetOpacityFactor( const float& oValue ) { m_nOpacityFactor = oValue; }
+
+	float GetWarningLevel() const { return m_nWarningLevel; }
+	void SetWarningLevel( const float& oValue ) { m_nWarningLevel = oValue; }
+	
+	float GetTapeWidth() const { return m_nTapeWidth; }
+	void SetTapeWidth( const float& oValue ) { m_nTapeWidth = oValue; CalcYSize(); }
+
+	float GetTapeHeight() const { return m_nTapeHeight; }
+	void SetTapeHeight( const float& oValue ) { m_nTapeHeight = oValue; CalcYSize(); }
+	
+	float GetTapeOffset() const { return m_nTapeOffset; }
+	void SetTapeOffset( const float& oValue ) { m_nTapeOffset = oValue; CalcYSize(); }
+
+	bool GetFlashState() const { return m_bFlashState; }
+	void SetFlashState( const bool& oValue ) { m_bFlashState = oValue; }
+
+private:
+	void CalcYSize()
+	{
+		if( m_nTapeOffset > 0 )
+		{
+			oSize.m_v3Max[Vista::Y] = 1e23f;
+			oSize.m_v3Min[Vista::Y] = -1e23f;
+		}
+		else
+		{
+			oSize.m_v3Max[Vista::Y] = m_nTapeHeight + 0.5f * m_nTapeHeight;
+			oSize.m_v3Min[Vista::Y] = m_nTapeHeight - 0.5f * m_nTapeHeight;
+		}
+	}
+
+private:
 	GLuint m_nTextureId;
-	float m_nWarningLevel;	
+	float m_nWarningLevel;
+	float m_nOpacityFactor;
+	bool m_bFlashState;
+
 	std::vector<VistaVector3D> m_vecCorners;
 	std::vector<float> m_vecCornerTextureCoordinats;
+
+	VistaBoundingBox oSize;
 
 	float m_nTapeWidth;
 	float m_nTapeHeight;
@@ -198,11 +249,12 @@ public: // too lazy for getter/setter in a private class...
 /*============================================================================*/
 
 
-VistaProximityBarrierTape::VistaProximityBarrierTape( const float nBeginWarningDistance,
+VistaProximityBarrierTape::VistaProximityBarrierTape( VistaEventManager* pManager,
+													 const float nBeginWarningDistance,
 													 const float nMaxWarningDistance,
 													 const bool bDisableOcclusion,
 													 VistaGraphicsManager* pGraphicsManager )
-: IVistaProximityWarningBase( nBeginWarningDistance, nMaxWarningDistance )
+: IVistaProximityWarningBase( pManager, nBeginWarningDistance, nMaxWarningDistance )
 , m_pDraw( new DrawCallback() )
 , m_eHeightMode( HM_FIXED_HEIGHT )
 {
@@ -259,26 +311,26 @@ bool VistaProximityBarrierTape::DoUpdate( const float nMinDistance,
 	{
 		bool bChange = !m_pDrawNode->GetIsEnabled();
 		m_pDrawNode->SetIsEnabled( true );
-		m_pDraw->m_nWarningLevel = nWarningLevel;
+		m_pDraw->SetWarningLevel( nWarningLevel );
 		switch( m_eHeightMode )
 		{
 			case HM_FIXED_HEIGHT:
 				if( bChange )
-					m_pDraw->m_nTapeHeight = m_nTapeHeight;
+					m_pDraw->SetTapeHeight( m_nTapeHeight );
 				break;
 			case HM_ADJUST_TO_VIEWER_POS_AT_START:
 				if( bChange )
-					m_pDraw->m_nTapeHeight = v3UserPosition[Vista::Y] + m_nTapeHeight;
+					m_pDraw->SetTapeHeight( v3UserPosition[Vista::Y] + m_nTapeHeight );
 				break;
 			case HM_ADJUST_TO_VIEWER_POS:
-				m_pDraw->m_nTapeHeight = v3UserPosition[Vista::Y] + m_nTapeHeight;
+				m_pDraw->SetTapeHeight(  v3UserPosition[Vista::Y] + m_nTapeHeight );
 				break;
 			case HM_ADJUST_TO_OBJECT_POS_AT_START:
 				if( bChange )
-					m_pDraw->m_nTapeHeight = v3PointOnBounds[Vista::Y] + m_nTapeHeight;
+					m_pDraw->SetTapeHeight( v3PointOnBounds[Vista::Y] + m_nTapeHeight );
 				break;
 			case HM_ADJUST_TO_OBJECT_POS:
-				m_pDraw->m_nTapeHeight = v3PointOnBounds[Vista::Y] + m_nTapeHeight;
+				m_pDraw->SetTapeHeight( v3PointOnBounds[Vista::Y] + m_nTapeHeight );
 				break;
 		}
 	}
@@ -297,7 +349,7 @@ void VistaProximityBarrierTape::SetUseExtents( const VistaBoundingBox& bbExtents
 	VistaVector3D v3Center = bbExtents.GetCenter();
 	float nXSize = 0.5f * bbExtents.GetSize()[Vista::X] - m_nDistanceFromWall;
 	float nZSize = 0.5f * bbExtents.GetSize()[Vista::Z] - m_nDistanceFromWall;
-	m_pDraw->m_vecCorners.clear();
+	m_pDraw->ClearCorners();
 	m_pDraw->AddCorner( v3Center + qBoxRotation.Rotate( VistaVector3D( -nXSize, 0, nZSize ) ) );
 	m_pDraw->AddCorner( v3Center + qBoxRotation.Rotate( VistaVector3D( nXSize, 0, nZSize ) ) );
 	m_pDraw->AddCorner( v3Center + qBoxRotation.Rotate( VistaVector3D( nXSize, 0, -nZSize ) ) );
@@ -325,22 +377,22 @@ void VistaProximityBarrierTape::SetTapeHeight( const float nHeight )
 
 float VistaProximityBarrierTape::GetTapeSpacing() const
 {
-	return m_pDraw->m_nTapeOffset;
+	return m_pDraw->GetTapeOffset();
 }
 
 void VistaProximityBarrierTape::SetTapeSpacing( const float nSpacing )
 {
-	m_pDraw->m_nTapeOffset = nSpacing;
+	m_pDraw->SetTapeOffset( nSpacing );
 }
 
 float VistaProximityBarrierTape::GetTapeWidth() const
 {
-	return m_pDraw->m_nTapeWidth;
+	return m_pDraw->GetTapeWidth();
 }
 
 void VistaProximityBarrierTape::SetTapeWidth( const float nWidth ) const
 {
-	m_pDraw->m_nTapeWidth = nWidth;
+	m_pDraw->SetTapeWidth( nWidth );
 }
 
 VistaProximityBarrierTape::HeightMode VistaProximityBarrierTape::GetHeightMode() const
@@ -361,4 +413,22 @@ float VistaProximityBarrierTape::GetDistanceFromWall() const
 void VistaProximityBarrierTape::SetDistanceFromWall( const float oValue )
 {
 	m_nDistanceFromWall = oValue;
+}
+
+bool VistaProximityBarrierTape::GetIsEnabled() const
+{
+	return m_pDrawNode->GetIsEnabled();
+}
+
+bool VistaProximityBarrierTape::SetIsEnabled( const bool bSet )
+{
+	m_pDrawNode->SetIsEnabled( bSet );
+	return true;
+}
+
+bool VistaProximityBarrierTape::DoTimeUpdate( VistaType::systemtime nTime, const float nOpacityScale, const bool bFlashState )
+{
+	m_pDraw->SetOpacityFactor( nOpacityScale );
+	m_pDraw->SetFlashState( bFlashState );
+	return true;
 }

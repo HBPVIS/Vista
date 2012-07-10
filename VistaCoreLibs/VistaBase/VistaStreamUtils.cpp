@@ -34,7 +34,10 @@
 /* StreamManager Singleton                                                    */
 /*============================================================================*/
 
-VistaStreamManager* S_pManager = NULL;
+namespace
+{
+	VistaStreamManager* S_pManager = NULL;
+}
 
 VistaStreamManager* vstr::GetStreamManager()
 {
@@ -97,14 +100,17 @@ VISTABASEAPI std::ostream& vstr::GetNullStream()
 /* General Streams                                                            */
 /*============================================================================*/
 
-std::ostream* S_pOutStream = &std::cout;
-std::ostream* S_pWarnStream = &std::cerr;
-std::ostream* S_pErrStream = &std::cerr;
-#ifdef DEBUG
-std::ostream* S_pDebugStream = &std::cout;
-#else
-std::ostream* S_pDebugStream = &vstr::GetNullStream();
-#endif
+namespace
+{
+	std::ostream* S_pOutStream = &std::cout;
+	std::ostream* S_pWarnStream = &std::cerr;
+	std::ostream* S_pErrStream = &std::cerr;
+	#ifdef DEBUG
+	std::ostream* S_pDebugStream = &std::cout;
+	#else
+	std::ostream* S_pDebugStream = &vstr::GetNullStream();
+	#endif
+}
 
 void vstr::SetOutStream( std::ostream* oStream )
 {

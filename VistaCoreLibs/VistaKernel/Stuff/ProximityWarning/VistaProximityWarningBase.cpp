@@ -26,6 +26,10 @@
 
 #include <VistaMath/VistaBoundingBox.h>
 
+#include <VistaKernel/EventManager/VistaEvent.h>
+#include <VistaKernel/EventManager/VistaEventManager.h>
+#include <VistaKernel/EventManager/VistaSystemEvent.h>
+
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
@@ -35,15 +39,27 @@
 /*============================================================================*/
 
 
-IVistaProximityWarningBase::IVistaProximityWarningBase( const float nBeginWarnignDistance,
-														const float nMaxWarningDistance )
-: m_nSafeDistance( nBeginWarnignDistance )
-, m_nDangerDistance( nMaxWarningDistance )
+IVistaProximityWarningBase::IVistaProximityWarningBase( VistaEventManager* pEventManager,
+														const float nSafeDistance,
+														const float nDangerDistance )
+: m_nSafeDistance( nSafeDistance )
+, m_nDangerDistance( nDangerDistance )
+, m_bWasUpdated( false )
+, m_nLastUpdate( 0 )
+, m_nHideTimeout( 0 )
+, m_nHideFadeoutTime( 0 )
+, m_pEventManager( pEventManager )
+, m_nDangerZoneEnterTime( 0 )
+, m_bFlashInDangerZone( true )
+, m_nDangerZoneFlashTime( 0.5 )
+, m_bIsInDangerZone( 0 )
 {
+	m_pEventManager->RegisterObserver( this, VistaSystemEvent::GetTypeId() );
 }
 
 IVistaProximityWarningBase::~IVistaProximityWarningBase()
 {
+	m_pEventManager->UnregisterObserver( this, VistaSystemEvent::GetTypeId() );
 }
 
 void IVistaProximityWarningBase::AddHalfPlane( const VistaVector3D& v3Center, const VistaVector3D& v3Normal )
@@ -112,6 +128,10 @@ bool IVistaProximityWarningBase::Update( const VistaVector3D& v3ViewerPosition,
 	nWarningLevel = Vista::Clamp<float>( nWarningLevel, 0, 1 );
 	nWarningLevel = 1 - nWarningLevel;
 
+	m_bIsInDangerZone = ( nWarningLevel >= 1 );
+
+	m_bWasUpdated = true;
+
 	//std::cout << "Dist: " << nDistance << "               warn: " << nWarningLevel <<std::endl;
 	return DoUpdate( nDistance, nWarningLevel, v3NearestPosition,
 						v3ViewerPosition, qViewerOrientation );
@@ -149,4 +169,66 @@ float IVistaProximityWarningBase::GetDangerDistance() const
 void IVistaProximityWarningBase::SetDangerDistance( const float nDistance )
 {
 	m_nDangerDistance = nDistance;
+}
+
+void IVistaProximityWarningBase::SetTimeout( const VistaType::microtime nHideTimeout, VistaType::microtime nFadeoutTime )
+{
+	m_nHideTimeout = nHideTimeout;
+	m_nHideFadeoutTime = nFadeoutTime;
+}
+
+void IVistaProximityWarningBase::Notify( const VistaEvent *pEvent )
+{
+	if( pEvent->GetId() == VistaSystemEvent::VSE_PREGRAPHICS )
+	{
+		float nOpacity = 1.0f;
+		if( m_bWasUpdated )
+		{
+			m_bWasUpdated = false;
+			m_nLastUpdate = pEvent->GetTime();
+		}
+		else
+		{
+			VistaType::microtime nDelta = pEvent->GetTime() - m_nLastUpdate;
+			if( m_nHideTimeout > 0 && nDelta > m_nHideTimeout )
+			{
+				nOpacity = std::max( 0.0f, 1.0f - (float)( nDelta - m_nHideTimeout ) / (float)m_nHideFadeoutTime );
+			}
+		}
+
+		bool bFlashState = false;
+		if( m_bIsInDangerZone )
+		{
+			if( m_nDangerZoneEnterTime == 0 )
+				m_nDangerZoneEnterTime = pEvent->GetTime();
+			else if( m_bFlashInDangerZone && m_nDangerZoneFlashTime > 0 )
+			{
+				VistaType::microtime nTimeInDanger = pEvent->GetTime() - m_nDangerZoneEnterTime;
+				nTimeInDanger /= m_nDangerZoneFlashTime;
+				bFlashState = ( (int)nTimeInDanger % 2 == 1 );
+			}
+		}
+
+		DoTimeUpdate( pEvent->GetTime(), nOpacity, bFlashState );
+	}
+}
+
+bool IVistaProximityWarningBase::GetFlashInDangerZone() const
+{
+	return m_bFlashInDangerZone;
+}
+
+void IVistaProximityWarningBase::SetFlashInDangerZone( const bool& oValue )
+{
+	m_bFlashInDangerZone = oValue;
+}
+
+VistaType::microtime IVistaProximityWarningBase::GetDangerZoneFlashTime() const
+{
+	return m_nDangerZoneFlashTime;
+}
+
+void IVistaProximityWarningBase::SetDangerZoneFlashTime( const VistaType::microtime oValue )
+{
+	m_nDangerZoneFlashTime = oValue;
 }

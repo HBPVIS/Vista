@@ -53,54 +53,58 @@
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
-VistaType::uint32 S_nTransparent = 0X00000000;
-VistaType::uint32 S_nBackground = 0xFF0000FF;
-VistaType::uint32 S_nBorder = 0xFFFFFFFF;
-VistaType::uint32 S_nStrip = 0xFFFFFFFF;
 
-// creates an array containing 32bit-RGBA-data of a no-passage sign
-// the returned array is allocated on the heap, and should be delete[]-ed
-VistaType::uint32* CreateTexture( const int nSize,
-								const float nBorderWidth = 0.2f,
-								const float nStripPercentageHor = 0.6f,
-								const float nStripPercentageVert = 0.15f )
+namespace
 {
-	VistaType::uint32* pBuffer = new VistaType::uint32[nSize*nSize];
-	float nDelta = 1.0f / (float)nSize;
-	float nYPos = -0.5f + 0.5f * nDelta;
-	VistaType::uint32* pVal = pBuffer;
-	for( int nY = 0; nY < nSize; ++nY, nYPos += nDelta )
+	VistaType::uint32 S_nTransparent = 0X00000000;
+	VistaType::uint32 S_nBackground = 0xFF0000FF;
+	VistaType::uint32 S_nBorder = 0xFFFFFFFF;
+	VistaType::uint32 S_nStrip = 0xFFFFFFFF;
+
+	// creates an array containing 32bit-RGBA-data of a no-passage sign
+	// the returned array is allocated on the heap, and should be delete[]-ed
+	VistaType::uint32* CreateTexture( const int nSize,
+									const float nBorderWidth = 0.2f,
+									const float nStripPercentageHor = 0.6f,
+									const float nStripPercentageVert = 0.15f )
 	{
-		float nXPos = -0.5f + 0.5f * nDelta;
-		for( int nX = 0; nX < nSize; ++nX, nXPos += nDelta )
+		VistaType::uint32* pBuffer = new VistaType::uint32[nSize*nSize];
+		float nDelta = 1.0f / (float)nSize;
+		float nYPos = -0.5f + 0.5f * nDelta;
+		VistaType::uint32* pVal = pBuffer;
+		for( int nY = 0; nY < nSize; ++nY, nYPos += nDelta )
 		{
-			float nSqDist = nXPos * nXPos + nYPos * nYPos;
-			if( nSqDist > 0.25f )
+			float nXPos = -0.5f + 0.5f * nDelta;
+			for( int nX = 0; nX < nSize; ++nX, nXPos += nDelta )
 			{
-				// outside of circle
-				(*pVal) = S_nTransparent;
+				float nSqDist = nXPos * nXPos + nYPos * nYPos;
+				if( nSqDist > 0.25f )
+				{
+					// outside of circle
+					(*pVal) = S_nTransparent;
+				}
+				else if( nSqDist > ( 1.0f - nBorderWidth ) * 0.25f )
+				{
+					// Border
+					(*pVal) = S_nBorder;
+				}
+				else if( fabs( 2.0f * nXPos ) < nStripPercentageHor
+						&& fabs( 2.0f * nYPos ) < nStripPercentageVert )
+				{
+					// in strip
+					(*pVal) = S_nStrip;
+				}
+				else
+				{
+					// normal sign color
+					(*pVal) = S_nBackground;
+				}
+				
+				++pVal;
 			}
-			else if( nSqDist > ( 1.0f - nBorderWidth ) * 0.25f )
-			{
-				// Border
-				(*pVal) = S_nBorder;
-			}
-			else if( fabs( 2.0f * nXPos ) < nStripPercentageHor
-					&& fabs( 2.0f * nYPos ) < nStripPercentageVert )
-			{
-				// in strip
-				(*pVal) = S_nStrip;
-			}
-			else
-			{
-				// normal sign color
-				(*pVal) = S_nBackground;
-			}
-			
-			++pVal;
 		}
+		return pBuffer;
 	}
-	return pBuffer;
 }
 
 /*============================================================================*/
@@ -108,11 +112,14 @@ VistaType::uint32* CreateTexture( const int nSize,
 /*============================================================================*/
 
 
-VistaProximitySign::VistaProximitySign( const float nBeginWarningDistance,
+VistaProximitySign::VistaProximitySign( VistaEventManager* pManager,
+								const float nBeginWarningDistance,
 								const float nMaxWarningDistance,
 								const bool bDisableOcclusion,
 								VistaGraphicsManager* pGraphicsManager )
-: IVistaProximityWarningBase( nBeginWarningDistance, nMaxWarningDistance )
+: IVistaProximityWarningBase( pManager, nBeginWarningDistance, nMaxWarningDistance )
+, m_bEnabled( true )
+, m_nWarningLevel( 0 )
 {
 	VistaSceneGraph* pSG = pGraphicsManager->GetSceneGraph();
 	m_pPositionNode = pSG->NewTransformNode( pSG->GetRoot() );
@@ -164,14 +171,11 @@ bool VistaProximitySign::DoUpdate( const float nMinDistance, const float nWarnin
 									 const VistaVector3D& v3PointOnBounds, const VistaVector3D& v3UserPosition,
 									 const VistaQuaternion& qUserOrientation )
 {
-	if( nWarningLevel <= 0 )
-	{
-		m_pPositionNode->SetIsEnabled( false );
-	}
-	else
-	{
-		m_pPositionNode->SetIsEnabled( true );
-		m_pGeometry->SetTransparency( 1.0f - nWarningLevel );
+	if( m_bEnabled == false )
+		return false;
+	m_nWarningLevel = nWarningLevel;
+	if( m_nWarningLevel > 0 )
+	{		
 		VistaVector3D v3RelDir = v3PointOnBounds - v3UserPosition;
 		v3RelDir.Normalize();
 		m_pPositionNode->SetRotation( VistaQuaternion( Vista::ViewVector, v3RelDir ) );
@@ -203,5 +207,35 @@ bool VistaProximitySign::SetDefaultTexture() const
 void VistaProximitySign::SetParentNode( VistaGroupNode* pNode )
 {
 	pNode->AddChild( m_pPositionNode );
+}
+
+bool VistaProximitySign::GetIsEnabled() const
+{
+	return m_bEnabled;
+}
+
+bool VistaProximitySign::SetIsEnabled( const bool bSet )
+{
+	m_bEnabled = bSet;
+	if( m_bEnabled == false )
+		m_pPositionNode->SetIsEnabled( false );
+	return true;
+}
+
+
+bool VistaProximitySign::DoTimeUpdate( VistaType::systemtime nTime, const float nOpacityScale, const bool bFlashState )
+{
+	float nOpacity = m_nWarningLevel * nOpacityScale;
+
+	if( bFlashState || nOpacity == 0 )
+	{
+		m_pPositionNode->SetIsEnabled( false );
+	}
+	else
+	{
+		m_pPositionNode->SetIsEnabled( true );
+		m_pGeometry->SetTransparency( 1.0f - nOpacity );
+	}
+	return true;
 }
 

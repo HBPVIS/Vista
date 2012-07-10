@@ -529,6 +529,28 @@ bool RegisterBasicNodeCreators(VistaDriverMap *pDrivers,
 	pFac->SetNodeCreator( "Demultiplex[VistaQuaternion]", new TVdfnDemultiplexNodeCreate<VistaQuaternion> );
 	pFac->SetNodeCreator( "Demultiplex[VistaTransformMatrix]", new TVdfnDemultiplexNodeCreate<VistaTransformMatrix> );
 	pFac->SetNodeCreator( "Demultiplex[string]", new TVdfnDemultiplexNodeCreate<std::string> );
+
+
+	pFac->SetNodeCreator( "SetVariable[int]", new TVdfnVariableNodeCreate<int>( TVdfnVariableNodeCreate<int>::VN_SETTER ) );
+	pFac->SetNodeCreator( "SetVariable[unsigned int]", new TVdfnVariableNodeCreate<unsigned int>( TVdfnVariableNodeCreate<unsigned int>::VN_SETTER ) );
+	pFac->SetNodeCreator( "SetVariable[bool]", new TVdfnVariableNodeCreate<bool>( TVdfnVariableNodeCreate<bool>::VN_SETTER ) );
+	pFac->SetNodeCreator( "SetVariable[float]", new TVdfnVariableNodeCreate<float>( TVdfnVariableNodeCreate<float>::VN_SETTER ) );
+	pFac->SetNodeCreator( "SetVariable[double]", new TVdfnVariableNodeCreate<double>( TVdfnVariableNodeCreate<double>::VN_SETTER ) );
+	pFac->SetNodeCreator( "SetVariable[VistaVector3D]", new TVdfnVariableNodeCreate<VistaVector3D>( TVdfnVariableNodeCreate<VistaVector3D>::VN_SETTER ) );
+	pFac->SetNodeCreator( "SetVariable[VistaQuaternion]", new TVdfnVariableNodeCreate<VistaQuaternion>( TVdfnVariableNodeCreate<VistaQuaternion>::VN_SETTER ) );
+	pFac->SetNodeCreator( "SetVariable[VistaTransformMatrix]", new TVdfnVariableNodeCreate<VistaTransformMatrix>( TVdfnVariableNodeCreate<VistaTransformMatrix>::VN_SETTER ) );
+	pFac->SetNodeCreator( "SetVariable[string]", new TVdfnVariableNodeCreate<std::string>( TVdfnVariableNodeCreate<std::string>::VN_SETTER ) );
+
+	pFac->SetNodeCreator( "GetVariable[int]", new TVdfnVariableNodeCreate<int>( TVdfnVariableNodeCreate<int>::VN_GETTER ) );
+	pFac->SetNodeCreator( "GetVariable[unsigned int]", new TVdfnVariableNodeCreate<unsigned int>( TVdfnVariableNodeCreate<unsigned int>::VN_GETTER ) );
+	pFac->SetNodeCreator( "GetVariable[bool]", new TVdfnVariableNodeCreate<bool>( TVdfnVariableNodeCreate<bool>::VN_GETTER ) );
+	pFac->SetNodeCreator( "GetVariable[float]", new TVdfnVariableNodeCreate<float>( TVdfnVariableNodeCreate<float>::VN_GETTER ) );
+	pFac->SetNodeCreator( "GetVariable[double]", new TVdfnVariableNodeCreate<double>( TVdfnVariableNodeCreate<double>::VN_GETTER ) );
+	pFac->SetNodeCreator( "GetVariable[VistaVector3D]", new TVdfnVariableNodeCreate<VistaVector3D>( TVdfnVariableNodeCreate<VistaVector3D>::VN_GETTER ) );
+	pFac->SetNodeCreator( "GetVariable[VistaQuaternion]", new TVdfnVariableNodeCreate<VistaQuaternion>( TVdfnVariableNodeCreate<VistaQuaternion>::VN_GETTER ) );
+	pFac->SetNodeCreator( "GetVariable[VistaTransformMatrix]", new TVdfnVariableNodeCreate<VistaTransformMatrix>( TVdfnVariableNodeCreate<VistaTransformMatrix>::VN_GETTER ) );
+	pFac->SetNodeCreator( "GetVariable[string]", new TVdfnVariableNodeCreate<std::string>( TVdfnVariableNodeCreate<std::string>::VN_GETTER ) );
+
 	return true;
 }
 

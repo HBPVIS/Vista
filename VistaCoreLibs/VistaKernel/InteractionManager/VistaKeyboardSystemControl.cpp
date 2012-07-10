@@ -532,7 +532,7 @@ int VistaKeyboardSystemControl::GetModifiersValueFromString( const std::string& 
 	int nModifier = 0;
 	std::string sSubString;
 
-	if( sSubString.empty() )
+	if( sModString.empty() )
 		return VISTA_KEYMOD_ANY;
 
 	VistaAspectsComparisonStuff::StringCompareObject oCompare( false );

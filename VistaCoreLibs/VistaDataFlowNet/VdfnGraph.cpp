@@ -193,7 +193,14 @@ bool VdfnGraph::EvaluateSubGraph( const NodeVec& vecSubGraph, const double nTime
 		{			
 			// Do the evaluation
 			if( (*citNode)->EvalNode(nTimeStamp) == false )
+			{
+#ifdef DEBUG
+				vstr::warnp() << "[VdfnGraph::EvaluateGraph] Node [" 
+								<< (*citNode)->GetNameForNameable()
+								<< "] failed on EvalNode()" << std::endl;
+#endif
 				return false;
+			}
 		}
 	}// for citNode: node iteration
 	return true;

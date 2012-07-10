@@ -121,30 +121,35 @@ struct GlutWindowInfo
 	bool				m_bCursorEnabled;
 };
 
-std::map<int, GlutWindowInfo*> S_mapWindowInfo;
-
-void DisplayUpdate()
+namespace
 {
-	std::map<int, GlutWindowInfo*>::const_iterator itWindowInfo =
-											S_mapWindowInfo.find( glutGetWindow() );
-	assert( itWindowInfo != S_mapWindowInfo.end() );
-	(*itWindowInfo).second->m_pUpdateCallback->Do();
-}
+	std::map<int, GlutWindowInfo*> S_mapWindowInfo;
 
-void DisplayReshape( int iWidth, int iHeight )
-{
-	std::map<int, GlutWindowInfo*>::const_iterator itWindowInfo =
-											S_mapWindowInfo.find( glutGetWindow() );
-	assert( itWindowInfo != S_mapWindowInfo.end() );
-	GlutWindowInfo* pInfo = itWindowInfo->second;
-	if( pInfo->m_iCurrentSizeX != iWidth || pInfo->m_iCurrentSizeY != iHeight )
+	void DisplayUpdate()
 	{
-		pInfo->m_iCurrentSizeX = iWidth;
-		pInfo->m_iCurrentSizeY = iHeight;
-		(*itWindowInfo).second->m_pWindow->GetProperties()->Notify(
-							VistaWindow::VistaWindowProperties::MSG_SIZE_CHANGE );
-	}	
+		std::map<int, GlutWindowInfo*>::const_iterator itWindowInfo =
+												S_mapWindowInfo.find( glutGetWindow() );
+		assert( itWindowInfo != S_mapWindowInfo.end() );
+		(*itWindowInfo).second->m_pUpdateCallback->Do();
+	}
+
+	void DisplayReshape( int iWidth, int iHeight )
+	{
+		std::map<int, GlutWindowInfo*>::const_iterator itWindowInfo =
+												S_mapWindowInfo.find( glutGetWindow() );
+		assert( itWindowInfo != S_mapWindowInfo.end() );
+		GlutWindowInfo* pInfo = itWindowInfo->second;
+		if( pInfo->m_iCurrentSizeX != iWidth || pInfo->m_iCurrentSizeY != iHeight )
+		{
+			pInfo->m_iCurrentSizeX = iWidth;
+			pInfo->m_iCurrentSizeY = iHeight;
+			(*itWindowInfo).second->m_pWindow->GetProperties()->Notify(
+								VistaWindow::VistaWindowProperties::MSG_SIZE_CHANGE );
+		}	
+	}
 }
+
+
 
 #if defined( USE_NATIVE_GLUT )
 // for the native glut exit-MainLoop hack

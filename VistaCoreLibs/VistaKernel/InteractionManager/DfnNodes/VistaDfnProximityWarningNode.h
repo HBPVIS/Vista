@@ -54,8 +54,9 @@ class IVistaProximityWarningBase;
 /**
  * Node to show different types of proximity warnings
  *
- * @inport{user_pos ,VistaVector3D, mandatory, position of the user}
- * @inport{user_ori ,VistaQuaternion, optional, orientation of the user, helpful for some types}
+ * @inport{user_pos, VistaVector3D, mandatory, position of the user}
+ * @inport{user_ori, VistaQuaternion, optional, orientation of the user, helpful for some types}
+ * @inport{enabled, bool, optional, enables or disables the proximity warnings}
  * @inport{-any-, VistaVector3D, optional ,time delta to last evaluation}
  */
 class VISTAKERNELAPI VistaDfnProximityWarningNode : public IVdfnNode
@@ -68,14 +69,23 @@ public:
 
 	virtual bool PrepareEvaluationRun();
 	virtual bool GetIsValid() const;
+
+	bool GetIsEnabled() const;
+	bool SetIsEnabled( const bool bSet );
 protected:
 	virtual bool DoEvalNode();
 
 	virtual bool SetInPort( const std::string &sName, IVdfnPort *pPort );
 
+	virtual void OnActivation( double dTs );
+	virtual void OnDeactivation( double dTs );
+
 private:
 	TVdfnPort<VistaVector3D>* m_pUserPositionPort;
 	TVdfnPort<VistaQuaternion>* m_pUserOrientationPort;
+	TVdfnPort<bool>* m_pEnabledPort;
+
+	bool m_bEnabled;
 
 	std::vector<TVdfnPort<VistaVector3D>*> m_vecAdditionalPorts;
 

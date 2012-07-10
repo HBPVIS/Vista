@@ -52,7 +52,8 @@ class VistaDisplayManager;
 class VISTAKERNELAPI VistaProximityFadeout : public IVistaProximityWarningBase
 {
 public:
-	VistaProximityFadeout( const float nBeginWarningDistance,
+	VistaProximityFadeout( VistaEventManager* pManager,
+								const float nBeginWarningDistance,
 								const float nMaxWarningDistance );
 	virtual ~VistaProximityFadeout();
 
@@ -67,6 +68,11 @@ public:
 							const VistaVector3D& v3PointOnBounds,
 							const VistaVector3D& v3UserPosition,
 							const VistaQuaternion& qUserOrientation );
+
+	virtual bool GetIsEnabled() const;
+	virtual bool SetIsEnabled( const bool bSet );
+
+	virtual bool DoTimeUpdate( VistaType::systemtime nTime, const float nOpacityScale, const bool bFlashState  );
 
 private:
 	VistaColor m_oFadeoutColor;

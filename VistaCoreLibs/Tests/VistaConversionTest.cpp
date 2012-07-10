@@ -33,8 +33,11 @@
 
 #include <VistaAspects/VistaConversion.h>
 
-static const int S_nNumIterations = 100;
-static const char S_acSeparators[] = { ',', ';', '|', ':' };
+namespace
+{
+	static const int S_nNumIterations = 100;
+	static const char S_acSeparators[] = { ',', ';', '|', ':' };
+}
 
 
 template<typename T>

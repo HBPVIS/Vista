@@ -348,9 +348,9 @@ IVdfnNode *VistaDfnNavigationNodeCreate::CreateNode( const VistaPropertyList &oP
 	float fDefaultLinearVelocity = oPars.GetValueOrDefault<float>( "default_linear_velocity", 1.0f );
 	float fDefaultAngularVelocity = oPars.GetValueOrDefault<float>( "default_angular_velocity", Vista::Pi );
 	float fLinearAcceleration = oPars.GetValueOrDefault<float>( "linear_acceleration", 0.0f );
-	float fLinearDeceleration = oPars.GetValueOrDefault<float>( "linear_deceleration", fLinearAcceleration );
+	float fLinearDeceleration = oPars.GetValueOrDefault<float>( "linear_deceleration", 0.0f );
 	float fAngularAcceleration = oPars.GetValueOrDefault<float>( "angular_acceleration", 0.0f );
-	float fAngularDeceleration = oPars.GetValueOrDefault<float>( "angular_deceleration", fAngularAcceleration );
+	float fAngularDeceleration = oPars.GetValueOrDefault<float>( "angular_deceleration", 0.0f );
 
 	return new VistaDfnNavigationNode( iDefaultMode,
 										fDefaultLinearVelocity,
@@ -711,7 +711,7 @@ IVdfnNode* VistaDfnKeyCallbackNodeCreate::CreateNode( const VistaPropertyList &o
 
 	
 	int nKeyCode;
-	int nModCode = VISTA_KEYMOD_NONE;
+	int nModCode = VISTA_KEYMOD_ANY;
 	if( oSubs.GetValue<int>( "key_value", nKeyCode ) == false )
 	{
 		std::string sKey;
@@ -812,7 +812,8 @@ IVdfnNode* VistaDfnProximityWarningNodeCreate::CreateNode( const VistaPropertyLi
 	{
 		VistaColor oColor = oSubs.GetValueOrDefault<VistaColor>( "color", VistaColor::BLACK );
 
-		VistaProximityFadeout* pFadeout = new VistaProximityFadeout( nSafeDistance, nDangerDistance );
+		VistaProximityFadeout* pFadeout = new VistaProximityFadeout( m_pVistaSystem->GetEventManager(),
+																		nSafeDistance, nDangerDistance );
 		pFadeout->SetFadeoutColor( oColor );
 		std::vector<std::string> vecViewports;
 		if( oSubs.GetValue( "viewports", vecViewports ) )
@@ -839,7 +840,8 @@ IVdfnNode* VistaDfnProximityWarningNodeCreate::CreateNode( const VistaPropertyLi
 	else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sType, "sign" )  )
 	{
 		bool bDisableOcclusion = oSubs.GetValueOrDefault<bool>( "disable_occlusion", true );
-		VistaProximitySign* pSign = new VistaProximitySign( nSafeDistance, nDangerDistance,
+		VistaProximitySign* pSign = new VistaProximitySign( m_pVistaSystem->GetEventManager(),
+																nSafeDistance, nDangerDistance,
 																bDisableOcclusion,
 																m_pVistaSystem->GetGraphicsManager() );
 		std::string sTexture;
@@ -888,7 +890,8 @@ IVdfnNode* VistaDfnProximityWarningNodeCreate::CreateNode( const VistaPropertyLi
 			return NULL;
 		}
 		bool bDisableOcclusion = oSubs.GetValueOrDefault<bool>( "disable_occlusion", true );
-		VistaProximityBarrierTape* pTape = new VistaProximityBarrierTape( nSafeDistance, nDangerDistance,
+		VistaProximityBarrierTape* pTape = new VistaProximityBarrierTape( m_pVistaSystem->GetEventManager(),
+																		nSafeDistance, nDangerDistance,
 																		bDisableOcclusion,
 																		m_pVistaSystem->GetGraphicsManager() );
 		pTape->SetTapeHeight( oSubs.GetValueOrDefault( "tape_height", 1.2f ) );
@@ -940,9 +943,28 @@ IVdfnNode* VistaDfnProximityWarningNodeCreate::CreateNode( const VistaPropertyLi
 	{
 		pWarn->AddHalfPlane( VistaVector3D( &vecPlanes[i+0] ), VistaVector3D( &vecPlanes[i+3] ) );
 	}
+
+	// additional general parameters
+	VistaType::microtime nFlashTime = oSubs.GetValueOrDefault<VistaType::microtime>( "danger_flash_period", 0.5 );
+	VistaType::microtime nHideTimeout = oSubs.GetValueOrDefault<VistaType::microtime>( "hide_timeout", 8 );
+	VistaType::microtime nHideFadeoutTime = oSubs.GetValueOrDefault<VistaType::microtime>( "hide_fadeout_time", 2 );
+
+	if( nFlashTime > 0 )
+	{
+		pWarn->SetFlashInDangerZone( true );
+		pWarn->SetDangerZoneFlashTime( nFlashTime );
+	}
+	else
+		pWarn->SetFlashInDangerZone( false );
+
+	pWarn->SetTimeout( nHideTimeout, nHideFadeoutTime );
+
 		
 	VistaDfnProximityWarningNode* pNode = new VistaDfnProximityWarningNode;
 	pNode->AddWarning( pWarn );
+
+	bool bEnabled = oSubs.GetValueOrDefault( "enabled", false );
+	pNode->SetIsEnabled( bEnabled );
 
 	return pNode;
 }

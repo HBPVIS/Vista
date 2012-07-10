@@ -41,9 +41,12 @@
 VistaDfnProximityWarningNode::VistaDfnProximityWarningNode()
 : m_pUserOrientationPort( NULL )
 , m_pUserPositionPort( NULL )
+, m_pEnabledPort( NULL )
+, m_bEnabled( true )
 {
 	RegisterInPortPrototype( "user_position", new TVdfnPortTypeCompare<TVdfnPort<VistaVector3D> > );
 	RegisterInPortPrototype( "user_orientation", new TVdfnPortTypeCompare<TVdfnPort<VistaQuaternion> > );
+	RegisterInPortPrototype( "enabled", new TVdfnPortTypeCompare<TVdfnPort<bool> > );
 }
 
 VistaDfnProximityWarningNode::~VistaDfnProximityWarningNode()
@@ -62,6 +65,7 @@ bool VistaDfnProximityWarningNode::PrepareEvaluationRun()
 {
 	m_pUserPositionPort = dynamic_cast<TVdfnPort<VistaVector3D>*>( GetInPort( "user_position" ) );
 	m_pUserOrientationPort = dynamic_cast<TVdfnPort<VistaQuaternion>*>( GetInPort( "user_orientation" ) );
+	m_pEnabledPort = dynamic_cast<TVdfnPort<bool>*>( GetInPort( "enabled" ) );
 
 	return GetIsValid();
 }
@@ -73,6 +77,23 @@ bool VistaDfnProximityWarningNode::GetIsValid() const
 
 bool VistaDfnProximityWarningNode::DoEvalNode()
 {
+	if( m_vecWarnings.empty() )
+		return true;
+	if( m_pEnabledPort )
+	{
+		if( m_pEnabledPort->GetValue() != m_bEnabled )
+		{
+			m_bEnabled = m_pEnabledPort->GetValue();
+			for( std::vector<IVistaProximityWarningBase*>::iterator itWarn = m_vecWarnings.begin();
+					itWarn != m_vecWarnings.end(); ++itWarn )
+			{
+				(*itWarn)->SetIsEnabled( m_bEnabled );
+			}
+		}
+	}
+	if( m_bEnabled == false )
+		return true;
+
 	VistaVector3D v3Position = m_pUserPositionPort->GetValue();
 	VistaQuaternion qOrientation;
 	if( m_pUserOrientationPort )
@@ -110,6 +131,46 @@ bool VistaDfnProximityWarningNode::SetInPort( const std::string &sName, IVdfnPor
 void VistaDfnProximityWarningNode::AddWarning( IVistaProximityWarningBase* pWarn )
 {
 	m_vecWarnings.push_back( pWarn );
+}
+
+bool VistaDfnProximityWarningNode::GetIsEnabled() const
+{
+	return m_bEnabled;
+}
+
+bool VistaDfnProximityWarningNode::SetIsEnabled( const bool bSet )
+{
+	if( m_bEnabled != bSet )
+		return true;
+	for( std::vector<IVistaProximityWarningBase*>::iterator itWarn = m_vecWarnings.begin();
+			itWarn != m_vecWarnings.end(); ++itWarn )
+	{
+		(*itWarn)->SetIsEnabled( bSet );
+	}
+
+	m_bEnabled = bSet;
+	return true;
+}
+
+void VistaDfnProximityWarningNode::OnActivation( double dTs )
+{
+	if( m_bEnabled )
+	{
+		for( std::vector<IVistaProximityWarningBase*>::iterator itWarn = m_vecWarnings.begin();
+				itWarn != m_vecWarnings.end(); ++itWarn )
+		{
+			(*itWarn)->SetIsEnabled( true );
+		}
+	}
+}
+
+void VistaDfnProximityWarningNode::OnDeactivation( double dTs )
+{
+	for( std::vector<IVistaProximityWarningBase*>::iterator itWarn = m_vecWarnings.begin();
+			itWarn != m_vecWarnings.end(); ++itWarn )
+	{
+		(*itWarn)->SetIsEnabled( false );
+	}
 }
 
 /*============================================================================*/

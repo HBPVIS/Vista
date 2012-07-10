@@ -46,7 +46,10 @@
 /*  MAKROS AND DEFINES                                                        */
 /*============================================================================*/
 
-const VistaType::uint64 S_nMaxBandwidth = 1024*1024; // in kilobit/sec
+namespace
+{
+	const VistaType::uint64 S_nMaxBandwidth = 1024*1024; // in kilobit/sec
+}
 
 /*============================================================================*/
 /* LEADER                                                                     */

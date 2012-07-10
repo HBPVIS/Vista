@@ -39,8 +39,10 @@
 /*  MAKROS AND DEFINES                                                        */
 /*============================================================================*/
 
-// @CLUSTERTODO make this dynamic
-const int S_nMaxPackageSize = 512;
+namespace
+{
+	const int S_nMaxPackageSize = 512;
+}
 
 /*============================================================================*/
 /* LEADER                                                                     */

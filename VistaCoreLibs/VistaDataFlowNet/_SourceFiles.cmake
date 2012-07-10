@@ -116,6 +116,8 @@ set( DirFiles
 	VdfnMultiplexNode.h
 	VdfnDemultiplexNode.cpp
 	VdfnDemultiplexNode.h
+	VdfnVariableNode.cpp
+	VdfnVariableNode.h
 	
 	_SourceFiles.cmake
 )

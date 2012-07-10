@@ -35,43 +35,47 @@
 /* MACROS AND DEFINES, CONSTANTS AND STATICS                                  */
 /*============================================================================*/
 
-bool CheckFileExists( const std::string& sFilename )
-{
-#ifdef WIN32
+namespace{
+	bool CheckFileExists( const std::string& sFilename )
+	{
+	#ifdef WIN32
 
-  struct _stat attributes;
+	  struct _stat attributes;
 
-  if ( _stat(sFilename.c_str(), &attributes) != 0 )
-	return false;
+	  if ( _stat(sFilename.c_str(), &attributes) != 0 )
+		return false;
 
-  if ( attributes.st_mode & _S_IFREG )
-	return true;
-  else
-	return false;
+	  if ( attributes.st_mode & _S_IFREG )
+		return true;
+	  else
+		return false;
 
-#else
+	#else
 
-  struct stat attributes;
+	  struct stat attributes;
 
-  if ( stat(sFilename.c_str(), &attributes) != 0 )
-	return false;
+	  if ( stat(sFilename.c_str(), &attributes) != 0 )
+		return false;
 
-  if ( attributes.st_mode & S_IFREG )
-	return true;
-  else
-	return false;
+	  if ( attributes.st_mode & S_IFREG )
+		return true;
+	  else
+		return false;
 
-#endif
+	#endif
+	}
+
+	
+	const int S_iBufferSize = 4096;
 }
+#define PARSE_WARN vstr::warnp() << "[VistaIniFileParser]: " \
+						<< "While parsing file [" << m_sFilename << "], Line [" \
+						<< m_iCurrentLine << "]\n" << vstr::singleindent \
+
 
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/
-const int S_iBufferSize = 4096;
-
-#define PARSE_WARN vstr::warnp() << "[VistaIniFileParser]: " \
-						<< "While parsing file [" << m_sFilename << "], Line [" \
-						<< m_iCurrentLine << "]\n" << vstr::singleindent \
 
 class IniFileReader
 {

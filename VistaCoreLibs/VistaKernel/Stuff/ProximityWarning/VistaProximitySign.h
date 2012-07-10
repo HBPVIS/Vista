@@ -53,7 +53,8 @@ class VistaGroupNode;
 class VISTAKERNELAPI VistaProximitySign : public IVistaProximityWarningBase
 {
 public:
-	VistaProximitySign( const float nBeginWarningDistance,
+	VistaProximitySign( VistaEventManager* pManager,
+								const float nBeginWarningDistance,
 								const float nMaxWarningDistance,
 								const bool bDisableOcclusion,
 								VistaGraphicsManager* pGraphicsManager );
@@ -70,7 +71,15 @@ public:
 							const VistaVector3D& v3UserPosition,
 							const VistaQuaternion& qUserOrientation );
 
+	virtual bool GetIsEnabled() const;
+	virtual bool SetIsEnabled( const bool bSet );
+
+	virtual bool DoTimeUpdate( VistaType::systemtime nTime, const float nOpacityScale, const bool bFlashState );
+
+
 private:
+	bool m_bEnabled;
+	float m_nWarningLevel;
 	VistaTransformNode* m_pPositionNode;
 	VistaTransformNode* m_pScaleNode;
 	VistaGeometry* m_pGeometry;

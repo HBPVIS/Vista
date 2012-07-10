@@ -47,6 +47,7 @@
 #include "VdfnGetElementNode.h"
 #include "VdfnRangeCheckNode.h"
 #include "VdfnDemultiplexNode.h"
+#include "VdfnVariableNode.h"
 
 #include <cassert>
 
@@ -650,6 +651,74 @@ class VISTADFNAPI VdfnToggleNodeCreate : public VdfnNodeFactory::IVdfnNodeCreato
 public:
     virtual IVdfnNode *CreateNode( const VistaPropertyList& oParams ) const ;
 };
+
+
+template<typename T>
+class TVdfnVariableNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator 
+{	
+	// @TODO: registry is somewhat hacky - proper registry management
+public:
+	enum NodeType
+	{
+		VN_GETTER,
+		VN_SETTER
+	};
+
+	TVdfnVariableNodeCreate( NodeType eType )
+	: m_eType( eType )
+	{
+	}
+
+	~TVdfnVariableNodeCreate()
+	{
+	}
+
+    virtual IVdfnNode *CreateNode( const VistaPropertyList& oParams ) const 
+	{
+        try 
+		{
+            const VistaPropertyList &oSubs = oParams.GetPropertyConstRef( "param" ).GetPropertyListConstRef();
+
+			std::string sVariableName;
+			if( oSubs.GetValue<std::string>( "variable", sVariableName ) == false )
+			{
+				vstr::warnp() << "[TVdfnVariableNodeCreate]: no parameter \"variable\" specified" << std::endl;
+				return NULL;
+			}
+
+			TVdfnGetVariableNode<T>::Variable* pVar;
+			T oInitial;
+			if( oSubs.GetValue<T>( "initial_value", oInitial ) )
+				pVar = m_pRegistry->GetOrCreateVariable( sVariableName, oInitial );
+			else
+				pVar = m_pRegistry->GetOrCreateVariable( sVariableName );
+				
+			switch( m_eType )
+			{
+				// @TODO: delay creation of getter node to check if var exists...
+				case VN_GETTER:
+					return new TVdfnGetVariableNode<T>( pVar );
+				case VN_SETTER:
+					return new TVdfnSetVariableNode<T>( pVar );
+				default:
+					VISTA_THROW( "TVdfnVariableNodeCreate - invalid mode", -1 );
+			}
+        } 
+		catch( VistaExceptionBase& e )
+		{
+            e.PrintException();
+        }
+        return NULL;
+    }
+
+private:
+	NodeType m_eType;
+	static TVdfnTypedVariableRegistry<T>*	m_pRegistry;
+};
+
+template<typename T>
+TVdfnTypedVariableRegistry<T>* TVdfnVariableNodeCreate<T>::m_pRegistry = new typename TVdfnTypedVariableRegistry<T>;
+
 
 
 /*============================================================================*/

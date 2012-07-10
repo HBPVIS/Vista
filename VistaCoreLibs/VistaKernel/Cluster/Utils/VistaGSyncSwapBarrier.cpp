@@ -37,21 +37,27 @@
 #ifdef WIN32
 	#include <windows.h>
 	#include <GL/gl.h>
+namespace
+{
 	typedef bool (APIENTRY* PFNJOINSWAPGROUP) ( HDC oContext, GLuint nGroupID );
 	typedef bool (APIENTRY* PFNBINDSWAPBARRIER) ( GLuint nGroupID, GLuint nBarrierID );
 	typedef bool (APIENTRY* PFNQUERYMAXSWAPGROUPS) ( HDC oContext, GLuint* nMaxGroup, GLuint* nMaxBarrier );
 	PFNJOINSWAPGROUP		S_pfJoinSwapGroup = NULL;
 	PFNBINDSWAPBARRIER		S_pfBindSwapBarrier = NULL;
 	PFNQUERYMAXSWAPGROUPS	S_pfQueryMaxSwapGroups = NULL;
+}
 #elif defined LINUX
 	#include <GL/gl.h>
 	#include <GL/glx.h>
+namespace
+{
 	typedef bool (* PFNJOINSWAPGROUP) ( Display* pContext, GLXDrawable drawable, GLuint nGroupID );
 	typedef bool (* PFNBINDSWAPBARRIER) ( Display* pContext, GLuint nGroupID, GLuint nBarrierID );
 	typedef bool (* PFNQUERYMAXSWAPGROUPS) ( Display* pContext, GLuint nDisplay, GLuint* nMaxGroup, GLuint* nMaxBarrier );
 	PFNJOINSWAPGROUP		S_pfJoinSwapGroup = NULL;
 	PFNBINDSWAPBARRIER		S_pfBindSwapBarrier = NULL;
 	PFNQUERYMAXSWAPGROUPS	S_pfQueryMaxSwapGroups = NULL;
+}
 #endif
 bool			S_bSearchPerformed = false;
 

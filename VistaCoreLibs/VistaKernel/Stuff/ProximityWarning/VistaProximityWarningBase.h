@@ -30,8 +30,10 @@
 /* INCLUDES                                                                   */
 /*============================================================================*/
 #include <VistaKernel/VistaKernelConfig.h>
+#include <VistaKernel/EventManager/VistaEventObserver.h>
 
 #include <VistaBase/VistaVectorMath.h>
+#include <VistaBase/VistaBaseTypes.h>
 
 #include <vector>
 
@@ -44,14 +46,17 @@
 /*============================================================================*/
 
 class VistaBoundingBox;
+class VistaEventManager;
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
-class VISTAKERNELAPI IVistaProximityWarningBase
+
+class VISTAKERNELAPI IVistaProximityWarningBase : public VistaEventObserver
 {
 public:
-	IVistaProximityWarningBase( const float nBeginWarnignDistance,
-								const float nMaxWarningDistance );
+	IVistaProximityWarningBase( VistaEventManager* pEventManager,
+								const float nSafeDistance,
+								const float nDangerDistance );
 	virtual ~IVistaProximityWarningBase();
 
 	virtual void AddHalfPlane( const VistaVector3D& v3Center, 
@@ -70,13 +75,29 @@ public:
 	float GetDangerDistance() const;
 	void SetDangerDistance( const float nDistance );
 
+	void SetTimeout( const VistaType::microtime nHideTimeout, VistaType::microtime nFadeoutTime );
+
+	bool GetFlashInDangerZone() const;
+	void SetFlashInDangerZone( const bool& oValue );
+	VistaType::microtime GetDangerZoneFlashTime() const;
+	void SetDangerZoneFlashTime( const VistaType::microtime oValue );
+
+	virtual bool GetIsEnabled() const = 0;
+	virtual bool SetIsEnabled( const bool bSet ) = 0;	
+
 protected:
 	virtual bool DoUpdate( const float nMinDistance,
 							const float nWarningLevel, // [0,1] - 0 is all okay, 1 max warning
 							const VistaVector3D& v3PointOnBounds,
 							const VistaVector3D& v3UserPosition,
 							const VistaQuaternion& qUserOrientation ) = 0;
+
+	virtual bool DoTimeUpdate( VistaType::systemtime nTime, const float nOpacityScale, const bool bFlashState ) = 0;
+
 private:
+	class TimeoutHandler;
+	friend class TimeoutHandler;
+
 	struct HalfPlane
 	{		
 		VistaVector3D m_v3Normal;
@@ -90,12 +111,28 @@ private:
 							const VistaVector3D& v3UserPosition,
 							float& fDistance,
 							VistaVector3D& v3ClostestPoint );
+	
+	virtual void Notify( const VistaEvent *pEvent );
 
 private:
 	float m_nSafeDistance;
 	float m_nDangerDistance;
 
+	bool m_bIsInDangerZone;
+
+	bool m_bFlashInDangerZone;
+	VistaType::microtime m_nDangerZoneFlashTime;
+	VistaType::microtime m_nDangerZoneEnterTime;
+
+
+	bool m_bWasUpdated;
+	VistaType::microtime m_nHideTimeout;
+	VistaType::microtime m_nHideFadeoutTime;
+	VistaType::systemtime m_nLastUpdate;
+
 	std::vector<HalfPlane> m_vecHalfPlanes;
+
+	VistaEventManager* m_pEventManager;
 };
 
 #endif //_VISTAPROXIMITYWARNINGBASE_H

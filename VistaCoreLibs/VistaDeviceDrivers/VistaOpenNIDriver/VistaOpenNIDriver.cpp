@@ -53,24 +53,27 @@
 		return false;														\
 	}
 
-XnSkeletonJoint S_aOpenNIJointIDIndices[] =
+namespace 
 {
-		XN_SKEL_HEAD,
-		XN_SKEL_NECK,
-		XN_SKEL_TORSO,
-		XN_SKEL_LEFT_SHOULDER,
-		XN_SKEL_LEFT_ELBOW,
-		XN_SKEL_LEFT_HAND,
-		XN_SKEL_LEFT_HIP,
-		XN_SKEL_LEFT_KNEE,
-		XN_SKEL_LEFT_FOOT,
-		XN_SKEL_RIGHT_SHOULDER,
-		XN_SKEL_RIGHT_ELBOW,
-		XN_SKEL_RIGHT_HAND,
-		XN_SKEL_RIGHT_HIP,
-		XN_SKEL_RIGHT_KNEE,
-		XN_SKEL_RIGHT_FOOT,
-};
+	XnSkeletonJoint S_aOpenNIJointIDIndices[] =
+	{
+			XN_SKEL_HEAD,
+			XN_SKEL_NECK,
+			XN_SKEL_TORSO,
+			XN_SKEL_LEFT_SHOULDER,
+			XN_SKEL_LEFT_ELBOW,
+			XN_SKEL_LEFT_HAND,
+			XN_SKEL_LEFT_HIP,
+			XN_SKEL_LEFT_KNEE,
+			XN_SKEL_LEFT_FOOT,
+			XN_SKEL_RIGHT_SHOULDER,
+			XN_SKEL_RIGHT_ELBOW,
+			XN_SKEL_RIGHT_HAND,
+			XN_SKEL_RIGHT_HIP,
+			XN_SKEL_RIGHT_KNEE,
+			XN_SKEL_RIGHT_FOOT,
+	};
+}
 /*============================================================================*/
 /* OpenNI Callbacks                                                           */
 /*============================================================================*/

@@ -1236,8 +1236,11 @@ bool VistaDTrackDriver::DoSensorUpdate(VistaType::microtime dTs)
 							VistaSensorMeasure::MEASUREVEC vSkip(32*sizeof(double));
 							unsigned int nIdx = 0;
 							(*(*it).second).ReadAllBlocksWithOffset(m_pLine, vSkip, nIdx);
-							char c;
-							m_pLine->ReadRawBuffer(&c, sizeof(char));
+							if( m_pLine->GetTailSize() > 0 )
+							{
+								char c;
+								m_pLine->ReadRawBuffer(&c, sizeof(char));
+							}
 						}
 					}
 				}

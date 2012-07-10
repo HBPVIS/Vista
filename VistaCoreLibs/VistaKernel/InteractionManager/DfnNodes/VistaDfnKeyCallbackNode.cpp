@@ -104,7 +104,8 @@ bool VistaDfnKeyCallbackNode::DoEvalNode()
 
 unsigned int VistaDfnKeyCallbackNode::CalcUpdateNeededScore() const
 {
-	return (unsigned int)m_pCallback->GetCounterValue();
+	// we return counter value plus 1, because else with 0 no-count gets lost
+	return (unsigned int)m_pCallback->GetCounterValue() + 1;
 }
 
 /*============================================================================*/

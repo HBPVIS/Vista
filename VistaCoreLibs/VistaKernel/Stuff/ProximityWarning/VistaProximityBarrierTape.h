@@ -51,7 +51,8 @@ class VistaGroupNode;
 class VISTAKERNELAPI VistaProximityBarrierTape : public IVistaProximityWarningBase
 {
 public:
-	VistaProximityBarrierTape( const float nBeginWarningDistance,
+	VistaProximityBarrierTape( VistaEventManager* pMananger,
+								const float nBeginWarningDistance,
 								const float nMaxWarningDistance,
 								const bool bDisableOcclusion,
 								VistaGraphicsManager* pGraphicsManager );
@@ -93,6 +94,12 @@ public:
 							const VistaVector3D& v3PointOnBounds,
 							const VistaVector3D& v3UserPosition,
 							const VistaQuaternion& qUserOrientation );
+
+	virtual bool GetIsEnabled() const;
+	virtual bool SetIsEnabled( const bool bSet );
+
+	virtual bool DoTimeUpdate( VistaType::systemtime nTime, const float nOpacityScale, const bool bFlashState );
+
 
 
 private:
