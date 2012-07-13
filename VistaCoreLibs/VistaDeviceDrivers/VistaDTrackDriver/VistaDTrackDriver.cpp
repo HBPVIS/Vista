@@ -550,7 +550,6 @@ public:
 		VistaSensorMeasure::MEASUREVEC &vecOut,
 								unsigned int nOffset)
 	{
-		assert( nOffset == 4 );
 		// we ignore offset and such, because we have a dynamic size
 		// the first four values have already been read, so we still need
 		// [sx sy sz][r0 r1 r2 r3 r4 r5 r6 r7 r8][bt0 ... ct0 ct1 ...]
@@ -560,6 +559,9 @@ public:
 
 		std::string strBlock, strBeg;
 
+		assert( nOffset == 4 || nOffset == 0 );
+
+		
 		// read position block
 		pDeSer->ReadDelimitedString(strBeg, '[');
 		pDeSer->ReadDelimitedString(strBlock, ']');
