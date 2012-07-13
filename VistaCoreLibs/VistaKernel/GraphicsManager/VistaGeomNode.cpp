@@ -25,6 +25,7 @@
 #include "VistaKernel/GraphicsManager/VistaGeomNode.h"
 #include "VistaKernel/GraphicsManager/VistaGeometry.h"
 #include "VistaKernel/GraphicsManager/VistaNodeBridge.h"
+#include <VistaBase/VistaStreamUtils.h>
 
 #include <cassert>
 /*============================================================================*/
@@ -130,6 +131,20 @@ bool VistaGeomNode::CanHaveChildren() const
 {
 	return false;
 }
+
+void VistaGeomNode::Debug( std::ostream& oOut, int nLevel /*= 0 */ ) const
+{
+	VistaLeafNode::Debug( oOut, nLevel );
+	
+	oOut << vstr::indent;
+	for(int j=0; j<nLevel; j++)
+		oOut << "  ";
+	oOut << "   Geometries: " 
+		<< std::setw( 10 ) << m_pGeometry->GetNumberOfVertices() << " verts, "
+		<< std::setw( 10 ) << m_pGeometry->GetNumberOfFaces() << " polys"
+		<< std::endl;
+}
+
 // ============================================================================
 // ============================================================================
 

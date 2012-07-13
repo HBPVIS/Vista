@@ -1622,6 +1622,44 @@ public:
 	VistaVirtualConsole *m_pConsole;
 };
 
+class VistaVirtualConsole::ConsoleWriteStream : public std::ostream
+{
+public:
+	class ConsoleWriteStreamBuffer : public std::streambuf
+	{
+	public:
+		ConsoleWriteStreamBuffer( VistaVirtualConsole* pConsole )
+		: std::streambuf()
+		, m_pConsole( pConsole )
+		{		
+		}
+		~ConsoleWriteStreamBuffer()
+		{
+		}
+	protected:
+		virtual int_type overflow( int_type cChar )
+		{
+			if( cChar == '\n' )
+			{
+				m_pConsole->Output( oBuffer.str(), m_pConsole->GetTextColor() );
+				oBuffer.str( "" );
+			}
+			else
+				oBuffer << (char)cChar;
+			return cChar;
+		}
+
+	private:
+		VistaVirtualConsole* m_pConsole;
+		std::stringstream oBuffer;
+	};
+
+	ConsoleWriteStream( VistaVirtualConsole* pConsole )
+		: std::ostream( new ConsoleWriteStreamBuffer( pConsole ) )
+	{
+	}
+};
+
 /*============================================================================*/
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
@@ -1669,6 +1707,8 @@ VistaVirtualConsole::VistaVirtualConsole( VistaDisplayManager *pDisplayManager,
 						<< char( m_nActivationKey ) << "( " 
 						<< m_nActivationKey << ")" << std::endl;
 	}
+
+	m_pWriteStream = new ConsoleWriteStream( this );
 
 	m_pCmdEvent = new VistaCommandEvent;
 	m_pCmdEvent->SetId(VistaCommandEvent::VEIDC_CMD);
@@ -1742,11 +1782,15 @@ VistaVirtualConsole::VistaVirtualConsole( VistaViewport* pViewport,
 		GetAttachedViewport()->GetViewportProperties()->GetSize( iWidth, iHeight );
 	}	
 	UpdateOnViewportChange( iWidth, iHeight, 0, 0 );
+
+	m_pWriteStream = new ConsoleWriteStream( this );
 }
 
 
 VistaVirtualConsole::~VistaVirtualConsole()
 {
+	delete m_pWriteStream;
+
 	m_pCtrl->SetDirectKeySink(NULL);
 	delete m_pKeySink;
 	m_pCtrl->UnbindAction(m_nActivationKey, true);
@@ -2559,5 +2603,10 @@ void VistaVirtualConsole::DebugPrint() const
 		<< "\n" << vstr::indent << "\tHistory pos: " << (m_itHistory == m_vecHistory.end() ? "<no current>" : "SET")
 		<< "\n" << vstr::indent << "\tOutput size: " << m_vecOutput.size()
 		<< std::endl;
+}
+
+std::ostream& VistaVirtualConsole::GetWriteStream() const
+{
+	return *m_pWriteStream;
 }
 

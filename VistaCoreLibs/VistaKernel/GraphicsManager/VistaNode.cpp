@@ -219,27 +219,7 @@ void VistaNode::Debug(std::ostream& out, int nLevel) const
 	else
 		out << " [DISABLED]";
 
-	out << std::endl;
-
-	if( CanHaveChildren() == false )
-	{
-		VistaVector3D v3Position;
-		GetWorldPosition( v3Position );
-		VistaVector3D v3Min, v3Max;
-		GetWorldBoundingBox( v3Min, v3Max );
-		out << vstr::indent;
-		for(int j=0; j<nLevel; j++)
-			out << "  ";
-		out << "   Leaf Position: "
-			<< v3Position << "\n";
-		out << vstr::indent;
-		for(int j=0; j<nLevel; j++)
-			out << "  ";
-		out << "   Leaf Global Bounds: ( "
-			<< v3Min[0] << ", " << v3Min[1] << ", " << v3Min[2] << " ) - ( "
-			<< v3Max[0] << ", " << v3Max[1] << ", " << v3Max[2] << " )" << std::endl;
-	}
-	
+	out << std::endl;	
 }
 
 /*============================================================================*/

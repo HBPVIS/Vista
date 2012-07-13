@@ -51,6 +51,7 @@ class VISTAKERNELAPI VistaLeafNode : public VistaNode
 	friend class IVistaNodeBridge;
 public:
 	virtual ~VistaLeafNode();
+	void Debug( std::ostream& oOut, int nLevel = 0 ) const;
 protected:
 	VistaLeafNode();
 	VistaLeafNode(	VistaGroupNode*			pParent,

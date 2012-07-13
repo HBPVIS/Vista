@@ -92,8 +92,8 @@ class VISTAKERNELAPI VistaDfnNavigationNode : public IVdfnNode
 {
 public:
 	VistaDfnNavigationNode( const int iDefaultNavigationMode = 0,
-							const float fDefaultLinearVelocity = 1.0f,
-							const float fDefaultAngularVelocity = 3.14159f,
+							const float fDefaultLinearSpeed = 1.0f,
+							const float fDefaultAngularSpeed = 3.14159f,
 							const float fLinearAcceleration = 0,
 							const float fLinearDecceleration = 0,
 							const float fAngularAcceleration = 0,
@@ -132,17 +132,20 @@ private:
 	TVdfnPort<VistaQuaternion>*		m_pRotation;
 	TVdfnPort<VistaVector3D>*		m_pRotationPivot;
 	TVdfnPort<int>*					m_pNavigationMode;
-	TVdfnPort<float>*				m_pLinearVelocity;
-	TVdfnPort<float>*				m_pAngularVelocity;
+	TVdfnPort<float>*				m_pLinearSpeed;
+	TVdfnPort<float>*				m_pAngularSpeed;
 
-	float				m_fTargetAngularVelocity;
-	float				m_fCurrentAngularVelocity;
+	float				m_fTargetAngularSpeed;
+	float				m_fCurrentAngularSpeed;
+	VistaAxisAndAngle	m_aaCurrentAngularVelocity;
 	float				m_fAngularAcceleration;
 	float				m_fAngularDecceleration;
-	float				m_fTargetLinearVelocity;
-	float				m_fCurrentLinearVelocity;
+
+	float				m_fDefaultLinearSpeed;
+	VistaVector3D		m_v3TargetLinearVelocity;
+	VistaVector3D		m_v3CurrentLinearVelocity;
 	float				m_fLinearAcceleration;
-	float				m_fLinearDecceleration;
+	float				m_fLinearDeceleration;
 	int					m_iNavigationMode;
 
 	float				m_fDeltaTime;

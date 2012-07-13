@@ -199,6 +199,16 @@ public:
 	 */
 	void SetConsoleTransparency( float fTrans );
 
+	/**
+	 * retruns a std::ostream object for streaming
+	 * text into the virtual console. The input is handled as
+	 * text-only, i.e. no commands or special symbols are
+	 * interpreted. The input is written once a line is finished
+	 * (independently from flush'ing the stream)
+	 */
+	std::ostream& GetWriteStream() const;
+
+
 private:
 	class ConsoleKeySink;
 	class ToggleConsoleCommand;
@@ -306,6 +316,9 @@ private:
 	double GetInputLineAreaHeightBack() const;
 	double GetContentAreaHeight() const;
 	double GetContentAreaHeightBack() const;
+
+	class ConsoleWriteStream;
+	ConsoleWriteStream* m_pWriteStream;
 };
 
 /*============================================================================*/

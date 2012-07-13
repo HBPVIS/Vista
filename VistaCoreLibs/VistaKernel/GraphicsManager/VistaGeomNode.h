@@ -68,7 +68,7 @@ public:
 
 	virtual bool ScaleGeometry(const float fX, const float fY, const float xZ);
 
-	void DebugGeomNode(std::ostream &out);
+	void Debug( std::ostream& oOut, int nLevel = 0 ) const;
 
 /**
  * @todo should we become an observer for our geometry?
