@@ -79,6 +79,7 @@ public:
 
 private:
 	bool m_bEnabled;
+	bool m_bCurrentFlashState;
 	float m_nWarningLevel;
 	VistaTransformNode* m_pPositionNode;
 	VistaTransformNode* m_pScaleNode;

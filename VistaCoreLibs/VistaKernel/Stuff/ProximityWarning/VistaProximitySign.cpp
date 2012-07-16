@@ -120,6 +120,7 @@ VistaProximitySign::VistaProximitySign( VistaEventManager* pManager,
 : IVistaProximityWarningBase( pManager, nBeginWarningDistance, nMaxWarningDistance )
 , m_bEnabled( true )
 , m_nWarningLevel( 0 )
+, m_bCurrentFlashState( false )
 {
 	VistaSceneGraph* pSG = pGraphicsManager->GetSceneGraph();
 	m_pPositionNode = pSG->NewTransformNode( pSG->GetRoot() );
@@ -227,7 +228,7 @@ bool VistaProximitySign::DoTimeUpdate( VistaType::systemtime nTime, const float 
 {
 	float nOpacity = m_nWarningLevel * nOpacityScale;
 
-	if( bFlashState || nOpacity == 0 )
+	if( nOpacity == 0 )
 	{
 		m_pPositionNode->SetIsEnabled( false );
 	}
@@ -235,6 +236,16 @@ bool VistaProximitySign::DoTimeUpdate( VistaType::systemtime nTime, const float 
 	{
 		m_pPositionNode->SetIsEnabled( true );
 		m_pGeometry->SetTransparency( 1.0f - nOpacity );
+		if( bFlashState != m_bCurrentFlashState )
+		{
+			if( bFlashState )
+				m_pGeometry->SetMaterial( VistaMaterial( VistaColor::BLACK, VistaColor::BLACK,
+							VistaColor::BLACK, VistaColor::WHITE, 0.0f, 1.0f, "sign_material" ) );
+			else
+				m_pGeometry->SetMaterial( VistaMaterial( VistaColor::BLACK, VistaColor::BLACK,
+							VistaColor::BLACK, VistaColor::GRAY, 0.0f, 1.0f, "sign_material" ) );
+			m_bCurrentFlashState = bFlashState;
+		}
 	}
 	return true;
 }
