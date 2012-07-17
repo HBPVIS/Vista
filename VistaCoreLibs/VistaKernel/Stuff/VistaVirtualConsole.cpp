@@ -1679,6 +1679,7 @@ VistaVirtualConsole::VistaVirtualConsole( VistaDisplayManager *pDisplayManager,
 , m_bInitDone(false)
 , m_bEnabled(false)
 , m_glFontHandle(~0)
+, m_pEvMgr( pEventManager )
 , m_pCtrl(pCtrl)
 , m_nActivationKey(cActivationKey)
 , m_pKeySink(NULL)
@@ -1734,6 +1735,7 @@ VistaVirtualConsole::VistaVirtualConsole( VistaViewport* pViewport,
 						int iCmdToken,
 						int cActivationKey )
 : IVistaSceneOverlay( pViewport )
+, m_pEvMgr( pMgr )
 , m_bInitDone(false)
 , m_bEnabled(false)
 , m_glFontHandle(~0)
