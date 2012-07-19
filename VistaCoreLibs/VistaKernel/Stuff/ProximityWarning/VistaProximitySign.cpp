@@ -235,17 +235,17 @@ bool VistaProximitySign::DoTimeUpdate( VistaType::systemtime nTime, const float 
 	else
 	{
 		m_pPositionNode->SetIsEnabled( true );
-		m_pGeometry->SetTransparency( 1.0f - nOpacity );
 		if( bFlashState != m_bCurrentFlashState )
 		{
 			if( bFlashState )
 				m_pGeometry->SetMaterial( VistaMaterial( VistaColor::BLACK, VistaColor::BLACK,
-							VistaColor::BLACK, VistaColor::WHITE, 0.0f, 1.0f, "sign_material" ) );
+							VistaColor::BLACK, VistaColor::GRAY, 0.0f, 1.0f, "sign_material_flash" ) );
 			else
 				m_pGeometry->SetMaterial( VistaMaterial( VistaColor::BLACK, VistaColor::BLACK,
-							VistaColor::BLACK, VistaColor::GRAY, 0.0f, 1.0f, "sign_material" ) );
+							VistaColor::BLACK, VistaColor::WHITE, 0.0f, 1.0f, "sign_material" ) );
 			m_bCurrentFlashState = bFlashState;
 		}
+		m_pGeometry->SetTransparency( 1.0f - nOpacity );
 	}
 	return true;
 }

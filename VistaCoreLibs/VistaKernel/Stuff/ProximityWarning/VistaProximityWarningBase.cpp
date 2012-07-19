@@ -48,11 +48,13 @@ IVistaProximityWarningBase::IVistaProximityWarningBase( VistaEventManager* pEven
 , m_nLastUpdate( 0 )
 , m_nHideTimeout( 0 )
 , m_nHideFadeoutTime( 0 )
+, m_nFlashAfterLostTracking( 0 )
 , m_pEventManager( pEventManager )
 , m_nDangerZoneEnterTime( 0 )
 , m_bFlashInDangerZone( true )
-, m_nDangerZoneFlashTime( 0.5 )
-, m_bIsInDangerZone( 0 )
+, m_nFlashPeriod( 0.5 )
+, m_bIsInDangerZone( false )
+, m_bIsInTransitionZone( false )
 {
 	m_pEventManager->RegisterObserver( this, VistaSystemEvent::GetTypeId() );
 }
@@ -130,6 +132,8 @@ bool IVistaProximityWarningBase::Update( const VistaVector3D& v3ViewerPosition,
 
 	m_bIsInDangerZone = ( nWarningLevel >= 1 );
 
+	m_bIsInTransitionZone = ( nWarningLevel > 0 && nWarningLevel < 1 );
+
 	m_bWasUpdated = true;
 
 	//std::cout << "Dist: " << nDistance << "               warn: " << nWarningLevel <<std::endl;
@@ -201,12 +205,24 @@ void IVistaProximityWarningBase::Notify( const VistaEvent *pEvent )
 		{
 			if( m_nDangerZoneEnterTime == 0 )
 				m_nDangerZoneEnterTime = pEvent->GetTime();
-			else if( m_bFlashInDangerZone && m_nDangerZoneFlashTime > 0 )
+			else if( m_bFlashInDangerZone && m_nFlashPeriod > 0 )
 			{
 				VistaType::microtime nTimeInDanger = pEvent->GetTime() - m_nDangerZoneEnterTime;
-				nTimeInDanger /= m_nDangerZoneFlashTime;
+				nTimeInDanger /= m_nFlashPeriod;
 				bFlashState = ( (int)nTimeInDanger % 2 == 1 );
 			}
+		}
+		else if( m_bIsInTransitionZone && m_nFlashAfterLostTracking > 0 )
+
+		{
+			VistaType::microtime nDelta = pEvent->GetTime() - m_nLastUpdate;
+			if( nDelta > m_nFlashAfterLostTracking )
+			{
+				nDelta -= m_nFlashAfterLostTracking;
+				nDelta /= m_nFlashPeriod;
+				bFlashState = ( (int)nDelta % 2 == 0 );
+			}
+			
 		}
 
 		DoTimeUpdate( pEvent->GetTime(), nOpacity, bFlashState );
@@ -225,10 +241,20 @@ void IVistaProximityWarningBase::SetFlashInDangerZone( const bool& oValue )
 
 VistaType::microtime IVistaProximityWarningBase::GetDangerZoneFlashTime() const
 {
-	return m_nDangerZoneFlashTime;
+	return m_nFlashPeriod;
 }
 
-void IVistaProximityWarningBase::SetDangerZoneFlashTime( const VistaType::microtime oValue )
+void IVistaProximityWarningBase::SetFlashPeriod( const VistaType::microtime oValue )
 {
-	m_nDangerZoneFlashTime = oValue;
+	m_nFlashPeriod = oValue;
+}
+
+VistaType::microtime IVistaProximityWarningBase::GetFlashAfterLostTracking() const
+{
+	return m_nFlashAfterLostTracking;
+}
+
+void IVistaProximityWarningBase::SetFlashAfterLostTracking( const VistaType::microtime& oValue )
+{
+	m_nFlashAfterLostTracking = oValue;
 }

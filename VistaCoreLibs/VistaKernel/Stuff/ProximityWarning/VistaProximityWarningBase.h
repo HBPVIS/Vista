@@ -80,7 +80,10 @@ public:
 	bool GetFlashInDangerZone() const;
 	void SetFlashInDangerZone( const bool& oValue );
 	VistaType::microtime GetDangerZoneFlashTime() const;
-	void SetDangerZoneFlashTime( const VistaType::microtime oValue );
+	void SetFlashPeriod( const VistaType::microtime oValue );
+
+	VistaType::microtime GetFlashAfterLostTracking() const;
+	void SetFlashAfterLostTracking( const VistaType::microtime& oValue );
 
 	virtual bool GetIsEnabled() const = 0;
 	virtual bool SetIsEnabled( const bool bSet ) = 0;	
@@ -119,11 +122,13 @@ private:
 	float m_nDangerDistance;
 
 	bool m_bIsInDangerZone;
+	bool m_bIsInTransitionZone;
 
 	bool m_bFlashInDangerZone;
-	VistaType::microtime m_nDangerZoneFlashTime;
+	VistaType::microtime m_nFlashPeriod;
 	VistaType::microtime m_nDangerZoneEnterTime;
 
+	VistaType::microtime m_nFlashAfterLostTracking;
 
 	bool m_bWasUpdated;
 	VistaType::microtime m_nHideTimeout;

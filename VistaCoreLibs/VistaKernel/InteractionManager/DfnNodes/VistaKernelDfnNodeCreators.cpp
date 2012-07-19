@@ -945,20 +945,17 @@ IVdfnNode* VistaDfnProximityWarningNodeCreate::CreateNode( const VistaPropertyLi
 	}
 
 	// additional general parameters
-	VistaType::microtime nFlashTime = oSubs.GetValueOrDefault<VistaType::microtime>( "danger_flash_period", 0.5 );
-	VistaType::microtime nHideTimeout = oSubs.GetValueOrDefault<VistaType::microtime>( "hide_timeout", 8 );
+	VistaType::microtime nFlashPeriod = oSubs.GetValueOrDefault<VistaType::microtime>( "flash_period", 0.5 );
+	bool bFlashInDangerZone = oSubs.GetValueOrDefault<bool>( "flash_in_dangerzone", false );
+	VistaType::microtime nFlashAfterLostTracking = oSubs.GetValueOrDefault<VistaType::microtime>( "flash_after_lost_tracking", 0 );
+	VistaType::microtime nHideTimeout = oSubs.GetValueOrDefault<VistaType::microtime>( "hide_timeout", 0 );
 	VistaType::microtime nHideFadeoutTime = oSubs.GetValueOrDefault<VistaType::microtime>( "hide_fadeout_time", 2 );
 
-	if( nFlashTime > 0 )
-	{
-		pWarn->SetFlashInDangerZone( true );
-		pWarn->SetDangerZoneFlashTime( nFlashTime );
-	}
-	else
-		pWarn->SetFlashInDangerZone( false );
+	pWarn->SetFlashInDangerZone( bFlashInDangerZone );	
+	pWarn->SetFlashAfterLostTracking( nFlashAfterLostTracking );
+	pWarn->SetFlashPeriod( nFlashPeriod );
 
 	pWarn->SetTimeout( nHideTimeout, nHideFadeoutTime );
-
 		
 	VistaDfnProximityWarningNode* pNode = new VistaDfnProximityWarningNode;
 	pNode->AddWarning( pWarn );
