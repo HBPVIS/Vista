@@ -15,7 +15,6 @@
 		<node name="head" type="HistoryProject">
 			<param name="project" value="POSITION, ORIENTATION, QUALITY"/>
 		</node>
-		<!--<node name="dd" type="DeviceDebug" />-->
 		
 		<!-- for UCP, we want hot sampling, i.e. the latest possible value -->
 		<node name="project_mode" type="ConstantValue[int]">
@@ -60,6 +59,15 @@
 			<param name="box_max" value=" 2.625, 10, 2.625"/>
 			<param name="safe_distance" value="0.75"/>
 			<param name="danger_distance" value="0.5"/>
+			<!-- specify that the sign should fade out after n seconds of lost tracking -->
+			<param name="hide_timeout" value="5"/> <!-- default: 0 (disabled) -->
+			<param name="hide_fadeout_time" value="1"/> <!-- default: 2 -->
+			<!-- specify that the sign should start blinking when in the danger zone -->
+			<param name="flash_in_dangerzone" value="true"/> <!-- default: false -->
+			<!-- if tracking is lost for n seconds in the transition zone, the sign will start blinking -->
+			<param name="flash_after_lost_tracking" value="1.0"/> <!-- default: 0 (disabled) -->
+			<!-- flash period - specify frequency of flashing when in danger zone or tracking lost -->
+			<param name="flash_period" value="0.75"/> <!-- default: 0.5 -->
 			
 			<!-- type selection - can be sign, tape, fadeout-->
 			<param name="type" value="sign"/>
@@ -94,27 +102,27 @@
 		<edge fromnode="project_mode" tonode="head" fromport="value"   toport="sampling_mode"/>
 		<edge fromnode="head_source"  tonode="head" fromport="history" toport="history"/>
 		<!--<edge fromnode="head_source"  tonode="dd" fromport="history" toport="history"/>-->
-		
-		<!-- quality check -->
-		<edge fromnode="head" tonode="quality_threshold" fromport="QUALITY" toport="in" />
-		<edge fromnode="quality_threshold" tonode="quality_to_bool" fromport="out" toport="in" />
-		<edge fromnode="quality_to_bool" tonode="quality_check" fromport="out" toport="trigger" />
-		<edge fromnode="head" tonode="quality_check" fromport="POSITION" toport="position" />
-		<edge fromnode="head" tonode="quality_check" fromport="ORIENTATION" toport="orientation" />
 
-		<edge fromnode="quality_check" tonode="offset_rotate" fromport="orientation" toport="first"/>
+		<edge fromnode="head" tonode="offset_rotate" fromport="POSITION" toport="first"/>
 		<edge fromnode="to_dtrack_origin" tonode="offset_rotate" fromport="value" toport="second"/>
-		<edge fromnode="quality_check" tonode="translate_pos" fromport="position" toport="first"/>
+		<edge fromnode="head" tonode="translate_pos" fromport="ORIENTATION" toport="first"/>
 		<edge fromnode="offset_rotate" tonode="translate_pos" fromport="out" toport="second"/>
 
 		<edge fromnode="translate_pos" tonode="scale_pos" fromport="out" toport="second"/>
 		<edge fromnode="scale_mm_to_m" tonode="scale_pos" fromport="value" toport="first"/>
+		
+				<!-- quality check -->
+		<edge fromnode="head" tonode="quality_threshold" fromport="QUALITY" toport="in" />
+		<edge fromnode="quality_threshold" tonode="quality_to_bool" fromport="out" toport="in" />
+		<edge fromnode="quality_to_bool" tonode="quality_check" fromport="out" toport="trigger" />
+		<edge fromnode="scale_pos" tonode="quality_check" fromport="out" toport="position" />
+		<edge fromnode="head" tonode="quality_check" fromport="ORIENTATION" toport="orientation" />
 
-		<edge fromnode="scale_pos" tonode="ucp" fromport="out" toport="position"/>
+		<edge fromnode="quality_check" tonode="ucp" fromport="out" toport="position"/>
 		<edge fromnode="quality_check" tonode="ucp" fromport="orientation" toport="orientation"/>
 		
 		<edge fromnode="proximity_warning_state" tonode="proximity" fromport="value" toport="enabled"/>
-		<edge fromnode="scale_pos" tonode="proximity" fromport="out" toport="user_position"/>
+		<edge fromnode="quality_check" tonode="proximity" fromport="position" toport="user_position"/>
 		<edge fromnode="quality_check" tonode="proximity" fromport="orientation" toport="user_orientation"/>
 
 	</edges>

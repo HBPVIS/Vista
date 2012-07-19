@@ -35,10 +35,12 @@
 		<node name="x_axis_threshold" type="Threshold[float]" >
 			<param name="mode" value="output_zero"/>
 			<param name="compare_absolute_value" value="true" />
+			<param name="subtract_threshold" value="true" />
 		</node>
 		<node name="y_axis_threshold" type="Threshold[float]" >
 			<param name="mode" value="output_zero"/>
 			<param name="compare_absolute_value" value="true" />
+			<param name="subtract_threshold" value="true" />
 		</node>
 		<node name="x_axis_abs" type="Absolute[float]" />
 		<node name="y_axis_abs" type="Absolute[float]" />

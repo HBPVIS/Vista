@@ -1,10 +1,8 @@
 <!-- $Id: navigator_flystick.xml 22882 2011-08-08 15:54:40Z dr165799 $ -->
 <!--
-  -- Configuration for a flystick navigation controlled by pointing firection and the coolie hat.
-  -- This variant uses the room coordinate system (i.e. the cave floor center) as pivot for rotations,
-  -- and does NOT have a proximity warning, soplease make sure to add one in another xml, or add the
-  -- required nodes here.
-  -- Speed of navigation can be adjusted by changing the values of nodes linear speed or angular_speed
+  -- Configuration for a flystick navigation controlled by pointing direction and the coolie hat.
+  -- This variant uses has only translation in the x-z-plane.
+  -- Speed of navigation can be adjusted by changing the values of nodes linear speed.
   -->
 <module>
 	<nodespace>
@@ -15,11 +13,6 @@
 			<param name="sensor_name" value="STICK_SENSOR"/>
 			<param name="type" value="STICK2"/>
 			<param name="driver" value="DTRACK"/>
-		</node>
-		
-		<!-- source for the user position, to be used as pivot for rotations -->
-		<node name="viewer" type="ViewerSource">
-			<param name="displaysystem" value="MAIN"/>
 		</node>
 
 		<node name="flystick" type="HistoryProject">
@@ -40,12 +33,10 @@
 		<node name="x_axis_threshold" type="Threshold[float]" >
 			<param name="mode" value="output_zero"/>
 			<param name="compare_absolute_value" value="true" />
-			<param name="subtract_threshold" value="true" />
 		</node>
 		<node name="y_axis_threshold" type="Threshold[float]" >
 			<param name="mode" value="output_zero"/>
 			<param name="compare_absolute_value" value="true" />
-			<param name="subtract_threshold" value="true" />
 		</node>
 		<node name="x_axis_abs" type="Absolute[float]" />
 		<node name="y_axis_abs" type="Absolute[float]" />
@@ -59,26 +50,21 @@
 		<node name="linear_speed" type="ConstantValue[float]">
 			<param name="value" value="2.0"/>
 		</node>
-		<!-- angular speed at full rotation, in rad/s -> 3.1415 means half a turn per second -->
-		<node name="angular_speed" type="ConstantValue[float]">
-			<param name="value" value="3.1415"/> 
-		</node>
-		
 		<node name="mult_linear_speed" type="Multiply[float]"/>
-		<node name="mult_angular_speed" type="Multiply[float]"/>
 		
-		<!-- calculating the movement direction, pointing along negative z of the device -->
-		<node name="point_dir_base" type="ConstantValue[VistaVector3D]">
+		<!-- calculating the movement directions, pointing along negative z of the device
+			and along positive x axis -->
+		<node name="forward_dir_base" type="ConstantValue[VistaVector3D]">
 			<param name="value" value="0, 0, -1"/>
 		</node>
-		<node name="point_dir" type="Transform[VistaQuaternion,VistaVector3D]"/>
-		
-
-		<!-- creating the rotation, which is just a full turn around y -->
-		<node name="rotate_quat" type="ConstantValue[VistaQuaternion]">
-			<param name="value" value="0, -1, 0, 0"/>
+		<node name="sideward_dir_base" type="ConstantValue[VistaVector3D]">
+			<param name="value" value="1, 0, 0"/>
 		</node>
-
+		<node name="forward_dir" type="Transform[VistaQuaternion,VistaVector3D]"/>
+		<node name="sideward_dir" type="Transform[VistaQuaternion,VistaVector3D]"/>
+		
+		<node name="move_dir" type="Add[VistaVector3D]"/>
+		
 		<!-- Application -->
 		<node name="get_transform" type="GetTransform">
 			<param name="object" value="CAM:MAIN"/>
@@ -89,11 +75,7 @@
 
 		<node name="timer" type="Timer"/>
 		
-		<node name="navigator" type="Navigation">
-			<!-- available modes: unconstrained (default), yaw_only, no_roll -->
-			<!-- note: mode doesn't really matter, since we only probide yaw anyway -->
-			<param name="default_navigation_mode" value="unconstrained" />
-		</node>
+		<node name="navigator" type="Navigation" />
 				
 	</graph>
 	<edges>
@@ -125,19 +107,22 @@
 		<edge fromnode="x_axis_threshold" tonode="mult_angular_speed" fromport="out" toport="second" />
 		
 		<!-- calculate pointing dir and rotation -->
-		<edge fromnode="quality_check" tonode="point_dir" fromport="orientation" toport="first" />
-		<edge fromnode="point_dir_base" tonode="point_dir" fromport="value" toport="second" />
+		<edge fromnode="quality_check" tonode=forward_dir" fromport="orientation" toport="first" />
+		<edge fromnode="forward_dir_base" tonode="forward_dir" fromport="value" toport="second" />
+		
+		<edge fromnode="quality_check" tonode=sideward_dir" fromport="orientation" toport="first" />
+		<edge fromnode="sideward_dir_base" tonode="sideward_dir" fromport="value" toport="second" />
+		
+		<edge fromnode="forward_dir" tonode="move_dir" fromport="value" toport="first" />
+		<edge fromnode="sideward_dir" tonode="move_dir" fromport="value" toport="second" />
 				
 		<!-- Navigation edges-->
 		<edge fromnode="mult_linear_speed" tonode="navigator" fromport="out" toport="linear_velocity" />
-		<edge fromnode="mult_angular_speed" tonode="navigator" fromport="out" toport="angular_velocity" />
-		<edge fromnode="point_dir" tonode="navigator" fromport="out" toport="translation" />
-		<edge fromnode="rotate_quat" tonode="navigator" fromport="value" toport="rotation" />
+		
+		<edge fromnode="move_dir" tonode="navigator" fromport="out" toport="translation" />
 		
 		<edge fromnode="timer" tonode="navigator" fromport="dt" toport="dt"/>
 		<edge fromnode="get_transform" tonode="navigator" fromport="transform" toport="transform"/>
 		<edge fromnode="navigator" tonode="set_transform" fromport="transform" toport="in"/>
-		
-		<edge fromnode="viewer" tonode="navigator" fromport="translation" toport="pivot"/>
 	</edges>
 </module>

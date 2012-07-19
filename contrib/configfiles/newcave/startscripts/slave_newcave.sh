@@ -16,11 +16,9 @@
 #    8                  4x Bilinear Multisampling by 2x Supersampling
 #                       (available on GeForce FX and later GPUs; not
 #                       available on Quadro GPUs)
-export __GL_FSAA_MODE=5
+export __GL_FSAA_MODE=8
 # disable vsync here - state per client will be set by display_newcave.ini
 export __GL_SYNC_TO_VBLANK=0
-
-source ./set_path_for_YOURAPPNAME.sh
 
 if [ "$1" == "" ]; then
 	echo "No SLAVE config given."
@@ -32,9 +30,13 @@ ulimit -c 0 # disable core dumps
 ulimit -t unlimited # dont kill jobs after 20mins
 export VISTAINIPATH= # unset VISTAINIPATH
 
+# we set the appropriate slave, and pass through all other parameters, too
 # the nice call increases the priority of the application, allowing it to receive signals (e.g. when waiting for
 # incoming cluster calls)
-/bin/nice_av00 -n -15 YOURAPPNAME -newclusterslave $1 -vistaini vista_newcave.ini -displayini display_newcave.ini -clusterini display_newcave.ini
+/bin/nice_av00 -n -15 ./start_newcave.sh -newclusterslave $@
 
 #alternative: redirect all slave output to a file
-#/bin/nice_av00 -n -15 YOUR_APP_NAME -newclusterslave $1 -vistaini vista_newcave.ini -displayini display_newcave.ini -clusterini display_newcave.ini 1>slavelog_$1.log 2>&1
+#if [ ! -d "slavelogs" ]; then
+#	mkdir slavelogs
+#fi
+#/bin/nice_av00 -n -15 ./start_newcave.sh -newclusterslave $@ >slavelogs/log_$1.txt 2>&1
