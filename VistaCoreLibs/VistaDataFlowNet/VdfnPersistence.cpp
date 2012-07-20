@@ -378,7 +378,6 @@ namespace
 					// set this out port to the given in port
 					if( pTo->SetInPort( pcToPort, pFromPort ) == false )
 					{
-						const IVdfnPortTypeCompare& oPortType = pFrom->GetPortTypeCompareFor( pcFromPort );
 						// did not work
 						vstr::warnp() << "[Vdfn::CreateGraph]: ERROR in graph [" << strTag << "], line "
 									<< edge->Row() << std::endl;
@@ -387,9 +386,11 @@ namespace
 									<< pFrom->GetNameForNameable() << "::" << pcFromPort << "] to ["
 									<< pTo->GetNameForNameable() << "::" << pcToPort
 									<< "] failed.\n";
-						vstr::warni() << "Inport [" << pTo->GetNameForNameable() << "] with type ["
-									<< VistaConversion::CleanOSTypeName( oPortType.GetTypeDescriptor() )
+						IVdfnPortTypeCompare* pPortTC = pFromPort->GetPortTypeCompare();
+						vstr::warni() << "Inport [" << pcToPort << "] with type ["
+									<< VistaConversion::CleanOSTypeName( pPortTC->GetTypeDescriptor() )
 									<< "] does not exist" << std::endl;
+						delete pPortTC;
 
 						vstr::warni() << "Available inports of node [" 
 									<< pTo->GetNameForNameable() << "]:" << std::endl;

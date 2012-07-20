@@ -551,6 +551,8 @@ bool RegisterBasicNodeCreators(VistaDriverMap *pDrivers,
 	pFac->SetNodeCreator( "GetVariable[VistaTransformMatrix]", new TVdfnVariableNodeCreate<VistaTransformMatrix>( TVdfnVariableNodeCreate<VistaTransformMatrix>::VN_GETTER ) );
 	pFac->SetNodeCreator( "GetVariable[string]", new TVdfnVariableNodeCreate<std::string>( TVdfnVariableNodeCreate<std::string>::VN_GETTER ) );
 
+	pFac->SetNodeCreator( "Outstream", new VdfnOutstreamNodeCreate );
+
 	return true;
 }
 

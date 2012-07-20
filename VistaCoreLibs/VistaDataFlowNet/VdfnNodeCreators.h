@@ -719,7 +719,11 @@ private:
 template<typename T>
 TVdfnTypedVariableRegistry<T>* TVdfnVariableNodeCreate<T>::m_pRegistry = new TVdfnTypedVariableRegistry<T>;
 
-
+class VISTADFNAPI VdfnOutstreamNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
+public:
+    virtual IVdfnNode *CreateNode( const VistaPropertyList& oParams ) const ;
+};
 
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */

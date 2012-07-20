@@ -37,6 +37,7 @@
 #include "VdfnApplyTransformNode.h"
 
 #include "VdfnLoggerNode.h"
+#include "VdfnOutstreamNode.h"
 #include "VdfnCompositeNode.h"
 #include "VdfnToggleNode.h"
 
@@ -640,6 +641,48 @@ IVdfnNode* VdfnToggleNodeCreate::CreateNode( const VistaPropertyList& oParams ) 
 	}
 	return new VdfnToggleNode( eMode, bInitState );
 }
+
+// #############################################################################
+
+IVdfnNode * VdfnOutstreamNodeCreate::CreateNode( const VistaPropertyList& oParams ) const
+{
+	const VistaPropertyList& oSubs = oParams.GetSubListConstRef( "param" );
+
+	std::ostream* pStream;
+
+	std::string sStreamName = oSubs.GetValueOrDefault<std::string>( "stream", "out" );
+	VistaAspectsComparisonStuff::StringCompareObject oCmp( false );
+	if( oCmp( sStreamName, "out" ) )
+		pStream = &vstr::out();
+	else if( oCmp( sStreamName, "warn" ) )
+		pStream = &vstr::warn();
+	else if( oCmp( sStreamName, "err" ) )
+		pStream = &vstr::err();
+	else if( oCmp( sStreamName, "debug" ) )
+		pStream = &vstr::debug();
+	else if( oCmp( sStreamName, "cout" ) )
+		pStream = &std::cout;
+	else if( oCmp( sStreamName, "cerr" ) )
+		pStream = &std::cerr;
+	else if( oCmp( sStreamName, "clog" ) )
+		pStream = &std::clog;
+	else
+	{
+		if( vstr::GetStreamManager()->GetHasStream( sStreamName ) == false )
+		{
+			vstr::warnp() << "[VdfnOutstreamNodeCreate] no stream ["
+							<< sStreamName << " defined" << std::endl;
+			return NULL;
+		}
+		pStream = &vstr::Stream( sStreamName );
+	}
+
+	VdfnOutstreamNode* pNode = new VdfnOutstreamNode( *pStream );
+	pNode->SetPrefix( oSubs.GetValueOrDefault<std::string>( "prefix", "" ) );
+	pNode->SetPostfix( oSubs.GetValueOrDefault<std::string>( "postfix", "\n" ) );
+	return pNode;
+}
+
 
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */

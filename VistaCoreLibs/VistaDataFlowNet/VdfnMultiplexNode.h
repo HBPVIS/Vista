@@ -66,6 +66,7 @@ public:
 	, m_pSelectPort( NULL )
 	{
 		RegisterOutPort( "out", m_pOutPort );
+		RegisterInPortPrototype( "select", new TVdfnPortTypeCompare<TVdfnPort<int> > );
 	}
 	virtual ~TVdfnMultiplexNode()
 	{
@@ -91,7 +92,9 @@ public:
 			if( m_mapInPorts.find( nPortIndex ) != m_mapInPorts.end() )
 				return false;
 			m_mapInPorts[nPortIndex] = pTypedPort;
+			RegisterInPortPrototype( sName, pPort->GetPortTypeCompare() );
 		}
+
 		DoSetInPort( sName, pPort );
 		return true;
 	}
