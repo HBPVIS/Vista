@@ -229,11 +229,22 @@ public:
 			bool bBlocking = oProps.GetValueOrDefault<bool>( "BLOCKING", true );
 			bool bBuffering = oProps.GetValueOrDefault<bool>( "BUFFERING", false );
 			bool bBufferSwap = oProps.GetValueOrDefault<bool>( "BYTESWAP", true );
+			bool bOpen = oProps.GetValueOrDefault<bool>( "OPEN", true );
 
 			pCon->SetIsBlocking(bBlocking);
 			pCon->SetIsBuffering(bBuffering);
 			pCon->SetByteorderSwapFlag(bBufferSwap);
 			pCon->SetLingerTime( oProps.GetValueOrDefault<int>( "LINGERTIME", 0 ) );
+			if( bOpen )
+			{
+				if( pCon->GetIsOpen() == false )
+					pCon->Open();
+			}
+			else
+			{
+				if( pCon->GetIsOpen() )
+					pCon->Close();
+			}
 
 			return pCon;
 		}
@@ -260,7 +271,8 @@ public:
 											int nPort,
 											const VistaPropertyList &oProps)
 		{
-			return new VistaConnectionIP(VistaConnectionIP::CT_TCP, strHost, nPort);
+			VistaConnectionIP* pCon = new VistaConnectionIP(VistaConnectionIP::CT_TCP, strHost, nPort);
+			return pCon;
 		}
 
 };

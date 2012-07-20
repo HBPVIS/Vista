@@ -70,7 +70,17 @@ protected:
 	bool PrepareConnection( VistaConnection* pCon ) const
 	{
 		// ensure that the connection is open
-		return ( pCon->GetIsOpen() || pCon->Open() );
+		//return ( pCon->GetIsOpen() || pCon->Open() );
+		if( pCon->GetIsOpen() )
+		{
+			return true;
+		}
+		else if( pCon->Open() )
+		{
+			//vstr::err() << "DTrack conn opened" << std::endl;
+			return true;
+		}
+		return false;
 	}
 
 	void FinalizeConnection( VistaConnection* pCon ) const
@@ -87,6 +97,7 @@ protected:
 		VistaTimeUtils::Sleep(100);
 		
 		pIPConn->Close();
+		//vstr::err() << "DTrack conn closed" << std::endl;
 	}
 };
 
@@ -102,7 +113,7 @@ public:
 		{
 			vstr::warnp() << "[VistaDTrackDriver]: Sending attach string failed"
 							<< std::endl;
-			pCon->Close();
+			FinalizeConnection( pCon );
 			return false;
 		}
 
@@ -120,7 +131,7 @@ public:
 		{
 			vstr::warnp() << "[VistaDTrackDriver]: Sending detach string failed"
 							<< std::endl;
-			pCon->Close();
+			FinalizeConnection( pCon );
 			return false;
 		}
 		pCon->WaitForSendFinish();
@@ -130,7 +141,7 @@ public:
 		{
 			vstr::warnp() << "[VistaDTrackDriver]: Sending deatach string failed"
 							<< std::endl;
-			pCon->Close();
+			FinalizeConnection( pCon );
 			return false;
 		}
 		pCon->WaitForSendFinish();
@@ -148,7 +159,7 @@ public:
 		{
 			vstr::warnp() << "[VistaDTrackDriver]: Sending enable string failed"
 							<< std::endl;
-			pCon->Close();
+			FinalizeConnection( pCon );
 			return false;
 		}
 
@@ -165,7 +176,7 @@ public:
 		{
 			vstr::warnp() << "[VistaDTrackDriver]: Sending disable string failed"
 							<< std::endl;
-			pCon->Close();
+			FinalizeConnection( pCon );
 			return false;
 		}
 		
@@ -192,7 +203,7 @@ public:
 		{
 			vstr::warnp() << "[VistaDTrackDriver]: Sending attach string failed"
 							<< std::endl;
-			pCon->Close();
+			FinalizeConnection( pCon );
 			return false;
 		}
 		
@@ -214,7 +225,7 @@ public:
 		{
 			vstr::warnp() << "[VistaDTrackDriver]: Sending enable string failed"
 							<< std::endl;
-			pCon->Close();
+			FinalizeConnection( pCon );
 			return false;
 		}
 		
@@ -231,7 +242,7 @@ public:
 		{
 			vstr::warnp() << "[VistaDTrackDriver]: Sending disable string failed"
 							<< std::endl;
-			pCon->Close();
+			FinalizeConnection( pCon );
 			return false;
 		}
 		
@@ -248,7 +259,7 @@ public:
 		{
 			vstr::warnp() << "[VistaDTrackDriver]: Sending status string failed"
 							<< std::endl;
-			pCon->Close();
+			FinalizeConnection( pCon );
 			return false;
 		}
 		std::string strAnswer;
@@ -850,6 +861,7 @@ public:
 		}
 		if( pCon->GetIsOpen() )
 			pCon->Close();
+		VistaTimeUtils::Sleep( 1000 );
 		return !pCon->GetIsOpen();
 	}
 

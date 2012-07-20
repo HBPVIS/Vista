@@ -109,7 +109,7 @@ bool VistaDfnNavigationNode::PrepareEvaluationRun()
 	m_pNavigationMode = dynamic_cast<TVdfnPort<int>*>( GetInPort( "navigation_mode" ) );
 
 	// correct term is speed, but velocity variants are still in here for backward compability
-	m_pLinearSpeed = dynamic_cast<TVdfnPort<float>*>( GetInPort(" linear_speed" ) );
+	m_pLinearSpeed = dynamic_cast<TVdfnPort<float>*>( GetInPort( "linear_speed" ) );
 	if( m_pLinearSpeed == NULL )
 	{
 		m_pLinearSpeed = dynamic_cast<TVdfnPort<float>*>( GetInPort( "linear_velocity" ) );

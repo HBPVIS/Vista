@@ -93,6 +93,10 @@ bool VistaDfnProximityWarningNode::DoEvalNode()
 	}
 	if( m_bEnabled == false )
 		return true;
+	
+	// we don't have to update unless we have at least a postion set
+	if( m_pUserPositionPort->GetUpdateCounter() == 0 )
+		return true;
 
 	VistaVector3D v3Position = m_pUserPositionPort->GetValue();
 	VistaQuaternion qOrientation;

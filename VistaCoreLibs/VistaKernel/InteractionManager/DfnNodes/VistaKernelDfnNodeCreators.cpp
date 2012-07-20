@@ -883,12 +883,12 @@ IVdfnNode* VistaDfnProximityWarningNodeCreate::CreateNode( const VistaPropertyLi
 	}
 	else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sType, "tape" )  )
 	{
-		if( bUseBox == false || vecPlanes.empty() == false )
+		/*if( bUseBox == false || vecPlanes.empty() == false )
 		{
 			vstr::warnp() << "[VistaDfnProximityWarningNodeCreate]: type \"tape\" "
 						<< " only supports box mode, but no halfplanes" << std::endl;
 			return NULL;
-		}
+		}*/
 		bool bDisableOcclusion = oSubs.GetValueOrDefault<bool>( "disable_occlusion", true );
 		VistaProximityBarrierTape* pTape = new VistaProximityBarrierTape( m_pVistaSystem->GetEventManager(),
 																		nSafeDistance, nDangerDistance,
