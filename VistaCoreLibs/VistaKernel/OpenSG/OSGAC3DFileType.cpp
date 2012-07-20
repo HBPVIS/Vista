@@ -57,11 +57,9 @@
 #include <OpenSG/OSGTransform.h>
 #include <OpenSG/OSGPolygonChunk.h>
 #include <OpenSG/OSGSimpleAttachments.h>
-#include <OpenSG/OSGChunkMaterial.h>
-#include <OpenSG/OSGMaterialChunk.h>
+#include <OpenSG/OSGSimpleMaterial.h>
+#include <OpenSG/OSGSimpleTexturedMaterial.h>
 #include <OpenSG/OSGGeoFunctions.h>
-#include <OpenSG/OSGBlendChunk.h>
-#include <OpenSG/OSGTextureChunk.h>
 
 #ifdef WIN32
 #pragma warning(pop)
@@ -993,91 +991,19 @@ static OSG::GeometryPtr createGeometry(ACObject *pObj, ACMaterial *pMatTable,
 	endEditCP(lens, GeoPLengthsUI32::GeoPropDataFieldMask);
 	endEditCP(type, GeoPTypesUI8::GeoPropDataFieldMask);
 
-	ChunkMaterialPtr pMaterial = ChunkMaterial::create();
-	MaterialChunkPtr pMaterialState = MaterialChunk::create();
-	beginEditCP( pMaterial );
-		pMaterial->addChunk( pMaterialState );
-	endEditCP( pMaterial );
 
-	PolygonChunkPtr p = PolygonChunk::create();
-	beginEditCP(p);
-		// looks bad and produces artifacts with blending
-		// (at least with current nvidia drivers)
-		//if(smooth == AC3D_SURFACE_SHADED)
-		//	p->setSmooth(GL_TRUE);
-		//else
-		//	p->setSmooth(GL_FALSE);
-		//
-		if(twosided == AC3D_SURFACE_TWOSIDED)
-			p->setCullFace(GL_NONE);
-		else
-			p->setCullFace(GL_BACK);
-
-		//p->setFrontMode(GL_LINE);
-		//p->setBackMode(GL_FILL);
-	endEditCP(p);
-	beginEditCP( pMaterial );
-		pMaterial->addChunk( p );
-	endEditCP( pMaterial );
-
-	if(matSet.empty())
-	{
-		beginEditCP(pMaterialState);
-		pMaterialState->setAmbient(Color4f(0.2f, 0.2f, 0.2f, 1.0f));
-		pMaterialState->setDiffuse(Color4f(0.55f, 0.55f, 0.55f, 1.0f));
-		pMaterialState->setSpecular(Color4f(0.7f, 0.7f, 0.7f, 1.0f));
-		pMaterialState->setEmission(Color4f(0, 0, 0, 1.0f));
-		pMaterialState->setShininess(128 * 0.25f);
-		pMaterialState->setLit(GL_TRUE);
-		endEditCP(pMaterialState);
-		vstr::warnp() << "[AC3DLoader]: No material set"
-				<< " - using default (white plastic)." << std::endl;
-	}
-	else
-	{
-		int nMatIdx = *matSet.begin();
-
-		if(matSet.size() != 1)
-		{
-			vstr::warnp() << "[AC3DLoader]: More than one material in geometry ["
-						<< pObj->name << "] -- assigning first material" << std::endl;
-		}
-
-		ACMaterial mat = pMatTable[nMatIdx];
-
-		beginEditCP(pMaterialState);
-		pMaterialState->setAmbient(Color4f(mat.ambient.r, mat.ambient.g, mat.ambient.b,1.0f));
-		pMaterialState->setDiffuse(Color4f(mat.rgb.r, mat.rgb.g, mat.rgb.b, 1.0f-mat.transparency));
-		pMaterialState->setSpecular(Color4f(mat.specular.r, mat.specular.g, mat.specular.b,1.0f));
-		pMaterialState->setEmission(Color4f(mat.emissive.r, mat.emissive.g, mat.emissive.b,1.0f));
-		pMaterialState->setShininess(mat.shininess);
-		pMaterialState->setLit(GL_TRUE);
-		endEditCP(pMaterialState);
-
-		if( mat.transparency > 0.0f )
-		{
-			BlendChunkPtr pBlendChunk = BlendChunk::create();
-			beginEditCP( pBlendChunk );
-				pBlendChunk->setSrcFactor( GL_SRC_ALPHA );
-				pBlendChunk->setDestFactor( GL_ONE_MINUS_SRC_ALPHA );
-			endEditCP( pBlendChunk );
-			beginEditCP( pMaterial );
-				pMaterial->addChunk( pBlendChunk );
-			endEditCP( pMaterial );			
-		}
-
-	}
+	SimpleMaterialPtr sm = NullFC;
 
 	if(pObj->texture != NULL)
 	{
-		TextureChunkPtr pTexture = TextureChunk::create();
-		beginEditCP( pTexture );
+		SimpleTexturedMaterialPtr stm =	SimpleTexturedMaterial::create();
+		beginEditCP(stm);
 		{
-			pTexture->setEnvMode(GL_MODULATE);
-			pTexture->setMinFilter(GL_LINEAR_MIPMAP_LINEAR);
-			pTexture->setMagFilter(GL_LINEAR);
-			pTexture->setWrapR( GL_REPEAT );
-			pTexture->setWrapS( GL_REPEAT );
+			stm->setEnvMode(GL_MODULATE);
+			stm->setEnvMap(GL_FALSE);
+			stm->setMinFilter(GL_LINEAR_MIPMAP_LINEAR);
+			stm->setMagFilter(GL_LINEAR);
+
 
 			ImagePtr texture = NullFC;
 
@@ -1107,127 +1033,76 @@ static OSG::GeometryPtr createGeometry(ACObject *pObj, ACMaterial *pMatTable,
 
 			if(texture != NullFC)
 			{
-				pTexture->setImage(texture);
+				stm->setImage(texture);
 			}
+
+			sm = stm;
 		}
-		endEditCP(pTexture);
-		beginEditCP( pMaterial );
-			pMaterial->addChunk( pTexture, 0 );
-		endEditCP( pMaterial );	
+		endEditCP(stm);
+	}
+	else
+	{
+		sm = SimpleMaterial::create();
 	}
 
-	//SimpleMaterialPtr sm = NullFC;
+	PolygonChunkPtr p = PolygonChunk::create();
+	beginEditCP(p);
 
-	//if(pObj->texture != NULL)
-	//{
-	//	//#error !
-	//	SimpleTexturedMaterialPtr stm =	SimpleTexturedMaterial::create();
-	//	beginEditCP(stm);
-	//	{
-	//		stm->setEnvMode(GL_MODULATE);
-	//		stm->setEnvMap(GL_FALSE);
-	//		stm->setMinFilter    (GL_LINEAR_MIPMAP_LINEAR);
-	//		stm->setMagFilter    (GL_LINEAR);
-
-
-	//		ImagePtr texture = NullFC;
-
-	//		std::map<std::string, ImagePtr>::iterator cit = mpTextures.find(pObj->texture);
-	//		if(cit == mpTextures.end())
-	//		{
-	//			// load texture
-	//			texture = Image::create();
-	//			beginEditCP(texture);
-	//			texture->read(pObj->texture);
-	//			endEditCP(texture);
-	//			if(texture != NullFC)
-	//			{
-	//				mpTextures.insert(std::map<std::string,ImagePtr>::value_type(pObj->texture,texture));
-	//			}
-	//			else
-	//			{
-	//				vstr::warnp() << "[AC3DLoader]:  Could not read texture ["
-	//					<< pObj->texture << "]" << std::endl;
-	//			}
-
-	//		}
-	//		else
-	//		{
-	//			texture = (*cit).second;
-	//		}
-
-	//		if(texture != NullFC)
-	//		{
-	//			stm->setImage(texture);
-	//		}
-
-	//		sm = stm;
-	//	}
-	//	endEditCP(stm);
-	//}
+	// looks bad and produces artifacts with blending
+	// (at least with current nvidia drivers)
+	//if(smooth == AC3D_SURFACE_SHADED)
+	//	p->setSmooth(GL_TRUE);
 	//else
-	//{
-	//	sm = SimpleMaterial::create();
-	//}
+	//	p->setSmooth(GL_FALSE);
+	//
 
-	//PolygonChunkPtr p = PolygonChunk::create();
-	//beginEditCP(p);
+	if(twosided == AC3D_SURFACE_TWOSIDED)
+		p->setCullFace(GL_NONE);
+	else
+		p->setCullFace(GL_BACK);
 
-	//// looks bad and produces artifacts with blending
-	//// (at least with current nvidia drivers)
-	////if(smooth == AC3D_SURFACE_SHADED)
-	////	p->setSmooth(GL_TRUE);
-	////else
-	////	p->setSmooth(GL_FALSE);
-	////
+	//p->setFrontMode(GL_LINE);
+	//p->setBackMode(GL_FILL);
+	endEditCP(p);
 
-	//if(twosided == AC3D_SURFACE_TWOSIDED)
-	//	p->setCullFace(GL_NONE);
-	//else
-	//	p->setCullFace(GL_BACK);
+	if(matSet.empty())
+	{
+		beginEditCP(sm);
+		sm->setAmbient(Color3f(0.2f, 0.2f, 0.2f));
+		sm->setDiffuse(Color3f(0.55f, 0.55f, 0.55f));
+		sm->setSpecular(Color3f(0.7f, 0.7f, 0.7f));
+		sm->setEmission(Color3f(0, 0, 0));
+		sm->setShininess(128 * 0.25f);
+		sm->setLit(GL_TRUE);
+		sm->addChunk(p);
+		endEditCP(sm);
+		vstr::warnp() << "[AC3DLoader]: No material set"
+				<< " - using default (white plastic)." << std::endl;
+	}
+	else
+	{
+		int nMatIdx = *matSet.begin();
 
-	////p->setFrontMode(GL_LINE);
-	////p->setBackMode(GL_FILL);
-	//endEditCP(p);
+		if(matSet.size() != 1)
+		{
+			vstr::warnp() << "[AC3DLoader]: More than one material in geometry ["
+						<< pObj->name << "] -- assigning first material" << std::endl;
+		}
 
-	//if(matSet.empty())
-	//{
-	//	beginEditCP(sm);
-	//	sm->setAmbient(Color3f(0.2f, 0.2f, 0.2f));
-	//	sm->setDiffuse(Color3f(0.55f, 0.55f, 0.55f));
-	//	sm->setSpecular(Color3f(0.7f, 0.7f, 0.7f));
-	//	sm->setEmission(Color3f(0, 0, 0));
-	//	sm->setShininess(128 * 0.25f);
-	//	sm->setLit(GL_TRUE);
-	//	sm->addChunk(p);
-	//	endEditCP(sm);
-	//	vstr::warnp() << "[AC3DLoader]: No material set"
-	//			<< " - using default (white plastic)." << std::endl;
-	//}
-	//else
-	//{
-	//	int nMatIdx = *matSet.begin();
+		ACMaterial mat = pMatTable[nMatIdx];
 
-	//	if(matSet.size() != 1)
-	//	{
-	//		vstr::warnp() << "[AC3DLoader]: More than one material in geometry ["
-	//					<< pObj->name << "] -- assigning first material" << std::endl;
-	//	}
+		beginEditCP(sm);
+		sm->setAmbient(Color3f(mat.ambient.r, mat.ambient.g, mat.ambient.b));
+		sm->setDiffuse(Color3f(mat.rgb.r, mat.rgb.g, mat.rgb.b));
+		sm->setSpecular(Color3f(mat.specular.r, mat.specular.g, mat.specular.b));
+		sm->setEmission(Color3f(mat.emissive.r, mat.emissive.g, mat.emissive.b));
+		sm->setShininess(mat.shininess);
+		sm->setTransparency(mat.transparency);
+		sm->setLit(GL_TRUE);
+		sm->addChunk(p);
+		endEditCP(sm);
 
-	//	ACMaterial mat = pMatTable[nMatIdx];
-
-	//	beginEditCP(sm);
-	//	sm->setAmbient(Color3f(mat.ambient.r, mat.ambient.g, mat.ambient.b));
-	//	sm->setDiffuse(Color3f(mat.rgb.r, mat.rgb.g, mat.rgb.b));
-	//	sm->setSpecular(Color3f(mat.specular.r, mat.specular.g, mat.specular.b));
-	//	sm->setEmission(Color3f(mat.emissive.r, mat.emissive.g, mat.emissive.b));
-	//	sm->setShininess(mat.shininess);
-	//	sm->setTransparency(mat.transparency);
-	//	sm->setLit(GL_TRUE);
-	//	sm->addChunk(p);
-	//	endEditCP(sm);
-
-	//}
+	}
 
 	GeometryPtr geo = Geometry::create();
 	beginEditCP(geo, Geometry::TypesFieldMask      |
@@ -1261,7 +1136,7 @@ static OSG::GeometryPtr createGeometry(ACObject *pObj, ACMaterial *pMatTable,
 	geo->setTexCoords(texCoordPtr);
 	geo->setColors(colors);
 
-	geo->setMaterial( pMaterial );
+	geo->setMaterial(sm);
 	endEditCP(geo, Geometry::TypesFieldMask      |
 		Geometry::LengthsFieldMask    |
 		Geometry::IndicesFieldMask    |
