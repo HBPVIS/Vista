@@ -335,11 +335,7 @@ bool VistaOpenSGModelOptimizer::OptimizeFile( const std::string& sFilename,
 	}
 	// we check again that the file does not exist - maybe some other instance
 	// started writing it in the meantime, e.g. in clustermode
-	bool bRes = true;
-	if( VistaFileSystemFile( sOutName ).Exists() == false )
-		bRes = osg::SceneFileHandler::the().write( pModelNode, sOutName.c_str() );	
-	else
-		VistaTimeUtils::Sleep( 1000 ); // wait a little to let the other instance finish writing
+	bool bRes = osg::SceneFileHandler::the().write( pModelNode, sOutName.c_str() );	
 
 	if( bDoExit )
 		OSG::osgExit();
@@ -417,11 +413,11 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 	}
 
 #ifdef WIN32
-	sOptSting += "Win";
+	sOptSting += "_Win";
 #elif LINUX
-	sOptSting += "Linux";
+	sOptSting += "_Linux";
 #elif DARWIN
-	sOptSting += "Darwin";
+	sOptSting += "_Darwin";
 #endif
 
 #ifdef VISTA_64BIT
