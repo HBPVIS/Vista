@@ -111,7 +111,7 @@
 		<edge fromnode="translate_pos" tonode="scale_pos" fromport="out" toport="second"/>
 		<edge fromnode="scale_mm_to_m" tonode="scale_pos" fromport="value" toport="first"/>
 		
-				<!-- quality check -->
+		<!-- quality check -->
 		<edge fromnode="head" tonode="quality_threshold" fromport="QUALITY" toport="in" />
 		<edge fromnode="quality_threshold" tonode="quality_to_bool" fromport="out" toport="in" />
 		<edge fromnode="quality_to_bool" tonode="quality_check" fromport="out" toport="trigger" />

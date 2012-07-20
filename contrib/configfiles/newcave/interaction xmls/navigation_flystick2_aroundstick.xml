@@ -98,8 +98,11 @@
 		
 		<node name="navigator" type="Navigation">
 			<!-- available modes: unconstrained (default), yaw_only, no_roll -->
-			<!-- note: mode doesn't really matter, since we only probide yaw anyway -->
 			<param name="default_navigation_mode" value="unconstrained" />
+			<!--<param name="linear_acceleration" value="0" />
+			<param name="linear_deceleration" value="0" />
+			<param name="angular_acceleration" value="0" />
+			<param name="angular_deceleration" value="0" />-->
 		</node>
 				
 	</graph>

@@ -42,7 +42,7 @@
 		<node name="y_axis_abs" type="Absolute[float]" />
 		<node name="max_axis" type="Max[float]" />
 		<node name="threshold_percentage" type="ConstantValue[float]" >
-			<param name="value" value="0.15" />
+			<param name="value" value="0.1" />
 		</node>
 		<node name="threshold_value" type="Multiply[float]" />
 
