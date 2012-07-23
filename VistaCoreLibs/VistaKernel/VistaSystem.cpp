@@ -2052,14 +2052,14 @@ void VistaSystem::CreateDeviceDrivers()
 					itSensor != liSensors.end(); ++itSensor)
 				{
 					// get sensor PropertyList
-					if( oDriverSection.HasSubList( *itSensor ) == false )
+					if( m_oInteractionConfig.HasSubList( *itSensor ) == false )
 					{
 						vstr::warnp() << "[SensorMappingConfiguator]: Driver requests sensor ["
 								<< (*itSensor) << "], but no such entry exists" << std::endl;
 						continue;
 					}
 
-					const VistaPropertyList& oSensor = oDriverSection.GetSubListConstRef( *itSensor );
+					const VistaPropertyList& oSensor = m_oInteractionConfig.GetSubListConstRef( *itSensor );
 					std::string sType = oSensor.GetValueOrDefault<std::string>( "TYPE", "" );
 					std::string sSensorName = oSensor.GetValueOrDefault<std::string>( "NAME", (*itSensor) );
 					int nHistorySize = std::max<int>( 2, oSensor.GetValueOrDefault<int>( "HISTORY", 5 ) );
