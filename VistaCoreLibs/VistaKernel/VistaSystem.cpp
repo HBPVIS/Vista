@@ -2048,9 +2048,14 @@ void VistaSystem::CreateDeviceDrivers()
 				std::list<std::string> liSensors;
 				oDriverSection.GetValue( "SENSORS", liSensors );
 
+				int nDefaultHistorySize = oDriverSection.GetValueOrDefault( "HISTORY", 5 );
+
 				for(std::list<std::string>::const_iterator itSensor = liSensors.begin();
 					itSensor != liSensors.end(); ++itSensor)
 				{
+					// @todo: code duplicate with sensormappingconfigrator and also historyconfigurator
+					// - think about this - how should we set it up properly?
+
 					// get sensor PropertyList
 					if( m_oInteractionConfig.HasSubList( *itSensor ) == false )
 					{
@@ -2062,7 +2067,7 @@ void VistaSystem::CreateDeviceDrivers()
 					const VistaPropertyList& oSensor = m_oInteractionConfig.GetSubListConstRef( *itSensor );
 					std::string sType = oSensor.GetValueOrDefault<std::string>( "TYPE", "" );
 					std::string sSensorName = oSensor.GetValueOrDefault<std::string>( "NAME", (*itSensor) );
-					int nHistorySize = std::max<int>( 2, oSensor.GetValueOrDefault<int>( "HISTORY", 5 ) );
+					int nHistorySize = std::max<int>( 2, oSensor.GetValueOrDefault<int>( "HISTORY", nDefaultHistorySize ) );
 
 					int nRawId;
 					if( oSensor.GetValue<int>( "RAWID", nRawId ) == false )
@@ -2076,9 +2081,7 @@ void VistaSystem::CreateDeviceDrivers()
 					VistaDeviceSensor *pSensor = (*itDriverNode)->m_oElement->m_pDriver->GetSensorByIndex( nRawId );
 					if( pSensor )
 					{
-						// ok, this, at least worked..
 						pSensor->SetSensorName( sSensorName );
-						// while here... we setup the history properly
 						(*itDriverNode)->m_oElement->m_pDriver->SetupSensorHistory( pSensor, nHistorySize, 66.6 );
 					}
 				}
