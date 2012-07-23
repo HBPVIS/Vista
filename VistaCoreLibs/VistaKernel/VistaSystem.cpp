@@ -2040,6 +2040,51 @@ void VistaSystem::CreateDeviceDrivers()
 			// the sensor names. In case this driver adds sensors dynamically
 			// after a connect, this is not working well, so we create the proper
 			// names AFTER a successful connect
+
+			VistaDriverSensorMappingAspect* pSensorAsp = dynamic_cast<VistaDriverSensorMappingAspect*>(
+							(*itDriverNode)->m_oElement->m_pDriver->GetAspectById(VistaDriverSensorMappingAspect::GetAspectId() ) );
+			if( pSensorAsp == NULL )
+			{
+				std::list<std::string> liSensors;
+				oDriverSection.GetValue( "SENSORS", liSensors );
+
+				for(std::list<std::string>::const_iterator itSensor = liSensors.begin();
+					itSensor != liSensors.end(); ++itSensor)
+				{
+					// get sensor PropertyList
+					if( oDriverSection.HasSubList( *itSensor ) == false )
+					{
+						vstr::warnp() << "[SensorMappingConfiguator]: Driver requests sensor ["
+								<< (*itSensor) << "], but no such entry exists" << std::endl;
+						continue;
+					}
+
+					const VistaPropertyList& oSensor = oDriverSection.GetSubListConstRef( *itSensor );
+					std::string sType = oSensor.GetValueOrDefault<std::string>( "TYPE", "" );
+					std::string sSensorName = oSensor.GetValueOrDefault<std::string>( "NAME", (*itSensor) );
+					int nHistorySize = std::max<int>( 2, oSensor.GetValueOrDefault<int>( "HISTORY", 5 ) );
+
+					int nRawId;
+					if( oSensor.GetValue<int>( "RAWID", nRawId ) == false )
+					{
+						vstr::warnp() << "[SensorMappingConfiguator]: Driver requests sensor ["
+										<< (*itSensor) << ", which has no RAWID entry" << std::endl;
+						continue;
+					}
+
+
+					VistaDeviceSensor *pSensor = (*itDriverNode)->m_oElement->m_pDriver->GetSensorByIndex( nRawId );
+					if( pSensor )
+					{
+						// ok, this, at least worked..
+						pSensor->SetSensorName( sSensorName );
+						// while here... we setup the history properly
+						(*itDriverNode)->m_oElement->m_pDriver->SetupSensorHistory( pSensor, nHistorySize, 66.6 );
+					}
+				}
+			}
+
+			/**
 			std::list<std::string> liSensorNames;
 			oDriverSection.GetValue( "SENSORS", liSensorNames );
 			for( std::list<std::string>::const_iterator itSensor = liSensorNames.begin();
@@ -2103,6 +2148,7 @@ void VistaSystem::CreateDeviceDrivers()
 					pSensor->SetSensorName( strName ); // set name
 				}
 			}
+			*/
 		}
 	}
 	else // --> NOT m_pClusterMode->GetIsLeader

@@ -458,8 +458,15 @@ bool VistaSensorMappingConfigurator::Configure( IVistaDeviceDriver* pDriver,
 		const VistaPropertyList& oSensor = oConfig.GetSubListConstRef( *itSensor );
 		std::string sType = oSensor.GetValueOrDefault<std::string>( "TYPE", "" );
 		std::string sSensorName = oSensor.GetValueOrDefault<std::string>( "NAME", (*itSensor) );
-		int nRawId = oSensor.GetValueOrDefault<int>( "RAWID", -1 );
 		int nHistorySize = std::max<int>( 2, oSensor.GetValueOrDefault<int>( "HISTORY", 5 ) );
+
+		int nRawId;
+		if( oSensor.GetValue<int>( "RAWID", nRawId ) == false )
+		{
+			vstr::warnp() << "[SensorMappingConfiguator]: Driver requests sensor ["
+							<< (*itSensor) << ", which has no RAWID entry" << std::endl;
+			continue;
+		}
 
 		if( pSensorAsp ) // driver has sensor mapping, so use this to set up the sensors...
 		{
