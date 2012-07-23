@@ -136,6 +136,10 @@
 #include <VistaTools/VistaDLL.h>
 #endif
 
+#ifdef VISTA_WITH_ZEROMQ
+#include <VistaKernel/Cluster/ZeroMQExt/VistaZeroMQCommon.h>
+#endif
+
 
 //// PROTOTYPES OF STATIC FUNCTIONS
 struct DllHelper
@@ -322,6 +326,18 @@ VistaSystem::VistaSystem()
 	 */
 	VistaIPComm::UseIPComm();
 
+#ifdef VISTA_WITH_ZEROMQ
+	/**
+	 * ZeroMQ/OpenPGM initialization seems to cause problems in
+	 * other sockets (esp. listening ones) that are currently open.
+	 * (e.g. MsgPort starts accepting, but never answers connection
+	 * request when zmq_init is called after it's Accept() )
+	 * @todo: try to find the reason for this interaction
+	 * @todo: move to dll-load?
+	 */
+	VistaZeroMQCommon::RegisterZeroMQUser();
+#endif
+
 	/**
 	 * We are using DLV for cluster, so setting up the timer
 	 * RTC will be a good thing.
@@ -461,6 +477,18 @@ VistaSystem::~VistaSystem()
 	}
 
 	delete m_pConfigurator;
+
+	#ifdef VISTA_WITH_ZEROMQ
+	/**
+	 * ZeroMQ/OpenPGM initialization seems to cause problems in
+	 * other sockets (esp. listening ones) that are currently open.
+	 * (e.g. MsgPort starts accepting, but never answers connection
+	 * request when zmq_init is called after it's Accept() )
+	 * @todo: try to find the reason for this interaction
+	 * @todo: move to dll-load?
+	 */
+	VistaZeroMQCommon::UnregisterZeroMQUser();
+#endif
 
 #if !defined(VISTAKERNELSTATIC)
 	// removed device drivers from dll loads
