@@ -224,6 +224,11 @@ int VistaByteBufferDeSerializer::ReadEncodedString( std::string& sString )
 	int nRet = ReadInt32( nSize );
 	if( nRet != sizeof( VistaType::sint32) )
 		return -1;
+	if( nSize == 0 )
+	{
+		sString.clear();
+		return nRet;
+	}
 	nRet += ReadString( sString, nSize );
 	return nRet;
 }
