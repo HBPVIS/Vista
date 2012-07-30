@@ -30,6 +30,7 @@
 /*============================================================================*/
 
 #include "VistaKernelOpenSGExtConfig.h"
+#include <VistaKernel/EventManager/VistaEventHandler.h>
 
 #include <string>
 
@@ -46,7 +47,7 @@ class VistaSystem;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-class VISTAKERNELOPENSGEXTAPI VistaOpenSGWebInterface
+class VISTAKERNELOPENSGEXTAPI VistaOpenSGWebInterface : public VistaEventHandler
 {
 public:
 	VistaOpenSGWebInterface( VistaSystem* pVistaSystem,
@@ -58,6 +59,8 @@ public:
 
 	void SetIsEnabled( const bool bSet );
 	bool GetIsEnabled() const;
+
+	virtual void HandleEvent( VistaEvent *pEvent );
 
 private:
 	VistaSystem*		m_pVistaSystem;

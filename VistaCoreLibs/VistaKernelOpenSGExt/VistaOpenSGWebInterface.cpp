@@ -39,6 +39,8 @@
 #include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaGroupNode.h>
 #include <VistaKernel/OpenSG/VistaOpenSGNodeBridge.h>
+#include <VistaKernel/EventManager/VistaSystemEvent.h>
+#include <VistaKernel/EventManager/VistaEventManager.h>
 
 #include <VistaBase/VistaStreamUtils.h>
 
@@ -88,10 +90,12 @@ void VistaOpenSGWebInterface::SetIsEnabled( const bool bSet )
 	if( bSet == false )
 	{
 		delete m_pDataWrapper->m_pWebInterface;
+		m_pDataWrapper->m_pWebInterface = NULL;
+		m_pVistaSystem->GetEventManager()->RemEventHandler( this, VistaSystemEvent::GetTypeId(), VistaSystemEvent::VSE_PREGRAPHICS );
 		return;
 	}
 
-	// only allow web interface eon primary instance
+	// only allow web interface on primary instance
 	if( m_pVistaSystem->GetClusterMode()->GetIsLeader() )
 	{		
 		m_pDataWrapper->m_pWebInterface = new osg::WebInterface( m_iPort );
@@ -100,6 +104,8 @@ void VistaOpenSGWebInterface::SetIsEnabled( const bool bSet )
 		VistaNode* pRealRoot = m_pVistaSystem->GetGraphicsManager()->GetSceneGraph()->GetRealRoot();
 		osg::NodePtr pOSGNode = dynamic_cast<VistaOpenSGNodeData*>( pRealRoot->GetData() )->GetNode();
 		m_pDataWrapper->m_pWebInterface->setRoot( pOSGNode );
+
+		m_pVistaSystem->GetEventManager()->AddEventHandler( this, VistaSystemEvent::GetTypeId(), VistaSystemEvent::VSE_PREGRAPHICS );
 	}
 
 	m_bEnabled = true;
@@ -126,6 +132,16 @@ int VistaOpenSGWebInterface::GetWebPort() const
 {
 	return m_iPort;
 }
+
+void VistaOpenSGWebInterface::HandleEvent( VistaEvent *pEvent )
+{
+	if( m_pDataWrapper->m_pWebInterface )
+	{
+		m_pDataWrapper->m_pWebInterface->waitRequest(0.001);
+		m_pDataWrapper->m_pWebInterface->handleRequests();
+	}
+}
+
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/
