@@ -581,10 +581,12 @@ int VistaOpenSGGraphicsBridge::GetNumberOfVertices(const IVistaGeometryData* pDa
 						= static_cast<const VistaOpenSGGeometryData*>(pData);
 	osg::GeometryPtr    geo = pOpenSGData->GetGeometry();
 
-	if(geo->getLengths()->size() == 1)
+	if( geo->getLengths() != osg::NullFC && geo->getLengths()->size() == 1 )
 		return geo->getLengths()->getValue(0);
-	else
+	else if( geo->getIndices() != osg::NullFC )
 		return  geo->getIndices()->size()/geo->getIndexMapping().size();
+	else
+		return 0;
 }
 
 
@@ -592,6 +594,16 @@ int  VistaOpenSGGraphicsBridge::GetNumberOfFaces(const IVistaGeometryData* pData
 {
 	const VistaOpenSGGeometryData* pOpenSGData 
 						= static_cast<const VistaOpenSGGeometryData*>(pData);
+	if( pOpenSGData->GetGeometry()->getIndices() == osg::NullFC )
+	{
+		osg::GeometryPtr geo = pOpenSGData->GetGeometry();
+		osg::PrimitiveIterator it(geo);
+		unsigned int n=0;
+		for(; !it.isAtEnd() ; ++it)
+			++n;
+		return n;
+	}
+
 	osg::UInt32      idxSize = pOpenSGData->GetGeometry()->getIndices()->size();
 	osg::UInt32      mappingSize = pOpenSGData->GetGeometry()->getIndexMapping().size();
 
