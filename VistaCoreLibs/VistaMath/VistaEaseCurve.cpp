@@ -9,7 +9,7 @@ VistaEaseCurve::~VistaEaseCurve()
 {
 }
 
-double VistaEaseCurve::GetValue(double t)
+double VistaEaseCurve::GetValue(double t) const
 {
 	double dValue = -1;
 	switch (m_eType)

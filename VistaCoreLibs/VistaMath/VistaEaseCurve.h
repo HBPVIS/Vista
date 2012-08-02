@@ -106,7 +106,7 @@ public:
 	 * @return	double
 	 * @param	double t
 	 */
-	virtual double GetValue(double t);
+	virtual double GetValue(double t) const;
 
 	void SetType(VistaEaseCurve::eEaseCurveType val);
 
