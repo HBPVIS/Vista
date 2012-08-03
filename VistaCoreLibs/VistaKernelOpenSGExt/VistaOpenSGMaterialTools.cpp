@@ -141,6 +141,7 @@ bool VistaOpenSGMaterialTools::SetSortKey( VistaGeometry* pGeom, const int nSort
 	return ApplySortKey( pDrawable, nSortKey );
 }
 
+
 bool VistaOpenSGMaterialTools::SetSortKeyOnSubtree( IVistaNode* pNode, const int nSortKey )
 {
 	bool bReturn = true;

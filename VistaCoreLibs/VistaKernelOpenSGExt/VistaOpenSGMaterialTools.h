@@ -49,7 +49,13 @@ class IVistaNode;
 
 namespace VistaOpenSGMaterialTools
 {
-
+	/**
+	 * Sets the sort key on the geometry, oglcallback, or on all of these under
+	 * the specified node. The sortkey determines the rendering order
+	 * the default is 0, higher numbers cause the geometries to be rendered later
+	 * Note: the sortkey is set per geometry/OGLCallback, not per node, thus
+	 * it can potentially affect other nodes' drawing order
+	 */
 	VISTAKERNELOPENSGEXTAPI
 	bool SetSortKey( VistaGeometry* pGeom,
 									const int nSortKey );
