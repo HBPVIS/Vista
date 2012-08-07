@@ -43,58 +43,6 @@
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
 
-static OSG::TextureChunkPtr MakeBoxTexture( const char* sTexName )
-{
-	OSG::ImagePtr pImage = OSG::ImageFileHandler::the().read(sTexName);
-	if( pImage == OSG::NullFC )
-		return OSG::NullFC;
-
-	OSG::TextureChunkPtr   pTexChunkPtr = OSG::TextureChunk::create();
-	beginEditCP( pTexChunkPtr );
-	{
-		pTexChunkPtr->setImage( pImage );
-
-		pTexChunkPtr->setWrapS( GL_CLAMP_TO_EDGE );
-		pTexChunkPtr->setWrapT( GL_CLAMP_TO_EDGE );
-		pTexChunkPtr->setWrapR( GL_CLAMP_TO_EDGE );
-
-		pTexChunkPtr->setMinFilter( GL_LINEAR );
-		pTexChunkPtr->setMagFilter( GL_LINEAR );
-		//texChunkPtr->setEnvMode( GL_MODULATE );
-		pTexChunkPtr->setEnvMode( GL_REPLACE );
-	}
-	endEditCP( pTexChunkPtr );
-
-	return pTexChunkPtr;
-}
-
-
-static OSG::SkyBackgroundPtr MakeBox(const std::string &strTop,
-									 const std::string &strBottom,
-									 const std::string &strLeft,
-									 const std::string &strRight,
-									 const std::string &strFront,
-									 const std::string &strBack,
-									 OSG::UInt32 nSphereRes = 16)
-{
-	OSG::SkyBackgroundPtr pOsgSky = OSG::SkyBackground::create();
-    beginEditCP(pOsgSky);
-
-    pOsgSky->setBackTexture(MakeBoxTexture(strBack.c_str()));
-    pOsgSky->setTopTexture(MakeBoxTexture(strTop.c_str()));
-    pOsgSky->setLeftTexture(MakeBoxTexture(strLeft.c_str()));
-    pOsgSky->setRightTexture(MakeBoxTexture(strRight.c_str()));
-    pOsgSky->setBottomTexture(MakeBoxTexture(strBottom.c_str()));
-    pOsgSky->setFrontTexture(MakeBoxTexture(strFront.c_str()));
-
-    pOsgSky->setSphereRes(nSphereRes);
-
-	pOsgSky->getMFSkyColor()->push_back( osg::Color4f( 1, 1, 1, 1 ) );
-
-    endEditCP(pOsgSky);
-
-	return pOsgSky;
-}
 
 class SkyboxData
 {
@@ -119,7 +67,71 @@ public:
 			m_pParent->DetachFromViewport( m_liVp.begin()->m_pVp );
 		}
 
+		for( std::size_t i = 0; i < m_vecTextures.size(); ++i )
+		{
+			subRefCP( m_vecTextures[i] );
+		}
+
 		subRefCP(m_pSkyBox);
+	}
+
+		
+	OSG::TextureChunkPtr MakeBoxTexture( const char* sTexName )
+	{
+		OSG::ImagePtr pImage = OSG::ImageFileHandler::the().read(sTexName);
+		if( pImage == OSG::NullFC )
+			return OSG::NullFC;
+
+		OSG::TextureChunkPtr   pTexChunkPtr = OSG::TextureChunk::create();
+		beginEditCP( pTexChunkPtr );
+		{
+			pTexChunkPtr->setImage( pImage );
+
+			pTexChunkPtr->setWrapS( GL_CLAMP_TO_EDGE );
+			pTexChunkPtr->setWrapT( GL_CLAMP_TO_EDGE );
+			pTexChunkPtr->setWrapR( GL_CLAMP_TO_EDGE );
+
+			pTexChunkPtr->setMinFilter( GL_LINEAR );
+			pTexChunkPtr->setMagFilter( GL_LINEAR );
+			pTexChunkPtr->setEnvMode( GL_MODULATE );
+			//pTexChunkPtr->setEnvMode( GL_REPLACE );
+		}
+		endEditCP( pTexChunkPtr );
+
+		m_vecTextures.push_back( pTexChunkPtr );
+		addRefCP( pTexChunkPtr );
+
+		return pTexChunkPtr;
+	}
+
+
+	OSG::SkyBackgroundPtr MakeBox(const std::string &strTop,
+										 const std::string &strBottom,
+										 const std::string &strLeft,
+										 const std::string &strRight,
+										 const std::string &strFront,
+										 const std::string &strBack,
+										 OSG::UInt32 nSphereRes = 16)
+	{
+		OSG::SkyBackgroundPtr pOsgSky = OSG::SkyBackground::create();
+		beginEditCP(pOsgSky);
+
+		pOsgSky->setBackTexture(MakeBoxTexture(strBack.c_str()));
+		pOsgSky->setTopTexture(MakeBoxTexture(strTop.c_str()));
+		pOsgSky->setLeftTexture(MakeBoxTexture(strLeft.c_str()));
+		pOsgSky->setRightTexture(MakeBoxTexture(strRight.c_str()));
+		pOsgSky->setBottomTexture(MakeBoxTexture(strBottom.c_str()));
+		pOsgSky->setFrontTexture(MakeBoxTexture(strFront.c_str()));
+
+		pOsgSky->setSphereRes(nSphereRes);
+
+		pOsgSky->editMFSkyColor()->push_back( osg::Color4f( 1, 1, 1, 1 ) );
+		pOsgSky->editMFGroundColor()->push_back( osg::Color4f( 1, 1, 1, 1 ) );
+
+
+		endEditCP(pOsgSky);
+
+		return pOsgSky;
 	}
 
 	bool SetColor( float fR, float fG, float fB, float fA )
@@ -162,6 +174,8 @@ public:
 	};
 	typedef std::set<_sHlp> VPSET;
 	VPSET m_liVp;
+
+	std::vector<OSG::TextureChunkPtr> m_vecTextures;
 
 	VistaOpenSGSkybox *m_pParent;
 
