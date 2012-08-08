@@ -1028,7 +1028,7 @@ private:
 
 			mat->setLit(false);
 			mat->setDiffuse(osg::Color3f(col[0], col[1], col[2]));
-			mat->setTransparency(osg::Real32(col[3]));
+			mat->setTransparency(osg::Real32(col[4]));
 
 			endEditCP  (mat, osg::SimpleMaterial::DiffuseFieldMask |
 							 osg::SimpleMaterial::TransparencyFieldMask|
