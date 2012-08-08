@@ -101,7 +101,7 @@ VistaWin32ThreadImp::VistaWin32ThreadImp( const VistaThread& oThread )
 , m_nThreadId( 0 )
 , m_bIsRunning( false )
 , m_bCanBeCancelled( false )
-, m_dwAffinityMask( 1 )
+, m_dwAffinityMask( ~0 )
 {
 
 }
@@ -120,7 +120,9 @@ bool     VistaWin32ThreadImp::Run( )
 	// create a thread without special security settings
 	m_oWin32Handle = CreateThread ( 0, 0, Win32EntryPoint, (void*)&m_rThread, 0, & m_nThreadId );
 	m_bIsRunning = (m_oWin32Handle!=0);
-	SetProcessorAffinity(m_dwAffinityMask);
+	// if somebody has set an affinity mask != the init value ==> set it now!
+	if(m_bIsRunning && m_dwAffinityMask != ~0)
+		SetThreadAffinityMask(m_oWin32Handle, m_dwAffinityMask);
 
 	return ( m_bIsRunning );
 }
