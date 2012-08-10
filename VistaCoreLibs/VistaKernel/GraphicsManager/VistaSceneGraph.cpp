@@ -543,7 +543,6 @@ void VistaSceneGraph::Debug(std::ostream& out) const
 	VistaTransformMatrix matrix;
 	m_pRoot->GetTransform(matrix);
 	out << vstr::indent << "[ViSG] ----------------------------------------------------------------\n";
-	out << vstr::indent << "[ViSG] INFO SCREEN \n";
 	out << vstr::indent << "[ViSG] Current ROOT_NODE transform is: \n";
 	out << vstr::indent << matrix;
 	out << vstr::indent << "\n[ViSG] Current SG layout is : \n";
@@ -580,6 +579,31 @@ void VistaSceneGraph::Debug(std::ostream& out) const
 	out << vstr::indent << "Model bounding box\n"
 		<< "[" << min
 		<< "],[" << max << "]" << std::endl;
+
+	std::vector<IVistaNode*> vecGeomNodes;
+	GetAllSubNodesOfType( vecGeomNodes, VISTA_GEOMNODE );
+	if( vecGeomNodes.empty() )
+	{
+		out << vstr::indent << "No GeomNodes" << std::endl;
+	}
+	else
+	{
+		int nNumVerts = 0;
+		int nNumFaces = 0;
+		for( std::vector<IVistaNode*>::const_iterator itGeom = vecGeomNodes.begin();
+			itGeom != vecGeomNodes.end(); ++itGeom )
+		{
+			VistaGeomNode* pGeomNode = static_cast<VistaGeomNode*>( (*itGeom) );
+			VistaGeometry* pGeom = pGeomNode->GetGeometry();
+			nNumFaces += pGeom->GetNumberOfFaces();
+			nNumVerts += pGeom->GetNumberOfVertices();
+		}
+		out << vstr::indent << "Total of " 
+			<< std::setw( 4 ) << vecGeomNodes.size () << " GeomNodes with "
+			<< std::setw( 10 ) << nNumVerts << " verts, "
+			<< std::setw( 10 ) << nNumFaces << " faces"
+			<< std::endl;
+	}
 
 	out << vstr::indent << " [ViSG] ----------------------------------------------------------------" << std::endl;
 }

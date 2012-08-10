@@ -61,7 +61,14 @@ VistaGlutTextEntity::~VistaGlutTextEntity()
 /*============================================================================*/
 void VistaGlutTextEntity::SetFont( const std::string& sFamily , int iSize )
 {
-	if( iSize <= 11 )
+	if( VistaAspectsComparisonStuff::StringEquals( sFamily, "MONOSPACE", false ) )
+	{
+		if( iSize < 14 )
+			m_pFontType = GLUT_BITMAP_8_BY_13;
+		else
+			m_pFontType = GLUT_BITMAP_9_BY_15;
+	}
+	else if( iSize <= 11 )
 	{
 		if( VistaAspectsComparisonStuff::StringEquals( sFamily, "SERIF", false)  )
 		{
@@ -97,6 +104,10 @@ int VistaGlutTextEntity::GetFontSize() const
 		return 18;
 	else if( m_pFontType == GLUT_BITMAP_TIMES_ROMAN_24)
 		return 24;
+	else if( m_pFontType == GLUT_BITMAP_8_BY_13 )
+		return 13;
+	else if( m_pFontType == GLUT_BITMAP_9_BY_15 )
+		return 15;
 	else
 		return 0;
 }
@@ -108,6 +119,8 @@ std::string VistaGlutTextEntity::GetFontFamily() const
 		return "SANS";
 	else if(m_pFontType == GLUT_BITMAP_TIMES_ROMAN_10 || m_pFontType == GLUT_BITMAP_TIMES_ROMAN_24)
 		return "SERIF";
+	else if( m_pFontType == GLUT_BITMAP_8_BY_13 || m_pFontType == GLUT_BITMAP_9_BY_15 )
+		return "MONOSPACE";
 	else
 		return "";
 }
