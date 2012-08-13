@@ -126,7 +126,7 @@ int VistaIOHandleBasedIOMultiplexer::Demultiplex(unsigned int nTimeout)
 		bool bFail = false;
 #ifdef WIN32	
 		DWORD nRet = 0;
-		DWORD dwTimeout = (nTimeout == ~0) ? INFINITE : DWORD(nTimeout);
+		DWORD dwTimeout = (nTimeout == (unsigned int)~0) ? INFINITE : DWORD(nTimeout);
 
 		nRet = WaitForMultipleObjects(DWORD(m_veHandles.size()), &m_veHandles[0], FALSE, dwTimeout);
 		bFail = (nRet == WAIT_FAILED ? true : false);
@@ -171,7 +171,7 @@ int VistaIOHandleBasedIOMultiplexer::Demultiplex(unsigned int nTimeout)
 		// printf("VistaIOMultiplexerIP::Demultiplex() -- before select, hanMax = %d\n", hanMax);
 		struct timeval tv;
 		struct timeval *etv = &tv;
-		if(nTimeout != ~0)
+		if(nTimeout != (unsigned int)~0)
 		{
 			tv.tv_sec  = nTimeout/1000;
 			tv.tv_usec = (nTimeout%1000)*1000;

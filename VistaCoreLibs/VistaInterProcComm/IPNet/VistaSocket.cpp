@@ -668,7 +668,7 @@ bool IVistaSocket::VerifyBlocking()
 		return true; // no sockets verify to true
 
 	int iRes = fcntl(int(m_iSocketID), F_GETFD);
-	if(iRes & O_NONBLOCK == O_NONBLOCK)
+	if( ( iRes & O_NONBLOCK ) == O_NONBLOCK)
 	{
 		// ok, marked non-blocking
 		if(GetIsBlocking())

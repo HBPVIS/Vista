@@ -500,7 +500,7 @@ int  VistaPosixSerialPortImp::Receive(void *buffer, const int length, int iTimeo
 
 	if(iTimeout)
 	{
-		if(WaitForIncomingData(iTimeout) == ~0)
+		if(WaitForIncomingData(iTimeout) == (unsigned int)~0)
 			return 0; // timeout!
 	}
 

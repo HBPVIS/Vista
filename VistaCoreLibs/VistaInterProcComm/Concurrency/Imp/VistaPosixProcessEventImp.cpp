@@ -93,7 +93,7 @@ bool CreateFifo( const std::string& sName )
 {
 	struct stat oAttributes;
 	if( stat( sFifoFolder.c_str(), &oAttributes ) != 0 
-		|| oAttributes.st_mode & S_IFDIR == false )
+		|| ( oAttributes.st_mode & S_IFDIR == false ) )
 	{
 		if( mkdir( sFifoFolder.c_str(), S_IRWXU|S_IRGRP|S_IXGRP ) != 0 )
 			return false;
