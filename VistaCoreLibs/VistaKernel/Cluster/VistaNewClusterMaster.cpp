@@ -1363,6 +1363,8 @@ void VistaNewClusterMaster::DeactivateSlaveAfterDrop( Slave* pSlave )
 								m_vecActiveSlaves.end(), pSlave );
 	if( itEntry != m_vecActiveSlaves.end() )
 		m_vecActiveSlaves.erase( itEntry );
+	m_vecDeadSlaves.push_back( pSlave );
+	m_oClusterInfo.m_vecNodeInfos[pSlave->m_nIndex].m_bIsActive = false;
 	delete pSlave->m_pConnection;
 	pSlave->m_pConnection = NULL;
 	// slave is already removed from other sync entities in the observer update

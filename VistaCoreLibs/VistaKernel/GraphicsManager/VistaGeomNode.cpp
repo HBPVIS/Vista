@@ -139,9 +139,9 @@ void VistaGeomNode::Debug( std::ostream& oOut, int nLevel /*= 0 */ ) const
 	oOut << vstr::indent;
 	for(int j=0; j<nLevel; j++)
 		oOut << "  ";
-	oOut << "   Geometries: " 
+	oOut << "   Geometry: " 
 		<< std::setw( 10 ) << m_pGeometry->GetNumberOfVertices() << " verts, "
-		<< std::setw( 10 ) << m_pGeometry->GetNumberOfFaces() << " polys"
+		<< std::setw( 10 ) << m_pGeometry->GetNumberOfFaces() << " faces"
 		<< std::endl;
 }
 

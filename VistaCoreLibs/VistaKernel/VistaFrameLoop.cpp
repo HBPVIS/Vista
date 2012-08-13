@@ -106,7 +106,7 @@ bool VistaFrameLoop::Init( VistaSystem* pVistaSystem )
 
 	m_pSystemEvent = new VistaSystemEvent;
 
-	m_pFrameRate = new VistaWindowAverageTimer( 30 );
+	m_pFrameRate = new VistaWeightedAverageTimer;
 	m_pAvgLoopTime = new VistaWeightedAverageTimer;
 
 	return true;

@@ -83,7 +83,7 @@ protected:
 	VistaClusterMode*			m_pClusterMode;
 
 	VistaWeightedAverageTimer*	m_pAvgLoopTime;
-	VistaWindowAverageTimer*	m_pFrameRate;
+	VistaWeightedAverageTimer*	m_pFrameRate;
 	int							m_iFrameCount;
 
 };
