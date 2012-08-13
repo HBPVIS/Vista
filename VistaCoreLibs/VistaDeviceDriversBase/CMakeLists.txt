@@ -17,11 +17,7 @@ endif( WIN32 )
 
 include( "./_SourceFiles.cmake" )
 
-if( VISTA_64BIT )
-	set( VISTADEVICEDRIVERS_USE_ATOMICS FALSE CACHE BOOL "Specifies if the Device Driver History uses atomics" )
-else( VISTA_64BIT )
-	set( VISTADEVICEDRIVERS_USE_ATOMICS TRUE CACHE BOOL "Specifies if the Device Driver History uses atomics" )
-endif( VISTA_64BIT )
+set( VISTADEVICEDRIVERS_USE_ATOMICS TRUE CACHE BOOL "Specifies if the Device Driver History uses atomics" )
 
 if( VISTADEVICEDRIVERS_USE_ATOMICS )
 	add_definitions( -DVISTA_USE_ATOMICS )

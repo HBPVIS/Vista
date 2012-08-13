@@ -36,8 +36,15 @@
 
 unsigned int IVistaMeasureTranscode::ITranscodeIndexedGet::UNKNOWN_NUMBER_OF_INDICES = ~0;
 
+#if defined( VISTA_USE_ATOMICS ) && ( defined( WIN32 ) || defined( LINUX ) )
+	#define USE_32BIT_ATOMICS
+	#if !defined( WIN32 ) || !defined( VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE )
+		#define USE_64BIT_ATOMICS
+	#endif
+#endif
 
-#if !defined(VISTA_USE_ATOMICS) || defined(SUNOS)
+
+#if !defined( USE_32BIT_ATOMICS ) || !defined( USE_64BIT_ATOMICS )
 #include <VistaInterProcComm/Concurrency/VistaSemaphore.h>
 #else
 	#if defined(WIN32)
@@ -46,7 +53,7 @@ unsigned int IVistaMeasureTranscode::ITranscodeIndexedGet::UNKNOWN_NUMBER_OF_IND
 	// up to now, we are using hand-crafted assembler...
     // up-coming unix kernels have atomics in user-land, so we might switch one day
 	#endif
-#endif // VISTA_USE_ATOMICS || SUNOS
+#endif // !defined( USE_32BIT_ATOMICS ) || !defined( USE_64BIT_ATOMICS )
 
 /**
  * @todo move atomics to IPC (IAR: would not move this code! go and copy/modify)
@@ -62,7 +69,7 @@ public:
 	 */
 	VistaType::uint32 AtomicSet(SWAPADDRESS v1, VistaType::uint32 v2)
 	{
-#if !defined(VISTA_USE_ATOMICS)
+#if !defined( USE_32BIT_ATOMICS )
 		VistaSemaphoreLock l(m_lock);
 		VistaType::uint32 vOld = *((VistaType::uint32*)v1); // assign old value
 		*((VistaType::uint32*)v1) = v2; // store new one, we assume that this works using
@@ -81,12 +88,12 @@ public:
 							 // a semaphore
 		return vOld; // return the prior-value.
 	#endif
-#endif // VISTA_USE_ATOMICS
+#endif // USE_32BIT_ATOMICS
 	}
 
 	VistaType::uint64 AtomicSet64(SWAPADDRESS v1, VistaType::uint64 v2)
 	{
-#if !defined(VISTA_USE_ATOMICS) || defined(VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE)
+#if !defined( USE_64BIT_ATOMICS )
 		VistaSemaphoreLock l(m_lock);
 		VistaType::uint64 vOld = *((VistaType::uint64*)v1); // assign old value
 		*((VistaType::uint64*)v1) = v2; // store new one, we assume that this works using
@@ -108,7 +115,7 @@ public:
 							 // a semaphore
 		return vOld; // return the prior-value.
 	#endif
-#endif // VISTA_USE_ATOMICS
+#endif // USE_64BIT_ATOMICS
 	}
 
 	#if defined(__GNUC__) && ( defined(__i386__) || defined(__x86_64__) || defined( __LP32__) || defined(__LP64__) )
@@ -136,7 +143,7 @@ public:
 
 	inline VistaType::uint32 AtomicRead(const VistaType::uint32 &ref)
 	{
-#if !defined(VISTA_USE_ATOMICS) || defined(SUNOS)
+#if !defined( USE_32BIT_ATOMICS )
 		VistaSemaphoreLock l(m_lock);
 		return ref;
 #else
@@ -146,7 +153,7 @@ public:
 
 	inline VistaType::uint64 AtomicRead64(const VistaType::uint64 &ref)
 	{
-#if !defined(VISTA_USE_ATOMICS) || defined(SUNOS)
+#if !defined( USE_64BIT_ATOMICS )
 		VistaSemaphoreLock l(m_lock);
 		return ref;
 #else
@@ -157,7 +164,7 @@ public:
 	template<class T>
 	T AtomicReadT( const T &ref )
 	{
-#if !defined(VISTA_USE_ATOMICS) || defined(SUNOS)
+#if !defined( USE_32BIT_ATOMICS ) || !defined( USE_64BIT_ATOMICS )
 		VistaSemaphoreLock l(m_lock);
 		return ref;
 #else
@@ -165,13 +172,13 @@ public:
 #endif
 	}
 
-#if !defined(VISTA_USE_ATOMICS) || defined(SUNOS) || defined(VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE)
+#if !defined( USE_32BIT_ATOMICS ) || !defined( USE_64BIT_ATOMICS )
 	VistaSemaphore m_lock;
 #endif
 
 
 	VistaAtomics()
-#if !defined(VISTA_USE_ATOMICS) || defined(SUNOS)
+#if !defined( USE_32BIT_ATOMICS ) || !defined( USE_64BIT_ATOMICS )
 	: m_lock(1, VistaSemaphore::SEM_TYPE_FASTEST)
 #endif
 	{
@@ -180,8 +187,10 @@ public:
 
 	static std::string GetAtomicState()
 	{
-#if defined(VISTA_USE_ATOMICS) && !defined(VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE)
+#if defined( USE_32BIT_ATOMICS ) && defined( USE_64BIT_ATOMICS )
 		return "VISTA_USE_ATOMICS SET!";
+#elif defined( USE_32BIT_ATOMICS )
+		return "VISTA_USE_ATOMICS SET (32BIT) PLUS SEMAPHORE (64BIT)!";
 #else
 		return "SEMAPHORE LOCKED ACCESS";
 #endif
@@ -572,15 +581,22 @@ void VistaDeviceSensor::SetParent( IVistaDeviceDriver *pParent )
 
 VistaType::microtime VistaDeviceSensor::GetUpdateTimeStamp() const
 {
-	return m_pAtomics->AtomicReadT<VistaType::microtime>(m_rbSensorHistory.m_nUpdateTs);
+	// @todo: atomically setting a double leads to problems under special circumstances
+	//return m_pAtomics->AtomicReadT<VistaType::microtime>(m_rbSensorHistory.m_nUpdateTs);
+	return m_rbSensorHistory.m_nUpdateTs;
 }
 
 bool VistaDeviceSensor::SetUpdateTimeStamp(VistaType::microtime nTs)
 {
-	assert( sizeof(VistaType::microtime) == sizeof(VistaType::uint64) );
+	// @todo: atomically setting a double leads to problems under special circumstances
+	// (more precisely, gcc+linux with -03 seems to screw up the modification when using
+	// semaphore-locked access - the update timestamp is sometimes undefined (mostly 0) afterwards
+
+	//assert( sizeof(VistaType::microtime) == sizeof(VistaType::uint64) );
 	// assumption: sizeof(microtime) == sizeof(double) == sizeof(uint64)
 	// copy value of nTs bytewise
-	m_pAtomics->AtomicSet64( &m_rbSensorHistory.m_nUpdateTs, *((VistaType::uint64*)&nTs) );
+	//m_pAtomics->AtomicSet64( &m_rbSensorHistory.m_nUpdateTs, *((VistaType::uint64*)&nTs) );
+	m_rbSensorHistory.m_nUpdateTs = nTs;
 	return true;
 }
 
