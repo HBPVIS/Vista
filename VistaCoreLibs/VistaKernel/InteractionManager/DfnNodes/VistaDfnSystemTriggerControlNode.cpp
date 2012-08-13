@@ -68,10 +68,9 @@ VistaDfnSystemTriggerControlNode::~VistaDfnSystemTriggerControlNode()
 
 bool VistaDfnSystemTriggerControlNode::GetIsValid() const
 {
-	return m_pCtrl && (m_pTriggers != NULL &&
-			           m_pTrigger == NULL) ||
-			           (m_pTriggers == NULL &&
-			            m_pTrigger != NULL);
+	return ( m_pCtrl &&
+		( ( m_pTriggers != NULL && m_pTrigger == NULL )
+		|| ( m_pTriggers == NULL && m_pTrigger != NULL ) ) );
 }
 
 bool VistaDfnSystemTriggerControlNode::PrepareEvaluationRun()

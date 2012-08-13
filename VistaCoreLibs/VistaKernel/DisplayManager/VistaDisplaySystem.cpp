@@ -150,35 +150,36 @@ std::vector<VistaViewport *> &VistaDisplaySystem::GetViewports()
 /*============================================================================*/
 void VistaDisplaySystem::Debug(std::ostream &out) const
 {
-	VistaDisplayEntity::Debug(out);
+	//VistaDisplayEntity::Debug(out);
+
+	out << vstr::indent << "[VistaDisplaySystem] - Name                   : " << GetNameForNameable() << std::endl;
 
 	VistaVector3D v3Temp, v3Temp2;
 	GetDisplaySystemProperties()->GetViewerPosition(v3Temp);
-	out << " [VistaDisplaySystem] - viewer position:    " << v3Temp << std::endl;
+	out << vstr::indent << "[VistaDisplaySystem] - viewer position        : " << v3Temp << std::endl;
 
 	VistaQuaternion qTemp;
 	GetDisplaySystemProperties()->GetViewerOrientation(qTemp);
-	out << " [VistaDisplaySystem] - viewer orientation: " << qTemp << std::endl;
+	out << vstr::indent << "[VistaDisplaySystem] - viewer orientation     : " << qTemp << std::endl;
 
 	GetDisplaySystemProperties()->GetEyeOffsets(v3Temp, v3Temp2);
-	out << " [VistaDisplaySystem] - left eye offset:    " << v3Temp << std::endl;
-	out << " [VistaDisplaySystem] - right eye offset:   " << v3Temp2 << std::endl;
+	out << vstr::indent << "[VistaDisplaySystem] - left eye offset        : " << v3Temp << std::endl;
+	out << vstr::indent << "[VistaDisplaySystem] - right eye offset       : " << v3Temp2 << std::endl;
 
-//    out << " [VistaDisplaySystem] - display manager:    " << m_pDisplayManager << std::endl;
-
-	out << " [VistaDisplaySystem] - ref. frame name:    ";
-	if (m_pPlatform)
-		out << m_pPlatform->GetNameForNameable() << std::endl;
-	else
-		out << "*none* (no reference frame given)" << std::endl;
-	out << " [VistaDisplaySystem] - local viewer:       "
+	out << vstr::indent << "[VistaDisplaySystem] - local viewer           : "
 		<< (GetDisplaySystemProperties()->GetLocalViewer()?"true":"false") << std::endl;
+	out << vstr::indent << "[VistaDisplaySystem] - HMD mode               : "
+		<< (GetDisplaySystemProperties()->GetHMDModeActive()?"true":"false") << std::endl;
 
-	out << " [VistaDisplaySystem] - viewports:          " << m_vecViewports.size() << std::endl;
-
-	if (m_vecViewports.size())
+	
+	if( m_vecViewports.empty() )
 	{
-		out << " [VistaDisplaySystem] - viewport names: ";
+		out << vstr::indent << "[VistaDisplaySystem] - viewports              : *none*" << std::endl;
+	}
+	else
+	{
+		out << vstr::indent << "[VistaDisplaySystem] - viewports              : " << m_vecViewports.size() << std::endl;
+		out << vstr::indent << "[VistaDisplaySystem] - viewport names         : ";
 		unsigned int i;
 		for (i=0; i<m_vecViewports.size(); ++i)
 		{
@@ -190,8 +191,20 @@ void VistaDisplaySystem::Debug(std::ostream &out) const
 	}
 
 	if (m_pPlatform)
-		out << " [VistaDisplaySystem] - reference frame data: " << std::endl;
-	out << (*m_pPlatform);
+	{
+		out << vstr::indent << "[VistaDisplaySystem] - reference frame name   : "
+			<< m_pPlatform->GetNameForNameable() << std::endl;
+		out << vstr::indent << "[VistaDisplaySystem] - ref-frame translation  : " 
+			<< m_pPlatform->GetTranslation() << std::endl;
+		out << vstr::indent << "[VistaDisplaySystem] - ref-frame rotation     : " 
+			<< m_pPlatform->GetRotation() << std::endl;
+		out << vstr::indent << "[VistaDisplaySystem] - ref-frame scale        : " 
+			<< m_pPlatform->GetScale() << std::endl;
+	}
+	else
+	{
+		out << vstr::indent << "[VistaDisplaySystem] - ReferenceFrame name    : *none*" << std::endl;
+	}
 }
 
 /*============================================================================*/

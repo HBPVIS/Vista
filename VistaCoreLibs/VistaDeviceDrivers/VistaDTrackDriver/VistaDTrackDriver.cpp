@@ -1184,7 +1184,8 @@ bool VistaDTrackDriver::DoSensorUpdate(VistaType::microtime dTs)
 								unsigned int nSensorId = m_pSensors->GetSensorId(nMarkerType, nMarkerIndex);
 
 								// increase the marker index
-								nMarkerIndex = (++nMarkerIndex) % (m_pSensors->GetNumRegisteredSensorsForType(nMarkerType)+1);
+								++nMarkerIndex;
+								nMarkerIndex = nMarkerIndex % (m_pSensors->GetNumRegisteredSensorsForType(nMarkerType)+1);
 
 								// retrieve sensor
 								pSen = GetSensorByIndex(nSensorId);

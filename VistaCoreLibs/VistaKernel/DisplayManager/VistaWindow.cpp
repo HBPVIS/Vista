@@ -106,32 +106,40 @@ std::vector<VistaViewport *> &VistaWindow::GetViewports()
 
 void VistaWindow::Debug(std::ostream &out) const
 {
-	VistaDisplayEntity::Debug(out);
-
-	out << " [VistaWindow] - title:    " << GetWindowProperties()->GetTitle() << std::endl;
+	//VistaDisplayEntity::Debug(out);
+	
+	out << vstr::indent << "[VistaWindow]        - name                   : "
+		<< GetNameForNameable() << std::endl;
+	out << vstr::indent << "[VistaWindow]        - title                  : "
+		<< GetWindowProperties()->GetTitle() << std::endl;
 
 	int x, y;
 	GetWindowProperties()->GetPosition(x, y);
-	out << " [VistaWindow] - position: " << x << " / " << y << std::endl;
+	out << vstr::indent << "[VistaWindow]        - position               : "
+		<< x << " / " << y << std::endl;
 
 	GetWindowProperties()->GetSize(x, y);
-	out << " [VistaWindow] - size:     " << x << " / " << y << std::endl;
+	out << vstr::indent << "[VistaWindow]        - size                   : "
+		<< x << " / " << y << std::endl;
 
-	out << " [VistaWindow] - stereo:   " << (GetWindowProperties()->GetStereo()?"yes":"no") << std::endl;
-	out << " [VistaWindow] - fullscreen: " << (GetWindowProperties()->GetFullScreen()?"enabled":"disabled") << std::endl;
+	out << vstr::indent << "[VistaWindow]        - stereo                 : "
+		<< ( GetWindowProperties()->GetStereo() ? "yes" : "no" ) << std::endl;
+	out << vstr::indent << "[VistaWindow]        - fullscreen             : "
+		<< ( GetWindowProperties()->GetFullScreen() ? "enabled" : "disabled" ) << std::endl;
 
 
-	out << " [VistaWindow] - display name: ";
+	out << vstr::indent << "[VistaWindow]        - display name           : ";
 	if (m_pDisplay)
 		out << m_pDisplay->GetNameForNameable() << std::endl;
 	else
-	out << "*none* (no display given)" << std::endl;
+		out << "*none* (no display given)" << std::endl;
 
-	out << " [VistaWindow] - viewports:    " << m_vecViewports.size() << std::endl;
+	out << vstr::indent << "[VistaWindow]        - viewports              : "
+		<< m_vecViewports.size() << std::endl;
 	
 	if (m_vecViewports.size())
 	{
-		out << " [VistaWindow] - vp names:     ";
+		out << vstr::indent << "[VistaWindow]        - viewport names         : ";
 		unsigned int i;
 		for (i=0; i<m_vecViewports.size(); ++i)
 		{

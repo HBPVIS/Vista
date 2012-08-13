@@ -94,25 +94,33 @@ std::string VistaProjection::GetViewportName() const
 /*============================================================================*/
 void VistaProjection::Debug(std::ostream &out) const
 {
-	VistaDisplayEntity::Debug(out);
+	//VistaDisplayEntity::Debug(out);
+	out << vstr::indent << "[VistaProjection]    - name                   : " 
+		<< GetNameForNameable() << std::endl;
 	VistaVector3D v3MidPoint, v3NormalVector, v3UpVector;
 	GetProjectionProperties()->GetProjectionPlane(v3MidPoint, v3NormalVector, v3UpVector);
-	out << " [VistaProjection] - plane midpoint:      " << v3MidPoint << std::endl;
-	out << " [VistaProjection] - plane normal:        " << v3NormalVector << std::endl;
-	out << " [VistaProjection] - plane up vector:     " << v3UpVector << std::endl;
+	out << vstr::indent << "[VistaProjection]    - plane midpoint         : "
+		<< v3MidPoint << std::endl;
+	out << vstr::indent << "[VistaProjection]    - plane normal           : " 
+		<< v3NormalVector << std::endl;
+	out << vstr::indent << "[VistaProjection]    - plane up vector        : " 
+		<< v3UpVector << std::endl;
 
 	double dLeft, dRight, dBottom, dTop, dNear, dFar;
 	GetProjectionProperties()->GetProjPlaneExtents(dLeft, dRight, dBottom, dTop);
-	out << " [VistaProjection] - plane extents (l/r): " << dLeft << " / " << dRight << std::endl;
-	out << " [VistaProjection] - plane extents (b/t): " << dBottom << " / " << dTop << std::endl;
+	out << vstr::indent << "[VistaProjection]    - plane extents (l/r)    : "
+		<< dLeft << " / " << dRight << std::endl;
+	out << vstr::indent << "[VistaProjection]    - plane extents (b/t)    : "
+		<< dBottom << " / " << dTop << std::endl;
 
 	GetProjectionProperties()->GetClippingRange(dNear, dFar);
-	out << " [VistaProjection] - clipping range:      " << dNear << " / " << dFar << std::endl;
+	out << vstr::indent << "[VistaProjection]    - clipping range         : "
+		<< dNear << " / " << dFar << std::endl;
 
-	out << " [VistaProjection] - stereo mode:         " 
+	out << vstr::indent << "[VistaProjection]    - stereo mode            : " 
 		<< GetProjectionProperties()->GetStereoModeString() << std::endl;
 
-	out << " [VistaProjection] - viewport name:       ";
+	out << vstr::indent << "[VistaProjection]    - viewport name          : ";
 	if(m_pViewport)
 	{
 		out << m_pViewport->GetNameForNameable() << std::endl;

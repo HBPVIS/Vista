@@ -2687,6 +2687,9 @@ bool VistaOpenSGGraphicsBridge::CreateIndexedGeometry
 	case VistaGeometry::VISTA_FACE_TYPE_TRIANGLE_STRIP:
 		type->addValue(GL_TRIANGLE_STRIP);
 		break;
+	case VistaGeometry::VISTA_FACE_TYPE_UNDETERMINED:
+	case VistaGeometry::VISTA_FACE_TYPE_UNKNOWN:
+		VISTA_THROW( "CreateIndexedGeometry called with invalid face type", -1 );
 	}
 	lens->addValue(vertices.size());
 	endEditCP(type, osg::GeoPTypesUI8::GeoPropDataFieldMask);
@@ -2951,6 +2954,10 @@ bool VistaOpenSGGraphicsBridge::CreateIndexedGeometry
 	case VistaGeometry::VISTA_FACE_TYPE_TRIANGLE_STRIP:
 		type->addValue(GL_TRIANGLE_STRIP);
 		break;
+	case VistaGeometry::VISTA_FACE_TYPE_UNDETERMINED:
+	case VistaGeometry::VISTA_FACE_TYPE_UNKNOWN:
+		VISTA_THROW( "CreateIndexedGeometry called with invalid face type", -1 );
+
 	}
 	lens->addValue(vertices.size());
 	endEditCP(type, osg::GeoPTypesUI8::GeoPropDataFieldMask);

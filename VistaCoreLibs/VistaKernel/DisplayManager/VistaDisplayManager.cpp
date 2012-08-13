@@ -1129,6 +1129,11 @@ void VistaDisplayManager::Debug ( std::ostream & out ) const
 	set<VistaDisplay *> setDisplays;
 	set<VistaWindow *> setWindows;
 
+	std::cout << "----------------------------------" << std::endl;
+	std::cout << "-- [VistaDisplayManager] Status --" << std::endl;
+	std::cout << "----------------------------------" << std::endl;
+	vstr::IndentObject oIndent;
+
 	for (iDispSysIndex=0; iDispSysIndex<m_vecDisplaySystems.size(); ++iDispSysIndex)
 	{
 		VistaDisplaySystem *pDispSys = m_vecDisplaySystems[iDispSysIndex];

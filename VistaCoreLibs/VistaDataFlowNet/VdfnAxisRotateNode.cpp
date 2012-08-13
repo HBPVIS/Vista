@@ -50,8 +50,8 @@ VdfnAxisRotateNode::VdfnAxisRotateNode()
 
 bool VdfnAxisRotateNode::GetIsValid() const
 {
-	return ((m_pAxisAndAngle == NULL) && (m_pAxis && m_pAngle)
-		  || ((m_pAxisAndAngle) &&  (!m_pAxis && !m_pAngle)));
+	return ( ( (m_pAxisAndAngle == NULL) && (m_pAxis && m_pAngle) )
+		  || ( (m_pAxisAndAngle) &&  (!m_pAxis && !m_pAngle) ) );
 }
 
 bool VdfnAxisRotateNode::PrepareEvaluationRun()

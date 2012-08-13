@@ -1814,7 +1814,7 @@ void VistaVirtualConsole::SetIsEnabled(bool bEnabled)
 		pSink = m_pOldSink;
 		m_pOldSink = NULL;
 	}
-	else
+	else if( bEnabled )
 	{
 		pSink = m_pKeySink;
 		m_pOldSink = m_pCtrl->GetDirectKeySink();

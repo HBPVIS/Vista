@@ -77,6 +77,7 @@ public:
 							const int iBufferSize,
 							int& iDataSize ) = 0;
 
+
 	/**
 	 * returns the type of the DataSync as string (usually the classname)
 	 */

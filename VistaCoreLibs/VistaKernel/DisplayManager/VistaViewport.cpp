@@ -155,28 +155,33 @@ string VistaViewport::GetProjectionName() const
 /*============================================================================*/
 void VistaViewport::Debug(std::ostream &out) const
 {
-	VistaDisplayEntity::Debug(out);
+	//VistaDisplayEntity::Debug(out);
+
+	out << vstr::indent << "[VistaViewport]      - name                   : " 
+		<< GetNameForNameable() << std::endl;
 
 	int x, y;
 	GetViewportProperties()->GetPosition(x, y);
-	out << " [VistaViewport] - position: " << x << " / " << y << std::endl;
+	out << vstr::indent << "[VistaViewport]      - position               : " 
+		<< x << " / " << y << std::endl;
 
 	GetViewportProperties()->GetSize(x, y);
-	out << " [VistaViewport] - size:     " << x << " / " << y << std::endl;
+	out << vstr::indent << "[VistaViewport]      - size                   : "
+		<< x << " / " << y << std::endl;
 
-	out << " [VistaViewport] - display system name: ";
+	out << vstr::indent << "[VistaViewport]      - display system name    : ";
 	if (m_pDisplaySystem)
 		out << m_pDisplaySystem->GetNameForNameable() << std::endl;
 	else
 		out << "*none* (no display system given)" << std::endl;
 
-	out << " [VistaViewport] - window name:         ";
+	out << vstr::indent << "[VistaViewport]      - window name            : ";
 	if (m_pWindow)
 		out << m_pWindow->GetNameForNameable() << std::endl;
 	else
 		out <<"*none* (no window given)" << std::endl;
 
-	out << " [VistaViewport] - projection name:     ";
+	out << vstr::indent << "[VistaViewport]      - projection name        : ";
 	if (m_pProjection)
 		out << m_pProjection->GetNameForNameable() << std::endl;
 	else

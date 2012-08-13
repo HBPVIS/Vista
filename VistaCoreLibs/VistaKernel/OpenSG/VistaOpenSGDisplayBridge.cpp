@@ -700,6 +700,24 @@ void VistaOpenSGDisplayBridge::ProjectionData::SetCameraOrientation(
 	beginEditCP(t, osg::Transform::MatrixFieldMask);
 	t->setMatrix(m);
 	endEditCP(t, osg::Transform::MatrixFieldMask);
+
+	//osg::Matrix invmat;
+	//invmat.setRotate( ori );
+	//invmat.invert();
+
+	//osg::TransformPtr eye = osg::TransformPtr::dcast(m_ptrEyeBeacon->getCore());
+	//beginEditCP(eye, osg::Transform::MatrixFieldMask);
+	//eye->setMatrix(invmat);
+	//endEditCP(eye, osg::Transform::MatrixFieldMask);
+
+	//if( m_ptrRightCamDeco )
+	//{
+	//	osg::TransformPtr righteye = osg::TransformPtr::dcast(m_ptrRightEyeBeacon->getCore());
+	//	beginEditCP(righteye, osg::Transform::MatrixFieldMask);
+	//	righteye->setMatrix(invmat);
+	//	endEditCP(righteye, osg::Transform::MatrixFieldMask);
+	//}
+
 }
 
 VistaQuaternion VistaOpenSGDisplayBridge::ProjectionData::GetCameraOrientation() const
