@@ -70,7 +70,7 @@ namespace
 	// some functions to generate random callstacks
 	void RandomFunctionOne()
 	{
-		switch( VistaRandomNumberGenerator::GetSingleton()->GenerateInt32( 0, 3 ) )
+		switch( VistaRandomNumberGenerator::GetStandardRNG()->GenerateInt32( 0, 3 ) )
 		{
 			case 0:
 				VistaStackWalker::PrintCallStack( vstr::Stream() );
@@ -91,7 +91,7 @@ namespace
 
 	void RandomFunctionTwo()
 	{
-		switch( VistaRandomNumberGenerator::GetSingleton()->GenerateInt32( 0, 3 ) )
+		switch( VistaRandomNumberGenerator::GetStandardRNG()->GenerateInt32( 0, 3 ) )
 		{
 			case 0:
 				VistaStackWalker::PrintCallStack( vstr::Stream() );
@@ -112,7 +112,7 @@ namespace
 
 	void RandomFunctionThree()
 	{
-		switch( VistaRandomNumberGenerator::GetSingleton()->GenerateInt32( 0, 3 ) )
+		switch( VistaRandomNumberGenerator::GetStandardRNG()->GenerateInt32( 0, 3 ) )
 		{
 			case 0:
 				VistaStackWalker::PrintCallStack( vstr::Stream() );
@@ -356,7 +356,7 @@ void DebuggingToolsDemoAppl::HandleEvent( VistaEvent* pEvent )
 			// Here, there would usually be some computation or other stuff taking
 			// processor time. But since we have nothing to do, we'll just sleep
 			// for 2 to 8 milliseconds
-			VistaTimeUtils::Sleep( VistaRandomNumberGenerator::GetSingleton()->GenerateInt32( 2, 8 ) );
+			VistaTimeUtils::Sleep( VistaRandomNumberGenerator::GetStandardRNG()->GenerateInt32( 2, 8 ) );
 
 			break;
 		}

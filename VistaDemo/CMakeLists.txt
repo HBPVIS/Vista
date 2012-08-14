@@ -30,5 +30,5 @@ vista_conditional_add_subdirectory( VISTADEMO_BUILD_15VTKDEMO 15VtkDemo OFF )
 vista_conditional_add_subdirectory( VISTADEMO_BUILD_16PHANTOMDEMO 16PhantomDemo OFF )
 vista_conditional_add_subdirectory( VISTADEMO_BUILD_17MSGPORTDEMO 17MsgPortDemo ON )
 vista_conditional_add_subdirectory( VISTADEMO_BUILD_18DEBUGGINGTOOLSDEMO 18DebuggingToolsDemo ON )
-vista_conditional_add_subdirectory( VISTADEMO_BUILD_20PYTHONDFNDEMO 20PythonDFNDemo ON )
+vista_conditional_add_subdirectory( VISTADEMO_BUILD_20PYTHONDFNDEMO 20PythonDFNDemo OFF )
 

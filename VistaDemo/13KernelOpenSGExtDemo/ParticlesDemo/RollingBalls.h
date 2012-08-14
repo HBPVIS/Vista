@@ -156,7 +156,7 @@ public:
 		, m_fDepth(10)
 		, m_dLastT(-1)
 	{
-		VistaRandomNumberGenerator *pRand = VistaRandomNumberGenerator::GetSingleton();
+		VistaRandomNumberGenerator *pRand = VistaRandomNumberGenerator::GetStandardRNG();
 		m_pParticles = new VistaOpenSGParticles( pSG, pParent );
 		m_pParticles->SetNumParticles( nParticles, false, false );
 		m_vecVelocities.resize( nParticles );

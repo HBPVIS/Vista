@@ -31,7 +31,9 @@ PyDfnNode::PyDfnNode(const std::string &path) : IVdfnNode()
 	try {
 		py::object main_namespace = makeNamespace();
 		py::handle<> ignored(PyRun_FileEx(fd, path.c_str(), Py_file_input, main_namespace.ptr(), main_namespace.ptr(), 1)); // closes fd after executing the script
-	} catch (const py::error_already_set &e) {
+	}
+	catch (const py::error_already_set&) 
+	{
 		PyErr_Print();
 		exit(-1);
 	}
@@ -49,7 +51,8 @@ PyDfnNode::~PyDfnNode()
 {
 }
 
-py::object PyDfnNode::makeNamespace() {
+py::object PyDfnNode::makeNamespace()
+{
 	py::object main_module((py::handle<>(py::borrowed(PyImport_AddModule("__main__")))));
 	py::object main_namespace = main_module.attr("__dict__");
 
@@ -58,8 +61,10 @@ py::object PyDfnNode::makeNamespace() {
 	return main_namespace;
 }
 
-void PyDfnNode::injectClassDefinitionAndInstance(py::object main_namespace) {
-	try {
+void PyDfnNode::injectClassDefinitionAndInstance(py::object main_namespace)
+{
+	try
+	{
 		main_namespace["DfnNode"] = py::class_<PyDfnNode>("DfnNode", py::no_init)
 						.def("registerEvalCallback", &PyDfnNode::pyRegisterEvalCallback)
 						.def("registerOutPortFloat", &PyDfnNode::pyRegisterOutPortFloat)
@@ -68,7 +73,9 @@ void PyDfnNode::injectClassDefinitionAndInstance(py::object main_namespace) {
 						.def("registerInPortInt", &PyDfnNode::pyRegisterInPortInt)
 						.def("getInPortValue", &PyDfnNode::pyGetInPortValue);
 		main_namespace["dfnNode"] = py::ptr(this);
-	} catch (const py::error_already_set &e) {
+	}
+	catch (const py::error_already_set &)
+	{
 		PyErr_Print();
 		exit(-1);
 	}
@@ -102,7 +109,8 @@ bool PyDfnNode::PrepareEvaluationRun()
 bool PyDfnNode::DoEvalNode()
 {
 	// FIXME: switch thread state here
-	try {
+	try 
+	{
 		PyGILState_STATE gstate = PyGILState_Ensure();
 
 		if (_evalCallback.is_none()) {
@@ -113,7 +121,9 @@ bool PyDfnNode::DoEvalNode()
 		}
 
 		PyGILState_Release(gstate);
-	} catch (const py::error_already_set &e) {
+	}
+	catch (const py::error_already_set &)
+	{
 		PyErr_Print();
 		exit(-1);
 	}

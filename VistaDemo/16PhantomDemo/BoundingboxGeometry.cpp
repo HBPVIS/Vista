@@ -32,66 +32,66 @@
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 #include <VistaKernel/GraphicsManager/VistaGeomNode.h>
 
-BoundingboxGeometry::BoundingboxGeometry( VistaSceneGraph * vistaSG, VistaBoundingBox &bb )
+BoundingboxGeometry::BoundingboxGeometry( VistaSceneGraph* pVistaSG, VistaBoundingBox &bb )
 {
-	float * min = bb.m_min;
-	float * max = bb.m_max;
+	VistaVector3D v3Min = bb.m_v3Min;
+	VistaVector3D v3Max = bb.m_v3Max;
 
-	pNode = vistaSG->NewGroupNode(NULL);
+	pNode = pVistaSG->NewGroupNode(NULL);
 
 	// creating lines
-	pNode->AddChild(createLine(vistaSG, VistaVector3D(min[0],min[1],min[2]), VistaVector3D(min[0],min[1],max[2])));
-	pNode->AddChild(createLine(vistaSG, VistaVector3D(min[0],min[1],max[2]), VistaVector3D(max[0],min[1],max[2])));
-	pNode->AddChild(createLine(vistaSG, VistaVector3D(max[0],min[1],max[2]), VistaVector3D(max[0],min[1],min[2])));
-	pNode->AddChild(createLine(vistaSG, VistaVector3D(max[0],min[1],min[2]), VistaVector3D(min[0],min[1],min[2])));
+	pNode->AddChild(createLine(pVistaSG, VistaVector3D(v3Min[0],v3Min[1],v3Min[2]), VistaVector3D(v3Min[0],v3Min[1],v3Max[2])));
+	pNode->AddChild(createLine(pVistaSG, VistaVector3D(v3Min[0],v3Min[1],v3Max[2]), VistaVector3D(v3Max[0],v3Min[1],v3Max[2])));
+	pNode->AddChild(createLine(pVistaSG, VistaVector3D(v3Max[0],v3Min[1],v3Max[2]), VistaVector3D(v3Max[0],v3Min[1],v3Min[2])));
+	pNode->AddChild(createLine(pVistaSG, VistaVector3D(v3Max[0],v3Min[1],v3Min[2]), VistaVector3D(v3Min[0],v3Min[1],v3Min[2])));
 
-	pNode->AddChild(createLine(vistaSG, VistaVector3D(min[0],min[1],min[2]), VistaVector3D(min[0],max[1],min[2])));
-	pNode->AddChild(createLine(vistaSG, VistaVector3D(min[0],min[1],max[2]), VistaVector3D(min[0],max[1],max[2])));
-	pNode->AddChild(createLine(vistaSG, VistaVector3D(max[0],min[1],max[2]), VistaVector3D(max[0],max[1],max[2])));
-	pNode->AddChild(createLine(vistaSG, VistaVector3D(max[0],min[1],min[2]), VistaVector3D(max[0],max[1],min[2])));
+	pNode->AddChild(createLine(pVistaSG, VistaVector3D(v3Min[0],v3Min[1],v3Min[2]), VistaVector3D(v3Min[0],v3Max[1],v3Min[2])));
+	pNode->AddChild(createLine(pVistaSG, VistaVector3D(v3Min[0],v3Min[1],v3Max[2]), VistaVector3D(v3Min[0],v3Max[1],v3Max[2])));
+	pNode->AddChild(createLine(pVistaSG, VistaVector3D(v3Max[0],v3Min[1],v3Max[2]), VistaVector3D(v3Max[0],v3Max[1],v3Max[2])));
+	pNode->AddChild(createLine(pVistaSG, VistaVector3D(v3Max[0],v3Min[1],v3Min[2]), VistaVector3D(v3Max[0],v3Max[1],v3Min[2])));
 
-	pNode->AddChild(createLine(vistaSG, VistaVector3D(max[0],max[1],min[2]), VistaVector3D(min[0],max[1],min[2])));
-	pNode->AddChild(createLine(vistaSG, VistaVector3D(min[0],max[1],min[2]), VistaVector3D(min[0],max[1],max[2])));
-	pNode->AddChild(createLine(vistaSG, VistaVector3D(min[0],max[1],max[2]), VistaVector3D(max[0],max[1],max[2])));
-	pNode->AddChild(createLine(vistaSG, VistaVector3D(max[0],max[1],max[2]), VistaVector3D(max[0],max[1],min[2])));
+	pNode->AddChild(createLine(pVistaSG, VistaVector3D(v3Max[0],v3Max[1],v3Min[2]), VistaVector3D(v3Min[0],v3Max[1],v3Min[2])));
+	pNode->AddChild(createLine(pVistaSG, VistaVector3D(v3Min[0],v3Max[1],v3Min[2]), VistaVector3D(v3Min[0],v3Max[1],v3Max[2])));
+	pNode->AddChild(createLine(pVistaSG, VistaVector3D(v3Min[0],v3Max[1],v3Max[2]), VistaVector3D(v3Max[0],v3Max[1],v3Max[2])));
+	pNode->AddChild(createLine(pVistaSG, VistaVector3D(v3Max[0],v3Max[1],v3Max[2]), VistaVector3D(v3Max[0],v3Max[1],v3Min[2])));
 
 	// balls...
 	// i := min
 	// x := max
-	VistaGeometryFactory gf(vistaSG);
+	VistaGeometryFactory gf(pVistaSG);
 	VistaGeometry *ball = gf.CreateSphere(0.02f);
 
-	VistaTransformNode *iii = vistaSG->NewTransformNode(pNode);
-	iii->SetTranslation(min);
-	vistaSG->NewGeomNode(iii,ball);
+	VistaTransformNode *iii = pVistaSG->NewTransformNode(pNode);
+	iii->SetTranslation(v3Min);
+	pVistaSG->NewGeomNode(iii,ball);
 
-	VistaTransformNode *iix = vistaSG->NewTransformNode(pNode);
-	iix->SetTranslation(min[0],min[1],max[2]);
-	vistaSG->NewGeomNode(iix,ball);
+	VistaTransformNode *iix = pVistaSG->NewTransformNode(pNode);
+	iix->SetTranslation(v3Min[0],v3Min[1],v3Max[2]);
+	pVistaSG->NewGeomNode(iix,ball);
 
-	VistaTransformNode *xix = vistaSG->NewTransformNode(pNode);
-	xix->SetTranslation(max[0],min[1],max[2]);
-	vistaSG->NewGeomNode(xix,ball);
+	VistaTransformNode *xix = pVistaSG->NewTransformNode(pNode);
+	xix->SetTranslation(v3Max[0],v3Min[1],v3Max[2]);
+	pVistaSG->NewGeomNode(xix,ball);
 
-	VistaTransformNode *xii = vistaSG->NewTransformNode(pNode);
-	xii->SetTranslation(max[0],min[1],max[2]);
-	vistaSG->NewGeomNode(xii,ball);
+	VistaTransformNode *xii = pVistaSG->NewTransformNode(pNode);
+	xii->SetTranslation(v3Max[0],v3Min[1],v3Max[2]);
+	pVistaSG->NewGeomNode(xii,ball);
 
-	VistaTransformNode *ixi = vistaSG->NewTransformNode(pNode);
-	ixi->SetTranslation(min[0],max[1],min[2]);
-	vistaSG->NewGeomNode(ixi,ball);
+	VistaTransformNode *ixi = pVistaSG->NewTransformNode(pNode);
+	ixi->SetTranslation(v3Min[0],v3Max[1],v3Min[2]);
+	pVistaSG->NewGeomNode(ixi,ball);
 
-	VistaTransformNode *ixx = vistaSG->NewTransformNode(pNode);
-	ixx->SetTranslation(min[0],max[1],max[2]);
-	vistaSG->NewGeomNode(ixx,ball);
+	VistaTransformNode *ixx = pVistaSG->NewTransformNode(pNode);
+	ixx->SetTranslation(v3Min[0],v3Max[1],v3Max[2]);
+	pVistaSG->NewGeomNode(ixx,ball);
 
-	VistaTransformNode *xxx = vistaSG->NewTransformNode(pNode);
-	xxx->SetTranslation(max);
-	vistaSG->NewGeomNode(xxx,ball);
+	VistaTransformNode *xxx = pVistaSG->NewTransformNode(pNode);
+	xxx->SetTranslation(v3Max);
+	pVistaSG->NewGeomNode(xxx,ball);
 
-	VistaTransformNode *xxi = vistaSG->NewTransformNode(pNode);
-	xxi->SetTranslation(max[0],max[1],min[2]);
-	vistaSG->NewGeomNode(xxi,ball);
+	VistaTransformNode *xxi = pVistaSG->NewTransformNode(pNode);
+	xxi->SetTranslation(v3Max[0],v3Max[1],v3Min[2]);
+	pVistaSG->NewGeomNode(xxi,ball);
 
 }
 
@@ -107,16 +107,16 @@ VistaGroupNode* BoundingboxGeometry::getVistaNode()
 /**
  * Little helper to connect two points with an cone
  */
-VistaTransformNode* BoundingboxGeometry::createLine( VistaSceneGraph * vistaSG, const VistaVector3D &a, const VistaVector3D &b )
+VistaTransformNode* BoundingboxGeometry::createLine( VistaSceneGraph * pVistaSG, const VistaVector3D &a, const VistaVector3D &b )
 {
 
-	VistaTransformNode *trans = vistaSG->NewTransformNode(NULL);
+	VistaTransformNode *trans = pVistaSG->NewTransformNode(NULL);
 	VistaVector3D direction = b - a;
 	float length = direction.GetLength();
 	VistaQuaternion q(VistaVector3D(0,1,0),direction);
-	VistaGeometryFactory gf(vistaSG);
-	VistaGeometry *line = gf.CreateCone(0.01f,0.01f,length);
-	vistaSG->NewGeomNode(trans,line);
+	VistaGeometryFactory oGeomFactory(pVistaSG);
+	VistaGeometry *line = oGeomFactory.CreateCone(0.01f,0.01f,length);
+	pVistaSG->NewGeomNode(trans,line);
 
 	// move up to avoid rotate around the center
 	trans->Translate( VistaVector3D(0,length/2.0f,0) );

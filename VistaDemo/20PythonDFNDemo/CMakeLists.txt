@@ -13,20 +13,18 @@ endif( NOT VISTADEMO_COMMON_BUILD )
 #set(Boost_USE_MULTITHREADED ON)
 #SET(BOOST_ROOT "$ENV{HOME}/usr")
 
-find_package(Boost COMPONENTS
+vista_use_package(Boost COMPONENTS
                 system
                 thread
                 python
              REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
-link_directories(${Boost_LIBRARY_DIRS})
 
 # get python
 find_package(PythonLibs REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
 link_directories(${PYTHON_LIBRARIES})
 
-vista_use_package( VistaCoreLibs 1.11 REQUIRED VistaKernel FIND_DEPENDENCIES )
+vista_use_package( VistaCoreLibs HEAD REQUIRED VistaKernel FIND_DEPENDENCIES )
 
 # Including the source files of all source subfolders recursively
 include( "./_SourceFiles.cmake" )
@@ -34,7 +32,6 @@ include( "./_SourceFiles.cmake" )
 add_executable( 20PythonDFNDemo ${ProjectSources} )
 target_link_libraries( 20PythonDFNDemo
 	${VISTA_USE_PACKAGE_LIBRARIES} # contains all libraries from vista_use_package() calls
-        ${Boost_LIBRARIES}
         ${PYTHON_LIBRARIES}
 )
 

@@ -284,7 +284,7 @@ public:
 		secpos = m_pParticles->GetSecParticlePositions3fField();
 		siz = m_pParticles->GetParticleSizes3fField();
 		col = m_pParticles->GetParticleColors4fField();
-		pRand = VistaRandomNumberGenerator::GetSingleton();
+		pRand = VistaRandomNumberGenerator::GetStandardRNG();
 
 		// init
 		for(int i = 0; i < m_pParticles->GetNumParticles(); ++i)
@@ -459,7 +459,7 @@ public:
 		, m_dSigma(5)
 		, m_dM(12)
 	{
-		VistaRandomNumberGenerator *pRand = VistaRandomNumberGenerator::GetSingleton();
+		VistaRandomNumberGenerator *pRand = VistaRandomNumberGenerator::GetStandardRNG();
 		m_pParticles = new VistaOpenSGParticles(pSG, pParent);
 		m_pParticles->SetNumParticles(500, true, true);
 		m_pParticles->BeginEdit();
@@ -507,7 +507,7 @@ public:
 	virtual void HandleEvent(VistaEvent *pEvent)
 	{
 		float *pos = m_pParticles->GetParticlePositions3fField();
-		VistaRandomNumberGenerator *pRand = VistaRandomNumberGenerator::GetSingleton();
+		VistaRandomNumberGenerator *pRand = VistaRandomNumberGenerator::GetStandardRNG();
 		for(int i = 0; i < m_pParticles->GetNumParticles() * 3; i += 3)
 			pos[i+2] = (float)(pRand->GenerateDouble3()) * 1.2f;
 	}

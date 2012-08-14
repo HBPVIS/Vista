@@ -35,7 +35,7 @@ public:
 		: m_pParticles(NULL)
 		, m_dLastT(-1)
 	{
-		VistaRandomNumberGenerator *pRand = VistaRandomNumberGenerator::GetSingleton();
+		VistaRandomNumberGenerator *pRand = VistaRandomNumberGenerator::GetStandardRNG();
 		m_pParticles = new VistaOpenSGParticles( pSG, pParent );
 		m_pParticles->SetColorsWithAlpha();
 		m_pParticles->SetNumParticles( 150, true, true );
@@ -103,7 +103,7 @@ public:
 		const double dt = pEvent->GetTime()-m_dLastT;
 		m_dLastT = pEvent->GetTime();
 
-		VistaRandomNumberGenerator *pRand = VistaRandomNumberGenerator::GetSingleton();
+		VistaRandomNumberGenerator *pRand = VistaRandomNumberGenerator::GetStandardRNG();
 
 		float *pos = m_pParticles->GetParticlePositions3fField();
 		float *siz = m_pParticles->GetParticleSizes3fField();

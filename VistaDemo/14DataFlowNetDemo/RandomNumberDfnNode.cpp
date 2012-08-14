@@ -44,7 +44,7 @@ RandomNumberDfnNode::RandomNumberDfnNode( float fMin, float fMax )
 	 */
 	RegisterOutPort( "out", m_pOut );
 
-	m_pRand = VistaRandomNumberGenerator::GetSingleton();
+	m_pRand = VistaRandomNumberGenerator::GetStandardRNG();
 
 	/**
 	 * This node does not have any inports, and should just generate a new

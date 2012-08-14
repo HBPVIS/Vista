@@ -44,7 +44,7 @@ RandomNumberDfnNode::RandomNumberDfnNode( float fMin, float fMax )
 	 */
 	RegisterOutPort( "out", m_pOut );
 
-	m_pRand = VistaRandomNumberGenerator::GetSingleton();
+	m_pRand = VistaRandomNumberGenerator::GetStandardRNG();
 
 	/**
 	 * This node does not have any inports, and should just generate a new
@@ -123,9 +123,9 @@ IVdfnNode* RandomNumberDfnNodeCreate::CreateNode( const VistaPropertyList& oPara
 	const VistaPropertyList& oSubParams = oParams.GetPropertyConstRef ("param" ).GetPropertyListConstRef();
 
 	if( oSubParams.HasProperty( "min" ) )
-		fMin = (float)oSubParams.GetValue<double>( "min" );
+		fMin = oSubParams.GetValue<float>( "min" );
 	if( oSubParams.HasProperty( "max" ) )
-		fMax = (float)oSubParams.GetValue<double>( "max" );
+		fMax = oSubParams.GetValue<float>( "max" );
 	return new RandomNumberDfnNode( fMin, fMax );
 }
 
