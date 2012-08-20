@@ -21,63 +21,57 @@
 /*                                                                            */
 /*============================================================================*/
 /*
-* $Id$
-*/
+ * $Id: SwitchMapResolutionCallback.h 23634 2011-09-30 11:30:22Z dr165799 $
+ */
 
-#ifndef _SHADOWDEMO_H
-#define _SHADOWDEMO_H
+#ifndef _SWITCHMAPRESOLUTIONCALLBACK_H
+#define _SWITCHMAPRESOLUTIONCALLBACK_H
 
 /*============================================================================*/
 /* INCLUDES                                                                   */
 /*============================================================================*/
 
-#include <string>
+#include <VistaAspects/VistaExplicitCallbackInterface.h>
 
-#include <VistaKernel/VistaSystem.h>
-
-#include <VistaKernelOpenSGExt/VistaOpenSGShadow.h>
+/*============================================================================*/
+/* MACROS AND DEFINES                                                         */
+/*============================================================================*/
 
 /*============================================================================*/
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
 
-class VistaGeomNode;
-class VistaGeometry;
-class VistaDirectionalLight;
-class VistaDirectionalLight;
-class VistaEvent;
+class ShadowDemo;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-class ShadowDemo
+/**
+ * CResetCallback
+ * This Callback let the application parse the parameters again.
+ */
+class SwitchMapResolutionCallback : public IVistaExplicitCallbackInterface
 {
-public:
-	ShadowDemo(int argc = 0, char  *argv[] = NULL);
-	virtual ~ShadowDemo();
+public:	
+	SwitchMapResolutionCallback( ShadowDemo* pShadowDemo, float nFactor );	
+	virtual ~SwitchMapResolutionCallback();
 
-	bool Run();
-	bool CreateScene();
-
-	void SetShadowEnabled( bool b );
-	bool GetShadowEnabled();
-
-	void UpdateLightAnimation(VistaEvent *pEvent);
-
-	void SetActiveShadowMode( VistaOpenSGShadow::eShadowMode mode );
-	VistaOpenSGShadow::eShadowMode GetActiveShadowMode();
-
-	static std::string GetShadowModeName(VistaOpenSGShadow::eShadowMode mode);
-
-	void ScaleShadowMapResolution( const float nFactor );
+	/**
+	 * Do
+	 * Invoked by the application
+	 */
+	bool Do();
 
 private:
-	VistaSystem                    mVistaSystem;
-	VistaDirectionalLight          *m_pLight;
-	VistaOpenSGShadow              *m_pShadow;
-	int								m_nMapSize;
+
+	/**
+	 * The pointer to the instance of the application.
+	 */
+	ShadowDemo*	m_pShadowDemo;
+    float		m_nFactor;
+
 };
 
 
-#endif // _SHADOWDEMO_H
+#endif // _SWITCHMAPRESOLUTIONCALLBACK_H

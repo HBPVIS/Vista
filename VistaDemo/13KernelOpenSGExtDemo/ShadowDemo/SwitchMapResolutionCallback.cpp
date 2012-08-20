@@ -21,63 +21,46 @@
 /*                                                                            */
 /*============================================================================*/
 /*
-* $Id$
-*/
+ * $Id: SwitchMapResolutionCallback.cpp 23634 2011-09-30 11:30:22Z dr165799 $
+ */
 
-#ifndef _SHADOWDEMO_H
-#define _SHADOWDEMO_H
+#include "SwitchMapResolutionCallback.h"
+#include "ShadowDemo.h"
 
-/*============================================================================*/
-/* INCLUDES                                                                   */
-/*============================================================================*/
-
-#include <string>
-
-#include <VistaKernel/VistaSystem.h>
+#include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 
 #include <VistaKernelOpenSGExt/VistaOpenSGShadow.h>
 
 /*============================================================================*/
-/* FORWARD DECLARATIONS                                                       */
+/* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
 
-class VistaGeomNode;
-class VistaGeometry;
-class VistaDirectionalLight;
-class VistaDirectionalLight;
-class VistaEvent;
-
 /*============================================================================*/
-/* CLASS DEFINITIONS                                                          */
+/* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
 
-class ShadowDemo
+SwitchMapResolutionCallback::SwitchMapResolutionCallback(  ShadowDemo* pShadowDemo, float nFactor  )
+:   m_pShadowDemo( pShadowDemo )
+,   m_nFactor( nFactor )
 {
-public:
-	ShadowDemo(int argc = 0, char  *argv[] = NULL);
-	virtual ~ShadowDemo();
+}
 
-	bool Run();
-	bool CreateScene();
+SwitchMapResolutionCallback::~SwitchMapResolutionCallback(){}
 
-	void SetShadowEnabled( bool b );
-	bool GetShadowEnabled();
+/*============================================================================*/
+/* IMPLEMENTATION                                                             */
+/*============================================================================*/
 
-	void UpdateLightAnimation(VistaEvent *pEvent);
+bool SwitchMapResolutionCallback::Do()
+{
+	m_pShadowDemo->ScaleShadowMapResolution( m_nFactor );
+	return true;
+}
 
-	void SetActiveShadowMode( VistaOpenSGShadow::eShadowMode mode );
-	VistaOpenSGShadow::eShadowMode GetActiveShadowMode();
+/*============================================================================*/
+/* LOCAL VARS AND FUNCS                                                       */
+/*============================================================================*/
 
-	static std::string GetShadowModeName(VistaOpenSGShadow::eShadowMode mode);
-
-	void ScaleShadowMapResolution( const float nFactor );
-
-private:
-	VistaSystem                    mVistaSystem;
-	VistaDirectionalLight          *m_pLight;
-	VistaOpenSGShadow              *m_pShadow;
-	int								m_nMapSize;
-};
-
-
-#endif // _SHADOWDEMO_H
+/*============================================================================*/
+/*  END OF FILE "MyDemoAppl.cpp"                                              */
+/*============================================================================*/

@@ -26,7 +26,12 @@
 
 
 
-//#include <VistaKernel/VistaVersion.h>
+#include "ShadowDemo.h"
+
+#include "ToggleShadowCallback.h"
+#include "SwitchShadowCallback.h"
+#include "SwitchMapResolutionCallback.h"
+
 #include <VistaKernel/VistaSystem.h>
 
 #include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
@@ -51,16 +56,13 @@
 
 #include <VistaKernel/InteractionManager/VistaKeyboardSystemControl.h>
 
-#include "ShadowDemo.h"
-#include "ToggleShadowCallback.h"
-#include "SwitchShadowCallback.h"
 
 #include <list>
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
-static VistaGeometry* createFloor( const float &extent = 10.0f,
+static VistaGeometry* CreateFloor( const float &extent = 10.0f,
 							const int &tesselation = 64 );
 
 
@@ -96,6 +98,7 @@ private:
 /*============================================================================*/
 ShadowDemo::ShadowDemo(int argc, char *argv[])
 :   m_pShadow( NULL )
+, m_nMapSize( 1024 )
 {
 	// add default path for config-file search
 	{
@@ -144,13 +147,15 @@ ShadowDemo::ShadowDemo(int argc, char *argv[])
 
 	m_pShadow->SetGlobalShadowIntensity( 0.7f );
 	m_pShadow->SetShadowMode( VistaOpenSGShadow::VOSGSHADOW_STD_SHADOW_MAP );
-	m_pShadow->SetMapSize( 1024 );
+	m_pShadow->SetMapSize( m_nMapSize );
 	m_pShadow->EnableShadow();
 
 	VistaKeyboardSystemControl *pCtrl = mVistaSystem.GetKeyboardSystemControl();
 	pCtrl->BindAction( 's', new ToggleShadowCallback( this ), "toggle shadow" );
 	pCtrl->BindAction( '+', new SwitchShadowCallback( this,  1 ), "next shadow" );
 	pCtrl->BindAction( '-', new SwitchShadowCallback( this, -1 ), "previous shadow" );
+	pCtrl->BindAction( '*', new SwitchMapResolutionCallback( this, 2.0f ), "double map size", true, true, true );
+	pCtrl->BindAction( '/', new SwitchMapResolutionCallback( this, 0.5f ), "half map size" );
 
 	mVistaSystem.GetDisplayManager()->GetWindowByName("MAIN_WINDOW")->GetWindowProperties()->SetTitle(argv[0]);
 
@@ -194,7 +199,7 @@ bool ShadowDemo::CreateScene()
 		//@TODO - find better name!
 		const int iTess = 64;
 		const float fExtent = 10.0f;
-		VistaGeometry *pFloorGeometry = createFloor(fExtent, iTess);
+		VistaGeometry *pFloorGeometry = CreateFloor(fExtent, iTess);
 		pSG->NewGeomNode(pRootNode, pFloorGeometry);
 
 		VistaTransformNode *pTransBox    = pSG->NewTransformNode(pRootNode);
@@ -257,7 +262,7 @@ bool ShadowDemo::CreateScene()
 	return true;
 }
 
-static VistaGeometry* createFloor(const float &fExtents, const int &iTess)
+static VistaGeometry* CreateFloor(const float &fExtents, const int &iTess)
 {
 	VistaGeometry *pGeo = NULL;
 	VistaVertexFormat oVertexFormat;
@@ -397,6 +402,16 @@ void ShadowDemo::SetActiveShadowMode( VistaOpenSGShadow::eShadowMode mode ) {
 
 VistaOpenSGShadow::eShadowMode ShadowDemo::GetActiveShadowMode() {    
     return m_pShadow->GetShadowMode();
+}
+
+void ShadowDemo::ScaleShadowMapResolution( const float nFactor )
+{
+	m_nMapSize = (int) ( (float)m_nMapSize * nFactor );
+	if( m_nMapSize < 8 )
+		m_nMapSize = 8;
+	m_pShadow->SetMapSize( m_nMapSize );
+	vstr::outi() << "Setting Shadow Map size to "
+				<< m_nMapSize << "x" << m_nMapSize << std::endl;
 }
 
 /*============================================================================*/

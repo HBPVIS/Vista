@@ -6,6 +6,8 @@ set( RelativeSourceGroup "Source Files" )
 set( DirFiles
 	ShadowDemo.cpp
 	ShadowDemo.h
+	SwitchMapResolutionCallback.cpp
+	SwitchMapResolutionCallback.h
 	SwitchShadowCallback.cpp
 	SwitchShadowCallback.h
 	ToggleShadowCallback.cpp

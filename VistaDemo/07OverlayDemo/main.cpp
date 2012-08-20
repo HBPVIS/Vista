@@ -26,10 +26,6 @@
 
 // include header here
 
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-#include <GL/gl.h>
 
 #include <VistaKernel/VistaSystem.h>
 #include <VistaKernel/InteractionManager/VistaKeyboardSystemControl.h>
@@ -59,6 +55,11 @@
 #include <VistaAspects/VistaExplicitCallbackInterface.h>
 #include <VistaBase/VistaExceptionBase.h>
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
+#include <GL/gl.h>
+
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
@@ -85,11 +86,7 @@ public:
 		// toggle the overlay
 
 		// try to remove the overlay
-		if(false == m_pDspMngr->RemSceneOverlay(m_pOverlay))
-		{
-			// if removal fails, it was not there -> attach it!
-			m_pDspMngr->AddSceneOverlay(m_pOverlay);
-		}
+		m_pOverlay->SetIsEnabled( !m_pOverlay->GetIsEnabled() );
 
 		return true;
 	}
@@ -141,6 +138,7 @@ public:
 							const std::string sViewportName = "")
 	: IVistaSceneOverlay( pDispManager, sViewportName )
 	, m_pPlatform(pPlatform)
+	, m_bEnabled( true )
 	{
 	}
 
