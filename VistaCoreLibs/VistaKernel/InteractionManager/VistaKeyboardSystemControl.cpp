@@ -190,7 +190,6 @@ bool VistaKeyboardSystemControl::InjectKeys( const std::vector<int> &vecKeyCodeL
 
 bool VistaKeyboardSystemControl::InjectKey( int nKeyCode, int nModifier, bool bIsKeyRepeat )
 {
-	std::cout << "Key: " << nKeyCode << " - " << nModifier << std::endl;
 	if(m_pKeySink)
 	{
 		if( m_pKeySink->HandleKeyPress( nKeyCode, nModifier, bIsKeyRepeat ) == true )
