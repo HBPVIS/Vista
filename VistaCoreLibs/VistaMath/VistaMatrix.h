@@ -100,12 +100,12 @@ public:
 	inline bool operator!= ( const VistaMatrix<Type> & rhs ) const;
 
 	// calculation operators
-	VistaMatrix<Type> operator + (const Type& rhs) const;
-	VistaMatrix<Type> operator * (const Type& rhs) const;
+	VistaMatrix<Type> operator+ (const Type& rhs) const;
+	VistaMatrix<Type> operator* (const Type& rhs) const;
 
-	VistaMatrix<Type> operator * (const VistaMatrix<Type>& rhs) const;
-	VistaMatrix<Type> operator + (const VistaMatrix<Type>& rhs) const;
-	VistaMatrix<Type> operator - (const VistaMatrix<Type>& rhs) const;
+	VistaMatrix<Type> operator* (const VistaMatrix<Type>& rhs) const;
+	VistaMatrix<Type> operator+ (const VistaMatrix<Type>& rhs) const;
+	VistaMatrix<Type> operator- (const VistaMatrix<Type>& rhs) const;
 
 	inline Type* operator[]( const int i );
 	inline const Type* operator[]( const int i ) const;
@@ -353,7 +353,7 @@ bool VistaMatrix<Type>::operator!= ( const VistaMatrix<Type> & rhs ) const
 template <class Type>
 inline
 VistaMatrix<Type> &
-VistaMatrix<Type>::operator = (const VistaMatrix<Type>& rhs)
+VistaMatrix<Type>::operator= (const VistaMatrix<Type>& rhs)
 {
 	if (m_nRowDimension != rhs.GetRowDimension() || m_nColDimension != rhs.GetColDimension())
 	{
@@ -377,7 +377,7 @@ VistaMatrix<Type>::operator = (const VistaMatrix<Type>& rhs)
 template <class Type>
 inline
 VistaMatrix<Type>
-VistaMatrix<Type>::operator * (const Type& rhs) const
+VistaMatrix<Type>::operator* (const Type& rhs) const
 {
 	VistaMatrix<Type> tempMat(m_nRowDimension,m_nColDimension);
 
@@ -393,7 +393,7 @@ VistaMatrix<Type>::operator * (const Type& rhs) const
 template <class Type>
 inline
 VistaMatrix<Type>
-VistaMatrix<Type>::operator + (const Type& rhs) const
+VistaMatrix<Type>::operator+ (const Type& rhs) const
 {
 	VistaMatrix<Type> tempMat(m_nRowDimension,m_nColDimension);
 
@@ -411,7 +411,7 @@ VistaMatrix<Type>::operator + (const Type& rhs) const
 template <class Type>
 inline
 VistaMatrix<Type>
-VistaMatrix<Type>::operator * (const VistaMatrix<Type>& rhs) const
+VistaMatrix<Type>::operator* (const VistaMatrix<Type>& rhs) const
 {
 	//VistaMatrix<Type,rowDim,colDim> temp(m1.Row,m2.Col);
 	VistaMatrix<Type> tempMat(m_nRowDimension, rhs.GetColDimension());
@@ -441,13 +441,13 @@ VistaMatrix<Type>::operator * (const VistaMatrix<Type>& rhs) const
 template <class Type>
 inline
 VistaMatrix<Type>
-VistaMatrix<Type>::operator + (const VistaMatrix<Type>& rhs) const
+VistaMatrix<Type>::operator+ (const VistaMatrix<Type>& rhs) const
 {
 	if( ( rhs.GetRowDimension() != m_nRowDimension ) ||
 		( rhs.GetColDimension() != m_nColDimension ) )
 	{
 		// inconsistent matrix size
-		VistaMatrix<Type> tempMat();
+		VistaMatrix<Type> tempMat(rhs);
 		return tempMat;
 	}
 
@@ -456,7 +456,7 @@ VistaMatrix<Type>::operator + (const VistaMatrix<Type>& rhs) const
 	{
 		for (int col=0; col < tempMat.GetColDimension(); ++col)
 		{
-			tempMat.SetVal( rhs.GetVal(row,col) + m_pMat[row][col] );
+			tempMat.SetVal(row,col, rhs.GetVal(row,col) + m_pMat[row][col] );
 		}
 	}
 	return tempMat;
@@ -469,7 +469,7 @@ VistaMatrix<Type>::operator + (const VistaMatrix<Type>& rhs) const
 template <class Type>
 inline
 VistaMatrix<Type>
-VistaMatrix<Type>::operator - (const VistaMatrix<Type>& rhs) const
+VistaMatrix<Type>::operator- (const VistaMatrix<Type>& rhs) const
 {
 	if( ( rhs.GetRowDimension() != m_nRowDimension ) ||
 		( rhs.GetColDimension() != m_nColDimension ) )
