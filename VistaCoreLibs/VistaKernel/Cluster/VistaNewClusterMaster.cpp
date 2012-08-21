@@ -1482,8 +1482,9 @@ void VistaNewClusterMaster::Debug( std::ostream& oStream ) const
 		oStream << "        ["   << (*itSlave)->m_sName << "] at ["
 				<<  (*itSlave)->m_sIP << ":" << (*itSlave)->m_nPort 
 				<< "] is " << ( ( (*itSlave)->m_pConnection == NULL ) ? ( "!DEAD! ") : ( "alive " ) )
-				<< std::endl;
+				<< "\n";
 	}
+	oStream << std::flush;
 }
 
 bool VistaNewClusterMaster::CheckSyncEntityDelay( Slave* pSlave )

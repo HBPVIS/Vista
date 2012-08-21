@@ -1439,7 +1439,7 @@ VistaInteractionContext* VistaSystem::SetupInteractionContext( const std::string
 		{
 			m_pKeyboardSystemControl->BindAction( nKey, nMod,
 						new VistaDebugContextGraphCommand( pContext ),
-						"reload graph for [" + sRole + "]" );
+						"debug graph for [" + sRole + "]" );
 			vstr::outi() << " [VistaSystem]: DebugTrigger [" << sDebugKey << "] for context ["
 						<< sRole << "] applied" << std::endl;
 
