@@ -258,7 +258,10 @@ bool VistaWindow::VistaWindowProperties::SetName(const std::string &sName)
 
 	if(strOldName != "")
 	{
-		if (!pW->GetDisplay()->GetDisplayManager()->RenameWindow(strOldName, sName))
+		// @todo: ugly
+		if( pW->GetNumberOfViewports() == 0 )
+			return false;
+		if (!pW->GetViewport(0)->GetDisplaySystem()->GetDisplayManager()->RenameWindow(strOldName, sName))
 			return false;
 	}
 	return IVistaDisplayEntityProperties::SetName(sName);

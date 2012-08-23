@@ -1278,8 +1278,8 @@ static NodePtr createKid(ACObject *pParentObj, ACMaterial *pMatTab,
 			}
 			return gNode;
 		}
-		else
-			return createKid(pParentObj->kids[0], pMatTab, mpTextures); // recurse
+		//else
+			//return createKid(pParentObj->kids[0], pMatTab, mpTextures); // recurse
 	}
 
 	return NullFC;
