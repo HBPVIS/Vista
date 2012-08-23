@@ -56,6 +56,7 @@
 #include <VistaKernel/Stuff/VistaStreamManagerExt.h>
 #include <VistaKernel/Stuff/VistaKernelProfiling.h>
 #include <VistaKernel/Stuff/VistaFramerateDisplay.h>
+#include <VistaKernel/Stuff/VistaRuntimeLimiter.h>
 
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
 #include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
@@ -293,6 +294,7 @@ VistaSystem::VistaSystem()
 , m_pEventManager( new VistaEventManager )
 , m_pCentralEventHandler( NULL )
 , m_pKeyboardSystemControl( NULL )
+, m_pRuntimeLimiter( NULL )
 , m_nModelScale( 1.0 )
 , m_bInitialized( false )
 , m_pFrameLoop( new VistaFrameLoop )
@@ -461,6 +463,7 @@ VistaSystem::~VistaSystem()
 	delete m_pFramerateDisplay;
 	delete m_pFrameLoop;
 	delete m_pClusterMode;
+	delete m_pRuntimeLimiter;
 
 	delete m_pEventManager;
 
@@ -2663,7 +2666,6 @@ bool VistaSystem::ArgParser (int argc, char *argv[])
 				m_bUseNewClusterMaster = true;
 			}
 		}
-
 		else if( oStringCompare( strArg, "-inisearchpath" ) )
 		{
 			vstr::outi() << "[ViSy]: encountered argument -inisearchpath"  << std::endl;
@@ -2683,6 +2685,44 @@ bool VistaSystem::ArgParser (int argc, char *argv[])
 					vstr::outi() << "[VistaSystem]: Using -none-, only local path (.) is used (default)." << std::endl;
 				}
 				m_bLockSearchPath = true;
+			}
+		}
+		else if( oStringCompare( strArg, "-kill_after_frame" ) )
+		{
+			++arg;
+			if( arg < argc )
+			{				
+				unsigned int nFrameCount = 0;
+				if( VistaConversion::FromString<unsigned int>( argv[arg], nFrameCount ) == false )
+				{
+					vstr::warnp() << "[ViSys]: param \"-kill_after_frame\" specifies \""
+								<< argv[arg] << "which cannot be parsed as uint" << std::endl;
+				}
+				else
+				{
+					if( m_pRuntimeLimiter == NULL )
+						m_pRuntimeLimiter = new VistaRuntimeLimiter( this );
+					m_pRuntimeLimiter->SetFrameLimit( nFrameCount );
+				}
+			}
+		}
+		else if( oStringCompare( strArg, "-kill_after_time" ) )
+		{
+			++arg;
+			if( arg < argc )
+			{				
+				VistaType::microtime nTimeLimit = 0;
+				if( VistaConversion::FromString<VistaType::microtime>( argv[arg], nTimeLimit ) == false )
+				{
+					vstr::warnp() << "[ViSys]: param \"-kill_after_time\" specifies \""
+								<< argv[arg] << "which cannot be parsed as double" << std::endl;
+				}
+				else
+				{
+					if( m_pRuntimeLimiter == NULL )
+						m_pRuntimeLimiter = new VistaRuntimeLimiter( this );
+					m_pRuntimeLimiter->SetTimeLimit( nTimeLimit );
+				}
 			}
 		}
 	}

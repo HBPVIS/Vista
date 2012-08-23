@@ -82,6 +82,7 @@ class VdfnObjectRegistry;
 class VistaUserPlatform;
 class VistaDisplaySystem;
 class VistaInteractionContext;
+class VistaRuntimeLimiter;
 
 class VdfnGraph;
 
@@ -275,6 +276,8 @@ private:
 	VistaClusterMode*					m_pClusterMode;
 	VistaFrameLoop*						m_pFrameLoop;
 	VistaFramerateDisplay*				m_pFramerateDisplay;
+
+	VistaRuntimeLimiter*				m_pRuntimeLimiter;
 
 	std::map<VistaDisplaySystem*, VistaUserPlatform*> m_mapUserPlatforms;
 	std::list<VistaInteractionContext*> m_liCreateCtxs;
