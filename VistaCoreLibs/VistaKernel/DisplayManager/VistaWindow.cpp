@@ -126,6 +126,12 @@ void VistaWindow::Debug(std::ostream &out) const
 		<< ( GetWindowProperties()->GetStereo() ? "yes" : "no" ) << std::endl;
 	out << vstr::indent << "[VistaWindow]        - fullscreen             : "
 		<< ( GetWindowProperties()->GetFullScreen() ? "enabled" : "disabled" ) << std::endl;
+	out << vstr::indent << "[VistaWindow]        - vsync                  : "
+		<< ( GetWindowProperties()->GetVSyncEnabled() ? "enabled" : "disabled" ) << std::endl;
+	out << vstr::indent << "[VistaWindow]        - stencil buffer         : "
+		<< ( GetWindowProperties()->GetUseStencilBuffer() ? "enabled" : "disabled" ) << std::endl;
+	out << vstr::indent << "[VistaWindow]        - accum buffer           : "
+		<< ( GetWindowProperties()->GetUseAccumBuffer() ? "enabled" : "disabled" ) << std::endl;
 
 
 	out << vstr::indent << "[VistaWindow]        - display name           : ";

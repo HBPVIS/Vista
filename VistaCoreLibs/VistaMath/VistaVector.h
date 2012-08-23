@@ -674,7 +674,7 @@ inline std::ostream& operator<< ( std::ostream& oStream, VistaVector<Type, dim> 
 	// write to the stream
 	oStream << "( " << oVector[0];
 	for( int i = 1; i < dim; ++i )
-		oStream << ", " << oVector[1];
+		oStream << ", " << oVector[i];
 	oStream << " )";
 	oStream.unsetf( std::ios::fixed | std::ios::showpos );	
 

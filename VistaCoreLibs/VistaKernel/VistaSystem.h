@@ -314,7 +314,7 @@ private:
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/
-//extern VistaSystem * g_pVistaSystem;
+
 VISTAKERNELAPI VistaSystem * GetVistaSystem();
 
 #endif // _VISTASYSTEM_H
