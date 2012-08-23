@@ -1,8 +1,9 @@
 import os, sys, shutil, re
 
-BackupName ="UPDATE_TO_TRUNK"
+BackupName ="UPDATE_TO_1.14"
 
-cppreplaces = [		
+cppreplaces = [	
+	( re.compile( r'VistaRandomNumberGenerator::GetSingleton', re.MULTILINE ), r'VistaRandomNumberGenerator::GetStandardRNG' ),
 ]
 
 inireplaces = [	
@@ -14,7 +15,7 @@ xmlreplaces = [
 
 
 replacementrules = [
-	#( r'.+\.(cpp|h)$', cppreplaces ),
+	( r'.+\.(cpp|h)$', cppreplaces ),
 	#( r'.+\.(ini)$', inireplaces ),
 	#( r'.+\.(xml)$', xmlreplaces ),
 ]
