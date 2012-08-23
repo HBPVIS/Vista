@@ -1,4 +1,4 @@
-<!-- $Id: navigator_flystick.xml 22882 2011-08-08 15:54:40Z dr165799 $ -->
+<!-- $Id$ -->
 <!--
 	Generic base for receiving data from flystick2. Not working in itself - choose what you need,
 	and pipe data whereever you need it.

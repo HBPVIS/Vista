@@ -1,4 +1,4 @@
-<!-- $Id: navigator_flystick.xml 22882 2011-08-08 15:54:40Z dr165799 $ -->
+<!-- $Id$ -->
 <!--
   -- Configuration for a flystick navigation controlled by pointing direction and the coolie hat.
   -- This variant uses has only translation in the x-z-plane.

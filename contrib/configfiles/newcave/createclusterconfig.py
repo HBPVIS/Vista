@@ -29,6 +29,7 @@ sZeroMQAddress = "epgm://eth1;224.1.1.29"
 sZeroMQPorts = "19000-19999"
 
 aConfigs = [
+	( "NoSlaves", [] ),
 	( "FrontWall", [3] ),
 	( "HoloSpace", [0, 1, 2, 3, 4, 5] ),
 	( "CaveSpace", [0, 1, 2, 3, 4] ),
@@ -396,23 +397,10 @@ oStartFile  = open( sStartscriptFilename, 'w' )
 
 oStartFile.write( "#!/bin/bash\n\n" )
 oStartFile.write( "\n" )
-oStartFile.write( "if [ \"$1\" = \"\" ];\n" )
-oStartFile.write( "then\n" )
-oStartFile.write( "\techo 'parameter missing - specify a cluster configuration ( " )
-for Config in aConfigs:
-	oStartFile.write( str( Config[0] ) + " " )
-oStartFile.write( ")'\n" )
-oStartFile.write( "\texit\n" )
-oStartFile.write( "fi\n" )
-oStartFile.write( "\n" )
-oStartFile.write( "INPUTCONFIG=${1,,}\n" )
-oStartFile.write( "CHOSENCONFIG=\"\"\n" )
-oStartFile.write( "\n" )
 oStartFile.write( "CONFIGS=( " )
 for Config in aConfigs:
 	oStartFile.write( str( Config[0] ) + " " )
 oStartFile.write( " )\n" )
-oStartFile.write( "\n" )
 for Config in aConfigs:
 	oStartFile.write( Config[0] + "=( " )
 	for nScreenNum in Config[1]:
@@ -429,6 +417,16 @@ for nWallId in range(len(aWalls)):
 				else:
 					oStartFile.write( GetNameFor( nWallId, nRowId, nColumnId, nEyeId ) + " " )
 oStartFile.write( " )\n" )
+oStartFile.write( "\n" )
+oStartFile.write( "\n" )
+oStartFile.write( "if [ \"$1\" = \"\" ];\n" )
+oStartFile.write( "then\n" )
+oStartFile.write( "\techo 'parameter missing - specify a cluster configuration ( ${CONFIGS[@]} )'\n" )
+oStartFile.write( "\texit\n" )
+oStartFile.write( "fi\n" )
+oStartFile.write( "\n" )
+oStartFile.write( "INPUTCONFIG=${1,,}\n" )
+oStartFile.write( "CHOSENCONFIG=\"\"\n" )
 oStartFile.write( "\n" )
 oStartFile.write( "for TESTCONFIG in ${CONFIGS[@]}\n" )
 oStartFile.write( "do\t\n" )

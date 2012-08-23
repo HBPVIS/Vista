@@ -1,4 +1,4 @@
-<!-- $Id: navigator_flystick.xml 22882 2011-08-08 15:54:40Z dr165799 $ -->
+<!-- $Id$ -->
 <!--
 	configuration for a flystick navigation controlled by pointing position and the coolie hat
 	this variant uses the flystick's current position as pivot for the rotation

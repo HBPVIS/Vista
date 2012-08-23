@@ -1,4 +1,4 @@
-<!-- $Id: ucp_cave.xml 22882 2011-08-08 15:54:40Z dr165799 $ -->
+<!-- $Id$ -->
 <!--
 	User centered projection for the new cave
 	fills the ViewerSink, and a proximity warning
@@ -57,6 +57,12 @@
 			<!-- general settings -->
 			<param name="box_min" value="-2.625, -0.35, -2.625"/>
 			<param name="box_max" value=" 2.625, 10, 2.625"/>
+			<param name="halfplanes">
+				-2.3, 0, -2.3  ,  +0.7071, 0, +0.7071,
+				+2.3, 0, -2.3  ,  -0.7071, 0, +0.7071,
+				+2.1, 0, +2.1  ,  -0.7071, 0, -0.7071,
+				-2.1, 0, +2.1  ,  +0.7071, 0, -0.7071 				
+			</param>
 			<param name="safe_distance" value="0.75"/>
 			<param name="danger_distance" value="0.5"/>
 			<!-- specify that the sign should fade out after n seconds of lost tracking -->
@@ -70,7 +76,7 @@
 			<param name="flash_period" value="0.75"/> <!-- default: 0.5 -->
 			
 			<!-- type selection - can be sign, tape, fadeout-->
-			<param name="type" value="sign"/>
+			<param name="type" value="tape"/>
 			
 			<!-- configuration for type "sign" -->
 			<param name="size" value="0.5"/> <!-- default: 1.0, can have one value for square, two for rectangle -->
@@ -95,7 +101,7 @@
 			<param name="color" value="GRAY"/> <!-- default BLACK, may have transparency -->
 			
 		</node>
-
+	
 	</graph>
 
 	<edges>
@@ -103,9 +109,9 @@
 		<edge fromnode="head_source"  tonode="head" fromport="history" toport="history"/>
 		<!--<edge fromnode="head_source"  tonode="dd" fromport="history" toport="history"/>-->
 
-		<edge fromnode="head" tonode="offset_rotate" fromport="POSITION" toport="first"/>
+		<edge fromnode="head" tonode="offset_rotate" fromport="ORIENTATION" toport="first"/>
 		<edge fromnode="to_dtrack_origin" tonode="offset_rotate" fromport="value" toport="second"/>
-		<edge fromnode="head" tonode="translate_pos" fromport="ORIENTATION" toport="first"/>
+		<edge fromnode="head" tonode="translate_pos" fromport="POSITION" toport="first"/>
 		<edge fromnode="offset_rotate" tonode="translate_pos" fromport="out" toport="second"/>
 
 		<edge fromnode="translate_pos" tonode="scale_pos" fromport="out" toport="second"/>
@@ -118,7 +124,7 @@
 		<edge fromnode="scale_pos" tonode="quality_check" fromport="out" toport="position" />
 		<edge fromnode="head" tonode="quality_check" fromport="ORIENTATION" toport="orientation" />
 
-		<edge fromnode="quality_check" tonode="ucp" fromport="out" toport="position"/>
+		<edge fromnode="quality_check" tonode="ucp" fromport="position" toport="position"/>
 		<edge fromnode="quality_check" tonode="ucp" fromport="orientation" toport="orientation"/>
 		
 		<edge fromnode="proximity_warning_state" tonode="proximity" fromport="value" toport="enabled"/>
