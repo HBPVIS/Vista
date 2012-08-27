@@ -71,6 +71,9 @@ public:
 	virtual bool          SetFontName(const std::string &sFontName) = 0;
 	virtual std::string   GetFontName() const = 0;
 
+	virtual bool          GetIsLit() const = 0;
+	virtual bool          SetIsLit(bool bSet) = 0;
+
 
 	virtual VistaColor    GetFontColor() const = 0;
 	virtual void          SetFontColor( const VistaColor& oColor ) = 0;

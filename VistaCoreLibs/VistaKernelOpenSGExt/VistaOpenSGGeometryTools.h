@@ -31,11 +31,22 @@
 /*============================================================================*/
 
 #include "VistaKernelOpenSGExtConfig.h"
-#include <OpenSG/OSGNode.h>
-#include <OpenSG/OSGGeometry.h>
-
 #include <VistaKernel/GraphicsManager/VistaNodeInterface.h>
 
+#ifdef WIN32
+// disable warnings from OpenSG
+#pragma warning(push)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4189)
+#pragma warning(disable: 4231)
+#pragma warning(disable: 4267)
+#endif
+#include <OpenSG/OSGNode.h>
+#include <OpenSG/OSGGeometry.h>
+#ifdef WIN32
+// disable warnings from OpenSG
+#pragma warning(pop)
+#endif
 
 #include <list>
 #include <set>

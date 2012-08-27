@@ -895,7 +895,8 @@ public:
 		m_fSize(1.0f),
 		m_colFontColor(VistaColor::WHITE),
 		m_sText(""),
-		m_pData(NULL)
+		m_pData(NULL),
+		m_bLit( false )
 	{
 	}
 
@@ -986,6 +987,19 @@ public:
 	{
 		return m_ptrGeo;
 	}
+	
+	virtual bool GetIsLit() const
+	{
+		return m_bLit;
+	}
+
+	virtual bool SetIsLit( bool bSet ) 
+	{
+		m_bLit = bSet;
+		return UpdateColor();
+	}
+
+
 
 	VistaOpenSGTextNodeData *m_pData;
 private:
@@ -1018,19 +1032,16 @@ private:
 				endEditCP  (m_ptrGeo, osg::Geometry::MaterialFieldMask);
 			}
 
-			float col[4];
-			col[3] = 1.0f;
-			m_colFontColor.GetValues(col);
 
 			beginEditCP(mat, osg::SimpleMaterial::DiffuseFieldMask |
 							 osg::SimpleMaterial::TransparencyFieldMask|
 							 osg::SimpleMaterial::ColorMaterialFieldMask);
 
-			mat->setLit(false);
-			mat->setDiffuse(osg::Color3f(col[0], col[1], col[2]));
-			mat->setTransparency(1.0f - osg::Real32(col[3]));
+			mat->setLit(m_bLit);
+			mat->setDiffuse( osg::Color3f( m_colFontColor[0], m_colFontColor[1], m_colFontColor[2] ) );
+			mat->setTransparency( 1.0f - osg::Real32( m_colFontColor[3] ) );
 
-			endEditCP  (mat, osg::SimpleMaterial::DiffuseFieldMask |
+			endEditCP( mat, osg::SimpleMaterial::DiffuseFieldMask |
 							 osg::SimpleMaterial::TransparencyFieldMask|
 							 osg::SimpleMaterial::ColorMaterialFieldMask);
 
@@ -1048,6 +1059,7 @@ private:
 	float m_fScale;
 	float m_fSize;
 	float m_fDepth;
+	bool m_bLit;
 
 	// OSG specific
 	osg::TextVectorFace *m_pface;
