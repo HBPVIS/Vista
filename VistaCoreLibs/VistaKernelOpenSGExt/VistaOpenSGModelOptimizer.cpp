@@ -31,6 +31,7 @@
 #endif
 
 #include "VistaOpenSGModelOptimizer.h"
+#include "VistaOpenSGGeometryTools.h"
 
 #include <VistaKernel/GraphicsManager/VistaNode.h>
 #include <VistaKernel/OpenSG/VistaOpenSGNodeBridge.h>
@@ -195,6 +196,52 @@ bool Optimize( osg::NodePtr pModelNode, int nOptimizationMode, bool bVerbose )
 				vstr::outi() << vstr::singleindent << "optimization took " << vstr::formattime( 1000 * oTimer.GetLifeTime(), 1 ) << "ms" << std::endl;
 			}
 		}
+
+		VistaOpenSGGeometryTools::GeometryGrabber oGrabber;
+		oGrabber.Traverse( pModelNode );
+
+		if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_USE_VBO )
+		{
+			for( std::set<OSG::GeometryPtr>::const_iterator itGeo = oGrabber.GetGeometries()->begin();
+					itGeo != oGrabber.GetGeometries()->end(); ++itGeo )
+			{
+				(*itGeo)->setVbo( true );
+			}
+		}
+
+		if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_CALCULATE_NORMALS_30DEG )
+		{
+			for( std::set<OSG::GeometryPtr>::const_iterator itGeo = oGrabber.GetGeometries()->begin();
+					itGeo != oGrabber.GetGeometries()->end(); ++itGeo )
+			{
+				osg::calcVertexNormals( (*itGeo), Vista::DegToRad( 30.0f ) );
+			}
+		}
+		else if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_CALCULATE_NORMALS_45DEG )
+		{
+			for( std::set<OSG::GeometryPtr>::const_iterator itGeo = oGrabber.GetGeometries()->begin();
+					itGeo != oGrabber.GetGeometries()->end(); ++itGeo )
+			{
+				osg::calcVertexNormals( (*itGeo), Vista::DegToRad( 45.0f ) );
+			}
+		}
+		else if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_CALCULATE_NORMALS_60DEG )
+		{
+			for( std::set<OSG::GeometryPtr>::const_iterator itGeo = oGrabber.GetGeometries()->begin();
+					itGeo != oGrabber.GetGeometries()->end(); ++itGeo )
+			{
+				osg::calcVertexNormals( (*itGeo), Vista::DegToRad( 60.0f ) );
+			}
+		}
+		else if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_CALCULATE_NORMALS_90DEG )
+		{
+			for( std::set<OSG::GeometryPtr>::const_iterator itGeo = oGrabber.GetGeometries()->begin();
+					itGeo != oGrabber.GetGeometries()->end(); ++itGeo )
+			{
+				osg::calcVertexNormals( (*itGeo), Vista::DegToRad( 90.0f ) );
+			}
+		}
+
 
 	}
 	catch( std::exception& oException )
@@ -384,6 +431,19 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 												 bool bCompareTimestamps,
 												 bool bVerbose )
 {
+	VistaFileSystemFile oFile( sFilename );
+	std::string sOutputDirectory = oFile.GetParentDirectory();
+	return LoadAutoOptimizedFile( pSceneGraph, sFilename, sOutputDirectory, nOptimizationMode, sDumpDataFormat, bCompareTimestamps, bVerbose );
+}
+
+IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* pSceneGraph,
+												 const std::string& sFilename,
+												 const std::string& sOutputDirectory,
+												 int nOptimizationMode,
+												 const std::string& sDumpDataFormat,
+												 bool bCompareTimestamps,
+												 bool bVerbose )
+{
 	if( VistaFileSystemFile( sFilename ).Exists() == false )
 	{
 		vstr::errp() << "[VistaOpenSGModelOptimizer::OptimizeFile] -- "
@@ -410,6 +470,22 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 		{
 			sOptSting += "_CG";
 		}
+		if( nOptimizationMode & OPT_CALCULATE_NORMALS_30DEG )
+		{
+			sOptSting += "_N30";
+		}
+		else if( nOptimizationMode & OPT_CALCULATE_NORMALS_45DEG )
+		{
+			sOptSting += "_N45";
+		}
+		else if( nOptimizationMode & OPT_CALCULATE_NORMALS_60DEG )
+		{
+			sOptSting += "_N60";
+		}
+		else if( nOptimizationMode & OPT_CALCULATE_NORMALS_90DEG )
+		{
+			sOptSting += "_N90";
+		}
 	}
 
 #ifdef WIN32
@@ -426,12 +502,15 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 	sOptSting += "32";
 #endif
 
-	std::size_t nDotPos = sFilename.rfind( '.' );
-	std::string sOwnExtension = sFilename.substr( nDotPos + 1 );
+	std::string sLocalFilename = VistaFileSystemFile( sFilename ).GetLocalName();
+	std::size_t nDotPos = sLocalFilename.rfind( '.' );
+	std::string sOwnExtension = sLocalFilename.substr( nDotPos + 1 );
 	assert( nDotPos != std::string::npos );
 
-	std::string sOptLoadName = sFilename.substr( 0, nDotPos )
-								+ "_opt" + sOptSting;
+	
+	std::string sOptLoadName = sLocalFilename.substr( 0, nDotPos ) + "_opt" + sOptSting;
+	if( sOutputDirectory.empty() == false )
+		sOptLoadName = sOutputDirectory + "/" + sOptLoadName;
 
 	if( sDumpDataFormat == "ac" )
 	{
@@ -479,6 +558,12 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 				<< "Loading optimized file [" << sOptLoadName << "]" << std::endl;
 		}
 		IVistaNode* pNode = pSceneGraph->LoadNode( sOptLoadName, VistaSceneGraph::OPT_NONE );
+
+		if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_USE_VBO )
+		{
+			VistaOpenSGGeometryTools::SetUseVBOOnSubtree( pNode, true );
+		}
+
 		return pNode;
 	}
 	catch( std::exception& oException )
@@ -493,6 +578,7 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 		return false;
 	}
 }
+
 
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */

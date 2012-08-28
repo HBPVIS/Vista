@@ -91,10 +91,10 @@ string VistaFileSystemNode::GetLocalName() const
 void VistaFileSystemNode::SetName(const string &strName)
 {
 	m_sName = strName;
-	std::size_t nPos = m_sName.rfind( "/" );
+	std::size_t nPos = m_sName.rfind( '/' );
 #ifdef WIN32
-	std::size_t nPos2 = m_sName.rfind( "\\" );
-	if( nPos2 > nPos || nPos == std::string::npos )
+	std::size_t nPos2 = m_sName.rfind( '\\' );
+	if( nPos2 != std::string::npos && ( nPos2 > nPos || nPos == std::string::npos ) )
 		nPos = nPos2;
 #endif
 	if( nPos == std::string::npos )
@@ -222,4 +222,28 @@ bool VistaFileSystemNode::IsFile() const
   DWORD atts;
   return Exists() && ((atts=GetFileAttributes(GetName().c_str()))!=0xFFFFFFFF) && !(atts&FILE_ATTRIBUTE_DIRECTORY);
 #endif
+}
+
+std::string VistaFileSystemNode::GetParentDirectory() const
+{
+	std::size_t nPos = m_sName.rfind( '/' );
+#ifdef WIN32
+	std::size_t nPos2 = m_sName.rfind( '\\' );
+	if( nPos2 != std::string::npos && ( nPos2 > nPos || nPos == std::string::npos ) )
+		nPos = nPos2;
+#endif
+	std::string sDir;
+	if( nPos != std::string::npos )
+	{
+		if( nPos > 0 )
+		{
+			sDir = m_sName.substr( 0, nPos );
+		}
+		else
+		{
+			// one / at beginning -> linux root dir
+			sDir = "/";
+		}
+	}
+	return sDir;
 }

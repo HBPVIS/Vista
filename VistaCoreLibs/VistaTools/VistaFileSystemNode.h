@@ -86,7 +86,6 @@ public:
 	*/
    virtual bool Create() = 0;
 
-
    /**
 	* Deletes this node
 	*/
@@ -138,6 +137,8 @@ public:
 
    std::string GetName() const;   // relativ oder absolut oder ... ?
    std::string GetLocalName() const; // just the name, without prefix
+   std::string GetParentDirectory() const; // Parent directory without preceeding "/"
+
    void SetName(const std::string &strName);
 
    bool IsDirectory() const;

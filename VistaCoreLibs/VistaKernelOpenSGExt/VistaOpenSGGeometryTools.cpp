@@ -51,18 +51,18 @@
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
-COpenSGGeometryGrabber::COpenSGGeometryGrabber()
+VistaOpenSGGeometryTools::GeometryGrabber::GeometryGrabber()
 {
 }
 
-COpenSGGeometryGrabber::~COpenSGGeometryGrabber()
+VistaOpenSGGeometryTools::GeometryGrabber::~GeometryGrabber()
 {
 }
 
 /*============================================================================*/
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
-void COpenSGGeometryGrabber::Traverse(OSG::NodePtr node)
+void VistaOpenSGGeometryTools::GeometryGrabber::Traverse(OSG::NodePtr node)
 {
 	m_lstAllGeoNodes.clear();
 	m_setAllGeos.clear();
@@ -70,29 +70,29 @@ void COpenSGGeometryGrabber::Traverse(OSG::NodePtr node)
 	OSG::traverse(node,
 		OSG::osgTypedMethodFunctor1ObjPtrCPtrRef<
 			OSG::Action::ResultE,
-			COpenSGGeometryGrabber,
+			GeometryGrabber,
 			OSG::NodePtr>
-			(this, &COpenSGGeometryGrabber::Enter),
+			(this, &GeometryGrabber::Enter),
 		OSG::osgTypedMethodFunctor2ObjPtrCPtrRef<
 			OSG::Action::ResultE,
-			COpenSGGeometryGrabber,
+			GeometryGrabber,
 			OSG::NodePtr,
 			OSG::Action::ResultE>
-			(this, &COpenSGGeometryGrabber::Leave));
+			(this, &GeometryGrabber::Leave));
 }
 
 
-const std::list<OSG::NodePtr>* COpenSGGeometryGrabber::GetNodes() const
+const std::list<OSG::NodePtr>* VistaOpenSGGeometryTools::GeometryGrabber::GetNodes() const
 {
 	return &m_lstAllGeoNodes;
 }
 
-const std::set<OSG::GeometryPtr>* COpenSGGeometryGrabber::GetGeometries() const
+const std::set<OSG::GeometryPtr>* VistaOpenSGGeometryTools::GeometryGrabber::GetGeometries() const
 {
 	return &m_setAllGeos;
 }
 
-OSG::Action::ResultE COpenSGGeometryGrabber::Enter(OSG::NodePtr& node)
+OSG::Action::ResultE VistaOpenSGGeometryTools::GeometryGrabber::Enter(OSG::NodePtr& node)
 {
 	if(node->getCore()->getType().isDerivedFrom(OSG::Geometry::getClassType()))
 	{
@@ -103,7 +103,7 @@ OSG::Action::ResultE COpenSGGeometryGrabber::Enter(OSG::NodePtr& node)
 	return OSG::Action::Continue;
 }
 
-OSG::Action::ResultE COpenSGGeometryGrabber::Leave(OSG::NodePtr& node, OSG::Action::ResultE res)
+OSG::Action::ResultE VistaOpenSGGeometryTools::GeometryGrabber::Leave(OSG::NodePtr& node, OSG::Action::ResultE res)
 {
 	return res;
 }
@@ -121,17 +121,17 @@ static OSG::NodePtr GetOpenSGNode(IVistaNode *pNode)
 	return pData->GetNode();
 }
 
-bool CalcVertexNormalsOnSubtree(IVistaNode *pNode, const float &fCreaseAngle)
+bool VistaOpenSGGeometryTools::CalcVertexNormalsOnSubtree(IVistaNode *pNode, const float &fCreaseAngle)
 {
 	OSG::NodePtr node = GetOpenSGNode(pNode);
 	if(!node)
 		return false;
 
-	COpenSGGeometryGrabber grabber;
+	GeometryGrabber grabber;
 	grabber.Traverse(node);
 
-	const COpenSGGeometryGrabber::GeoSet* geos = grabber.GetGeometries();
-	COpenSGGeometryGrabber::GeoSet::const_iterator it;
+	const GeometryGrabber::GeoSet* geos = grabber.GetGeometries();
+	GeometryGrabber::GeoSet::const_iterator it;
 	for(it = geos->begin(); it != geos->end(); ++it)
 	{
 		OSG::calcVertexNormals(*it, fCreaseAngle);
@@ -140,17 +140,17 @@ bool CalcVertexNormalsOnSubtree(IVistaNode *pNode, const float &fCreaseAngle)
 	return true;
 }
 
-bool CalcFaceNormalsOnSubtree  (IVistaNode *pNode)
+bool VistaOpenSGGeometryTools::CalcFaceNormalsOnSubtree  (IVistaNode *pNode)
 {
 	OSG::NodePtr node = GetOpenSGNode(pNode);
 	if(!node)
 		return false;
 
-	COpenSGGeometryGrabber grabber;
+	GeometryGrabber grabber;
 	grabber.Traverse(node);
 
-	const COpenSGGeometryGrabber::GeoSet* geos = grabber.GetGeometries();
-	COpenSGGeometryGrabber::GeoSet::const_iterator it;
+	const GeometryGrabber::GeoSet* geos = grabber.GetGeometries();
+	GeometryGrabber::GeoSet::const_iterator it;
 	for(it = geos->begin(); it != geos->end(); ++it)
 	{
 		OSG::calcFaceNormals(*it);
@@ -159,7 +159,7 @@ bool CalcFaceNormalsOnSubtree  (IVistaNode *pNode)
 	return true;
 }
 
-bool CalcVertexNormals(VistaGeometry *pGeo, const float &fCreaseAngle)
+bool VistaOpenSGGeometryTools::CalcVertexNormals(VistaGeometry *pGeo, const float &fCreaseAngle)
 {
 	VistaOpenSGGeometryData* pData = dynamic_cast<VistaOpenSGGeometryData*>(pGeo->GetData());
 	OSG::calcVertexNormals(pData->GetGeometry(), fCreaseAngle);
@@ -168,7 +168,7 @@ bool CalcVertexNormals(VistaGeometry *pGeo, const float &fCreaseAngle)
 }
 
 
-bool CalcFaceNormals(VistaGeometry *pGeo)
+bool VistaOpenSGGeometryTools::CalcFaceNormals(VistaGeometry *pGeo)
 {
 	VistaOpenSGGeometryData* pData = dynamic_cast<VistaOpenSGGeometryData*>(pGeo->GetData());
 	OSG::calcFaceNormals(pData->GetGeometry());
@@ -180,12 +180,12 @@ bool CalcFaceNormals(VistaGeometry *pGeo)
  *	@todo Return ViSTA geometry. 
  */
 
-bool CalcVertexNormalsGeo(VistaGeometry *pGeo, const float &fCreaseAngle, bool pCalc)
+bool VistaOpenSGGeometryTools::CalcVertexNormalsGeo(VistaGeometry *pGeo, const float &fCreaseAngle, bool pCalc)
 {
 	VistaOpenSGGeometryData* pData = dynamic_cast<VistaOpenSGGeometryData*>(pGeo->GetData());
 	if(pCalc)
 		OSG::calcVertexNormals(pData->GetGeometry());
-	OSG::NodePtr p = OSG::calcVertexNormalsGeo(pData->GetGeometry(),0.1);
+	OSG::NodePtr p = OSG::calcVertexNormalsGeo(pData->GetGeometry(),0.1f);
 	osg::NodePtr parent = pData->GetGeometry()->getParents()[0];
 	beginEditCP(parent);
 		parent->addChild(p);
@@ -198,7 +198,7 @@ bool CalcVertexNormalsGeo(VistaGeometry *pGeo, const float &fCreaseAngle, bool p
  *	@todo Return ViSTA geometry. 
  */
 
-bool CalcFaceNormalsGeo(VistaGeometry *pGeo, bool pCalc)
+bool VistaOpenSGGeometryTools::CalcFaceNormalsGeo(VistaGeometry *pGeo, bool pCalc)
 {
 	VistaOpenSGGeometryData* pData = dynamic_cast<VistaOpenSGGeometryData*>(pGeo->GetData());
 	if(pCalc)
@@ -209,6 +209,34 @@ bool CalcFaceNormalsGeo(VistaGeometry *pGeo, bool pCalc)
 		parent->addChild(p);
 	endEditCP(parent);
 	
+	return true;
+}
+
+bool VistaOpenSGGeometryTools::SetUseVBOForGeometry( VistaGeometry *pGeo, const bool bSet )
+{
+	VistaOpenSGGeometryData* pData = dynamic_cast<VistaOpenSGGeometryData*>( pGeo->GetData() );
+	assert( pData );
+	osg::GeometryPtr pOsgGeom = pData->GetGeometry();
+	pOsgGeom->setVbo( bSet );
+
+	return true;
+}
+
+bool VistaOpenSGGeometryTools::SetUseVBOOnSubtree( IVistaNode* pNode, const bool bSet )
+{
+	OSG::NodePtr node = GetOpenSGNode(pNode);
+	if(!node)
+		return false;
+
+	GeometryGrabber grabber;
+	grabber.Traverse(node);
+
+	const GeometryGrabber::GeoSet* geos = grabber.GetGeometries();
+	GeometryGrabber::GeoSet::const_iterator it;
+	for(it = geos->begin(); it != geos->end(); ++it)
+	{
+		(*it)->setVbo( bSet );
+	}
 	return true;
 }
 

@@ -64,51 +64,60 @@ class VistaGeometry;
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-/**
- * COpenSGGeometryGrabber traverses a subtree and collects all geometries
- */
-class VISTAKERNELOPENSGEXTAPI COpenSGGeometryGrabber
+namespace VistaOpenSGGeometryTools
 {
-public:
-	COpenSGGeometryGrabber();
-	virtual ~COpenSGGeometryGrabber();
+	/**
+	 * COpenSGGeometryGrabber traverses a subtree and collects all geometries
+	 */
+	class VISTAKERNELOPENSGEXTAPI GeometryGrabber
+	{
+	public:
+		GeometryGrabber();
+		virtual ~GeometryGrabber();
 
-	void Traverse(OSG::NodePtr node);
+		void Traverse(OSG::NodePtr node);
 
-	typedef std::list<OSG::NodePtr> NodeList;
-	typedef std::set<OSG::GeometryPtr> GeoSet;
+		typedef std::list<OSG::NodePtr> NodeList;
+		typedef std::set<OSG::GeometryPtr> GeoSet;
 
-	const NodeList* GetNodes() const;
-	const GeoSet* GetGeometries() const;
+		const NodeList* GetNodes() const;
+		const GeoSet* GetGeometries() const;
 
-private:
-	std::list<OSG::NodePtr> m_lstAllGeoNodes;
-	std::set<OSG::GeometryPtr> m_setAllGeos;
+	private:
+		std::list<OSG::NodePtr> m_lstAllGeoNodes;
+		std::set<OSG::GeometryPtr> m_setAllGeos;
 
-	OSG::Action::ResultE Enter(OSG::NodePtr& node);
-	OSG::Action::ResultE Leave(OSG::NodePtr& node, OSG::Action::ResultE res);
-};
+		OSG::Action::ResultE Enter(OSG::NodePtr& node);
+		OSG::Action::ResultE Leave(OSG::NodePtr& node, OSG::Action::ResultE res);
+	};
 
 
-VISTAKERNELOPENSGEXTAPI
-bool CalcVertexNormalsOnSubtree(IVistaNode *pNode,
-								const float &fCreaseAngle = 0.524f); // 30 degrees
-VISTAKERNELOPENSGEXTAPI
-bool CalcFaceNormalsOnSubtree  (IVistaNode *pNode);
+	VISTAKERNELOPENSGEXTAPI
+	bool CalcVertexNormalsOnSubtree(IVistaNode *pNode,
+									const float &fCreaseAngle = 0.524f); // 30 degrees
+	VISTAKERNELOPENSGEXTAPI
+	bool CalcFaceNormalsOnSubtree  (IVistaNode *pNode);
 
-VISTAKERNELOPENSGEXTAPI
-bool CalcVertexNormals(VistaGeometry *pGeo,
-								const float &fCreaseAngle = 0.524f); // 30 degrees
-VISTAKERNELOPENSGEXTAPI
-bool CalcFaceNormals  (VistaGeometry *pGeo);
+	VISTAKERNELOPENSGEXTAPI
+	bool CalcVertexNormals(VistaGeometry *pGeo,
+									const float &fCreaseAngle = 0.524f); // 30 degrees
+	VISTAKERNELOPENSGEXTAPI
+	bool CalcFaceNormals  (VistaGeometry *pGeo);
 
-VISTAKERNELOPENSGEXTAPI
-bool CalcVertexNormalsGeo(VistaGeometry *pGeo,
-						  const float &fCreaseAngle = 0.524f, // 30 degrees
-						  bool pCalc = false); // if true do CalcVertexNormals before
-VISTAKERNELOPENSGEXTAPI
-bool CalcFaceNormalsGeo  (VistaGeometry *pGeo,
-						  bool pCalc = false); // if true do CalcFaceNormals before
+	VISTAKERNELOPENSGEXTAPI
+	bool CalcVertexNormalsGeo(VistaGeometry *pGeo,
+							  const float &fCreaseAngle = 0.524f, // 30 degrees
+							  bool pCalc = false); // if true do CalcVertexNormals before
+	VISTAKERNELOPENSGEXTAPI
+	bool CalcFaceNormalsGeo  (VistaGeometry *pGeo,
+							  bool pCalc = false); // if true do CalcFaceNormals before
+
+	VISTAKERNELOPENSGEXTAPI
+	bool SetUseVBOForGeometry( VistaGeometry *pGeo, const bool bSet );
+
+	VISTAKERNELOPENSGEXTAPI
+	bool SetUseVBOOnSubtree( IVistaNode* pNode, const bool bSet );
+}
 
 
 /*============================================================================*/
