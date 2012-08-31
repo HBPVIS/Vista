@@ -167,6 +167,7 @@ VistaOpenSGParticles::VistaOpenSGParticles(VistaSceneGraph *pSG,
 	beginEditCP(ptrNode, Node::CoreFieldMask);
 	ptrNode->setCore(m_pData->ptrParticles);
 	endEditCP  (ptrNode, Node::CoreFieldMask);
+	SetMode( PM_VIEWERQUADS );
 }
 
 VistaOpenSGParticles::~VistaOpenSGParticles()

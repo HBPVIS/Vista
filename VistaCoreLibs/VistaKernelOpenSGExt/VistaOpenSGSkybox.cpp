@@ -93,8 +93,8 @@ public:
 
 			pTexChunkPtr->setMinFilter( GL_LINEAR );
 			pTexChunkPtr->setMagFilter( GL_LINEAR );
-			//pTexChunkPtr->setEnvMode( GL_MODULATE );
-			pTexChunkPtr->setEnvMode( GL_REPLACE );
+			pTexChunkPtr->setEnvMode( GL_MODULATE );
+			//pTexChunkPtr->setEnvMode( GL_REPLACE );
 		}
 		endEditCP( pTexChunkPtr );
 

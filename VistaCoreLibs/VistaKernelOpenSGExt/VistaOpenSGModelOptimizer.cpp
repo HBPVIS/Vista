@@ -200,13 +200,13 @@ bool Optimize( osg::NodePtr pModelNode, int nOptimizationMode, bool bVerbose )
 		VistaOpenSGGeometryTools::GeometryGrabber oGrabber;
 		oGrabber.Traverse( pModelNode );
 
-		if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_USE_VBO )
+		bool bUseVBO = ( ( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_USE_VBO ) != 0 );
+		
+
+		for( std::set<OSG::GeometryPtr>::const_iterator itGeo = oGrabber.GetGeometries()->begin();
+				itGeo != oGrabber.GetGeometries()->end(); ++itGeo )
 		{
-			for( std::set<OSG::GeometryPtr>::const_iterator itGeo = oGrabber.GetGeometries()->begin();
-					itGeo != oGrabber.GetGeometries()->end(); ++itGeo )
-			{
-				(*itGeo)->setVbo( true );
-			}
+			(*itGeo)->setVbo( bUseVBO );
 		}
 
 		if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_CALCULATE_NORMALS_30DEG )
@@ -448,7 +448,7 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 	{
 		vstr::errp() << "[VistaOpenSGModelOptimizer::OptimizeFile] -- "
 				<< "File [" << sFilename << "] does not exist!" << std::endl;
-		return false;
+		return NULL;
 	}
 
 	std::string sOptSting;
@@ -559,10 +559,8 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 		}
 		IVistaNode* pNode = pSceneGraph->LoadNode( sOptLoadName, VistaSceneGraph::OPT_NONE );
 
-		if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_USE_VBO )
-		{
-			VistaOpenSGGeometryTools::SetUseVBOOnSubtree( pNode, true );
-		}
+		bool bUseVBO = ( ( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_USE_VBO ) != 0 );
+		VistaOpenSGGeometryTools::SetUseVBOOnSubtree( pNode, bUseVBO );
 
 		return pNode;
 	}
