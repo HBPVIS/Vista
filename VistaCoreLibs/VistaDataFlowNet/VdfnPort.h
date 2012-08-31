@@ -418,7 +418,7 @@ public:
 
 	/**
 	 * utility function to assign pPort to a memory region defined
-	 * by a subclass ot IVdfnPortTypeCompare.
+	 * by a subclass of IVdfnPortTypeCompare.
 	 * @param pPort the port to assign from
 	 * @return true when the assignment was done, false else
 	 */
@@ -429,6 +429,8 @@ public:
 	 * @return the mangled RTTI name of the port type to expect
 	 */
 	virtual std::string GetTypeDescriptor() const = 0;
+
+	virtual IVdfnPort *CreatePort() const = 0;
 protected:
 	IVdfnPortTypeCompare();
 	IVdfnPortTypeCompare( const IVdfnPortTypeCompare & );
@@ -450,6 +452,11 @@ public:
 	TVdfnPortTypeCompare()
 	: IVdfnPortTypeCompare(),
 	  m_pPortStore(NULL)
+	{}
+
+	TVdfnPortTypeCompare( const TVdfnPortTypeCompare &other )
+	: IVdfnPortTypeCompare()
+	, m_pPortStore( other.m_pPortStore )
 	{}
 
 	/**
@@ -481,13 +488,13 @@ public:
 	 */
 	IVdfnPortTypeCompare *Clone() const
 	{
-		return new TVdfnPortTypeCompare<T>;
+		return new TVdfnPortTypeCompare<T>(*this);
 	}
 
 	/**
-	 * the templated port type compare keeps a pointer to the
+	 * the template port type compare keeps a pointer to the
 	 * storage where this assignment operator points to.
-	 * it will downcase and assign the pointer properly when called.
+	 * it will downcast and assign the pointer properly when called.
 	 * @return false when no storage was assigned during construction
 			   returns finally, whether the memory region to assign contains
 			   the same value as the argument
@@ -509,13 +516,18 @@ public:
 		return std::string((typeid(T).name() ? typeid(T).name() : "<none>"));
 	}
 
+	IVdfnPort *CreatePort() const
+	{
+		return new T;
+	}
+
 private:
 	T **m_pPortStore; /**< pointer to storage to assign to, can be NULL */
 };
 
 /**
  * Define PortType-Compare API for TVdfnPort<T> types
- * @todo check who calls this API and what happens to the memory
+ * @todo check who calls this API and what happens to the memory alloc'ed here
  */
 template<class T>
 IVdfnPortTypeCompare *TVdfnPort<T>::GetPortTypeCompare() const

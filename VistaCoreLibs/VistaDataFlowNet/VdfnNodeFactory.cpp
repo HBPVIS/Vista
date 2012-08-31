@@ -83,6 +83,7 @@ bool VdfnNodeFactory::UnSetNodeCreator( const std::string &strTypeSymbol )
 	if(it != m_mpCreators.end())
 	{
 		delete (*it).second;
+		m_mpCreators.erase( it );
 		return true;
 	}
 

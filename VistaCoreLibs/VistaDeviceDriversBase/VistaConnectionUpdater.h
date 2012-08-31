@@ -66,7 +66,7 @@ public:
 	 * Creates an updater that allocates a VistaThreadPool with nNumJobs
 	 * of threads to create. 3 is the default value. If you have a huge amount
 	 * of highly active devices, you may think of enlarging the number, otherwise
-	 * the default value should do, as it allows 3 concurrent device processings.
+	 * the default value should do, as it allows processing 3 concurrent connections.
 	 */
 	VistaConnectionUpdater(int nNumJobs = 3);
 
@@ -93,22 +93,25 @@ public:
 	          thread work has finished and no more threads are running (can
 			  take a while, for example when a device is still sending data)
 			  If set to false, this call returns immediately, but there is no
-			  way of detcting when it is safe to destroy this instance.
+			  way of detecting when it is safe to destroy this instance.
 	 */
 	bool ShutdownUpdaterLoop(bool bWaitFinished = true);
 
 
 	/**
-	 * adds a connection to be handled upon reading readyness. The ratio is as follows:
+	 * adds a connection to be handled upon reading readiness. The ratio is as follows:
 	 * when there is data ready at the connection, a background thread fetches the connection
 	 * and the pInt callback and then calls the pInt callback's Do() method. When the
-	 * callback returns, the connection is watched again for read readyness (or error).
+	 * callback returns, the connection is watched again for read readiness (or error).
 	 * When dispatching, the connection is not watched. A connection can be added more then once,
 	 * although that does not make sense. Note that RemConnectionUpdate() only returns the instance
 	 * first found / first added.
-	 * @param pCon a valind connection (!= NULL) which returns a value != -1 on the
+	 * @param pCon a valid connection (!= NULL) which returns a value != ~0 on the
 	          VistaConnection::GetConnectionWaitForDescriptor() method.
-	 * @param pInt the callback to call when there is data ready to be read on the pCon
+	 * @param pInt the callback to call when there is data ready to be read on the pCon.
+	 *        Note that pInt is not freed upon destruction of this updater, it is the user's
+	 *        duty to destroy pInt
+	 * @see RemConnectionUpdate
 	 * @return false iff the connection was != NULL but not valid, true else
 	 */
 	bool AddConnectionUpdate(VistaConnection *pCon,
@@ -121,7 +124,7 @@ public:
 	 * more than once with different callbacks (that does not make sense, but hey...) the first instance
 	 * registered is returned. If a callback is currently processed, or the pCon was not registered
 	 * before, this method returns NULL
-	 * @param pCon the key connnection to look for and to remove from the update process
+	 * @param pCon the key connection to look for and to remove from the update process
 	 * @return NULL in case the pCon was not registered or the pCon is currently processed.
 	 * @see AddConnectionUpdate()
 	 *

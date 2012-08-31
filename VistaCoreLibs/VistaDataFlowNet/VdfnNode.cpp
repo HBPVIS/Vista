@@ -49,6 +49,8 @@ public:
 	{
 		return "<none>";
 	}
+
+	virtual IVdfnPort *CreatePort() const { return 0; }
 };
 
 namespace

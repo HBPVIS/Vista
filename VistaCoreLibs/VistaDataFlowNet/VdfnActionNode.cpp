@@ -118,17 +118,6 @@ VdfnActionNode::VdfnActionNode( VdfnObjectRegistry *pReg,
 	}
 }
 
-//VdfnActionNode::VdfnActionNode( IVdfnActionObject *pActionObject )
-//	: m_pActionObject(pActionObject),
-//	  m_pReg(NULL),
-//	  m_pObs(new _cActObserver ),
-//	  m_nCount(0),
-//	  m_nInCnt(0)
-//{
-//	m_pObs->Observe( m_pActionObject );
-//	UpdatePorts();
-//}
-
 VdfnActionNode::~VdfnActionNode()
 {
 	delete m_pObs;

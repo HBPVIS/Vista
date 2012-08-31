@@ -562,8 +562,7 @@ class TCreateTranscoder : public ICreateTranscoder
 
 /**
  * The VistaDeviceSensor defines access to a history of samples as taken
- * from the VistaDeviceDriver. It can be set with an arbitrary MeasureTranscode,
- * although currently this should be the one defined by the driver.
+ * from the VistaDeviceDriver.
  * Users can get access to the sampling / measure history by a call to GetMeasures().
  * Think of this class as an alias to "HISTORY-OF-DATA", instead of a real,
  * physically represented sensor that is attached to a tracker device.

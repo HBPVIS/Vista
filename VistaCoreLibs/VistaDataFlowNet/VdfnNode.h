@@ -383,6 +383,11 @@ public:
 	void PrintInfo( std::ostream& oStream ) const;
 
 
+	/**
+	 * get the update time stamp for this node
+	 * @return the last timestamp of a value change
+	 */
+	double GetUpdateTimeStamp() const;
 protected:
 	IVdfnNode();
 
@@ -439,12 +444,6 @@ protected:
 	 */
 	bool DoSetInPort( const std::string &sName, IVdfnPort *pPort );
 
-	/**
-	 * get the update time stamp for this node
-	 * @todo check whether it is useful to make this public
-	 * @return the last timestamp of a value change
-	 */
-	double GetUpdateTimeStamp() const;
 
 	/**
 	 * sets the update time stamp. the time stamp is only stored, not
@@ -522,5 +521,5 @@ private:
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/
 
-#endif //_VISTASYSTEM_H
+#endif //_VDFNNODE_H
 

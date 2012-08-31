@@ -91,13 +91,13 @@ public:
  * a deserializer. reads the <b>complete</b> history! not only the newest values.
  * @todo optimize me (read only the differential, e.g. only the new values)
  */
-IVistaDeSerializer &operator>>(IVistaDeSerializer &oDeSer,   VdfnHistoryPortData *pPort );
+VISTADFNAPI IVistaDeSerializer &operator>>(IVistaDeSerializer &oDeSer,   VdfnHistoryPortData *pPort );
 
 /**
  * a serializer. writes the <b>complete</b> history! not only the newest values.
  * @toto optimize me (write only the differential, e.g., only the new values)
  */
-IVistaSerializer   &operator<<(IVistaSerializer &oSer, const VdfnHistoryPortData *pPort );
+VISTADFNAPI IVistaSerializer   &operator<<(IVistaSerializer &oSer, const VdfnHistoryPortData *pPort );
 
 /**
  * Convenience typedef: port for histories. Writing HistoryPort
