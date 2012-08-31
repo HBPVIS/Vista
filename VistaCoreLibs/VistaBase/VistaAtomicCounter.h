@@ -120,6 +120,12 @@ public:
 	virtual bool DecAndTestNull();
 	virtual bool AddAndTestNegative( VistaType::sint32 nValue );
 	virtual VistaType::sint32 ExchangeAndAdd( VistaType::sint32 nValue );
+
+        struct Private 
+        { 
+                Private() : m_pPrivate(0L) {}
+                void *m_pPrivate; 
+        } m_pPrivate;
 };
 
 class VISTABASEAPI VistaSigned64Atomic : public TVistaAtomicCounter<VistaType::sint64>

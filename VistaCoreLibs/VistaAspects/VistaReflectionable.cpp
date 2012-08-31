@@ -59,6 +59,22 @@ static IVistaPropertySetFunctor *aCsFunctors[] =
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
 
+namespace VistaReflectionableUtil
+{
+	void ReleaseProperties()
+	{
+		IVistaPropertyGetFunctor **git = aCgFunctors;
+		IVistaPropertySetFunctor **sit = aCsFunctors;
+
+		while( *git )
+			delete *git++;
+
+		while( *sit )
+			delete *sit++;
+
+	}
+}
+
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/

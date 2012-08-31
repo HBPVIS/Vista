@@ -46,6 +46,7 @@ class VistaSigned32Atomic;
 class VISTABASEAPI VistaAutoBuffer
 {
 public:
+	VistaAutoBuffer();
 	virtual ~VistaAutoBuffer();
 	VistaAutoBuffer( const VistaAutoBuffer & );
 	VistaAutoBuffer &operator=( const VistaAutoBuffer & );
@@ -95,10 +96,11 @@ public:
 
 	bool HasOneOwner() const;
 	VistaType::sint32 GetCount() const;
+	
+	bool IsValid() const;
 protected:
 	std::vector<VistaType::byte> *m_vecBuffer;
 
-	VistaAutoBuffer();
 	VistaAutoBuffer( bool bValid );
 private:
 	VistaSigned32Atomic        *m_cnt;
@@ -142,7 +144,7 @@ public:
 	void resize( size_type, value_type c = value_type() );
 	void reserve( size_type );
 
-	bool IsValid() const;
+
 private:
 
 };

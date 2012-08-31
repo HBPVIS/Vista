@@ -64,8 +64,9 @@ namespace VistaType
 	typedef unsigned long long      uint64;
 	typedef double                 float64;
 
-	typedef double  microtime;   /**< sec since arbitrary point in time                 */
-	typedef double  systemtime;  /**< sec since 01.01.1970 (less precise than microtime)*/
+	typedef double  microtime;   /**< sec.msec since arbitrary point in time            */
+	typedef double  systemtime;  /**< sec.msec since 01.01.1970
+													 (less precise than microtime)      */
 	typedef uint64  microstamp;  /**< continuous counter without specific time interval */
 
 	/**

@@ -66,8 +66,9 @@ VistaAutoBuffer::VistaAutoBuffer()
 VistaAutoBuffer::VistaAutoBuffer( const VistaAutoBuffer &other )
 {
 	m_cnt = other.m_cnt;
-	++(*m_cnt);
-	m_vecBuffer = other.m_vecBuffer;
+	if( m_cnt )
+		++(*m_cnt); // prevent crash from invalid buffer
+	m_vecBuffer = other.m_vecBuffer; // invalid buffers are NULL, copy of pointer is legal
 //	std::cout << "VistaAutoBuffer::VistaAutoBuffer@copyFrom(" << &other << ") @ " << this << std::endl;
 }
 
@@ -227,6 +228,10 @@ VistaType::sint32 VistaAutoBuffer::GetCount() const
 	return (*m_cnt).Get();
 }
 
+bool VistaAutoBuffer::IsValid() const
+{
+	return (m_vecBuffer != NULL) && (m_cnt != NULL);
+}
 
 // -----------------------------------------------------------------------------
 // VistaAutoWriteBuffer
@@ -323,18 +328,18 @@ void VistaAutoWriteBuffer::insert( iterator position, size_type num, const value
 
 void VistaAutoWriteBuffer::resize( size_type n, value_type c )
 {
-	(*m_vecBuffer).resize( n, c );
+	if( n == size() )
+		(*m_vecBuffer).assign( n, c );
+	else
+		(*m_vecBuffer).resize( n, c );
 }
 
 void VistaAutoWriteBuffer::reserve( size_type n )
 {
-	(*m_vecBuffer).reserve( n );
+	if( n != size() )
+		(*m_vecBuffer).reserve( n );
 }
 
-bool VistaAutoWriteBuffer::IsValid() const
-{
-	return (m_vecBuffer != NULL);
-}
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/

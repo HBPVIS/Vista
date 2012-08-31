@@ -30,6 +30,8 @@
 /*============================================================================*/
 #include "VistaAspectsConfig.h"
 
+#include <VistaBase/VistaStreamUtils.h>
+
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
@@ -105,6 +107,11 @@ inline bool IVistaReferenceCountable::refdown(IVistaReferenceCountable *val)
 	{
 		   delete val;
 		   return true;
+	}
+
+	if( val->IVistaReferenceCountable::m_iReferenceCount < 0 )
+	{
+		vstr::warnp() << "[refcount]: trying to decrease ref-count below zero" << std::endl;
 	}
 	return false;
 };

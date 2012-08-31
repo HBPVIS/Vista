@@ -28,6 +28,8 @@
 #include "VistaBaseTypes.h"
 #include <cassert>
 
+#include "VistaStreamUtils.h"
+
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
@@ -41,8 +43,10 @@
 
 #ifdef LINUX
 static void __attribute__ ((constructor))  LoadBaseLib();
+static void __attribute__ ((destructor)) UnloadBaseLib();
 #else
 static void LoadBaseLib();
+static void UnloadBaseLib();
 #endif
 
 #ifdef WIN32
@@ -56,7 +60,12 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL,
 	switch (fdwReason)
 	{
 	case DLL_PROCESS_ATTACH:
-		LoadBaseLib();
+		if( lpReserved == 0)
+			LoadBaseLib();
+		break;
+	case DLL_PROCESS_DETACH:
+		if( lpReserved == 0 )
+			UnloadBaseLib();
 		break;
 	}
 
@@ -84,6 +93,12 @@ static void LoadBaseLib()
 	assert( sizeof(   VistaType::byte)   == 1 );
 
 	assert( sizeof(               void*) == sizeof(size_t) );	
+}
+
+
+static void UnloadBaseLib()
+{
+	vstr::DestroyStreamManager();
 }
 
 /*============================================================================*/

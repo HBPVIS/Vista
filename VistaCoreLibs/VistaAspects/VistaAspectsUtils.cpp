@@ -627,7 +627,9 @@ bool VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( const std::string
 	#ifdef WIN32
 		return ( stricmp( sString1.c_str(), sString2.c_str() ) == 0 );
 	#elif defined(LINUX) || defined(SUNOS) || defined(IRIX) || defined(HPUX)
-		return ( strcasecmp( sString1.c_str(), sString2.c_str() ) == 0 );		
+		return ( strcasecmp( sString1.c_str(), sString2.c_str() ) == 0 );
+	#else
+		return false;
 	#endif
 }
 
@@ -643,7 +645,9 @@ bool VistaAspectsComparisonStuff::StringCaseInsensitiveLess( const std::string& 
 	#ifdef WIN32
 		return ( stricmp( sString1.c_str(), sString2.c_str() ) < 0 );
 	#elif defined(LINUX) || defined(SUNOS) || defined(IRIX) || defined(HPUX)
-		return ( strcasecmp( sString1.c_str(), sString2.c_str() ) < 0 );		
+		return ( strcasecmp( sString1.c_str(), sString2.c_str() ) < 0 );
+	#else
+		return false;
 	#endif
 }
 

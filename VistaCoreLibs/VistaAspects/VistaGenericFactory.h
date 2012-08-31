@@ -48,6 +48,7 @@ class IVistaCreator
 public:
 	virtual ~IVistaCreator() {}
 	virtual TProduct *CreateInstance() = 0;
+	virtual void DestroyInstance( TProduct * ) = 0;
 };
 
 /**
@@ -88,6 +89,8 @@ public:
 	 */
 	bool RegisterCreator(const TKey &rKey, IVistaCreator<TProduct> *pCreator);
 
+	IVistaCreator<TProduct> *UnregisterCreator( const TKey &rKey );
+
 	/**
 	 * Create an instance of TProduct of a subtype thereof as designated
 	 * by rKey
@@ -96,6 +99,8 @@ public:
 	 *		   found for rKey.
 	 */
 	TProduct* CreateInstance(const TKey &rKey);
+
+	void DestroyInstance( const TKey &rKey, TProduct* ) const;
 
 private:
 	typedef std::map<TKey, IVistaCreator<TProduct>*> TCreatorMap;
@@ -117,6 +122,11 @@ public:
 	TProductBase* CreateInstance()
 	{
 		return new TProduct();
+	}
+
+	void DestroyInstance( TProductBase *product )
+	{
+		delete product;
 	}
 };
 
@@ -154,6 +164,20 @@ bool VistaGenericFactory<TProduct,TKey>::RegisterCreator(const TKey &rKey, IVist
 }
 
 template<typename TProduct, typename TKey>
+IVistaCreator<TProduct> *VistaGenericFactory<TProduct,TKey>::UnregisterCreator( const TKey &rKey )
+{
+	typename TCreatorMap::iterator itFind = m_mapKey2Creators.find(rKey);
+	if(itFind != m_mapKey2Creators.end())
+	{
+		IVistaCreator<TProduct> *p = itFind.second;
+		m_mapKey2Creators.erase(itFind);
+		return p;
+	}
+
+	return NULL;
+}
+
+template<typename TProduct, typename TKey>
 TProduct *VistaGenericFactory<TProduct,TKey>::CreateInstance(const TKey &rKey)
 {
 	typename TCreatorMap::iterator itFind = m_mapKey2Creators.find(rKey);
@@ -162,6 +186,18 @@ TProduct *VistaGenericFactory<TProduct,TKey>::CreateInstance(const TKey &rKey)
 		return NULL;
 	}
 	return static_cast<TProduct*>(itFind->second->CreateInstance());
+}
+
+template<typename TProduct, typename TKey>
+void VistaGenericFactory<TProduct,TKey>::DestroyInstance( const TKey &rKey, TProduct *product ) const
+{
+	typename TCreatorMap::const_iterator itFind = m_mapKey2Creators.find(rKey);
+	if(itFind == m_mapKey2Creators.end())
+	{
+		return;
+	}
+	
+	(*itFind).second->DestroyInstance(product);
 }
 
 #endif // Include guard.

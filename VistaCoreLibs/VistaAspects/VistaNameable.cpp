@@ -43,24 +43,9 @@ IVistaNameable::~IVistaNameable()
 /*============================================================================*/
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
-/*
 
-std::size_t GetId() const
-	{
-		return reinterpret_cast<std::size_t>(this);
-	}
-*/
-
-/**
- * @bug @todo this implementation is evil!
- */
 void* IVistaNameable::GetNameableId() const
 {
-	// this was the old implementation:
-	//return (void*)this;
-	// ...a nice example how to silently violate constness with C-style castst!!
-	// This is the corresponding C++ implementation, with the same violation
-	// but more visible through the occurance of the evil const_cast:
 	return reinterpret_cast<void*>(const_cast<IVistaNameable*>(this));
 };
 

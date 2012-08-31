@@ -90,7 +90,7 @@ public:
 					bool bReplaceExistingStream = false );
 	/**
 	 * Removes the stream with the specified name, and deletes it if
-	 * bAlwaysDelete == true OR ManagaeDeletion was set for the stream
+	 * bAlwaysDelete == true OR ManageDeletion was set for the stream
 	 * @return true if Stream was removed, false if no stream of this name exists.
 	 */
 	virtual bool RemoveStream( const std::string& sName,

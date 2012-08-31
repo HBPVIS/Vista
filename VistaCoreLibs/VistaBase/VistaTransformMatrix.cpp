@@ -205,7 +205,8 @@ namespace
 				break;
 			}
 		}
-		if (mat[Vista::W][Vista::W] != 1.0) qu = Qt_Scale(qu, 1/sqrt(mat[Vista::W][Vista::W]));
+		if (mat[Vista::W][Vista::W] != 1.0) 
+			qu = Qt_Scale(qu, 1/sqrt(mat[Vista::W][Vista::W]));
 		return (qu);
 	}
 	/******* Decomp Auxiliaries *******/
@@ -427,6 +428,9 @@ namespace
 	#define swap(a,i,j) {a[3]=a[i]; a[i]=a[j]; a[j]=a[3];}
 	#define cycle(a,p)  if (p) {a[3]=a[0]; a[0]=a[1]; a[1]=a[2]; a[2]=a[3];}\
 				else   {a[3]=a[2]; a[2]=a[1]; a[1]=a[0]; a[0]=a[3];}
+	#define cycle0(a) {a[3]=a[2]; a[2]=a[1]; a[1]=a[0]; a[0]=a[3];}
+	#define cycle1(a) {a[3]=a[0]; a[0]=a[1]; a[1]=a[2]; a[2]=a[3];}
+
 		Quat p;
 		float ka[4];
 		int i, turn = -1;
@@ -478,15 +482,29 @@ namespace
 			{
 				case 0:
 				{
-					if (neg[0]) p = q1000; else p = q0001; break;
+					if (neg[0]) 
+						p = q1000; 
+					else
+						p = q0001; 
+					break;
 				}
 				case 1:
 				{
-					if (neg[1]) p = qppmm; else p = qpppp; cycle(ka,0) break;
+					if (neg[1]) 
+						p = qppmm; 
+					else 
+						p = qpppp; 
+					cycle0(ka) 
+						break;
 				}
 				case 2:
 				{
-					if (neg[2]) p = qmpmm; else p = qpppm; cycle(ka,1) break;
+					if (neg[2]) 
+						p = qmpmm; 
+					else 
+						p = qpppm; 
+					cycle1(ka) 
+						break;
 				}
 			}
 			qp = Qt_Mul(q, p);
@@ -498,7 +516,8 @@ namespace
 			unsigned lo, hi, neg[4], par = 0;
 			double all, big, two;
 			qa[0] = q.x; qa[1] = q.y; qa[2] = q.z; qa[3] = q.w;
-			for (i=0; i<4; i++) {
+			for (i=0; i<4; i++)
+			{
 				pa[i] = 0.0;
 				neg[i] = (qa[i]<0.0);
 				if ( neg[i] ) qa[i] = -qa[i];

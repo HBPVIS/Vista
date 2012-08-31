@@ -22,15 +22,40 @@
 /*============================================================================*/
 // $Id$
 
-#include <string>
-using std::string;
-
 #include "VistaObjectRegistry.h"
 #include "VistaNameable.h"
+
+#include <string>
+#include <algorithm>
+#include <functional>
+using std::string;
+
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
+namespace
+{
+	class _count : public std::unary_function<VistaObjectRegistry::value_type&,bool>
+	{
+	public:
+		_count( const std::string &strName )
+		: m_strName(strName)
+		, m_cnt(0)
+		{}
 
+		std::string m_strName;
+		VistaObjectRegistry::size_type m_cnt;
+		bool operator()( const VistaObjectRegistry::value_type &v )
+		{
+			if( v->GetNameForNameable() == m_strName )
+			{
+				++m_cnt;
+				return true;
+			}
+			return false;
+		}
+	};
+}
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
@@ -99,6 +124,11 @@ IVistaNameable *VistaObjectRegistry::RetrieveNameable(const string& strName) con
 	return m_vecObjectRegistry[iID];
 }
 
+bool VistaObjectRegistry::HasNameable( const std::string &strName ) const
+{
+	return (FindNameable(strName) >= 0);
+}
+
 void VistaObjectRegistry::ClearRegistry()
 {
 	m_vecObjectRegistry.clear();
@@ -147,6 +177,14 @@ VistaObjectRegistry::reverse_iterator VistaObjectRegistry::rend()
 {
 	return m_vecObjectRegistry.rend();
 }
+
+VistaObjectRegistry::size_type VistaObjectRegistry::count( const std::string &sname ) const
+{
+	_count c = std::for_each( m_vecObjectRegistry.begin(), m_vecObjectRegistry.end(), _count( sname ) );
+	return c.m_cnt;
+}
+
+
 
 
 /*============================================================================*/

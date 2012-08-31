@@ -38,41 +38,6 @@
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
 
-class CleanupHelper
-{
-	public:
-	CleanupHelper()
-	{
-		m_pSingleton = VistaPropertyFunctorRegistry::GetSingleton();
-		VistaPropertyFunctorRegistry::refup(m_pSingleton);
-	}
-
-	virtual ~CleanupHelper()
-	{
-		bool bForce=false;
-		if(m_pSingleton->getcount() > 1)
-		{
-			if(m_pSingleton->GetTalkativeFlag())
-			{
-				vstr::warnp() << "CCleanupHelper::~CCleanupHelper() --"
-						<< "refcount > 1! (" << m_pSingleton->getcount()
-						<< ")" << std::endl;
-			}
-			bForce = true;
-		}
-		VistaPropertyFunctorRegistry::refdown(m_pSingleton);
-
-		if(bForce)
-			delete m_pSingleton;
-
-	}
-	void dummy() { int i=0; ++i; }
-
-	VistaPropertyFunctorRegistry *m_pSingleton;
-};
-
-//static CCleanupHelper SclHlp;
-
 
 VistaPropertyFunctorRegistry *VistaPropertyFunctorRegistry::m_pSingleton
 	= NULL;
@@ -101,12 +66,12 @@ VistaPropertyFunctorRegistry::~VistaPropertyFunctorRegistry()
 			delete (*it1).second; // free memory for functor
 		}
 
+	m_pSingleton = NULL; // invalidate pointer
 }
 
 VistaPropertyFunctorRegistry::VistaPropertyFunctorRegistry()
 : m_bTalkative(false)
 {
-//	SclHlp.dummy(); // reference to trick clever compilers.
 }
 
 
@@ -235,12 +200,15 @@ bool VistaPropertyFunctorRegistry::UnregisterGetter(
 IVistaPropertyGetFunctor *VistaPropertyFunctorRegistry::GetGetFunctor(
 									const std::string &sPropName,
 									const std::string &sClassType,
-									const std::list<std::string> &rLiBaseCl)
+									const std::list<std::string> &rLiBaseCl,
+									bool bUseCache ) const
 {
-	GETFMAP::const_iterator cp = m_mpGetterCache.find(STRPAIR(sPropName, sClassType));
-	if(cp != m_mpGetterCache.end())
-		return (*cp).second;
-
+	if( bUseCache )
+	{
+		GETFMAP::const_iterator cp = m_mpGetterCache.find(STRPAIR(sPropName, sClassType));
+		if(cp != m_mpGetterCache.end())
+			return (*cp).second;
+	}
 
 	// check for prop-name
 	STSTMAP::const_iterator pit = m_mpGProps.find(sPropName);
@@ -288,19 +256,12 @@ IVistaPropertyGetFunctor *VistaPropertyFunctorRegistry::GetGetFunctor(
 			return NULL;
 		}
 
-		m_mpGetterCache.insert(GETFMAP::value_type(STRPAIR(sPropName, sClassType), (*cit).second));
+		if( bUseCache )
+			m_mpGetterCache.insert(GETFMAP::value_type(STRPAIR(sPropName, sClassType), (*cit).second));
 
 		return (*cit).second;
 	}
 
-/*	STRPAIR p(sPropName, sClassType);
-	GETFMAP::const_iterator cit = m_mpGetters.find(p);
-	if( cit != m_mpGetters.end())
-	{
-		// already registered
-		return (*cit).second;
-	}
-	*/
 	return NULL;
 }
 
@@ -421,12 +382,16 @@ bool VistaPropertyFunctorRegistry::UnregisterSetter(const std::string &sPropName
 
 IVistaPropertySetFunctor *VistaPropertyFunctorRegistry::GetSetFunctor(const std::string &sPropName,
 									const std::string &sClassType,
-										const std::list<std::string> &rLiBaseCl)
+										const std::list<std::string> &rLiBaseCl,
+										bool bUseCache ) const
 {
 	// check for chached value
-	SETFMAP::const_iterator ct = m_mpSetterCache.find(STRPAIR(sPropName, sClassType));
-	if(ct != m_mpSetterCache.end())
-		return (*ct).second; // return cached value
+	if( bUseCache )
+	{
+		SETFMAP::const_iterator ct = m_mpSetterCache.find(STRPAIR(sPropName, sClassType));
+		if(ct != m_mpSetterCache.end())
+			return (*ct).second; // return cached value
+	}
 
 	// we did not find it, so try to resolve the symbol pair
 
@@ -477,8 +442,11 @@ IVistaPropertySetFunctor *VistaPropertyFunctorRegistry::GetSetFunctor(const std:
 			return NULL;
 		}
 
-		// we found a setter, so add to cache
-		m_mpSetterCache.insert(SETFMAP::value_type(STRPAIR(sPropName, sClassType), (*cit).second));
+		if( bUseCache )
+		{
+			// we found a setter, so add to cache
+			m_mpSetterCache.insert(SETFMAP::value_type(STRPAIR(sPropName, sClassType), (*cit).second));
+		}
 
 		return (*cit).second;
 	}

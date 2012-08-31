@@ -400,7 +400,7 @@ inline T VistaPropertyList::GetValue( const std::string& sPropName,
 		if( nOnError & VistaConversion::ON_ERROR_PRINT_WARNING )
 		{
 			vstr::warnp() << "VistaPropertyList::GetValue<" << VistaConversion::GetTypeName<T>()
-						<< ">( " << sPropName << ") failed - ";
+						<< ">( " << sPropName << " ) failed - ";
 			const_iterator itEntry = find( sPropName );
 			if( itEntry == end() )
 			{
@@ -480,7 +480,7 @@ inline T VistaPropertyList::GetValueInSubList( const std::string& sPropName, con
 		{
 			vstr::warnp() << "VistaPropertyList::GetValueInSubList<"
 						<< VistaConversion::GetTypeName<T>()
-						<< ">( " << sPropName << ") failed - ";
+						<< ">( " << sPropName << " ) failed - ";
 			if( itEntry == end() )
 			{
 				vstr::warn() << "Prop does not exist" << std::endl;

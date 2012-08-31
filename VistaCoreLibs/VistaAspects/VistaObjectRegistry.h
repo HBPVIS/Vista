@@ -107,6 +107,8 @@ public:
 	*/
 	IVistaNameable *RetrieveNameable(const std::string&) const;
 
+	bool HasNameable( const std::string &strName ) const;
+
 
 	/**
 	* Clear the entire registry.
@@ -122,6 +124,8 @@ public:
 	typedef std::vector<IVistaNameable*>::const_iterator const_iterator;
 	typedef std::vector<IVistaNameable*>::iterator iterator;
 	typedef std::vector<IVistaNameable*>::reverse_iterator reverse_iterator;
+	typedef std::vector<IVistaNameable*>::value_type value_type;
+	typedef std::vector<IVistaNameable*>::size_type size_type;
 
 	const_iterator begin() const;
 	const_iterator end() const;
@@ -131,10 +135,16 @@ public:
 
 	reverse_iterator rbegin();
 	reverse_iterator rend();
+
+	size_type count( const std::string &sName ) const;
 	// @}
 protected:
 	int FindNameable(const std::string& strName) const;
 private:
+	VistaObjectRegistry( const VistaObjectRegistry & ) {}
+	VistaObjectRegistry &operator()( const VistaObjectRegistry & ) { return *this; }
+	VistaObjectRegistry &operator=( const VistaObjectRegistry & ) { return *this; }
+
 	/**
 	* map the registry keys to nameable objects.
 	*/

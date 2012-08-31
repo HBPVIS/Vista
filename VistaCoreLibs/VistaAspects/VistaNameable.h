@@ -55,13 +55,9 @@ public:
 	virtual ~IVistaNameable();
 
 	/**
-	 * @todo rename to GetName()
-	 */
+	 * @todo set method names to "Name()", so it reads like nmbl.Name()
+	 */ 
 	virtual std::string GetNameForNameable() const = 0;
-
-	/**
-	 * @todo rename to SetName()
-	 */
 	virtual void SetNameForNameable(const std::string &sNewName) = 0;
 
 

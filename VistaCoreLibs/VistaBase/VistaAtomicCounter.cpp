@@ -486,7 +486,105 @@ VistaType::sint64 VistaSigned64Atomic::Get() const
 #endif // WINVER
 
 #else
-	#error machine type not known for atomics.
+
+#if defined(VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE)
+
+		// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+		// VistaSigned32Atomic
+		// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+		void VistaSigned32Atomic::Add( VistaType::sint32 nValue)
+		{
+			 _scopedLock l( *towp( m_pPrivate.m_pPrivate ) );
+			 m_nValue += nValue;
+		}
+
+		void VistaSigned32Atomic::Sub( VistaType::sint32 nValue )
+		{
+			 _scopedLock l( *towp( m_pPrivate.m_pPrivate ) );
+			 m_nValue -= nValue;
+		}
+
+		void VistaSigned32Atomic::Inc()
+		{
+			 Add(1);
+		}
+
+
+		void VistaSigned32Atomic::Dec()
+		{
+			 Sub(1);
+		}
+
+		bool VistaSigned32Atomic::DecAndTestNull()
+		{
+			 _scopedLock l( *towp( m_pPrivate.m_pPrivate ) );
+			 return (--m_nValue == 0);
+		}
+
+		bool VistaSigned32Atomic::AddAndTestNegative( VistaType::sint32 nValue )
+		{
+			 _scopedLock l( *towp( m_pPrivate.m_pPrivate ) );
+			 m_nValue -= nValue;
+			 return m_nValue < 0;
+		}
+
+		VistaType::sint32 VistaSigned32Atomic::ExchangeAndAdd( VistaType::sint32 nValue )
+		{
+			 _scopedLock l( *towp( m_pPrivate.m_pPrivate ) );
+			 VistaType::sint64 old = m_nValue;
+			 m_nValue -= nValue;
+			 return old;
+		}
+
+
+		 inline void VistaSigned64Atomic::Add( VistaType::sint64 nValue)
+		 {
+			 _scopedLock l( *towp( m_pPrivate.m_pPrivate ) );
+			 m_nValue += nValue;
+		 }
+
+		 inline void VistaSigned64Atomic::Sub( VistaType::sint64 nValue )
+		 {
+			 _scopedLock l( *towp( m_pPrivate.m_pPrivate ) );
+			 m_nValue -= nValue;
+		 }
+
+		 void VistaSigned64Atomic::Inc()
+		 {
+			 Add(1);
+		 }
+
+		 void VistaSigned64Atomic::Dec()
+		 {
+			 Sub(1);
+		 }
+
+		 bool VistaSigned64Atomic::DecAndTestNull()
+		 {
+			 _scopedLock l( *towp( m_pPrivate.m_pPrivate ) );
+			 return (--m_nValue == 0);
+		 }
+
+		 bool VistaSigned64Atomic::AddAndTestNegative( VistaType::sint64 nValue )
+		 {
+			 _scopedLock l( *towp( m_pPrivate.m_pPrivate ) );
+			 m_nValue -= nValue;
+			 return m_nValue < 0;
+
+		 }
+
+		 VistaType::sint64 VistaSigned64Atomic::ExchangeAndAdd( VistaType::sint64 nValue )
+		 {
+			 _scopedLock l( *towp( m_pPrivate.m_pPrivate ) );
+			 VistaType::sint64 old = m_nValue;
+			 m_nValue -= nValue;
+			 return old;
+		 }
+#else
+	#error atomics not decided on this platform
+#endif // VISTA_NATIVE64BITATOMICS_NOT_AVAILABLE
+
 #endif
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */

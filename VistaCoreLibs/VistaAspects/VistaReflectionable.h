@@ -225,6 +225,11 @@ private:
 	std::list<std::string> m_liBaseTypeList;
 };
 
+namespace VistaReflectionableUtil
+{
+	VISTAASPECTSAPI void ReleaseProperties();
+}
+
 
 template<class T> bool compAssignAndNotify(const T x, T &y, IVistaReflectionable &oObj, int nMsg)
 {

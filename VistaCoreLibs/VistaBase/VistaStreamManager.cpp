@@ -64,6 +64,7 @@ VistaStreamManager::~VistaStreamManager()
 		delete (*itStream);
 	}
 	delete m_pInfo;
+	delete m_pTimer;
 }
 
 /*============================================================================*/
