@@ -28,7 +28,7 @@
 
 #include <VistaKernel/VistaSystem.h>
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
-#include <VistaKernel/GraphicsManager/VistaSG.h>
+#include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 #include <VistaKernel/GraphicsManager/VistaGeometry.h>
 #include <VistaKernel/GraphicsManager/VistaGeomNode.h>
@@ -137,9 +137,9 @@ KinectHandler::KinectHandler( VistaSystem* pVistaSystem )
 	VistaGeometry* pGeom = NULL;
 	VistaVector3D v3Offset;	
 
-	VistaColorRGB oFlesh( 1.0f, 0.8f, 0.6f );
-	VistaColorRGB oShirt( 1.0f, 0.2f, 0.2f );
-	VistaColorRGB oTrousers( 0.2f, 0.2f, 0.9f );
+	VistaColor oFlesh( 1.0f, 0.8f, 0.6f );
+	VistaColor oShirt( 1.0f, 0.2f, 0.2f );
+	VistaColor oTrousers( 0.2f, 0.2f, 0.9f );
 	
 	pGeom = oGeomFac.CreateEllipsoid( 0.1f, 0.13f, 0.1f, 32, 32, oFlesh ); 
 	v3Offset = VistaVector3D( 0.0f, -0.125f, 0.0f );

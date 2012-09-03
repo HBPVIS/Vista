@@ -56,7 +56,7 @@
 
 class VistaSystem;
 class VistaTransformNode;
-class VistaSG;
+class VistaSceneGraph;
 class VistaGeometry;
 
 /*============================================================================*/
@@ -81,7 +81,7 @@ private:
 	void CreateElement( int nElement, VistaGeometry* pGeom, const VistaVector3D& v3Offset );
 private:
 	VistaTransformNode*					m_pManRoot;
-	VistaSG*							m_pSceneGraph;
+	VistaSceneGraph*							m_pSceneGraph;
 	std::vector<VistaTransformNode*>	m_vecJoints;
 	VistaTransformMatrix				m_matTransform;
 };

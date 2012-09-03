@@ -7,8 +7,8 @@ project( KinectDemo )
 list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
 include( VistaCommon )
 
-
-vista_use_package( VistaCoreLibs "EXTERNAL_TRANSCODES" REQUIRED VistaKernel FIND_DEPENDENCIES )
+vista_use_package( OpenNI REQUIRED )
+vista_use_package( VistaCoreLibs HEAD REQUIRED VistaKernel FIND_DEPENDENCIES )
 
 add_executable( KinectDemo main.cpp KinectHandler.h KinectHandler.cpp configfiles/vista.ini configfiles/ucp_kinect.xml configfiles/spatial_kinect.xml )
 source_group( "Source Files" FILES main.cpp KinectHandler.h KinectHandler.cpp )
