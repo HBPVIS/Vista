@@ -1,0 +1,204 @@
+; Visual Studio Debugger visualization info for Vista types
+; Usage: copy the content of this file into Visual Studio's autoexp.dat file (backup first),
+; located at C:\Program Files (x86)\Microsoft Visual Studio X\Common7\Packages\Debugger
+; Put it at the very front of the [Visualizer] section - yes, right there where it says 'Do not modify'
+
+
+VistaVector3D {
+	children
+	(
+		#array
+		(
+			expr :	($c.m_a4fValues)[$i],
+			size :	4
+		)
+	)
+
+	preview
+	(
+		#(
+			"(",
+			#if( ($c.m_a4fValues)[0] - (int)($c.m_a4fValues)[0] == 0 ) (
+				(int)($c.m_a4fValues)[0]
+			) #else (
+				($c.m_a4fValues)[0]
+			),
+			", ",
+			#if( ($c.m_a4fValues)[1] - (int)($c.m_a4fValues)[1] == 0 ) (
+				(int)($c.m_a4fValues)[1]
+			) #else (
+				($c.m_a4fValues)[1]
+			),
+			", ",
+			#if( ($c.m_a4fValues)[2] - (int)($c.m_a4fValues)[2] == 0 ) (
+				(int)($c.m_a4fValues)[2]
+			) #else (
+				($c.m_a4fValues)[2]
+			),
+			", ",
+			#if( ($c.m_a4fValues)[3] - (int)($c.m_a4fValues)[3] == 0 ) (
+				(int)($c.m_a4fValues)[3]
+			) #else (
+				($c.m_a4fValues)[3]
+			),
+			")"
+		)
+	)
+}
+
+
+VistaQuaternion {
+	children
+	(
+		#array
+		(
+			expr :	($c.m_a4fValues)[$i],
+			size :	4
+		)
+	)
+
+	preview
+	(
+		#(
+			"(",
+			#if( ($c.m_a4fValues)[0] - (int)($c.m_a4fValues)[0] == 0 ) (
+				(int)($c.m_a4fValues)[0]
+			) #else (
+				($c.m_a4fValues)[0]
+			),
+			", ",
+			#if( ($c.m_a4fValues)[1] - (int)($c.m_a4fValues)[1] == 0 ) (
+				(int)($c.m_a4fValues)[1]
+			) #else (
+				($c.m_a4fValues)[1]
+			),
+			", ",
+			#if( ($c.m_a4fValues)[2] - (int)($c.m_a4fValues)[2] == 0 ) (
+				(int)($c.m_a4fValues)[2]
+			) #else (
+				($c.m_a4fValues)[2]
+			),
+			", ",
+			#if( ($c.m_a4fValues)[3] - (int)($c.m_a4fValues)[3] == 0 ) (
+				(int)($c.m_a4fValues)[3]
+			) #else (
+				($c.m_a4fValues)[3]
+			),
+			")"
+		)
+	)
+}
+
+VistaTransformMatrix{
+	preview
+	(
+		#(
+		"(",
+
+		#if( ($c.m_a16fData)[0] - (int)($c.m_a16fData)[0] == 0 ) (
+			(int)($c.m_a16fData)[0]
+		) #else (
+			($c.m_a16fData)[0]
+		),
+		", ",
+		#if( ($c.m_a16fData)[4] - (int)($c.m_a16fData)[4] == 0 ) (
+			(int)($c.m_a16fData)[4]
+		) #else (
+			($c.m_a16fData)[4]
+		),
+		", ",
+		#if( ($c.m_a16fData)[8] - (int)($c.m_a16fData)[8] == 0 ) (
+			(int)($c.m_a16fData)[8]
+		) #else (
+			($c.m_a16fData)[8]
+		),
+		", ",
+		#if( ($c.m_a16fData)[12] - (int)($c.m_a16fData)[12] == 0 ) (
+			(int)($c.m_a16fData)[12]
+		) #else (
+			($c.m_a16fData)[12]
+		),
+		
+		" | ",
+		
+		#if( ($c.m_a16fData)[1] - (int)($c.m_a16fData)[1] == 0 ) (
+			(int)($c.m_a16fData)[1]
+		) #else (
+			($c.m_a16fData)[1]
+		),
+		", ",
+		#if( ($c.m_a16fData)[5] - (int)($c.m_a16fData)[5] == 0 ) (
+			(int)($c.m_a16fData)[5]
+		) #else (
+			($c.m_a16fData)[5]
+		),
+		", ",
+		#if( ($c.m_a16fData)[9] - (int)($c.m_a16fData)[9] == 0 ) (
+			(int)($c.m_a16fData)[9]
+		) #else (
+			($c.m_a16fData)[9]
+		),
+		", ",
+		#if( ($c.m_a16fData)[13] - (int)($c.m_a16fData)[13] == 0 ) (
+			(int)($c.m_a16fData)[13]
+		) #else (
+			($c.m_a16fData)[13]
+		),
+
+		" | ",
+
+		#if( ($c.m_a16fData)[2] - (int)($c.m_a16fData)[2] == 0 ) (
+			(int)($c.m_a16fData)[2]
+		) #else (
+			($c.m_a16fData)[2]
+		),
+		", ",
+		#if( ($c.m_a16fData)[6] - (int)($c.m_a16fData)[6] == 0 ) (
+			(int)($c.m_a16fData)[6]
+		) #else (
+			($c.m_a16fData)[6]
+		),
+		", ",
+		#if( ($c.m_a16fData)[10] - (int)($c.m_a16fData)[10] == 0 ) (
+			(int)($c.m_a16fData)[10]
+		) #else (
+			($c.m_a16fData)[10]
+		),
+		", ",
+		#if( ($c.m_a16fData)[14] - (int)($c.m_a16fData)[14] == 0 ) (
+			(int)($c.m_a16fData)[14]
+		) #else (
+			($c.m_a16fData)[14]
+		),
+
+		" | ",
+
+		#if( ($c.m_a16fData)[3] - (int)($c.m_a16fData)[3] == 0 ) (
+			(int)($c.m_a16fData)[3]
+		) #else (
+			($c.m_a16fData)[3]
+		),
+		", ",
+		#if( ($c.m_a16fData)[7] - (int)($c.m_a16fData)[7] == 0 ) (
+			(int)($c.m_a16fData)[7]
+		) #else (
+			($c.m_a16fData)[7]
+		),
+		", ",
+		#if( ($c.m_a16fData)[11] - (int)($c.m_a16fData)[11] == 0 ) (
+			(int)($c.m_a16fData)[11]
+		) #else (
+			($c.m_a16fData)[11]
+		),
+		", ",
+		#if( ($c.m_a16fData)[15] - (int)($c.m_a16fData)[15] == 0 ) (
+			(int)($c.m_a16fData)[15]
+		) #else (
+			($c.m_a16fData)[15]
+		),
+
+		")"
+
+		)
+	)
+}
