@@ -87,6 +87,11 @@ public:
    virtual bool Create() = 0;
 
    /**
+    * Creates the node, as well as all parent directories that dont exist yet
+    */
+   bool CreateWithParentDirectories();
+
+   /**
 	* Deletes this node
 	*/
    virtual bool Delete() = 0;

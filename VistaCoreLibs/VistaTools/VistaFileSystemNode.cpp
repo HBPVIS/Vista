@@ -37,6 +37,7 @@
 /*============================================================================*/
 
 #include "VistaFileSystemNode.h"
+#include "VistaFileSystemDirectory.h"
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -246,4 +247,16 @@ std::string VistaFileSystemNode::GetParentDirectory() const
 		}
 	}
 	return sDir;
+}
+
+bool VistaFileSystemNode::CreateWithParentDirectories()
+{
+	std::string sParentDir = GetParentDirectory();
+	if( sParentDir.empty() == false )
+	{
+		VistaFileSystemDirectory oDir( sParentDir );
+		if( oDir.Exists() == false && oDir.CreateWithParentDirectories() == false )
+			return false;
+	}
+	return Create();
 }

@@ -25,6 +25,8 @@ set( DirFiles
 	VistaNewClusterMaster.h
 	VistaNewClusterSlave.cpp
 	VistaNewClusterSlave.h
+	VistaReplaySlave.cpp
+	VistaReplaySlave.h
 	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )

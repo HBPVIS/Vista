@@ -74,12 +74,15 @@ VistaOpenSGParticleManager::VistaOpenSGParticleManager(VistaGroupNode *pParent, 
 	m_pParticles->BeginEdit();
 	m_pParticles->SetColorsWithAlpha();
 	m_pParticles->SetDrawOrder(VistaOpenSGParticles::BackToFront);
+	//m_pParticles->SetGLBlendDestFactor();
+	//m_pParticles->SetGLTexEnvMode( GL_MODULATE );
 	m_pParticles->EndEdit();
 
 }
 
 VistaOpenSGParticleManager::~VistaOpenSGParticleManager()
 {
+	delete m_pParticles;
 }
 
 /*============================================================================*/
@@ -271,7 +274,6 @@ void VistaOpenSGParticleManager::PrepareParticleAtOrigin(int iParticleIndex)
 
 void VistaOpenSGParticleManager::UpdateParticles( VistaType::microtime dCurrentTime, VistaType::microtime dDeltaT )
 {
-
 	m_dCurrentTimeStamp = dCurrentTime;
 	m_dCurrentDeltaT = dDeltaT;	
 	m_dRemainingSeedTime += dDeltaT;
@@ -302,6 +304,9 @@ void VistaOpenSGParticleManager::UpdateParticles( VistaType::microtime dCurrentT
 		}
 
 	}
+
+
+	m_pParticles->BeginEdit();
 
 	if (m_afParticleSecPos!= NULL)
 	{
@@ -364,6 +369,9 @@ void VistaOpenSGParticleManager::UpdateParticles( VistaType::microtime dCurrentT
 		}
 
 	}
+
+	m_pParticles->EndEdit();
+
 
 }
 

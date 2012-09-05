@@ -38,6 +38,7 @@
 #include <string>
 #include <iostream>
 
+
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
@@ -55,6 +56,7 @@ class VistaInteractionManager;
 class VistaInteractionContext;
 class VistaClusterMode;
 class VistaEyeTester;
+class VistaWindow;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -226,6 +228,21 @@ public:
 	virtual bool Do();
 private:
 	VistaDisplayManager*	m_pDisplayManager;
+};
+
+class VISTAKERNELAPI VistaMakeScreenshotCommand : public IVistaExplicitCallbackInterface
+{
+public:
+	VistaMakeScreenshotCommand( VistaDisplayManager* pDisplayManager,
+								VistaClusterMode* pCluster,
+								const std::string& m_sExtension = "png",
+								const std::string& sScreenshotDir = "screenshots" );
+	virtual bool Do();
+private:
+	VistaDisplayManager*	m_pDisplayManager;
+	VistaClusterMode*		m_pCluster;
+	std::string				m_sExtension;
+	std::string				m_sScreenshotDir;
 };
 
 

@@ -18,6 +18,8 @@ set( DirFiles
 	VistaVirtualConsole.h
 	VistaEyeTester.cpp
 	VistaEyeTester.h
+	VistaFrameSeriesCapture.cpp
+	VistaFrameSeriesCapture.h
 	VistaRuntimeLimiter.cpp
 	VistaRuntimeLimiter.h
 	_SourceFiles.cmake

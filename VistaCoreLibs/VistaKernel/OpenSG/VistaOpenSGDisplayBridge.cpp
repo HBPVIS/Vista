@@ -340,6 +340,7 @@ private:
 };
 
 
+
 VistaOpenSGDisplayBridge::WindowData::WindowData()
 //: m_sTitle(""),
 //m_bStereo(false),
@@ -356,6 +357,8 @@ VistaOpenSGDisplayBridge::WindowData::WindowData()
 //m_iCurrentSizeY(0)
 : m_ptrWindow( osg::NullFC )
 , m_pObserver( NULL )
+, m_ptrFileGrabber( osg::NullFC )
+, m_ptrFileGrabberImage( osg::NullFC )
 {
 }
 
@@ -407,6 +410,34 @@ void VistaOpenSGDisplayBridge::WindowData::ObserveWindow( VistaWindow* pWindow,
 osg::WindowPtr VistaOpenSGDisplayBridge::WindowData::GetOpenSGWindow() const
 {
 	return m_ptrWindow;
+}
+
+osg::FileGrabForegroundPtr VistaOpenSGDisplayBridge::WindowData::GetFileGrabForeground()
+{
+	if( m_ptrFileGrabber == osg::NullFC )
+	{
+		// create a foreground with screenshot functionality
+		m_ptrFileGrabber = osg::FileGrabForeground::create();
+
+		// the FileGrabForeground has a bug, leaving the internal Image alive on deletion...
+		// thus we handle the iamge buffer ourselfes
+		m_ptrFileGrabberImage = osg::Image::create();
+		beginEditCP( m_ptrFileGrabberImage );
+			m_ptrFileGrabberImage->set( osg::Image::OSG_RGB_PF, 1 );
+		endEditCP( m_ptrFileGrabberImage );
+
+		beginEditCP( m_ptrFileGrabber, osg::FileGrabForeground::ImageFieldMask );
+		{
+			m_ptrFileGrabber->setImage( m_ptrFileGrabberImage );
+		}
+		endEditCP( m_ptrFileGrabber, osg::FileGrabForeground::ImageFieldMask );
+
+		
+		// add the grabber to the next best viewport
+		m_ptrWindow->getPort(0)->getMFForegrounds()->push_back( m_ptrFileGrabber );
+	}
+
+	return m_ptrFileGrabber;
 }
 
 // ##########################
@@ -1015,6 +1046,22 @@ bool VistaOpenSGDisplayBridge::DrawFrame()
 		WindowData* pData = static_cast<WindowData*>( (*itWindow).second->GetData() );
 		pData->m_ptrWindow->render(m_pRenderAction);
 	}
+
+	// after rendering, we have to deactivate all filegrab foregrounds that
+	// listed for screenshot during last frame
+	for( std::vector<WindowData*>::iterator itWin = m_vecFileGrabWindows.begin();
+			itWin != m_vecFileGrabWindows.end(); ++itWin )
+	{
+		osg::FileGrabForegroundPtr ptrGrabber = (*itWin)->GetFileGrabForeground();
+
+		beginEditCP( ptrGrabber, osg::FileGrabForeground::ActiveFieldMask );
+		{
+			ptrGrabber->setActive( false );
+		}
+		endEditCP( ptrGrabber, osg::FileGrabForeground::ActiveFieldMask );
+
+	}
+	
 	return true;
 }
 
@@ -2307,79 +2354,54 @@ osg::RenderAction* VistaOpenSGDisplayBridge::GetRenderAction() const
 	return m_pRenderAction;
 }
 
-bool VistaOpenSGDisplayBridge::MakeScreenshot
-			(const VistaWindow & oWin, const std::string & strFilenamePrefix,
-			const bool bNoScreenshotOnClients ) const
+bool VistaOpenSGDisplayBridge::MakeScreenshot( const VistaWindow& oWin, const std::string& strFilename,
+												const bool bDelayUntilNextRender ) const
 {
-	// only works in standalone and servers
-	if( bNoScreenshotOnClients && GetVistaSystem()->GetClusterMode()->GetIsFollower() )
-		return false;
-
 	// get the OpenSG window data from the specified ViSTA window
-	WindowData* pWindow = (WindowData *)oWin.GetData();
+	WindowData* pWindow = dynamic_cast<WindowData*>( oWin.GetData() );
 
-	size_t iIndex = strFilenamePrefix.find_last_of( '.' );
-	string sFileName;
+	// check if the image already has an extension
+	size_t iIndex = strFilename.find_last_of( '.' );
+	string sFileName = strFilename;
 	if( iIndex == string::npos )
+		sFileName += ".jpg";
+
+	osg::FileGrabForegroundPtr ptrGrabber = pWindow->GetFileGrabForeground();
+
+	bool bInitialActiveState = ptrGrabber->getActive();
+	std::string sInitialFile = ptrGrabber->getName();
+	beginEditCP( ptrGrabber,
+				osg::FileGrabForeground::ActiveFieldMask |
+				osg::FileGrabForeground::NameFieldMask );
 	{
-		sFileName = strFilenamePrefix + ".jpg";
+		ptrGrabber->setActive( true );
+		ptrGrabber->setName( sFileName.c_str() );
+	}
+	endEditCP( ptrGrabber,
+				osg::FileGrabForeground::ActiveFieldMask |
+				osg::FileGrabForeground::NameFieldMask );
+
+	if( bDelayUntilNextRender )
+	{
+		// list it so that it is deactivated after the next draw
+		m_vecFileGrabWindows.push_back( pWindow );
 	}
 	else
 	{
-		string sExt = strFilenamePrefix.substr( iIndex );
-		if( sExt == ".jpg" || sExt == ".png" || sExt == ".bmp"
-			|| sExt == ".gif" || sExt == ".tif" )
+		// render once, and deactivate it afterwards
+		pWindow->m_ptrWindow->render(m_pRenderAction);
+
+		beginEditCP( ptrGrabber,
+					osg::FileGrabForeground::ActiveFieldMask |
+					osg::FileGrabForeground::NameFieldMask );
 		{
-			sFileName = strFilenamePrefix;
+			ptrGrabber->setActive( bInitialActiveState );
+			ptrGrabber->setName( sInitialFile.c_str() );
 		}
-		else
-		{
-			sFileName = strFilenamePrefix + ".jpg";
-		}
+		endEditCP( ptrGrabber,
+					osg::FileGrabForeground::ActiveFieldMask |
+					osg::FileGrabForeground::NameFieldMask );
 	}
-
-	// create a foreground with screenshot functionality
-	osg::FileGrabForegroundRefPtr fileGrab(osg::FileGrabForeground::create());
-
-	// the FileGrabForeground has a bug, leaving the internal Image alive on deletion...
-	// thus we handle the iamge buffer ourselfes
-	osg::ImageRefPtr ptrImg(osg::Image::create());
-	ptrImg->set(osg::Image::OSG_RGB_PF, 1);
-	beginEditCP(fileGrab,
-		osg::FileGrabForeground::ActiveFieldMask |
-		osg::FileGrabForeground::NameFieldMask |
-		osg::FileGrabForeground::ImageFieldMask);
-	{
-		fileGrab->setActive(true);
-		// numbered screenshot series
-		//fileGrab->setName((strFilename + "_%04d.jpg").c_str());
-		//fileGrab->setName((strFilenamePrefix + ".gif").c_str());
-		//fileGrab->setName((strFilenamePrefix + ".tif").c_str());
-		//fileGrab->setName((strFilenamePrefix + ".jpg").c_str());
-		fileGrab->setName(sFileName.c_str());
-
-		fileGrab->setImage(ptrImg);
-	}
-	endEditCP(fileGrab,
-		osg::FileGrabForeground::ActiveFieldMask |
-		osg::FileGrabForeground::NameFieldMask |
-		osg::FileGrabForeground::ImageFieldMask);
-
-
-	// add the grabber to the next best viewport
-	pWindow->m_ptrWindow->getPort(0)->getMFForegrounds()->push_back(fileGrab);
-
-	// render once
-	pWindow->m_ptrWindow->render(m_pRenderAction);
-
-	// deactivate grabber
-	beginEditCP(fileGrab, osg::FileGrabForeground::ActiveFieldMask);
-	fileGrab->setActive(false);
-	endEditCP(fileGrab, osg::FileGrabForeground::ActiveFieldMask);
-
-	// remove the grabber from the next best viewport
-	pWindow->m_ptrWindow->getPort(0)->getMFForegrounds()
-		->erase(pWindow->m_ptrWindow->getPort(0)->getMFForegrounds()->end() - 1);
 
 	return true;
 }

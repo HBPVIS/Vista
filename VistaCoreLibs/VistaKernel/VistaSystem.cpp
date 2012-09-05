@@ -35,6 +35,7 @@
 #include <VistaKernel/Cluster/VistaClusterSlave.h>
 #include <VistaKernel/Cluster/VistaNewClusterMaster.h>
 #include <VistaKernel/Cluster/VistaNewClusterSlave.h>
+#include <VistaKernel/Cluster/VistaReplaySlave.h>
 
 #include <VistaKernel/EventManager/VistaEventManager.h>
 #include <VistaKernel/EventManager/VistaSystemEvent.h>
@@ -835,6 +836,14 @@ void VistaSystem::CreateClusterMode()
 			}
 			break;
 		}
+		case VistaClusterMode::NT_REPLAY_SLAVE:
+		{
+			{
+				m_pClusterMode = new VistaReplaySlave( this, m_sClusterNodeName );
+				vstr::outi() << "Creating ClusterNode as [REPLAY_SLAVE]" << std::endl;
+			}
+			break;
+		}
 		default:
 		{
 			vstr::errp() << "Unknown cluster Mode ["
@@ -1209,7 +1218,10 @@ void VistaSystem::BindKeyboardActions()
 								"Enable / Disable occlusion culling (OpenSG specific)" );
 	m_pKeyboardSystemControl->BindAction('&',
 								new VistaToggleBBoxDrawingCommand(GetGraphicsManager()),
-								"Enable / Disable BBox drawing (OpenSG specific)" );
+								"Enable / Disable BBox drawing (OpenSG specific)" );	
+	m_pKeyboardSystemControl->BindAction('S',
+								new VistaMakeScreenshotCommand( m_pDisplayManager, m_pClusterMode ),
+								"Make a screenshot (stored in screenshots subdir)" );
 }
 
 
@@ -1868,7 +1880,7 @@ void VistaSystem::CreateDeviceDrivers()
 			if( pDriverCRM == NULL )
 			{
 				vstr::warnp() << "No driver of type [" << sType 
-					<< "] registered, check if the DRIVERPLUGINS directory is set correctly for your platform!" << std::endl;
+					<< "] registered, check if the DRIVERPLUGINDIRS directory is set correctly for your platform!" << std::endl;
 				continue;
 			}
 
@@ -2664,6 +2676,15 @@ bool VistaSystem::ArgParser (int argc, char *argv[])
 				m_sClusterNodeName = argv[arg];
 				m_nClusterNodeType = VistaClusterMode::NT_SLAVE;
 				m_bUseNewClusterMaster = true;
+			}
+		}
+		else if( oStringCompare( strArg, "-replay" ) )
+		{
+			++arg;
+			if( arg < argc)
+			{
+				m_sClusterNodeName = argv[arg];
+				m_nClusterNodeType = VistaClusterMode::NT_REPLAY_SLAVE;
 			}
 		}
 		else if( oStringCompare( strArg, "-inisearchpath" ) )

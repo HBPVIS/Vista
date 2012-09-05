@@ -207,8 +207,25 @@ public:
 	bool RenameDisplay( const std::string& sOldName,
 						const std::string& sNewName );
 
+	/**
+	 * Makes a screenshot from the specified window, and stores it as image
+	 * with the provided filename. If the filename has no extension, a default
+	 * image type (usually jpg) will be used.
+	 * @param sWindowName - name of the window to be used
+	 * @param sFilename - file name (with or without extension)
+	 * @param bDelayUntilNextRender - if set to false, the screenshot will be 
+	 *          created immediately by a render pass triggered by this call.
+	 *          it false, the screenshot will be created from the next normal
+	 *          render pass, which is faster, but uses a render state different
+	 *          from the one at time of calling MakeScreenshot
+	 * @return true on success, false on failute
+	 */
+	bool MakeScreenshot( VistaWindow* pWindow,
+						const std::string& sFilename,
+						const bool bDelayUntilNextRender = false ) const;	
 	bool MakeScreenshot( const std::string& sWindowName,
-						const std::string& sFilenamePrefix ) const;
+						const std::string& sFilename,
+						const bool bDelayUntilNextRender = false ) const;	
 
 	Vista2DText* New2DText( const std::string& sViewportName = "" );
 	Vista2DBitmap* New2DBitmap( const std::string& sViewportName = "" );

@@ -989,14 +989,22 @@ bool VistaDisplayManager::RenameDisplay(const std::string& strOldName,
 	return true;
 }
 
+
+bool VistaDisplayManager::MakeScreenshot( VistaWindow* pWindow,
+										 const std::string& sFilename,
+										 const bool bDelayUntilNextRender ) const
+{
+	return m_pBridge->MakeScreenshot( *pWindow, sFilename, bDelayUntilNextRender );
+}
+
+
 bool VistaDisplayManager::MakeScreenshot(const std::string& sWindowName,
-					const std::string& strFilenamePrefix) const
+										 const std::string& sFilename,
+										 const bool bDelayUntilNextRender ) const
 {
 	VistaWindow *pWin = GetWindowByName(sWindowName);
 	if(pWin)
-	{
-		return m_pBridge->MakeScreenshot(*pWin, strFilenamePrefix);
-	}
+		return MakeScreenshot( pWin, sFilename, bDelayUntilNextRender );
 	else
 		return false;
 }

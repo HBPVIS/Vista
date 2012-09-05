@@ -24,6 +24,8 @@ set( DirFiles
 	VistaDummyClusterDataSync.h
 	VistaDummyClusterDataCollect.cpp
 	VistaDummyClusterDataCollect.h
+	VistaRecordReplayClusterDataSync.cpp
+	VistaRecordReplayClusterDataSync.h
 	VistaTCPIPClusterBarrier.cpp
 	VistaTCPIPClusterBarrier.h
 	VistaTCPIPClusterDataSync.cpp

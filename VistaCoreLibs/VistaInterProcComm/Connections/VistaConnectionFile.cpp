@@ -51,6 +51,7 @@ VistaConnectionFile::VistaConnectionFile( const std::string& sFilename,
 	/** @todo check whether mode is valid */
 	m_iMode = iMode;
 	m_sStream = NULL;
+	m_bBuffering = false;
 
 	SetIsOpen( false );
 }
@@ -91,7 +92,8 @@ bool VistaConnectionFile::Open()
 	if(m_sStream == NULL)
 		return false;
 
-//	setvbuf( m_sStream, 0, _IONBF, 0 );
+	if( m_bBuffering == false )
+		setvbuf( m_sStream, NULL, _IONBF, 0 );
 
 	SetIsOpen( true ) ;
 	return true ;
@@ -128,6 +130,8 @@ int VistaConnectionFile::Receive ( void * buffer, const int length, int iTimeout
 		int read_bytes = (int)fread( buffer, 1, length, m_sStream );
 		if( read_bytes != length )
 		{
+			if( feof( m_sStream ) )
+				return 0;
 			/* if unable to read requested bytes but not at EOF -> return error */
 			return -1 ;
 		}
@@ -230,4 +234,26 @@ HANDLE VistaConnectionFile::GetConnectionWaitForDescriptor()
 bool VistaConnectionFile::Flush()
 {
 	return (fflush( m_sStream ) != -1);
+}
+
+bool VistaConnectionFile::GetIsBuffering() const
+{
+	return m_bBuffering;
+}
+
+void VistaConnectionFile::SetIsBuffering( bool bBuffering )
+{
+	if( m_bBuffering == bBuffering )
+		return;
+
+	m_bBuffering = bBuffering;
+
+	if( GetIsOpen() )
+	{
+		if( bBuffering )
+			setvbuf( m_sStream, NULL, _IOFBF, 1024 );
+		else
+			setvbuf( m_sStream, NULL, _IONBF, 0 );
+	}
+
 }

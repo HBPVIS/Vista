@@ -700,6 +700,9 @@ bool VistaNewClusterSlave::WaitForClusterMaster( int nPort )
 		}
 		InitSwapSync();
 
+		// sync first frame clock
+		m_pDefaultDataSync->SyncTime( m_dFrameClock );
+
 		vstr::outi() << "Receiving ClusterInfo" << std::endl;
 		m_pDefaultDataSync->SyncData( m_oClusterInfo );
 	}

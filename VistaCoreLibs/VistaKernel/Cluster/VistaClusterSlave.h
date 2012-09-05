@@ -170,7 +170,7 @@ private:
 	std::list<std::pair<int,int> >	m_liFreePorts;
 
 	IVistaClusterDataSync*		m_pDefaultDataSync;
-	IVistaClusterBarrier*	m_pDefaultBarrier;
+	IVistaClusterBarrier*		m_pDefaultBarrier;
 };
 
 /*============================================================================*/

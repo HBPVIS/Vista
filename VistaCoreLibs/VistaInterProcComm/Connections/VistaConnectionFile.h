@@ -92,15 +92,21 @@ public:
 		READWRITE,
 		APPEND
 	};
+	
+	virtual bool GetIsBuffering() const;
+	virtual void SetIsBuffering( bool bBuffering );
 
 private:
 	std::string  m_sFilename;
 	int          m_iMode;
 	FILE        *m_sStream;
+	bool		 m_bBuffering;
 
 protected:
 
 	VistaConnectionFile();
+
+
 };
 
 

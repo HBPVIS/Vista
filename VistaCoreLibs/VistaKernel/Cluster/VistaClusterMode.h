@@ -69,6 +69,7 @@ public:
 		CM_UNKNOWN = 0,
 		CM_STANDALONE,
 		CM_MASTER_SLAVE,
+		CM_REPLAY,
 	};
 	virtual int GetClusterMode() const = 0;
 	virtual std::string GetClusterModeName() const = 0;
@@ -80,6 +81,7 @@ public:
 		NT_STANDALONE,
 		NT_MASTER,
 		NT_SLAVE,
+		NT_REPLAY_SLAVE,
 	};
 	virtual int GetNodeType() const = 0;
 	virtual std::string GetNodeTypeName() const = 0;

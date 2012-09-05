@@ -48,6 +48,11 @@
 
 #include <VistaAspects/VistaAspectsUtils.h>
 
+#include <VistaTools/VistaFileSystemDirectory.h>
+#include <VistaTools/VistaFileSystemFile.h>
+
+#include <VistaBase/VistaTimeUtils.h>
+
 #include <list>
 #include <iostream>
 #include <algorithm>
@@ -370,6 +375,70 @@ bool VistaToggleEyeTesterCommand::Do()
 						<< "Cannot enable Eyetest - no Dispaly System available" << std::endl;
 			return false;
 		}		
+	}
+	return true;
+}
+
+/*============================================================================*/
+/* LOCAL VARS AND FUNCS                                                       */
+/*============================================================================*/
+
+VistaMakeScreenshotCommand::VistaMakeScreenshotCommand( VistaDisplayManager* pDisplayManager,
+													   VistaClusterMode* pCluster,
+													   const std::string& sExtension,
+													   const std::string& sScreenshotDir )
+: m_pDisplayManager( pDisplayManager )
+, m_pCluster( pCluster )
+, m_sExtension( sExtension )
+, m_sScreenshotDir( sScreenshotDir )
+{
+}
+
+bool VistaMakeScreenshotCommand::Do()
+{
+	const std::map<std::string, VistaWindow*>& mapWindows = m_pDisplayManager->GetWindowsConstRef();
+	if( mapWindows.empty() )
+		return false;
+
+	std::string sFilePrefix;
+	
+	if( m_sScreenshotDir.empty() == false )
+	{
+		VistaFileSystemDirectory oDir( m_sScreenshotDir );
+		if( oDir.Exists() == false && oDir.CreateWithParentDirectories() == false )
+		{
+			vstr::warnp() << "[VistaMakeScreenshotCommand]: Could not create screenshot dir "
+							<< m_sScreenshotDir << std::endl;
+			return false;
+		}
+		sFilePrefix = m_sScreenshotDir + "/";
+	}
+
+	sFilePrefix += "screenshot_" 
+							+ VistaTimeUtils::ConvertToLexicographicDateString( m_pCluster->GetFrameClock() )
+							+ "_" + m_pCluster->GetNodeName();
+	for( std::map<std::string, VistaWindow*>::const_iterator itWin = mapWindows.begin();
+			itWin != mapWindows.end(); ++itWin )
+	{
+		std::string sFilename;
+		int nCount = 1;
+		for( ;; )
+		{
+			sFilename = sFilePrefix;
+			if( mapWindows.size() != 1 )
+				sFilename += "_" + (*itWin).first;
+			if( nCount > 1 )
+				sFilename += "(" + VistaConversion::ToString( nCount ) + ")";
+			sFilename += "." + m_sExtension;
+			if( VistaFileSystemFile( sFilename ).Exists() == false )
+				break;
+			++nCount;
+		}
+
+		
+
+		vstr::outi() << "[VistaMakeScreenshotCommand]: Storing screenshot at " << sFilename << std::endl;
+		m_pDisplayManager->MakeScreenshot( (*itWin).second, sFilename, true );
 	}
 	return true;
 }

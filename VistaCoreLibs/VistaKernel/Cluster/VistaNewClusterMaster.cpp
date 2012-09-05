@@ -37,6 +37,7 @@
 
 #include <VistaInterProcComm/Connections/VistaConnectionIP.h>
 #include <VistaInterProcComm/Connections/VistaByteBufferSerializer.h>
+#include <VistaInterProcComm/Connections/VistaConnectionFile.h>
 #include <VistaInterProcComm/IPNet/VistaSocketAddress.h>
 #include <VistaInterProcComm/IPNet/VistaUDPSocket.h>
 #include <VistaInterProcComm/Cluster/Imps/VistaTCPIPClusterBarrier.h>
@@ -48,6 +49,7 @@
 #include <VistaInterProcComm/Cluster/Imps/VistaDummyClusterDataSync.h>
 #include <VistaInterProcComm/Cluster/Imps/VistaBroadcastClusterDataSync.h>
 #include <VistaInterProcComm/Cluster/Imps/VistaInterProcClusterDataSync.h>
+#include <VistaInterProcComm/Cluster/Imps/VistaFiledumpClusterDataSync.h>
 
 #include <VistaBase/VistaExceptionBase.h>
 #include <VistaBase/VistaTimer.h>
@@ -56,6 +58,8 @@
 
 #include <VistaAspects/VistaPropertyList.h>
 #include <VistaAspects/VistaObserver.h>
+
+#include <VistaTools/VistaFileSystemDirectory.h>
 
 #include <cassert>
 #include <algorithm>
@@ -248,9 +252,17 @@ VistaNewClusterMaster::VistaNewClusterMaster( VistaSystem *pVistaSystem,
 , m_nSwapSyncMethod( VistaMasterSlave::SWAPSYNC_DEFAULTBARRIER )
 , m_nDataSyncMethod( VistaMasterSlave::DATASYNC_TCP )
 , m_nSwapSyncTimeout( 0 )
+, m_nRecordSyncCounter( 0 )
+//, m_nReplaySyncCounter( 0 )
 {
 	m_pEventObserver = new EventObserver( this );
 	m_pSyncEntityObserver = new SyncEntityObserver( this );
+
+	// Register Events that should be sync'ed in cluster mode
+	// @todo: memleaks
+	m_oMessage.RegisterEventType( new VistaSystemEvent );
+	m_oMessage.RegisterEventType( new VistaInteractionEvent( pVistaSystem->GetInteractionManager() ) );
+	m_oMessage.RegisterEventType( new VistaExternalMsgEvent );
 }
 
 VistaNewClusterMaster::~VistaNewClusterMaster()
@@ -347,6 +359,9 @@ bool VistaNewClusterMaster::Init( const std::string& sClusterSection,
 
 	InitSwapSync();	
 
+	// sync first frame clock
+	m_pDefaultDataSync->SyncTime( m_dFrameClock );
+
 	TransmitClusterSetupInfo();
 
 	// Last but not least: let's register with the desired events
@@ -381,6 +396,10 @@ void VistaNewClusterMaster::ParseParameters( const VistaPropertyList& oSection )
 	ParseDataSyncType( oSection );
 	ParseSwapSyncType( oSection );
 	ParseBarrierType( oSection );
+
+	// check if we should record/replay
+//	m_sReplayDataFolder = oSection.GetValueOrDefault<std::string>( "REPLAY", "" );
+	m_sRecordDataFolder = oSection.GetValueOrDefault<std::string>( "RECORD", "" );
 
 	
 		
@@ -1198,6 +1217,53 @@ IVistaClusterDataSync* VistaNewClusterMaster::CreateTypedDataSync( int nType,
 					<< "Datasync of type [" << pSync->GetDataSyncType()
 					<< "] is invalid" << std::endl;
 	}
+
+	if( m_sRecordDataFolder.empty() == false )
+	{
+		VistaFileSystemDirectory oDir( m_sRecordDataFolder );
+		if( oDir.Exists() == false && oDir.Create() == false )
+		{
+			vstr::warnp() << "[VistaClusterMaster]: Cannot create directory [" << m_sRecordDataFolder
+				<< "] for recording the session" << std::endl;
+		}
+		else
+		{
+			std::string sFilename = m_sRecordDataFolder + "/record_" + VistaConversion::ToString( m_nRecordSyncCounter++ );
+			VistaConnectionFile* pFile = new VistaConnectionFile( sFilename, VistaConnectionFile::WRITE );
+			pFile->Open();
+			if( pFile->GetIsOpen() == false )
+			{
+				delete pFile;
+				vstr::warnp() << "[VistaClusterMaster]: Cannot open record file directory [" << sFilename
+						<< "] for recording the session" << std::endl;
+			}
+			else
+			{
+				VistaRecordClusterLeaderDataSync* pRecordSync = new VistaRecordClusterLeaderDataSync( pFile, pSync, true );
+				pSync = pRecordSync;
+			}
+		}
+	}
+	//else if( m_sReplayDataFolder.empty() == false )
+	//{
+	//	VistaFileSystemDirectory oDir( m_sReplayDataFolder );
+
+	//	std::string sFilename = m_sReplayDataFolder + "/record_" + VistaConversion::ToString( m_nReplaySyncCounter++ );
+	//	VistaConnectionFile* pFile = new VistaConnectionFile( sFilename, VistaConnectionFile::READ );
+	//	pFile->Open();
+	//	if( pFile->GetIsOpen() == false )
+	//	{
+	//		vstr::warnp() << "[VistaClusterMaster]: Cannot open record file directory [" << sFilename
+	//				<< "] for replaying the session" << std::endl;
+	//		delete pFile;
+	//	}
+	//	else
+	//	{
+	//		VistaReplayClusterFollowerDataSync* pReplaySync = new VistaReplayClusterFollowerDataSync( pFile, pSync, true );
+	//		pSync = pReplaySync;
+	//	}
+	//}
+
 	return pSync;
 }
 
@@ -1352,7 +1418,14 @@ bool VistaNewClusterMaster::DistributeEvent( const VistaEvent* pEvent )
 {
 	VistaKernelProfileScope( "CLUSTERMASTER_DIST_EVENT" );
 	m_oMessage.SetEventMsg( pEvent );
-	return m_pDefaultDataSync->SyncData( m_oMessage );
+	bool bRes = m_pDefaultDataSync->SyncData( m_oMessage );
+	//if( m_sReplayDataFolder.empty() == false )
+	//{
+	//	// if we replay, the message has just been changed, so we have to
+	//	// re-extract the event
+	//	pEvent = m_oMessage.GetEvent();
+	//}
+	return bRes;
 }
 
 void VistaNewClusterMaster::DeactivateSlaveAfterDrop( Slave* pSlave )

@@ -261,8 +261,8 @@ public:
 	/*******************************************/
 
 	virtual bool MakeScreenshot( const VistaWindow& pWindow,
-									const std::string& strFilenamePrefix,
-									const bool bNoScreenshotOnClients = true ) const = 0;
+									const std::string& strFilename,
+									const bool bDelayUntilNextRender = false ) const = 0;
 
 	virtual Vista2DText* New2DText( const std::string& strWindowName = "" ) = 0;
 	virtual Vista2DBitmap* New2DBitmap( const std::string& strWindowName = "" ) = 0;

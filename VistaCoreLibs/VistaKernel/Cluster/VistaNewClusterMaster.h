@@ -174,6 +174,12 @@ private:
 	int						m_nBarrierWaitMethod;
 	int						m_nSwapSyncTimeout;	
 	int						m_nDataSyncMethod;
+
+	std::string				m_sRecordDataFolder;
+	int						m_nRecordSyncCounter;
+
+	std::string				m_sReplayDataFolder;
+	int						m_nReplaySyncCounter;
 };
 
 /*============================================================================*/

@@ -57,6 +57,7 @@
 #include <OpenSG/OSGProjectionCameraDecorator.h>
 #include <OpenSG/OSGPerspectiveCamera.h>
 #include <OpenSG/OSGImageForeground.h>
+#include <OpenSG/OSGFileGrabForeground.h>
 #include <OpenSG/OSGImage.h>
 #include <OpenSG/OSGSolidBackground.h>
 #include <OpenSG/OSGPassiveBackground.h>
@@ -266,8 +267,8 @@ public:
 
 	
 	virtual bool MakeScreenshot( const VistaWindow& pWindow,
-									const std::string& strFilenamePrefix,
-									const bool bNoScreenshotOnClients = true ) const;
+									const std::string& strFilename,
+									const bool bDelayUntilNextRender = false ) const;
 
 	virtual Vista2DText* New2DText( const std::string& strWindowName = "" );
 	virtual Vista2DBitmap* New2DBitmap( const std::string& strWindowName = "" );
@@ -380,6 +381,8 @@ public:
 		//bool GetStencilBufferEnabled() const;
 		osg::WindowPtr GetOpenSGWindow() const;
 		void ObserveWindow( VistaWindow* pWindow, VistaOpenSGDisplayBridge* pBridge );
+
+		osg::FileGrabForegroundPtr GetFileGrabForeground();
 	private:
 		class WindowObserver;
 		WindowObserver*	m_pObserver;
@@ -393,6 +396,8 @@ public:
 		//int						m_iOrigPosX, m_iOrigPosY;
 		//int						m_iOrigSizeX, m_iOrigSizeY;
 		//int						m_iCurrentSizeX, m_iCurrentSizeY;
+		osg::FileGrabForegroundRefPtr m_ptrFileGrabber;
+		osg::ImageRefPtr			m_ptrFileGrabberImage;
 	};
 
 
@@ -536,6 +541,7 @@ private:
 	osg::NodePtr m_pRealRoot;
 	IVistaWindowingToolkit* m_pWindowingToolkit;
 	VistaDisplayManager *m_pDisplayManager;
+	mutable std::vector<WindowData*> m_vecFileGrabWindows;
 };
 
 /*============================================================================*/
