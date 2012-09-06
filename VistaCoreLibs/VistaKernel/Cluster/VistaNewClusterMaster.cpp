@@ -49,7 +49,7 @@
 #include <VistaInterProcComm/Cluster/Imps/VistaDummyClusterDataSync.h>
 #include <VistaInterProcComm/Cluster/Imps/VistaBroadcastClusterDataSync.h>
 #include <VistaInterProcComm/Cluster/Imps/VistaInterProcClusterDataSync.h>
-#include <VistaInterProcComm/Cluster/Imps/VistaFiledumpClusterDataSync.h>
+#include <VistaInterProcComm/Cluster/Imps/VistaRecordReplayClusterDataSync.h>
 
 #include <VistaBase/VistaExceptionBase.h>
 #include <VistaBase/VistaTimer.h>

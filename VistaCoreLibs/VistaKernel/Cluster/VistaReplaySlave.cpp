@@ -73,7 +73,7 @@
 #include <GL/gl.h>
 #endif 
 #include "VistaInterProcComm/Connections/VistaConnectionFile.h"
-#include "VistaInterProcComm/Cluster/Imps/VistaFiledumpClusterDataSync.h"
+#include "VistaInterProcComm/Cluster/Imps/VistaRecordReplayClusterDataSync.h"
 #include "VistaInterProcComm/Cluster/Imps/VistaDummyClusterDataCollect.h"
 
 /*============================================================================*/
