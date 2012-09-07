@@ -312,7 +312,7 @@ bool VistaReplayClusterFollowerDataSync::SyncData( VistaType::byte* pDataBuffer,
 	{
 		Wait();
 		VistaType::sint32 nActualData = -1;
-		m_pReplayFile->ReadInt32( (VistaType::sint32)iDataSize );
+		m_pReplayFile->ReadInt32( nActualData );
 		m_pReplayFile->ReadRawBuffer( pDataBuffer, nActualData );
 		iDataSize = nActualData;
 	}
