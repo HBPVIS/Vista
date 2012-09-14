@@ -4,10 +4,10 @@
 # Modify this to math the actual executable name, and choose/modify the 
 # parameters that should be parsed before the application
 # Currently, the first parameters are parser to determine the execution
-# mode, i.e. wether to start as release (defualt), or use some kind of
+# mode, i.e. wether to start as release (default), or use some kind of
 # debugging/profiling, ...
 
-source ./bin/set_path_for_Inside.sh
+source ./bin/set_path_for_APPNAME.sh
 
 EXECUTABLE="./AppName"
 

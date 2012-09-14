@@ -9,7 +9,7 @@
 # (unless you know what you're doing)  #
 ########################################
 
-killall $APLLICATION_NAME_RELEASE > /dev/null 2>&1 &
-killall $APLLICATION_NAME_DEBUG > /dev/null 2>&1 &
-/opt/VR-Software/bin/killcaveclients.sh $APLLICATION_NAME_RELEASE > /dev/null 2>&1 &
-/opt/VR-Software/bin/killcaveclients.sh $APLLICATION_NAME_DEBUG > /dev/null 2>&1 &
+killall $APPLICATION_NAME_RELEASE &
+killall $APPLICATION_NAME_DEBUG &
+/opt/VR-Software/bin/killcaveclients.sh $APPLICATION_NAME_RELEASE &
+/opt/VR-Software/bin/killcaveclients.sh $APPLICATION_NAME_DEBUG &

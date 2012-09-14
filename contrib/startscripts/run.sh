@@ -22,8 +22,8 @@ oldcave_DEFAULT_CLUSTERCONFIG=HoloSpace
 
 # list the application names here, in order to allow killscripts
 # to ensure the apps are properly terminated
-APLLICATION_NAME_RELEASE=AppName
-APPLICATION_NAME_DEBUG=AppNameD
+export APPLICATION_NAME_RELEASE=AppName
+export APPLICATION_NAME_DEBUG=AppNameD
 
 
 # for each config, you may optionally specifiy a hostname (as regex)
@@ -136,8 +136,8 @@ while [ ! "$1" == "" ]; do
 			./startscripts/kill_$CHOSENSYSTEM.sh
 			exit
 		else
-			killall $APLLICATION_NAME_RELEASE &
-			killall $APLLICATION_NAME_DEBUG &
+			killall $APPLICATION_NAME_RELEASE &
+			killall $APPLICATION_NAME_DEBUG &
 			exit
 		fi
 	else
@@ -185,8 +185,10 @@ else
 	sleep 1
 
 	echo ""
-	echo "executing kill script"
-	./startscripts/kill_$CHOSENSYSTEM.sh
+	if [ -f "startscripts/kill_$CHOSENSYSTEM.sh" ]; then
+		echo "executing kill script"
+		./startscripts/kill_$CHOSENSYSTEM.sh > /dev/null
+	fi
 	
 fi
 

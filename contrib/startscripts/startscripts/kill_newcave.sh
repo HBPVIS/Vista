@@ -9,7 +9,7 @@
 # (unless you know what you're doing)  #
 ########################################
 
-killall $APLLICATION_NAME_RELEASE > /dev/null 2>&1 &
-killall InsideD > /dev/null 2>&1 &
-/home/vrsw/gpucluster/bin/killcaveclients_nowait.sh $APLLICATION_NAME_RELEASE > /dev/null 2>&1 &
-/home/vrsw/gpucluster/bin/killcaveclients_nowait.sh InsideD > /dev/null 2>&1 &
+killall $APPLICATION_NAME_RELEASE &
+killall $APPLICATION_NAME_DEBUG &
+/home/vrsw/gpucluster/bin/killcaveclients_nowait.sh $APPLICATION_NAME_RELEASE  &
+/home/vrsw/gpucluster/bin/killcaveclients_nowait.sh $APPLICATION_NAME_DEBUG &
