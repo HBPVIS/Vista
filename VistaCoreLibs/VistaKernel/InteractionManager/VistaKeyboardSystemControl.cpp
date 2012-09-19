@@ -572,9 +572,11 @@ bool VistaKeyboardSystemControl::GetKeyAndModifiersValueFromString(
 {
 	std::string sKeyString;
 	std::string sModString;
+
 	// check for last plus, separating modifiers and keys
-	std::size_t nPlusPos = sKeyModString.rfind( '+' );
-	if( nPlusPos == std::string::npos )
+	// take care not to select last char, because it can be a plus key symbol
+	std::size_t nPlusPos = sKeyModString.rfind( '+', sKeyModString.size() - 2 );
+	if( nPlusPos == std::string::npos || nPlusPos == sKeyModString.size() - 1 )
 	{
 		// no +, so just the key value
 		sKeyString = sKeyModString;
