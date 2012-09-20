@@ -53,6 +53,7 @@
 /*============================================================================*/
 class VistaViewport;
 class SkyboxData;
+class VistaColor;
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
@@ -76,7 +77,9 @@ public:
 	bool DetachFromViewport     (VistaViewport *pViewport);
 	bool GetIsAttachedToViewport(VistaViewport *pViewport);
 	bool SetColor( float fR, float fG, float fB, float fA );
+	bool SetColor( const VistaColor& oColor );
 	bool GetColor( float& fR, float& fG, float& fB, float& fA ) const;
+	VistaColor GetColor() const;
 protected:
 private:
 	SkyboxData *m_pData;

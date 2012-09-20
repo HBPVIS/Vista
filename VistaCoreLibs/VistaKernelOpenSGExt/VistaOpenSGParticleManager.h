@@ -102,7 +102,7 @@ public:
 public:
 
 
-	VistaOpenSGParticleManager(VistaGroupNode *pParent, VistaSceneGraph *pSG);
+	VistaOpenSGParticleManager( VistaSceneGraph *pSG, VistaGroupNode *pParent = NULL );
 	virtual ~VistaOpenSGParticleManager();
 
 	void SetMaximumParticles(int iMaxParticles);
@@ -129,6 +129,8 @@ public:
 	virtual void HandleEvent(VistaEvent *pEvent);
 	void UpdateParticles(VistaType::microtime dCurrentTime, VistaType::microtime dDeltaT);
 
+	VistaOpenSGParticles* GetParticles() const;
+
 private:
 	void PrepareParticleAtOrigin(int iParticleIndex);
 	void CalculateParticle(int iParticleIndex);
@@ -144,11 +146,13 @@ private:
 
 	int m_iNumberOfParticles;
 	int m_iMaxNumberOfParticles;
-	float m_fParticlesPerSecond;
-	int m_iCurrentNumberOfParticles;
 	int m_iFirstParticle;
 	int m_iLastParticle;
 
+
+	float m_fParticlesPerSecond;
+	int m_iCurrentNumberOfParticles;
+	
 	VistaOpenSGParticles *m_pParticles;
 
 	float *m_afParticlePos;

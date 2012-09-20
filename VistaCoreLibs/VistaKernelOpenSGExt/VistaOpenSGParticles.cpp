@@ -66,7 +66,7 @@ using namespace osg;
 
 struct VistaOpenSGParticlesData
 {
-	ParticlesPtr  ptrParticles;
+	ParticlesRefPtr  ptrParticles;
 	MFPnt3f      *pPositionsField;
 	MFPnt3f		 *pSecPositionsField;
 	MFVec3f      *pSizesField;

@@ -211,34 +211,62 @@ bool Optimize( osg::NodePtr pModelNode, int nOptimizationMode, bool bVerbose )
 
 		if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_CALCULATE_NORMALS_30DEG )
 		{
+			if( bVerbose )
+				vstr::outi() << "[VistaOpenSGModelOptimizer]: Calculating normals" << std::endl;	
+			oTimer.ResetLifeTime();
 			for( std::set<OSG::GeometryPtr>::const_iterator itGeo = oGrabber.GetGeometries()->begin();
 					itGeo != oGrabber.GetGeometries()->end(); ++itGeo )
 			{
 				osg::calcVertexNormals( (*itGeo), Vista::DegToRad( 30.0f ) );
 			}
+			if( bVerbose )
+			{
+				vstr::outi() << vstr::singleindent << "normal calculation took " << vstr::formattime( 1000 * oTimer.GetLifeTime(), 1 ) << "ms" << std::endl;
+			}
 		}
 		else if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_CALCULATE_NORMALS_45DEG )
 		{
+			if( bVerbose )
+				vstr::outi() << "[VistaOpenSGModelOptimizer]: Calculating normals" << std::endl;	
+			oTimer.ResetLifeTime();
 			for( std::set<OSG::GeometryPtr>::const_iterator itGeo = oGrabber.GetGeometries()->begin();
 					itGeo != oGrabber.GetGeometries()->end(); ++itGeo )
 			{
 				osg::calcVertexNormals( (*itGeo), Vista::DegToRad( 45.0f ) );
 			}
+			if( bVerbose )
+			{
+				vstr::outi() << vstr::singleindent << "normal calculation took " << vstr::formattime( 1000 * oTimer.GetLifeTime(), 1 ) << "ms" << std::endl;
+			}
 		}
 		else if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_CALCULATE_NORMALS_60DEG )
 		{
+			if( bVerbose )
+				vstr::outi() << "[VistaOpenSGModelOptimizer]: Calculating normals" << std::endl;	
+			oTimer.ResetLifeTime();
 			for( std::set<OSG::GeometryPtr>::const_iterator itGeo = oGrabber.GetGeometries()->begin();
 					itGeo != oGrabber.GetGeometries()->end(); ++itGeo )
 			{
 				osg::calcVertexNormals( (*itGeo), Vista::DegToRad( 60.0f ) );
 			}
+			if( bVerbose )
+			{
+				vstr::outi() << vstr::singleindent << "normal calculation took " << vstr::formattime( 1000 * oTimer.GetLifeTime(), 1 ) << "ms" << std::endl;
+			}
 		}
 		else if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_CALCULATE_NORMALS_90DEG )
 		{
+			if( bVerbose )
+				vstr::outi() << "[VistaOpenSGModelOptimizer]: Calculating normals" << std::endl;	
+			oTimer.ResetLifeTime();
 			for( std::set<OSG::GeometryPtr>::const_iterator itGeo = oGrabber.GetGeometries()->begin();
 					itGeo != oGrabber.GetGeometries()->end(); ++itGeo )
 			{
 				osg::calcVertexNormals( (*itGeo), Vista::DegToRad( 90.0f ) );
+			}
+			if( bVerbose )
+			{
+				vstr::outi() << vstr::singleindent << "normal calculation took " << vstr::formattime( 1000 * oTimer.GetLifeTime(), 1 ) << "ms" << std::endl;
 			}
 		}
 

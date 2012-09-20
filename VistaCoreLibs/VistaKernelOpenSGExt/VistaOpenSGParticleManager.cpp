@@ -52,7 +52,7 @@
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
 
-VistaOpenSGParticleManager::VistaOpenSGParticleManager(VistaGroupNode *pParent, VistaSceneGraph *pSG)
+VistaOpenSGParticleManager::VistaOpenSGParticleManager( VistaSceneGraph *pSG, VistaGroupNode *pParent )
 : m_pOriginObject( NULL )
 , m_pChangeObject( NULL )
 , m_afParticlePos( NULL )
@@ -74,8 +74,8 @@ VistaOpenSGParticleManager::VistaOpenSGParticleManager(VistaGroupNode *pParent, 
 	m_pParticles->BeginEdit();
 	m_pParticles->SetColorsWithAlpha();
 	m_pParticles->SetDrawOrder(VistaOpenSGParticles::BackToFront);
-	//m_pParticles->SetGLBlendDestFactor();
-	//m_pParticles->SetGLTexEnvMode( GL_MODULATE );
+	m_pParticles->SetGLBlendDestFactor();
+	m_pParticles->SetGLTexEnvMode( GL_MODULATE );
 	m_pParticles->EndEdit();
 
 }
@@ -93,6 +93,8 @@ void VistaOpenSGParticleManager::SetParticlesSpriteImage(const std::string& sFil
 {
 	m_pParticles->BeginEdit();
 	m_pParticles->SetUseSpriteImage(sFilename);
+	m_pParticles->SetGLBlendDestFactor();
+	m_pParticles->SetGLTexEnvMode( GL_MODULATE );
 	m_pParticles->EndEdit();
 }
 
@@ -290,29 +292,12 @@ void VistaOpenSGParticleManager::UpdateParticles( VistaType::microtime dCurrentT
 		return;
 	}
 
-
-	if ((m_iFirstParticle >= m_iMaxNumberOfParticles) && (m_iLastParticle >= m_iMaxNumberOfParticles))
-	{
-
-		m_iFirstParticle = m_iFirstParticle % m_iMaxNumberOfParticles;
-		m_iLastParticle = m_iLastParticle % m_iMaxNumberOfParticles;
-
-		if (m_iNumberOfParticles == m_iMaxNumberOfParticles)
-		{
-			m_iFirstParticle = 0;
-			m_iLastParticle = m_iMaxNumberOfParticles-1;
-		}
-
-	}
-
-
 	m_pParticles->BeginEdit();
 
 	if (m_afParticleSecPos!= NULL)
 	{
 		m_pParticles->CopyPosToSecpos();
 	}
-
 
 	if ((m_iLastParticle < m_iFirstParticle) && (m_iLastParticle>=0))
 	{
@@ -340,29 +325,27 @@ void VistaOpenSGParticleManager::UpdateParticles( VistaType::microtime dCurrentT
 	{
 		while (m_dRemainingSeedTime>=0)
 		{
-			m_iLastParticle++;
-
-			if (m_iLastParticle>=m_iMaxNumberOfParticles)
-			{
+			++m_iLastParticle;
+			if( m_iLastParticle >= m_iMaxNumberOfParticles )
 				m_iLastParticle = 0;
-			}
 
-			if (m_iLastParticle==m_iFirstParticle)
+			if( m_iLastParticle == m_iFirstParticle )
 			{
-				m_iFirstParticle++;
+				++m_iFirstParticle;
+				if( m_iFirstParticle >= m_iMaxNumberOfParticles )
+					m_iFirstParticle = 0;
 			}
 
-			int i_ChangeParticle;
-			i_ChangeParticle=m_iLastParticle % m_iMaxNumberOfParticles;
+			int nChangeParticle = m_iLastParticle % m_iMaxNumberOfParticles;
 	
-			PrepareParticleAtOrigin(i_ChangeParticle);
-			m_oCalculationParticle.m_a3fPosition = &m_afParticlePos[3*i_ChangeParticle];
-			m_oCalculationParticle.m_a3fSecondPosition = &m_afParticleSecPos[3*i_ChangeParticle];
-			m_oCalculationParticle.m_a3fVelocity = &m_vecVelocities[i_ChangeParticle][0];
-			m_oCalculationParticle.m_a3fSize = &m_afParticleSize[3*i_ChangeParticle];
-			m_oCalculationParticle.m_a4fColor = &m_afParticleColor[4*i_ChangeParticle];
-			m_oCalculationParticle.m_pRemainingLifeTime = &m_vecLifeTime[i_ChangeParticle];
-			m_oCalculationParticle.m_iParticleID = i_ChangeParticle;
+			PrepareParticleAtOrigin(nChangeParticle);
+			m_oCalculationParticle.m_a3fPosition = &m_afParticlePos[3*nChangeParticle];
+			m_oCalculationParticle.m_a3fSecondPosition = &m_afParticleSecPos[3*nChangeParticle];
+			m_oCalculationParticle.m_a3fVelocity = &m_vecVelocities[nChangeParticle][0];
+			m_oCalculationParticle.m_a3fSize = &m_afParticleSize[3*nChangeParticle];
+			m_oCalculationParticle.m_a4fColor = &m_afParticleColor[4*nChangeParticle];
+			m_oCalculationParticle.m_pRemainingLifeTime = &m_vecLifeTime[nChangeParticle];
+			m_oCalculationParticle.m_iParticleID = nChangeParticle;
 
 			m_pChangeObject->ChangeParticle(m_oCalculationParticle,m_dCurrentTimeStamp,m_dRemainingSeedTime);
 			m_dRemainingSeedTime-=(1.0f/m_fParticlesPerSecond);
@@ -458,6 +441,11 @@ void VistaOpenSGParticleManager::ReloadParticleManager()
 void VistaOpenSGParticleManager::StopParticleManager()
 {
 	m_bParticleManagerActive=false;
+}
+
+VistaOpenSGParticles* VistaOpenSGParticleManager::GetParticles() const
+{
+	return m_pParticles;
 }
 
 //######################################################################

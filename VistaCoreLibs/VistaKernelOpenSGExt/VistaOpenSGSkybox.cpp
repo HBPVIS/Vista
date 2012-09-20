@@ -269,12 +269,23 @@ bool VistaOpenSGSkybox::GetIsAttachedToViewport(VistaViewport *pViewport)
 
 bool VistaOpenSGSkybox::SetColor( float fR, float fG, float fB, float fA )
 {
-	return (m_pData->SetColor( fR, fG, fB, fA ) );
+	return m_pData->SetColor( fR, fG, fB, fA );
+}
+
+bool VistaOpenSGSkybox::SetColor( const VistaColor& oColor )
+{
+	return m_pData->SetColor( oColor[0], oColor[1], oColor[2], oColor[3] );
 }
 
 bool VistaOpenSGSkybox::GetColor( float& fR, float& fG, float& fB, float& fA ) const
 {
-	return (m_pData->GetColor( fR, fG, fB, fA ) );
+	return m_pData->GetColor( fR, fG, fB, fA );
+}
+
+VistaColor VistaOpenSGSkybox::GetColor() const
+{
+	VistaColor oRet;
+	return m_pData->GetColor( oRet[0], oRet[1], oRet[2], oRet[3] );
 }
 
 /*============================================================================*/

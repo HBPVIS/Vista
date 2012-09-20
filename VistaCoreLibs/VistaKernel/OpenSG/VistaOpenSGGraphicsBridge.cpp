@@ -590,7 +590,12 @@ int VistaOpenSGGraphicsBridge::GetNumberOfVertices(const IVistaGeometryData* pDa
 	if( geo->getLengths() != osg::NullFC && geo->getLengths()->size() == 1 )
 		return geo->getLengths()->getValue(0);
 	else if( geo->getIndices() != osg::NullFC )
-		return  geo->getIndices()->size()/geo->getIndexMapping().size();
+	{
+		if( geo->getIndexMapping().size() > 0 )
+			return ( geo->getIndices()->size() / geo->getIndexMapping().size() );
+		else
+			return ( geo->getIndices()->size() );
+	}
 	else
 		return 0;
 }
