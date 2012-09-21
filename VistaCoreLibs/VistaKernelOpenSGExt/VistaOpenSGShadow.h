@@ -47,7 +47,7 @@
 class VistaWindow;
 class VistaOpenSGNodeData;
 class VistaLightNode;
-class VistaGroupNode;
+class IVistaNode;
 class VistaDisplayManager;
 class VistaGraphicsManager;
 class tShadowViewPortNameMap;
@@ -108,12 +108,12 @@ public:
 	/**
 	 * Add a node to the exclude-from-shadowing-functionality list.
 	 */
-	bool AddExcludeNode (VistaGroupNode* pNode);
+	bool AddExcludeNode (IVistaNode* pNode);
 
 	/**
 	 * Remove a node from the exclude-from-shadowing-functionality list.
 	 */
-	bool RemoveExcludeNode (VistaGroupNode* pNode);
+	bool RemoveExcludeNode (IVistaNode* pNode);
 
 	/**
 	 * Clears the exclude-from-shadowing-functionality list.

@@ -653,6 +653,7 @@ bool VistaOpenSGShadow::RemoveLight (VistaLightNode* pLight)
 		//	endEditCP(ptrShadowVP, OSG::ShadowViewport::LightNodesFieldMask);
 		//}
 		/** workaround: clear lightnodes and readd all... */
+		beginEditCP(ptrShadowVP, osg::ShadowViewport::LightNodesFieldMask);
 		ptrShadowVP->getLightNodes().clear();
 		for (std::vector<VistaLightNode*>::size_type j=0;
 			j < m_vecLights.size(); j++)
@@ -661,6 +662,7 @@ bool VistaOpenSGShadow::RemoveLight (VistaLightNode* pLight)
 				(m_vecLights[j]->GetData());
 			ptrShadowVP->getLightNodes().push_back(pOpenSGLightData->GetLightNode());
 		}
+		endEditCP(ptrShadowVP, osg::ShadowViewport::LightNodesFieldMask);
 	}
 
 	return true;
@@ -672,12 +674,12 @@ bool VistaOpenSGShadow::RemoveLight (VistaLightNode* pLight)
 /* */
 /*============================================================================*/
 
-bool VistaOpenSGShadow::AddExcludeNode (VistaGroupNode* pNode)
+bool VistaOpenSGShadow::AddExcludeNode( IVistaNode* pNode )
 {
 	if (!m_bInit)
 		return false;
 
-	VistaOpenSGNodeData* pOpenSGData = static_cast<VistaOpenSGNodeData*> (pNode->GetData());
+	VistaOpenSGNodeData* pOpenSGData = static_cast<VistaOpenSGNodeData*> (static_cast<VistaNode*>(pNode)->GetData());
 
 	// add node to exclude list
 	for (tShadowViewPortNameMap::iterator it =(*m_pShadowVPs).begin(); it != (*m_pShadowVPs).end(); ++it)
@@ -696,12 +698,12 @@ bool VistaOpenSGShadow::AddExcludeNode (VistaGroupNode* pNode)
 /* */
 /*============================================================================*/
 
-bool VistaOpenSGShadow::RemoveExcludeNode (VistaGroupNode* pNode)
+bool VistaOpenSGShadow::RemoveExcludeNode (IVistaNode* pNode)
 {
 	if (!m_bInit)
 		return false;
 
-	VistaOpenSGNodeData* pOpenSGData = static_cast<VistaOpenSGNodeData*> (pNode->GetData());
+	VistaOpenSGNodeData* pOpenSGData = static_cast<VistaOpenSGNodeData*> (static_cast<VistaNode*>(pNode)->GetData());
 
 	bool allFound = true;
 	// remove node from exclude list
@@ -911,9 +913,9 @@ void VistaOpenSGShadow::EnableShadow ()
 
 	for (tShadowViewPortNameMap::iterator it =(*m_pShadowVPs).begin(); it != (*m_pShadowVPs).end(); ++it)
 	{
-		beginEditCP(it->second, OSG::ShadowViewport::OffFactorFieldMask);
+		beginEditCP(it->second, OSG::ShadowViewport::ShadowOnFieldMask);
 		it->second->setShadowOn(true);
-		endEditCP(it->second, OSG::ShadowViewport::OffFactorFieldMask);
+		endEditCP(it->second, OSG::ShadowViewport::ShadowOnFieldMask);
 	}
 
 	m_bEnabled = true;
