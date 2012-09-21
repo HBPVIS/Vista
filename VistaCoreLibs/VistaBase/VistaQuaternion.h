@@ -398,14 +398,17 @@ inline const VistaQuaternion& VistaQuaternion::operator-=( const VistaQuaternion
 
 inline const VistaQuaternion& VistaQuaternion::operator*=( const VistaQuaternion& v3Other )
 {
-	m_a4fValues[0] = m_a4fValues[1] * v3Other[2] - m_a4fValues[2] * v3Other[1] 
-					+ m_a4fValues[3] * v3Other[0] + m_a4fValues[0] * v3Other[3];
-	m_a4fValues[1] = m_a4fValues[2] * v3Other[0] - m_a4fValues[0] * v3Other[2]
-					+ m_a4fValues[3] * v3Other[1] + m_a4fValues[1] * v3Other[3];
-	m_a4fValues[2] =  m_a4fValues[0] * v3Other[1] - m_a4fValues[1] * v3Other[0]
-					+ m_a4fValues[3] * v3Other[2] + m_a4fValues[2] * v3Other[3];
-	m_a4fValues[3] = - m_a4fValues[0]*v3Other[0] - m_a4fValues[1]*v3Other[1] 
-					- m_a4fValues[2]*v3Other[2] + m_a4fValues[3]*v3Other[3];
+	float a4fValues[4];
+	a4fValues[0] = m_a4fValues[1] * v3Other[2] - m_a4fValues[2] * v3Other[1] 
+	             + m_a4fValues[3] * v3Other[0] + m_a4fValues[0] * v3Other[3];
+	a4fValues[1] = m_a4fValues[2] * v3Other[0] - m_a4fValues[0] * v3Other[2]
+	             + m_a4fValues[3] * v3Other[1] + m_a4fValues[1] * v3Other[3];
+	a4fValues[2] = m_a4fValues[0] * v3Other[1] - m_a4fValues[1] * v3Other[0]
+	             + m_a4fValues[3] * v3Other[2] + m_a4fValues[2] * v3Other[3];
+	a4fValues[3] =-m_a4fValues[0] * v3Other[0] - m_a4fValues[1] * v3Other[1] 
+	             - m_a4fValues[2] * v3Other[2] + m_a4fValues[3] * v3Other[3];
+
+	memcpy( m_a4fValues, a4fValues, 4*sizeof(m_a4fValues[0]) );
 	return (*this);
 }
 
