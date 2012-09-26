@@ -36,6 +36,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <cstring>
 
 /*============================================================================*/
 /* FORWARD DECLARATIONS                                                       */
