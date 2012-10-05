@@ -43,6 +43,7 @@
 #endif
 #include <OpenSG/OSGNode.h>
 #include <OpenSG/OSGGeometry.h>
+#include <OpenSG/OSGChunkMaterial.h>
 #ifdef WIN32
 // disable warnings from OpenSG
 #pragma warning(pop)
@@ -59,6 +60,7 @@
 /*============================================================================*/
 
 class VistaGeometry;
+class VistaDisplayManager;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -117,6 +119,18 @@ namespace VistaOpenSGGeometryTools
 
 	VISTAKERNELOPENSGEXTAPI
 	bool SetUseVBOOnSubtree( IVistaNode* pNode, const bool bSet );
+
+	VISTAKERNELOPENSGEXTAPI
+	bool PreloadRenderData( IVistaNode* pNode, VistaDisplayManager* pDispManager );
+	VISTAKERNELOPENSGEXTAPI
+	bool PreloadRenderData( VistaGeometry* pGeom, VistaDisplayManager* pDispManager );
+	VISTAKERNELOPENSGEXTAPI
+	bool PreloadRenderData( osg::GeometryPtr pGeom, osg::WindowPtr pWindow );
+	VISTAKERNELOPENSGEXTAPI
+	bool PreloadRenderData( osg::ChunkMaterialPtr pMaterial, osg::WindowPtr pWindow );
+
+	VISTAKERNELOPENSGEXTAPI
+	bool PreloadAllRenderData( VistaDisplayManager* pDispManager );
 }
 
 

@@ -39,10 +39,15 @@
 #include <VistaKernel/GraphicsManager/VistaNode.h>
 #include <VistaKernel/OpenSG/VistaOpenSGNodeBridge.h>
 #include <VistaKernel/OpenSG/VistaOpenSGGraphicsBridge.h>
+#include <VistaKernel/OpenSG/VistaOpenSGDisplayBridge.h>
+#include <VistaKernel/DisplayManager/VistaDisplayManager.h>
+#include <VistaKernel/DisplayManager/VistaWindow.h>
 
 #include <OpenSG/OSGNode.h>
 #include <OpenSG/OSGGeometry.h>
 #include <OpenSG/OSGGeoFunctions.h>
+#include <OpenSG/OSGSHLChunk.h>
+#include <OpenSG/OSGSimpleTexturedMaterial.h>
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
@@ -237,6 +242,117 @@ bool VistaOpenSGGeometryTools::SetUseVBOOnSubtree( IVistaNode* pNode, const bool
 	{
 		(*it)->setVbo( bSet );
 	}
+	return true;
+}
+
+VISTAKERNELOPENSGEXTAPI
+bool VistaOpenSGGeometryTools::PreloadRenderData( IVistaNode* pNode, VistaDisplayManager* pDispManager )
+{
+	OSG::NodePtr node = GetOpenSGNode(pNode);
+	GeometryGrabber grabber;
+	grabber.Traverse(node);
+
+	bool bSuccess = true;
+
+	const std::map<std::string, VistaWindow*>& mapWindwos = pDispManager->GetWindowsConstRef();
+	for( std::map<std::string, VistaWindow*>::const_iterator itWin = mapWindwos.begin();
+			itWin != mapWindwos.end(); ++itWin )
+	{
+		VistaOpenSGDisplayBridge::WindowData* pData = dynamic_cast<VistaOpenSGDisplayBridge::WindowData*>(
+															(*itWin).second->GetData() );
+		const GeometryGrabber::GeoSet* geos = grabber.GetGeometries();
+		GeometryGrabber::GeoSet::const_iterator it;
+		for(it = geos->begin(); it != geos->end(); ++it)
+		{
+			bSuccess &= PreloadRenderData( (*it), pData->GetOpenSGWindow() );
+		}
+	}
+	return bSuccess;
+}
+
+VISTAKERNELOPENSGEXTAPI
+bool VistaOpenSGGeometryTools::PreloadRenderData( VistaGeometry* pGeom, VistaDisplayManager* pDispManager )
+{
+	VistaOpenSGGeometryData* pGeoData = dynamic_cast<VistaOpenSGGeometryData*>( pGeom->GetData() );
+
+	bool bSuccess = true;
+
+	const std::map<std::string, VistaWindow*>& mapWindwos = pDispManager->GetWindowsConstRef();
+	for( std::map<std::string, VistaWindow*>::const_iterator itWin = mapWindwos.begin();
+			itWin != mapWindwos.end(); ++itWin )
+	{
+		VistaOpenSGDisplayBridge::WindowData* pWinData = dynamic_cast<VistaOpenSGDisplayBridge::WindowData*>(
+															(*itWin).second->GetData() );
+		bSuccess &= PreloadRenderData( pGeoData->GetGeometry(), pWinData->GetOpenSGWindow() );
+	}
+	return bSuccess;
+}
+
+VISTAKERNELOPENSGEXTAPI
+bool VistaOpenSGGeometryTools::PreloadRenderData( osg::GeometryPtr pGeom, osg::WindowPtr pWindow )
+{
+	if( pGeom->getDlistCache() || pGeom->getVbo() )
+	{
+		// @todo: getGLID() is protected :/
+		osg::SFInt32* pGLField = dynamic_cast<osg::SFInt32*>( pGeom->getField( osg::Geometry::GLIdFieldId ) );
+		if( pGLField )
+		{
+			pWindow->validateGLObject( pGLField->getValue() );
+		}
+		
+	}
+	osg::ChunkMaterialPtr pMaterial = osg::ChunkMaterialPtr::dcast( pGeom->getMaterial() );
+	if( pMaterial != osg::NullFC )
+	{
+		PreloadRenderData( pMaterial, pWindow );
+	}
+	return true;
+}
+
+VISTAKERNELOPENSGEXTAPI
+bool VistaOpenSGGeometryTools::PreloadRenderData( osg::ChunkMaterialPtr pMaterial, osg::WindowPtr pWindow )
+{
+	osg::SHLChunkPtr pShader = osg::SHLChunkPtr::dcast( pMaterial->find( osg::SHLChunk::getClassType() ) );
+	if( pShader != osg::NullFC )
+	{
+		pWindow->validateGLObject( pShader->getGLId() );
+	}
+	osg::SimpleTexturedMaterialPtr pSimpleTexMat = osg::SimpleTexturedMaterialPtr::dcast( pMaterial );
+	if( pSimpleTexMat != osg::NullFC )
+	{
+		osg::StatePtr pState = pMaterial->getState();
+		osg::MFStateChunkPtr oStates = pState->getChunks();
+		for( osg::MFStateChunkPtr::iterator itState = oStates.begin();
+				itState != oStates.end(); ++itState )
+		{
+			osg::TextureChunkPtr pTex = osg::TextureChunkPtr::dcast( (*itState) );
+			if( pTex != osg::NullFC )
+				pWindow->validateGLObject( pTex->getGLId() );
+		}
+	}
+	
+	for( osg::Int32 i = 0; i < 8; ++i )
+	{
+		osg::TextureChunkPtr pTex = osg::TextureChunkPtr::dcast( pMaterial->find( osg::TextureChunk::getClassType(), i ) );
+		if( pTex != osg::NullFC )
+			pWindow->validateGLObject( pTex->getGLId() );
+	}	
+	
+	return true;
+}
+
+VISTAKERNELOPENSGEXTAPI
+bool VistaOpenSGGeometryTools::PreloadAllRenderData( VistaDisplayManager* pDispManager )
+{
+	const std::map<std::string, VistaWindow*>& mapWindwos = pDispManager->GetWindowsConstRef();
+	for( std::map<std::string, VistaWindow*>::const_iterator itWin = mapWindwos.begin();
+			itWin != mapWindwos.end(); ++itWin )
+	{
+		VistaOpenSGDisplayBridge::WindowData* pWinData = dynamic_cast<VistaOpenSGDisplayBridge::WindowData*>(
+															(*itWin).second->GetData() );
+		pWinData->GetOpenSGWindow()->validateAllGLObjects();
+	}
+
 	return true;
 }
 
