@@ -36,41 +36,42 @@
  * 		<table border=0>
  * 			<tr>
  * 				<td align="right">API version:</td>
- * 				<td align="left"><b>CLUSTERMODE_TEST</b></td>
+ * 				<td align="left"><b>1.14</b></td>
  * 			</tr>
  * 			<tr>
  * 				<td align="right">codename:</td>
- * 				<td align="left"><b>ViSTA CLUSTERMODE_TEST</b></td>
+ * 				<td align="left"><b>ViSTA PLUTO</b></td>
  * 			</tr>
  * 			<tr>
  * 				<td align="right">API release date:</td>
- * 				<td align="left"><b>not released yet</b></td>
+ * 				<td align="left"><b>August 24th, 2012</b></td>
  * 			</tr>
  * 			<tr><td colspan=2>&nbsp;</td></tr>
- * 			<tr><td align="center" colspan=2><i>This is the ViSTA main development branch.</i></td></tr>
- * 			<tr><td align="center" colspan=2><i>Codenames will only be given to API versions.</i></td></tr>
- * 			<tr><td align="center" colspan=2><i>Revisions will - as they don't contain API changes - not be given names.</i></td></tr>
+ * 			<tr><td align="center" colspan=2><i>This is the ViSTA release 1.14.0, codename "PLUTO".</i></td></tr>
+ * 			<tr><td align="center" colspan=2><i>It is dedicated to pluto, which was the ninth planet of our</i></td></tr>
+ * 			<tr><td align="center" colspan=2><i>solar system until it was downgraded to a dwar planet</i></td></tr>
+ * 			<tr><td align="center" colspan=2><i>on August 24, 2006. </i></td></tr>
  * 			<tr><td colspan=2>&nbsp;</td></tr>
  * 			<tr>
  * 				<td align="right">full version:</td>
- * 				<td align="left"><b>CLUSTERMODE_TEST</b></td>
+ * 				<td align="left"><b>1.14.0</b></td>
  * 			</tr>
  * 			<tr>
  * 				<td align="right">release date:</td>
- * 				<td align="left"><b>not released yet</b></td>
+ * 				<td align="left"><b>August 24th, 2012</b></td>
  * 			</tr>
  * 		</table>
  * 	</div>
  */
 
 
-#define VISTA_HEAD
 
-#define VISTA_RELEASE_NAME "HEAD branch $Revision: 29136 $ $Date: 2012-02-08 10:35:49 +0100 (Mi, 08. Feb 2012) $"
-//#define VISTA_RELEASE_NAME "FANCYNAME" 
-#define VISTA_VERSION "1.12.0"
+#define VISTA_HEAD
+#define VISTA_RELEASE_NAME "HEAD"
+//#define VISTA_RELEASE_NAME "PLUTO"
+#define VISTA_VERSION "1.14.0"
 #define VISTA_MAJOR    1
-#define VISTA_MINOR    12
+#define VISTA_MINOR    14
 #define VISTA_REVISION 0
 
 /*============================================================================*/

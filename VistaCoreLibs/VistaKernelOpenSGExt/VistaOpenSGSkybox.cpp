@@ -93,8 +93,8 @@ public:
 
 			pTexChunkPtr->setMinFilter( GL_LINEAR );
 			pTexChunkPtr->setMagFilter( GL_LINEAR );
-			pTexChunkPtr->setEnvMode( GL_MODULATE );
-			//pTexChunkPtr->setEnvMode( GL_REPLACE );
+			//pTexChunkPtr->setEnvMode( GL_MODULATE );
+			pTexChunkPtr->setEnvMode( GL_REPLACE );
 		}
 		endEditCP( pTexChunkPtr );
 
@@ -122,7 +122,8 @@ public:
 		pOsgSky->setRightTexture(MakeBoxTexture(strRight.c_str()));
 		pOsgSky->setBottomTexture(MakeBoxTexture(strBottom.c_str()));
 		pOsgSky->setFrontTexture(MakeBoxTexture(strFront.c_str()));
-
+		/*
+*/
 		pOsgSky->setSphereRes(nSphereRes);
 
 		pOsgSky->getMFSkyColor()->push_back( osg::Color4f( 1, 1, 1, 1 ) );
