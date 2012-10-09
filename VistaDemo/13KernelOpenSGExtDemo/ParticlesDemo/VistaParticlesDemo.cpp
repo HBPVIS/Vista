@@ -606,7 +606,7 @@ void CreateScene(VistaSystem *pSystem)
 
 	//New Way. See RollingBalls.h for further detail. See further below for more detail on this matter.
 	VistaTransformNode *pRollingBallsNode = pSG->NewTransformNode(pRoot);
-	VistaOpenSGParticleManager *mRollingBallsManager = new VistaOpenSGParticleManager(pRollingBallsNode, pSG);
+	VistaOpenSGParticleManager *mRollingBallsManager = new VistaOpenSGParticleManager(pSG, pRollingBallsNode);
 	mRollingBallsManager->SetParticlesViewMode(VistaOpenSGParticles::PM_VIEWERQUADS);
 	mRollingBallsManager->SetParticlesSpriteImage("../../data/ball.png");
 	mRollingBallsManager->SetOriginObject(new RollingBallsOriginSet(VistaVector3D(10,0,10),VistaVector3D(4,0,10),VistaVector3D(0.25,0.25,0.25)));
@@ -623,7 +623,7 @@ void CreateScene(VistaSystem *pSystem)
 	//GrindingSparks   *pCallMe3 = new GrindingSparks(pTrans, pSG);
 	
 	VistaTransformNode *pGrindingSparksNode = pSG->NewTransformNode(pRoot);
-	VistaOpenSGParticleManager *mGrindingSparksManager = new VistaOpenSGParticleManager(pGrindingSparksNode, pSG);
+	VistaOpenSGParticleManager *mGrindingSparksManager = new VistaOpenSGParticleManager(pSG, pGrindingSparksNode);
 	mGrindingSparksManager->SetParticlesViewMode(VistaOpenSGParticles::PM_DIRECTEDQUADS);
 	mGrindingSparksManager->SetParticlesSpriteImage("../../data/spark.png");
 	mGrindingSparksManager->SetOriginObject(new GrindingSparksOriginSet(VistaVector3D(0.05f,0,-1.3f),0.1f,VistaVector3D(0,0,-1),0.7f,VistaVector3D(0.01f,0.01f,0.7f)));
@@ -663,7 +663,7 @@ void CreateScene(VistaSystem *pSystem)
 	//Creating the TransformNode for the Particles
 	VistaTransformNode *pVistaParticleManagerNode = pSG->NewTransformNode(pRoot);
 	//Creates the ParticleManager which will create the Particles on this TransformNode.
-	VistaOpenSGParticleManager *mVistaParticleManager = new VistaOpenSGParticleManager(pVistaParticleManagerNode, pSG);
+	VistaOpenSGParticleManager *mVistaParticleManager = new VistaOpenSGParticleManager(pSG, pVistaParticleManagerNode);
 	//Set the ViewMode. See the OpenSGParticles for reference for the two supported ViewModes. ATTENTION: This needs to be set BEFORE setting the SpriteImage!
 	//@TODO Alternatively reset the SpriteImage each time the ViewMode gets changed!
 	mVistaParticleManager->SetParticlesViewMode(VistaOpenSGParticles::PM_VIEWERQUADS);
@@ -695,7 +695,7 @@ void CreateScene(VistaSystem *pSystem)
 
 
 	VistaTransformNode *pPMPhysicsNode = pSG->NewTransformNode(pRoot);
-	VistaOpenSGParticleManager *mPMPhysicsManager = new VistaOpenSGParticleManager(pPMPhysicsNode, pSG);
+	VistaOpenSGParticleManager *mPMPhysicsManager = new VistaOpenSGParticleManager( pSG, pPMPhysicsNode );
 	mPMPhysicsManager->SetParticlesViewMode(VistaOpenSGParticles::PM_VIEWERQUADS);
 	mPMPhysicsManager->SetParticlesSpriteImage("../../data/lemming.png");
 
