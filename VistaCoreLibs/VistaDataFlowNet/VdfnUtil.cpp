@@ -508,7 +508,16 @@ bool RegisterBasicNodeCreators(VistaDriverMap *pDrivers,
 	pFac->SetNodeCreator( "RangeCheck[float]", new TVdfnRangeCheckNodeCreate<float> );
 	pFac->SetNodeCreator( "RangeCheck[double]", new TVdfnRangeCheckNodeCreate<double> );
 
+	pFac->SetNodeCreator( "Delay[bool]", new VdfnDelayNodeCreate<bool> );
+	pFac->SetNodeCreator( "Delay[int]", new VdfnDelayNodeCreate<int> );
+	pFac->SetNodeCreator( "Delay[unsigned int]", new VdfnDelayNodeCreate<unsigned int> );
+	pFac->SetNodeCreator( "Delay[float]", new VdfnDelayNodeCreate<float> );
+	pFac->SetNodeCreator( "Delay[double]", new VdfnDelayNodeCreate<double> );
+	pFac->SetNodeCreator( "Delay[string]", new VdfnDelayNodeCreate<std::string> );
 	pFac->SetNodeCreator( "Delay[VistaVector3D]", new VdfnDelayNodeCreate<VistaVector3D> );
+	pFac->SetNodeCreator( "Delay[VistaQuaternion]", new VdfnDelayNodeCreate<VistaQuaternion> );
+	pFac->SetNodeCreator( "Delay[VistaTransformMatrix]", new VdfnDelayNodeCreate<VistaTransformMatrix> );
+
 
 	pFac->SetNodeCreator( "Multiplex[int]", new TVdfnDefaultNodeCreate<TVdfnMultiplexNode<int> > );
 	pFac->SetNodeCreator( "Multiplex[unsigned int]", new TVdfnDefaultNodeCreate<TVdfnMultiplexNode<unsigned int> > );
