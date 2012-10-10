@@ -84,20 +84,6 @@ namespace VdfnUtil
 	VISTADFNAPI bool RegisterBasicPortSetters();
 
 	/**
-	 * management API, registers the basically available node creators for the
-	 * available node types. Is called by InitVdfn(), so usually there is no need
-	 * to call this methods on your own, use InitVdfn() instead. Nodes creators will
-	 * register themselves in the VdfnNodeFactory singleton.
-	 * @param a non-null pointer to a valid driver map which must outlive the whole
-	          application life cycle.
-	 * @param pObjRegistry the object registry to use for nodes searching entities.
-	          the registry must outlive the whole application life cycle.
-	 * @return true
-	 */
-	VISTADFNAPI bool RegisterBasicNodeCreators(VistaDriverMap *pDrivers,
-							   VdfnObjectRegistry *pObjRegistry);
-
-	/**
 	 * calls RegisterBasicPortSetters() and RegisterBasicNodeCreators()
 	 * @return true
 	 */
