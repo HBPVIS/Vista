@@ -28,18 +28,29 @@ sBCAddress = "10.0.1.255"
 sZeroMQAddress = "epgm://eth1;224.1.1.29"
 sZeroMQPorts = "19000-19999"
 
+sSlaveIpConfigFileLocation = "/home/vrsw/gpucluster"
+
 aConfigs = [
 	( "NoSlaves", [] ),
+	( "LeftWall", [2] ),
 	( "FrontWall", [3] ),
+	( "RightWall", [4] ),
+	( "Door", [5] ),
 	( "HoloSpace", [0, 1, 2, 3, 4, 5] ),
 	( "CaveSpace", [0, 1, 2, 3, 4] ),
-	( "Angle", [2, 3] )
+	( "Angle", [2, 3] ),
+	( "AngleSpace", [0, 1, 2, 3] ),
+	( "CaveSpaceNoFloor", [2, 3, 4, 5] ),
+	( "HoloSpaceNoFloor", [2, 3, 4] ),
 ]
 
 nCount = len(aWalls) * len(aRows) * len(aColumns) * len(aEyes)
 
 aSlaveIPsInfiniband = [ "192.168.88.20", "192.168.88.22", "192.168.88.23", "192.168.88.24", "192.168.88.25", "192.168.88.26", "192.168.88.27", "192.168.88.28", "192.168.88.29", "192.168.88.30", "192.168.88.31", "192.168.88.32", "192.168.88.33", "192.168.88.34", "192.168.88.35", "192.168.88.36", "192.168.88.37", "192.168.88.38", "192.168.88.39", "192.168.88.40", "192.168.88.41", "192.168.88.42", "192.168.88.43", "192.168.88.44", "192.168.88.45", "192.168.88.46", "192.168.88.47" ]
 aSlaveIPSClusterNet = [ "134.61.201.192", "134.61.201.193", "134.61.201.194", "134.61.201.195", "134.61.201.196", "134.61.201.197", "134.61.201.198", "134.61.201.199", "134.61.201.200", "134.61.201.201", "134.61.201.202", "134.61.201.203", "134.61.201.204", "134.61.201.205", "134.61.201.206", "134.61.201.207", "134.61.201.208", "134.61.201.209", "134.61.201.210", "134.61.201.211", "134.61.201.212", "134.61.201.213", "134.61.201.214", "134.61.201.215", "134.61.201.217", "134.61.201.218", "134.61.201.219" ]
+
+
+# Create display_newcave.ini
 
 sFilename = "display_" + sCaveName + ".ini"
 oFile  = open( sFilename, 'w' )
@@ -50,7 +61,7 @@ def WriteVec( aVec ):
 
 def GetIPForSlave( nNumber ):
 	nNumber = int(0.5*nNumber+0.5)
-	#we have to switch row and column for the floor, i.e. the first 8 slaves
+	# we have to switch row and column for the floor, i.e. the first 8 slaves
 	if nNumber == 2:
 		nNumber = 3
 	elif nNumber == 3:
@@ -132,6 +143,12 @@ def PrintProjExtents( nWallId, nRow, nColumn ):
 				+ str( aExtents[2] ) + ", "
 				+ str( aExtents[3] ) + "\n" )
 	
+
+def GetNameForNode( nWallId, nRowId, nColumnId ):
+#	if( nWallId < 2 ):
+#		return aWalls[nWallId] + "_" + str( 2*nRowId + nColumnId )
+#	else:
+		return aWalls[nWallId] + "_" + aRows[nRowId] + aColumns[nColumnId]
 		
 def GetNameFor( nWallId, nRowId, nColumnId, nEyeId ):
 #	if( nWallId < 2 ):
@@ -162,7 +179,11 @@ def CreateSlaveSystemSection( nWallId, nRowId, nColumnId, nEyeId ):
 	else:
 		oFile.write( "NAME                = Slave" + str(nId) + "\n" )
 	oFile.write( "DISPLAYSYSTEMS      = DISPLAY_" + sNameUpper + "\n" )
-	oFile.write( "SLAVEIP             = " + GetIPForSlave( nId ) + "\n" )
+	nNodeID = int( 0.5 * ( nId + 1 ) )
+	if nNodeID < 10:
+		oFile.write( "SLAVEIP             = ${VISTA_SLAVENODE0" + str(nNodeID) + "_IP}\n" )
+	else:
+		oFile.write( "SLAVEIP             = ${VISTA_SLAVENODE" + str(nNodeID) + "_IP}\n" )
 	oFile.write( "SLAVEPORT           = " + str(nSlavePort) + "\n" )
 	oFile.write( "ACKPORT             = " + str(nAckPort) + "       # for old master/slave\n" )
 	oFile.write( "SYNC                = TRUE        # for old master/slave\n" )
@@ -189,10 +210,9 @@ def CreateMasterSystemSection():
 					for nEye in range(len(aEyes)):
 						sName = GetNameFor( nWall, nRow, nColumn, nEye )
 						oFile.write( sName )
-						if nWall == aWallConfigs[len(aWallConfigs)-1] and nRow+1 == len(aRows) and nColumn+1 == len(aColumns) and nEye+1 == len(aEyes):
-							oFile.write( "\n" )
-						else:
+						if nWall != aWallConfigs[len(aWallConfigs)-1] or nRow+1 != len(aRows) or nColumn+1 != len(aColumns) or nEye+1 != len(aEyes):
 							oFile.write( ", " )
+		oFile.write( "\n" )
 		oFile.write( "DISPLAYSYSTEMS      = DISPLAY_MASTER\n" )
 		oFile.write( "SYNC                = TRUE            # for old master/slave\n" )
 		oFile.write( "SYNCIP              = " + sBCAddress + "      # for old master/slave\n" )
@@ -204,6 +224,7 @@ def CreateMasterSystemSection():
 		oFile.write( "BARRIERTYPE         = ${BARRIER_MODE}\n" )
 		oFile.write( "SWAPSYNCTYPE        = ${SWAPSYNC_MODE}\n" )
 		oFile.write( "DATASYNCTYPE        = ${DATASYNC_MODE}\n" )
+		oFile.write( "SWAPSYNCTIMEOUT     = 0               # in ms, 0 means infinite wait\n" )
 		oFile.write( "OUTPUT              = ${OUTSTREAMS_MASTER}\n" )
 		oFile.write( "\n\n" )
 		
@@ -313,7 +334,7 @@ def CreateFileScopeVariables():
 	oFile.write( "RIGHT_EYE_OFFSET    = +0.03, 0, 0\n" )
 	oFile.write( "INIT_VIEWER_POS     = 0, 1.6, 0\n" )
 	oFile.write( "INIT_VIEWER_ORI     = 0, 0, 0, 1\n" )
-	oFile.write( "MASTER_VSYNC_MODE   = FALSE\n" )
+	oFile.write( "MASTER_VSYNC_MODE   = TRUE\n" )
 	oFile.write( "SLAVE_VSYNC_MODE    = TRUE\n" )
 	oFile.write( "CLIPPING_RANGE      = 0.05, 1000.0\n" )
 	oFile.write( "DATASYNC_MODE       = ZEROMQ\n" )
@@ -391,11 +412,78 @@ CreateStreamDefintions()
 
 
 
+# creating the slaveip_config
+sSlaveConfigFilename = "slavenodes_ipconfig_" + sCaveName + ".sh"
+oNodesConfig  = open( sSlaveConfigFilename, 'w' )
+
+oNodesConfig.write( "#!/bin/bash\n" )
+oNodesConfig.write( "# This script defines the slaves for the aixCAVE cluster\n" )
+oNodesConfig.write( "# It defines all slaves (or, technically, the nodes for two slaves each) and exports the required variables\n" )
+oNodesConfig.write( "# slaves are defined as arrays of the form ( name_prefix hostname(fors ssh) ip(for vista) [ [DISABLED|WARNING|IP_CHANGED] Message ]\n" )
+oNodesConfig.write( "\n" )
+oNodesConfig.write( "export SLAVENODES_COUNT=" + str( len(aWalls) * len(aRows) * len(aColumns) ) + "\n" )
+nCount = 0
+for nWall in range(len(aWalls)):
+	for nRow in range(len(aRows)):
+		for nColumn in range(len(aColumns)):
+			nCount = nCount + 1
+			sName = GetNameForNode( nWall, nRow, nColumn )
+			if nCount < 10:
+				sExpCount = "0" + str(nCount)
+			else:
+				sExpCount = str(nCount)
+				
+			# swap floors
+			if nCount == 2:
+				nHostCount = 3
+			elif nCount == 3:
+				nHostCount = 2
+			elif nCount == 6:
+				nHostCount = 7
+			elif nCount == 7:
+				nHostCount = 6
+			else:
+				nHostCount = nCount
+				
+			if nCount < 10:
+				sHost = "linuxgpus0" + str(nHostCount)
+			else:
+				sHost = "linuxgpus" + str(nHostCount)
+			sIP = GetIPForSlave( 2*nCount )
+			oNodesConfig.write( "export SLAVENODE" + sExpCount + "=( " + sName.ljust( 16 ) + " " + sHost.ljust(12) + " " + sIP.ljust(12) + " )\n" )
+oNodesConfig.write( "\n" )
+oNodesConfig.write( "# export slave variables\n" )
+oNodesConfig.write( "for (( i=1; i<=${SLAVENODES_COUNT}; i++ ));\n" )
+oNodesConfig.write( "do\n" )
+oNodesConfig.write( "    if (( i<10 )); then\n" )
+oNodesConfig.write( "        SLAVENODEIPNAME=VISTA_SLAVENODE0${i}_IP\n" )
+oNodesConfig.write( "        SLAVENODE=SLAVENODE0${i}\n" )
+oNodesConfig.write( "    else\n" )
+oNodesConfig.write( "        SLAVENODEIPNAME=VISTA_SLAVENODE${i}_IP\n" )
+oNodesConfig.write( "        SLAVENODE=SLAVENODE${i}\n" )
+oNodesConfig.write( "    fi\n" )
+oNodesConfig.write( "\n" )	
+oNodesConfig.write( "    eval export ${SLAVENODEIPNAME}=\${$SLAVENODE[2]}\n" )
+oNodesConfig.write( "done\n" )
+oNodesConfig.write( "\n" )
+
+
+
+
 # creating the start script
 sStartscriptFilename = "startslaves_" + sCaveName + ".sh"
 oStartFile  = open( sStartscriptFilename, 'w' )
 
 oStartFile.write( "#!/bin/bash\n\n" )
+oStartFile.write( "\n" )
+oStartFile.write( "# generic script to start the slaves of the new CAVE at the RWTH Aachen University\n" )
+oStartFile.write( "\n" )
+oStartFile.write( "# define the colors for node status messages\n" )
+oStartFile.write( "DISABLED_COLOR=$(echo -e \"\\033[0;30;41m\") # black on red\n" )
+oStartFile.write( "SKIPPED_COLOR=$(echo -e \"\\033[0;30;41m\") # black on red\n" )
+oStartFile.write( "WARN_COLOR=$(echo -e \"\\033[0;30;43m\") # black on yellow/brown\n" )
+oStartFile.write( "IPCHANGED_COLOR=$(echo -e \"\\033[1;32m\") # green\n" )
+oStartFile.write( "RESET_COLOR=$(echo -e \"\\033[0m\")\n" )
 oStartFile.write( "\n" )
 oStartFile.write( "CONFIGS=( " )
 for Config in aConfigs:
@@ -407,70 +495,121 @@ for Config in aConfigs:
 		oStartFile.write( str( 4*nScreenNum + 1) + " " + str( 4*nScreenNum + 2 ) + " " + str( 4*nScreenNum + 3 ) + " " + str( 4*nScreenNum + 4 ) + " " )
 	oStartFile.write( ")\n" )
 oStartFile.write( "\n" )
-oStartFile.write( "SLAVENAMES=( " )
-for nWallId in range(len(aWalls)):
-	for nRowId in range(len(aRows)):
-		for nColumnId in range(len(aColumns)):
-			for nEyeId in range(len(aEyes)):
-				if aIsFloor[nWallId]:
-					oStartFile.write( GetNameFor( nWallId, nColumnId, nRowId, nEyeId ) + " " )
-				else:
-					oStartFile.write( GetNameFor( nWallId, nRowId, nColumnId, nEyeId ) + " " )
-oStartFile.write( " )\n" )
+oStartFile.write( "#########################################\n" )
+oStartFile.write( "# Generic, application-independent file #\n" )
+oStartFile.write( "# Don't edit!                           #\n" )
+oStartFile.write( "# (unless you know what you're doing)   #\n" )
+oStartFile.write( "#########################################\n" )
 oStartFile.write( "\n" )
+oStartFile.write( "# load slave ip config settings to know each slave's current IP\n" )
+oStartFile.write( "if ! [ -f \"$SLAVENODES_CONFIGURATION_FILE\" ]; then\n" )
+oStartFile.write( "    echo \"no SLAVENODES_CONFIGURATION_FILE set - resetting to default\"\n" )
+oStartFile.write( "    $SLAVENODES_CONFIGURATION_FILE=\"/home/vrsw/gpucluster/slavenodes_ipconfig_newcave.sh\"\n" )
+oStartFile.write( "fi\n" )
+oStartFile.write( "source $SLAVENODES_CONFIGURATION_FILE\n" )
 oStartFile.write( "\n" )
+oStartFile.write( "# determine configuration\n" )
 oStartFile.write( "if [ \"$1\" = \"\" ];\n" )
 oStartFile.write( "then\n" )
-oStartFile.write( "\techo 'parameter missing - specify a cluster configuration ( ${CONFIGS[@]} )'\n" )
-oStartFile.write( "\texit\n" )
+oStartFile.write( "    echo 'parameter missing - specify a cluster configuration ( ${CONFIGS[@]} )'\n" )
+oStartFile.write( "    exit\n" )
 oStartFile.write( "fi\n" )
 oStartFile.write( "\n" )
 oStartFile.write( "INPUTCONFIG=${1,,}\n" )
 oStartFile.write( "CHOSENCONFIG=\"\"\n" )
 oStartFile.write( "\n" )
 oStartFile.write( "for TESTCONFIG in ${CONFIGS[@]}\n" )
-oStartFile.write( "do\t\n" )
-oStartFile.write( "\tif [ \"${TESTCONFIG,,}\" == \"$INPUTCONFIG\" ];\n" )
-oStartFile.write( "\tthen\n" )
-oStartFile.write( "\t\tCHOSENCONFIG=$TESTCONFIG\n" )
-oStartFile.write( "\t\tbreak\n" )
-oStartFile.write( "\tfi\n" )
+oStartFile.write( "do    \n" )
+oStartFile.write( "    if [ \"${TESTCONFIG,,}\" == \"$INPUTCONFIG\" ];\n" )
+oStartFile.write( "    then\n" )
+oStartFile.write( "        CHOSENCONFIG=$TESTCONFIG\n" )
+oStartFile.write( "        shift\n" )
+oStartFile.write( "        break\n" )
+oStartFile.write( "    fi\n" )
 oStartFile.write( "done\n" )
 oStartFile.write( "\n" )
 oStartFile.write( "if [ \"$CHOSENCONFIG\" == \"\" ];\n" )
 oStartFile.write( "then\n" )
-oStartFile.write( "\techo \"Provided Config does not exist\"\n" )
-oStartFile.write( "\techo \"Configs are: ${CONFIGS[@]}\"\n" )
-oStartFile.write( "\texit\n" )
+oStartFile.write( "    echo \"Provided Config does not exist\"\n" )
+oStartFile.write( "    echo \"Configs are: ${CONFIGS[@]}\"\n" )
+oStartFile.write( "    exit\n" )
 oStartFile.write( "else\n" )
-oStartFile.write( "\techo \"Starting config $CHOSENCONFIG\"\n" )
+oStartFile.write( "    echo \"Starting config $CHOSENCONFIG\"\n" )
 oStartFile.write( "fi\n" )
 oStartFile.write( "\n" )
 oStartFile.write( "SLAVELIST=\"$CHOSENCONFIG[@]\"\n" )
 oStartFile.write( "\n" )
+oStartFile.write( "# determine if slave output should be redirected\n" )
+oStartFile.write( "if $REDIRECT_SLAVE_OUTPUT; then\n" )
+oStartFile.write( "    \n" )
+oStartFile.write( "    echo \"Redirecting all slaves' output to ./slavelogs/slave_*.log\"\n" )
+oStartFile.write( "    if [ ! -d \"slavelogs\" ]; then\n" )
+oStartFile.write( "        mkdir slavelogs\n" )
+oStartFile.write( "    fi\n" )
+oStartFile.write( "    \n" )
+oStartFile.write( "fi\n" )
+oStartFile.write( "\n" )
+oStartFile.write( "# set prefix for calls (always the same)\n" )
 oStartFile.write( "DIR=`pwd`\n" )
+oStartFile.write( "SSH_CALL_PREFIX=\"cd ${DIR}; export XAUTHORITY=/var/run/Xauthority-vr; export DISPLAY=:0.0; export SLAVENODES_CONFIGURATION_FILE=${SLAVENODES_CONFIGURATION_FILE}\"\n" )
 oStartFile.write( "\n" )
 oStartFile.write( "for ID in ${!SLAVELIST}\n" )
 oStartFile.write( "do\n" )
-oStartFile.write( "\tif [ $ID -lt 10 ];\n" )
-oStartFile.write( "\tthen\n" )
-oStartFile.write( "\t\tSLAVEHOSTNAME=linuxgpus0$ID\n" )
-oStartFile.write( "\telse\n" )
-oStartFile.write( "\t\tSLAVEHOSTNAME=linuxgpus$ID\n" )
-oStartFile.write( "\tfi\n" )
+oStartFile.write( "    \n" )
+oStartFile.write( "    let SLAVENODEINDEX=$ID-1\n" )
+oStartFile.write( "    if [ $ID -lt 10 ];\n" )
+oStartFile.write( "    then\n" )
+oStartFile.write( "        SLAVENODESECTION=SLAVENODE0${ID}\n" )
+oStartFile.write( "        SLAVESKIPVAR=SKIP_SLAVE0${ID}\n" )
+oStartFile.write( "    else\n" )
+oStartFile.write( "        SLAVENODESECTION=SLAVENODE${ID}\n" )
+oStartFile.write( "        SLAVESKIPVAR=SKIP_SLAVE${ID}\n" )
+oStartFile.write( "    fi\n" )
+oStartFile.write( "    \n" )
+oStartFile.write( "    eval SLAVENODENAME=\${$SLAVENODESECTION[0]}\n" )
+oStartFile.write( "    eval SLAVEHOST=\${$SLAVENODESECTION[1]}\n" )
+oStartFile.write( "    eval SLAVESTATUS=\${$SLAVENODESECTION[3]}\n" )
+oStartFile.write( "    eval SLAVEMESSAGE=\${$SLAVENODESECTION[4]}\n" )
+oStartFile.write( "        \n" )
+oStartFile.write( "    if [ \"${SLAVESTATUS}\" == \"DISABLED\" ]; then\n" )
+oStartFile.write( "        echo \"${DISABLED_COLOR}##########################################\"\n" )
+oStartFile.write( "        echo \"# Slave ${ID} currently disabled \"\n" )
+oStartFile.write( "        echo \"# ${SLAVEMESSAGE}\"\n" )
+oStartFile.write( "        echo \"##########################################${RESET_COLOR}\"\n" )
+oStartFile.write( "        continue\n" )
+oStartFile.write( "    elif [ \"${SLAVESTATUS}\" == \"WARNING\" ]; then\n" )
+oStartFile.write( "        echo \"${WARN_COLOR}###########################################\"\n" )
+oStartFile.write( "        echo \"# Slave ${ID} WARNING:  ${SLAVEMESSAGE}\"\n" )
+oStartFile.write( "        echo \"##########################################${RESET_COLOR}\"\n" )
+oStartFile.write( "    elif [ \"${SLAVESTATUS}\" == \"IP_CHANGED\" ]; then\n" )
+oStartFile.write( "        echo \"${IPCHANGED_COLOR}Slave ${ID} has changed IP:  ${SLAVEMESSAGE}${RESET_COLOR}\"\n" )
+oStartFile.write( "    fi\n" )
+oStartFile.write( "    \n" )
+oStartFile.write( "    if [ \"${!SLAVESKIPVAR}\" == \"1\" ]; then\n" )
+oStartFile.write( "        echo \"${SKIPPED_COLOR}Slave ${ID} skipped by command line param ${RESET_COLOR}\"\n" )
+oStartFile.write( "        continue\n" )
+oStartFile.write( "    fi\n" )
 oStartFile.write( "\n" )
-oStartFile.write( "\tlet SLAVENAMEINDEX=$ID-1\n" )
-oStartFile.write( "\tlet SLAVENAMEINDEX=$SLAVENAMEINDEX*2\n" )
-oStartFile.write( "\tSLAVENAME_FIRST=${SLAVENAMES[$SLAVENAMEINDEX]]}\n" )
-oStartFile.write( "\tlet SLAVENAMEINDEX=$SLAVENAMEINDEX+1\n" )
-oStartFile.write( "\tSLAVENAME_SECOND=${SLAVENAMES[$SLAVENAMEINDEX]]}\n" )
+oStartFile.write( "    SLAVENAME_FIRST=${SLAVENODENAME}_RE\n" )
+oStartFile.write( "    SLAVENAME_SECOND=${SLAVENODENAME}_LE    \n" )
 oStartFile.write( "\n" )
-oStartFile.write( "\techo start on $SLAVEHOSTNAME as ${SLAVENAME_FIRST}\n" )
-oStartFile.write( "\tssh $SLAVEHOSTNAME \"cd ${DIR}; export XAUTHORITY=/var/run/Xauthority-vr;export DISPLAY=:0.0; ./slave_" + sCaveName + ".sh ${SLAVENAME_FIRST} $@\" &\n" )
+oStartFile.write( "    if $REDIRECT_SLAVE_OUTPUT; then\n" )
 oStartFile.write( "\n" )
-oStartFile.write( "\techo start on $SLAVEHOSTNAME as ${SLAVENAME_SECOND}\n" )
-oStartFile.write( "\tssh $SLAVEHOSTNAME \"cd ${DIR}; export XAUTHORITY=/var/run/Xauthority-vr;export DISPLAY=:0.1; ./slave_" + sCaveName + ".sh ${SLAVENAME_SECOND} $@\" &\n" )
-oStartFile.write( "\t\n" )
+oStartFile.write( "        echo \"starting slave ${SLAVENAME_FIRST} on ${SLAVEHOST}\"\n" )
+oStartFile.write( "        ssh $SLAVEHOST \"${SSH_CALL_PREFIX}; ./startscripts/slave_newcave.sh ${SLAVENAME_FIRST} $@ >slavelogs/slave_${SLAVENAME_FIRST}.log 2>&1\" &\n" )
+oStartFile.write( "\n" )
+oStartFile.write( "        echo \"starting slave ${SLAVENAME_SECOND} on ${SLAVEHOST}\"\n" )
+oStartFile.write( "        ssh $SLAVEHOST \"${SSH_CALL_PREFIX}; ./startscripts/slave_newcave.sh ${SLAVENAME_SECOND} $@ >slavelogs/slave_${SLAVENAME_SECOND}.log 2>&1\" &\n" )
+oStartFile.write( "    \n" )
+oStartFile.write( "    else\n" )
+oStartFile.write( "\n" )
+oStartFile.write( "        echo \"starting slave ${SLAVENAME_FIRST} on ${SLAVEHOST}\"\n" )
+oStartFile.write( "        ssh $SLAVEHOST \"${SSH_CALL_PREFIX}; ./startscripts/slave_newcave.sh ${SLAVENAME_FIRST} $@\" &\n" )
+oStartFile.write( "\n" )
+oStartFile.write( "        echo \"starting slave ${SLAVENAME_SECOND} on ${SLAVEHOST}\"\n" )
+oStartFile.write( "        ssh $SLAVEHOST \"${SSH_CALL_PREFIX}; ./startscripts/slave_newcave.sh ${SLAVENAME_SECOND} $@\" &\n" )
+oStartFile.write( "\n" )
+oStartFile.write( "    fi\n" )
 oStartFile.write( "done\n" )
 		
 oFile.close()
