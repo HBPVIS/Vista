@@ -24,4 +24,10 @@ export __GL_DEFAULT_LOG_ANISO=3
 # disable vsync here - state per client will be set by display_newcave.ini
 export __GL_SYNC_TO_VBLANK=0
 
-./startscripts/start.sh $@ -vista inside_newcave.ini -displayini display_newcave.ini -clusterini display_newcave.ini
+# load slave ip config settings to know each slave's current IP
+if ! [ -f "$SLAVENODES_CONFIGURATION_FILE" ]; then
+	$SLAVENODES_CONFIGURATION_FILE="/home/vrsw/gpucluster/slavenodes_ipconfig_newcave.sh"
+fi
+source $SLAVENODES_CONFIGURATION_FILE
+
+./startscripts/start.sh $@ -vista vista_newcave.ini -displayini display_newcave.ini -clusterini display_newcave.ini
