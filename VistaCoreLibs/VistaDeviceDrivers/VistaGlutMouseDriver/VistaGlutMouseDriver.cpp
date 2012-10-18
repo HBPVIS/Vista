@@ -35,9 +35,22 @@
   #else
     #include <GL/glut.h>
   #endif
+
 #else
     #include <GL/freeglut.h>
 #endif
+
+#if defined( USE_NATIVE_GLUT )
+
+#if !defined(GLUT_WHEEL_UP)
+#define GLUT_WHEEL_UP 3
+#endif
+
+#if !defined(GLUT_WHEEL_DOWN)
+#define GLUT_WHEEL_DOWN 4
+#endif
+
+#endif // USE_NATIVE_GLUT
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
@@ -89,7 +102,7 @@ namespace
 	UVistaMouseMap S_mapMouseMap;
 }
 
-void VistaGlutMouseDriver::MouseFunction( int iButton, int iState, int iX, int iY)
+void VistaGlutMouseDriver::MouseFunction( int iButton, int iState, int iX, int iY )
 {
 	int nWindow = glutGetWindow();
 	if(nWindow == 0)
@@ -99,15 +112,45 @@ void VistaGlutMouseDriver::MouseFunction( int iButton, int iState, int iX, int i
 	if(!pMouse)
 		return;
 
+	int nWheelNumber   = -1;
+	int nWheelDirState = pMouse->m_nWheelDirState;
+
+#if defined(USE_NATIVE_GLUT)
+	// when using native glut we can dispatch wheel state with the normal button function
+	// (true for X systems by default, glut patches for windows that do this can be found on the web)
+	if( iButton <= GLUT_RIGHT_BUTTON )
+	{
+		// only write 'valid' LEFT|MIDDLE|RIGHT (0|1|2) values as a current state
+		pMouse->m_nButtonStates[iButton] = 1-iState;
+	}
+	else
+	{
+		// glut on linux reports mouse wheel (by default) as button 3 and 4
+		// existing glut patches for windows have their own defines.
+		if( iButton == GLUT_WHEEL_UP )
+		{
+			nWheelDirState = -1;
+			nWheelNumber   = 0;
+		}
+		else if( iButton == GLUT_WHEEL_DOWN )
+		{
+			nWheelDirState = 1;
+			nWheelNumber   = 0;
+		}
+	}
+#else
+	if( ( iButton >= GLUT_LEFT_BUTTON ) && ( iButton <= GLUT_RIGHT_BUTTON ) )
+		pMouse->m_nButtonStates[iButton] = 1-iState;
+	// else: we lose mouse wheel and other buttons here, but that's why we use freeglut and the wheel func
+#endif
+
 	// save current state of buttons for eventually
 	// incoming MotionFunctions, otherwise, the button press
 	// or release might be lost.
-	pMouse->m_nButtonStates[iButton] = 1-iState;
-
 	_state s(nWindow, iX, iY,pMouse->m_nButtonStates[0],
 					 pMouse->m_nButtonStates[1],
 					 pMouse->m_nButtonStates[2],
-					 -1, pMouse->m_nWheelDirState);
+					 nWheelNumber, nWheelDirState );
 
 	pMouse->m_vecUpdates.push_back( s );
 }
@@ -146,7 +189,7 @@ void VistaGlutMouseDriver::MouseWheelFunction( int nWheelNumber, int nDirection,
 					 pMouse->m_nButtonStates[1],
 					 pMouse->m_nButtonStates[2],
 					 nWheelNumber, nDirection);
-	pMouse->m_vecUpdates.push_back(s);
+	pMouse->m_vecUpdates.push_back( s );
 }
 
 
@@ -380,6 +423,7 @@ bool VistaGlutMouseDriver::DoSensorUpdate(VistaType::microtime dTs)
 		// indicate change
 		pSensor->SetUpdateTimeStamp(dTs);
 	}
+
 	if(!m_vecUpdates.empty())
 	{
 		m_vecUpdates.clear();
