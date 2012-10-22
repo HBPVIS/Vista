@@ -78,15 +78,7 @@ class VistaUserPlatform::UserPlatformObserver : public IVistaObserver
 	virtual void ObserverUpdate(IVistaObserveable *pObserveable, int msg, int ticket)
 	{
 		//VistaVirtualPlatform *pPlat = dynamic_cast<VistaVirtualPlatform*>(pObserveable);
-		if(m_pPlatform)
-		{
-			VistaTransformNode *pNode = m_pUserPlatform->GetPlatformNode();
-			VistaTransformMatrix m;
-			
-			m_pPlatform->GetMatrix(m);
-			pNode->SetTransform(m); // simply apply to node
-		}
-				
+		UpdateNodes();				
 	}
 	
 	virtual bool Observes(IVistaObserveable *pObserveable)
@@ -101,6 +93,18 @@ class VistaUserPlatform::UserPlatformObserver : public IVistaObserver
 			m_pPlatform = pPlat;
 			if(m_pPlatform)
 				m_pPlatform->AttachObserver(this);
+	}
+
+	void UpdateNodes()
+	{
+		if(m_pPlatform)
+		{
+			VistaTransformNode *pNode = m_pUserPlatform->GetPlatformNode();
+			VistaTransformMatrix m;
+			
+			m_pPlatform->GetMatrix(m);
+			pNode->SetTransform(m); // simply apply to node
+		}
 	}
 	
 	private:
@@ -158,28 +162,10 @@ public:
 	
 	virtual void ObserverUpdate(IVistaObserveable *pObserveable, int msg, int ticket)
 	{
-		//VistaVirtualPlatform *pPlat = dynamic_cast<VistaVirtualPlatform*>(pObserveable);
-		if(msg == VistaDisplaySystem::VistaDisplaySystemProperties::MSG_VIEWER_POSITION_CHANGE
-			|| msg == VistaDisplaySystem::VistaDisplaySystemProperties::MSG_VIEWER_ORIENTATION_CHANGE)
+		if( msg == VistaDisplaySystem::VistaDisplaySystemProperties::MSG_VIEWER_POSITION_CHANGE
+			|| msg == VistaDisplaySystem::VistaDisplaySystemProperties::MSG_VIEWER_ORIENTATION_CHANGE )
 		{
-			if(m_pProps)
-			{
-				VistaVirtualPlatform *ref = m_pUserPlatform->GetPlatform();
-				VistaVector3D wcPos;
-				VistaQuaternion qWcOri;
-
-				m_pProps->GetViewerPosition(wcPos[0], wcPos[1], wcPos[2]);
-				m_pProps->GetViewerOrientation( qWcOri[0], qWcOri[1], qWcOri[2], qWcOri[3] );
-
-				if(!m_pProps->GetLocalViewer())
-				{
-					ref->TransformToFrame(wcPos, qWcOri);
-				}
-
-				VistaTransformNode *pUser = m_pUserPlatform->GetPlatformUserNode();
-				pUser->SetTranslation(wcPos);
-				pUser->SetRotation(qWcOri);
-			}	
+			UpdateNodes();
 		}
 	}
 	
@@ -196,6 +182,28 @@ public:
 		m_pProps = pProps;
 		if(m_pProps)
 			m_pProps->AttachObserver(this);
+	}
+
+	void UpdateNodes()
+	{
+		if(m_pProps)
+		{
+			VistaVirtualPlatform *ref = m_pUserPlatform->GetPlatform();
+			VistaVector3D wcPos;
+			VistaQuaternion qWcOri;
+
+			m_pProps->GetViewerPosition(wcPos[0], wcPos[1], wcPos[2]);
+			m_pProps->GetViewerOrientation( qWcOri[0], qWcOri[1], qWcOri[2], qWcOri[3] );
+
+			if(!m_pProps->GetLocalViewer())
+			{
+				ref->TransformToFrame(wcPos, qWcOri);
+			}
+
+			VistaTransformNode *pUser = m_pUserPlatform->GetPlatformUserNode();
+			pUser->SetTranslation(wcPos);
+			pUser->SetRotation(qWcOri);
+		}	
 	}
 	
 	private:
@@ -241,6 +249,10 @@ VistaUserPlatform::VistaUserPlatform(VistaSceneGraph *pSG,
 
 	m_pUserObs = new UserObserver(this);
 	m_pUserObs->Observe( m_pDispSys->GetProperties() );
+
+	// obtain once to set initial transform
+	m_pPlatObs->UpdateNodes();
+	m_pUserObs->UpdateNodes();
 }
 
 
