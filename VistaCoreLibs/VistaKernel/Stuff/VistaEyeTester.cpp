@@ -97,7 +97,6 @@ public:
 
 		glTexImage2D( GL_TEXTURE_2D, 0, GL_LUMINANCE, 32, 16, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, S_acLeftTexture );
 
-		glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
 		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
@@ -107,7 +106,6 @@ public:
 
 		glTexImage2D( GL_TEXTURE_2D, 0, GL_LUMINANCE, 32, 16, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, S_acRightTexture );
 
-		glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
 		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 		glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
@@ -124,7 +122,9 @@ public:
 
 	virtual bool Do() 
 	{
-		glPushAttrib( GL_ALL_ATTRIB_BITS );
+		glPushAttrib( GL_ALL_ATTRIB_BITS );		
+
+		glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
 		
 		glDisable( GL_TEXTURE_2D );
 		glEnable( GL_CULL_FACE );
@@ -150,7 +150,7 @@ public:
 		glEnd();
 
 		glEnable( GL_TEXTURE_2D );
-		glBindTexture( GL_TEXTURE_2D, m_nRightTextureId );
+		glBindTexture( GL_TEXTURE_2D, m_nRightTextureId );		
 		glBegin( GL_QUADS );
 			// the y-coords are inverted, since our data buffers start top-left, but gl expects top-left
 			// so we flip vertically
@@ -166,7 +166,7 @@ public:
 			glVertex3f( 0, +S_nSlabHeight, -S_nSlabDistance );
 		glEnd();
 
-		glBindTexture( GL_TEXTURE_2D, m_nLeftTextureId );
+		glBindTexture( GL_TEXTURE_2D, m_nLeftTextureId );		
 		glBegin( GL_QUADS );
 			// the y-coords are inverted, since our data buffers start top-left, but gl expects top-left
 			// so we flip vertically
