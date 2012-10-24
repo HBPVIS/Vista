@@ -699,7 +699,7 @@ namespace VistaConversion
 		std::istringstream oStream( sValue );
 		oStream >> oTarget;
 		char c;
-		if( oStream.bad() || oStream.get( c ) )
+		if( oStream.fail() || oStream.bad() || oStream.get( c ) )
 			return false;
 		return true;
 	}
@@ -1162,7 +1162,7 @@ namespace VistaConversion
 	{
 		static void ToString( const short& oSource, std::string& sTarget,
 								char cSeparator = S_cDefaultSeparator )
-		{		
+		{	
 			StringConvertObject<int>::ToString( (int)oSource, sTarget );
 		}
 		static bool FromString( const std::string& sSource, short& oTarget,
@@ -1209,58 +1209,66 @@ namespace VistaConversion
 			return bReturn;
 		}
 	};
-	template<>
-	struct StringConvertObject<unsigned long int>
-	{
-		static void ToString( const unsigned long int& oSource, std::string& sTarget,
-								char cSeparator = S_cDefaultSeparator )
-		{
-			StringConvertObject<unsigned int>::ToString( (unsigned int)oSource, sTarget );
-		}
-		static bool FromString( const std::string& sSource, unsigned long int& oTarget,
-								char cSeparator = S_cDefaultSeparator )
-		{
-			unsigned int iValue;
-			bool bReturn = StringConvertObject<unsigned int>::FromString ( sSource, iValue );
-			oTarget = (unsigned long int)iValue;
-			return bReturn;
-		}
-	};
 
-	template<>
-	struct StringConvertObject<long long int>
-	{
-		static void ToString( const long long int& oSource, std::string& sTarget,
-								char cSeparator = S_cDefaultSeparator )
-		{		
-			StringConvertObject<int>::ToString( (int)oSource, sTarget );
-		}
-		static bool FromString( const std::string& sSource, long long int& oTarget,
-								char cSeparator = S_cDefaultSeparator )
-		{		
-			int iValue;
-			bool bReturn = StringConvertObject<int>::FromString ( sSource, iValue );
-			oTarget = (long long int)iValue;
-			return bReturn;
-		}
-	};
-	template<>
-	struct StringConvertObject<unsigned long long int>
-	{
-		static void ToString( const unsigned long long int& oSource, std::string& sTarget,
-								char cSeparator = S_cDefaultSeparator )
-		{
-			StringConvertObject<unsigned int>::ToString( (unsigned int)oSource, sTarget );
-		}
-		static bool FromString( const std::string& sSource, unsigned long long int& oTarget,
-								char cSeparator = S_cDefaultSeparator )
-		{
-			unsigned int iValue;
-			bool bReturn = StringConvertObject<unsigned int>::FromString ( sSource, iValue );
-			oTarget = (unsigned long long int)iValue;
-			return bReturn;
-		}
-	};
+	//template<>
+	//struct StringConvertObject<unsigned long int>
+	//{
+	//	static void ToString( const unsigned long int& oSource, std::string& sTarget,
+	//							char cSeparator = S_cDefaultSeparator )
+	//	{
+	//		StringConvertObject<unsigned int>::ToString( (unsigned int)oSource, sTarget );
+	//	}
+	//	static bool FromString( const std::string& sSource, unsigned long int& oTarget,
+	//							char cSeparator = S_cDefaultSeparator )
+	//	{
+	//		unsigned int iValue;
+	//		bool bReturn = StringConvertObject<unsigned int>::FromString ( sSource, iValue );
+	//		oTarget = (unsigned long int)iValue;
+	//		return bReturn;
+	//	}
+	//};
+
+	//template<>
+	//struct StringConvertObject<long long int>
+	//{
+	//	static void ToString( const long long int& oSource, std::string& sTarget,
+	//							char cSeparator = S_cDefaultSeparator )
+	//	{		
+	//		std::stringstream s;
+	//		s << oSource;
+	//		sTarget = s.str();
+	//	}
+	//	static bool FromString( const std::string& sSource, long long int& oTarget,
+	//							char cSeparator = S_cDefaultSeparator )
+	//	{		
+	//		std::istringstream is(sSource);
+	//		is >> oTarget;
+	//		return is.fail();
+
+	//		//int iValue;
+	//		//bool bReturn = StringConvertObject<int>::FromString ( sSource, iValue );
+	//		//oTarget = (long long int)iValue;
+	//		//return bReturn;
+	//	}
+	//};
+
+	//template<>
+	//struct StringConvertObject<unsigned long long int>
+	//{
+	//	static void ToString( const unsigned long long int& oSource, std::string& sTarget,
+	//							char cSeparator = S_cDefaultSeparator )
+	//	{
+	//		StringConvertObject<unsigned int>::ToString( (unsigned int)oSource, sTarget );
+	//	}
+	//	static bool FromString( const std::string& sSource, unsigned long long int& oTarget,
+	//							char cSeparator = S_cDefaultSeparator )
+	//	{
+	//		unsigned int iValue;
+	//		bool bReturn = StringConvertObject<unsigned int>::FromString ( sSource, iValue );
+	//		oTarget = (unsigned long long int)iValue;
+	//		return bReturn;
+	//	}
+	//};
 
 	template<>	
 	struct StringConvertObject<float>
