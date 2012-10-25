@@ -857,7 +857,7 @@ static OSG::GeometryPtr createGeometry(ACObject *pObj, ACMaterial *pMatTable,
 	GeoTexCoordsPtr texCoordPtr  = GeoTexCoords2f::create();
 	GeoNormalsPtr   normalPtr   = GeoNormals3f::create();
 
-	GeoColors4fPtr  colors = GeoColors4f::create();
+	//GeoColors4fPtr  colors = GeoColors4f::create();
 
 	GeoPTypesPtr type = GeoPTypesUI8::create();
 	GeoPLengthsPtr lens = GeoPLengthsUI32::create();
@@ -899,7 +899,7 @@ static OSG::GeometryPtr createGeometry(ACObject *pObj, ACMaterial *pMatTable,
 		texCoordPtr->addValue(Vec2f(0,0));
 
 		//colors->addValue(Color3f( 0, 1, 0 ) );
-		colors->getField().push_back(Color4f( 0, 1, 0, 1 ));
+		//colors->getField().push_back(Color3f( 0, 1, 0 ));
 
 		for(int k=0; k < pObj->num_vert; ++k)
 		{
@@ -973,15 +973,15 @@ static OSG::GeometryPtr createGeometry(ACObject *pObj, ACMaterial *pMatTable,
 					//colors->addValue(Color3f( pMatTable[pObj->surfaces[j].mat].rgb.r,
 					//			  pMatTable[pObj->surfaces[j].mat].rgb.g,
 					//			  pMatTable[pObj->surfaces[j].mat].rgb.b) );
-					colors->getField().push_back(Color4f( pMatTable[pObj->surfaces[j].mat].rgb.r,
-						pMatTable[pObj->surfaces[j].mat].rgb.g,
-						pMatTable[pObj->surfaces[j].mat].rgb.b,
-						1.0f - pMatTable[pObj->surfaces[j].mat].transparency) );
-					colMap[pObj->surfaces[j].mat] = colors->getSize()-1;
+					//colors->getField().push_back(Color4f( pMatTable[pObj->surfaces[j].mat].rgb.r,
+					//	pMatTable[pObj->surfaces[j].mat].rgb.g,
+					//	pMatTable[pObj->surfaces[j].mat].rgb.b,
+					//	1.0f - pMatTable[pObj->surfaces[j].mat].transparency) );
+					//colMap[pObj->surfaces[j].mat] = colors->getSize()-1;
 				}
 
-				cit = colMap.find(pObj->surfaces[j].mat);
-				indices->push_back((*cit).second);
+				//cit = colMap.find(pObj->surfaces[j].mat);
+				//indices->push_back((*cit).second);
 			}
 			endEditCP  (indices, GeoIndicesUI32::GeoPropDataFieldMask);
 		}
@@ -1109,7 +1109,7 @@ static OSG::GeometryPtr createGeometry(ACObject *pObj, ACMaterial *pMatTable,
 		Geometry::LengthsFieldMask    |
 		Geometry::IndicesFieldMask    |
 		Geometry::PositionsFieldMask  |
-		Geometry::ColorsFieldMask     |
+		//Geometry::ColorsFieldMask     |
 		Geometry::NormalsFieldMask    |
 		Geometry::TexCoords2FieldMask |
 		Geometry::MaterialFieldMask );
@@ -1127,21 +1127,21 @@ static OSG::GeometryPtr createGeometry(ACObject *pObj, ACMaterial *pMatTable,
 
 	geo->getIndexMapping().push_back( Geometry::MapTexCoords );
 
-	geo->getIndexMapping().push_back( Geometry::MapColor     );
+	//geo->getIndexMapping().push_back( Geometry::MapColor     );
 
 
 	geo->setPositions(coordPtr);
 	geo->setNormals(normalPtr );
 
 	geo->setTexCoords(texCoordPtr);
-	geo->setColors(colors);
+	//geo->setColors(colors);
 
 	geo->setMaterial(sm);
 	endEditCP(geo, Geometry::TypesFieldMask      |
 		Geometry::LengthsFieldMask    |
 		Geometry::IndicesFieldMask    |
 		Geometry::PositionsFieldMask  |
-		Geometry::ColorsFieldMask     |
+		//Geometry::ColorsFieldMask     |
 		Geometry::NormalsFieldMask    |
 		Geometry::TexCoords2FieldMask |
 		Geometry::MaterialFieldMask );
