@@ -62,6 +62,7 @@
 #include <OpenSG/OSGFileGrabForeground.h>
 #include <OpenSG/OSGSimpleStatisticsForeground.h>
 #include <OpenSG/OSGSimpleAttachments.h>
+#include <OpenSG/OSGSimpleMaterial.h>
 #include <OpenSG/OSGSolidBackground.h>
 //#include <OpenSG/OSGTextureManager.h>
 #include <OpenSG/OSGViewport.h>
@@ -1485,10 +1486,10 @@ bool VistaOpenSGGraphicsBridge::SetTexture(osg::ImagePtr image, IVistaGeometryDa
 			 osg::TextureChunk::WrapTFieldMask |
 			 osg::TextureChunk::EnvModeFieldMask);
 
-		texchunk->setMinFilter(GL_LINEAR);
+		texchunk->setMinFilter(GL_LINEAR_MIPMAP_LINEAR);
 		texchunk->setMagFilter(GL_LINEAR);
-		texchunk->setWrapS(GL_CLAMP_TO_EDGE);
-		texchunk->setWrapT(GL_CLAMP_TO_EDGE);
+		texchunk->setWrapS(GL_REPEAT);
+		texchunk->setWrapT(GL_REPEAT);
 		texchunk->setEnvMode(GL_MODULATE);
 
 		endEditCP(texchunk,
@@ -2544,99 +2545,108 @@ bool VistaOpenSGGraphicsBridge::SetTransparency(const float transparency, IVista
 	if( stm == osg::NullFC )
 		return false;
 
-
-	// first: see if we want to create an opaque object
-	// this results in: NO BLENDCHUNK AT ALL
-
-	osg::StateChunkPtr stateChunk = stm->find(osg::BlendChunk::getClassType());
-
-	// TBR find texture chunk / image and find out if it hasAlphaChannel
-	osg::TextureChunkPtr tc = osg::TextureChunkPtr::dcast(stm->find(osg::TextureChunk::getClassType()));
-	bool hasAlpha = false;
-	if(tc)
+	osg::SimpleMaterialPtr sm = osg::SimpleMaterialPtr::dcast(stm);
+	if (sm != osg::NullFC)
 	{
-		hasAlpha = tc->getImage()->hasAlphaChannel();
-	}
-
-	//search for an existing BlendChunk
-	if(opacity == 1.0f && !hasAlpha)
-	{
-		if(stateChunk != osg::NullFC)
-		{
-			// ok, we found a blend chunk, so we better remove it
-			beginEditCP(stm);
-			stm->subChunk(stateChunk);
-			endEditCP(stm);
-		}
+		beginEditCP(sm);
+		sm->setTransparency( transparency );
+		sm->setColorMaterial(GL_NONE);
+		endEditCP(sm);
 	}
 	else
 	{
-		// ok, so the object should be transparent, see iff we have a blend chunk
-		osg::BlendChunkPtr blendchunk = osg::BlendChunkPtr::dcast(stateChunk);
-		if( blendchunk == osg::NullFC )
+		// first: see if we want to create an opaque object
+		// this results in: NO BLENDCHUNK AT ALL
+
+		osg::StateChunkPtr stateChunk = stm->find(osg::BlendChunk::getClassType());
+
+		// TBR find texture chunk / image and find out if it hasAlphaChannel
+		osg::TextureChunkPtr tc = osg::TextureChunkPtr::dcast(stm->find(osg::TextureChunk::getClassType()));
+		bool hasAlpha = false;
+		if(tc)
 		{
-			// no, let's create one
-			//create one
-			blendchunk = osg::BlendChunk::create();
+			hasAlpha = tc->getImage()->hasAlphaChannel();
+		}
+
+		//search for an existing BlendChunk
+		if(opacity == 1.0f && !hasAlpha)
+		{
+			if(stateChunk != osg::NullFC)
+			{
+				// ok, we found a blend chunk, so we better remove it
+				beginEditCP(stm);
+				stm->subChunk(stateChunk);
+				endEditCP(stm);
+			}
+		}
+		else
+		{
+			// ok, so the object should be transparent, see iff we have a blend chunk
+			osg::BlendChunkPtr blendchunk = osg::BlendChunkPtr::dcast(stateChunk);
+			if( blendchunk == osg::NullFC )
+			{
+				// no, let's create one
+				//create one
+				blendchunk = osg::BlendChunk::create();
+				beginEditCP(blendchunk);
+				blendchunk->setSrcFactor(GL_SRC_ALPHA);
+				blendchunk->setDestFactor(GL_ONE_MINUS_SRC_ALPHA);
+				endEditCP(blendchunk);
+
+				// add to material
+				beginEditCP(stm);
+				stm->addChunk(blendchunk);
+				endEditCP(stm);
+			}
+
 			beginEditCP(blendchunk);
-			blendchunk->setSrcFactor(GL_SRC_ALPHA);
-			blendchunk->setDestFactor(GL_ONE_MINUS_SRC_ALPHA);
+			blendchunk->setAlphaValue(transparency);
 			endEditCP(blendchunk);
-
-			// add to material
-			beginEditCP(stm);
-			stm->addChunk(blendchunk);
-			endEditCP(stm);
 		}
 
-		beginEditCP(blendchunk);
-		blendchunk->setAlphaValue(transparency);
-		endEditCP(blendchunk);
+		// ok, we reached this point, so we finally have to set the resulting
+		// transparency value in the material
+		// we first check for a material that is needed
+		// in order to reflect the transparency settings.
+		// note that we store the opacity value in the blendchunk
+		// itself, according to OSG 1.6, this flag does not seem to
+		// be used by any other class, so hey...
+		osg::MaterialChunkPtr matChunk = osg::MaterialChunkPtr::dcast(stm->find(osg::MaterialChunk::getClassType()));
+		if(matChunk == osg::NullFC)
+		{
+			// hmm... no material chunk, let's create one
+			matChunk = osg::MaterialChunk::create();
+
+			// set the default values
+			beginEditCP(matChunk);
+			matChunk->setLit(GL_TRUE);
+			matChunk->setAmbient(osg::Color4f(0.01f, 0.01f, 0.01f,opacity));
+			matChunk->setDiffuse(osg::Color4f(0.55f, 0.55f, 0.55f,opacity));
+			matChunk->setSpecular(osg::Color4f(0.70f, 0.70f, 0.70f,opacity));
+			matChunk->setShininess(20.0f);
+			endEditCP(matChunk);
+
+			beginEditCP(stm);
+			stm->addChunk(matChunk);
+			endEditCP(stm);
+		}
+		else
+		{
+			// we already have a matchunk
+			osg::Color4f amb(matChunk->getAmbient());
+			osg::Color4f dif(matChunk->getDiffuse());
+			osg::Color4f emi(matChunk->getEmission());
+			osg::Color4f spe(matChunk->getSpecular());
+
+			amb[3] = dif[3] = emi[3] = spe[3] = opacity;
+			beginEditCP(matChunk);
+			matChunk->setAmbient(amb);
+			matChunk->setDiffuse(dif);
+			matChunk->setSpecular(spe);
+			matChunk->setEmission(emi);
+			endEditCP(matChunk);
+		}
 	}
-
-	// ok, we reached this point, so we finally have to set the resulting
-	// transparency value in the material
-	// we first check for a material that is needed
-	// in order to reflect the transparency settings.
-	// note that we store the opacity value in the blendchunk
-	// itself, according to OSG 1.6, this flag does not seem to
-	// be used by any other class, so hey...
-	osg::MaterialChunkPtr matChunk = osg::MaterialChunkPtr::dcast(stm->find(osg::MaterialChunk::getClassType()));
-	if(matChunk == osg::NullFC)
-	{
-		// hmm... no material chunk, let's create one
-		matChunk = osg::MaterialChunk::create();
-
-		// set the default values
-		beginEditCP(matChunk);
-		matChunk->setLit(GL_TRUE);
-		matChunk->setAmbient(osg::Color4f(0.01f, 0.01f, 0.01f,opacity));
-		matChunk->setDiffuse(osg::Color4f(0.55f, 0.55f, 0.55f,opacity));
-		matChunk->setSpecular(osg::Color4f(0.70f, 0.70f, 0.70f,opacity));
-		matChunk->setShininess(20.0f);
-		endEditCP(matChunk);
-
-		beginEditCP(stm);
-		stm->addChunk(matChunk);
-		endEditCP(stm);
-	}
-	else
-	{
-		// we already have a matchunk
-		osg::Color4f amb(matChunk->getAmbient());
-		osg::Color4f dif(matChunk->getDiffuse());
-		osg::Color4f emi(matChunk->getEmission());
-		osg::Color4f spe(matChunk->getSpecular());
-
-		amb[3] = dif[3] = emi[3] = spe[3] = opacity;
-		beginEditCP(matChunk);
-		matChunk->setAmbient(amb);
-		matChunk->setDiffuse(dif);
-		matChunk->setSpecular(spe);
-		matChunk->setEmission(emi);
-		endEditCP(matChunk);
-	}
-
 
 	return true;
 }
