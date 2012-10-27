@@ -103,7 +103,7 @@ public:
 	VistaMouseScalarTranscode()
 		: IVistaMeasureTranscode::CScalarDoubleGet("DSCALAR",
 		VistaMouseDriverMeasureTranscode::GetTypeString(),
-								"mouse buttons in comp (0,3) -> (l,m,r,w)") {}
+								"mouse buttons in comp (0,3) -> (l,m,r,ws,wd)") {}
 
 	virtual bool GetValueIndexed(const VistaSensorMeasure *pMeasure,
 								 double &dScalar,
