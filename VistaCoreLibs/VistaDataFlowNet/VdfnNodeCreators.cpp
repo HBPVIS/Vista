@@ -540,14 +540,11 @@ IVdfnNode *VdfnLoggerNodeCreate::CreateNode( const VistaPropertyList &oParams ) 
 	std::list<std::string> liTriggers;
 	subs.GetValue( "triggerlist", liTriggers );
 
-	char cSep = ' ';
 	std::string strSep;	
 	if( subs.GetValue( "seperator", strSep ) == false )
 	{
 		if( strSep == "\\t")
-			cSep = '\t';
-		else
-			cSep = *strSep.begin();
+			strSep = '\t';
 	}
 
 
@@ -560,7 +557,7 @@ IVdfnNode *VdfnLoggerNodeCreate::CreateNode( const VistaPropertyList &oParams ) 
 								 bWriteDiff,
 								 bLogToConsole,
 								 liPorts,
-								 liTriggers, cSep );
+								 liTriggers, strSep );
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
