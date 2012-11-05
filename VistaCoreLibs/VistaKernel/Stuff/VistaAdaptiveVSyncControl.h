@@ -20,18 +20,23 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VistaFramerateDisplay.h 30802 2012-06-26 07:32:23Z dr165799 $
 
-#ifndef _VISTAEVENTHANDLER_H
-#define _VISTAEVENTHANDLER_H
+#ifndef _VISTAADAPTIVEVSYNCCONTROL_H
+#define _VISTAADAPTIVEVSYNCCONTROL_H
+
 
 /*============================================================================*/
 /* INCLUDES                                                                   */
 /*============================================================================*/
-//#include <cassert>
 #include <VistaKernel/VistaKernelConfig.h>
 
-#include <string>
+#include <VistaKernel/EventManager/VistaEventHandler.h>
+
+#include <VistaBase/VistaColor.h>
+#include <VistaBase/VistaTimer.h>
+
+#include <vector>
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -40,39 +45,59 @@
 /*============================================================================*/
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
-class VistaEvent;
+class VistaDisplayManager;
 class VistaEventManager;
-
+class VistaWindow;
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
+
 /**
- * VistaEventHandler - the mother of all event handlers ;-)
+ * Helper class that checks each frame if the framerate is lower or higher than
+ * the desired target framerate. If this happens for several consecutive frames,
+ * the vsync mode is switched accordingly.
+ * This class automatically registers and unregisters itself in ctor/dtor
  */
-class VISTAKERNELAPI VistaEventHandler
+class VISTAKERNELAPI VistaAdaptiveVSyncControl : public VistaEventHandler
 {
 public:
-	virtual ~VistaEventHandler();
+	VistaAdaptiveVSyncControl( VistaDisplayManager* pDisplayManager,
+							VistaEventManager* pEventManager );
+	VistaAdaptiveVSyncControl( VistaWindow* pWindow,
+							VistaEventManager* pEventManager );
+	VistaAdaptiveVSyncControl( const std::vector<VistaWindow*>& vecWindows,
+							VistaEventManager* pEventManager );
+	virtual ~VistaAdaptiveVSyncControl();
 
+	virtual void HandleEvent( VistaEvent* pEvent );
 
-	virtual void HandleEvent(VistaEvent *pEvent) = 0;	// overwrite this to handle the given event
+	float GetSwitchAtFramerate() const;
+	void SetSwitchAtFramerate( const float& oValue );
 
+	float GetFramerateTolerance() const;
+	void SetFramerateTolerance( const float& oValue );
+	
+	int GetFrameCountToDisable() const;
+	void SetFrameCountToDisable( const int& oValue );
 
-	virtual bool GetIsEnabled() const;
-	virtual void SetIsEnabled(bool bEnabled);
+	int GetFrameCountToEnable() const;
+	void SetFrameCountToEnable( const int& oValue );
 
-
-	std::string GetHandlerToken() const;
-	void SetHandlerToken(const std::string &strToken);
-protected:
-	VistaEventHandler();
+	virtual void SetIsEnabled( bool bSet );
 private:
-	bool m_bIsEnabled;
-	std::string m_strHandlerToken;
+	VistaEventManager* m_pEventManager;
+	std::vector<VistaWindow*> m_vecWindows;
+
+	float m_nSwitchAtFramerate;
+	float m_nFramerateTolerance;
+	int m_nFrameCountToDisable;
+	int m_nFrameCountToEnable;
+	VistaType::systemtime m_nLastUpdate;
+
+	bool m_bPrintStatusOnChange;
+
+	int m_nFramesExceedingLimit;
 };
 
-/*============================================================================*/
-/* INLINE FUNCTIONS                                                           */
-/*============================================================================*/
+#endif //_VISTAADAPTIVEVSYNCCONTROL_H
 
-#endif //_VISTAEVENTHANDLER_H

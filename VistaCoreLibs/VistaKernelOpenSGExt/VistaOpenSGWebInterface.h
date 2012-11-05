@@ -57,16 +57,17 @@ public:
 	void SetWebPort( const int iPort );
 	int GetWebPort() const;
 
-	void SetIsEnabled( const bool bSet );
-	bool GetIsEnabled() const;
+	virtual void SetIsEnabled( bool bSet );
 
 	virtual void HandleEvent( VistaEvent *pEvent );
+
+private:
+	void SetupWebInterface();
 
 private:
 	VistaSystem*		m_pVistaSystem;
 	struct DataWrapper;
 	DataWrapper*		m_pDataWrapper;
-	bool				m_bEnabled;
 	int					m_iPort;
 };
 

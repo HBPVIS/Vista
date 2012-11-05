@@ -118,7 +118,6 @@ std::ostream* VistaStreamManager::CreateNewLogFileStream( const std::string& sFi
 		oStream = new std::ofstream( sFullName.c_str(), std::ios_base::out | std::ios_base::app );
 	else
 		oStream = new std::ofstream( sFullName.c_str() );
-
 	
 	if( oStream->bad() || oStream->is_open() == false )
 	{		

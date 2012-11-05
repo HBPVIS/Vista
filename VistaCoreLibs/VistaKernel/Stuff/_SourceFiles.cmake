@@ -22,6 +22,8 @@ set( DirFiles
 	VistaFrameSeriesCapture.h
 	VistaRuntimeLimiter.cpp
 	VistaRuntimeLimiter.h
+	VistaAdaptiveVSyncControl.cpp
+	VistaAdaptiveVSyncControl.h
 	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )

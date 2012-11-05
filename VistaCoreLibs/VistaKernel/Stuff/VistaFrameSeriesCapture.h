@@ -64,8 +64,8 @@ public:
 	enum CaptureMode
 	{
 		CM_INVALID = -1,
-		CM_EVERY_FRAME,	
-		CM_EVERY_NTH_FRAME,	
+		CM_EVERY_FRAME,
+		CM_EVERY_NTH_FRAME,
 		CM_PERIODICALLY,
 		CM_FIXED_FRAMERATE,
 	};
@@ -129,7 +129,7 @@ private:
 	bool m_bNeedsMilliReplace;
 	bool m_bNeedsFrameReplace;
 	bool m_bNeedsScreenshotReplace;
-	bool m_bNeedsNodeNameReplace;
+	bool m_bNeedsNodeNameReplace;	
 };
 
 #endif //_VistaFrameSeriesCapture_H

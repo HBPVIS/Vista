@@ -131,6 +131,12 @@ public:
 		bool Set(bool bFullScreen);
 		bool GetFullScreenCustomResolution() const;
 
+		/**
+		 * returns the vsync mode:
+		 * -2/-1: unavailabe (can't be determined on this machine)
+		 * 0: off
+		 * 1: on
+		 */
 		bool SetVSyncEnabled(bool bVSync);
 		int GetVSyncEnabled() const;
 

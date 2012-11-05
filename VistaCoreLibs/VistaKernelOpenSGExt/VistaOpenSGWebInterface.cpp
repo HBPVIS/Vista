@@ -66,11 +66,10 @@ VistaOpenSGWebInterface::VistaOpenSGWebInterface( VistaSystem* pVistaSystem,
 												const int iPort )
 : m_pVistaSystem( pVistaSystem )
 , m_pDataWrapper( new DataWrapper )
-, m_bEnabled( false )
 , m_iPort( iPort )
 {
 	m_pDataWrapper->m_pWebInterface = NULL;
-	SetIsEnabled( true );		
+	SetupWebInterface();
 }
 
 VistaOpenSGWebInterface::~VistaOpenSGWebInterface()
@@ -82,38 +81,14 @@ VistaOpenSGWebInterface::~VistaOpenSGWebInterface()
 /*============================================================================*/
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
-void VistaOpenSGWebInterface::SetIsEnabled( const bool bSet )
+void VistaOpenSGWebInterface::SetIsEnabled( bool bSet )
 {
-	if( bSet == m_bEnabled )
-		return;
+	if( bSet == GetIsEnabled() )
+		return;	
 
-	if( bSet == false )
-	{
-		delete m_pDataWrapper->m_pWebInterface;
-		m_pDataWrapper->m_pWebInterface = NULL;
-		m_pVistaSystem->GetEventManager()->RemEventHandler( this, VistaSystemEvent::GetTypeId(), VistaSystemEvent::VSE_PREGRAPHICS );
-		return;
-	}
+	VistaEventHandler::SetIsEnabled( bSet );
 
-	// only allow web interface on primary instance
-	if( m_pVistaSystem->GetClusterMode()->GetIsLeader() )
-	{		
-		m_pDataWrapper->m_pWebInterface = new osg::WebInterface( m_iPort );
-
-		// get realroot node
-		VistaNode* pRealRoot = m_pVistaSystem->GetGraphicsManager()->GetSceneGraph()->GetRealRoot();
-		osg::NodePtr pOSGNode = dynamic_cast<VistaOpenSGNodeData*>( pRealRoot->GetData() )->GetNode();
-		m_pDataWrapper->m_pWebInterface->setRoot( pOSGNode );
-
-		m_pVistaSystem->GetEventManager()->AddEventHandler( this, VistaSystemEvent::GetTypeId(), VistaSystemEvent::VSE_PREGRAPHICS );
-	}
-
-	m_bEnabled = true;
-}
-
-bool VistaOpenSGWebInterface::GetIsEnabled() const
-{
-	return m_bEnabled;
+	SetupWebInterface();
 }
 
 void VistaOpenSGWebInterface::SetWebPort( const int iPort )
@@ -121,11 +96,7 @@ void VistaOpenSGWebInterface::SetWebPort( const int iPort )
 	if( m_iPort != iPort )
 	{
 		m_iPort = iPort;
-		if( m_bEnabled == true )
-		{
-			SetIsEnabled( false );
-			SetIsEnabled( true );
-		}
+		SetupWebInterface();
 	}
 }
 int VistaOpenSGWebInterface::GetWebPort() const
@@ -139,6 +110,31 @@ void VistaOpenSGWebInterface::HandleEvent( VistaEvent *pEvent )
 	{
 		m_pDataWrapper->m_pWebInterface->waitRequest(0.001);
 		m_pDataWrapper->m_pWebInterface->handleRequests();
+	}
+}
+
+void VistaOpenSGWebInterface::SetupWebInterface()
+{
+	if( GetIsEnabled() == false )
+	{
+		delete m_pDataWrapper->m_pWebInterface;
+		m_pDataWrapper->m_pWebInterface = NULL;
+		m_pVistaSystem->GetEventManager()->RemEventHandler( this, VistaSystemEvent::GetTypeId(), VistaSystemEvent::VSE_PREGRAPHICS );
+	}
+	else
+	{
+		// only allow web interface on primary instance
+		if( m_pVistaSystem->GetClusterMode()->GetIsLeader() )
+		{		
+			m_pDataWrapper->m_pWebInterface = new osg::WebInterface( m_iPort );
+
+			// get realroot node
+			VistaNode* pRealRoot = m_pVistaSystem->GetGraphicsManager()->GetSceneGraph()->GetRealRoot();
+			osg::NodePtr pOSGNode = dynamic_cast<VistaOpenSGNodeData*>( pRealRoot->GetData() )->GetNode();
+			m_pDataWrapper->m_pWebInterface->setRoot( pOSGNode );
+
+			m_pVistaSystem->GetEventManager()->AddEventHandler( this, VistaSystemEvent::GetTypeId(), VistaSystemEvent::VSE_PREGRAPHICS );
+		}
 	}
 }
 

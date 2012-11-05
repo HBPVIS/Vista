@@ -60,35 +60,38 @@
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
 
-// creates an array containing 32bit-RGBA-data of a BarrierTape
-// nYSlope specifies the relative slope dy/dx, i.e. 1 is 45degree
-// the returned array is allocated on the heap, and should be delete[]-ed
-VistaType::byte* CreateTexture( const int nSize,
-									const int nYSlope = 2.0,
-									const float nRelBlackSize = 0.33f )
+namespace
 {
-	VistaType::byte* pBuffer = new VistaType::byte[nSize*nSize];
-	std::vector<VistaType::byte> vecBaseRow( nSize );
-	const int nMaxBlack = (int)( (float)nSize  * nRelBlackSize );
-	for( int i = 0; i < nSize; ++i )
+	// creates an array containing 32bit-RGBA-data of a BarrierTape
+	// nYSlope specifies the relative slope dy/dx, i.e. 1 is 45degree
+	// the returned array is allocated on the heap, and should be delete[]-ed
+	VistaType::byte* CreateTexture( const int nSize,
+										const int nYSlope = 2.0,
+										const float nRelBlackSize = 0.33f )
 	{
-		if( i < nMaxBlack )
-			vecBaseRow[i] = 0;
-		else
-			vecBaseRow[i] = 255;
-	}
-	VistaType::byte* pVal = pBuffer;
-	for( int nY = 0; nY < nSize; ++nY )
-	{
-		int nRowPos = (int)( (float)nY / nYSlope );
-		for( int nX = 0; nX < nSize; ++nX, ++pVal )
+		VistaType::byte* pBuffer = new VistaType::byte[nSize*nSize];
+		std::vector<VistaType::byte> vecBaseRow( nSize );
+		const int nMaxBlack = (int)( (float)nSize  * nRelBlackSize );
+		for( int i = 0; i < nSize; ++i )
 		{
-			(*pVal) = vecBaseRow[nRowPos];
-			if( ++nRowPos == nSize )
-				nRowPos = 0;
+			if( i < nMaxBlack )
+				vecBaseRow[i] = 0;
+			else
+				vecBaseRow[i] = 255;
 		}
+		VistaType::byte* pVal = pBuffer;
+		for( int nY = 0; nY < nSize; ++nY )
+		{
+			int nRowPos = (int)( (float)nY / nYSlope );
+			for( int nX = 0; nX < nSize; ++nX, ++pVal )
+			{
+				(*pVal) = vecBaseRow[nRowPos];
+				if( ++nRowPos == nSize )
+					nRowPos = 0;
+			}
+		}
+		return pBuffer;
 	}
-	return pBuffer;
 }
 
 class VistaProximityBarrierTape::DrawCallback : public IVistaOpenGLDraw
