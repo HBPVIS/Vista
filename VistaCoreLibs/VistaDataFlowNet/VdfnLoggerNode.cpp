@@ -28,6 +28,7 @@
 #include <VistaAspects/VistaConversion.h>
 
 #include <VistaBase/VistaStreamUtils.h>
+#include "VistaTools/VistaFileSystemFile.h"
 
 #include <set>
 #include <algorithm>
@@ -48,7 +49,7 @@ VdfnLoggerNode::VdfnLoggerNode(const std::string &strPrefix,
 				 bool bLogToConsole,
 				 const std::list<std::string> &liPorts,
 				 const std::list<std::string> &liTrigger,
-				 char cSep)
+				 const std::string& sSep)
 	: VdfnShallowNode(),
 	m_pPrototype( new TVdfnPortTypeCompare<TVdfnPort<std::string> > ),
 	m_bWriteHeader(bWriteHeader),
@@ -63,7 +64,7 @@ VdfnLoggerNode::VdfnLoggerNode(const std::string &strPrefix,
 	m_strPrefix(strPrefix),
 	m_bLogToConsole(bLogToConsole),
 	m_nFileNameCnt(0),
-	m_cSep(cSep),
+	m_sSep(sSep),
 	m_nUpdateScore(0)
 {
 	m_pNotSet->SetValue( "<not-set>", 0 );
@@ -107,6 +108,15 @@ void VdfnLoggerNode::PrepareFile()
 
 	if(m_strFileName.empty())
 		return;
+
+	VistaFileSystemFile oFile( m_strPrefix + m_strFileName );
+	if( oFile.Exists() == false && oFile.CreateWithParentDirectories() == false )
+	{
+		vstr::warnp() << "[VdfnLoggerNode]: Couldnot create file ["
+			<< m_strPrefix + m_strFileName << "]" << std::endl;
+		return;
+	}
+
 
 	m_ofstream = new std::ofstream((m_strPrefix + m_strFileName).c_str());
 }
@@ -270,19 +280,19 @@ bool VdfnLoggerNode::DoEvalNode()
 		{
 			if(m_nLastUpdate)
 			{
-				(*m_ofstream) << m_cSep
+				(*m_ofstream) << m_sSep
 						   << VistaConversion::ToString(nLastUpdate - m_nLastUpdate);
 				if( m_bLogToConsole )
 				{
-					vstr::outi() << m_cSep
+					vstr::outi() << m_sSep
 						   << VistaConversion::ToString(nLastUpdate - m_nLastUpdate);
 				}
 			}
 			else
 			{
-				(*m_ofstream) << m_cSep << "0";
+				(*m_ofstream) << m_sSep << "0";
 				if( m_bLogToConsole )
-					vstr::outi() << m_cSep << "0";
+					vstr::outi() << m_sSep << "0";
 			}
 			m_nLastUpdate = nLastUpdate;
 		}
@@ -294,14 +304,14 @@ bool VdfnLoggerNode::DoEvalNode()
 	{
 		TVdfnPort<std::string> *pSPort = *cit;
 		if(bPrepend)
-			(*m_ofstream) << m_cSep;
+			(*m_ofstream) << m_sSep;
 
 		(*m_ofstream) << pSPort->GetValueConstRef();
 
 		if( m_bLogToConsole )
 		{
 			if( bPrepend )
-				vstr::out() << m_cSep;
+				vstr::out() << m_sSep;
 			vstr::out() << pSPort->GetValueConstRef();
 		}
 		bPrepend = true;
@@ -323,14 +333,14 @@ void VdfnLoggerNode::WriteHeader()
 	{
 		(*m_ofstream) << "TS";
 		if(m_bWriteTimeDiff)
-			(*m_ofstream) << m_cSep << "DT";
+			(*m_ofstream) << m_sSep << "DT";
 		bPrepend=true;
 	}
 	for( std::list<std::string>::const_iterator cit = m_liInPorts.begin();
 		cit != m_liInPorts.end(); ++cit )
 	{
 		if(bPrepend)
-			(*m_ofstream) << m_cSep;
+			(*m_ofstream) << m_sSep;
 
 		(*m_ofstream) << *cit;
 		bPrepend = true;

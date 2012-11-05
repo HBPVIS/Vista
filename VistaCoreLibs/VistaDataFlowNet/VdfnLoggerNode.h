@@ -110,7 +110,7 @@ public:
 					 bool bLogToConsole,
 					 const std::list<std::string> &liPorts,
 					 const std::list<std::string> &liTrigger,
-					 char cSep = ' ');
+					 const std::string& cSep = " " );
 
 	virtual ~VdfnLoggerNode();
 
@@ -162,7 +162,7 @@ private:
 	mutable REVMAP m_mpRevisions;
 	mutable unsigned int m_nUpdateScore;
 	unsigned int m_nFileNameCnt;
-	char m_cSep;
+	std::string m_sSep;
 };
 
 /*============================================================================*/
