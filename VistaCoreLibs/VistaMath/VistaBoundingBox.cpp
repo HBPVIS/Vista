@@ -261,6 +261,13 @@ bool VistaBoundingBox::Contains (const VistaBoundingBox& oBBox) const
 		return false;
 }
 
+bool VistaBoundingBox::Contains( const VistaVector3D& v3Point ) const
+{
+	return (   m_v3Min[0] <= v3Point[0] && v3Point[0] <= m_v3Max[0]
+			&& m_v3Min[1] <= v3Point[1] && v3Point[1] <= m_v3Max[1]
+			&& m_v3Min[2] <= v3Point[2] && v3Point[2] <= m_v3Max[2] );
+}
+
 bool VistaBoundingBox::Intersects (const VistaBoundingBox& oBBox) const
 {
 	if(intersect(m_v3Min[0], m_v3Max[0], oBBox.m_v3Min[0], oBBox.m_v3Max[0])

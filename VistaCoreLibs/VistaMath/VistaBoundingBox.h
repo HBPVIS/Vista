@@ -133,6 +133,8 @@ public:
 
 	/// Test if this AABB encloses the specified AABB.
 	bool Contains( const VistaBoundingBox& oBBox ) const;
+	/// Test if this AABB encloses the specified point.
+	bool Contains( const VistaVector3D& v3Point ) const;
 
 	/// Resize the bounding box such that the specified point is included.
 	VistaBoundingBox Include( const float a3fPoint[3] );
