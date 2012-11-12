@@ -39,6 +39,11 @@ bool VistaNodeAdapter::GetPosition(VistaVector3D &pTrans) const
 	return m_pNode->GetWorldPosition(pTrans);
 }
 
+IVistaNode* VistaNodeAdapter::GetNode() const
+{
+	return m_pNode;
+}
+
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 

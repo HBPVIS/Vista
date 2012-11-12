@@ -94,6 +94,8 @@ public:
 
 	virtual bool GetPosition(VistaVector3D &pTrans) const;
 
+	IVistaNode* GetNode() const;
+
 private:
 	IVistaNode *m_pNode;
 };
