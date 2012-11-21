@@ -290,6 +290,14 @@ bool VistaEventManager::UnregisterObserver(VistaEventObserver *pObserver,
 	if (!pObserver)
 		return  false;
 
+	if(m_iProcessRecursionCount == 0)
+	{
+#ifdef DEBUG
+		vstr::outi() << "[ViEvMa] currently not processing -- registering observer directly..." << std::endl;
+#endif
+		return DoUnregisterObserver(pObserver, iEventType);
+	}
+
 #ifdef DEBUG
 		vstr::outi() << "[ViEvMa] queuing observer for unregistration..." << std::endl;
 #endif
