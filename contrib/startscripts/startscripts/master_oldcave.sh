@@ -13,8 +13,8 @@ if [ "$1" == "" ]; then
 	exit -1
 fi
 
-IS_MASTER=true
-CLUSTERCONFIG=$1
+export IS_MASTER=true
+export CLUSTERCONFIG=$1
 shift
 
 # setting up environment - these should be set per account, but in case they aren't...
@@ -25,4 +25,4 @@ export VISTAINIPATH= # unset VISTAINIPATH
 # we set the appropriate master, and pass through all other parameters, too
 # the nice call increases the priority of the application, allowing it to receive signals faster
 # (e.g. when waiting for incoming cluster calls)
-./startscripts/start_oldcave.sh $@ -clustermaster $CLUSTERCONFIG
+./$STARTSCRIPTS_SUBDIR/start_oldcave.sh $@ -clustermaster $CLUSTERCONFIG

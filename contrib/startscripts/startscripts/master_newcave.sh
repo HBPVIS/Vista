@@ -25,4 +25,4 @@ export VISTAINIPATH= # unset VISTAINIPATH
 # we set the appropriate master, and pass through all other parameters, too
 # the nice call increases the priority of the application, allowing it to receive signals faster
 # (e.g. when waiting for incoming cluster calls)
-/bin/nice_av00 -n -15 ./startscripts/start_newcave.sh $@ -newclustermaster $CLUSTERCONFIG
+/bin/nice_av00 -n -15 ./$STARTSCRIPTS_SUBDIR/start_newcave.sh $@ -newclustermaster $CLUSTERCONFIG

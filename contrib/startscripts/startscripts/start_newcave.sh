@@ -30,4 +30,4 @@ if ! [ -f "$SLAVENODES_CONFIGURATION_FILE" ]; then
 fi
 source $SLAVENODES_CONFIGURATION_FILE
 
-./startscripts/start.sh $@ -vista vista_newcave.ini -displayini display_newcave.ini -clusterini display_newcave.ini
+./$STARTSCRIPTS_SUBDIR/start.sh $@ -vistaini vista_newcave.ini -displayini display_newcave.ini -clusterini display_newcave.ini

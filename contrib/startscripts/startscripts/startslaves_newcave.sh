@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-# generic script to start the slaves of the new CAVE at the RWTH Aachen University
+# generic script to start the slaves of the new aixCAVE at RWTH Aachen University
 
 # define the colors for node status messages
 DISABLED_COLOR=$(echo -e "\033[0;30;41m") # black on red
@@ -30,9 +30,18 @@ HoloSpaceNoFloor=( 9 10 11 12 13 14 15 16 17 18 19 20 )
 #########################################
 
 # load slave ip config settings to know each slave's current IP
+if [ "$SLAVENODES_CONFIGURATION_FILE" == "" ]; then
+	if [ "$newcave_SLAVENODES_CONFIGURATION_FILE" == "" ]; then
+		echo "No valid slave configuration file set - resetting to default"
+		$SLAVENODES_CONFIGURATION_FILE="/home/vrsw/gpucluster/slavenodes_ipconfig_newcave.sh"
+	else
+		$SLAVENODES_CONFIGURATION_FILE = $newcave_SLAVENODES_CONFIGURATION_FILE
+	fi
+fi
+
 if ! [ -f "$SLAVENODES_CONFIGURATION_FILE" ]; then
-	echo "no SLAVENODES_CONFIGURATION_FILE set - resetting to default"
-	$SLAVENODES_CONFIGURATION_FILE="/home/vrsw/gpucluster/slavenodes_ipconfig_newcave.sh"
+	echo "${DISABLED_COLOR}Could not load slave configuration file \"$SLAVENODES_CONFIGURATION_FILE\"${RESET_COLOR}"
+	exit	
 fi
 source $SLAVENODES_CONFIGURATION_FILE
 
@@ -79,8 +88,8 @@ fi
 
 # set prefix for calls (always the same)
 DIR=`pwd`
-SSH_CALL_PREFIX_D0="cd ${DIR}; export XAUTHORITY=/var/run/Xauthority-vr; export DISPLAY=:0.0; export SLAVENODES_CONFIGURATION_FILE=${SLAVENODES_CONFIGURATION_FILE}"
-SSH_CALL_PREFIX_D1="cd ${DIR}; export XAUTHORITY=/var/run/Xauthority-vr; export DISPLAY=:0.1; export SLAVENODES_CONFIGURATION_FILE=${SLAVENODES_CONFIGURATION_FILE}"
+SSH_CALL_PREFIX_D0="cd ${DIR}; export XAUTHORITY=/var/run/Xauthority-vr; export DISPLAY=:0.0; export SLAVENODES_CONFIGURATION_FILE=${SLAVENODES_CONFIGURATION_FILE}; export STARTSCRIPTS_SUBDIR=${STARTSCRIPTS_SUBDIR}"
+SSH_CALL_PREFIX_D1="cd ${DIR}; export XAUTHORITY=/var/run/Xauthority-vr; export DISPLAY=:0.1; export SLAVENODES_CONFIGURATION_FILE=${SLAVENODES_CONFIGURATION_FILE}; export STARTSCRIPTS_SUBDIR=${STARTSCRIPTS_SUBDIR}"
 
 for ID in ${!SLAVELIST}
 do
@@ -125,18 +134,18 @@ do
     if $REDIRECT_SLAVE_OUTPUT; then
 
         echo "starting slave ${SLAVENAME_FIRST} on ${SLAVEHOST}"
-        ssh $SLAVEHOST "${SSH_CALL_PREFIX_D0}; ./startscripts/slave_newcave.sh ${SLAVENAME_FIRST} $@ >slavelogs/slave_${SLAVENAME_FIRST}.log 2>&1" &
+        ssh $SLAVEHOST "${SSH_CALL_PREFIX_D0}; ./$STARTSCRIPTS_SUBDIR/slave_newcave.sh ${SLAVENAME_FIRST} $@ > slavelogs/slave_${SLAVENAME_FIRST}.log 2>&1" &
 
         echo "starting slave ${SLAVENAME_SECOND} on ${SLAVEHOST}"
-        ssh $SLAVEHOST "${SSH_CALL_PREFIX_D1}; ./startscripts/slave_newcave.sh ${SLAVENAME_SECOND} $@ >slavelogs/slave_${SLAVENAME_SECOND}.log 2>&1" &
+        ssh $SLAVEHOST "${SSH_CALL_PREFIX_D1}; ./$STARTSCRIPTS_SUBDIR/slave_newcave.sh ${SLAVENAME_SECOND} $@ > slavelogs/slave_${SLAVENAME_SECOND}.log 2>&1" &
     
     else
 
         echo "starting slave ${SLAVENAME_FIRST} on ${SLAVEHOST}"
-        ssh $SLAVEHOST "${SSH_CALL_PREFIX_D0}; ./startscripts/slave_newcave.sh ${SLAVENAME_FIRST} $@" &
+        ssh $SLAVEHOST "${SSH_CALL_PREFIX_D0}; ./$STARTSCRIPTS_SUBDIR/slave_newcave.sh ${SLAVENAME_FIRST} $@" &
 
         echo "starting slave ${SLAVENAME_SECOND} on ${SLAVEHOST}"
-        ssh $SLAVEHOST "${SSH_CALL_PREFIX_D1}; ./startscripts/slave_newcave.sh ${SLAVENAME_SECOND} $@" &
+        ssh $SLAVEHOST "${SSH_CALL_PREFIX_D1}; ./$STARTSCRIPTS_SUBDIR/slave_newcave.sh ${SLAVENAME_SECOND} $@" &
 
     fi
 done

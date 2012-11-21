@@ -7,34 +7,35 @@
 # mode, i.e. wether to start as release (default), or use some kind of
 # debugging/profiling, ...
 
-source ./bin/set_path_for_APPNAME.sh
+source ./bin/set_path_for_%%%APPPNAME%%%.sh
 
-EXECUTABLE="./AppName"
+EXECUTABLE="./%%%APPPNAME%%%"
+EXECUTABLE_DEBUG="./%%%APPPNAME%%%D"
 
 while [ ! "$1" == "" ]; do
 
 	if [ "$1" == "-D" -o "$1" == "--debug" ]; then
 		shift
-		EXECUTABLE="./AppName"
+		EXECUTABLE=$EXECUTABLE_DEBUG
 	elif [ "$1" == "-DM" -o "$1" == "--debug_master" ]; then
 		shift
 		if [ ! "$IS_SLAVE" == "true" ]; then
-			EXECUTABLE="./AppNameD"
+			EXECUTABLE=$EXECUTABLE_DEBUG
 		fi
 	elif [ "$1" == "-DS" -o "$1" == "--debug_slave" ]; then
 		shift
 		if [ "$IS_SLAVE" == "true" ]; then
-			EXECUTABLE="./AppNameD"
+			EXECUTABLE=$EXECUTABLE_DEBUG
 		fi
 	elif [ "$1" == "-TV" -o "$1" == "--totalview" ]; then
 		shift
 		if [ ! "$IS_SLAVE" == "true" ]; then
-			EXECUTABLE="totalview ./AppNameD -a"
+			EXECUTABLE=$EXECUTABLE_DEBUG
 		fi
 	elif [ "$1" == "-VG" -o "$1" == "--valgrind" ]; then
 		shift
 		if [ ! "$IS_SLAVE" == "true" ]; then
-			EXECUTABLE="valgrind ./AppNameD"
+			EXECUTABLE=$EXECUTABLE_DEBUG
 		fi	
 	else
 		# last prefix parameter, rest should be for the app

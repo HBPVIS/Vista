@@ -13,8 +13,8 @@ if [ "$1" == "" ]; then
 	exit -1
 fi
 
-IS_SLAVE=true
-CLUSTERCONFIG=$1
+export IS_SLAVE=true
+export CLUSTERCONFIG=$1
 shift
 
 # setting up environment - these should be set per account, but in case they aren't...
@@ -25,4 +25,4 @@ export VISTAINIPATH= # unset VISTAINIPATH
 # we set the appropriate slave, and pass through all other parameters, too
 # the nice call increases the priority of the application, allowing it to receive signals faster
 # (e.g. when waiting for incoming cluster calls)
-./start_oldcave.sh $@ -clusterslave $CLUSTERCONFIG
+./$STARTSCRIPTS_SUBDIR/start_oldcave.sh $@ -clusterslave $CLUSTERCONFIG

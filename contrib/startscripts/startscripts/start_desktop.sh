@@ -24,5 +24,5 @@ export __GL_DEFAULT_LOG_ANISO=3
 # disable vsync here - state per client will be set by display_newcave.ini
 export __GL_SYNC_TO_VBLANK=0
 
-./startscripts/start.sh $@ -vistaini vista_desktop.ini -displayini display_desktop.ini -clusterini display_desktop.ini
+./$STARTSCRIPTS_SUBDIR/start.sh $@ -vistaini vista_desktop.ini -displayini display_desktop.ini -clusterini display_desktop.ini
 
