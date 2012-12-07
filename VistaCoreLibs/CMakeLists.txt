@@ -95,7 +95,7 @@ add_subdirectory( VistaDeviceDrivers )
 
 set( VISTACORELIBS_BUILD_TESTS OFF CACHE BOOL "If set to true, tests to verify the correctness of some of the CoreLib's functions will be performed" )
 if( VISTACORELIBS_BUILD_TESTS )
-	#enable_testing()
+	enable_testing()
 	add_subdirectory( Tests )
 endif()
 
