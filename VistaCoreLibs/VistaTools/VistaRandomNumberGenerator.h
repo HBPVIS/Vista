@@ -91,6 +91,11 @@ public:
 	 */
 	double        GenerateDouble3() ;
 
+	/**
+	 * [min,max]
+	 */
+	double        GenerateDouble( double nMin, double nMax ) ;
+
 
 	/**
 	 * [0,1), 53bit resolution

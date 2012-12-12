@@ -226,6 +226,11 @@ double VistaRandomNumberGenerator::GenerateGaussian( double dMean, double dStdDe
 	return dMean + dStdDev * GenerateGaussian();
 }
 
+double VistaRandomNumberGenerator::GenerateDouble( double nMin, double nMax )
+{
+	return ( nMin + ( nMax - nMin ) * GenerateDouble2() );
+}
+
 
 /*============================================================================*/
 /*  LOCAL VARS / FUNCTIONS                                                    */
