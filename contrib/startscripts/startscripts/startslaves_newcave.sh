@@ -33,15 +33,15 @@ HoloSpaceNoFloor=( 9 10 11 12 13 14 15 16 17 18 19 20 )
 if [ "$SLAVENODES_CONFIGURATION_FILE" == "" ]; then
 	if [ "$newcave_SLAVENODES_CONFIGURATION_FILE" == "" ]; then
 		echo "No valid slave configuration file set - resetting to default"
-		$SLAVENODES_CONFIGURATION_FILE="/home/vrsw/gpucluster/slavenodes_ipconfig_newcave.sh"
+		SLAVENODES_CONFIGURATION_FILE="/home/vrsw/gpucluster/slavenodes_ipconfig_newcave.sh"
 	else
-		$SLAVENODES_CONFIGURATION_FILE = $newcave_SLAVENODES_CONFIGURATION_FILE
+		SLAVENODES_CONFIGURATION_FILE="$newcave_SLAVENODES_CONFIGURATION_FILE"
 	fi
 fi
 
 if ! [ -f "$SLAVENODES_CONFIGURATION_FILE" ]; then
 	echo "${DISABLED_COLOR}Could not load slave configuration file \"$SLAVENODES_CONFIGURATION_FILE\"${RESET_COLOR}"
-	exit	
+	exit -1
 fi
 source $SLAVENODES_CONFIGURATION_FILE
 
@@ -49,7 +49,7 @@ source $SLAVENODES_CONFIGURATION_FILE
 if [ "$1" = "" ];
 then
     echo 'parameter missing - specify a cluster configuration ( ${CONFIGS[@]} )'
-    exit
+    exit -1
 fi
 
 INPUTCONFIG=${1,,}

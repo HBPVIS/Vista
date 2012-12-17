@@ -26,7 +26,7 @@ export __GL_SYNC_TO_VBLANK=0
 
 # load slave ip config settings to know each slave's current IP
 if ! [ -f "$SLAVENODES_CONFIGURATION_FILE" ]; then
-	$SLAVENODES_CONFIGURATION_FILE="/home/vrsw/gpucluster/slavenodes_ipconfig_newcave.sh"
+	SLAVENODES_CONFIGURATION_FILE="/home/vrsw/gpucluster/slavenodes_ipconfig_newcave.sh"
 fi
 source $SLAVENODES_CONFIGURATION_FILE
 

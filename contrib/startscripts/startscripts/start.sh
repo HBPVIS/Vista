@@ -7,10 +7,10 @@
 # mode, i.e. wether to start as release (default), or use some kind of
 # debugging/profiling, ...
 
-source ./bin/set_path_for_%%%APPPNAME%%%.sh
+source ./%%%PATH_TO_BINARY%%%/set_path_for_%%%APPPNAME%%%.sh
 
-EXECUTABLE="./%%%APPPNAME%%%"
-EXECUTABLE_DEBUG="./%%%APPPNAME%%%D"
+EXECUTABLE="./%%%PATH_TO_BINARY%%%/%%%APPPNAME%%%"
+EXECUTABLE_DEBUG="./%%%PATH_TO_BINARY%%%/%%%APPPNAME%%%D"
 
 while [ ! "$1" == "" ]; do
 
