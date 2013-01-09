@@ -909,21 +909,25 @@ bool VistaNewClusterMaster::InitSwapSync()
 		case VistaMasterSlave::SWAPSYNC_BROADCAST:
 		{
 			m_pSwapSyncBarrier = CreateTypedBarrier( VistaMasterSlave::BARRIER_BROADCAST, true, true );
+			m_pSyncEntityObserver->Observe( m_pSwapSyncBarrier );
 			break;
 		}
 		case VistaMasterSlave::SWAPSYNC_DUMMY:
 		{
 			m_pSwapSyncBarrier = CreateTypedBarrier( VistaMasterSlave::BARRIER_DUMMY, true, true );
+			m_pSyncEntityObserver->Observe( m_pSwapSyncBarrier );
 			break;
 		}
 		case VistaMasterSlave::SWAPSYNC_TCP:
 		{
 			m_pSwapSyncBarrier = CreateTypedBarrier( VistaMasterSlave::BARRIER_TCP, true, true );
+			m_pSyncEntityObserver->Observe( m_pSwapSyncBarrier );
 			break;
 		}
 		case VistaMasterSlave::SWAPSYNC_INTERPROC:
 		{
 			m_pSwapSyncBarrier = CreateTypedBarrier( VistaMasterSlave::BARRIER_INTERPROC, true, true );
+			m_pSyncEntityObserver->Observe( m_pSwapSyncBarrier );
 			break;
 		}
 		case VistaMasterSlave::SWAPSYNC_GSYNCGROUP:
