@@ -202,7 +202,6 @@ int SerializeMeasure( IVistaSerializer& oSer,
 					   const VistaSensorMeasure& oMeasure )
 {
 	int nRet = 0;
-	vstr::warni() << "Serialize measure " << oMeasure.m_nMeasureIdx << std::endl;
 	nRet += oSer.WriteInt32( oMeasure.m_nMeasureIdx );
 	nRet += oSer.WriteDouble( oMeasure.m_nMeasureTs );
 	nRet += oSer.WriteDouble( oMeasure.m_nSwapTime );
@@ -226,8 +225,6 @@ int DeSerializeMeasure( IVistaDeSerializer& oDeSer,
 		vstr::warnp() << "[VistaDeSerializer]: Endianess mismatch" << std::endl;
 	}
 #endif
-
-	vstr::warni() << "Deerialized measure " << oMeasure.m_nMeasureIdx << std::endl;
 
 	VistaType::uint32 nSize = 0;
 	nRet += oDeSer.ReadInt32( nSize );
@@ -261,8 +258,6 @@ int SerializeHistoryIncremental( IVistaSerializer& oSer,
 	// never transmit more measures than the data size
 	nNewMeasures = std::min( nNewMeasures, (VistaType::uint32)oHist.m_rbHistory.GetBufferSize() );
 	nRet += oSer.WriteInt32( nNewMeasures );
-
-	vstr::warni() << "Serializeing " << nNewMeasures << "Measures" << std::endl;
 	
 	TVistaRingBuffer<VistaSensorMeasure>::const_iterator itMeasure
 				= oHist.m_rbHistory.index( oHist.m_nSnapshotWriteHead );
@@ -299,8 +294,6 @@ int DeSerializeHistoryIncremental( IVistaDeSerializer& oDeSer,
 
 	VistaType::uint32 nNewMeasures;
 	nRet += oDeSer.ReadInt32( nNewMeasures );
-
-	vstr::warni() << "Deserializeing " << nNewMeasures << "Measures" << std::endl;
 
 	assert( nNewMeasures == std::min( oHist.m_nMeasureCount - m_nLastSerializeCount,
 			(VistaType::uint32)oHist.m_rbHistory.GetBufferSize() ) );
