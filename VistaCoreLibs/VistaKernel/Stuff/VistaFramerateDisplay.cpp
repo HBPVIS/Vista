@@ -116,40 +116,57 @@ VistaFramerateDisplay::VistaFramerateDisplay( VistaDisplayManager* pDisplayManag
 	m_bEnabled = oConfig.GetValueOrDefault<bool>( "ENABLED", false );
 	m_sPrefix = oConfig.GetValueOrDefault<std::string>( "PREFIX", "Framerate: " );
 	m_sPostfix = oConfig.GetValueOrDefault<std::string>( "POSTFIX", "" );
-	bool bAllViewports;
-	if( oConfig.GetValue( "ALL_VIEWPORTS", bAllViewports ) && bAllViewports )
+
+	std::vector<std::string> vecViewports;
+
+	if( oConfig.GetValue( "VIEWPORTS", vecViewports ) )
+	{
+		// we got a list already
+	}
+	else if( oConfig.GetValueOrDefault<bool>( "ALL_VIEWPORTS", true ) )
 	{
 		for( std::map<std::string, VistaViewport*>::const_iterator itViewport
 			= pDisplayManager->GetViewportsConstRef().begin();
 			itViewport != pDisplayManager->GetViewportsConstRef().end(); ++itViewport )
 		{
-			Vista2DText* pText = pDisplayManager->New2DText( (*itViewport).first );
-			if( pText )
+			vecViewports.push_back( (*itViewport).first );
+		}
+		std::vector<std::string> vecExcludePorts;
+		if( oConfig.GetValue( "EXCLUDE_VIEWPORTS", vecExcludePorts ) )
+		{
+			for( std::vector<std::string>::const_iterator itExclude = vecExcludePorts.begin();
+					itExclude != vecExcludePorts.end(); ++itExclude )
 			{
-				m_vecDisplayTexts.push_back( pText );			
-				pText->Init( " ", m_anPosition[0], m_anPosition[1],
-							(int)( 255 * m_oColor[0] ),
-							(int)( 255 * m_oColor[1] ),
-							(int)( 255 * m_oColor[2] ),
-							m_nSize );
+				std::remove( vecViewports.begin(), vecViewports.end(), (*itExclude) );
 			}
 		}
 	}
-	else
+	else // just on first viewport
 	{
-		Vista2DText* pText = pDisplayManager->New2DText(
-				( *pDisplayManager->GetViewportsConstRef().begin() ).first );
-		if( pText )
-		{
-			m_vecDisplayTexts.push_back( pText );
-			pText->Init( " ", m_anPosition[0], m_anPosition[1],
-							(int)( 255 * m_oColor[0] ),
-							(int)( 255 * m_oColor[1] ),
-							(int)( 255 * m_oColor[2] ),
-							m_nSize );
-		}
+		vecViewports.push_back( ( *pDisplayManager->GetViewportsConstRef().begin() ).first );
 	}
 
+	for( std::vector<std::string>::const_iterator itViewport = vecViewports.begin();
+			itViewport != vecViewports.end(); ++itViewport )
+	{
+		VistaViewport* pViewport = pDisplayManager->GetViewportByName( (*itViewport) );
+		if( pViewport == NULL )
+		{
+			vstr::warnp() << "[VistaFramerateDisplay]: Viewport \"" << (*itViewport) << "\" does not exist" << std::endl;
+			continue;
+		}
+
+		Vista2DText* pText = pDisplayManager->New2DText( (*itViewport) );
+		if( pText )
+		{
+			m_vecDisplayTexts.push_back( pText );			
+			pText->Init( " ", m_anPosition[0], m_anPosition[1],
+						(int)( 255 * m_oColor[0] ),
+						(int)( 255 * m_oColor[1] ),
+						(int)( 255 * m_oColor[2] ),
+						m_nSize );
+		}
+	}
 	
 	SetIsEnabled( m_bEnabled );
 }
