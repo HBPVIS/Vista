@@ -333,8 +333,11 @@ bool VistaGlutWindowingToolkit::InitWindow( VistaWindow* pWindow )
 #ifdef USE_NATIVE_GLUT
 		vstr::warnp() << "[GlutWindowingTollkit]: "
 			<< "Borderless windows only available with freeglut" << std::endl;
+#elif !defined GLUT_BORDERLESS
+		vstr::warnp() << "[GlutWindowingTollkit]: "
+			<< "Borderless windows not supported by current glut version" << std::endl;
 #else
-		iDisplayMode = iDisplayMode | GLUT_BORDERLESS;		
+		iDisplayMode = iDisplayMode | GLUT_BORDERLESS;
 #endif
 	}
 
