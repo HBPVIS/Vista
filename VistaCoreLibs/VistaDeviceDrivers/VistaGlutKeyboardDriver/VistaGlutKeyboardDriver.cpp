@@ -200,7 +200,37 @@ void VistaGlutKeyboardDriver::SetSpecialKeyValue(VistaGlutKeyboardDriver *pKeybo
 		break;
 	case GLUT_KEY_END:
 		nCurrentKey = VISTA_KEY_END;
-		break;			
+		break;
+
+#ifdef GLUT_KEY_SHIFT_L
+	case GLUT_KEY_NUM_LOCK:
+		nCurrentKey = VISTA_KEY_END;
+		break;
+	case GLUT_KEY_BEGIN:
+		// not mapped yet
+		break;
+	case GLUT_KEY_DELETE:
+		nCurrentKey = VISTA_KEY_DELETE;
+		break;
+	case GLUT_KEY_SHIFT_L:
+		nCurrentKey = VISTA_KEY_SHIFT_LEFT;
+		break;
+	case GLUT_KEY_SHIFT_R:
+		nCurrentKey = VISTA_KEY_SHIFT_RIGHT;
+		break;
+	case GLUT_KEY_CTRL_L:
+		nCurrentKey = VISTA_KEY_CTRL_LEFT;
+		break;
+	case GLUT_KEY_CTRL_R:
+		nCurrentKey = VISTA_KEY_CTRL_RIGHT;
+		break;
+	case GLUT_KEY_ALT_L:
+		nCurrentKey = VISTA_KEY_ALT_LEFT;
+		break;
+	case GLUT_KEY_ALT_R:
+		nCurrentKey = VISTA_KEY_ALT_RIGHT;
+		break;
+#endif
 
 	default:
 		nCurrentKey = nKeyValue;

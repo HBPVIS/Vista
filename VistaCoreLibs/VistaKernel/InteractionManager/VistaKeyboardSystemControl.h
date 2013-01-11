@@ -66,6 +66,14 @@
 #define VISTA_KEY_BACKSPACE (1008)
 #define VISTA_KEY_DELETE    ( 127)
 
+// modifier keys
+#define VISTA_KEY_ALT_LEFT    (1021)
+#define VISTA_KEY_ALT_RIGHT   (1022)
+#define VISTA_KEY_SHIFT_LEFT  (1023)
+#define VISTA_KEY_SHIFT_RIGHT (1024)
+#define VISTA_KEY_CTRL_LEFT   (1025)
+#define VISTA_KEY_CTRL_RIGHT  (1026)
+
 
 // The following keycodes are 1000 + the IBM scancode
 #define	VISTA_KEY_HOME		(1071)
