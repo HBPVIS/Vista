@@ -4,8 +4,9 @@ cmake_minimum_required( VERSION 2.8 )
 project( VistaCoreLibs )
 
 # For the CoreLibs, we verify that the VistaCMakeCommon really exist
-if( EXISTS "$ENV{VISTA_CMAKE_COMMON}" )
-	list( APPEND CMAKE_MODULE_PATH "$ENV{VISTA_CMAKE_COMMON}" )
+file( TO_CMAKE_PATH "$ENV{VISTA_CMAKE_COMMON}" _CMAKE_PATH_ENV )
+if( EXISTS "${_CMAKE_PATH_ENV}" )
+	list( APPEND CMAKE_MODULE_PATH "${_CMAKE_PATH_ENV}" )
 elseif( EXISTS "${VistaCoreLibs_SOURCE_DIR}/VistaCMakeCommon" )
 	list( APPEND CMAKE_MODULE_PATH "${VistaCoreLibs_SOURCE_DIR}/VistaCMakeCommon" )
 else()
@@ -21,8 +22,8 @@ else()
 			"\t- add folder to environment variables CMAKE_MODULE_PATH and CMAKE_PREFIX_PATH\n"
 			"\t- set folder as subdirectory of VistaCoreLibs"
 		)
-	endif( NOT VISTACORELIBS_CMAKE_COMMON_TEST_FILE )
-endif( EXISTS "$ENV{VISTA_CMAKE_COMMON}" )
+	endif()
+endif()
 
 include( VistaCommon )
 
