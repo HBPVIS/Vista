@@ -94,6 +94,9 @@ public:
 	virtual bool GetUseStencilBuffer( const VistaWindow* pWindow  ) const;
 	virtual bool SetUseStencilBuffer( VistaWindow* pWindow, const bool bSet );
 
+	virtual bool GetDrawBorder( const VistaWindow* pWindow  ) const;
+	virtual bool SetDrawBorder( VistaWindow* pWindow, const bool bSet );
+
 	enum
 	{
 		VSYNC_STATE_UNAVAILABLE = -2,

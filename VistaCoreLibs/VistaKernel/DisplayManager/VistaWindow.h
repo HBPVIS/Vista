@@ -80,6 +80,7 @@ public:
 	 * USE_ACCUM_BUFFER     -   [bool]
 	 * USE_STENCIL_BUFFER   -   [bool]
 	 * STEREO               -   [bool]
+	 * DRAW_BORDER          -   [bool]
 	 * POSITION             -   [list of ints - 2 items]
 	 * SIZE                 -   [list of ints - 2 items]
 	 * FULLSCREEN           -   [bool]
@@ -105,6 +106,7 @@ public:
 			MSG_FULLSCREEN_CHANGE,
 			MSG_TITLE_CHANGE,
 			MSG_VSYNC_CHANGE,
+			MSG_DRAW_BORDER_CHANGE,
 			MSG_LAST
 		};
 
@@ -118,6 +120,9 @@ public:
 
 		bool GetUseStencilBuffer() const;
 		bool SetUseStencilBuffer(const bool bStereo);
+
+		bool GetDrawBorder() const;
+		bool SetDrawBorder( const bool bDrawBorder );
 
 		bool GetPosition(int& x, int& y) const;
 		bool SetPosition(const int x, const int y);

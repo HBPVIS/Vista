@@ -93,6 +93,7 @@ struct GlutWindowInfo
 	, m_bUseStereo( false )
 	, m_bUseAccumBuffer( false )
 	, m_bUseStencilBuffer( false )
+	, m_bDrawBorder( true )
 	, m_iWindowID( -1 )
 	, m_sWindowTitle( "ViSTA" )
 	, m_iVSyncMode( VistaGlutWindowingToolkit::VSYNC_STATE_UNKNOWN )
@@ -115,6 +116,7 @@ struct GlutWindowInfo
 	bool				m_bUseStereo;
 	bool				m_bUseAccumBuffer;
 	bool				m_bUseStencilBuffer;
+	bool				m_bDrawBorder;
 	int					m_iWindowID;
 	std::string			m_sWindowTitle;
 	int					m_iVSyncMode;
@@ -326,6 +328,15 @@ bool VistaGlutWindowingToolkit::InitWindow( VistaWindow* pWindow )
 		iDisplayMode = iDisplayMode | GLUT_ACCUM;
 	if( pInfo->m_bUseStencilBuffer )
 		iDisplayMode = iDisplayMode | GLUT_STENCIL;
+	if( pInfo->m_bDrawBorder == false )
+	{
+#ifdef USE_NATIVE_GLUT
+		vstr::warnp() << "[GlutWindowingTollkit]: "
+			<< "Borderless windows only available with freeglut" << std::endl;
+#else
+		iDisplayMode = iDisplayMode | GLUT_BORDERLESS;		
+#endif
+	}
 
 	glutInitDisplayMode( iDisplayMode );
 	if( pInfo->m_iCurrentPosX != -1 && pInfo->m_iCurrentPosY != -1 )
@@ -602,6 +613,7 @@ bool VistaGlutWindowingToolkit::SetUseStereo( VistaWindow* pWindow, const bool b
 		vstr::warnp() << "[GlutWindow]: Trying to change stereo mode on window ["
 				<< pWindow->GetNameForNameable() << "] - this can only be done before initialization"
 				<< std::endl;
+		return false;
 	}
 
 	pInfo->m_bUseStereo = bSet;
@@ -622,6 +634,7 @@ bool VistaGlutWindowingToolkit::SetUseAccumBuffer( VistaWindow* pWindow, const b
 		vstr::warnp() << "[GlutWindow]: Trying to change accum buffer mode on window ["
 				<< pWindow->GetNameForNameable() << "] - this can only be done before initialization"
 				<< std::endl;
+		return false;
 	}
 
 	pInfo->m_bUseAccumBuffer = bSet;
@@ -642,11 +655,37 @@ bool VistaGlutWindowingToolkit::SetUseStencilBuffer( VistaWindow* pWindow, const
 		vstr::warnp() << "[GlutWindow]: Trying to change stencil buffer mode on window ["
 				<< pWindow->GetNameForNameable() << "] - this can only be done before initialization"
 				<< std::endl;
+		return false;
 	}
 
 	pInfo->m_bUseStencilBuffer = bSet;
 	return true;
 }
+
+
+bool VistaGlutWindowingToolkit::GetDrawBorder( const VistaWindow* pWindow ) const
+{
+	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
+	return pInfo->m_bDrawBorder;
+}
+
+bool VistaGlutWindowingToolkit::SetDrawBorder( VistaWindow* pWindow, const bool bSet )
+{
+	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
+
+	if( pInfo->m_iWindowID != -1 )
+	{
+		vstr::warnp() << "[GlutWindow]: Trying to change borderless prop on window ["
+				<< pWindow->GetNameForNameable() << "] - this can only be done before initialization"
+				<< std::endl;
+		return false;
+	}
+
+	pInfo->m_bDrawBorder = bSet;
+	return true;
+}
+
+
 
 int VistaGlutWindowingToolkit::GetWindowId( const VistaWindow* pWindow  ) const
 {
@@ -841,6 +880,5 @@ GlutWindowInfo* VistaGlutWindowingToolkit::GetWindowInfo( const VistaWindow* pWi
 		return NULL;
 	return (*itWindow).second;
 }
-
 
 

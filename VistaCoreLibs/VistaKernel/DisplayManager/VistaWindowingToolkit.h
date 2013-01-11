@@ -130,6 +130,9 @@ public:
 	virtual bool SetCursorIsEnabled( VistaWindow* pWindow, bool bSet ) = 0;
 	virtual bool GetCursorIsEnabled( const VistaWindow* pWindow  ) = 0;
 
+	virtual bool GetDrawBorder( const VistaWindow* pWindow  ) const = 0;
+	virtual bool SetDrawBorder( VistaWindow* pWindow, const bool bSet ) = 0;
+
 	/**
 	 * Bind sets the current window as target for rendering
 	 */

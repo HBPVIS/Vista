@@ -197,6 +197,9 @@ public:
 	virtual bool SetWindowStencilBufferEnabled( bool bStencilBufferEnabled,
 									VistaWindow* pTarget );
 	virtual bool GetWindowStencilBufferEnabled( const VistaWindow* pTarget );
+	virtual bool GetWindowDrawBorder( const VistaWindow* pTarget );
+	virtual bool SetWindowDrawBorder( bool bDrawBorder,
+									VistaWindow* pTarget );
 	virtual bool SetWindowPosition( int nXPos, int nYPos,
 									VistaWindow* pTarget);
 	virtual bool GetWindowPosition( int& nXPos, int& nYPos,

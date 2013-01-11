@@ -181,6 +181,9 @@ namespace {
 		new TVistaPropertyGet<bool, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_BOOL>
 							("USE_STENCIL_BUFFER", sSReflectionType,
 							 &VistaWindow::VistaWindowProperties::GetUseStencilBuffer),
+		new TVistaPropertyGet<bool, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_BOOL>
+							("DRAW_BORDER", sSReflectionType,
+							 &VistaWindow::VistaWindowProperties::GetDrawBorder),
 		new TVistaProperty2RefGet<int, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_INT>
 							("POSITION", sSReflectionType,
 							 &VistaWindow::VistaWindowProperties::GetPosition),	
@@ -223,6 +226,9 @@ namespace {
 		new TVistaPropertySet<bool, bool, VistaWindow::VistaWindowProperties>
 							("USE_STENCIL_BUFFER", sSReflectionType,
 							 &VistaWindow::VistaWindowProperties::SetUseStencilBuffer),
+		 new TVistaPropertySet<bool, bool, VistaWindow::VistaWindowProperties>
+							("DRAW_BORDER", sSReflectionType,
+							 &VistaWindow::VistaWindowProperties::SetDrawBorder),
 		new TVistaProperty2ValSet<int, VistaWindow::VistaWindowProperties>
 							("POSITION", sSReflectionType,
 							 &VistaWindow::VistaWindowProperties::SetPosition),
@@ -342,6 +348,28 @@ bool VistaWindow::VistaWindowProperties::SetUseStencilBuffer(const bool bSet)
 	{
 		GetDisplayBridge()->SetWindowStencilBufferEnabled( bSet, pW);
 		Notify( MSG_STENCIL_BUFFER_CHANGE );
+		return true;
+	}
+}
+
+
+bool VistaWindow::VistaWindowProperties::GetDrawBorder() const
+{
+	return GetDisplayBridge()->GetWindowDrawBorder(
+							static_cast<VistaWindow*>(GetParent() ) );
+}
+
+bool VistaWindow::VistaWindowProperties::SetDrawBorder( const bool bDrawBorder )
+{
+	VistaWindow *pW = static_cast<VistaWindow*>( GetParent() );	
+	if( GetDrawBorder() == bDrawBorder )
+	{
+		return false;
+	}
+	else
+	{
+		GetDisplayBridge()->SetWindowDrawBorder( bDrawBorder, pW );
+		Notify( MSG_DRAW_BORDER_CHANGE );
 		return true;
 	}
 }
@@ -527,3 +555,4 @@ int VistaWindow::VistaWindowProperties::GetVSyncEnabled() const
 	VistaWindow *pW = static_cast<VistaWindow*>(GetParent());
 	return GetDisplayBridge()->GetWindowVSync( pW );
 }
+

@@ -1039,8 +1039,8 @@ bool VistaOpenSGDisplayBridge::DrawFrame()
 {
 	// render to all windows in the display manager
 	const std::map<std::string, VistaWindow*>& mapWindows = m_pDisplayManager->GetWindowsConstRef();
-	std::map<std::string, VistaWindow*>::const_iterator itWindow = mapWindows.begin();
-	for( ; itWindow != mapWindows.end(); ++itWindow )
+	std::map<std::string, VistaWindow*>::const_reverse_iterator itWindow = mapWindows.rbegin();
+	for( ; itWindow != mapWindows.rend(); ++itWindow )
 	{
 		m_pWindowingToolkit->BindWindow( (*itWindow).second );
 		WindowData* pData = static_cast<WindowData*>( (*itWindow).second->GetData() );
@@ -1647,6 +1647,16 @@ bool VistaOpenSGDisplayBridge::GetWindowStencilBufferEnabled( const VistaWindow 
 bool VistaOpenSGDisplayBridge::SetWindowStencilBufferEnabled( bool bUse, VistaWindow* pTarget )
 {
 	return m_pWindowingToolkit->SetUseStencilBuffer( pTarget, bUse );
+}
+
+bool VistaOpenSGDisplayBridge::GetWindowDrawBorder( const VistaWindow* pTarget )
+{
+	return m_pWindowingToolkit->GetDrawBorder( pTarget );
+}
+
+bool VistaOpenSGDisplayBridge::SetWindowDrawBorder( bool bDrawBorder, VistaWindow* pTarget )
+{
+	return m_pWindowingToolkit->SetDrawBorder( pTarget, bDrawBorder );
 }
 
 bool VistaOpenSGDisplayBridge::GetWindowStereo( const VistaWindow * pTarget )
@@ -2687,5 +2697,6 @@ bool VistaOpenSGDisplayBridge::GetShowCursor() const
 {
 	return m_bShowCursor;
 }
+
 
 
