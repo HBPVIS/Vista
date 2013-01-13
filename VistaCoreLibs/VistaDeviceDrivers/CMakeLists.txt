@@ -25,6 +25,7 @@ vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_OPENCVCAPTURE		VistaOpenC
 vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_OPENCVFACETRACK		VistaOpenCVFaceTrackDriver		OFF )
 vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_OPENNI			    VistaOpenNIDriver			    OFF )
 vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_PHANTOM			    VistaPhantomDriver			    OFF )
+vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_SIXENSE				VistaSixenseDriver				OFF )
 vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_VRPN    				VistaVRPNDriver			        OFF )
 vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_WIIMOTE			    VistaWiimoteDriver			    OFF )
 vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_CHAI3DHAPTICDEVICES	VistaChai3dHapticDevicesDriver  OFF )
