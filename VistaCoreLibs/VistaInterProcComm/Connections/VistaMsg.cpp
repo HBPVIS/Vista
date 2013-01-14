@@ -155,7 +155,7 @@ int VistaMsg::Serialize(IVistaSerializer &out) const
 int VistaMsg::DeSerialize(IVistaDeSerializer &in)
 {
 	int iLength = in.ReadInt32(m_iType);
-	iLength  = in.ReadInt32(m_iTicket);
+	iLength += in.ReadInt32(m_iTicket);
 	iLength += in.ReadBool(m_bSuccess);
 	int iLen=0;
 	iLength += in.ReadInt32(iLen);
