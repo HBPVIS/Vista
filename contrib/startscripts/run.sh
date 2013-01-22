@@ -66,16 +66,16 @@ custom_usage()
 	echo "                     runs all instances in debug mode"
 	echo "                -DM"
 	echo "                --debug_master"
-	echo "                     run the master instance in debug mode (ClusterMode only)"
+	echo "                     runs only the master instance in debug mode (ClusterMode only)"
 	echo "                -DS"
 	echo "                --debug_slave"
-	echo "                     run the slave instances in debug mode (ClusterMode only)"
+	echo "                     run only the slave instances in debug mode (ClusterMode only)"
 	echo "                -TV"
 	echo "                --totalview"
-	echo "                     start debugging with totalview (only Master if ClusterMode)"
+	echo "                     starts debugging with totalview (only Master if ClusterMode)"
 	echo "                -VG"
 	echo "                --valgrind"
-	echo "                     start profiling with valgrind (only Master if ClusterMode)"
+	echo "                     starts profiling with valgrind (only Master if ClusterMode)"
 }
 
 ########################################
@@ -124,8 +124,8 @@ usage()
 CLUSTER_CONFIGURATION=
 CHOSENSYSTEM=
 
-RUN_MASTER=TRUE
-RUN_SLAVES=TRUE
+RUN_MASTER=true
+RUN_SLAVES=true
 
 if [ "$1" == "-h" -o "$1" == "--help" ]; then
 	usage
@@ -172,15 +172,17 @@ while [ ! "$1" == "" ]; do
 		export REDIRECT_SLAVE_OUTPUT=false
 		shift
 	elif [ "$1" == "-c" -o "$1" == "--cluster-config" ]; then
-			CLUSTER_CONFIGURATION=$2
-			shift
-			shift
+		CLUSTER_CONFIGURATION=$2
+		shift
+		shift
 	elif [ "$1" == "-M" -o "$1" == "--master_only" ]; then
-		RUN_MASTER=TRUE
-		RUN_SLAVES=FALSE
+		START_MASTER=true
+		START_SLAVES=false
+		shift
 	elif [ "$1" == "-S" -o "$1" == "--slaves_only" ]; then
-		RUN_MASTER=FALSE
-		RUN_SLAVES=TRUE
+		START_MASTER=false
+		START_SLAVES=true
+		shift
 	elif [ "$1" == "-K" -o "$1" == "--kill" ]; then
 		if [ -f "$STARTSCRIPTS_SUBDIR/kill_$CHOSENSYSTEM.sh" ]; then
 			echo "executing kill script"
@@ -238,7 +240,7 @@ else
 	fi
 
 
-	if [ "$START_SLAVES" == "TRUE" ]; then
+	if $START_SLAVES; then
 		echo ""
 		echo "starting slaves"
 		./$STARTSCRIPTS_SUBDIR/startslaves_${CHOSENSYSTEM}.sh $CLUSTER_CONFIGURATION $ADDITIONAL_PARAMS_PRE $@ $ADDITIONAL_PARAMS_POST
@@ -247,7 +249,7 @@ else
 		echo ""
 	fi
 		
-	if [ "$START_MASTER" == "TRUE" ]; then
+	if $START_MASTER; then
 		echo "starting master"
 		./$STARTSCRIPTS_SUBDIR/master_$CHOSENSYSTEM.sh $CLUSTER_CONFIGURATION $ADDITIONAL_PARAMS_PRE $@ $ADDITIONAL_PARAMS_POST
 	fi
