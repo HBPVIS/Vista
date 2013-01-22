@@ -7,35 +7,35 @@
 # mode, i.e. wether to start as release (default), or use some kind of
 # debugging/profiling, ...
 
-source ./%%%PATH_TO_BINARY%%%/set_path_for_%%%APPPNAME%%%.sh
+source ./<<<PATH_TO_PATHSCRIPT>>>/set_path_for_<<<APPPNAME>>>.sh
 
-EXECUTABLE="./%%%PATH_TO_BINARY%%%/%%%APPPNAME%%%"
-EXECUTABLE_DEBUG="./%%%PATH_TO_BINARY%%%/%%%APPPNAME%%%D"
+EXECUTABLE="./<<<PATH_TO_BINARY>>>/<<<APPPNAME_RELEASE>>>"
+EXECUTABLE_DEBUG="./<<<PATH_TO_BINARY>>>/<<<APPPNAME_DEBUG>>>"
 
 while [ ! "$1" == "" ]; do
 
 	if [ "$1" == "-D" -o "$1" == "--debug" ]; then
 		shift
-		EXECUTABLE=$EXECUTABLE_DEBUG
+		EXECUTABLE="$EXECUTABLE_DEBUG"
 	elif [ "$1" == "-DM" -o "$1" == "--debug_master" ]; then
 		shift
-		if [ ! "$IS_SLAVE" == "true" ]; then
-			EXECUTABLE=$EXECUTABLE_DEBUG
+		if [ "$IS_MASTER" == "true" ]; then
+			EXECUTABLE="$EXECUTABLE_DEBUG"
 		fi
 	elif [ "$1" == "-DS" -o "$1" == "--debug_slave" ]; then
 		shift
 		if [ "$IS_SLAVE" == "true" ]; then
-			EXECUTABLE=$EXECUTABLE_DEBUG
+			EXECUTABLE="$EXECUTABLE_DEBUG"
 		fi
 	elif [ "$1" == "-TV" -o "$1" == "--totalview" ]; then
 		shift
-		if [ ! "$IS_SLAVE" == "true" ]; then
-			EXECUTABLE=$EXECUTABLE_DEBUG
+		if [ "$IS_MASTER" == "true" ]; then
+			EXECUTABLE="totalview $EXECUTABLE_DEBUG -a "
 		fi
 	elif [ "$1" == "-VG" -o "$1" == "--valgrind" ]; then
 		shift
-		if [ ! "$IS_SLAVE" == "true" ]; then
-			EXECUTABLE=$EXECUTABLE_DEBUG
+		if [ "$IS_MASTER" == "true" ]; then
+			EXECUTABLE="valgrind $EXECUTABLE_DEBUG"
 		fi	
 	else
 		# last prefix parameter, rest should be for the app

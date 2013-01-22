@@ -9,3 +9,7 @@ In addition to the top-level run.sh, there are several scripts in the startscrip
   
 Usually, one only needs to modify the files run.sh, start.sh, and the start_SYSTEM.sh files for the desired systems.
 The other files are generic and should not be modified.
+
+In the simplest case, just replace everything marked with <<<STUFF>>> in run.sh and start.sh.
+If you use differently named initialization files, these have to be adjusted in the start_SYSTEM.sh files.
+Additional parsing of parameters should be performed in either start.sh or run.sh, and documented in the run.sh custom_usage() call.
