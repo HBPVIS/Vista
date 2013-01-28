@@ -81,7 +81,7 @@ public:
 	 * But it is <b>the</b> method for putting something on screen.
 	 * Stick to ASCII characters here.
 	 */
-	bool Output( const std::string &strOutput,
+	virtual bool Output( const std::string &strOutput,
 			const VistaColor &oColor = VistaColor::WHITE );
 
 	/**
