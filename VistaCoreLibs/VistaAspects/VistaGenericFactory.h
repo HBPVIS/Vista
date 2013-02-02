@@ -185,7 +185,7 @@ TProduct *VistaGenericFactory<TProduct,TKey>::CreateInstance(const TKey &rKey)
 	{
 		return NULL;
 	}
-	return static_cast<TProduct*>(itFind->second->CreateInstance());
+	return dynamic_cast<TProduct*>(itFind->second->CreateInstance());
 }
 
 template<typename TProduct, typename TKey>
