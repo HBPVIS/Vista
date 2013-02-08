@@ -27,7 +27,6 @@
 
 #include "VistaAspectsConfig.h"
 
-#include "VistaNameable.h"
 
 #include <list>
 #include <set>

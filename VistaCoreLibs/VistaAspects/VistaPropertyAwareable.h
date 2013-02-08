@@ -34,7 +34,6 @@
 #include <VistaAspects/VistaProperty.h>
 #include <VistaAspects/VistaPropertyList.h>
 
-#include <VistaBase/VistaStreamUtils.h>
 
 #include <string>
 
