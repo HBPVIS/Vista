@@ -571,7 +571,7 @@ bool VistaOpenALRecordDriver::DoSensorUpdate(VistaType::microtime nTs)
 	if( nToGo == -1 )
 		nToGo = samples; // normalize to samples
 
-	nToGo -= m_pCapture->captureTo( &pM->m_vecMeasures[(samples - nToGo)*numBytesPerSample], nToGo );
+	nToGo -= (int)m_pCapture->captureTo( &pM->m_vecMeasures[(samples - nToGo)*numBytesPerSample], nToGo );
 
 	if( nToGo == 0 )
 	{

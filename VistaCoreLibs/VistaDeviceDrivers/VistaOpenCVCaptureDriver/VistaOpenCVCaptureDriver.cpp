@@ -636,7 +636,7 @@ void VistaOpenCVCaptureDriver::OnUpdateMeasureSize()
 	m_pHistoryAspect->SetHistorySize( pSensor,
 			                          history.m_nClientReadSize,
 			                          history.m_nDriverWriteSize,
-			                          m_pParams->GetParameter<Parameters>()->GetMemorySize() );
+			                          (unsigned int)m_pParams->GetParameter<Parameters>()->GetMemorySize() );
 }
 
 

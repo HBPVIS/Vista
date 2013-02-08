@@ -97,7 +97,7 @@ namespace
 	{
 		struct stat oAttributes;
 		if( stat( S_sFifoFolder.c_str(), &oAttributes ) != 0 
-			|| ( oAttributes.st_mode & S_IFDIR == false ) )
+			|| ( ( oAttributes.st_mode & S_IFDIR ) == false ) )
 		{
 			if( mkdir( S_sFifoFolder.c_str(), S_IRWXU|S_IRGRP|S_IXGRP ) != 0 )
 				return false;

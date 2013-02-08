@@ -214,6 +214,7 @@ private:
 				return;
 
 			std::string nVariable = sString.substr( nStart + 2, nEnd - nStart - 2 );
+			nSearchStart = nEnd;
 
 			if( m_pVariablesProplist != NULL )
 			{
@@ -222,7 +223,7 @@ private:
 				{
 					sString = sString.replace( nStart, nEnd - nStart + 1, vVarValue );
 					nSearchStart = nStart + vVarValue.size();
-					return;
+					continue;
 				}
 			}
 			if( m_bReplaceEnvironmentVariables )
@@ -232,13 +233,12 @@ private:
 				{
 					sString = sString.replace( nStart, nEnd - nStart + 1, sVarValue );
 					nSearchStart = nStart + strlen( sVarValue );
-					return;
+					continue;
 				}
 			}
 
 			PARSE_WARN << "Could not replace variable ["
 						<< nVariable << "]" << std::endl;
-			nSearchStart = nEnd;
 		}
 
 	}

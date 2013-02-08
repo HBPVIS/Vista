@@ -950,28 +950,6 @@ void VistaInteractionManager::HandleEvent(VistaEvent *pEvent)
 		// swallow events according to flag set
 		pEvent->SetHandled( m_bSwallowEvent );
 	}
-//	else
-//	if(pEvent->GetType() == VistaSystemEvent::GetTypeId()
-//		&& pEvent->GetId() == VistaSystemEvent::VSE_POSTAPPLICATIONLOOP)
-//	{
-//		// @todo check hot sampling with a more elaborated design,
-//		// this one simply does not work and it is not necessary to
-//		// evaluate graphs more than once per frame right now!
-//
-////		// special mode for hot sampling (untested)
-////		if(!m_pEvObserver) // slave mode?
-////		{
-////			// yes
-////			pEvent->SetHandled(m_bSwallowEvent); // swallow event
-////									  // (other events will be injected by the cluster)
-////			return;
-////		}
-////
-////		// update as usual
-////		// update logical devices aka contexts
-////		UpdateInteractionContexts(pEvent->GetTime());
-////		pEvent->SetHandled(m_bSwallowEvent);
-//	}
 }
 
 void VistaInteractionManager::UpdateWithEventHandling(double dTs, bool bDelayedUpdate)

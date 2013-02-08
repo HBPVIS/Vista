@@ -60,6 +60,7 @@ VistaSixenseDriver::VistaSixenseDriver( IVistaDriverCreationMethod *crm )
 
 VistaSixenseDriver::~VistaSixenseDriver()
 {
+	sixenseExit();
 	delete m_pData;
 }
 

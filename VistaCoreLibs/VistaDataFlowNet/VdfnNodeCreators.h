@@ -704,7 +704,7 @@ public:
 			}
 
 			typename TVdfnGetVariableNode<T>::Variable* pVar;
-			T oInitial;
+			T oInitial = VistaConversion::CreateInitializedDefaultObject<T>();
 			if( oSubs.GetValue<T>( "initial_value", oInitial ) )
 				pVar = m_pRegistry->GetOrCreateVariable( sVariableName, oInitial );
 			else

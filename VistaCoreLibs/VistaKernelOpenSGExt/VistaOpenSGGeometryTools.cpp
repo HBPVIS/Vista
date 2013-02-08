@@ -181,10 +181,6 @@ bool VistaOpenSGGeometryTools::CalcFaceNormals(VistaGeometry *pGeo)
 	return true;
 }
 
-/**
- *	@todo Return ViSTA geometry. 
- */
-
 bool VistaOpenSGGeometryTools::CalcVertexNormalsGeo(VistaGeometry *pGeo, const float &fCreaseAngle, bool pCalc)
 {
 	VistaOpenSGGeometryData* pData = dynamic_cast<VistaOpenSGGeometryData*>(pGeo->GetData());
@@ -198,10 +194,6 @@ bool VistaOpenSGGeometryTools::CalcVertexNormalsGeo(VistaGeometry *pGeo, const f
 	
 	return true;
 }
-
-/**
- *	@todo Return ViSTA geometry. 
- */
 
 bool VistaOpenSGGeometryTools::CalcFaceNormalsGeo(VistaGeometry *pGeo, bool pCalc)
 {

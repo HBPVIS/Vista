@@ -1128,8 +1128,8 @@ size_t OpenALSoundContext::OpenALCaptureContext::captureTo( void *buffer, size_t
 {
 	if( m_pCapture )
 	{
-		ALint iSamplesAvailable = available();
-		ALint numSamples = std::min<size_t>( maxSize, iSamplesAvailable );
+		ALint iSamplesAvailable = (ALint)available();
+		ALint numSamples = std::min<ALint>( (ALint)maxSize, iSamplesAvailable );
 //		std::cout << "available: " << iSamplesAvailable << std::endl
 //				  << "taking: " << numSamples << std::endl;
 

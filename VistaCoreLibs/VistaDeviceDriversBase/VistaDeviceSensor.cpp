@@ -641,7 +641,7 @@ bool VistaDeviceSensor::SwapMeasures()
 	// an atomic read on the respective reference, as the history is
 	// probably under access right now
 	VistaType::uint32 nWriteHead =
-		m_pAtomics->AtomicRead( m_rbSensorHistory.m_rbHistory.GetCurrentRef() );
+		m_pAtomics->AtomicRead( (VistaType::uint32)m_rbSensorHistory.m_rbHistory.GetCurrentRef() );
 
 	VistaType::uint32 nMeasureCount =
 		m_pAtomics->AtomicRead( m_rbSensorHistory.m_nMeasureCount );
@@ -734,7 +734,7 @@ bool VistaDeviceSensor::AdvanceMeasure()
 	}
 	else
 	{
-		while(m_pAtomics->AtomicSet((VistaAtomics::SWAPADDRESS)&cur, next) == cur)
+		while(m_pAtomics->AtomicSet((VistaAtomics::SWAPADDRESS)&cur, (VistaType::uint32)next) == (VistaType::uint32)cur )
 			++m_nSwap1FailCount;
 	}
 
@@ -829,7 +829,7 @@ unsigned int VistaDeviceSensor::GetNewMeasureCount( unsigned int &lastRead ) con
 	// entries in the current history.
 	// Example: user said, n slots are interesting, n+m (m>0) are there, the new measure count
 	// is limited to n.
-	size_t nNewMeasureCount = std::min<unsigned int>( nMIndex - lastRead,
+	unsigned int nNewMeasureCount = std::min<unsigned int>( nMIndex - lastRead,
 			m_rbSensorHistory.m_nClientReadSize);
 
 	// write back to user given reference value
