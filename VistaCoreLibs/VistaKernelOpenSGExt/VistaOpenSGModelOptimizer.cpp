@@ -143,10 +143,10 @@ bool Optimize( osg::NodePtr pModelNode, int nOptimizationMode, bool bVerbose )
 		}
 
 
-		if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_CONVERT_GEOMS )
+		if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_CONVERT_GEOMS_SINGLE_INDEXED )
 		{
 			if( bVerbose )
-				vstr::outi() << "[VistaOpenSGModelOptimizer]: Converting Geometries" << std::endl;	
+				vstr::outi() << "[VistaOpenSGModelOptimizer]: Converting Geoms to single indexed" << std::endl;	
 
 			oTimer.ResetLifeTime();
 			OSGGeometryTraversal oTraversalHelper;
@@ -155,21 +155,41 @@ bool Optimize( osg::NodePtr pModelNode, int nOptimizationMode, bool bVerbose )
 																&oTraversalHelper, &OSGGeometryTraversal::Process ) ); 
 			
 			std::list<osg::GeometryPtr> &geos = oTraversalHelper.GetGeometries();
-			int overallVertexCount = 0;
-			int count = 0;
 			for( std::list<osg::GeometryPtr>::const_iterator itGeom = geos.begin();
 				itGeom != geos.end(); ++itGeom )
 			{
-				const int vCount = osg::createSingleIndex( (*itGeom) );
-				overallVertexCount += vCount;			
-				std::cout << ++count << "/" << geos.size() << ": " << vCount << " vertices" << std::endl;
+				osg::createSingleIndex( (*itGeom) );		
 			}
 			if( bVerbose )
 			{
 				vstr::outi() << vstr::singleindent << "optimization took " << vstr::formattime( 1000 * oTimer.GetLifeTime(), 1 ) << "ms" << std::endl;
-			}
-			
+			}			
 		}
+
+		if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_CALCULATE_TANGENT_SPACE )
+		{
+			if( bVerbose )
+				vstr::outi() << "[VistaOpenSGModelOptimizer]: Calculating Tangent Space" << std::endl;	
+
+			oTimer.ResetLifeTime();
+			OSGGeometryTraversal oTraversalHelper;
+			osg::traverse( pModelNode, 
+				osg::osgTypedMethodFunctor1ObjPtrCPtrRef<osg::Action::ResultE, OSGGeometryTraversal, osg::NodePtr>(
+																&oTraversalHelper, &OSGGeometryTraversal::Process ) ); 
+			
+			std::list<osg::GeometryPtr> &geos = oTraversalHelper.GetGeometries();
+			for( std::list<osg::GeometryPtr>::const_iterator itGeom = geos.begin();
+				itGeom != geos.end(); ++itGeom )
+			{
+				osg::calcVertexTangents( (*itGeom) );
+			}
+			if( bVerbose )
+			{
+				vstr::outi() << vstr::singleindent << "optimization took " << vstr::formattime( 1000 * oTimer.GetLifeTime(), 1 ) << "ms" << std::endl;
+			}			
+		}
+
+		
 
 		if( nOptimizationMode & VistaOpenSGModelOptimizer::OPT_MERGE_GEOMETRIES )
 		{
@@ -524,7 +544,7 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 		{
 			sOptSting += "_MG";
 		}
-		if( nOptimizationMode & OPT_CONVERT_GEOMS )
+		if( nOptimizationMode & OPT_CONVERT_GEOMS_SINGLE_INDEXED )
 		{
 			sOptSting += "_CG";
 		}
@@ -551,6 +571,10 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 		else if( nOptimizationMode & OPT_CALCULATE_NORMALS_180DEG )
 		{
 			sOptSting += "_N180";
+		}
+		else if( nOptimizationMode & OPT_CALCULATE_TANGENT_SPACE )
+		{
+			sOptSting += "_TS";
 		}
 	}
 

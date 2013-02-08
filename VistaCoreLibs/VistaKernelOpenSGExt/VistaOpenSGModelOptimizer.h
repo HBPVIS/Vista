@@ -53,17 +53,18 @@ class VISTAKERNELOPENSGEXTAPI VistaOpenSGModelOptimizer
 public:
 	enum
 	{
-		OPT_MERGE_MATERIALS				= 1<<0,
-		OPT_STRIPE_GEOMETRIES			= 1<<1,
-		OPT_MERGE_GEOMETRIES			= 1<<2,
-		OPT_CONVERT_GEOMS				= 1<<3,
-		OPT_USE_VBO						= 1<<4,
-		OPT_CALCULATE_NORMALS_30DEG		= 1<<5,
-		OPT_CALCULATE_NORMALS_45DEG		= 1<<6,
-		OPT_CALCULATE_NORMALS_60DEG		= 1<<7,
-		OPT_CALCULATE_NORMALS_90DEG		= 1<<8,
-		OPT_CALCULATE_NORMALS_120DEG	= 1<<9,
-		OPT_CALCULATE_NORMALS_180DEG	= 1<<10,
+		OPT_MERGE_MATERIALS					= 1<<0,
+		OPT_STRIPE_GEOMETRIES				= 1<<1,
+		OPT_MERGE_GEOMETRIES				= 1<<2,
+		OPT_CONVERT_GEOMS_SINGLE_INDEXED	= 1<<3,
+		OPT_USE_VBO							= 1<<4,
+		OPT_CALCULATE_NORMALS_30DEG			= 1<<5,
+		OPT_CALCULATE_NORMALS_45DEG			= 1<<6,
+		OPT_CALCULATE_NORMALS_60DEG			= 1<<7,
+		OPT_CALCULATE_NORMALS_90DEG			= 1<<8,
+		OPT_CALCULATE_NORMALS_120DEG		= 1<<9,
+		OPT_CALCULATE_NORMALS_180DEG		= 1<<10,
+		OPT_CALCULATE_TANGENT_SPACE			= 1<<11,
 
 		// preset combinations
 		OPT_NONE				= 0,
@@ -85,14 +86,14 @@ public:
 	static IVistaNode* LoadAutoOptimizedFile( VistaSceneGraph* pSceneGraph,
 						const std::string& sFilename,
 						int nOptimizationMode = OPT_DEFAULT,
-						const std::string& sDumpDataFormat = "bin",
+						const std::string& sDumpDataFormat = "osb",
 						bool bCompareTimestamps = true,
 						bool bVerbose = true  );
 	static IVistaNode* LoadAutoOptimizedFile( VistaSceneGraph* pSceneGraph,
 						const std::string& sFilename,
 						const std::string& sOutputDirectory,
 						int nOptimizationMode = OPT_DEFAULT,
-						const std::string& sDumpDataFormat = "bin",
+						const std::string& sDumpDataFormat = "osb",
 						bool bCompareTimestamps = true,
 						bool bVerbose = true  );
 };
