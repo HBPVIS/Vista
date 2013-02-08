@@ -658,12 +658,12 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 	{
 		vstr::warnp() << "[VistaOpenSGModelOptimizer]: Exception while loading optimized file: "
 					<< oException.what() << std::endl;
-		return false;
+		return NULL;
 	}
 	catch( ... )
 	{
 		vstr::warnp() << "[VistaOpenSGModelOptimizer]: Exception while loading optimized file" << std::endl;
-		return false;
+		return NULL;
 	}
 }
 

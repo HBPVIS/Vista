@@ -88,6 +88,11 @@ public:
 	, m_cSectionHeaderEndSymbol( cSectionHeaderEndSymbol )
 	, m_cCommentSymbol( cCommentSymbol )
 	, m_cKeySeparatorSymbol( cKeySeparatorSymbol )
+	, m_bReplaceEnvironmentVariables(false)
+	, m_sFileVariableSectionName( "FILE_VARIABLES" )
+	, m_cCurrentRead(0x0)
+	, m_iCurrentLine(0)
+	, m_pVariablesProplist(NULL)
 	{
 	}
 
@@ -396,6 +401,7 @@ public:
 	, m_cCommentSymbol( cCommentSymbol )
 	, m_cKeySeparatorSymbol( cKeySeparatorSymbol )
 	, m_iMaxKeyIndent( iMaxKeyIndent )
+    , m_iSectionDepth(0)
 	{
 	}
 
