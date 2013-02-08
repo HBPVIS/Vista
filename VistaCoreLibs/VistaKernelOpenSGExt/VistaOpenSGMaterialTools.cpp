@@ -153,7 +153,7 @@ bool VistaOpenSGMaterialTools::SetSortKeyOnSubtree( IVistaNode* pNode, const int
 		if( ApplySortKey( (*itMat), nSortKey ) == false )
 			bReturn = false;
 	}
-	return false;
+	return bReturn;
 }
 
 
@@ -182,7 +182,7 @@ bool VistaOpenSGMaterialTools::SetColorMaskOnSubtree( IVistaNode* pNode,
 		if( ApplyColorMask( (*itMat), bDrawRed, bDrawGreen, bDrawBlue, bDrawAlpha ) == false )
 			bReturn = false;
 	}
-	return false;
+	return bReturn;
 }
 
 /*============================================================================*/
