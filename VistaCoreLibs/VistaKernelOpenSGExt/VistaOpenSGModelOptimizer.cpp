@@ -578,18 +578,10 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 		}
 	}
 
-#ifdef WIN32
-	sOptSting += "_Win";
-#elif LINUX
-	sOptSting += "_Linux";
-#elif DARWIN
-	sOptSting += "_Darwin";
-#endif
-
 #ifdef VISTA_64BIT
-	sOptSting += "64";
+	sOptSting += "64bit";
 #else
-	sOptSting += "32";
+	sOptSting += "32bit";
 #endif
 
 	std::string sLocalFilename = VistaFileSystemFile( sFilename ).GetLocalName();
