@@ -461,13 +461,13 @@ int VistaKeyboardSystemControl::GetKeyValueFromString( const std::string& sKeySt
 
 	VistaAspectsComparisonStuff::StringCompareObject oCompare( false );
 
-	if( oCompare( sKeyString, "VISTA_KEY_UPARROW" ) || oCompare( sKeyString, "UP" ) )
+	if( oCompare( sKeyString, "VISTA_KEY_UPARROW" ) || oCompare( sKeyString, "UP" ) || oCompare( sKeyString, "UP_ARROW" ) )
 		return VISTA_KEY_UPARROW;
-	else if( oCompare( sKeyString, "VISTA_KEY_DOWNARROW" ) || oCompare( sKeyString, "DOWN" ) )
+	else if( oCompare( sKeyString, "VISTA_KEY_DOWNARROW" ) || oCompare( sKeyString, "DOWN" ) || oCompare( sKeyString, "DOWN_ARROW" ) )
 		return VISTA_KEY_DOWNARROW;
-	else if( oCompare( sKeyString, "VISTA_KEY_RIGHTARROW" ) || oCompare( sKeyString, "RIGHT" ) )
+	else if( oCompare( sKeyString, "VISTA_KEY_RIGHTARROW" ) || oCompare( sKeyString, "RIGHT" ) || oCompare( sKeyString, "RIGHT_ARROW" ) )
 		return VISTA_KEY_RIGHTARROW;
-	else if( oCompare( sKeyString, "VISTA_KEY_LEFTARROW" ) || oCompare( sKeyString, "ESC" ) )
+	else if( oCompare( sKeyString, "VISTA_KEY_LEFTARROW" ) || oCompare( sKeyString, "LEFT" ) || oCompare( sKeyString, "LEFT_ARROW" ) )
 		return VISTA_KEY_LEFTARROW;
 	else if( oCompare( sKeyString, "VISTA_KEY_ESC" ) || oCompare( sKeyString, "ESC" ) )
 		return VISTA_KEY_ESC;
