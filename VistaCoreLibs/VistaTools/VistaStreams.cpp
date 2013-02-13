@@ -665,7 +665,7 @@ public:
 	: std::streambuf()
 	, m_pStream( pStream )
 	, m_bPrefixIndent( false )
-	, m_bNewLinePending( false )
+	, m_bNewLinePending( true )
 	{		
 	}
 
