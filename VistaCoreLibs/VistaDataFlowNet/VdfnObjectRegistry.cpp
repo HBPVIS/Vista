@@ -87,22 +87,6 @@ bool VdfnObjectRegistry::SetObject( const std::string &strName,
 				IVistaNameable *pObj, 
 				IVistaTransformable *pTrans )
 {
-
-	if( pObj )
-	{
-		if( pObj->GetNameForNameable().empty() )
-		{
-			vstr::outi() << "[VdfnObjectRegistry]: Registering <unnamed> as ["
-						<< strName << "]" << std::endl;
-		}
-		else
-		{
-			vstr::outi() << "[VdfnObjectRegistry]: Registering [" 
-						<< pObj->GetNameForNameable() << "] as [" 
-						<< strName << "]" << std::endl;
-		}
-	}
-
 	if(m_mpObjects.find(strName) != m_mpObjects.end())
 		return false;
 

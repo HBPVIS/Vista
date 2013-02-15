@@ -1,3 +1,10 @@
+macro( vista_configure_transcoder _TRANSCODER_NAME )
+vista_configure_lib( VistaVRPNTranscoder )
+vista_install( VistaVRPNTranscoder "VistaDeviceDrivers/VistaVRPNDriver" "DriverPlugins" )	 
+set_target_properties( VistaVRPNTranscoder PROPERTIES FOLDER "Drivers" )	 
+vista_set_outdir( VistaVRPNTranscoder "${VISTADEVICEDRIVERSBASE_TARGET_OUTDIR}/DriverPlugins" )
+endmacro()
+
 if( VISTACORELIBS_BUILD_WINDOWIMP_GLUT )
 	vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_GLUTMOUSE			VistaGlutMouseDriver			ON	ADVANCED )
 	vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_GLUTKEYBOARD			VistaGlutKeyboardDriver			ON	ADVANCED )
