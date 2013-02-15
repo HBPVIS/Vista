@@ -50,6 +50,7 @@ VistaLightNode::VistaLightNode(VistaGroupNode*				pParent,
 
 VistaLightNode::~VistaLightNode()
 {
+	m_pBridge->UnregisterLightNode( this );
 }
 
 

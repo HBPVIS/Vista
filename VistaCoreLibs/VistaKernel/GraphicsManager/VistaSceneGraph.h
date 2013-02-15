@@ -282,6 +282,12 @@ public:
 	 */
 	void GetAllSubNodesOfType( std::vector<IVistaNode*>& vecNodesOfWantedType, const VISTA_NODETYPE& wantedNodeType, IVistaNode *pNode = NULL ) const;
 
+	const std::vector<VistaLightNode*>& GetAllLightNodes() const;
+	void GetAllLightNodes( std::vector<VistaLightNode*>& vecLights ) const;
+	VistaLightNode* GetLightNode( const int nIndex ) const;
+	int GetNumberOfLights() const;
+	int GetNumberOfActiveLights() const;
+
 protected:
 	//NEW: NodeBridge and GraphicsBridge are concepts of the new VistaGraphicsManager
 	virtual bool Init (IVistaNodeBridge*,

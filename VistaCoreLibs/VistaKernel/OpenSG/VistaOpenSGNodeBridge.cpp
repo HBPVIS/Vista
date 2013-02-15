@@ -695,15 +695,7 @@ IVistaNodeData * VistaOpenSGNodeBridge::NewGeomNodeData( IVistaGeometryData * pD
 }
 
 void VistaOpenSGNodeBridge::DeleteNode(IVistaNode* pNode)
-{
-	if(pNode->GetType() == VISTA_LIGHTNODE)
-	{
-		VistaLightNode *pLight = dynamic_cast<VistaLightNode*>(pNode);
-		if(pLight->GetLightType() == VISTA_AMBIENT_LIGHT)
-		{
-			m_bAmbientLightState = false;
-		}
-	}
+{	
 	IVistaNodeBridge::DeleteNode(pNode);
 }
 
@@ -2836,3 +2828,35 @@ IVistaNode* VistaOpenSGNodeBridge::CloneSubtree( IVistaNodeData* pNodeData )
 						pNewOSGNode, pOpenSGData->GetNode() );
 	return pRet;
 }
+
+const std::vector<VistaLightNode*>& VistaOpenSGNodeBridge::GetAllLightNodes() const
+{
+	return m_vecLightNodes;
+}
+
+void VistaOpenSGNodeBridge::RegisterLightNode( VistaLightNode* pLight )
+{
+	m_vecLightNodes.push_back( pLight );
+}
+
+void VistaOpenSGNodeBridge::UnregisterLightNode( VistaLightNode* pLight )
+{
+	std::vector<VistaLightNode*>::iterator itStoredLight
+				= std::find( m_vecLightNodes.begin(), m_vecLightNodes.end(), pLight );
+	if( itStoredLight == m_vecLightNodes.end() )
+	{
+		vstr::warnp() << "[VistaOpenSGNodeBridge::DeleteNode]: "
+						<< "Deleting LightNode which was not registered before" << std::endl;
+	}
+	else
+	{
+		m_vecLightNodes.erase( itStoredLight );
+	}
+	
+	if(pLight->GetLightType() == VISTA_AMBIENT_LIGHT)
+	{
+		m_bAmbientLightState = false;
+	}
+}
+
+

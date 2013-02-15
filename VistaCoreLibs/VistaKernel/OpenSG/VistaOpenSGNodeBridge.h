@@ -369,6 +369,10 @@ public:
 	virtual bool GetLightIsEnabled( const IVistaNodeData* pData ) const;
 	virtual void SetLightIsEnabled( bool bEnabled, IVistaNodeData* pData );
 
+	virtual const std::vector<VistaLightNode*>& GetAllLightNodes() const;
+	virtual void RegisterLightNode( VistaLightNode* pLight );
+	virtual void UnregisterLightNode( VistaLightNode* pLight );
+
 	/*******************************************/
 	/* 3D Text Nodes                           */
 	/*******************************************/
@@ -410,6 +414,7 @@ public:
 private:
 	osg::Color4f m_afAmbientLight;
 	bool         m_bAmbientLightState;
+	std::vector<VistaLightNode*> m_vecLightNodes;
 };
 
 /*============================================================================*/

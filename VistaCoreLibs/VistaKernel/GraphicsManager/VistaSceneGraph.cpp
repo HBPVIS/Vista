@@ -255,6 +255,8 @@ VistaAmbientLight*	VistaSceneGraph::NewAmbientLight (VistaGroupNode* pParent)
 	if(pParent)
 		pParent->AddChild(pNewnode);
 
+	m_pNodeBridge->RegisterLightNode( pNewnode );
+
 	return pNewnode;
 }
 
@@ -280,6 +282,8 @@ VistaDirectionalLight* VistaSceneGraph::NewDirectionalLight (VistaGroupNode* pPa
 
 	if(pParent)
 		pParent->AddChild(pNewnode);
+	
+	m_pNodeBridge->RegisterLightNode( pNewnode );
 
 	return pNewnode;
 }
@@ -306,6 +310,8 @@ VistaPointLight* VistaSceneGraph::NewPointLight (VistaGroupNode* pParent)
 	if(pParent)
 		pParent->AddChild(pNewnode);
 
+	m_pNodeBridge->RegisterLightNode( pNewnode );
+
 	return pNewnode;
 }
 
@@ -330,6 +336,8 @@ VistaSpotLight* VistaSceneGraph::NewSpotLight (VistaGroupNode* pParent)
 
 	if(pParent)
 		pParent->AddChild(pNewnode);
+
+	m_pNodeBridge->RegisterLightNode( pNewnode );
 
 	return pNewnode;
 }
@@ -1108,6 +1116,39 @@ void VistaSceneGraph::GetAllSubNodesOfType( std::vector<IVistaNode*>& vecNodesOf
 			}
 		}
 	}
+}
+
+const std::vector<VistaLightNode*>& VistaSceneGraph::GetAllLightNodes() const
+{
+	return m_pNodeBridge->GetAllLightNodes();
+}
+
+void VistaSceneGraph::GetAllLightNodes( std::vector<VistaLightNode*>& vecLights ) const
+{
+	vecLights = m_pNodeBridge->GetAllLightNodes();
+}
+
+VistaLightNode* VistaSceneGraph::GetLightNode( const int nIndex ) const
+{
+	return m_pNodeBridge->GetAllLightNodes()[nIndex];
+}
+
+int VistaSceneGraph::GetNumberOfLights() const
+{
+	return (int)m_pNodeBridge->GetAllLightNodes().size();
+}
+
+int VistaSceneGraph::GetNumberOfActiveLights() const
+{
+	const std::vector<VistaLightNode*>& vecLights = m_pNodeBridge->GetAllLightNodes();
+	int nCount = 0;
+	for( std::vector<VistaLightNode*>::const_iterator itLight = vecLights.begin();
+			itLight != vecLights.end(); ++itLight )
+	{
+		if( (*itLight)->GetIsEnabled() )
+			++nCount;
+	}
+	return nCount;
 }
 
 /*============================================================================*/

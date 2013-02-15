@@ -223,6 +223,11 @@ public:
 
 	virtual bool GetLightIsEnabled( const IVistaNodeData* pData ) const = 0;
 	virtual void SetLightIsEnabled( bool bEnabled, IVistaNodeData* pData ) = 0;
+	
+	virtual const std::vector<VistaLightNode*>& GetAllLightNodes() const = 0;
+	virtual void RegisterLightNode( VistaLightNode* pLight ) = 0;
+	virtual void UnregisterLightNode( VistaLightNode* pLight ) = 0;
+
 
 	/*******************************************/
 	/* 3D Text Nodes                           */
