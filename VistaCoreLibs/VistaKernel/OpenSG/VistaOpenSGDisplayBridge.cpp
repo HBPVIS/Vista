@@ -66,12 +66,6 @@
 #include <OpenSG/OSGRenderAction.h>
 #include <OpenSG/OSGDrawAction.h>
 
-#include <OpenSG/OSGColorMaskChunk.h>
-#include "VistaKernelOpenSGExt/VistaOpenSGMaterialTools.h"
-
-#include <VistaKernel/GraphicsManager/VistaGroupNode.h>
-#include "VistaBase/VistaTimer.h"
-
 /*============================================================================*/
 /*  MAKROS AND DEFINES                                                        */
 /*============================================================================*/
@@ -1041,116 +1035,17 @@ VistaDisplayManager *VistaOpenSGDisplayBridge::GetDisplayManager() const
 /*  IMPLEMENTATION                                                            */
 /*============================================================================*/
 
-
-class ColorTraverse
-{
-public:
-	ColorTraverse( bool bR, bool bG, bool bB, bool bA )
-		: m_bR( bR ), m_bG( bG ), m_bB( bB ), m_bA( bA )
-	{
-	}
-	void Traverse( osg::NodePtr oNode )
-	{
-		osg::traverse( oNode,
-				osg::osgTypedMethodFunctor1ObjPtrCPtrRef<
-					osg::Action::ResultE, ColorTraverse, osg::NodePtr>
-							( this, &ColorTraverse::Enter ),
-				osg::osgTypedMethodFunctor2ObjPtrCPtrRef<
-					osg::Action::ResultE, ColorTraverse, osg::NodePtr, osg::Action::ResultE>
-							( this, &ColorTraverse::Leave ) );
-	}
-
-	OSG::Action::ResultE Enter( osg::NodePtr& oNode )
-	{
-		if( oNode->getCore()->getType().isDerivedFrom( osg::MaterialDrawable::getClassType() ) )
-		{
-			OSG::MaterialDrawablePtr oMat = osg::MaterialDrawablePtr::dcast( oNode->getCore() );
-			osg::ChunkMaterialPtr pMaterial = osg::ChunkMaterialPtr::dcast( oMat->getMaterial() );
-			if( pMaterial == osg::NullFC )
-			{
-				// create new one
-				pMaterial = osg::ChunkMaterial::create();
-				beginEditCP( oMat );
-				oMat->setMaterial( pMaterial );
-				endEditCP( oMat );
-			}
-			osg::ColorMaskChunkPtr pChunk = osg::ColorMaskChunkPtr::dcast( 
-						pMaterial->find( osg::ColorMaskChunk::getClassType() ) );
-			if( pChunk == osg::NullFC )
-			{
-				beginEditCP( pMaterial );
-				pChunk = osg::ColorMaskChunk::create();
-				pMaterial->addChunk( pChunk );
-				endEditCP( pMaterial );
-			}
-			
-			beginEditCP( pChunk );
-			pChunk->setMask( m_bR, m_bG, m_bB, m_bA );
-			endEditCP( pChunk );
-		}
-		return OSG::Action::Continue;
-	}
-	OSG::Action::ResultE Leave( osg::NodePtr& oNode, osg::Action::ResultE oRes )
-	{
-		return oRes;
-	}
-
-	bool m_bR, m_bG, m_bB, m_bA;
-};
-
-
 bool VistaOpenSGDisplayBridge::DrawFrame()
 {
 	// render to all windows in the display manager
-
-	m_pRenderAction->setSortTrans( true );
-
-	//const std::map<std::string, VistaViewport*>& mapViewports = m_pDisplayManager->GetViewportsConstRef();
-	//std::map<std::string, VistaViewport*>::const_iterator itVp = mapViewports.begin();
-	//for( ; itVp != mapViewports.end(); ++itVp )
-	//{
-	//	(*itVp).second->GetProjection()->GetProjectionProperties()->SetStereoMode( VistaProjection::VistaProjectionProperties::SM_LEFT_EYE );
-	//	(*itVp).second->GetViewportProperties()->SetHasPassiveBackground( true );
-	//}
-	//
-	//glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-	////glColorMask( true, false, false, true );
-	////VistaOpenSGMaterialTools::SetColorMaskOnSubtree( GetVistaSystem()->GetGraphicsManager()->GetSceneGraph()->GetRoot(), true, false, false, true );
-	//ColorTraverse oSetRed( true, false, false, true );
-	//oSetRed.Traverse( m_pRealRoot );
-
-	// render to all windows in the display manager
 	const std::map<std::string, VistaWindow*>& mapWindows = m_pDisplayManager->GetWindowsConstRef();
-	std::map<std::string, VistaWindow*>::const_iterator itWindow = mapWindows.begin();
-	for( ; itWindow != mapWindows.end(); ++itWindow )
+	std::map<std::string, VistaWindow*>::const_reverse_iterator itWindow = mapWindows.rbegin();
+	for( ; itWindow != mapWindows.rend(); ++itWindow )
 	{
 		m_pWindowingToolkit->BindWindow( (*itWindow).second );
-		glColorMask( true, false, false, true );
 		WindowData* pData = static_cast<WindowData*>( (*itWindow).second->GetData() );
 		pData->m_ptrWindow->render(m_pRenderAction);
 	}
-
-	//glClear( GL_DEPTH_BUFFER_BIT );
-
-	//itVp = mapViewports.begin();
-	//for( ; itVp != mapViewports.end(); ++itVp )
-	//{
-	//	(*itVp).second->GetProjection()->GetProjectionProperties()->SetStereoMode( VistaProjection::VistaProjectionProperties::SM_RIGHT_EYE );
-	//}
-
-	//glColorMask( false, true, true, true );
-	////VistaOpenSGMaterialTools::SetColorMaskOnSubtree( GetVistaSystem()->GetGraphicsManager()->GetSceneGraph()->GetRoot(), false, true, true, true );
-	//ColorTraverse oSetCyan( false, true, true, true );
-	//oSetCyan.Traverse( m_pRealRoot );
-
-	//itWindow = mapWindows.begin();
-	//for( ; itWindow != mapWindows.end(); ++itWindow )
-	//{
-	//	m_pWindowingToolkit->BindWindow( (*itWindow).second );
-	//	glColorMask( false, true, true, true );
-	//	WindowData* pData = static_cast<WindowData*>( (*itWindow).second->GetData() );
-	//	pData->m_ptrWindow->render(m_pRenderAction);
-	//}
 
 	// after rendering, we have to deactivate all filegrab foregrounds that
 	// listed for screenshot during last frame
