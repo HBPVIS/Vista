@@ -33,6 +33,7 @@
 
 #include <VistaDeviceDriversBase/VistaDeviceDriver.h>
 #include <VistaDeviceDriversBase/VistaDeviceSensor.h>
+#include <VistaDeviceDriversBase/DriverAspects/VistaDriverGenericParameterAspect.h>
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -58,6 +59,26 @@
  */
 class VISTADEVICEDRIVERSAPI IVistaMouseDriver : public IVistaDeviceDriver
 {
+public:
+	class VISTADEVICEDRIVERSAPI MouseDriverParameters : public VistaDriverGenericParameterAspect::IParameterContainer
+	{
+		REFL_DECLARE
+	public:
+		MouseDriverParameters( IVistaMouseDriver* pDriver );
+
+		enum
+		{
+			MSG_CAPTURE_CURSOR_CHG = VistaDriverGenericParameterAspect::IParameterContainer::MSG_LAST,
+			MSG_REPORT_DELTA_CHG,			
+			MSG_LAST
+		};
+
+		bool GetCaptureCursor() const;
+		bool SetCaptureCursor( bool bCapture );
+
+	private:
+		bool m_bCaptureCursor;
+	};
 public:
 	virtual ~IVistaMouseDriver();
 
@@ -127,7 +148,10 @@ protected:
 	bool UpdateMouseButton(unsigned int nIdx, eBt nMouseBt,
 						   double nPressed);
 
+	MouseDriverParameters* GetParameters();
+
 private:
+	VistaDriverGenericParameterAspect* m_pParams;
 };
 
 /**

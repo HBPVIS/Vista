@@ -31,6 +31,82 @@
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
+
+REFL_IMPLEMENT_FULL( IVistaMouseDriver::MouseDriverParameters,
+			   VistaDriverGenericParameterAspect::IParameterContainer );
+
+namespace
+{
+	IVistaPropertyGetFunctor *SaParameterGetter[] =
+	{
+		new TVistaPropertyGet<bool,
+				IVistaMouseDriver::MouseDriverParameters,
+				VistaProperty::PROPT_BOOL> (
+						"CAPTURE_CURSOR",
+						SsReflectionName, // SsReflectionName is defined in the REFL_IMPLEMENT_FULL macro above!
+						&IVistaMouseDriver::MouseDriverParameters::GetCaptureCursor,
+						"returns if the driver captures the cursor, i.e. holds it in the window center and only reports deltas" ),
+		NULL
+	};
+
+	IVistaPropertySetFunctor *SaParameterSetter[] =
+	{
+		new TVistaPropertySet<bool, bool,
+				IVistaMouseDriver::MouseDriverParameters> (
+						"CAPTURE_CURSOR",
+						SsReflectionName,
+						&IVistaMouseDriver::MouseDriverParameters::SetCaptureCursor,
+						"sets if the driver captures the cursor, i.e. holds it in the window center and only reports deltas" ),
+		
+		NULL
+	};
+} // namespace
+
+
+#if !defined(WIN32)
+	static void ReleaseParameterProps() __attribute__ ((destructor));
+#else
+	static void ReleaseParameterProps();
+#endif
+
+
+#if defined(WIN32)
+
+#include <windows.h>
+
+BOOL APIENTRY DllMain( HANDLE hModule,
+					   DWORD  ul_reason_for_call,
+					   LPVOID lpReserved
+					 )
+{
+	switch( ul_reason_for_call )
+	{
+	case DLL_PROCESS_ATTACH:
+	case DLL_THREAD_ATTACH:
+	case DLL_THREAD_DETACH:
+		break;
+	case DLL_PROCESS_DETACH:
+		if( lpReserved == 0 )
+			ReleaseParameterProps();
+		break;
+	}
+	return TRUE;
+}
+
+#endif
+
+static void ReleaseParameterProps()
+{
+	IVistaPropertyGetFunctor **pGetter = SaParameterGetter;
+	IVistaPropertySetFunctor **pSetter = SaParameterSetter;
+
+	while( *pGetter )
+		delete *pGetter++;
+
+	while( *pSetter )
+		delete *pSetter++;
+}
+
 class VistaMouseDriverMeasureTranscode : public IVistaMeasureTranscode
 {
 public:
@@ -234,6 +310,9 @@ static IVistaPropertyGetFunctor *SapGetter[] =
 IVistaMouseDriver::IVistaMouseDriver(IVistaDriverCreationMethod *crm)
 : IVistaDeviceDriver(crm)
 {
+	m_pParams = new VistaDriverGenericParameterAspect( new TParameterCreate<IVistaMouseDriver, IVistaMouseDriver::MouseDriverParameters>( this ) );
+	RegisterAspect( m_pParams );
+
 	SetUpdateType(IVistaDeviceDriver::UPDATE_EXPLICIT_POLL);
 }
 
@@ -304,3 +383,27 @@ bool IVistaMouseDriver::UpdateMouseButton(unsigned int nIdx, eBt nMouseBt,
 	return true;
 }
 
+IVistaMouseDriver::MouseDriverParameters* IVistaMouseDriver::GetParameters()
+{
+	return m_pParams->GetParameter<MouseDriverParameters>();
+}
+
+
+bool IVistaMouseDriver::MouseDriverParameters::GetCaptureCursor() const
+{
+	return m_bCaptureCursor;
+}
+
+bool IVistaMouseDriver::MouseDriverParameters::SetCaptureCursor( bool bCapture )
+{
+	if( m_bCaptureCursor == bCapture )
+		return true;
+	m_bCaptureCursor = bCapture;
+	Notify( MSG_CAPTURE_CURSOR_CHG );
+	return true;
+}
+
+IVistaMouseDriver::MouseDriverParameters::MouseDriverParameters( IVistaMouseDriver* pDriver )
+: m_bCaptureCursor( false )
+{
+}

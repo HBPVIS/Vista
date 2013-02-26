@@ -39,6 +39,7 @@
 #else
     #include <GL/freeglut.h>
 #endif
+#include "VistaDeviceDriversBase/Drivers/VistaMouseDriver.h"
 
 #if defined( USE_NATIVE_GLUT )
 
@@ -166,13 +167,52 @@ void VistaGlutMouseDriver::MotionFunction( int iX, int iY )
 	if(!pMouse)
 		return;
 
-	_state s(nWindow, iX, iY, pMouse->m_nButtonStates[0],
-					 pMouse->m_nButtonStates[1],
-					 pMouse->m_nButtonStates[2],
-					 -1, pMouse->m_nWheelState);
+	if( pMouse->GetParameters()->GetCaptureCursor() )
+	{
+		if( pMouse->GetMouseWarpPending() )
+		{
+			pMouse->SetMouseWarpPending( false );
+			return;
+		}
 
-	pMouse->m_vecUpdates.push_back( s );
+		int nCenterX = glutGet( GLUT_WINDOW_WIDTH ) / 2;
+		int nCenterY = glutGet( GLUT_WINDOW_HEIGHT ) / 2;
 
+		int nDeltaX = iX - nCenterX;
+		int nDeltaY = iY - nCenterY;		
+		
+		if( nDeltaX != 0 || nDeltaY != 0 )
+		{
+			pMouse->SetMouseWarpPending( true );
+			glutWarpPointer( nCenterX, nCenterY );
+		}
+
+		if( pMouse->GetGrabCursorChanged() )
+		{
+			pMouse->SetGrabCursorChanged( false );
+			return; // skip first frame after change, since we have to center the cursor first
+		}
+
+		
+
+
+		//std::cout << "Delta: "  << nDeltaX << ", " << nDeltaY << std::endl;
+
+		_state s(nWindow, nDeltaX, nDeltaY, pMouse->m_nButtonStates[0],
+						 pMouse->m_nButtonStates[1],
+						 pMouse->m_nButtonStates[2],
+						 -1, pMouse->m_nWheelState);
+		pMouse->m_vecUpdates.push_back( s );
+
+	}
+	else
+	{
+		_state s(nWindow, iX, iY, pMouse->m_nButtonStates[0],
+						 pMouse->m_nButtonStates[1],
+						 pMouse->m_nButtonStates[2],
+						 -1, pMouse->m_nWheelState);
+		pMouse->m_vecUpdates.push_back( s );
+	}
 }
 
 void VistaGlutMouseDriver::MouseWheelFunction( int nWheelNumber, int nDirection, int nX, int nY)
@@ -365,7 +405,9 @@ VistaGlutMouseDriver::VistaGlutMouseDriver(IVistaDriverCreationMethod *crm)
 : IVistaMouseDriver(crm),
   m_nWheelState(0),
   m_nWheelDirState(0),
-  m_pWindowAspect(new VistaDriverAbstractWindowAspect)
+  m_pWindowAspect(new VistaDriverAbstractWindowAspect),
+  m_bGrabCursorChanged( true ),
+  m_bMouseWarpPending( false )
 {
 	RegisterAspect( m_pWindowAspect );
 	// is deleted by aspect, later on
@@ -430,6 +472,26 @@ bool VistaGlutMouseDriver::DoSensorUpdate(VistaType::microtime dTs)
 	}
 
 	return true;
+}
+
+bool VistaGlutMouseDriver::GetMouseWarpPending() const
+{
+	return m_bMouseWarpPending;
+}
+
+void VistaGlutMouseDriver::SetMouseWarpPending( const bool& oValue )
+{
+	m_bMouseWarpPending = oValue;
+}
+
+bool VistaGlutMouseDriver::GetGrabCursorChanged() const
+{
+	return m_bGrabCursorChanged;
+}
+
+void VistaGlutMouseDriver::SetGrabCursorChanged( const bool& oValue )
+{
+	m_bGrabCursorChanged = oValue;
 }
 
 

@@ -67,6 +67,11 @@ public:
 	static void MouseFunction ( int iButton, int iState, int iX, int iY);
 	static void MotionFunction( int iX, int iY );
 	static void MouseWheelFunction( int nWheelNumber, int nDirection, int nX, int nY);
+	
+	bool GetMouseWarpPending() const;
+	void SetMouseWarpPending( const bool& oValue );
+	bool GetGrabCursorChanged() const;
+	void SetGrabCursorChanged( const bool& oValue );
 protected:
 	virtual bool DoSensorUpdate(VistaType::microtime dTs);
 private:
@@ -104,6 +109,10 @@ private:
 	int m_nWheelState,
 		m_nWheelDirState;
 	VistaDriverAbstractWindowAspect *m_pWindowAspect;
+
+	bool m_bMouseWarpPending;
+	// @TODO: set this if the grab mode is switched during runtime
+	bool m_bGrabCursorChanged;
 };
 
 
