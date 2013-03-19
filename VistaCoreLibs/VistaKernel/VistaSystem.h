@@ -248,10 +248,6 @@ private:
 	bool IndicateSystemProgress( const std::string& sProgressMessageText,
 								bool bDone );
 
-	static void SIGINTHandler(int);
-	static void SIGTERMHandler(int);
-	static void SIGPIPEHandler(int);
-
 	std::string FindFileInIniSearchPath(const std::string& file,
 										std::ostream *logger = NULL) const;
 private:

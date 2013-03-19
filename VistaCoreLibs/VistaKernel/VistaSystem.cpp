@@ -143,7 +143,6 @@
 #endif
 
 
-//// PROTOTYPES OF STATIC FUNCTIONS
 struct DllHelper
 {
 #if !defined(VISTAKERNELSTATIC)
@@ -179,7 +178,8 @@ struct DriverInfo
 	std::list<std::string> m_liDependsOn;
 };
 
-namespace {
+namespace
+{
 
 	bool isAbsolutePath(const std::string& path)
 	{
@@ -270,7 +270,75 @@ namespace {
 		return str;
 	}
 
+}
 
+
+namespace
+{
+#ifdef WIN32
+	static int g_nConsoleCloseCount = 0;
+	BOOL WINAPI ConsoleHandler( DWORD CEvent )
+	{
+		switch(CEvent)
+		{
+			case CTRL_C_EVENT:
+			{
+				vstr::warni() << "VistaSystem Console close event received" << std::endl;
+				::GetVistaSystem()->Quit();
+
+				++g_nConsoleCloseCount;
+				if( g_nConsoleCloseCount == 3 )
+				{
+					vstr::warni() << "VistaSystem Console close event caught caught 3 times, brute force exit" << std::endl;
+					delete ::GetVistaSystem();
+					exit(-1);
+				}
+				break;
+			}
+			case CTRL_CLOSE_EVENT:
+			case CTRL_LOGOFF_EVENT:
+			case CTRL_SHUTDOWN_EVENT:
+			{
+				vstr::warni() << "VistaSystem force quit event received - process will be terminated" << std::endl;
+				delete ::GetVistaSystem();
+			}
+			default:
+				return false;
+
+		}
+		return true;
+	}
+#else
+	static int g_nSigIntCount = 0;
+	void VistaSystem::SIGINTHandler(int iMask)
+	{
+		vstr::warni() << "VistaSystem::SIGINTHandler(" << iMask << ") -- SIGINT caught" << std::endl;
+		::GetVistaSystem()->Quit();
+
+		++g_nSigIntCount;
+
+		if(g_nSigIntCount == 3)
+		{
+			vstr::warni() << "VistaSystem::SIGINTHandler() -- SIGINT caught 3 times, brute force exit" << std::endl;
+			delete ::GetVistaSystem();
+			exit(-1);
+		}
+
+	}
+
+	void VistaSystem::SIGTERMHandler(int iMask)
+	{
+		vstr::warni() << "VistaSystem::SIGTERMHandler(" << iMask << ") -- SIGTERM caught" << std::endl;
+		::GetVistaSystem()->Quit();
+		exit(-2);
+	}
+
+	void VistaSystem::SIGPIPEHandler(int iMask)
+	{
+		vstr::warni() << "VistaSystem::SIGPIPEHandler(" << iMask << ") -- SIGPIPE caught." << std::endl;
+		vstr::warni() << "some socket blew it... you better check." << std::endl;
+	}
+#endif
 }
 
 /*============================================================================*/
@@ -316,10 +384,12 @@ VistaSystem::VistaSystem()
 	SetHandlerToken( "SYSTEM" );
 	S_pVistaSystem = this;	
 
-#if !defined(WIN32)
-	::signal( SIGINT, VistaSystem::SIGINTHandler );
-	::signal( SIGTERM, VistaSystem::SIGTERMHandler );
-	::signal( SIGPIPE, VistaSystem::SIGPIPEHandler );
+#ifdef WIN32
+	SetConsoleCtrlHandler( (PHANDLER_ROUTINE)ConsoleHandler, true );
+#else
+	::signal( SIGINT, SIGINTHandler );
+	::signal( SIGTERM, SIGTERMHandler );
+	::signal( SIGPIPE, SIGPIPEHandler );
 #endif		
 
 	/**
@@ -1581,6 +1651,7 @@ bool VistaSystem::Run()
 
 	vstr::outi() << "##### Starting ViSTA Main Loop #####" << std::endl;
 	m_pFrameLoop->Run();
+	vstr::outi() << "##### Leaving ViSTA Main Loop #####" << std::endl;
 
 	return true;
 }
@@ -2882,37 +2953,6 @@ std::string VistaSystem::FindFileInIniSearchPath(const std::string& filename, st
 // ############################################################
 // STATIC METHODS
 // ############################################################
-static int siSigIntCount=0;
-
-void VistaSystem::SIGINTHandler(int iMask)
-{
-	vstr::errp() << "VistaSystem::SIGINTHandler(" << iMask << ") -- SIGINT caught" << std::endl;
-	::GetVistaSystem()->Quit();
-
-	++siSigIntCount;
-
-	if(siSigIntCount == 3)
-	{
-		vstr::errp() << "VistaSystem::SIGINTHandler() -- SIGINT caught 3 times, brute force exit" << std::endl;
-		delete ::GetVistaSystem();
-		exit(-1);
-	}
-
-}
-
-void VistaSystem::SIGTERMHandler(int iMask)
-{
-	vstr::errp() << "VistaSystem::SIGTERMHandler(" << iMask << ") -- SIGTERM caught" << std::endl;
-	::GetVistaSystem()->Quit();
-	exit(-2);
-}
-
-void VistaSystem::SIGPIPEHandler(int iMask)
-{
-	vstr::errp() 
-			<< "VistaSystem::SIGPIPEHandler(" << iMask << ") -- SIGPIPE caught." << std::endl;
-	vstr::errp() << "some socket blew it... you better check." << std::endl;
-}
 
 std::string VistaSystem::GetSystemSectionName()
 {

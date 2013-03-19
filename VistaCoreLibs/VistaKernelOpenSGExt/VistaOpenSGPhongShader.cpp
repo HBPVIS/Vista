@@ -312,6 +312,7 @@ VistaOpenSGPhongShader::VistaOpenSGPhongShader(
 }
 VistaOpenSGPhongShader::~VistaOpenSGPhongShader()
 {
+	delete m_pShader;
 }
 
 /*============================================================================*/

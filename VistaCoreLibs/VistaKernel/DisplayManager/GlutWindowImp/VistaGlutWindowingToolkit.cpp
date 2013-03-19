@@ -32,6 +32,7 @@
 
 #include <VistaKernel/DisplayManager/VistaDisplayManager.h>
 #include <VistaKernel/DisplayManager/VistaWindow.h>
+#include <VistaKernel/VistaSystem.h>
 #include <VistaBase/VistaExceptionBase.h>
 
 #include <VistaAspects/VistaExplicitCallbackInterface.h>
@@ -149,6 +150,12 @@ namespace
 								VistaWindow::VistaWindowProperties::MSG_SIZE_CHANGE );
 		}	
 	}
+
+	void CloseFunction()
+	{
+		vstr::warni() << "GlutWindow closed - Quitting Vista" << std::endl;
+		GetVistaSystem()->Quit();
+	}
 }
 
 
@@ -221,6 +228,10 @@ void VistaGlutWindowingToolkit::Run()
 #endif
 
 #else
+	// set the close function to catch window close attempts
+	glutCloseFunc( CloseFunction );
+	glutSetOption( GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION );
+
 	while( !m_bQuitLoop )
 	{
 		if( m_mapWindowInfo.empty() )

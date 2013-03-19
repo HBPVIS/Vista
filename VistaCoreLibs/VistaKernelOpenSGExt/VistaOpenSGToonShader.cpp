@@ -322,6 +322,7 @@ VistaOpenSGToonShader::VistaOpenSGToonShader(
 }
 VistaOpenSGToonShader::~VistaOpenSGToonShader()
 {
+	delete m_pShader;
 }
 
 /*============================================================================*/

@@ -190,6 +190,9 @@ bool VistaKeyboardSystemControl::InjectKeys( const std::vector<int> &vecKeyCodeL
 
 bool VistaKeyboardSystemControl::InjectKey( int nKeyCode, int nModifier, bool bIsKeyRepeat )
 {
+	std::string sName;
+	GetKeyAndModifiersValueFromString( sName, nKeyCode, nModifier );
+	std::cout << "Key :" << sName << std::endl;
 	if(m_pKeySink)
 	{
 		if( m_pKeySink->HandleKeyPress( nKeyCode, nModifier, bIsKeyRepeat ) == true )
@@ -250,6 +253,8 @@ bool VistaKeyboardSystemControl::BindAction( int nKeyCode,
 			vstr::warnp() << "[KeyboardSysControl::BindAction]: Cannot bind Callback - Key ["
 					<< GetModifiersName(nModifiers) << GetKeyName(nKeyCode) 
 					<< "] already in use by (" << (*itCurrent).second.m_strHelpText << ") !" << std::endl;
+			if( bManageDeletion )
+				delete pCallback;
 			return false;
 		}
 
