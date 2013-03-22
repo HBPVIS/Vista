@@ -58,6 +58,7 @@ public:
 	virtual bool SyncData( VistaType::byte* pDataBuffer, 
 							const int iBufferSize,
 							int& iDataSize );
+	virtual bool SyncData( std::vector<VistaType::byte>& vecData );
 protected:
 	bool SendMessage();
 	virtual bool DoSendMessage() = 0;
@@ -84,6 +85,7 @@ public:
 	virtual bool SyncData( VistaType::byte* pDataBuffer, 
 							const int iBufferSize,
 							int& iDataSize );
+	virtual bool SyncData( std::vector<VistaType::byte>& vecData );
 
 	const VistaType::byte* GetMessageBuffer() const;
 	int GetMessageSize() const;

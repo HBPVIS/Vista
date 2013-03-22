@@ -72,6 +72,11 @@ bool VistaDummyClusterDataSync::SyncData( VistaType::byte* pDataBuffer,
 	return true;
 }
 
+bool VistaDummyClusterDataSync::SyncData( std::vector<VistaType::byte>& vecData )
+{
+	return true;
+}
+
 bool VistaDummyClusterDataSync::GetIsValid() const
 {
 	return true;

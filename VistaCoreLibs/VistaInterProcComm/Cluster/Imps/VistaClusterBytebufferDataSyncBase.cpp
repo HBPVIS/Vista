@@ -42,6 +42,7 @@ enum
 	SYNC_SERIALIZABLE,
 	SYNC_FIXEDSIZE_DATA,
 	SYNC_VARSIZE_DATA,
+	SYNC_DATA_VECTOR,
 };
 
 #define VERIFY_READ( readcall ) \
@@ -113,6 +114,17 @@ bool VistaClusterBytebufferLeaderDataSyncBase::SyncData( VistaType::byte* pDataB
 	m_oMessage.WriteInt32( (VistaType::sint32)iDataSize );
 	m_pExtBuffer = pDataBuffer;
 	m_nExtBufferSize = iDataSize;
+	if( SendMessage() == false )
+		return false;
+	return true;
+}
+
+bool VistaClusterBytebufferLeaderDataSyncBase::SyncData( std::vector<VistaType::byte>& vecData )
+{
+	m_oMessage.WriteInt32( SYNC_DATA_VECTOR );
+	m_oMessage.WriteInt32( (VistaType::sint32)vecData.size() );
+	m_pExtBuffer = &vecData[0];
+	m_nExtBufferSize = (VistaType::sint32)vecData.size();
 	if( SendMessage() == false )
 		return false;
 	return true;
@@ -210,6 +222,18 @@ bool VistaClusterBytebufferFollowerDataSyncBase::SyncData( VistaType::byte* pDat
 		return false;
 	VERIFY_READ_SIZE( m_oMessage.ReadRawBuffer( pDataBuffer, nReceivedDataSize ), nReceivedDataSize );
 	iDataSize = nReceivedDataSize;
+	return true;
+}
+
+bool VistaClusterBytebufferFollowerDataSyncBase::SyncData( std::vector<VistaType::byte>& vecData )
+{
+	if( ReceiveMessage( SYNC_DATA_VECTOR ) == false )
+		return false;
+
+	VistaType::sint32 nReceivedDataSize;
+	VERIFY_READ_SIZE( m_oMessage.ReadInt32( nReceivedDataSize ), sizeof(VistaType::sint32) )
+	vecData.resize( nReceivedDataSize );
+	VERIFY_READ_SIZE( m_oMessage.ReadRawBuffer( &vecData[0], nReceivedDataSize ), nReceivedDataSize );
 	return true;
 }
 

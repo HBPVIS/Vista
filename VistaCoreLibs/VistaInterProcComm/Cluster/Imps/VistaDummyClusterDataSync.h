@@ -59,6 +59,7 @@ public:
 	virtual bool SyncData( VistaType::byte* pDataBuffer, 
 							const int iBufferSize,
 							int& iDataSize );
+	virtual bool SyncData( std::vector<VistaType::byte>& vecData );
 
 	virtual bool GetIsValid() const;
 

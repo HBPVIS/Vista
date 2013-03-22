@@ -34,6 +34,7 @@
 #include <VistaBase/VistaBaseTypes.h>
 
 #include <string>
+#include <vector>
 #include <iostream>
 
 /*============================================================================*/
@@ -76,6 +77,8 @@ public:
 	virtual bool SyncData( VistaType::byte* pVariableSizeData, 
 							const int iBufferSize,
 							int& iDataSize ) = 0;
+	virtual bool SyncData( std::vector<VistaType::byte>& vecData ) = 0;
+
 
 
 	/**
