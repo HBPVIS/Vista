@@ -42,6 +42,7 @@
 #else
 #include <GL/gl.h>
 #endif
+#include <math.h>
 
 /*============================================================================*/
 /*  MAKROS AND DEFINES                                                        */
@@ -145,7 +146,11 @@ bool VistaOpenGLPrimitiveList::SetPrimitiveType( const ePrimitiveType & primitiv
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
 VistaOpenGLPrimitiveList::COpenGLPrimitiveList::COpenGLPrimitiveList()
-: m_iDispId(-1), m_bDlistDirty(false), m_eGLPrimitiveType(GL_LINES), m_bUseLighting(false)
+	: m_iDispId(-1)
+	, m_bDlistDirty(false)
+	, m_eGLPrimitiveType(GL_LINES)
+	, m_bUseLighting(false)
+	,m_fGlPrimitiveSize(1.5f)
 {
 }
 
@@ -170,7 +175,7 @@ bool VistaOpenGLPrimitiveList::COpenGLPrimitiveList::Do()
 	if (m_bUseLighting)
 	{
 		glEnable(GL_LIGHTING);
-		glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
+		glColorMaterial( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
 		glEnable ( GL_COLOR_MATERIAL );
 	}
 	glCallList(m_iDispId);
@@ -200,34 +205,22 @@ bool VistaOpenGLPrimitiveList::COpenGLPrimitiveList::UpdateDisplayList()
 	// and compile it
 	glNewList(m_iDispId, GL_COMPILE);
 	glPushAttrib(GL_ENABLE_BIT);
-	if (m_bUseLighting)
-	{
-		glEnable(GL_LIGHTING);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_BLEND);
-		glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
-		glEnable ( GL_COLOR_MATERIAL );
-		float blue[4]={0,0,1,0};
-		float red[4]={1,0,0,0};
-		glMaterialfv(GL_FRONT,GL_DIFFUSE,blue);
-		glMaterialfv(GL_BACK, GL_DIFFUSE,red);
-		glColor4f(1.0f,1.0f,0.0f,1.0f);
-	}
-	else
-	{
-		glDisable(GL_LIGHTING);
-		float fDiff[4];
-		std::memset(fDiff, 0, 4);
-		m_oMat.GetDiffuseColor(fDiff);
-		glColor3fv(fDiff);
-	}
 
 	float fMin[3], fMax[3];
 	fMin[0] = fMin[1] = fMin[2] = 0.0f;
 	fMax[0] = fMax[1] = fMax[2] = 0.0f;
 
-	// single line
+	bool bUseColorVector = m_bIsUsingColorVector && (m_vecPoints.size () <= m_vecColors.size () *3);
+	glEnable(GL_POINT_SMOOTH);
+	glPointSize (m_fGlPrimitiveSize);
+	glLineWidth (m_fGlPrimitiveSize);
+
 	glBegin(m_eGLPrimitiveType);
+	
+	float fDiff[4];			
+	m_oColor.GetValues (fDiff,VistaColor::RGBA);
+	glColor4fv(fDiff);
+
 	float normal[3];
 	for(unsigned int i=0; i<m_vecPoints.size(); i=i+3)
 	{
@@ -243,6 +236,12 @@ bool VistaOpenGLPrimitiveList::COpenGLPrimitiveList::UpdateDisplayList()
 				CalculateNormal(normal,i,i-3,i-6);
 			}
 			glNormal3fv(normal);
+		}
+		if (bUseColorVector)
+		{
+			float fDiff[4];			
+			m_vecColors[i/3].GetValues (fDiff,VistaColor::RGBA);
+			glColor4fv(fDiff);
 		}
 		glVertex3f(m_vecPoints[i], m_vecPoints[i+1], m_vecPoints[i+2]);
 
@@ -316,14 +315,14 @@ void  VistaOpenGLPrimitiveList::COpenGLPrimitiveList::SetPrimitiveType(GLenum eM
 	}
 }
 
-VistaMaterial VistaOpenGLPrimitiveList::COpenGLPrimitiveList::GetMaterial() const
+VistaColor VistaOpenGLPrimitiveList::COpenGLPrimitiveList::GetColor() const
 {
-	return m_oMat;
+	return m_oColor;
 }
 
-void VistaOpenGLPrimitiveList::COpenGLPrimitiveList::SetMaterial(const VistaMaterial &mat)
+void VistaOpenGLPrimitiveList::COpenGLPrimitiveList::SetColor(const VistaColor &Color)
 {
-	m_oMat = mat;
+	m_oColor = Color;
 	m_bDlistDirty = true;
 }
 
@@ -348,20 +347,15 @@ inline void VistaOpenGLPrimitiveList::COpenGLPrimitiveList::CalculateNormal( flo
 	normal[2]=a[0]*b[1] - b[0]*a[1];
 }
 
-bool VistaOpenGLPrimitiveList::SetMaterial(const VistaMaterial & oMat) const
+bool VistaOpenGLPrimitiveList::SetColor(const VistaColor & oColor) const
 {
-	m_pDrawInterface->SetMaterial(oMat);
+	m_pDrawInterface->SetColor(oColor);
 	return true;
 }
 
 bool VistaOpenGLPrimitiveList::SetColor (const VistaColor  & color)
 {
-	m_pDrawInterface->SetMaterial(VistaMaterial( VistaColor::BLACK,
-												 VistaColor(color),
-												 VistaColor::BLACK,
-												 VistaColor::BLACK,
-												 1,1,""));
-
+	m_pDrawInterface->SetColor(color);
 	return true;
 }
 

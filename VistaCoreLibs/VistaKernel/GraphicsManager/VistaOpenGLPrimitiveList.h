@@ -65,14 +65,22 @@ public:
 		void SetVertices(const std::vector<float> &vecPoints);
 		bool GetVertices(std::vector<float> &vecPoints) const;
 
+		bool GetIsUsingColorVector() const { return m_bIsUsingColorVector; }
+		void SetIsUsingColorVector(bool val) { m_bIsUsingColorVector = val; }
+
+		std::vector<VistaColor>& GetVertexColors() {return m_vecColors;};
+
 		unsigned int GetPrimitiveType() const;
 		void  SetPrimitiveType(unsigned int eMd);
 
-		VistaMaterial GetMaterial() const;
-		void           SetMaterial(const VistaMaterial &mat);
+		VistaColor GetColor() const;
+		void           SetColor(const VistaColor &mat);
 
 		bool GetUseLighting() const;
 		void SetUseLighting(bool val);
+
+		float GetGlPrimitiveSize() const { return m_fGlPrimitiveSize; }
+		void SetGlPrimitiveSize(float val) { m_fGlPrimitiveSize = val; }
 
 	protected:
 		bool UpdateDisplayList();
@@ -81,11 +89,14 @@ public:
 		int m_iDispId;
 		bool m_bDlistDirty;
 
+		bool m_bIsUsingColorVector;
 		std::vector<float> m_vecPoints;
+		std::vector<VistaColor> m_vecColors;
 		VistaBoundingBox   m_oBBox;
 		unsigned int m_eGLPrimitiveType;
-		VistaMaterial     m_oMat;
+		VistaColor     m_oColor;
 		bool			m_bUseLighting;
+		float m_fGlPrimitiveSize;
 	};
 public:
 
@@ -112,17 +123,25 @@ public:
 	void SetVertices(const std::vector<float> &vecPoints);
 	bool GetVertices(std::vector<float> &vecPoints) const;
 
+	bool GetIsUsingColorVector() const { return m_pDrawInterface->GetIsUsingColorVector (); }
+	void SetIsUsingColorVector(bool val) { m_pDrawInterface->SetIsUsingColorVector (val); }
+
+	std::vector<VistaColor>& GetVertexColors() {return m_pDrawInterface->GetVertexColors();};
+
 	bool GetRemoveFromSGOnDelete() const;
 	void SetRemoveFromSGOnDelete(bool bRemove);
 
 	bool SetUseLighting(bool bUseLighting);
-	bool SetMaterial(const VistaMaterial &oMat) const;
+	bool SetColor(const VistaColor &oMat) const;
 	bool SetColor (const VistaColor  & color);
 	bool SetPrimitiveType(const ePrimitiveType & primitiveType);
 
-private:
+	float GetGlPrimitiveSize() const { return m_pDrawInterface->GetGlPrimitiveSize (); }
+	void SetGlPrimitiveSize(float val) { m_pDrawInterface->SetGlPrimitiveSize (val); }
+protected:
 	VistaOpenGLNode		*m_pOglNode;
 	COpenGLPrimitiveList		*m_pDrawInterface;
+private:	
 	/** default is true */
 	bool					m_bRemoveFromSGOnDelete;
 	ePrimitiveType			m_ePrimitiveType;
