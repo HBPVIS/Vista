@@ -511,6 +511,7 @@ public:
 
 	bool GetFaces(std::vector<int>& faces) const;
 	bool GetCoordinates(std::vector<float>& coords) const;
+	bool GetCoordinates(std::vector<VistaVector3D>& coords) const;
 
 	// Rendering attributes
 	bool GetRenderingAttributes(VistaRenderingAttributes& attr) const;

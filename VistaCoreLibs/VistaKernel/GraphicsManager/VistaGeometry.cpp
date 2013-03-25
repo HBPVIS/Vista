@@ -47,12 +47,11 @@ VistaGeometry::VistaGeometry()
 {
 }
 
-
 VistaGeometry::VistaGeometry(IVistaGraphicsBridge* pBridge, IVistaGeometryData* pData)
 : m_pBridge( pBridge )
 , m_pData( pData )
 , m_iMaterialIndex( -1 )
-{	
+{
 }
 
 VistaGeometry::~VistaGeometry()
@@ -278,7 +277,6 @@ bool VistaGeometry::SetTextureCoordsIndices(const int startIdx, const vector<int
 		return false;
 }
 
-
 bool VistaGeometry::GetTrianglesVertexIndices( vector<int>& vecVertexIndices) const
 {
 	return m_pBridge->GetTrianglesVertexIndices( vecVertexIndices, m_pData );
@@ -294,7 +292,6 @@ bool VistaGeometry::GetTrianglesVertexAndNormalIndices( vector<int>& vecVertexIn
 {
 	return m_pBridge->GetTrianglesVertexAndNormalIndices( vecVertexIndices, vecNormalIndices, m_pData );
 }
-
 
 // ============================================================================
 
@@ -336,7 +333,6 @@ bool VistaGeometry::GetNormals(std::vector<float> &normals) const
 {
     return m_pBridge->GetNormals(normals, m_pData);
 }
-
 
 bool VistaGeometry::SetNormal(const int idx, const float normal[3])
 {
@@ -490,12 +486,10 @@ bool VistaGeometry::GetIsStatic() const
 	return m_pBridge->GetIsStatic(m_pData);
 }
 
-
 void VistaGeometry::SetIsStatic(bool bStatic)
 {
 	m_pBridge->SetIsStatic(bStatic, m_pData);
 }
-
 
 bool VistaGeometry::CreateIndexedGeometry(
 		const vector<VistaIndexedVertex>& vertices,
@@ -570,7 +564,6 @@ bool VistaGeometry::SetRenderingAttributes(const VistaRenderingAttributes& attr)
 	return m_pBridge->SetRenderingAttributes(attr, m_pData);
 }
 
-
 float VistaGeometry::GetTransparency() const
 {
 	return m_pBridge->GetTransparency(m_pData);
@@ -591,9 +584,13 @@ bool VistaGeometry::GetCoordinates(vector<float>& coords) const
 	return m_pBridge->GetCoordinates(coords, m_pData);
 }
 
-// ============================================================================
-// ============================================================================
+bool VistaGeometry::GetCoordinates( std::vector<VistaVector3D>& coords ) const
+{
+	return m_pBridge->GetCoordinates(coords, m_pData);
+}
 
+// ============================================================================
+// ============================================================================
 
 bool VistaGeometry::GetBoundingBox(VistaVector3D& pMin, VistaVector3D& pMax) const
 {
@@ -986,7 +983,6 @@ bool VistaGeometry::GetAdjacentFaces(const int vertexID, list<int>& listFaces)
 	return true;
 }
 
-
 bool VistaGeometry::IsBoundary(const int faceId)
 {
 	int neighbors[3];
@@ -1204,7 +1200,6 @@ VistaMaterial::VistaMaterial()
 	, m_strName  ("OpenGL defaults")
 	, m_iIndex   (-1)
 {
-
 }
 
 VistaMaterial::VistaMaterial(const VistaColor& ambient, const VistaColor& diffuse,
@@ -1542,4 +1537,3 @@ void VistaMaterial::YellowRubber(VistaMaterial& mat)
 	mat.m_oSpecular = VistaColor(0.7f, 0.7f, 0.04f);
 	mat.m_nShininess = 7.8125f;
 }
-
