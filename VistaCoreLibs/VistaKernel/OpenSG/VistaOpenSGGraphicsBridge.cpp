@@ -2070,11 +2070,12 @@ bool VistaOpenSGGraphicsBridge::GetCoordinates(vector<VistaVector3D>& coords,
 	osg::UInt32 i=0;
 	while(i<npos)
 	{
-		pos->getValue(pnt, i++);
+		pos->getValue(pnt, i);
 		coords[i][0] = pnt[0];
 		coords[i][1] = pnt[1];
 		coords[i][2] = pnt[2];
 		coords[i][3] = 1.0f;
+		++i;
 	}
 
 	return true;
