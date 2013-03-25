@@ -118,6 +118,8 @@ public:
 
 	std::string GetDeviceString() const;
 	void SetDeviceString(const std::string &strDevice);
+	bool GetIsWarningOnHapticUpdateRateExceed() const { return m_bIsWarningOnHapticUpdateRateExceed; }
+	void SetIsWarningOnHapticUpdateRateExceed(bool val) { m_bIsWarningOnHapticUpdateRateExceed = val; }
 protected:
 	bool         PhysicalEnable(bool bEnable);
 	virtual bool DoSensorUpdate(VistaType::microtime dTs);
@@ -127,7 +129,8 @@ private:
 	VistaDriverInfoAspect      *m_pInfo;
 	VistaDeviceIdentificationAspect *m_pIdentification;
 	VistaPhantomForceFeedbackAspect *m_pForceFeedBack;
-
+	bool m_bIsWarningOnHapticUpdateRateExceed;
+	
 
 	struct _sPhantomPrivate;
 	_sPhantomPrivate *m_pPrivate;

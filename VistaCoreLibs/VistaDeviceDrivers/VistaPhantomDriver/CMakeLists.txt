@@ -23,6 +23,12 @@ vista_set_outdir( VistaPhantomTranscoder "${VISTADEVICEDRIVERSBASE_TARGET_OUTDIR
 # since it has third-party dependencies, we only build the driver and plugin if the package is available
 vista_find_package( OpenHaptics QUIET )
 
+set( VISTA_PHANTOMDRIVER_USES_VISTA_UNITS FALSE CACHE BOOL "if false, the delivered values are in millimeters, if true in meters" )
+if( VISTA_PHANTOMDRIVER_USES_VISTA_UNITS )
+	add_definitions( -DPHANTOM_USES_VISTA_UNITS )
+endif()
+
+
 if( NOT OPENHAPTICS_FOUND )
 	message( STATUS "VistaPhantomDriver requires OpenHaptics, which is not available - only transcoder will be built" )
 else( NOT OPENHAPTICS_FOUND )

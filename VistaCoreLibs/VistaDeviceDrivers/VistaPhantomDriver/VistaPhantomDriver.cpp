@@ -129,7 +129,8 @@ VistaPhantomDriver::VistaPhantomDriver(IVistaDriverCreationMethod *crm)
   m_pIdentification( new VistaDeviceIdentificationAspect ),
   m_pProtocol( NULL ),
   m_pPrivate( new _sPhantomPrivate ),
-  m_pForceFeedBack(NULL)
+  m_pForceFeedBack(NULL),
+  m_bIsWarningOnHapticUpdateRateExceed( false )
 {
 	/*
 	if(SpFactory == NULL)
@@ -383,12 +384,11 @@ bool VistaPhantomDriver::DoSensorUpdate(VistaType::microtime nTs)
 
 	hdEndFrame( m_pPrivate->m_hHD );
 
-	double timeElapsed = hdGetSchedulerTimeStamp();
-	if (timeElapsed > .001)
-	{
-		//assert(false && "Scheduler has exceeded 1ms.");
-		std::cout << "Scheduler has exceeded 1ms.\n";
-	}
+
+ 	if (m_bIsWarningOnHapticUpdateRateExceed && hdGetSchedulerTimeStamp() > .001)
+ 	{
+ 		std::cout << "Scheduler has exceeded 1ms.\n";
+ 	}
 
     HDErrorInfo error;
     /* Check if an error occurred while attempting to render the force */
