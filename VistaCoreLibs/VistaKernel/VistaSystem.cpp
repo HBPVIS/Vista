@@ -310,7 +310,7 @@ namespace
 	}
 #else
 	static int g_nSigIntCount = 0;
-	void VistaSystem::SIGINTHandler(int iMask)
+	void SIGINTHandler(int iMask)
 	{
 		vstr::warni() << "VistaSystem::SIGINTHandler(" << iMask << ") -- SIGINT caught" << std::endl;
 		::GetVistaSystem()->Quit();
@@ -326,14 +326,14 @@ namespace
 
 	}
 
-	void VistaSystem::SIGTERMHandler(int iMask)
+	void SIGTERMHandler(int iMask)
 	{
 		vstr::warni() << "VistaSystem::SIGTERMHandler(" << iMask << ") -- SIGTERM caught" << std::endl;
 		::GetVistaSystem()->Quit();
 		exit(-2);
 	}
 
-	void VistaSystem::SIGPIPEHandler(int iMask)
+	void SIGPIPEHandler(int iMask)
 	{
 		vstr::warni() << "VistaSystem::SIGPIPEHandler(" << iMask << ") -- SIGPIPE caught." << std::endl;
 		vstr::warni() << "some socket blew it... you better check." << std::endl;
