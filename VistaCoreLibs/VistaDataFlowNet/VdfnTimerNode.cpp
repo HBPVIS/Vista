@@ -123,6 +123,11 @@ VdfnTickTimerNode::VdfnTickTimerNode( VdfnTimerNode::CGetTime *pGetTime )
 	RegisterOutPort( "fraction", m_pFraction );
 }
 
+VdfnTickTimerNode::~VdfnTickTimerNode()
+{
+	delete m_pGetTime;
+}
+
 bool VdfnTickTimerNode::GetIsValid() const
 {
 	return (m_pGetTime && IVdfnNode::GetIsValid());

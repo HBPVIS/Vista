@@ -84,7 +84,7 @@ public:
 
 
 	/**
-	 * @param pTime the timer interface to use
+	 * @param pTime the timer interface to use, pTime deletion will be managed by Node.
 	 * @param bReset controls the behavior of the node upon activation
 	          of the graph (OnActivation()). If set to true, the node will
 	          reset the dt value to 0, as otherwise dt will contain the
@@ -162,9 +162,10 @@ class VISTADFNAPI VdfnTickTimerNode : public IVdfnNode
 {
 public:
 	/**
-	 * @param pGetTime the timer interface to use for timings.
+	 * @param pGetTime the timer interface to use for timings. pGetTime deletion will be managed by Node.
 	 */
 	VdfnTickTimerNode( VdfnTimerNode::CGetTime *pGetTime );
+	~VdfnTickTimerNode();
 
 	/**
 	 * @return true when a valid timer interface was specified during construction
@@ -187,6 +188,7 @@ protected:
 	bool DoEvalNode() ;
 
 private:
+	bool m_bManageGetTimeDeletion;
 	VdfnTimerNode::CGetTime *m_pGetTime;
 	TVdfnPort<double> *m_pTickTime,
 					  *m_pFraction,
