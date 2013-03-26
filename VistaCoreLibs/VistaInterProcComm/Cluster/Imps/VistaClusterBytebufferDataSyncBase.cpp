@@ -42,7 +42,6 @@ enum
 	SYNC_SERIALIZABLE,
 	SYNC_FIXEDSIZE_DATA,
 	SYNC_VARSIZE_DATA,
-	SYNC_DATA_VECTOR,
 };
 
 #define VERIFY_READ( readcall ) \
@@ -121,7 +120,7 @@ bool VistaClusterBytebufferLeaderDataSyncBase::SyncData( VistaType::byte* pDataB
 
 bool VistaClusterBytebufferLeaderDataSyncBase::SyncData( std::vector<VistaType::byte>& vecData )
 {
-	m_oMessage.WriteInt32( SYNC_DATA_VECTOR );
+	m_oMessage.WriteInt32( SYNC_VARSIZE_DATA );
 	m_oMessage.WriteInt32( (VistaType::sint32)vecData.size() );
 	m_pExtBuffer = &vecData[0];
 	m_nExtBufferSize = (VistaType::sint32)vecData.size();
@@ -227,7 +226,7 @@ bool VistaClusterBytebufferFollowerDataSyncBase::SyncData( VistaType::byte* pDat
 
 bool VistaClusterBytebufferFollowerDataSyncBase::SyncData( std::vector<VistaType::byte>& vecData )
 {
-	if( ReceiveMessage( SYNC_DATA_VECTOR ) == false )
+	if( ReceiveMessage( SYNC_VARSIZE_DATA ) == false )
 		return false;
 
 	VistaType::sint32 nReceivedDataSize;

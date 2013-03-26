@@ -68,6 +68,9 @@ public:
 	 * Otherwise, the data is the same on all nodes
 	 * Usually wraps the data into an internal package to ensure correct
 	 * sizes, check types etc.
+	 * Usually, Sync-Calls have to be matched with the exact same call (incl parameters)
+	 * On all machines. An exception is SyncData with variable size buffers, where
+	 * vectors and Buffers can be used interchangeably
 	 */
 	virtual bool SyncTime( VistaType::systemtime& nTime ) = 0;
 	virtual bool SyncData( VistaPropertyList& oList ) = 0;
