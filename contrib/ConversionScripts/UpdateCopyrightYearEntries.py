@@ -6,13 +6,22 @@ BackupPostfix = "BEFORE_COPYRIGHTYEAR_UPDATE"
 cppreplaces = [
 	( re.compile( r'([ ]*/[\*]*[ ]*)Copyright \(c\)([ ]+[0-9]{4})\-[0-9]{4}', re.MULTILINE ), r'\1Copyright (c)\2-' + CurrentYear ),	
 ]
+licensereplaces = [
+	( re.compile( r'Copyright \(c\)([ ]+[0-9]{4})\-[0-9]{4}', re.MULTILINE ), r'Copyright (c)\1-' + CurrentYear ),	
+]
+texreplaces = [
+	( re.compile( r'Copyright \(c\)([ ]+[0-9]{4})\-[0-9]{4}', re.MULTILINE ), r'Copyright (c)\1-' + CurrentYear ),	
+]
 
 replacementrules = [
 	( r'.+\.(cpp|h)$', cppreplaces ),
+	( r'.+\.(cpp|h).txt$', cppreplaces ),
+	( r'.+\.tex$', texreplaces ),
+	( r'LICENSE.*', licensereplaces ),
 ]
 
 
-def ReplaceContent( file, replacelist ):    
+def ReplaceContent( file, replacelist ):  
 	input = open( file, 'r' )
 	filecontent = input.read()
 	input.close()
@@ -62,14 +71,12 @@ def UndoBackup( root, files ):
 if len(sys.argv) > 1 and sys.argv[1] != "":
 	if len(sys.argv) > 2 and sys.argv[2] == "-undo":
 		startdir = sys.argv[1]	
-		print( 'startdir: ' + startdir )
-		walkres = os.walk( startdir )
+		print( 'undo startdir: ' + startdir )
 		for root, dirs, files in os.walk( startdir ):
 			UndoBackup( root, files )
 	else:
-		startdir = sys.argv[1]
-		print( 'startdir: ' + startdir )
-		walkres = os.walk( startdir )
+		startdir = str( sys.argv[1] )
+		print( 'startdir: [' + startdir + ']' )
 		for root, dirs, files in os.walk( startdir ):
 			ProcessFiles( root, files )
 else:
