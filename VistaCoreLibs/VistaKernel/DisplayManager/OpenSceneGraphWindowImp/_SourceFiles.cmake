@@ -8,6 +8,10 @@ set( DirFiles
 	VistaOSGWindowingToolkit.h
 	_SourceFiles.cmake
 )
+if( NOT VISTACORELIBS_BUILD_WINDOWIMP_GLUT )
+	# workaround, since we are currently still using the glut text imp
+	list( APPEND DirFiles "../GlutWindowImp/VistaGlutTextEntity.h" "../GlutWindowImp/VistaGlutTextEntity.cpp" )
+endif()
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
 
 set( LocalSourceGroupFiles  )

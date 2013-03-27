@@ -85,6 +85,7 @@ private:
 	};
 	typedef std::map<VistaWindow*, WindowInfo> WindowMap;
 	WindowMap m_mapWindows;
+	bool m_bGrabCursorChanged;
 };
 
 

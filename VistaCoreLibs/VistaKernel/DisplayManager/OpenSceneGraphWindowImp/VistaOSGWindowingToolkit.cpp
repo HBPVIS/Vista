@@ -71,6 +71,7 @@ struct OSGWindowInfo
 	, m_iVSyncMode( VistaOSGWindowingToolkit::VSYNC_STATE_UNKNOWN )
 	, m_bCursorEnabled( true )
 	, m_pOSGWindow( NULL )
+	, m_bDrawBorder( true )
 	{
 	}
 
@@ -93,6 +94,7 @@ struct OSGWindowInfo
 	std::string			m_sWindowTitle;
 	int					m_iVSyncMode;
 	bool				m_bCursorEnabled;
+	bool				m_bDrawBorder;
 	osgGA::EventQueue::Events m_oEvents;
 };
 
@@ -266,6 +268,7 @@ bool VistaOSGWindowingToolkit::InitWindow( VistaWindow* pWindow )
 	pTraits->quadBufferStereo = pInfo->m_bUseStereo;
 	pTraits->useCursor = pInfo->m_bCursorEnabled;
 	pTraits->vsync = ( pInfo->m_iVSyncMode == VSYNC_ENABLED );
+	pTraits->windowDecoration = pInfo->m_bDrawBorder;
 
 	if( pInfo->m_bUseStencilBuffer )
 		pTraits->stencil = 8;
@@ -461,6 +464,24 @@ std::string VistaOSGWindowingToolkit::GetWindowTitle( const VistaWindow* pWindow
 	return pInfo->m_sWindowTitle;
 }
 
+bool VistaOSGWindowingToolkit::GetDrawBorder( const VistaWindow* pWindow ) const
+{
+	OSGWindowInfo* pInfo = GetWindowInfo( pWindow );
+	return pInfo->m_bDrawBorder;
+}
+
+bool VistaOSGWindowingToolkit::SetDrawBorder( VistaWindow* pWindow, const bool bSet )
+{
+	OSGWindowInfo* pInfo = GetWindowInfo( pWindow );
+	pInfo->m_bDrawBorder = bSet;
+	if( pInfo->m_pOSGWindow )
+	{
+		pInfo->m_pOSGWindow->setWindowDecoration( bSet );
+	}
+	return true;
+}
+
+
 bool VistaOSGWindowingToolkit::SetCursorIsEnabled( VistaWindow* pWindow, bool bSet )
 {
 	OSGWindowInfo* pInfo = GetWindowInfo( pWindow );
@@ -589,6 +610,7 @@ bool VistaOSGWindowingToolkit::SetVSyncMode( VistaWindow* pWindow, const bool bE
 	return true;
 }
 
+
 OSGWindowInfo* VistaOSGWindowingToolkit::GetWindowInfo( const VistaWindow* pWindow  ) const
 {
 	WindowInfoMap::const_iterator itWindow = m_mapWindowInfo.find( pWindow );
@@ -597,13 +619,21 @@ OSGWindowInfo* VistaOSGWindowingToolkit::GetWindowInfo( const VistaWindow* pWind
 	return (*itWindow).second;
 }
 
-void* VistaOSGWindowingToolkit::GetEventsForWindow(
+std::list< osg::ref_ptr<osgGA::GUIEventAdapter> >& VistaOSGWindowingToolkit::GetEventsForWindow(
 												const VistaWindow* pWindow )
 {
 	WindowInfoMap::const_iterator itWindow = m_mapWindowInfo.find( pWindow );
 	if( itWindow == m_mapWindowInfo.end() )
 		VISTA_THROW( "Requested Events from invalid Window", -1 );
-	return &(*itWindow).second->m_oEvents;
+	return (*itWindow).second->m_oEvents;
+}
+
+osgViewer::GraphicsWindow* VistaOSGWindowingToolkit::GetOsgWindowForWindow( const VistaWindow* pWindow )
+{
+	WindowInfoMap::const_iterator itWindow = m_mapWindowInfo.find( pWindow );
+	if( itWindow == m_mapWindowInfo.end() )
+		VISTA_THROW( "Requested OsgWindow from invalid Window", -1 );
+	return (*itWindow).second->m_pOSGWindow;
 }
 
 

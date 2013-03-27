@@ -21,6 +21,7 @@ if( VISTACORELIBS_BUILD_WINDOWIMP_GLUT )
 endif()
 if( VISTACORELIBS_BUILD_WINDOWIMP_OSG )
 	vista_use_package( OpenSceneGraph 3+ REQUIRED osgViewer osgGA )
+	vista_use_package( Glut REQUIRED ) # currently still needed for text
 	add_definitions( -DVISTA_WITH_OSG )
 endif()
 

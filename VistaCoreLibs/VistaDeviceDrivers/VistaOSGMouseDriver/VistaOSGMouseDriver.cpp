@@ -33,9 +33,11 @@
 
 #include <osgGA/EventQueue>
 #include <osgGA/GUIEventAdapter>
+#include <osgViewer/GraphicsWindow>
 
 #include <algorithm>
 #include <iterator>
+#include <assert.h>
 
 
 /*============================================================================*/
@@ -120,6 +122,7 @@ VistaOSGMouseDriver::VistaOSGMouseDriver(IVistaDriverCreationMethod *crm)
 : IVistaMouseDriver(crm)
 , m_pWindowAspect(new VistaDriverAbstractWindowAspect)
 , m_pWindowingToolkit( NULL )
+, m_bGrabCursorChanged( true )
 {
 	RegisterAspect( m_pWindowAspect );
 	m_pWindowAspect->SetTouchSequence(new VistaOSGMouseTouchSequence(this));
@@ -143,11 +146,10 @@ bool VistaOSGMouseDriver::DoSensorUpdate(VistaType::microtime dTs)
 	for( WindowMap::iterator itWin = m_mapWindows.begin();
 			itWin != m_mapWindows.end(); ++itWin )
 	{
-		osgGA::EventQueue::Events* pEvents = static_cast<osgGA::EventQueue::Events*>(
-					m_pWindowingToolkit->GetEventsForWindow( (*itWin).first ) );
+		osgGA::EventQueue::Events& oEvents = m_pWindowingToolkit->GetEventsForWindow( (*itWin).first );
 		osgGA::EventQueue::Events::iterator itEvent;
-		for( itEvent = pEvents->begin();
-			itEvent != pEvents->end();
+		for( itEvent = oEvents.begin();
+			itEvent != oEvents.end();
 			++itEvent )
 		{
 			VistaDeviceSensor* pSensor = GetSensorByIndex( (*itWin).second.m_nSensorIndex );
@@ -227,9 +229,39 @@ bool VistaOSGMouseDriver::DoSensorUpdate(VistaType::microtime dTs)
 				default:
 					continue;
 			}
+
+			int nPosX = pEvent->getX();
+			int nPosY = pEvent->getY();
+			
+			if( GetParameters()->GetCaptureCursor() )
+			{
+				osgViewer::GraphicsWindow* pWin = m_pWindowingToolkit->GetOsgWindowForWindow( (*itWin).first );
+				assert( pWin );
+
+				int nX, nY, nWidth, nHeight;
+				pWin->getWindowRectangle( nX, nY, nWidth, nHeight );
+				int nCenterX = nWidth / 2;
+				int nCenterY = nHeight / 2;				
+				
+				int nDeltaX = nPosX - nCenterX;
+				int nDeltaY = nPosY - nCenterY;		
+				
+				if( nDeltaX != 0 || nDeltaY != 0 )
+				{
+					pWin->requestWarpPointer( nCenterX, nCenterY );
+				}
+
+				if( m_bGrabCursorChanged )
+				{
+					// @todo: react to dynamic changes
+					m_bGrabCursorChanged = false;
+					nPosX = 0;
+					nPosY = 0;
+				}
+			}
+
 			MeasureStart( (*itWin).second.m_nSensorIndex, dTs);
-			UpdateMousePosition( (*itWin).second.m_nSensorIndex,
-					pEvent->getX(), pEvent->getY() );
+			UpdateMousePosition( (*itWin).second.m_nSensorIndex, nPosX, nPosY );
 			UpdateMouseButton( (*itWin).second.m_nSensorIndex,
 					BT_WHEEL_DIR, (*itWin).second.m_nWheelDirection );
 			UpdateMouseButton( (*itWin).second.m_nSensorIndex,

@@ -492,12 +492,9 @@ bool VistaOSGKeyboardDriver::DoSensorUpdate(VistaType::microtime dTs)
 	for( WindowList::iterator itWin = m_vecWindows.begin();
 			itWin != m_vecWindows.end(); ++itWin )
 	{
-		osgGA::EventQueue::Events* pEvents = static_cast<osgGA::EventQueue::Events*>(
-					m_pWindowingToolkit->GetEventsForWindow( (*itWin) ) );
+		osgGA::EventQueue::Events& oEvents = m_pWindowingToolkit->GetEventsForWindow( (*itWin) );
 		osgGA::EventQueue::Events::iterator itEvent;
-		for( itEvent = pEvents->begin();
-			itEvent != pEvents->end();
-			++itEvent )
+		for( itEvent = oEvents.begin();	itEvent != oEvents.end(); ++itEvent )
 		{
 			osgGA::GUIEventAdapter* pEvent = itEvent->get();
 			if( pEvent->getHandled() )

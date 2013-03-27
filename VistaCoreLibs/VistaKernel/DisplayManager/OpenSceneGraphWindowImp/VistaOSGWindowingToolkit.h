@@ -48,6 +48,15 @@ struct OSGWindowInfo;
 namespace osg
 {
 	class GraphicsContext;
+	template<typename T> class ref_ptr;
+}
+namespace osgGA
+{
+	class GUIEventAdapter;
+}
+namespace osgViewer
+{
+	class GraphicsWindow;
 }
 
 /*============================================================================*/
@@ -109,6 +118,9 @@ public:
 	virtual bool GetVSyncCanBeModified( const VistaWindow* pWindow  );
 	virtual bool SetVSyncMode( VistaWindow* pWindow, const bool bEnabled );
 	virtual int GetVSyncMode( const VistaWindow* pWindow  );
+
+	virtual bool GetDrawBorder( const VistaWindow* pWindow ) const;
+	virtual bool SetDrawBorder( VistaWindow* pWindow, const bool bSet );
 	
 
 	virtual IVistaTextEntity* CreateTextEntity();
@@ -119,10 +131,13 @@ public:
 
 	// Toolkit-specific, returns Events @OSGTODO void-ptr, because
 	// include would have double-class-definitions due to two osg namespaces
-	void* GetEventsForWindow( const VistaWindow* pWindow );
+	std::list< osg::ref_ptr<osgGA::GUIEventAdapter> >& GetEventsForWindow( const VistaWindow* pWindow );
+	osgViewer::GraphicsWindow* GetOsgWindowForWindow( const VistaWindow* pWindow );
 
 private:
 	OSGWindowInfo* GetWindowInfo( const VistaWindow* pWindow  ) const;
+
+
 private:	
 	typedef std::map<const VistaWindow*, OSGWindowInfo*>	WindowInfoMap;
 	WindowInfoMap						m_mapWindowInfo;

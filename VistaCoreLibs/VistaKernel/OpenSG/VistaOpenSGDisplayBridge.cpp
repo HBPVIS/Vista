@@ -47,7 +47,9 @@
 #include <VistaKernel/DisplayManager/VistaViewport.h>
 #include <VistaKernel/DisplayManager/VistaVirtualPlatform.h>
 #include <VistaKernel/DisplayManager/VistaWindowingToolkit.h>
+#ifdef VISTA_WITH_GLUT
 #include <VistaKernel/DisplayManager/GlutWindowImp/VistaGlutWindowingToolkit.h>
+#endif
 #ifdef VISTA_WITH_OSG
 #include <VistaKernel/DisplayManager/OpenSceneGraphWindowImp/VistaOSGWindowingToolkit.h>
 #endif
@@ -1544,27 +1546,30 @@ IVistaWindowingToolkit* VistaOpenSGDisplayBridge::CreateWindowingToolkit( const 
 		vstr::warnp() << "Creating new WIndowingtoolkit, but one already"
 				<< " exists - deleting old one!" << std::endl;
 		delete m_pWindowingToolkit;
+		m_pWindowingToolkit = NULL;
 	}
 
+#ifdef VISTA_WITH_GLUT
 	if( VistaAspectsComparisonStuff::StringEquals( sName, "GLUT", false ) )
 	{
 		// compare the string once and store the result as enum
-		m_pWindowingToolkit = new VistaGlutWindowingToolkit( m_pDisplayManager );		
-	}
-#ifdef VISTA_WITH_OSG
-	else if( VistaAspectsComparisonStuff::StringEquals( sName, "OSG", false ) )
-	{
-		// compare the string once and store the result as enum
-		m_pWindowingToolkit = new VistaOSGWindowingToolkit( m_pDisplayManager );		
+		m_pWindowingToolkit = new VistaGlutWindowingToolkit( m_pDisplayManager );
+		return m_pWindowingToolkit;
 	}
 #endif
-	else
+#ifdef VISTA_WITH_OSG
+	if( VistaAspectsComparisonStuff::StringEquals( sName, "OSG", false ) )
 	{
-		vstr::errp() << "[VistaOpenSGSystemClassFactory::CreateWindowingToolkit] " 
-				<< "Toolkit type [" << sName << "] is unknown." << std::endl;
-		m_pWindowingToolkit = NULL;
+		// compare the string once and store the result as enum
+		m_pWindowingToolkit = new VistaOSGWindowingToolkit( m_pDisplayManager );
+		return m_pWindowingToolkit;
 	}
-	return m_pWindowingToolkit;
+#endif
+
+	
+	vstr::errp() << "[VistaOpenSGSystemClassFactory::CreateWindowingToolkit] " 
+			<< "Toolkit type [" << sName << "] is unknown." << std::endl;
+	return NULL;
 }
 
 VistaWindow* VistaOpenSGDisplayBridge::CreateVistaWindow( VistaDisplay* pDisplay,
