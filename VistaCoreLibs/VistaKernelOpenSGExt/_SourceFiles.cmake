@@ -32,6 +32,8 @@ set( DirFiles
 	VistaOpenSGWebInterface.h
 	VistaOpenSGModelOptimizer.cpp
 	VistaOpenSGModelOptimizer.h
+	VistaOpenSGGraphicsStatsOverlay.cpp
+	VistaOpenSGGraphicsStatsOverlay.h
 	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
