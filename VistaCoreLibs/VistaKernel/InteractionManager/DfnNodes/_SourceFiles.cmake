@@ -12,8 +12,6 @@ set( DirFiles
 	VistaDfnProximityWarningNode.h
 	VistaDfnDeviceDebugNode.cpp
 	VistaDfnDeviceDebugNode.h
-	VistaDfnDumpHistoryNodeClusterCreate.cpp
-	VistaDfnDumpHistoryNodeClusterCreate.h
 	VistaDfnEventSourceNode.cpp
 	VistaDfnEventSourceNode.h
 	VistaDfnFadeoutNode.cpp
