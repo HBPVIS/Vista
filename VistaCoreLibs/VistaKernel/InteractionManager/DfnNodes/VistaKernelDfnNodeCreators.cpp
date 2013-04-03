@@ -58,7 +58,6 @@
 #include <VistaKernel/InteractionManager/DfnNodes/VistaDfn3DMouseTransformNode.h>
 #include <VistaKernel/InteractionManager/DfnNodes/VistaDfnMouseWheelChangeDetectNode.h>
 #include <VistaKernel/InteractionManager/DfnNodes/VistaDfnReferenceFrameTransformNode.h>
-#include <VistaKernel/InteractionManager/DfnNodes/VistaDfnDumpHistoryNodeClusterCreate.h>
 #include <VistaKernel/InteractionManager/DfnNodes/VistaDfnClusterNodeInfoNode.h>
 #include <VistaKernel/InteractionManager/DfnNodes/VistaDfnDeviceDebugNode.h>
 #include <VistaKernel/InteractionManager/DfnNodes/VistaDfnCropViewportNode.h>
