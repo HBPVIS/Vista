@@ -29,6 +29,7 @@
 
 #include <VistaBase/VistaStreamUtils.h>
 #include <VistaAspects/VistaAspectsUtils.h>
+#include <VistaDataFlowNet/VdfnDumpHistoryNode.h>
 
 #include <VistaKernel/VistaSystem.h>
 #include <VistaKernel/Cluster/VistaClusterMode.h>
