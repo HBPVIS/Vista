@@ -1030,12 +1030,9 @@ IVistaNode* VistaSceneGraph::CloneSubtree( IVistaNode* pNode,
 VistaLightNode* VistaSceneGraph::NewLightFromProplist( const VistaPropertyList& oProps,
 											  VistaGroupNode* pParent )
 {
-	float afAmbientColor[3] = { 0,0,0 };
-	oProps.GetValueAsArray<3>( "AMBIENTCOLOR", afAmbientColor );
-	float afDiffuseColor[3] = { 0,0,0 };
-	oProps.GetValueAsArray<3>( "DIFFUSECOLOR", afDiffuseColor );
-	float afSpecularColor[3] = { 0,0,0 };
-	oProps.GetValueAsArray<3>( "SPECULARCOLOR", afSpecularColor );
+	VistaColor colAmbient = oProps.GetValueOrDefault<VistaColor>( "AMBIENTCOLOR", VistaColor::BLACK );
+	VistaColor colDiffuse = oProps.GetValueOrDefault<VistaColor>( "DIFFUSECOLOR", VistaColor::BLACK );
+	VistaColor colSpecular = oProps.GetValueOrDefault<VistaColor>( "SPECULARCOLOR", VistaColor::BLACK );
 	VistaVector3D v3Direction = oProps.GetValueOrDefault<VistaVector3D>(
 										"DIRECTION", VistaVector3D( 0, 0, -1 ) );
 	VistaVector3D v3Position = oProps.GetValueOrDefault<VistaVector3D>(
@@ -1082,9 +1079,9 @@ VistaLightNode* VistaSceneGraph::NewLightFromProplist( const VistaPropertyList& 
 		return NULL;
 	}
 
-	pLight->SetAmbientColor( afAmbientColor[0], afAmbientColor[1], afAmbientColor[2] );
-	pLight->SetDiffuseColor( afDiffuseColor[0], afDiffuseColor[1], afDiffuseColor[2] );
-	pLight->SetSpecularColor( afSpecularColor[0], afSpecularColor[1], afSpecularColor[2] );
+	pLight->SetAmbientColor( colAmbient );
+	pLight->SetDiffuseColor( colDiffuse );
+	pLight->SetSpecularColor( colSpecular );
 	pLight->SetIntensity( fIntensity );
 	pLight->SetAttenuation( v3Attenuation );
 

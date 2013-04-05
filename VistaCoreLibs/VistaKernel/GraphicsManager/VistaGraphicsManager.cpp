@@ -103,15 +103,8 @@ bool VistaGraphicsManager::SetupScene( const std::string& sIniSection,
 	}
 	const VistaPropertyList& oProps = oConfig.GetSubListConstRef( sIniSection );
 
-	float a3fBackgroundColor[3]; 
-	if( oProps.GetValueAsArray<3>( "BACKGROUNDCOLOR", a3fBackgroundColor ) )
-	{
-		SetBackgroundColor( VistaColor( a3fBackgroundColor ) );
-	}
-	else
-	{
-		SetBackgroundColor( VistaColor::VISTA_BLUE );
-	}
+	VistaColor colBackground = oProps.GetValueOrDefault<VistaColor>( "BACKGROUNDCOLOR", VistaColor::VISTA_BLUE );
+	SetBackgroundColor( colBackground );
 
 	//configure default lights
 	std::list<std::string> liLights;

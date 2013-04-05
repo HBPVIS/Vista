@@ -69,6 +69,7 @@ public:
 	  * @return bool true/false
 	*/
 	bool GetAmbientColor(float& r, float& g, float& b) const;
+	VistaColor GetAmbientColor() const;
 
 	/** Set current ambient light color
 	  * @param float r : ambient color's red fraction
@@ -77,6 +78,7 @@ public:
 	  * @return bool true/false
 	*/
 	bool SetAmbientColor(float r, float g, float b);
+	bool SetAmbientColor( const VistaColor& oColor );
 
 
 	/** Retrieve current diffuse light color
@@ -86,6 +88,7 @@ public:
 	  * @return bool true/false
 	*/
 	bool GetDiffuseColor(float& r, float& g, float& b) const;
+	VistaColor GetDiffuseColor() const;
 
 	/** Set current diffuse light color
 	  * @param float r : diffuse color's red fraction
@@ -94,6 +97,7 @@ public:
 	  * @return bool true/false
 	*/
 	bool SetDiffuseColor(float r, float g, float b);
+	bool SetDiffuseColor( const VistaColor& oColor );
 
 	/** Retrieve current specular light color
 	  * @param float& r : specular color's red fraction
@@ -102,6 +106,7 @@ public:
 	  * @return bool true/false
 	*/
 	bool GetSpecularColor(float& r, float& g, float& b) const;
+	VistaColor GetSpecularColor() const;
 
 	/** Set current specular light color
 	  * @param float r : specular color's red fraction
@@ -110,8 +115,10 @@ public:
 	  * @return bool true/false
 	*/
 	bool SetSpecularColor(float r, float g, float b);
+	bool SetSpecularColor( const VistaColor& oColor );
 
 	bool SetColor(float r, float g, float b);
+	bool SetColor( const VistaColor& oColor );
 
 	float GetIntensity() const;
 	bool SetIntensity(float i);

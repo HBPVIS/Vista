@@ -61,6 +61,11 @@ bool VistaLightNode::SetColor(float r, float g, float b)
 	return m_pBridge->SetLightColor(m_nLightType, r,g,b, m_pData);
 }
 
+bool VistaLightNode::SetColor( const VistaColor& oColor )
+{
+	return m_pBridge->SetLightColor(m_nLightType, oColor[0], oColor[1], oColor[2], m_pData);
+}
+
 
 float VistaLightNode::GetIntensity() const
 {
@@ -80,35 +85,76 @@ bool VistaLightNode::GetAmbientColor(float& r, float& g, float& b) const
 {
 	return m_pBridge->GetLightAmbientColor(m_nLightType, r, g, b, m_pData);
 }
+
+VistaColor VistaLightNode::GetAmbientColor() const
+{
+	VistaColor oColor;
+	GetAmbientColor( oColor[0], oColor[1], oColor[2] );
+	return oColor;
+}
+
 // ============================================================================
 // ============================================================================
 bool VistaLightNode::SetAmbientColor(float r, float g, float b)
 {
 	return m_pBridge->SetLightAmbientColor(m_nLightType, r, g, b, m_pData);
 }
+
+bool VistaLightNode::SetAmbientColor( const VistaColor& oColor )
+{
+	return SetAmbientColor( oColor[0], oColor[1], oColor[2] );
+}
+
 // ============================================================================
 // ============================================================================
 bool VistaLightNode::GetDiffuseColor(float& r, float& g, float& b) const
 {
 	return m_pBridge->GetLightDiffuseColor(m_nLightType, r, g, b, m_pData);
 }
+
+VistaColor VistaLightNode::GetDiffuseColor() const
+{
+	VistaColor oColor;
+	GetDiffuseColor( oColor[0], oColor[1], oColor[2] );
+	return oColor;
+}
+
 // ============================================================================
 // ============================================================================
 bool VistaLightNode::SetDiffuseColor(float r, float g, float b)
 {
 	return m_pBridge->SetLightDiffuseColor(m_nLightType, r, g, b, m_pData);
 }
+
+bool VistaLightNode::SetDiffuseColor( const VistaColor& oColor )
+{
+	return SetDiffuseColor( oColor[0], oColor[1], oColor[2] );
+}
+
 // ============================================================================
 // ============================================================================
 bool VistaLightNode::GetSpecularColor(float& r, float& g, float& b) const
 {
 	return m_pBridge->GetLightSpecularColor(m_nLightType, r, g, b, m_pData);
 }
+
+VistaColor VistaLightNode::GetSpecularColor() const
+{
+	VistaColor oColor;
+	GetSpecularColor( oColor[0], oColor[1], oColor[2] );
+	return oColor;
+}
+
 // ============================================================================
 // ============================================================================
 bool VistaLightNode::SetSpecularColor(float r, float g, float b)
 {
 	return m_pBridge->SetLightSpecularColor(m_nLightType, r, g, b, m_pData);
+}
+
+bool VistaLightNode::SetSpecularColor( const VistaColor& oColor )
+{
+	return SetSpecularColor( oColor[0], oColor[1], oColor[2] );
 }
 
 VistaVector3D  VistaLightNode::GetAttenuation() const
