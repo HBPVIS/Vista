@@ -866,7 +866,7 @@ void VistaSystem::CreateClusterMode()
 {
 	if( m_pClusterMode != NULL )
 	{
-		vstr::outi() << "[CreateCluserMode]: Encountered user-provided CLusterMode" << std::endl;
+		vstr::outi() << "[CreateClusterMode]: Encountered user-provided ClusterMode" << std::endl;
 		return;
 	}
 
@@ -875,7 +875,7 @@ void VistaSystem::CreateClusterMode()
 		case VistaClusterMode::NT_STANDALONE:
 		{
 			m_pClusterMode = new VistaClusterStandalone;
-			vstr::outi() << "Creating ClusterNode as [STANDALONE]" << std::endl;
+			vstr::outi() << "Creating ClusterMode as [STANDALONE]" << std::endl;
 			break;
 		}
 		case VistaClusterMode::NT_MASTER:
@@ -883,12 +883,12 @@ void VistaSystem::CreateClusterMode()
 			if( m_bUseNewClusterMaster )
 			{
 				m_pClusterMode = new VistaNewClusterMaster( this, m_sClusterNodeName );
-				vstr::outi() << "Creating ClusterNode as [NEWMASTER]" << std::endl;
+				vstr::outi() << "Creating ClusterMode as [NEWMASTER]" << std::endl;
 			}
 			else
 			{
 				m_pClusterMode = new VistaClusterMaster( m_pEventManager, m_sClusterNodeName );
-				vstr::outi() << "Creating ClusterNode as [MASTER]" << std::endl;
+				vstr::outi() << "Creating ClusterMode as [MASTER]" << std::endl;
 			}
 			
 			break;
@@ -898,12 +898,12 @@ void VistaSystem::CreateClusterMode()
 			if( m_bUseNewClusterMaster )
 			{
 				m_pClusterMode = new VistaNewClusterSlave( this, m_sClusterNodeName );
-				vstr::outi() << "Creating ClusterNode as [NEWSLAVE]" << std::endl;
+				vstr::outi() << "Creating ClusterMode as [NEWSLAVE]" << std::endl;
 			}
 			else
 			{
 				m_pClusterMode = new VistaClusterSlave( m_pEventManager, m_sClusterNodeName, m_pInteractionManager );
-				vstr::outi() << "Creating ClusterNode as [SLAVE]" << std::endl;
+				vstr::outi() << "Creating ClusterMode as [SLAVE]" << std::endl;
 			}
 			break;
 		}
@@ -911,7 +911,7 @@ void VistaSystem::CreateClusterMode()
 		{
 			{
 				m_pClusterMode = new VistaReplaySlave( this, m_sClusterNodeName );
-				vstr::outi() << "Creating ClusterNode as [REPLAY_SLAVE]" << std::endl;
+				vstr::outi() << "Creating ClusterMode as [REPLAY_SLAVE]" << std::endl;
 			}
 			break;
 		}
