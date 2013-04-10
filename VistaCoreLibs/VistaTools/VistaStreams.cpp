@@ -953,7 +953,8 @@ std::ostream* CreateStreamFromDescription( const std::string& sDefinition,
 								const bool bThreadSafeStream,
 								const std::list<std::string>& liStreamsToCreate,
 								const std::string& sNodename,
-								int& nResult )
+								int& nResult,
+								const bool bAllowColorStreams )
 {
 	std::string sCommand;
 	std::vector<std::string> vecArguments;
@@ -1103,7 +1104,7 @@ std::ostream* CreateStreamFromDescription( const std::string& sDefinition,
 			return NULL;
 		}
 
-		std::ostream* pSubStream = CreateStreamFromDescription( vecArguments[0], oConfig, false, liStreamsToCreate, sNodename, nResult );
+		std::ostream* pSubStream = CreateStreamFromDescription( vecArguments[0], oConfig, false, liStreamsToCreate, sNodename, nResult, bAllowColorStreams );
 		if( pSubStream == NULL )
 		{
 			if( nResult == 0 )
@@ -1153,44 +1154,61 @@ std::ostream* CreateStreamFromDescription( const std::string& sDefinition,
 
 	}
 	else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sCommand, "COLOR" ) )
-	{		
-		VistaColorOutstream::CONSOLE_COLOR oTextColor = VistaColorOutstream::CC_DEFAULT;
-		VistaColorOutstream::CONSOLE_COLOR oBackgroundColor = VistaColorOutstream::CC_DEFAULT;
-		bool bUseErrorStream = false;
-		if( vecArguments.size() > 0 )
+	{	
+		if( bAllowColorStreams )
 		{
-			oTextColor = VistaColorOutstream::GetConsoleColorFromString( vecArguments[0] );
-			if( oTextColor == -1 )
+			VistaColorOutstream::CONSOLE_COLOR oTextColor = VistaColorOutstream::CC_DEFAULT;
+			VistaColorOutstream::CONSOLE_COLOR oBackgroundColor = VistaColorOutstream::CC_DEFAULT;
+			bool bUseErrorStream = false;
+			if( vecArguments.size() > 0 )
 			{
-				vstr::warnp() << "VistaStreams::CreateStreamsFromProplist -- "
-						<< "unknown color \"" << vecArguments[0] << "\" to stream \"COLOR\"" << std::endl;
-				return NULL;
-			}
-		}
-		if( vecArguments.size() > 1 )
-		{
-			if( vecArguments.size() == 2 
-				&&  VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( vecArguments[1], "USE_ERROR_STREAM" ) )
-			{
-				bUseErrorStream = true;
-			}
-			else
-			{
-				oBackgroundColor = VistaColorOutstream::GetConsoleColorFromString( vecArguments[1] );
-				if( oBackgroundColor == -1 )
+				oTextColor = VistaColorOutstream::GetConsoleColorFromString( vecArguments[0] );
+				if( oTextColor == -1 )
 				{
 					vstr::warnp() << "VistaStreams::CreateStreamsFromProplist -- "
-							<< "unknown color \"" << vecArguments[1] << "\" to stream \"COLOR\"" << std::endl;
+							<< "unknown color \"" << vecArguments[0] << "\" to stream \"COLOR\"" << std::endl;
 					return NULL;
 				}
-				if( vecArguments.size() > 2
-					&&  VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( vecArguments[2], "USE_ERROR_STREAM" ) )
+			}
+			if( vecArguments.size() > 1 )
+			{
+				if( vecArguments.size() == 2 
+					&&  VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( vecArguments[1], "USE_ERROR_STREAM" ) )
 				{
 					bUseErrorStream = true;
 				}
+				else
+				{
+					oBackgroundColor = VistaColorOutstream::GetConsoleColorFromString( vecArguments[1] );
+					if( oBackgroundColor == -1 )
+					{
+						vstr::warnp() << "VistaStreams::CreateStreamsFromProplist -- "
+								<< "unknown color \"" << vecArguments[1] << "\" to stream \"COLOR\"" << std::endl;
+						return NULL;
+					}
+					if( vecArguments.size() > 2
+						&&  VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( vecArguments[2], "USE_ERROR_STREAM" ) )
+					{
+						bUseErrorStream = true;
+					}
+				}
 			}
+			pStream = new VistaColorOutstream( oTextColor, oBackgroundColor, bUseErrorStream );
 		}
-		pStream = new VistaColorOutstream( oTextColor, oBackgroundColor, bUseErrorStream );
+		else
+		{
+			if( vecArguments.size() >= 2 
+				&&  VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( vecArguments[1], "USE_ERROR_STREAM" ) )
+			{
+				pStream = &std::cerr;
+			}
+			else
+			{
+				pStream = &std::cout;
+			}
+				
+		}
+
 		if( bThreadSafeStream )
 			VistaStreams::MakeStreamThreadSafe( pStream );
 	}
@@ -1222,7 +1240,7 @@ std::ostream* CreateStreamFromDescription( const std::string& sDefinition,
 		for( std::vector<std::string>::const_iterator itArg = vecArguments.begin();
 				itArg != vecArguments.end(); ++itArg )
 		{		
-			std::ostream* pSubStream = CreateStreamFromDescription( (*itArg), oConfig, false, liStreamsToCreate, sNodename, nResult );
+			std::ostream* pSubStream = CreateStreamFromDescription( (*itArg), oConfig, false, liStreamsToCreate, sNodename, nResult, bAllowColorStreams );
 			if( pSubStream == NULL )
 			{
 				vstr::warnp() << "VistaStreams::CreateStreamsFromProplist -- "
@@ -1256,7 +1274,7 @@ std::ostream* CreateStreamFromDescription( const std::string& sDefinition,
 			nResult = 0;
 			return NULL;
 		}
-		pStream = CreateStreamFromDescription( sBuildTypeName, oConfig, true, liStreamsToCreate, sNodename, nResult );
+		pStream = CreateStreamFromDescription( sBuildTypeName, oConfig, true, liStreamsToCreate, sNodename, nResult, bAllowColorStreams );
 		if( nResult != 1 )
 			return NULL;
 		
@@ -1329,12 +1347,14 @@ std::ostream* CreateStreamFromDescription( const std::string& sDefinition,
 	return pStream;
 }
 
-bool VistaStreams::CreateStreamsFromProplist( const VistaPropertyList& oConfig )
+bool VistaStreams::CreateStreamsFromProplist( const VistaPropertyList& oConfig,
+													const bool bAllowColorStreams )
 {
 	return CreateStreamsFromProplist( oConfig, vstr::GetStreamManager()->GetNodeName() );
 }
 bool VistaStreams::CreateStreamsFromProplist( const VistaPropertyList& oConfig,
-											 const std::string& sNodename )
+											 const std::string& sNodename,
+													const bool bAllowColorStreams )
 {
 	std::list<std::string> liStreamsToCreate;
 	VistaAspectsComparisonStuff::StringCompareObject oCompare( false );
@@ -1375,7 +1395,7 @@ bool VistaStreams::CreateStreamsFromProplist( const VistaPropertyList& oConfig,
 
 		int nRes;
 		std::ostream* pStream = CreateStreamFromDescription( oConfig.GetValue<std::string>( sStreamName ),
-															oConfig, bThreadSafe, liStreamsToCreate, sNodename, nRes );
+															oConfig, bThreadSafe, liStreamsToCreate, sNodename, nRes, bAllowColorStreams );
 		if( nRes == 0 )
 		{
 			liStreamsToCreate.push_back( sStreamName );

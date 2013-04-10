@@ -378,6 +378,7 @@ VistaSystem::VistaSystem()
 , m_pExternalMsg( NULL )
 , m_iInitProgressIndicator( -1 )
 , m_pFramerateDisplay( NULL )
+, m_bAllowStreamColors( true )
 {
 	VddUtil::InitVdd();
 
@@ -2817,6 +2818,10 @@ bool VistaSystem::ArgParser (int argc, char *argv[])
 				}
 			}
 		}
+		else if( oStringCompare( strArg, "-disable_stream_colors" ) )
+		{
+			m_bAllowStreamColors = false;
+		}
 	}
 	return true;
 
@@ -3160,7 +3165,7 @@ bool VistaSystem::SetupOutputStreams()
 			return false;
 		}
 		return VistaStreams::CreateStreamsFromProplist( m_oClusterConfig.GetSubListConstRef( sOutputConfigSection ),
-																m_sClusterNodeName );
+																m_sClusterNodeName, m_bAllowStreamColors );
 	}
 	else if( m_oVistaConfig.GetValueInSubList( "OUTPUT", GetSystemSectionName(), sOutputConfigSection ) )
 	{
@@ -3171,7 +3176,7 @@ bool VistaSystem::SetupOutputStreams()
 			return false;
 		}
 		return VistaStreams::CreateStreamsFromProplist( m_oVistaConfig.GetSubListConstRef( sOutputConfigSection ),
-																m_sClusterNodeName );
+																m_sClusterNodeName, m_bAllowStreamColors );
 	}
 	return true;
 }

@@ -275,6 +275,8 @@ private:
 
 	VistaRuntimeLimiter*				m_pRuntimeLimiter;
 
+	bool								m_bAllowStreamColors;
+
 	std::map<VistaDisplaySystem*, VistaUserPlatform*> m_mapUserPlatforms;
 	std::list<VistaInteractionContext*> m_liCreateCtxs;
 

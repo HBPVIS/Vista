@@ -86,9 +86,11 @@ namespace VistaStreams
 	 *										if INDENT is set, the vtsr::indent is preprended
 	 * may be used recursive, e.g. BUILDTYPE( PREFIX( COLOR( GREEN ), "GreenStream - " ), NULL )
 	 */
-	VISTATOOLSAPI bool CreateStreamsFromProplist( const VistaPropertyList& oConfig );
 	VISTATOOLSAPI bool CreateStreamsFromProplist( const VistaPropertyList& oConfig,
-													const std::string& sNodename );
+													const bool bAllowColorStreams = true );
+	VISTATOOLSAPI bool CreateStreamsFromProplist( const VistaPropertyList& oConfig,
+													const std::string& sNodename,
+													const bool bAllowColorStreams = true );
 }
 
 /**
