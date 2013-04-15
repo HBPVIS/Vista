@@ -85,4 +85,4 @@ else:
 	print( 'Usage:' )
 	print( 'VistaTo1.10.py ConversionRootDir [-undo]' )
 	print( '  ConversionRootDir specifies toplevel dir from which on all files and subfolders will be converted, automatically backing up changed files' )
-	print( '  -undo - If provided, the backups from a prior conversion will be restored. NOTE: This removes all changes from th econversion, but also all amnual changes after the backup!' )
+	print( '  -undo - If provided, the backups from a prior conversion will be restored. NOTE: This removes all changes from the conversion, but also all manual changes after the backup!' )
