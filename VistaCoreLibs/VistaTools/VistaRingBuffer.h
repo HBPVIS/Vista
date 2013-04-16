@@ -51,12 +51,12 @@
  * Most of this API is simple to understand, accessors in const and non-const
  * form as well as traversal routines. But use with care, many side-effects.
  */
-template <typename T>
+template <typename T, typename TSizeType = std::size_t>
 class TVistaRingBuffer
 {
 public:
 	typedef std::vector<T> Container_type;
-	typedef size_t size_type;
+	typedef TSizeType size_type;
 	typedef T& reference;
 	typedef const T& const_reference;
 	typedef T value_type;
@@ -217,7 +217,7 @@ public:
 	};
 
 
-	TVistaRingBuffer(size_t nSize)
+	TVistaRingBuffer(size_type nSize)
 		: m_nFirst(0), m_nNext(0)
 		// m_nCurrent is written on call to Reset() -- not nice
 		// (side-effect), but again no need to write the value twice
@@ -240,8 +240,8 @@ public:
 	size_type GetBufferSize() const
 	{
 		if (GetIsFull())
-			return m_vecContainer.capacity();
-		return m_vecContainer.size();
+			return (size_type)m_vecContainer.capacity();
+		return (size_type)m_vecContainer.size();
 	}
 
 
@@ -250,12 +250,12 @@ public:
 		return const_iterator(&m_vecContainer,m_nFirst);
 	}
 
-	const_iterator index(size_t nIndex) const
+	const_iterator index(size_type nIndex) const
 	{
 		return const_iterator(&m_vecContainer, nIndex);
 	}
 
-	iterator index(size_t nIndex)
+	iterator index(size_type nIndex)
 	{
 		return iterator(&m_vecContainer, nIndex);
 	}
@@ -341,7 +341,7 @@ public:
 		return *this;
 	}
 
-	void ResizeBuffer(size_t nNewSize)
+	void ResizeBuffer(size_type nNewSize)
 	{
 		m_vecContainer.resize(nNewSize);
 		Reset();
@@ -380,7 +380,7 @@ public:
 
 	size_type pred(size_type nIndex) const
 	{
-		return (nIndex ? --nIndex  : m_vecContainer.size()-1);
+		return (nIndex ? --nIndex  : (size_type)m_vecContainer.size()-1);
 	}
 
 	size_type GetFirst() const
