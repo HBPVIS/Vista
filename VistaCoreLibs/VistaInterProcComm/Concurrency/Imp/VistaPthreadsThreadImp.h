@@ -102,6 +102,7 @@ protected:
 	bool     m_bCanBeCancelled;
 	pthread_t   posixThreadID;
 	pthread_attr_t m_ptAttr;
+	int m_nPriority;
 
 };
 

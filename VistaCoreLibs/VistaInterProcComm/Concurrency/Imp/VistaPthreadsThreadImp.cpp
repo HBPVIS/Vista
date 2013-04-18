@@ -69,6 +69,7 @@ static void * PosixEntryPoint ( void *that )
 /*============================================================================*/
 VistaPthreadThreadImp::VistaPthreadThreadImp(const VistaThread &thread)
 : m_rThread(thread)
+, m_nPriority( -1 )
 {
 	m_bCanBeCancelled = false;
 	posixThreadID = 0;
@@ -94,6 +95,8 @@ bool VistaPthreadThreadImp::Run( )
 	int error = pthread_create ( & posixThreadID, &m_ptAttr, PosixEntryPoint, (void *)(&m_rThread) );
 	if (error == 0)
 	{
+		if( m_nPriority != -1 )
+		SetPriority( m_nPriority );
 	   return true;
 	}
 
@@ -195,7 +198,10 @@ bool     VistaPthreadThreadImp::Abort()
 bool     VistaPthreadThreadImp::SetPriority( const VistaPriority &inPrio )
 {
 	if(!posixThreadID)
-		return false;
+	{
+		m_nPriority = inPrio.GetVistaPriority();
+		return true;
+	}
 
 	struct sched_param sp;
 
@@ -207,7 +213,10 @@ bool     VistaPthreadThreadImp::SetPriority( const VistaPriority &inPrio )
 void VistaPthreadThreadImp::GetPriority( VistaPriority &outPrio ) const
 {
 	if(!posixThreadID)
+	{
+		outPrio.SetVistaPriority( m_nPriority );
 		return;
+	}
 
 	int                 policy;
 	struct sched_param  sp;
@@ -322,11 +331,11 @@ bool VistaPthreadThreadImp::SetCallingThreadPriority( const VistaPriority& oPrio
 bool VistaPthreadThreadImp::GetCallingThreadPriority( VistaPriority& oPrio )
 {
 	int  policy;
-	struct sched_param  p;
+	struct sched_param sp;
 
 	memset( &sp, 0, sizeof (struct sched_param) );
 
-	if( pthread_getschedparam( posixThreadID, &policy, &sp ) == 0 )
+	if( pthread_getschedparam( pthread_self(), &policy, &sp ) == 0 )
 		return false;
 		
 	oPrio.SetVistaPriority( oPrio.GetVistaPriorityForSystemPriority( sp.sched_priority ) );
