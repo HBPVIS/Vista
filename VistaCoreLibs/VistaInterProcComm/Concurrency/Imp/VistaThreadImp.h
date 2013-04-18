@@ -96,6 +96,7 @@ public:
 	virtual std::string GetThreadName() const;
 
 	virtual long GetThreadIdentity() const = 0;
+
 	/**
 	 * returns the Id of the calling threat (not a specific VistaThread Instance)
 	 * Note that this Id may vary from the Id format that an Instance's GetThreadIdentity()
@@ -104,6 +105,8 @@ public:
 	 */
 	static long GetCallingThreadIdentity( bool bBypassFactory = false );
 
+	static bool SetCallingThreadPriority( const VistaPriority& oPrio, bool bBypassFactory = false );
+	static bool GetCallingThreadPriority( VistaPriority& oPrio, bool bBypassFactory = false );
 
 	/**
 	 * class for the creation of custom thread imps
@@ -114,7 +117,10 @@ public:
 	public:
 		virtual ~IVistaThreadImpFactory();
 		virtual IVistaThreadImp* CreateThread(const VistaThread &) = 0;
+
 		virtual long GetCallingThreadIdentity() const = 0;
+		virtual bool SetCallingThreadPriority( const VistaPriority& oPrio ) const = 0;
+		virtual bool GetCallingThreadPriority( VistaPriority& oPrio ) const = 0;
 	protected:
 		IVistaThreadImpFactory();
 	};

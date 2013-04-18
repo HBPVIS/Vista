@@ -141,6 +141,8 @@ public:
 
 		virtual IVistaThreadImp* CreateThread(const VistaThread &);
 		virtual long GetCallingThreadIdentity() const;
+		virtual bool SetCallingThreadPriority( const VistaPriority& oPrio ) const;
+		virtual bool GetCallingThreadPriority( VistaPriority& oPrio ) const;
 
 	private:
 		int m_nCount;

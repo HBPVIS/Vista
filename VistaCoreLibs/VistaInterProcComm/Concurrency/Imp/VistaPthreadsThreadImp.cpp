@@ -310,6 +310,29 @@ int  VistaPthreadThreadImp::GetCpu() const
 #endif
 }
 
+bool VistaPthreadThreadImp::SetCallingThreadPriority( const VistaPriority& oPrio )
+{
+	struct sched_param sp;
+
+	memset( &sp, 0, sizeof (struct sched_param) );
+	sp.sched_priority = oPrio.GetSystemPriority();
+	return ( pthread_setschedparam( pthread_self(), SCHED_RR, &sp ) == 0 );
+}
+
+bool VistaPthreadThreadImp::GetCallingThreadPriority( VistaPriority& oPrio )
+{
+	int  policy;
+	struct sched_param  p;
+
+	memset( &sp, 0, sizeof (struct sched_param) );
+
+	if( pthread_getschedparam( posixThreadID, &policy, &sp ) == 0 )
+		return false;
+		
+	oPrio.SetVistaPriority( oPrio.GetVistaPriorityForSystemPriority( sp.sched_priority ) );
+	return true;
+}
+
 /*============================================================================*/
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/

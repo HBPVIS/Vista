@@ -167,6 +167,48 @@ void IVistaThreadImp::DeleteThreadImpFactory()
 	m_pSImpFactory = NULL;
 }
 
+bool IVistaThreadImp::SetCallingThreadPriority( const VistaPriority& oPrio, bool bBypassFactory /*= false */ )
+{
+	if( m_pSImpFactory && !bBypassFactory )
+	{
+		return m_pSImpFactory->SetCallingThreadPriority( oPrio );
+	}
+	else
+	{
+	// factory method
+	#if defined(VISTA_THREADING_WIN32)
+		return VistaWin32ThreadImp::SetCallingThreadPriority( oPrio );
+	#elif defined(VISTA_THREADING_POSIX)
+		return VistaPthreadThreadImp::SetCallingThreadPriority( oPrio );
+	#elif defined(VISTA_THREADING_SPROC)
+		return VistaSPROCThreadImp::SetCallingThreadPriority( oPrio );
+	#else
+		VISTA_THROW_NOT_IMPLEMENTED;
+	#endif
+	}
+}
+
+bool IVistaThreadImp::GetCallingThreadPriority( VistaPriority& oPrio, bool bBypassFactory /*= false */ )
+{
+	if( m_pSImpFactory && !bBypassFactory )
+	{
+		return m_pSImpFactory->GetCallingThreadPriority( oPrio );
+	}
+	else
+	{
+	// factory method
+	#if defined(VISTA_THREADING_WIN32)
+		return VistaWin32ThreadImp::GetCallingThreadPriority( oPrio );
+	#elif defined(VISTA_THREADING_POSIX)
+		return VistaPthreadThreadImp::GetCallingThreadPriority( oPrio );
+	#elif defined(VISTA_THREADING_SPROC)
+		return VistaSPROCThreadImp::GetCallingThreadPriority( oPrio );
+	#else
+		VISTA_THROW_NOT_IMPLEMENTED;
+	#endif
+	}
+}
+
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/

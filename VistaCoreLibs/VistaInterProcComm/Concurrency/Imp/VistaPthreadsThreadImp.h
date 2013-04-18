@@ -90,6 +90,9 @@ public:
 	virtual long GetThreadIdentity() const;
 	static long GetCallingThreadIdentity();
 
+	static bool SetCallingThreadPriority( const VistaPriority& oPrio );
+	static bool GetCallingThreadPriority( VistaPriority& oPrio );
+
 	virtual bool SetProcessorAffinity(int iProcessorNum);
 	virtual int  GetCpu() const;
 

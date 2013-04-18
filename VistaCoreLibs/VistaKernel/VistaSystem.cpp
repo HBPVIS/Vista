@@ -727,7 +727,8 @@ bool VistaSystem::DoInit( int argc, char **argv )
 
 	// Create SystemClassFactory
 #if defined(VISTA_SYS_OPENSG)
-	m_pSystemClassFactory = new VistaOpenSGSystemClassFactory( this );
+	bool bUseOpenSGThreads = m_oVistaConfig.GetValueInSubListOrDefault<bool>( "USE_OPENSG_THREADS", "SYSTEM", true );
+	m_pSystemClassFactory = new VistaOpenSGSystemClassFactory( this, bUseOpenSGThreads );
 #else
 	VISTA_THROW("NO SYSTEM TAG DURING COMPILE TIME GIVEN?", 0x0000000);
 #endif

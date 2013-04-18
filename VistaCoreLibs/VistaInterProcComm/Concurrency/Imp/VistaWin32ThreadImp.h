@@ -98,6 +98,10 @@ public:
 	virtual long GetThreadIdentity() const;
 	static long GetCallingThreadIdentity();
 
+	static bool SetCallingThreadPriority( const VistaPriority& oPrio );
+	static bool GetCallingThreadPriority( VistaPriority& oPrio );
+
+
 protected:
 	HANDLE   m_oWin32Handle;
 	DWORD    m_nThreadId;

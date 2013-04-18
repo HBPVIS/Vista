@@ -166,3 +166,13 @@ IVistaThreadImp *VistaThread::GetThreadImp() const
 	return m_pImp;
 }
 
+bool VistaThread::SetCallingThreadPriority( const VistaPriority& oPrio )
+{
+	return IVistaThreadImp::SetCallingThreadPriority( oPrio );
+}
+
+bool VistaThread::GetCallingThreadPriority( VistaPriority& oPrio )
+{
+	return IVistaThreadImp::GetCallingThreadPriority( oPrio );
+}
+

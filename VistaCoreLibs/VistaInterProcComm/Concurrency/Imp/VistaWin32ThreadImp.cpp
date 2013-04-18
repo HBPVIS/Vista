@@ -256,6 +256,21 @@ long VistaWin32ThreadImp::GetCallingThreadIdentity()
 	return (long)GetCurrentThreadId();
 }
 
+bool VistaWin32ThreadImp::SetCallingThreadPriority( const VistaPriority& oPrio )
+{
+	int nSysPrio = oPrio.GetSystemPriority();
+	return( SetThreadPriority( GetCurrentThread(), nSysPrio ) != 0 );
+}
+
+bool VistaWin32ThreadImp::GetCallingThreadPriority( VistaPriority& oPrio )
+{
+	int nSysPrio = GetThreadPriority( GetCurrentThread() );
+	if( nSysPrio == THREAD_PRIORITY_ERROR_RETURN )
+		return false;
+	oPrio.SetVistaPriority( oPrio.GetVistaPriorityForSystemPriority( nSysPrio ) );
+	return true;
+}
+
 /*============================================================================*/
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/

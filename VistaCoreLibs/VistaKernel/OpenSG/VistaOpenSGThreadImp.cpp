@@ -294,6 +294,16 @@ long VistaOSGThreadImp::VistaOSGThreadImpFactory::GetCallingThreadIdentity() con
 	return IVistaThreadImp::GetCallingThreadIdentity( true );
 }
 
+bool VistaOSGThreadImp::VistaOSGThreadImpFactory::SetCallingThreadPriority( const VistaPriority& oPrio ) const
+{
+	return IVistaThreadImp::SetCallingThreadPriority( oPrio, true );
+}
+
+bool VistaOSGThreadImp::VistaOSGThreadImpFactory::GetCallingThreadPriority( VistaPriority& oPrio ) const
+{
+	return IVistaThreadImp::GetCallingThreadPriority( oPrio, true );
+}
+
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/

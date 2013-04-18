@@ -111,6 +111,13 @@ public:
 	static long GetCallingThreadIdentity();
 
 	/**
+	 * sets/gets the priority of the calling thread (e.g. to alter the priority from the
+	 * main thread or when not knowing your VistaThread instance)
+	 */
+	static bool SetCallingThreadPriority( const VistaPriority& oPrio );
+	static bool GetCallingThreadPriority( VistaPriority& oPrio );
+
+	/**
 	 * Sets the affinity (i.e. stickiness) of the thread to a
 	 * given CPU id. Note that it is implementation specific, when
 	 * to call this. On windows(c), it is only working when calling

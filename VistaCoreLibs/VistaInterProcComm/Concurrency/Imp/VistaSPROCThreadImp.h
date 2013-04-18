@@ -88,6 +88,8 @@ public:
 
 	virtual long GetThreadIdentity() const;
 	static long GetCallingThreadIdentity() const;
+	static bool SetCallingThreadPriority( const VistaPriority& oPrio );
+	static bool GetCallingThreadPriority( VistaPriority& oPrio );
 
 protected:
 	const VistaThread  &m_rThread; /**< @todo think about this */

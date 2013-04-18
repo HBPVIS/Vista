@@ -279,6 +279,16 @@ long VistaSPROCThreadImp::GetCallingThreadIdentity() const
 	VISTA_THROW_NOT_IMPLEMENTED;
 }
 
+bool VistaSPROCThreadImp::SetCallingThreadPriority( const VistaPriority& oPrio )
+{
+	VISTA_THROW_NOT_IMPLEMENTED;
+}
+
+bool VistaSPROCThreadImp::GetCallingThreadPriority( VistaPriority& oPrio )
+{
+	VISTA_THROW_NOT_IMPLEMENTED;
+}
+
 /*============================================================================*/
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
