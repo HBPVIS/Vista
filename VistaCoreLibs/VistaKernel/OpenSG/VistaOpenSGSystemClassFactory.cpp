@@ -82,7 +82,7 @@ OSG_USING_NAMESPACE
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
-VistaOpenSGSystemClassFactory::VistaOpenSGSystemClassFactory( VistaSystem* pVistaSystem )
+VistaOpenSGSystemClassFactory::VistaOpenSGSystemClassFactory( VistaSystem* pVistaSystem, bool bUseOpenSGThreads )
 : IVistaSystemClassFactory()
 , m_pVistaSystem( pVistaSystem )
 {
@@ -90,8 +90,11 @@ VistaOpenSGSystemClassFactory::VistaOpenSGSystemClassFactory( VistaSystem* pVist
 	// get size of FieldContainerStore right after init (prototypes are initialized now)
 	m_lFCStoreOffset = (int)osg::FieldContainerFactory::the()->getFieldContainerStore()->size();
 
-	// register thread creation factory
-	IVistaThreadImp::RegisterThreadImpFactory(new VistaOSGThreadImp::VistaOSGThreadImpFactory);
+	if( bUseOpenSGThreads )
+	{
+		// register thread creation factory
+		IVistaThreadImp::RegisterThreadImpFactory(new VistaOSGThreadImp::VistaOSGThreadImpFactory);
+	}
 
 	m_pRenderAction = osg::RenderAction::create();
 	m_pRenderAction->setFrustumCulling(false);

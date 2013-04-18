@@ -103,9 +103,9 @@ VistaWin32ThreadImp::VistaWin32ThreadImp( const VistaThread& oThread )
 , m_bCanBeCancelled( false )
 , m_dwAffinityMask( ~0 )
 {
-
+	m_oWin32Handle = CreateThread ( 0, 0, Win32EntryPoint, (void*)&m_rThread, CREATE_SUSPENDED, &m_nThreadId );
 }
-
+ 
 VistaWin32ThreadImp::~VistaWin32ThreadImp()
 {
 }
@@ -114,17 +114,26 @@ VistaWin32ThreadImp::~VistaWin32ThreadImp()
 bool     VistaWin32ThreadImp::Run( )
 {
 	// just to make sure
-	if(m_oWin32Handle>0)
+	if(m_oWin32Handle == 0)
 		return false;
 
-	// create a thread without special security settings
-	m_oWin32Handle = CreateThread ( 0, 0, Win32EntryPoint, (void*)&m_rThread, 0, & m_nThreadId );
-	m_bIsRunning = (m_oWin32Handle!=0);
-	// if somebody has set an affinity mask != the init value ==> set it now!
-	if(m_bIsRunning && m_dwAffinityMask != ~0)
-		SetThreadAffinityMask(m_oWin32Handle, m_dwAffinityMask);
+	if( m_bIsRunning )
+		return false;
 
-	return ( m_bIsRunning );
+	if( ::ResumeThread  ( m_oWin32Handle ) != -1 )
+		return false;
+
+	//// create a thread without special security settings
+	//// m_oWin32Handle = CreateThread ( 0, 0, Win32EntryPoint, (void*)&m_rThread, 0, & m_nThreadId );
+	//m_bIsRunning = (m_oWin32Handle!=0);
+	//if( m_bIsRunning == false )
+	//	return false;
+	//SetThreadPriority( m_oWin32Handle, m_oPriority.GetSystemPriority() );
+	//// if somebody has set an affinity mask != the init value ==> set it now!
+	//if( m_dwAffinityMask != ~0)
+	//	SetThreadAffinityMask(m_oWin32Handle, m_dwAffinityMask);
+
+	return true;
 }
 
 
@@ -226,18 +235,7 @@ bool VistaWin32ThreadImp::Equals(const IVistaThreadImp &oImp) const
 bool VistaWin32ThreadImp::SetProcessorAffinity(int iProcessorNum)
 {
 	m_dwAffinityMask = (1 << iProcessorNum);
-	if(m_oWin32Handle)
-	{
-		if(SetThreadAffinityMask(m_oWin32Handle, m_dwAffinityMask)==0)
-			// failure!
-		{
-			return false;
-		}
-
-		return true;
-	}
-	else 
-		return true; // setting the mask on a non-running thread is ok
+	return( SetThreadAffinityMask(m_oWin32Handle, m_dwAffinityMask) != 0 );
 }
 
 bool VistaWin32ThreadImp::SetThreadName(const std::string &sName)

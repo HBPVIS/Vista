@@ -40,34 +40,15 @@
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
 
-bool CheckForBraces( char c)
+namespace
 {
-	return ( c == '(' || c == ')' 
-		|| c == '[' || c == ']'
-		|| c == '{' || c == '}' );
-}
-
-void VistaConversion::RemoveBraces( std::string& sString )
-{
-	sString.resize( std::remove_if( sString.begin(), sString.end(), CheckForBraces ) - sString.begin() );
-}
-
-bool VistaConversion::CheckRemainingStringEmpty( const std::string& sString, 
-								   std::size_t nFrom, char cSeparator )
-{
-	std::string::const_iterator itEntry = sString.begin() + nFrom;
-	for( ; itEntry != sString.end(); ++itEntry )
+	bool CheckForBraces( char c )
 	{
-		if( (*itEntry) != ' ' && (*itEntry) != '\t'
-			&& (*itEntry) != '\n' && (*itEntry) != cSeparator )
-			return false;
+		return ( c == '(' || c == ')' 
+			|| c == '[' || c == ']'
+			|| c == '{' || c == '}' );
 	}
-	return true;
 }
-
-/*============================================================================*/
-/* CONSTRUCTORS / DESTRUCTOR                                                  */
-/*============================================================================*/
 
 /*============================================================================*/
 /* IMPLEMENTATION                                                             */
@@ -114,6 +95,25 @@ std::string VistaConversion::CleanOSTypeName( const std::string& sName )
 	return sName;
 #endif
 }
+
+void VistaConversion::RemoveBraces( std::string& sString )
+{
+	sString.resize( std::remove_if( sString.begin(), sString.end(), CheckForBraces ) - sString.begin() );
+}
+
+bool VistaConversion::CheckRemainingStringEmpty( const std::string& sString, 
+								   std::size_t nFrom, char cSeparator )
+{
+	std::string::const_iterator itEntry = sString.begin() + nFrom;
+	for( ; itEntry != sString.end(); ++itEntry )
+	{
+		if( (*itEntry) != ' ' && (*itEntry) != '\t'
+			&& (*itEntry) != '\n' && (*itEntry) != cSeparator )
+			return false;
+	}
+	return true;
+}
+
 
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */

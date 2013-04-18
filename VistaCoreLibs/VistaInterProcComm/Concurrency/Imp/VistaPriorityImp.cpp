@@ -125,7 +125,7 @@ int IVistaPriorityImp::ScalePriorityToSystemPriority(int iPrio) const
 
 int IVistaPriorityImp::ScaleSystemPriorityToPriority(int iSysPrio) const
 {
-	int iSysPrioTransformed = m_iSystemPriorityMin + (m_iSystemPriorityIntervalDirection * iSysPrio);
+	double iSysPrioTransformed = (double)( iSysPrio - m_iSystemPriorityMin ) / (double)m_iSystemPriorityIntervalDirection;
 	double dResultPrio =  (double) iSysPrioTransformed * (double) VISTA_MAX_PRIORITY / (double) m_iSystemPriorityInterval;
 
 	return (int) dResultPrio;

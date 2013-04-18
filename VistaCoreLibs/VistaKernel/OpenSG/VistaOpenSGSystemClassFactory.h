@@ -73,7 +73,7 @@ class VistaWeightedAverageTimer;
 class VISTAKERNELAPI VistaOpenSGSystemClassFactory : public IVistaSystemClassFactory
 {
 public:
-	VistaOpenSGSystemClassFactory( VistaSystem* pVistaSystem );
+	VistaOpenSGSystemClassFactory( VistaSystem* pVistaSystem, bool bUseOpenSGThreads );
 
 	~VistaOpenSGSystemClassFactory();
 
