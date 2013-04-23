@@ -388,7 +388,7 @@ bool VistaOpenSGModelOptimizer::OptimizeFile( const std::string& sFilename,
 	if( bVerbose )
 	{
 		vstr::outi() << "[VistaOpenSGModelOptimizer::OptimizeFile] -- "
-				<< "Laoding file [" << sFilename << "]" << std::endl;
+				<< "Loading file [" << sFilename << "]" << std::endl;
 	}
 
 	osg::GraphOpSeq* pGraphOp = new osg::GraphOpSeq;
