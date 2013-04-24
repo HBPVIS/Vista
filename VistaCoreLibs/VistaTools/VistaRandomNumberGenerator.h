@@ -102,6 +102,28 @@ public:
 	 */
 	double        GenerateDouble53() ;
 
+
+
+	/**
+	 * [0,1)
+	 */
+	float         GenerateFloat1() ;
+	/**
+	 * [0,1]
+	 */
+	float         GenerateFloat2() ;
+
+	/**
+	 * (0,1)
+	 */
+	float         GenerateFloat3() ;
+
+	/**
+	 * [min,max]
+	 */
+	float         GenerateFloat( float fMin, float fMax ) ;
+
+
 	/** 
 	 * Creates a random number according to a gaussian distribution
 	 * with mean at 0 and Std of 1

@@ -183,14 +183,14 @@ int VistaRandomNumberGenerator::GenerateInt31()
 
 double        VistaRandomNumberGenerator::GenerateDouble1() 
 {
-	return GenerateInt32()*(1.0/4294967295.0); 
-	/* divided by 2^32-1 */ 
+	return GenerateInt32()*(1.0/4294967296.0); 
+	/* divided by 2^32 */ 
 }
 
 double        VistaRandomNumberGenerator::GenerateDouble2() 
 {
-	return GenerateInt32()*(1.0/4294967296.0); 
-	/* divided by 2^32 */
+	return GenerateInt32()*(1.0/4294967295.0); 
+	/* divided by 2^32-1 */
 }
 
 double        VistaRandomNumberGenerator::GenerateDouble3() 
@@ -203,6 +203,29 @@ double        VistaRandomNumberGenerator::GenerateDouble53()
 {
 	unsigned int a=GenerateInt32()>>5, b=GenerateInt32()>>6; 
 	return(a*67108864.0+b)*(1.0/9007199254740992.0); 
+}
+
+
+float        VistaRandomNumberGenerator::GenerateFloat1() 
+{
+	return (GenerateInt32()>>9) *(1.0f/8388608.0f); 
+	/* divided by 2^23 */ 
+	/* note: you can't just cast from double here, as the cast to float
+	 * rounds exactly; therefore value just under 1 will become 1.
+	 * Instead, we generate a 23bit random integer number (IEEE 754 specifies
+	 * floats to have 23 digits) and divide it by 2^23-1 */
+}
+
+float        VistaRandomNumberGenerator::GenerateFloat2() 
+{
+	return (GenerateInt32()>>9) *(1.0f/8388607.0f); 
+	/* divided by 2^23-1 */
+}
+
+float        VistaRandomNumberGenerator::GenerateFloat3() 
+{
+	return ((GenerateInt32()>>9) + 1) *(1.0f/8388609.0f); 
+	/* divide by 2^23+1 */
 }
 
 double VistaRandomNumberGenerator::GenerateGaussian()
@@ -231,6 +254,10 @@ double VistaRandomNumberGenerator::GenerateDouble( double nMin, double nMax )
 	return ( nMin + ( nMax - nMin ) * GenerateDouble2() );
 }
 
+float VistaRandomNumberGenerator::GenerateFloat( float fMin, float fMax )
+{
+	return ( fMin + ( fMax - fMin ) * GenerateFloat2() );
+}
 
 /*============================================================================*/
 /*  LOCAL VARS / FUNCTIONS                                                    */
