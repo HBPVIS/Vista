@@ -88,14 +88,16 @@ public:
 						int nOptimizationMode = OPT_DEFAULT,
 						const std::string& sDumpDataFormat = "osb",
 						bool bCompareTimestamps = true,
-						bool bVerbose = true  );
+						bool bVerbose = true,
+						bool bAllowLoadingCachedFileWithoutOriginal = false );
 	static IVistaNode* LoadAutoOptimizedFile( VistaSceneGraph* pSceneGraph,
 						const std::string& sFilename,
 						const std::string& sOutputDirectory,
 						int nOptimizationMode = OPT_DEFAULT,
 						const std::string& sDumpDataFormat = "osb",
 						bool bCompareTimestamps = true,
-						bool bVerbose = true  );
+						bool bVerbose = true,
+						bool bAllowLoadingCachedFileWithoutOriginal = false );
 };
 
 /*============================================================================*/

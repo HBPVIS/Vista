@@ -507,11 +507,14 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 												 int nOptimizationMode,
 												 const std::string& sDumpDataFormat,
 												 bool bCompareTimestamps,
-												 bool bVerbose )
+												 bool bVerbose,
+												 bool bAllowLoadingCachedFileWithoutOriginal )
 {
 	VistaFileSystemFile oFile( sFilename );
 	std::string sOutputDirectory = oFile.GetParentDirectory();
-	return LoadAutoOptimizedFile( pSceneGraph, sFilename, sOutputDirectory, nOptimizationMode, sDumpDataFormat, bCompareTimestamps, bVerbose );
+	return LoadAutoOptimizedFile( pSceneGraph, sFilename, sOutputDirectory, 
+									nOptimizationMode, sDumpDataFormat,
+									bCompareTimestamps, bVerbose, bAllowLoadingCachedFileWithoutOriginal );
 }
 
 IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* pSceneGraph,
@@ -520,9 +523,10 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 												 int nOptimizationMode,
 												 const std::string& sDumpDataFormat,
 												 bool bCompareTimestamps,
-												 bool bVerbose )
+												 bool bVerbose,
+												 bool bAllowLoadingCachedFileWithoutOriginal )
 {
-	if( VistaFileSystemFile( sFilename ).Exists() == false )
+	if( VistaFileSystemFile( sFilename ).Exists() == false && bAllowLoadingCachedFileWithoutOriginal == false )
 	{
 		vstr::errp() << "[VistaOpenSGModelOptimizer::OptimizeFile] -- "
 				<< "File [" << sFilename << "] does not exist!" << std::endl;
@@ -598,7 +602,7 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 	{
 		vstr::warnp() << "[VistaOpenSGModelOptimizer::OptimizeFile] -- "
 				<< "Data format [ac] not supported for writing - using [bin] instead" << std::endl;
-		sOptLoadName += ".bin";
+		sOptLoadName += ".osb";
 	}
 	else
 	{
@@ -610,7 +614,7 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 	if( oOptFile.Exists() )
 	{
 		// File has already been optimized - check if it has to be rebuilt
-		if( bCompareTimestamps == false )
+		if( bCompareTimestamps == false || bAllowLoadingCachedFileWithoutOriginal )
 		{
 			bDoOptimize = false;
 		}
