@@ -115,7 +115,7 @@ private:
  * It is assumed that the abstract factory creates products of type TProductBase.
  * Hence, in order for this to work, TProduct has to be a subtype of TProductBase.
  */
-template<typename TProductBase, typename TProduct> 
+template<typename TProduct, typename TProductBase=TProduct> 
 class VistaVanillaCreator : public IVistaCreator<TProductBase>
 {
 public:

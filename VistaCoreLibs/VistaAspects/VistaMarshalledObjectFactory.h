@@ -50,27 +50,33 @@ class IVistaDeSerializer;
  * unmarshalling (i.e. package a given object into a serialized form, including
  * not only its current state but also type information).
  *
- * This factory is implemented as a singleton in order to allow for a convenient
- * way to marshall composite objects as well, i.e. in order to avoid the 
- * necessity to pass a pointer to the factory along with the entire unmarshalling
- * process.
+ * To ensure correctness across system boundaries, classes have to be 
+ * registered with the factory before use. This registration process has to 
+ * be done in <bf>exactly the same order</bf> for all communication partners. 
+ * For example, if objects are send back and forth between two different 
+ * applications, make sure that both applications register their objects 
+ * in exactly the same order.
  *
- * Please note, that classes have to be registered with the factory before
- * use. This registration process has to be done in <bf>exactly the same order</bf>
- * for all communication partners. For example, if objects are send back and 
- * forth between two different applications, make sure that both applications
- * register their objects in exactly the same order.
+ * If you want to marshal <it>composite objects</it>, there are two possibilities:
+ *
+ * 1) Marshalling composites with known internal types
+ * If your composite only contains sub-components whose exact type is known,
+ * this type information can be used during (un-)marshalling.
+ * 
+ * 2) Marshalling composites with variable internal types
+ * If you don't know the exact internal types a priori, i.e. if you use
+ * polymorphism inside your composite, the exact types can be deduced
+ * via the marshalling mechanism. In order to work this out, the composite
+ * object needs access to the factory, which can be granted by using a 
+ * specialized creator which passes a pointer to the factory to the composite
+ * upon construction.
  */
 class VISTAASPECTSAPI VistaMarshalledObjectFactory
 {
 public:
-	virtual ~VistaMarshalledObjectFactory();
+	VistaMarshalledObjectFactory();
 	
-	/**
-	 * Singleton access method
-	 */
-	static VistaMarshalledObjectFactory *GetSingleton();
-
+	virtual ~VistaMarshalledObjectFactory();
 	/**
 	 * Register specific implementation sub-class of IVistaSerializable given
 	 * in pType with the given object creator. Double-registration of the same
@@ -88,18 +94,18 @@ public:
 	/**
 	 * retrieve the global type id (if any) for the given object
 	 */
-	VistaType::sint32 GetGlobalTypeId(const IVistaSerializable &rType) const;
+	VistaType::sint32 GetGlobalTypeId(const IVistaSerializable *pType) const;
 
 	/**
-	 * Marshall an object i.e. pack its type and state information
+	 * Marshal an object i.e. pack its type and state information
 	 * into the given serializer
 	 *
 	 * \return number of bytes written to rSer, -1 in case of failure.
 	 */
-	int MarshallObject(const IVistaSerializable &rObject, IVistaSerializer &rSer) const;
+	int MarshalObject(const IVistaSerializable *pObject, IVistaSerializer &rSer) const;
 
 	/**
-	 * Unmarshall an object i.e. unpack it from the byte stream provided
+	 * Unmarshal an object i.e. unpack it from the byte stream provided
 	 * by the given deserializer.
 	 * NOTE: This effectively corresponds to a new call, i.e. the created
 	 *       object is allocated herein. Therefore, clients assume responsibility
@@ -107,10 +113,9 @@ public:
 	 *
 	 * \return newly created, unmarshalled object, NULL in case of failure
 	 */
-	IVistaSerializable *UnmarshallObject(IVistaDeSerializer &rDeser) const;
+	IVistaSerializable *UnmarshalObject(IVistaDeSerializer &rDeser) const;
 	
 protected:
-	VistaMarshalledObjectFactory();
 	/**
 	 * generate unique global type identifier by counting up.
 	 */
@@ -118,7 +123,15 @@ protected:
 
 	/**
 	 * Helper class for type_info storage
-	 * This is needed to properly store the type_info in a map container.
+	 * 
+	 * We locally use the output of typeid to identify objects.
+	 * This ensures that we do not have to carry an object type identifier
+	 * with each registered class, obviating the need for a specific 
+	 * type identification interface in marshalled objects.
+	 * However, we cannot rely on having identical typeid output accross
+	 * system boundaries, hence we insert a translation between local 
+	 * type_info and "global id". The latter is used for marshalling
+	 * purposes.
 	 */
 	class LocalTypeInfo
 	{
@@ -136,8 +149,6 @@ protected:
 	};
 
 private:
-	static VistaMarshalledObjectFactory *m_pSingleton;
-
 	typedef std::map<LocalTypeInfo, VistaType::sint32> TLocalToGlobalMap;
 	/**
 	 * map the local type_info-based hash key to the globally unique int32 id.

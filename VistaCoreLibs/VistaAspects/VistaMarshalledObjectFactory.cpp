@@ -32,7 +32,6 @@
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
-VistaMarshalledObjectFactory *VistaMarshalledObjectFactory::m_pSingleton = NULL;
 VistaType::sint32 VistaMarshalledObjectFactory::m_iTypeCounter = 0;
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
@@ -46,21 +45,11 @@ VistaMarshalledObjectFactory::VistaMarshalledObjectFactory()
 VistaMarshalledObjectFactory::~VistaMarshalledObjectFactory()
 {
 	delete m_pFactory;
-
-	m_pSingleton = NULL;
 }
 
 /*============================================================================*/
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
-VistaMarshalledObjectFactory * VistaMarshalledObjectFactory::GetSingleton()
-{
-	if(m_pSingleton == NULL)
-		m_pSingleton = new VistaMarshalledObjectFactory();
-	
-	return m_pSingleton;
-}
-
 VistaType::sint32 VistaMarshalledObjectFactory::RegisterType( 
 								IVistaSerializable *pType, 
 								IVistaCreator<IVistaSerializable> *pCreator )
@@ -82,9 +71,9 @@ VistaType::sint32 VistaMarshalledObjectFactory::RegisterType(
 
 
 VistaType::sint32 VistaMarshalledObjectFactory::GetGlobalTypeId( 
-								const IVistaSerializable &rType ) const
+								const IVistaSerializable *pType ) const
 {
-	LocalTypeInfo oLocalType = typeid(rType);
+	LocalTypeInfo oLocalType = typeid(*pType);
 	TLocalToGlobalMap::const_iterator itGlobalType = 
 						m_mapLocalTypeToGlobalType.find(oLocalType);
 
@@ -100,11 +89,11 @@ VistaType::sint32 VistaMarshalledObjectFactory::GetGlobalTypeId(
 }
 
 
-int VistaMarshalledObjectFactory::MarshallObject(const IVistaSerializable &rObject, 
+int VistaMarshalledObjectFactory::MarshalObject(const IVistaSerializable *pObject, 
 												 IVistaSerializer &rSer ) const
 {
 	//map object type to global identifier
-	VistaType::sint32 iGlobalType = this->GetGlobalTypeId(rObject);
+	VistaType::sint32 iGlobalType = this->GetGlobalTypeId(pObject);
 	if(iGlobalType == -1)
 	{
 		//type not registered
@@ -122,7 +111,7 @@ int VistaMarshalledObjectFactory::MarshallObject(const IVistaSerializable &rObje
 	iSum += iRet;
 	
 	//serialize the object state right behind it
-	iRet = rSer.WriteSerializable(rObject);
+	iRet = rSer.WriteSerializable(*pObject);
 	
 	if(iRet < 0)
 	{
@@ -135,7 +124,7 @@ int VistaMarshalledObjectFactory::MarshallObject(const IVistaSerializable &rObje
 	return iSum;
 }
 
-IVistaSerializable * VistaMarshalledObjectFactory::UnmarshallObject(IVistaDeSerializer &rDeser) const
+IVistaSerializable * VistaMarshalledObjectFactory::UnmarshalObject(IVistaDeSerializer &rDeser) const
 {
 	//retrieve the type identifier 
 	VistaType::sint32 iGlobalTypeId = 0;
