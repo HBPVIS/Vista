@@ -173,17 +173,13 @@ void VistaThreadPoolThread::ThreadBody()
 
 		VistaPriority prio;
 		pWork->GetJobPriority(prio);
-		SetPriority(prio);
-		// (MW) 20.12.04 re-enqueuement is false on default
-		pWork->SetReenqueueTask (false);
+		this->SetPriority(prio);
 		pWork->m_pProcessingThread = this;
-
 #if 0
 		sprintf(buffer, "%d: ... unlocked queue, starting work with job-id [%d].\n",
 						m_id, pWork->GetJobId());
 		PutMsg(buffer);
 #endif
-
 		//printf("%d: ... unlocked queue, starting work with job-id [%d].\n", m_id, pWork->GetJobId());
 		pWork->ThreadWork(); // process work
 
@@ -245,16 +241,18 @@ void VistaThreadPoolThread::ThreadBody()
 /*============================================================================*/
 
 IVistaThreadPoolWorkInstance::IVistaThreadPoolWorkInstance()
-: IVistaThreadedTask(), m_oPrio(VistaPriority::VISTA_MID_PRIORITY),
-  m_pProcessingThread(NULL)
+	:	IVistaThreadedTask(), 
+		m_nJobId(-1), //none
+		m_oPrio(VistaPriority::VISTA_MID_PRIORITY),
+		m_pProcessingThread(NULL),
+		m_pAccess(new VistaSemaphore(1, VistaSemaphore::SEM_TYPE_FASTEST)),
+		m_pFinishMutex(NULL),
+		m_pFinishCondition(NULL),
+		m_bReenqueueTask(false),
+		m_bRemoveDoneJob(false),
+		m_pReenqueueMutex(new VistaMutex)
 {
-	m_nJobId = -1; // none
-	m_pFinishMutex = NULL; 
-	m_pFinishCondition = NULL;
-	m_bReenqueueTask = false;
-	m_pReenqueueMutex = new VistaMutex;
-	m_pAccess = new VistaSemaphore(1, VistaSemaphore::SEM_TYPE_FASTEST);
-	m_bRemoveDoneJob = false;
+	
 }
 
 IVistaThreadPoolWorkInstance::~IVistaThreadPoolWorkInstance()
