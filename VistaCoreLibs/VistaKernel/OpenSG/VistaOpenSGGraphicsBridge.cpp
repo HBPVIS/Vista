@@ -407,6 +407,7 @@ osg::ImagePtr VistaOpenSGGraphicsBridge::GetCachedOrLoadImage( const string &sFi
 
 VistaColor VistaOpenSGGraphicsBridge::GetBackgroundColor() const
 {
+	// @todo: remove use of static function
 	if( GetVistaSystem()->GetDisplayManager()->GetViewports().empty() )
 	{
 		vstr::warnp() << " VistaOpenSGGraphicsBridge::GetBackgroundColor(): no viewports defined yet " << std::endl;
@@ -1957,7 +1958,7 @@ bool  VistaOpenSGGraphicsBridge::GetTrianglesNormalIndices(
 		iNormalA = pTriIter.getNormalIndex(0);
 		iNormalB = pTriIter.getNormalIndex(1);
 		iNormalC = pTriIter.getNormalIndex(2);
-		if( !( iNormalA == 0 && iNormalA == 0 && iNormalB == 0 ) )
+		if( !( iNormalA == -1 && iNormalA == -1 && iNormalB == -1 ) )
 		{
 			iNrOfTris++;
 			if( iNrOfTris > iLength )

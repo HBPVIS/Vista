@@ -536,7 +536,7 @@ inline std::ostream& operator<<( std::ostream& oStream,
 			<< ", " << qQuaternion[2]
 			<< " | " << qQuaternion[3] 
 			<< " ) - " 
-			<< Vista::DegToRad( acos( qQuaternion[3] ) ) << "deg";
+			<< Vista::RadToDeg( acos( qQuaternion[3] ) ) << "deg";
 
 	// restore old stream settings
 	oStream.precision( iOldPrecision );

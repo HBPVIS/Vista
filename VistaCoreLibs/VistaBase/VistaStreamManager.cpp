@@ -88,7 +88,7 @@ bool VistaStreamManager::AddNewLogFileStream( const std::string& sStreamName,
 	std::string sActualFilename = ( sFileName.empty() ? sStreamName : sFileName );
 	std::ostream* pStream = CreateNewLogFileStream( sActualFilename, sFileExtension,
 									bAddNodeName, bAddTimeStamp, bAppendToExistingFile );
-	if( pStream == false )
+	if( pStream == NULL )
 		return false;
 	m_mapStreams[sStreamName] = pStream;
 	return true;

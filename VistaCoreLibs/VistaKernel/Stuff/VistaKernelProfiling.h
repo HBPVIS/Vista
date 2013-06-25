@@ -41,7 +41,7 @@
 	#define VistaKernelProfileStopNamedSection( sSectionName ) VistaBasicProfiler::GetSingleton()->StopSection( sSectionName )	
 	#define VistaKernelProfileNewFrame() VistaBasicProfiler::GetSingleton()->NewFrame()
 #else
-#define VistaKernelProfileScope( sSectionName ) {}
+	#define VistaKernelProfileScope( sSectionName ) {}
 	#define VistaKernelProfileStartSection( sSectionName ) {}
 	#define VistaKernelProfileStopSection() {}
 	#define VistaKernelProfileStopNamedSection( sSectionName ) {}
