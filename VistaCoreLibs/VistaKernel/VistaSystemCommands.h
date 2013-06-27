@@ -158,6 +158,13 @@ public:
 private:   
 };
 
+class VISTAKERNELAPI VistaResetProfilerCommand : public IVistaExplicitCallbackInterface
+{
+public:
+    virtual bool Do();
+private:   
+};
+
 
 class VistaToggleFrustumCullingCommand : public IVistaExplicitCallbackInterface
 {

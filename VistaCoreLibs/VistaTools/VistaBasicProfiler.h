@@ -109,6 +109,8 @@ public:
 	void StopSection();
 	bool StopSection( const std::string& sName );
 
+	void Reset();
+
 	static VistaBasicProfiler* GetSingleton();
 	static void SetSingleton( VistaBasicProfiler* pProfiler );
 

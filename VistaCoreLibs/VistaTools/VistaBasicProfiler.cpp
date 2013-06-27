@@ -85,17 +85,23 @@ VistaBasicProfiler::~VistaBasicProfiler()
 
 void VistaBasicProfiler::StartSection( const std::string& sName )
 {
+	if( m_pProfileRoot == NULL )
+		return;
 	m_pProfileCurrent = m_pProfileCurrent->Sub( sName );
 	m_iMaxNameLength = std::max<int>( m_iMaxNameLength, (int)sName.size() );	
 }
 
 void VistaBasicProfiler::StopSection()
 {
+	if( m_pProfileRoot == NULL )
+		return;
 	m_pProfileCurrent = m_pProfileCurrent->Leave();
 }
 
 bool VistaBasicProfiler::StopSection( const std::string& sName )
 {
+	if( m_pProfileRoot == NULL ) // has just been reset
+		return true;
 	if( m_pProfileCurrent->m_sName == sName )
 	{
 		m_pProfileCurrent = m_pProfileCurrent->Leave();
@@ -123,6 +129,8 @@ void VistaBasicProfiler::SetSingleton( VistaBasicProfiler* pProfiler )
 
 void VistaBasicProfiler::PrintProfile( std::ostream& oStream, int iMaxDepth )
 {	
+	if( m_pProfileRoot == NULL )
+		return;
 	std::ios_base::fmtflags oFlags = oStream.flags();
 	std::streamsize nCurrentPrecision = oStream.precision( 3 );		
 	oStream.setf( std::ios_base::fixed );
@@ -140,6 +148,12 @@ void VistaBasicProfiler::PrintProfile( std::ostream& oStream, int iMaxDepth )
 
 void VistaBasicProfiler::NewFrame()
 {
+	if( m_pProfileRoot == NULL )
+	{		
+		m_pProfileRoot = new ProfileTreeNode( "ViSTA", NULL );
+		m_pProfileCurrent = m_pProfileRoot;
+		return;
+	}
 	if( m_pProfileRoot->m_dEntryTime != 0.0 ) // not the first frame
 	{
 		m_pProfileRoot->Leave();
@@ -151,6 +165,12 @@ void VistaBasicProfiler::NewFrame()
 VistaBasicProfiler::ProfileTreeNode* VistaBasicProfiler::GetRoot() const
 {
 	return m_pProfileRoot;
+}
+
+void VistaBasicProfiler::Reset()
+{
+	delete m_pProfileRoot;
+	m_pProfileRoot = NULL;
 }
 
 /*============================================================================*/

@@ -174,11 +174,20 @@ bool VistaDebugContextGraphCommand::Do()
 
 bool VistaPrintProfilerOutputCommand::Do()
 {
-	std::cout << "\nProfilingInfo:\n";
+	vstr::outi() << "\nProfilingInfo:\n";
 	if( VistaBasicProfiler::GetSingleton() )
 		VistaBasicProfiler::GetSingleton()->PrintProfile( vstr::out(), 5 );
 	return true;
 }
+
+
+bool VistaResetProfilerCommand::Do()
+{
+	vstr::outi() << "Resetting Profiler" << std::endl;
+	VistaBasicProfiler::GetSingleton()->Reset();
+	return true;
+}
+
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

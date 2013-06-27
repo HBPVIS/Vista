@@ -1267,6 +1267,9 @@ void VistaSystem::BindKeyboardActions()
 	m_pKeyboardSystemControl->BindAction( 'I',
 								 new VistaPrintProfilerOutputCommand,
 								 "Print Profiling Information");
+	m_pKeyboardSystemControl->BindAction( 'i', VISTA_KEYMOD_ALT,
+								 new VistaResetProfilerCommand,
+								 "Reset Profiling Information");
 	m_pKeyboardSystemControl->BindAction( VISTA_KEY_DOWNARROW, VISTA_KEYMOD_CTRL,
 								 new VistaChangeEyeDistanceCommand( -0.001f, GetDisplayManager() ),
 								 "Decrease x eye offset by 0.001" );
