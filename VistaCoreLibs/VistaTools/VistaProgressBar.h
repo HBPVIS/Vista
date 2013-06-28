@@ -49,8 +49,8 @@ class VISTATOOLSAPI VistaProgressBar
 {
 public:
 	// CONSTRUCTOR / DESTRUCTOR
-	VistaProgressBar( double fCountMax = 100.0f,
-						double fCountInc = 1.0f,
+	VistaProgressBar( double fCountMax = 100.0,
+						double fCountInc = 1.0,
 						std::ostream* pStream = &std::cout );
 	virtual ~VistaProgressBar();
 
