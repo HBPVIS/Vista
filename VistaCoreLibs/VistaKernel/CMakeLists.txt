@@ -16,12 +16,12 @@ vista_use_package( OpenGL REQUIRED )
 vista_use_package( OpenSG 1.8 REQUIRED )
 
 if( VISTACORELIBS_BUILD_WINDOWIMP_GLUT )
-	vista_use_package( Glut REQUIRED )
+	vista_use_package( GLUT REQUIRED )
 	add_definitions( -DVISTA_WITH_GLUT )	
 endif()
 if( VISTACORELIBS_BUILD_WINDOWIMP_OSG )
 	vista_use_package( OpenSceneGraph 3+ REQUIRED osgViewer osgGA )
-	vista_use_package( Glut REQUIRED ) # currently still needed for text
+	vista_use_package( GLUT REQUIRED ) # currently still needed for text
 	add_definitions( -DVISTA_WITH_OSG )
 endif()
 
