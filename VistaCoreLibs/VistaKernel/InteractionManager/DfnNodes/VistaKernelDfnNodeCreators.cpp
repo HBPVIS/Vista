@@ -246,10 +246,12 @@ IVdfnNode *VistaDfnDeviceDebugNodeCreate::CreateNode( const VistaPropertyList &o
 		if( subs.GetValue( "drivername", strTagName ) == false || strTagName.empty() )
 			strTagName = "<none>";
 
+		std::string sViewportName = subs.GetValueOrDefault<std::string>( "viewport", "" );
+
 		std::list<std::string> strPorts;
 		subs.GetValue( "showlist", strPorts );
 
-		VistaDfnDeviceDebugNode *pRet = new VistaDfnDeviceDebugNode( m_pDisplayManager, strTagName, strPorts);
+		VistaDfnDeviceDebugNode *pRet = new VistaDfnDeviceDebugNode( m_pDisplayManager, strTagName, strPorts, sViewportName);
 
 		if( subs.HasProperty( "red" )
 			|| subs.HasProperty( "green" )

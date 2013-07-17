@@ -87,6 +87,8 @@ bool VdfnObjectRegistry::SetObject( const std::string &strName,
 				IVistaNameable *pObj, 
 				IVistaTransformable *pTrans )
 {
+	if(m_mpObjects.find(strName) != m_mpObjects.end())
+		return false;
 
 	if( pObj )
 	{
@@ -101,10 +103,7 @@ bool VdfnObjectRegistry::SetObject( const std::string &strName,
 						<< pObj->GetNameForNameable() << "] as [" 
 						<< strName << "]" << std::endl;
 		}
-	}
-
-	if(m_mpObjects.find(strName) != m_mpObjects.end())
-		return false;
+	}	
 
 	m_mpObjects[strName] = OBJ(pObj, pTrans);
 	return true;

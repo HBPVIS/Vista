@@ -42,7 +42,8 @@
 VistaDfnDeviceDebugNode::VistaDfnDeviceDebugNode(
 		VistaDisplayManager* pDisplayManager,
 		const std::string &strDriverName,
-		const std::list<std::string> &showList)
+		const std::list<std::string> &showList,
+		const std::string& sViewport)
 : IVdfnNode()
 , m_pHistory( NULL )
 , m_pDisplayManager( pDisplayManager)
@@ -53,7 +54,7 @@ VistaDfnDeviceDebugNode::VistaDfnDeviceDebugNode(
 , m_pNewMeasures(NULL) // deleted by the overlay, iff created
 , m_pUpdateTime( NULL )
 , m_pFreq( NULL )
-, m_pOverlay( new VistaSimpleTextOverlay( pDisplayManager ) )
+, m_pOverlay( new VistaSimpleTextOverlay( pDisplayManager, sViewport ) )
 {
 	this->SetEvaluationFlag(true);
 	RegisterInPortPrototype("history", new HistoryPortCompare);

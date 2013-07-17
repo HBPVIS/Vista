@@ -58,7 +58,8 @@ class VISTAKERNELAPI VistaDfnDeviceDebugNode : public IVdfnNode
 public:
 	VistaDfnDeviceDebugNode( VistaDisplayManager* pDisplayManager,
 			              const std::string &strDriverName,
-			              const std::list<std::string> &strShowList );
+			              const std::list<std::string> &strShowList,
+						  const std::string& sViewport = "" );
 
 	~VistaDfnDeviceDebugNode();
 
