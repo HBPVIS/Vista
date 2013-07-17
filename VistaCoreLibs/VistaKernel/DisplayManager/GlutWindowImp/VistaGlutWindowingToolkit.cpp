@@ -487,17 +487,8 @@ bool VistaGlutWindowingToolkit::GetWindowSize( const VistaWindow* pWindow,
 											  int& iWidth, int& iHeight )
 {
 	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
-	if( PushWindow( pInfo ) )
-	{
-		iWidth = glutGet( GLUT_WINDOW_WIDTH );
-		iHeight = glutGet( GLUT_WINDOW_HEIGHT );
-		PopWindow();
-	}
-	else
-	{
-		iWidth = pInfo->m_iCurrentSizeX;
-		iHeight = pInfo->m_iCurrentSizeY;
-	}
+	iWidth = pInfo->m_iCurrentSizeX;
+	iHeight = pInfo->m_iCurrentSizeY;
 	return true;
 }
 
@@ -516,8 +507,8 @@ bool VistaGlutWindowingToolkit::SetWindowSize( VistaWindow* pWindow,
 		else
 		{
 			glutReshapeWindow( iWidth, iHeight );
-			// we dont store the size in the Info - this will
-			// be done in the glut reshape callback
+			pInfo->m_iCurrentSizeX = iWidth;
+			pInfo->m_iCurrentSizeY = iHeight;
 		}
 		PopWindow();
 	}
