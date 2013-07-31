@@ -73,6 +73,7 @@ public:
 	 * vectors and Buffers can be used interchangeably
 	 */
 	virtual bool SyncTime( VistaType::systemtime& nTime ) = 0;
+	virtual bool SyncData( std::string& sData ) = 0;
 	virtual bool SyncData( VistaPropertyList& oList ) = 0;
 	virtual bool SyncData( IVistaSerializable& oSerializable ) = 0;
 	virtual bool SyncData( VistaType::byte* pFixedSizeData, 

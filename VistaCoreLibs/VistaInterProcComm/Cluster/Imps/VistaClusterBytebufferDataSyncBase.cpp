@@ -42,6 +42,7 @@ enum
 	SYNC_SERIALIZABLE,
 	SYNC_FIXEDSIZE_DATA,
 	SYNC_VARSIZE_DATA,
+	SYNC_STRING,
 };
 
 #define VERIFY_READ( readcall ) \
@@ -124,6 +125,17 @@ bool VistaClusterBytebufferLeaderDataSyncBase::SyncData( std::vector<VistaType::
 	m_oMessage.WriteInt32( (VistaType::sint32)vecData.size() );
 	m_pExtBuffer = &vecData[0];
 	m_nExtBufferSize = (VistaType::sint32)vecData.size();
+	if( SendMessage() == false )
+		return false;
+	return true;
+}
+
+bool VistaClusterBytebufferLeaderDataSyncBase::SyncData( std::string& sData )
+{
+	m_oMessage.WriteInt32( SYNC_STRING );
+	m_oMessage.WriteInt32( (VistaType::sint32)sData.size() );
+	sData = &sData[0];
+	m_nExtBufferSize = (VistaType::sint32)sData.size();
 	if( SendMessage() == false )
 		return false;
 	return true;
@@ -233,6 +245,18 @@ bool VistaClusterBytebufferFollowerDataSyncBase::SyncData( std::vector<VistaType
 	VERIFY_READ_SIZE( m_oMessage.ReadInt32( nReceivedDataSize ), sizeof(VistaType::sint32) )
 	vecData.resize( nReceivedDataSize );
 	VERIFY_READ_SIZE( m_oMessage.ReadRawBuffer( &vecData[0], nReceivedDataSize ), nReceivedDataSize );
+	return true;
+}
+
+bool VistaClusterBytebufferFollowerDataSyncBase::SyncData( std::string& sData )
+{
+	if( ReceiveMessage( SYNC_VARSIZE_DATA ) == false )
+		return false;
+
+	VistaType::sint32 nReceivedDataSize;
+	VERIFY_READ_SIZE( m_oMessage.ReadInt32( nReceivedDataSize ), sizeof(VistaType::sint32) )
+	sData.resize( nReceivedDataSize );
+	VERIFY_READ_SIZE( m_oMessage.ReadRawBuffer( &sData[0], nReceivedDataSize ), nReceivedDataSize );
 	return true;
 }
 

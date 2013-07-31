@@ -51,6 +51,7 @@ public:
 	virtual ~VistaClusterBytebufferLeaderDataSyncBase();
 
 	virtual bool SyncTime( VistaType::systemtime& nTime );
+	virtual bool SyncData( std::string& sData );
 	virtual bool SyncData( VistaPropertyList& oList );
 	virtual bool SyncData( IVistaSerializable& oSerializable );
 	virtual bool SyncData( VistaType::byte* pData, 
@@ -78,6 +79,7 @@ public:
 	virtual ~VistaClusterBytebufferFollowerDataSyncBase();
 
 	virtual bool SyncTime( VistaType::systemtime& nTime );
+	virtual bool SyncData( std::string& sData );
 	virtual bool SyncData( VistaPropertyList& oList );
 	virtual bool SyncData( IVistaSerializable& oSerializable );
 	virtual bool SyncData( VistaType::byte* pData, 

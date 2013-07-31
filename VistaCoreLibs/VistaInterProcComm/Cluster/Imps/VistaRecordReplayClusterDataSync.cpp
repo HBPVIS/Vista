@@ -150,6 +150,19 @@ bool VistaRecordClusterLeaderDataSync::SyncData( std::vector<VistaType::byte>& v
 	return bRes;
 }
 
+bool VistaRecordClusterLeaderDataSync::SyncData( std::string& sData )
+{
+	
+	bool bRes = m_pOriginalSync->SyncData( sData ) ;
+	//m_pRecordFile->WriteBool( bRes );
+	//if( bRes )	
+	{
+		m_pRecordFile->WriteInt32( (VistaType::sint32)sData.size() );
+		m_pRecordFile->WriteRawBuffer( &sData[0], (int)sData.size() );
+	}
+	return bRes;
+}
+
 bool VistaRecordClusterLeaderDataSync::GetIsValid() const
 {
 	bool bRes = m_pOriginalSync->GetIsValid();
@@ -343,6 +356,21 @@ bool VistaReplayClusterFollowerDataSync::SyncData( std::vector<VistaType::byte>&
 		m_pReplayFile->ReadInt32( nActualData );
 		vecData.resize( nActualData );
 		m_pReplayFile->ReadRawBuffer( &vecData[0], nActualData );
+	}
+	return true;
+}
+
+bool VistaReplayClusterFollowerDataSync::SyncData( std::string& sData )
+{
+	//bool bRes;
+	//m_pReplayFile->ReadBool( bRes );
+	//if( bRes )	
+	{
+		Wait();
+		VistaType::sint32 nActualData = -1;
+		m_pReplayFile->ReadInt32( nActualData );
+		sData.resize( nActualData );
+		m_pReplayFile->ReadRawBuffer( &sData[0], nActualData );
 	}
 	return true;
 }
