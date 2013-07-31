@@ -250,7 +250,7 @@ bool VistaClusterBytebufferFollowerDataSyncBase::SyncData( std::vector<VistaType
 
 bool VistaClusterBytebufferFollowerDataSyncBase::SyncData( std::string& sData )
 {
-	if( ReceiveMessage( SYNC_VARSIZE_DATA ) == false )
+	if( ReceiveMessage( SYNC_STRING ) == false )
 		return false;
 
 	VistaType::sint32 nReceivedDataSize;
