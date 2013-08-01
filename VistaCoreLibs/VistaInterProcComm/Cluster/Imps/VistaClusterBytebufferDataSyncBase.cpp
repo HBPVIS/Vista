@@ -134,7 +134,7 @@ bool VistaClusterBytebufferLeaderDataSyncBase::SyncData( std::string& sData )
 {
 	m_oMessage.WriteInt32( SYNC_STRING );
 	m_oMessage.WriteInt32( (VistaType::sint32)sData.size() );
-	sData = &sData[0];
+	m_pExtBuffer = reinterpret_cast<VistaType::byte*>( &sData[0] );
 	m_nExtBufferSize = (VistaType::sint32)sData.size();
 	if( SendMessage() == false )
 		return false;
