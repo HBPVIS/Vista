@@ -146,7 +146,12 @@ bool VistaClusterBytebufferLeaderDataSyncBase::SendMessage()
 	// rewrite message size
 	VistaType::sint32 nSize = m_oMessage.GetBufferSize() - sizeof(VistaType::sint32);
 	if( m_pExtBuffer )
-		nSize += m_nExtBufferSize;
+	{
+		if( m_nExtBufferSize == 0 )
+			m_pExtBuffer = NULL;
+		else
+			nSize += m_nExtBufferSize;
+	}
 	// rewrite first dummy bite with size
 	m_oMessage.SetBufferRewritePosition( 0 );
 	m_oMessage.WriteInt32( nSize );
@@ -218,7 +223,8 @@ bool VistaClusterBytebufferFollowerDataSyncBase::SyncData( VistaType::byte* pDat
 	VistaType::sint32 nReceivedDataSize;
 	VERIFY_READ_SIZE( m_oMessage.ReadInt32( nReceivedDataSize ), sizeof(VistaType::sint32) )
 	assert( nReceivedDataSize == iDataSize );
-	VERIFY_READ_SIZE( m_oMessage.ReadRawBuffer( pData, iDataSize ), iDataSize )
+	if( iDataSize != 0 )
+		VERIFY_READ_SIZE( m_oMessage.ReadRawBuffer( pData, iDataSize ), iDataSize )
 	return true;
 }
 
@@ -231,7 +237,8 @@ bool VistaClusterBytebufferFollowerDataSyncBase::SyncData( VistaType::byte* pDat
 	VERIFY_READ_SIZE( m_oMessage.ReadInt32( nReceivedDataSize ), sizeof(VistaType::sint32) )
 	if( iBufferSize < nReceivedDataSize )
 		return false;
-	VERIFY_READ_SIZE( m_oMessage.ReadRawBuffer( pDataBuffer, nReceivedDataSize ), nReceivedDataSize );
+	if( nReceivedDataSize != 0 )
+		VERIFY_READ_SIZE( m_oMessage.ReadRawBuffer( pDataBuffer, nReceivedDataSize ), nReceivedDataSize );
 	iDataSize = nReceivedDataSize;
 	return true;
 }
@@ -244,7 +251,8 @@ bool VistaClusterBytebufferFollowerDataSyncBase::SyncData( std::vector<VistaType
 	VistaType::sint32 nReceivedDataSize;
 	VERIFY_READ_SIZE( m_oMessage.ReadInt32( nReceivedDataSize ), sizeof(VistaType::sint32) )
 	vecData.resize( nReceivedDataSize );
-	VERIFY_READ_SIZE( m_oMessage.ReadRawBuffer( &vecData[0], nReceivedDataSize ), nReceivedDataSize );
+	if( nReceivedDataSize != 0 )
+		VERIFY_READ_SIZE( m_oMessage.ReadRawBuffer( &vecData[0], nReceivedDataSize ), nReceivedDataSize );
 	return true;
 }
 
@@ -256,7 +264,8 @@ bool VistaClusterBytebufferFollowerDataSyncBase::SyncData( std::string& sData )
 	VistaType::sint32 nReceivedDataSize;
 	VERIFY_READ_SIZE( m_oMessage.ReadInt32( nReceivedDataSize ), sizeof(VistaType::sint32) )
 	sData.resize( nReceivedDataSize );
-	VERIFY_READ_SIZE( m_oMessage.ReadRawBuffer( &sData[0], nReceivedDataSize ), nReceivedDataSize );
+	if( nReceivedDataSize != 0 )
+		VERIFY_READ_SIZE( m_oMessage.ReadRawBuffer( &sData[0], nReceivedDataSize ), nReceivedDataSize );
 	return true;
 }
 
