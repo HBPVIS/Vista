@@ -25,10 +25,10 @@ if( VISTACORELIBS_BUILD_WINDOWIMP_OSG )
 	add_definitions( -DVISTA_WITH_OSG )
 endif()
 
-vista_find_package( ZMQ QUIET )
+vista_find_package( ZMQ COMPONENTS PGM QUIET )
 set( VISTACORELIBS_USE_ZEROMQ ${ZMQ_FOUND} CACHE BOOL "if activated, zeromq-specific stuff will be built" )
 if( VISTACORELIBS_USE_ZEROMQ )
-	vista_use_package( ZMQ REQUIRED )
+	vista_use_package( ZMQ REQUIRED PGM )
 	add_definitions( -DVISTA_WITH_ZEROMQ )
 endif()
 
