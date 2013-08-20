@@ -3123,8 +3123,7 @@ bool VistaSystem::LoadDriverPlugin( const std::string& sDriverType,
 		return false;
 	}
 
-	if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals(
-										oPlugin.m_strDriverClassName, sDriverType ) == false )
+	if( oPlugin.m_strDriverClassName != sDriverType )
 	{
 		vstr::warnp() << "[VistaSystem]: Loaded plugin for driver ["
 			<< sDriverType << "], but plugin reported driver name ["
@@ -3146,7 +3145,7 @@ bool VistaSystem::LoadDriverPlugin( const std::string& sDriverType,
 						<< "]" << std::endl;
 
 	m_pDllHlp->m_liDevices.push_back( oPlugin );
-	pDriverMap->RegisterDriverCreationMethod( sDriverType, oPlugin.m_pMethod );
+	pDriverMap->RegisterDriverCreationMethod( oPlugin.m_strDriverClassName, oPlugin.m_pMethod );
 
 	// restore library path
 	VistaEnvironment::SetLibraryPathEnv( sCurrentPath );

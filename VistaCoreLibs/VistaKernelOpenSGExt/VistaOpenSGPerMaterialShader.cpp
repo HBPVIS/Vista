@@ -446,7 +446,7 @@ bool VistaOpenSGPerMaterialShader::SetShadersFromFile(
 		}			
 		if( m_pShaderData->m_pShader->readFragmentProgram( oFragmentShader ) == false )
 		{
-			vstr::warnp() << "[VistaOpenSGPerMaterialShader]: Could not parse fragment shader file ["
+			vstr::warnp() << "[VistaOpenSGPerMatrialShader]: Could not parse fragment shader file ["
 				<< sFragmentShaderFile << "]" << std::endl;
 			endEditCP( m_pShaderData->m_pShader, osg::SHLChunk::FragmentProgramFieldMask );
 			return false;
