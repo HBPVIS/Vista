@@ -68,7 +68,6 @@ VistaTransformNode		*m_pHandle;
 VdfnActionNode			*m_pWorkspaceNode;
 WorkspaceActionObject	*m_pWorkspaceActionObject;
 PhantomWorkspaceHandler	*m_pWorkspaceHandler;
-VistaPlaneConstraint	*m_pPlane;
 
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
@@ -131,7 +130,6 @@ int main( int argc, char ** argv )
 	delete m_pWorkspaceNode;
 	delete m_pWorkspaceActionObject;
 	delete m_pWorkspaceHandler;
-	delete m_pPlane;
 
 	return ret;
 }
@@ -157,7 +155,6 @@ void CreateScene( VistaSystem &vistaSystem )
 
 	VistaGeometry* plane = gf.CreatePlane(3,3,1,1,Vista::Y,VistaColor::YELLOW);
 	vistaSG->NewGeomNode(vistaSG->GetRoot(),plane);
-	m_pPlane->SetConstraintPlane(VistaVector3D(0,0,0),VistaVector3D(0,1,0),0.5f,0.5f,VistaVector3D(0,0,0));
 
 	// group the handle's elements
 	m_pHandle = vistaSG->NewTransformNode(m_pHandleParent);
