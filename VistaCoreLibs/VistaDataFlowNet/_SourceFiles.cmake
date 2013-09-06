@@ -36,6 +36,7 @@ set( DirFiles
 	VdfnDecompose3DVectorNode.h
 	VdfnDelayNode.cpp
 	VdfnDelayNode.h
+	VdfnDifferenceNode.h
 	VdfnDriverSensorNode.cpp
 	VdfnDriverSensorNode.h
 	VdfnDumpHistoryNode.cpp

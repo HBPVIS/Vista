@@ -53,6 +53,7 @@ VistaDfnSimpleTextNode::VistaDfnSimpleTextNode( VistaDisplayManager* pDisplayMan
 : VdfnShallowNode()
 , m_pOverlay( new VistaSimpleTextOverlay( pDisplayManager ) )
 , m_pDisplayManager( pDisplayManager )
+, m_pEnablePort( NULL )
 {
 }
 
@@ -76,6 +77,12 @@ bool VistaDfnSimpleTextNode::PrepareEvaluationRun()
 
 bool VistaDfnSimpleTextNode::DoEvalNode()
 {
+	if( m_pEnablePort && m_pEnablePort->GetValue() == false )
+	{
+		m_pOverlay->SetIsEnabled( false );
+		return true;
+	}
+	m_pOverlay->SetIsEnabled( true );
 	for( std::vector<PortTextData*>::iterator itText = m_vecPortTexts.begin();
 			itText != m_vecPortTexts.end(); ++itText )
 	{
@@ -101,17 +108,29 @@ bool VistaDfnSimpleTextNode::DoEvalNode()
 void VistaDfnSimpleTextNode::OnActivation( double dTs )
 {
     VdfnShallowNode::OnActivation( dTs );
-	m_pOverlay->SetIsEnabled( true );    
+	if( m_pEnablePort )
+		m_pOverlay->SetIsEnabled( m_pEnablePort->GetValue() );
+	else
+		m_pOverlay->SetIsEnabled( true );
 }
 
 void VistaDfnSimpleTextNode::OnDeactivation( double dTs )
 {
     IVdfnNode::OnDeactivation(dTs);
-    m_pOverlay->SetIsEnabled( false );
+	if( m_pEnablePort )
+		m_pOverlay->SetIsEnabled( m_pEnablePort->GetValue() );
+	else
+		m_pOverlay->SetIsEnabled( false );
 }
 
 bool VistaDfnSimpleTextNode::SetInPort( const std::string &sName, IVdfnPort *pPort )
 {
+	if( sName == "TextEnabled" )
+	{
+		m_pEnablePort = dynamic_cast< TVdfnPort<bool>* >( pPort );
+		if( m_pEnablePort )
+			return VdfnShallowNode::SetInPort( sName, pPort );
+	}
 	PortTextData* pData = new PortTextData;
 	pData->m_sStringPrefix = sName + " : ";
 	pData->m_pPort = pPort;

@@ -72,6 +72,7 @@
 #include "VdfnAbsoluteNode.h"
 #include "VdfnConstantValueNode.h"
 #include "VdfnTypeConvertNode.h"
+#include "VdfnDifferenceNode.h"
 
 #include "VdfnHistoryProjectNode.h"
 #include "VdfnDriverSensorNode.h"
@@ -983,8 +984,8 @@ VISTADFNAPI bool VdfnNodeCreators::RegisterNodeCreators( VdfnNodeFactory* pFac, 
 	pFac->SetNodeCreator( "Invert[VistaQuaternion]", new TVdfnDefaultNodeCreate<TVdfnInvertNode<VistaQuaternion> >);
 	pFac->SetNodeCreator( "Invert[VistaTransformMatrix]", new TVdfnDefaultNodeCreate<TVdfnInvertNode<VistaTransformMatrix> >);
 	pFac->SetNodeCreator( "Invert[bool]", new TVdfnDefaultNodeCreate<TVdfnInvertNode<bool> >);
-	pFac->SetNodeCreator( "Invert[float]", new TVdfnDefaultNodeCreate<TVdfnInvertNode<bool> >);
-	pFac->SetNodeCreator( "Invert[double]", new TVdfnDefaultNodeCreate<TVdfnInvertNode<bool> >);
+	pFac->SetNodeCreator( "Invert[float]", new TVdfnDefaultNodeCreate<TVdfnInvertNode<float> >);
+	pFac->SetNodeCreator( "Invert[double]", new TVdfnDefaultNodeCreate<TVdfnInvertNode<double> >);
 
 	pFac->SetNodeCreator( "Negate[int]", new TVdfnDefaultNodeCreate<TVdfnNegateNode<int> >);
 	pFac->SetNodeCreator( "Negate[VistaVector3D]", new TVdfnDefaultNodeCreate<TVdfnNegateNode<VistaVector3D> >);
@@ -1006,6 +1007,10 @@ VISTADFNAPI bool VdfnNodeCreators::RegisterNodeCreators( VdfnNodeFactory* pFac, 
 	pFac->SetNodeCreator( "Delay[VistaQuaternion]", new VdfnDelayNodeCreate<VistaQuaternion> );
 	pFac->SetNodeCreator( "Delay[VistaTransformMatrix]", new VdfnDelayNodeCreate<VistaTransformMatrix> );
 
+	pFac->SetNodeCreator( "Difference[int]", new TVdfnDefaultNodeCreate< TVdfnDifferenceNode<int> >() );
+	pFac->SetNodeCreator( "Difference[unsigned int]", new TVdfnDefaultNodeCreate< TVdfnDifferenceNode<unsigned int> >() );
+	pFac->SetNodeCreator( "Difference[float]", new TVdfnDefaultNodeCreate< TVdfnDifferenceNode<float> >() );
+	pFac->SetNodeCreator( "Difference[double]", new TVdfnDefaultNodeCreate< TVdfnDifferenceNode<double> >() );
 
 	pFac->SetNodeCreator( "Multiplex[int]", new TVdfnDefaultNodeCreate<TVdfnMultiplexNode<int> > );
 	pFac->SetNodeCreator( "Multiplex[unsigned int]", new TVdfnDefaultNodeCreate<TVdfnMultiplexNode<unsigned int> > );

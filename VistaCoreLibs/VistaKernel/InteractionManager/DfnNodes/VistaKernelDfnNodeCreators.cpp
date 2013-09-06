@@ -719,8 +719,7 @@ IVdfnNode* VistaDfnKeyCallbackNodeCreate::CreateNode( const VistaPropertyList &o
 		std::string sKey;
 		if( oSubs.GetValue<std::string>( "key", sKey ) )
 		{
-			nKeyCode = VistaKeyboardSystemControl::GetKeyValueFromString( sKey );
-			if( nKeyCode == -1 )
+			if( VistaKeyboardSystemControl::GetKeyAndModifiersValueFromString( sKey, nKeyCode, nModCode ) == false )
 			{
 				vstr::warnp() << "[DfnKeyCallbackNodeCreate]: invalid \"key\"-entry ["
 								<< sKey << "]" << std::endl;
@@ -733,7 +732,7 @@ IVdfnNode* VistaDfnKeyCallbackNodeCreate::CreateNode( const VistaPropertyList &o
 			return NULL;
 		}
 	}
-	if( oSubs.GetValue<int>( "mod_value", nKeyCode ) == false )
+	if( oSubs.GetValue<int>( "mod_value", nModCode ) == false )
 	{
 		std::string sMod;
 		if( oSubs.GetValue<std::string>( "mod", sMod ) )

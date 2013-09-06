@@ -20,22 +20,22 @@
 /*                                Contributors                                */
 /*                                                                            */
 /*============================================================================*/
-// $Id$
+// $Id: VdfnTypeConvertNode.h 34351 2013-03-26 11:50:28Z dr165799 $
 
-#ifndef _VISTADFNSIMPLETEXTNODE_H
-#define _VISTADFNSIMPLETEXTNODE_H
+#ifndef _VDFNDIFFERENCENODE_H
+#define _VDFNDIFFERENCENODE_H
+
 
 /*============================================================================*/
 /* INCLUDES                                                                   */
 /*============================================================================*/
-#include <VistaKernel/VistaKernelConfig.h>
+#include "VdfnConfig.h"
 
-#include <VistaDataFlowNet/VdfnShallowNode.h>
-#include <VistaDataFlowNet/VdfnNodeCreators.h>
-#include <VistaDataFlowNet/VdfnPort.h>
-#include <VistaDataFlowNet/VdfnHistoryPort.h>
+#include "VdfnNode.h"
+#include "VdfnPort.h"
+#include "VdfnNodeFactory.h"
+#include "VdfnUtil.h"
 
-#include <vector>
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
@@ -44,51 +44,63 @@
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
 
-class VistaDisplayManager;
-class VistaSimpleTextOverlay;
-class IVistaTextEntity;
-
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
 
-class VISTAKERNELAPI VistaDfnSimpleTextNode : public VdfnShallowNode
+/**
+ * class template a node that calculates the difference between inputs of
+ * (numerical) values to the inport between several evaluations.
+ * Thus, it is like a combination of a buffer node and a minus node.
+ *
+ * @inport{in, T, mandatory, input value }
+ * @outport{out, T, difference between input value and last input value}
+ *
+ * Conversion using this node is done by applying a user defined conversion
+ * function from tFrom to tTo. In case users want a different conversion, it
+ * is suggested to re-instatiate this template using a different conversion
+ * function during construction and re-register the node type using a different
+ * name. The conversion function can be free floating function and is performed
+ * by a copy-in, so it can be expensive.
+ */
+template<class T>
+class TVdfnDifferenceNode : public IVdfnNode
 {
 public:
-	VistaDfnSimpleTextNode( VistaDisplayManager* pDisplayManager );
-	~VistaDfnSimpleTextNode();
+	TVdfnDifferenceNode()
+	: IVdfnNode()
+	, m_pInport(NULL)
+	, m_pOutport( new TVdfnPort<T>() )
+	, m_nLastValue( 0 )
+	{
+		RegisterInPortPrototype( "in", new TVdfnPortTypeCompare< TVdfnPort<T> >);
+		RegisterOutPort( "out", m_pOutport );
+	}
 
-	virtual void OnActivation( double dTs );
-	virtual void OnDeactivation( double dTs );
+	~TVdfnDifferenceNode() {}
 
-	bool PrepareEvaluationRun();
-
-	int GetTextSize() const;
-	void SetTextSize( const int& oValue );
-	VistaColor GetColor() const;
-	void SetColor( const VistaColor& oValue );
-	int GetCaptionColumnWidth() const;
-	void SetCaptionColumnWidth( const int& oValue );
+	bool PrepareEvaluationRun()
+	{
+		m_pInport = VdfnUtil::GetInPortTyped< TVdfnPort<T>* >( "in", this );
+		return GetIsValid();
+	}
 protected:
-	bool DoEvalNode();
-
-	virtual bool SetInPort( const std::string &sName, IVdfnPort *pPort );
-
+	bool DoEvalNode()
+	{
+		T nNewValue = m_pInport->GetValue();
+		m_pOutport->SetValue( nNewValue - m_nLastValue, GetUpdateTimeStamp() );
+		m_nLastValue = nNewValue;
+		return true;
+	}
 private:
-	VistaDisplayManager* m_pDisplayManager;
-	TVdfnPort<bool>*		m_pEnablePort;
-	struct PortTextData;
-	std::vector<PortTextData*> m_vecPortTexts;
-	VistaSimpleTextOverlay* m_pOverlay;
-
-	VistaColor m_oColor;
-	int m_nTextSize;
-	int m_nCaptionColumnWidth;
+	TVdfnPort<T>* m_pInport;
+	TVdfnPort<T>* m_pOutport;
+	T m_nLastValue;
 };
 
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/
 
-#endif //_VISTADFNSIMPLETEXTNODE_H
+#endif //_VDFNDIFFERENCENODE_H
 

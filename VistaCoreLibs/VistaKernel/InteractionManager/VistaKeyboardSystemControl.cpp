@@ -511,7 +511,7 @@ int VistaKeyboardSystemControl::GetKeyValueFromString( const std::string& sKeySt
 		return VISTA_KEY_END;
 	else if( oCompare( sKeyString, "VISTA_KEY_PAGEUP" ) || oCompare( sKeyString, "PG_UP" ) || oCompare( sKeyString, "PAGE_UP" ) || oCompare( sKeyString, "PAGEUP" ) )
 		return VISTA_KEY_PAGEUP;
-	else if( oCompare( sKeyString, "VISTA_KEY_PAGEDOWN" ) || oCompare( sKeyString, "PG_DN" ) || oCompare( sKeyString, "PAGE_DOWN" ) || oCompare( sKeyString, "PAGEUP" ) )
+	else if( oCompare( sKeyString, "VISTA_KEY_PAGEDOWN" ) || oCompare( sKeyString, "PG_DN" ) || oCompare( sKeyString, "PAGE_DOWN" ) || oCompare( sKeyString, "PAGEDOWN" ) )
 		return VISTA_KEY_PAGEDOWN;
 	else if( oCompare( sKeyString, "VISTA_KEY_MIDDLE" ) || oCompare( sKeyString, "MID" ) || oCompare( sKeyString, "MIDDLE" ) )
 		return VISTA_KEY_MIDDLE;
