@@ -1,0 +1,25 @@
+<!-- $Id: ucp_cave.xml 22882 2011-08-08 15:54:40Z dr165799 $ -->
+<!--
+	User centered projection with fixed position, e.g. to make photos
+-->
+<module>
+	<nodespace>
+	</nodespace>
+	<graph>
+		<node name="position" type="ConstantValue[VistaVector3D]">
+			<param name="value" value="-4, 1.5, 5.8"/>
+		</node>
+		
+		<!-- sinks -->
+		<node name="ucp" type="ViewerSink">
+			<param name="displaysystem" value="MAIN"/>
+		</node>
+
+	</graph>
+
+	<edges>
+		<edge fromnode="position" tonode="ucp" fromport="value" toport="position"/>
+		
+	</edges>
+
+</module>
