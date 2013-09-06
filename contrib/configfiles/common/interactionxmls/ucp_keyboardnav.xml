@@ -1,6 +1,15 @@
 <!-- $Id: ucp_cave.xml 22882 2011-08-08 15:54:40Z dr165799 $ -->
 <!--
-	User centered projection with fixed position, e.g. to make photos
+	User centered projection with viewer position that can be changed via keyboard callbacks
+	Per default, one can change the viewer position with the arrow keys (x-z-plane) and
+	PageUp/Down (height) in steps of 0.1cm, 1cm, and 10cm (using modifiers, SHIFT is slow
+	movement, ALT fast movement, no mod is normal movement).
+	The navigation alters an initial viewport position defined in the initial_position node,
+	and never reads out the viewer position from the display system. Thus, if other sources
+	alter the viewer position, it will be overwritten the next time this interaction context
+	updates.
+	One can also activate an on-screen text showing the current viewer position (default
+	toggle key: CTRL+HOME)
 -->
 <module>
 	<nodespace>
