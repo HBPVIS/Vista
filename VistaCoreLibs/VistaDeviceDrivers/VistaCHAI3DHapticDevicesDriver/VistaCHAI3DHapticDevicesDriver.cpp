@@ -395,15 +395,25 @@ bool VistaCHAI3DHapticDevicesDriver::DoSensorUpdate(VistaType::microtime nTs)
 	//as they would be set to infinity
 
 	// read position of haptic device, align to bounds and push into history memory blob
-    cVector3d linearVelocity;
-    m_pHapticDevicePrivate->m_pHapticDevice->getLinearVelocity(linearVelocity);
-	s->m_afVelocity[0] = alignDoubleToFloatMinMax(linearVelocity.x);
-	s->m_afVelocity[1] = alignDoubleToFloatMinMax(linearVelocity.y);
-	s->m_afVelocity[2] = alignDoubleToFloatMinMax(linearVelocity.z);
+    if(m_pIdentification->GetDeviceName () != "virtual")
+	{
+		cVector3d linearVelocity;
+		m_pHapticDevicePrivate->m_pHapticDevice->getLinearVelocity(linearVelocity);
+		s->m_afVelocity[0] = (float)(linearVelocity.x);
+		s->m_afVelocity[1] = (float)(linearVelocity.y);
+		s->m_afVelocity[2] = (float)(linearVelocity.z);
+	}
+	else
+	{
+		s->m_afVelocity[0] = 0.0f;
+		s->m_afVelocity[1] = 0.0f;
+		s->m_afVelocity[2] = 0.0f;
+	}
+	
 
 	// read position of haptic device, align to bounds and push into history memory blob
     cVector3d newAngularVelocity;
-    m_pHapticDevicePrivate->m_pHapticDevice->getAngularVelocity(newPosition);
+    m_pHapticDevicePrivate->m_pHapticDevice->getAngularVelocity(newAngularVelocity);
 	s->m_afAngularVelocity[0] = alignDoubleToFloatMinMax(newAngularVelocity.x);
 	s->m_afAngularVelocity[1] = alignDoubleToFloatMinMax(newAngularVelocity.y);
 	s->m_afAngularVelocity[2] = alignDoubleToFloatMinMax(newAngularVelocity.z);
