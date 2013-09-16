@@ -526,7 +526,8 @@ VistaCHAI3DHapticDevicesDriver::VistaCHAI3DHapticDevicesForceFeedbackAspect::Vis
   m_nInputDOF(0),
   m_nOutputDOF(0),
   m_nMaxForce(0),
-  m_nMaxStiffness(0)
+  m_nMaxStiffness(0),
+  m_bEnabled(true)
 {
 }
 
