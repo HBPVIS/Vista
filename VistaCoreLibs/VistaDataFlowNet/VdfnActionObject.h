@@ -519,61 +519,73 @@ public:
  * need a special template for bool types, as somehow it is not possible
  * to reference on bools(?!)
  */
-template<>
-class TActionSet<bool> : public VdfnPortFactory::CPortGetFunctor
-{
-public:
-	virtual bool Set(
-		          IVistaReflectionable *pObj,
-		          IVistaPropertySetFunctor *pSet,
-				  IVdfnPort *pPort,
-				  double nTs,
-				  unsigned int nIndex)
-	{
-		IVdfnActionObject::TActionSet<bool> *pActionSet
-			= dynamic_cast<IVdfnActionObject::TActionSet<bool>*>(pSet);
-
-		TVdfnPort<bool> *pT = dynamic_cast<TVdfnPort<bool>*>(pPort);
-#if defined(DEBUG)
-		if(pT == NULL)
-			vstr::errp() << "orig type = " << typeid( *pPort ).name() << std::endl;
-#endif
-		if(pActionSet && pT)
-		{
-			IVdfnActionObject *pAObj = dynamic_cast<IVdfnActionObject*>(pObj);
-
-			if(pAObj)
-			{
-				return pActionSet->SetValueNoRef( *pAObj, pT->GetValue() );
-			}
-		}
-#if defined(DEBUG)
-		else
-		{
-			vstr::errp() << "Obj: " << pObj->GetNameForNameable() << "\n";
-			vstr::erri() << vstr::singleindent
-					<< "pActionSet == " << pActionSet << " ; pT == " << pT << std::endl;
-			vstr::erri() << vstr::singleindent
-					<< (pActionSet ? pActionSet->GetNameForNameable() : "<none>") << std::endl;
-		}
-#endif
-
-		return false;
-	}
-
-	/**
-	 * @todo check on this... simply not implemented?
-	 */
-	virtual bool Get(
-		          IVistaReflectionable *pObj,
-		          IVistaPropertyGetFunctor *pSet,
-				  IVdfnPort *pPort,
-				  double nTs,
-				  unsigned int nIndex)
-	{
-		return false;
-	}
-};
+// template<>
+// class TActionSet<bool> : public VdfnPortFactory::CPortGetFunctor
+// {
+// public:
+// 	virtual bool Set(
+// 		          IVistaReflectionable *pObj,
+// 		          IVistaPropertySetFunctor *pSet,
+// 				  IVdfnPort *pPort,
+// 				  double nTs,
+// 				  unsigned int nIndex)
+// 	{
+// 		IVdfnActionObject::TActionSet<bool> *pActionSet
+// 			= dynamic_cast<IVdfnActionObject::TActionSet<bool>*>(pSet);
+// 
+// 		TVdfnPort<bool> *pT = dynamic_cast<TVdfnPort<bool>*>(pPort);
+// #if defined(DEBUG)
+// 		if(pT == NULL)
+// 			vstr::errp() << "orig type = " << typeid( *pPort ).name() << std::endl;
+// #endif
+// 		if(pActionSet && pT)
+// 		{
+// 			IVdfnActionObject *pAObj = dynamic_cast<IVdfnActionObject*>(pObj);
+// 
+// 			if(pAObj)
+// 			{
+// 				return pActionSet->SetValueNoRef( *pAObj, pT->GetValue() );
+// 			}
+// 		}
+// #if defined(DEBUG)
+// 		else
+// 		{
+// 			vstr::errp() << "Obj: " << pObj->GetNameForNameable() << "\n";
+// 			vstr::erri() << vstr::singleindent
+// 					<< "pActionSet == " << pActionSet << " ; pT == " << pT << std::endl;
+// 			vstr::erri() << vstr::singleindent
+// 					<< (pActionSet ? pActionSet->GetNameForNameable() : "<none>") << std::endl;
+// 		}
+// #endif
+// 
+// 		return false;
+// 	}
+// 
+// 	/**
+// 	 * @todo check on this... simply not implemented?
+// 	 */
+// 	virtual bool Get(
+// 		          IVistaReflectionable *pObj,
+// 		          IVistaPropertyGetFunctor *pSet,
+// 				  IVdfnPort *pPort,
+// 				  double nTs,
+// 				  unsigned int nIndex)
+// 	{
+// 		typename IVdfnActionObject::TActionGet<T> *pActionGet
+// 			= dynamic_cast<IVdfnActionObject::TActionGet<T>*>(pGet);
+// 
+// 		TVdfnPort<T> *pT = dynamic_cast<TVdfnPort<T>*>(pPort);
+// 		if(pActionGet && pT)
+// 		{
+// 			IVdfnActionObject *pAObj = dynamic_cast<IVdfnActionObject*>(pObj);
+// 			if(pAObj)
+// 			{
+// 				return pT->SetValue( pActionGet->GetValue(*pAObj), nTs );
+// 			}
+// 		}
+// 		return false;
+// 	}
+// };
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/
