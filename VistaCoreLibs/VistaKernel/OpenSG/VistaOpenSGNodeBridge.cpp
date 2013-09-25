@@ -1950,6 +1950,32 @@ bool VistaOpenSGNodeBridge::AddChild(IVistaNodeData* pChildData, IVistaNodeData*
 //	pOpenSGParentData->m_pNode->addChild(pOpenSGChildData->m_pBaseNode );
 	pOpenSGParentData->GetNode()->addChild(pOpenSGChildData->GetNode() );
 	endEditCP  (pOpenSGParentData->GetNode(), osg::Node::ChildrenFieldMask);
+
+	// light nodes also need a light under the real root
+	VistaOpenSGLightNodeData* pLightNodeData = dynamic_cast<VistaOpenSGLightNodeData*>( pChildData );
+	if( pLightNodeData )
+	{
+		VistaOpenSGNodeData * pRootData = static_cast<VistaOpenSGNodeData*>(GetVistaSceneGraph()->GetRealRoot()->GetData());
+		osg::NodePtr rootNode = pRootData->GetNode();
+
+		// re-parent the existing scenegraph under the light node
+		if(rootNode->getNChildren() > 0)
+		{
+			// reparent all children under the light node
+			while(rootNode->getNChildren() > 0)
+			{
+				// this auto-removes the node from the old root node, too
+				osg::beginEditCP( pLightNodeData->m_ptrLightNode, osg::Node::TravMaskFieldMask);
+				pLightNodeData->m_ptrLightNode->addChild(rootNode->getChild(0));
+				osg::endEditCP  (pLightNodeData->m_ptrLightNode, osg::Node::TravMaskFieldMask);
+			}
+		}
+
+		// now add/reparent the light node
+		beginEditCP(rootNode, osg::Node::TravMaskFieldMask);
+		rootNode->addChild(pLightNodeData->m_ptrLightNode);
+		endEditCP  (rootNode, osg::Node::TravMaskFieldMask);
+	}
 	return true;
 }
 /*============================================================================*/
@@ -1965,6 +1991,31 @@ bool VistaOpenSGNodeBridge::InsertChild(IVistaNodeData* pChildData, int nIndex, 
 //	pOpenSGParentData->m_pNode->insertChild(nIndex, pOpenSGChildData->m_pBaseNode);
 	pOpenSGParentData->GetNode()->insertChild(nIndex, pOpenSGChildData->GetNode());
 	endEditCP  (pOpenSGParentData->GetNode(), osg::Node::ChildrenFieldMask);
+	// light nodes also need a light under the real root
+	VistaOpenSGLightNodeData* pLightNodeData = dynamic_cast<VistaOpenSGLightNodeData*>( pChildData );
+	if( pLightNodeData )
+	{
+		VistaOpenSGNodeData * pRootData = static_cast<VistaOpenSGNodeData*>(GetVistaSceneGraph()->GetRealRoot()->GetData());
+		osg::NodePtr rootNode = pRootData->GetNode();
+
+		// re-parent the existing scenegraph under the light node
+		if(rootNode->getNChildren() > 0)
+		{
+			// reparent all children under the light node
+			while(rootNode->getNChildren() > 0)
+			{
+				// this auto-removes the node from the old root node, too
+				osg::beginEditCP( pLightNodeData->m_ptrLightNode, osg::Node::TravMaskFieldMask);
+				pLightNodeData->m_ptrLightNode->addChild(rootNode->getChild(0));
+				osg::endEditCP  (pLightNodeData->m_ptrLightNode, osg::Node::TravMaskFieldMask);
+			}
+		}
+
+		// now add/reparent the light node
+		beginEditCP(rootNode, osg::Node::TravMaskFieldMask);
+		rootNode->addChild(pLightNodeData->m_ptrLightNode);
+		endEditCP  (rootNode, osg::Node::TravMaskFieldMask);
+	}
 	return true;
 }
 /*============================================================================*/
