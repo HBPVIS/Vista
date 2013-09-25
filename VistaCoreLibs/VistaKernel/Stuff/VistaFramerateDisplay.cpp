@@ -293,7 +293,7 @@ void VistaFramerateDisplay::SetPostfix( const std::string& oValue )
 
 void VistaFramerateDisplay::SetText()
 {
-	char acBuffer[7];
+	char acBuffer[32];
 	sprintf( acBuffer, "%4.2f", m_pFrameLoop->GetFrameRate() );
 	std::string sText = m_sPrefix + std::string( acBuffer ) + m_sPostfix;
 	for( std::vector<Vista2DText*>::iterator itText = m_vecDisplayTexts.begin();
