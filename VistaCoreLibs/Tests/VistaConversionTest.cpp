@@ -52,7 +52,7 @@ inline void TestStringConversion()
 		T oOrig = VistaTestingRandom::GenerateRandom<T>();
 		T oNew;
 		std::string sValue = VistaConversion::ToString( oOrig, cSeparator );
-		ASSERT_FALSE( VistaConversion::FromString( sValue, oNew, cSeparator ) );
+		ASSERT_TRUE( VistaConversion::FromString( sValue, oNew, cSeparator ) );
 		ASSERT_TRUE( VistaTestingCompare::Compare( oNew, oOrig ) );
 	}
 }
