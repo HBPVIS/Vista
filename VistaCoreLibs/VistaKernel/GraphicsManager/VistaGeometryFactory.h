@@ -56,23 +56,26 @@ public:
 	virtual ~VistaGeometryFactory();
 
 	/**
-	 * Simple plane
+	 * Creates a plane whose normal is given by eNormalDirection
 	 */
-	VistaGeometry* CreatePlane(
-		float sizeX = 1, float sizeZ = 1,
-		int resolutionX = 1.0f, int resolutionZ = 1.0f,
-		int facing = Vista::Y,
-		VistaColor color = VistaColor::WHITE
-	);
+	VistaGeometry* CreatePlane(	float nSizeX = 1, float nSizeZ = 1,
+								int nResolutionX = 1.0f, int nResolutionZ = 1.0f,
+								Vista::AXIS eNormalDirection = Vista::Y,
+								VistaColor oColor = VistaColor::WHITE,
+								bool bUseQuads = false,
+								float nMinTextureCoordX = 0.0f, float nMaxTextureCoordX = 1.0f,
+								float nMinTextureCoordZ = 0.0f, float nMaxTextureCoordZ = 1.0f );
 
 	/**
 	 * The good old box
 	 */
-	VistaGeometry* CreateBox (
-		float sizeX = 1.0f, float sizeY = 1.0f, float sizeZ = 1.0f,
-		int resolutionX = 1, int resolutionY = 1, int resolutionZ = 1,
-		VistaColor color = VistaColor::WHITE
-	);
+	VistaGeometry* CreateBox( float nSizeX = 1.0f, float nSizeY = 1.0f, float nSizeZ = 1.0f,
+								int nResolutionX = 1, int nResolutionY = 1, int nResolutionZ = 1,
+								VistaColor oColor = VistaColor::WHITE,
+								bool bUseQuads = false,
+								float nMinTextureCoordX = 0.0f, float nMaxTextureCoordX = 1.0f,
+								float nMinTextureCoordY = 0.0f, float nMaxTextureCoordY = 1.0f,
+								float nMinTextureCoordZ = 0.0f, float nMaxTextureCoordZ = 1.0f );
 
 	/**
 	 * A round plane...

@@ -36,17 +36,119 @@
 #include <VistaBase/VistaStreamUtils.h>
 
 #include <vector>
+#include <cassert>
 using namespace std;
 
 /*============================================================================*/
 /*  HELPERS                                                                   */
 /*============================================================================*/
 
-bool ReadColorFromProplist( const VistaPropertyList& oPropList,
-								   const std::string& sPropName,
-								   VistaColor& oColorTarget )
+namespace
 {
-	return oPropList.GetValue<VistaColor>( sPropName, oColorTarget );
+	bool ReadColorFromProplist( const VistaPropertyList& oPropList,
+									   const std::string& sPropName,
+									   VistaColor& oColorTarget )
+	{
+		return oPropList.GetValue<VistaColor>( sPropName, oColorTarget );
+	}
+
+	void PushQuad( std::vector<VistaIndexedVertex>::iterator& itFaceList,
+				int nVertex0, int nVertex1, int nVertex2, int nVertex3,
+				int nTexCoord0, int nTexCoord1, int nTexCoord2, int nTexCoord3,
+				int nNormalIndex, bool bUseQuads )
+	{
+		if( bUseQuads )
+		{
+			(*itFaceList).SetCoordinateIndex( nVertex0 );
+			(*itFaceList).SetNormalIndex( nNormalIndex );
+			(*itFaceList).SetTextureCoordinateIndex( nTexCoord0 );
+			++itFaceList;
+			(*itFaceList).SetCoordinateIndex( nVertex1 );
+			(*itFaceList).SetNormalIndex( nNormalIndex );
+			(*itFaceList).SetTextureCoordinateIndex( nTexCoord1 );
+			++itFaceList;
+			(*itFaceList).SetCoordinateIndex( nVertex2 );
+			(*itFaceList).SetNormalIndex( nNormalIndex );
+			(*itFaceList).SetTextureCoordinateIndex( nTexCoord2 );
+			++itFaceList;
+			(*itFaceList).SetCoordinateIndex( nVertex3 );
+			(*itFaceList).SetNormalIndex( nNormalIndex );
+			(*itFaceList).SetTextureCoordinateIndex( nTexCoord3 );
+			++itFaceList;
+		}
+		else
+		{
+			(*itFaceList).SetCoordinateIndex( nVertex0 );
+			(*itFaceList).SetNormalIndex( nNormalIndex );
+			(*itFaceList).SetTextureCoordinateIndex( nTexCoord0 );
+			++itFaceList;
+			(*itFaceList).SetCoordinateIndex( nVertex1 );
+			(*itFaceList).SetNormalIndex( nNormalIndex );
+			(*itFaceList).SetTextureCoordinateIndex( nTexCoord1 );
+			++itFaceList;
+			(*itFaceList).SetCoordinateIndex( nVertex2 );
+			(*itFaceList).SetNormalIndex( nNormalIndex );
+			(*itFaceList).SetTextureCoordinateIndex( nTexCoord2 );
+			++itFaceList;
+
+			(*itFaceList).SetCoordinateIndex( nVertex0 );
+			(*itFaceList).SetNormalIndex( nNormalIndex );
+			(*itFaceList).SetTextureCoordinateIndex( nTexCoord0 );
+			++itFaceList;
+			(*itFaceList).SetCoordinateIndex( nVertex2 );
+			(*itFaceList).SetNormalIndex( nNormalIndex );
+			(*itFaceList).SetTextureCoordinateIndex( nTexCoord2 );
+			++itFaceList;
+			(*itFaceList).SetCoordinateIndex( nVertex3 );
+			(*itFaceList).SetNormalIndex( nNormalIndex );
+			(*itFaceList).SetTextureCoordinateIndex( nTexCoord3 );
+			++itFaceList;
+		}
+	}
+
+	void PushQuadWithEqualTexCoords( std::vector<VistaIndexedVertex>::iterator& itFaceList,
+									int nVertex0, int nVertex1, int nVertex2, int nVertex3,
+									int nNormalIndex, bool bUseQuads )
+	{
+		PushQuad( itFaceList, nVertex0, nVertex1, nVertex2, nVertex3, nVertex0, nVertex1, nVertex2, nVertex3, nNormalIndex, bUseQuads );
+	}
+	// helper function for box geometry creation
+	void AddVertexLine( const int nCount, VistaVector3D& v3Position, float nDelta,
+					Vista::AXIS nAxis, std::vector<float>::iterator& itCoords ) 
+	{
+		for( int i = 0; i < nCount; ++i )
+		{
+			(*itCoords) = v3Position[Vista::X];
+			(*++itCoords) = v3Position[Vista::Y];
+			(*++itCoords) = v3Position[Vista::Z];
+			++itCoords;
+			v3Position[nAxis] += nDelta;
+		}
+	}
+	int GetCapBorderIndex( const int nIndex, const int nNumYRings, const int nNumZRings ) 
+	{
+		int nNumYSegments = nNumYRings - 1;
+		int nNumZSegments = nNumZRings - 1;
+		if( nIndex < nNumZSegments )
+			return nIndex;
+		else if( nIndex < nNumZSegments + nNumYSegments )
+		{
+			int nRelIndex = nIndex - nNumZSegments + 1;
+			return ( nRelIndex * nNumZRings ) - 1;
+		}
+		else if( nIndex < 2 * nNumZSegments + nNumYSegments )
+		{
+			int nRelIndex = nIndex - ( nNumZSegments + nNumYSegments );
+			int nMaxIndex = nNumZRings * nNumYRings - 1;
+			return ( nMaxIndex - nRelIndex );
+		}
+		else
+		{
+			int nRelIndex = nIndex - ( 2 * nNumZSegments + nNumYSegments );
+			int nTopIndex = ( nNumYRings - 1 ) * nNumZRings;
+			return ( nTopIndex - nRelIndex * nNumZRings );
+		}
+	}
 }
 
 
@@ -60,7 +162,6 @@ VistaGeometryFactory::VistaGeometryFactory(VistaSceneGraph *pSG)
 
 VistaGeometryFactory::~VistaGeometryFactory()
 {
-	m_pSG = NULL;
 }
 /*============================================================================*/
 /*  IMPLEMENTATION                                                            */
@@ -76,120 +177,115 @@ VistaSceneGraph* VistaGeometryFactory::GetSG() const
 /*  NAME      :   createPlaneGeo                                              */
 /*                                                                            */
 /*============================================================================*/
-VistaGeometry* VistaGeometryFactory::CreatePlane( float xsize, float zsize,
-												  int xres, int zres,
-												  int normal,
-												  VistaColor color)
+VistaGeometry* VistaGeometryFactory::CreatePlane( float nSizeX, float nSizeZ,
+												int nResX, int nResZ,
+												Vista::AXIS eNormalDirection,
+												VistaColor oColor, bool bUseQuads,
+												float nMinTextureCoordX, float nMaxTextureCoordX,
+												float nMinTextureCoordZ, float nMaxTextureCoordZ )
 {
+	assert( nSizeX > 0 && nSizeZ > 0 );
+	assert( nResX > 0 && nResZ > 0 );
+	
+	VistaVertexFormat oVertexFormat;
+	oVertexFormat.coordinate = VistaVertexFormat::COORDINATE;
+	oVertexFormat.color = VistaVertexFormat::COLOR_NONE;
+	oVertexFormat.normal = VistaVertexFormat::NORMAL;
+	oVertexFormat.textureCoord = VistaVertexFormat::TEXTURE_COORD_2D;
 
-	VistaVertexFormat vertexFormat;
-	vertexFormat.coordinate = VistaVertexFormat::COORDINATE;
-	vertexFormat.color = VistaVertexFormat::COLOR_NONE;
-	vertexFormat.normal = VistaVertexFormat::NORMAL;
-	vertexFormat.textureCoord = VistaVertexFormat::TEXTURE_COORD_2D;
+	std::vector<VistaIndexedVertex> vecIndices;
+	std::vector<float> vecCoords;
+	std::vector<float> vecTextureCoords;
+	std::vector<float> vecNormals;
 
-	vector<VistaIndexedVertex> index;
-	vector<float> coords;
-	vector<float> textureCoords;
-	vector<float> normals;
-	vector<VistaColor> colors;
+	// we just need one normal
+	vecNormals.resize( 3, 0.0f );
+	vecNormals[eNormalDirection] = 1.0f;
 
-	VistaIndexedVertex ci;
-	ci.SetColorIndex(0);
-	ci.SetNormalIndex(0);
-
-	float normalVec[3][3] = { {1,0,0}, {0,1,0}, {0,0,1} };
-
-	normals.push_back(normalVec[normal][0]);
-	normals.push_back(normalVec[normal][1]);
-	normals.push_back(normalVec[normal][2]);
-
-	float val[3];
-
-	val[(normal + 2) % 3] = -xsize/2.0f;
-	val[(normal + 0) % 3] = 0.0f;
-	val[(normal + 1) % 3] = zsize/2.0f;
-
-	for(int i = 0; i < zres+1; i++)
+	Vista::AXIS eIndexX = Vista::X;
+	Vista::AXIS eIndexZ = Vista::Z;
+	float nTexCoordXFlip = 1.0f;
+	float nTexCoordZFlip = 1.0f;
+	switch( eNormalDirection )
 	{
-		for(int j = 0; j < xres; j++)
-		{
-			coords.push_back(val[0]);
-			coords.push_back(val[1]);
-			coords.push_back(val[2]);
-			switch(normal)
-			{
-				case Vista::X:
-					textureCoords.push_back(1-(xsize/2+val[(normal + 2) % 3])/xsize);
-					textureCoords.push_back((zsize/2+val[(normal + 1) % 3])/zsize);
-					break;
-				case Vista::Y:
-					textureCoords.push_back((xsize/2+val[(normal + 2) % 3])/xsize);
-					textureCoords.push_back(1-(zsize/2+val[(normal + 1) % 3])/zsize);
-					break;
-				case Vista::Z:
-					textureCoords.push_back((zsize/2+val[(normal + 1) % 3])/zsize);
-					textureCoords.push_back((xsize/2+val[(normal + 2) % 3])/xsize);
-					break;
-			}
-			val[(normal + 2) % 3] += xsize/xres;
-		}
+		case Vista::X:
+			eIndexX = Vista::Z;
+			eIndexZ = Vista::Y;
+			nTexCoordXFlip = -1.0f;
+			nTexCoordZFlip = 1.0f;
+			break;
+		case Vista::Z:
+			eIndexX = Vista::X;
+			eIndexZ = Vista::Y;
+			nTexCoordXFlip = 1.0f;
+			nTexCoordZFlip = 1.0f;
+			break;
+		case Vista::Y:
+			nTexCoordXFlip = 1.0f;
+			nTexCoordZFlip = -1.0f;
+		default:
+			break;
+	};
 
-		coords.push_back(val[0]);
-		coords.push_back(val[1]);
-		coords.push_back(val[2]);
+	VistaVector3D v3CoordPosition;
+	v3CoordPosition[eIndexX] = -0.5f * nSizeX;
+	v3CoordPosition[eIndexZ] = -0.5f * nSizeZ;
+	float nDeltaXPos = nSizeX / (float)nResX;
+	float nDeltaZPos = nSizeZ / (float)nResZ;
 
-		switch(normal)
+	float a2fTecCoord[2] = { nTexCoordXFlip * nMinTextureCoordX, nTexCoordZFlip * nMinTextureCoordZ };
+	float nDeltaXTex = nTexCoordXFlip * ( nMaxTextureCoordX - nMinTextureCoordX ) / (float)nResX;
+	float nDeltaZTex = nTexCoordZFlip * ( nMaxTextureCoordZ - nMinTextureCoordZ ) / (float)nResZ;
+
+	vecCoords.resize( 3 * ( nResX + 1 ) * ( nResZ + 1 ) );
+	std::vector<float>::iterator itCoordData = vecCoords.begin();
+
+	vecTextureCoords.resize( 2 * ( nResX + 1 ) * ( nResZ + 1 ) );
+	std::vector<float>::iterator itTexData = vecTextureCoords.begin();
+
+	for( int nX = 0; nX < nResX + 1; ++nX )
+	{
+		v3CoordPosition[eIndexZ] = -0.5f * nSizeZ;
+		a2fTecCoord[1] = nTexCoordZFlip * nMinTextureCoordZ;
+		for( int nZ = 0; nZ < nResZ + 1; ++nZ )
 		{
-			case Vista::X:
-				textureCoords.push_back(1-(xsize/2+val[(normal + 2) % 3])/xsize);
-				textureCoords.push_back((zsize/2+val[(normal + 1) % 3])/zsize);
-				break;
-			case Vista::Y:
-				textureCoords.push_back((xsize/2+val[(normal + 2) % 3])/xsize);
-				textureCoords.push_back(1-(zsize/2+val[(normal + 1) % 3])/zsize);
-				break;
-			case Vista::Z:
-				textureCoords.push_back((zsize/2+val[(normal + 1) % 3])/zsize);
-				textureCoords.push_back((xsize/2+val[(normal + 2) % 3])/xsize);
-				break;
+			v3CoordPosition.GetValues( &(*itCoordData) );
+			v3CoordPosition[eIndexZ] += nDeltaZPos;
+			itCoordData += 3;
+
+			(*itTexData) = a2fTecCoord[0];
+			++itTexData;
+			(*itTexData) = a2fTecCoord[1];
+			++itTexData;
+			a2fTecCoord[1] += nDeltaZTex;
 		}
-		val[(normal + 2) % 3] = -xsize/2.0f;;
-		val[(normal + 1) % 3] -= zsize/zres;
+		v3CoordPosition[eIndexX] += nDeltaXPos;
+		a2fTecCoord[0] += nDeltaXTex;
 	}
 
-	for(int i = 0; i <= xres*zres; i += xres+1)
+	if( bUseQuads )
+		vecIndices.resize( 4 * nResX * nResZ );
+	else
+		vecIndices.resize( 2 * 3 * nResX * nResZ );
+	int nFirstRowStart = 0;
+	int nNextRowStart = nResZ + 1;
+	std::vector<VistaIndexedVertex>::iterator itVertexData = vecIndices.begin();
+	for( int nX = 0; nX < nResX; ++nX )
 	{
-		for(int j = 0; j < xres; j++)
+		for( int nZ = 0; nZ < nResZ; ++nZ )
 		{
-			// top right triangle of a quad
-			ci.SetCoordinateIndex(i+j);
-			ci.SetTextureCoordinateIndex(i+j);
-			index.push_back(ci);
-			ci.SetCoordinateIndex(i+j+1);
-			ci.SetTextureCoordinateIndex(i+j+1);
-			index.push_back(ci);
-			ci.SetCoordinateIndex(i+j+xres+2);
-			ci.SetTextureCoordinateIndex(i+j+xres+2);
-			index.push_back(ci);
-
-			// bottom left triangle of a quad
-			ci.SetCoordinateIndex(i+j+xres+1);
-			ci.SetTextureCoordinateIndex(i+j+xres+1);
-			index.push_back(ci);
-			ci.SetCoordinateIndex(i+j);
-			ci.SetTextureCoordinateIndex(i+j);
-			index.push_back(ci);
-			ci.SetCoordinateIndex(i+j+xres+2);
-			ci.SetTextureCoordinateIndex(i+j+xres+2);
-			index.push_back(ci);
+			PushQuadWithEqualTexCoords( itVertexData, nFirstRowStart + nZ + 0, nNextRowStart + nZ + 0, nNextRowStart + nZ + 1, nFirstRowStart + nZ + 1, 0, bUseQuads );
 		}
+		nFirstRowStart += nResZ + 1;
+		nNextRowStart += nResZ + 1;
 	}
 
-	VistaGeometry* ret = GetSG()->NewIndexedGeometry
-		(index,coords,textureCoords,normals,colors,vertexFormat,VistaGeometry::VISTA_FACE_TYPE_TRIANGLES);
-	ret->SetColor(color);
-	return ret;
+	VistaGeometry::FaceType nFaceType = ( bUseQuads ? VistaGeometry::VISTA_FACE_TYPE_QUADS : VistaGeometry::VISTA_FACE_TYPE_TRIANGLES );
+	VistaGeometry* pGeom = GetSG()->NewIndexedGeometry( vecIndices, vecCoords,
+							vecTextureCoords, vecNormals, std::vector<VistaColor>(),
+							oVertexFormat, nFaceType );
+	pGeom->SetColor( oColor );
+	return pGeom;
 }
 
 /*============================================================================*/
@@ -197,172 +293,361 @@ VistaGeometry* VistaGeometryFactory::CreatePlane( float xsize, float zsize,
 /*  NAME      :   CreateBoxGeo                                                */
 /*                                                                            */
 /*============================================================================*/
-VistaGeometry* VistaGeometryFactory::CreateBox (float xsize, float ysize, float zsize,
-												 int hor, int vert, int depth,
-												 VistaColor color)
+
+
+VistaGeometry* VistaGeometryFactory::CreateBox( float nSizeX, float nSizeY, float nSizeZ,
+											   int nResolutionX, int nResolutionY, int nResolutionZ, 
+											   VistaColor oColor, bool bUseQuads,
+											   float nMinTextureCoordX, float nMaxTextureCoordX,
+											   float nMinTextureCoordY, float nMaxTextureCoordY,
+											   float nMinTextureCoordZ, float nMaxTextureCoordZ )
 {
-	VistaVertexFormat vertexFormat;
-	vertexFormat.coordinate = VistaVertexFormat::COORDINATE;
-	vertexFormat.color = VistaVertexFormat::COLOR_NONE;
-	vertexFormat.normal = VistaVertexFormat::NORMAL;
-	vertexFormat.textureCoord = VistaVertexFormat::TEXTURE_COORD_2D;
+	int nNumXRings = nResolutionX + 1;
+	int nNumYRings = nResolutionY + 1;
+	int nNumZRings = nResolutionZ + 1;
+	std::vector<float> vecCoords;
+	std::vector<float> vecNormals;
+	std::vector<float> vecTextureCoordinates;
+	std::vector<VistaIndexedVertex> vecFaces;
 
-	vector<VistaIndexedVertex> index;
-	vector<float> coords;
-	vector<float> textureCoords;
-	vector<float> normals;
-	vector<VistaColor> colors;
+	vecNormals.push_back( 0 );
+	vecNormals.push_back( -1 );
+	vecNormals.push_back( 0 );
+	
+	vecNormals.push_back( 0 );
+	vecNormals.push_back( 0 );
+	vecNormals.push_back( 1 );
 
-	VistaIndexedVertex ci;
-	VistaVector3D vec;
+	vecNormals.push_back( 0 );
+	vecNormals.push_back( 1 );
+	vecNormals.push_back( 0 );
 
-	int basepoint = 0;
-	int a,b,c,d;
-	int x,y,pl;
+	vecNormals.push_back( 0 );
+	vecNormals.push_back( 0 );
+	vecNormals.push_back( -1 );
 
-	VistaVector3D size(xsize,  ysize,  zsize);
-	VistaVector3D step(xsize / hor, ysize / vert, zsize / depth);
-	VistaVector3D res((float) hor, (float) vert, (float) depth);
+	vecNormals.push_back( -1 );
+	vecNormals.push_back( 0 );
+	vecNormals.push_back( 0 );
 
-	static int inds[6][2] =  { {0,1}, {0,1}, {2,1}, {2,1}, {0,2}, {0,2} };
-	static int signs[6][2] = { {1,1}, {-1,1}, {-1,1}, {1,1}, {1,-1}, {1,1} };
-	static int asigns[6] = { 1, -1, 1, -1, 1, -1 };
+	vecNormals.push_back( 1 );
+	vecNormals.push_back( 0 );
+	vecNormals.push_back( 0 );
 
-	ci.SetColorIndex(0);
+	VistaVector3D v3Extents( nSizeX, nSizeY, nSizeZ );
 
-	for(pl = 0; pl < 6; pl++)
+	int nNumVerticesPerRing = 4 + 2 * ( nNumYRings - 2 ) + 2 * ( nNumZRings - 2 );
+
+	// create vertex coordinates
+	int nNumVertices = 2 * ( nNumYRings * nNumZRings ) // two caps
+					+ ( nNumXRings - 2 ) * nNumVerticesPerRing; // intermediate rings
+	vecCoords.resize( 3 * nNumVertices );
+	
+	std::vector<float>::iterator itCoords = vecCoords.begin();
+
+	VistaVector3D v3HalfExtents = 0.5f * v3Extents;
+
+	// create cap positions
+	VistaVector3D v3Position;
+	v3Position[Vista::X] = -v3HalfExtents[Vista::X];
+	for( int nY = 0; nY <= nResolutionY; ++nY )
 	{
-		int axis = 3 - inds[pl][0] - inds[pl][1];
-
-		for(y = 0; y <= res[inds[pl][1]] ; y++)
+		v3Position[Vista::Y] = - v3HalfExtents[Vista::Y] + (float)nY / (float)( nResolutionY ) * nSizeY;
+		for( int nZ = 0; nZ <= nResolutionZ; ++nZ )
 		{
-			for(x = 0; x <= res[inds[pl][0]]; x++)
+			v3Position[Vista::Z] = - v3HalfExtents[Vista::Z] + (float)nZ / (float)( nResolutionZ ) * nSizeZ;
+			for( int i = Vista::X; i <= Vista::Z; ++i )
 			{
-				vec[ inds[pl][0] ] = (x * step[inds[pl][0]] - size[inds[pl][0]] / 2) * signs[pl][0];
-				vec[ inds[pl][1] ] = (y * step[inds[pl][1]] - size[inds[pl][1]] / 2) * signs[pl][1];
-				vec[ axis ] = size[ axis ] * asigns[ pl ] / 2;
-
-				coords.push_back(vec[0]);
-				coords.push_back(vec[1]);
-				coords.push_back(vec[2]);
-
-				//std::cout << vec[0] << " " << vec[1] << " " << vec[2] << std::endl;
-
-				textureCoords.push_back(x / (float) res[inds[pl][0]]);
-				textureCoords.push_back(y / (float) res[inds[pl][1]]);
-			 }
-		 }
-	}
-
-	// normals
-	normals.push_back(0.0);
-	normals.push_back(0.0);
-	normals.push_back(1.0);
-
-	normals.push_back(0.0);
-	normals.push_back(0.0);
-	normals.push_back(-1.0);
-
-	normals.push_back(1.0);
-	normals.push_back(0.0);
-	normals.push_back(0.0);
-
-	normals.push_back(-1.0);
-	normals.push_back(0.0);
-	normals.push_back(0.0);
-
-	normals.push_back(0.0);
-	normals.push_back(1.0);
-	normals.push_back(0.0);
-
-	normals.push_back(0.0);
-	normals.push_back(-1.0);
-	normals.push_back(0.0);
-
-	for(pl = 0; pl < 6; pl++)
-	{
-		ci.SetNormalIndex(pl);
-		for(y = 0; y < res[inds[pl][1]]; y++)
-		{
-			int h = int(res[inds[pl][0]]);
-
-			a = basepoint + (y + 1) * (h + 1);
-			b = basepoint +  y      * (h + 1);
-			ci.SetCoordinateIndex(a);
-			ci.SetTextureCoordinateIndex(a);
-			index.push_back(ci);
-			ci.SetCoordinateIndex(b);
-			ci.SetTextureCoordinateIndex(b);
-			index.push_back(ci);
-			for(x = 1; x < h; x++)
-			{
-				a = basepoint +  y      * (h + 1) + x;
-				b = basepoint + (y + 1) * (h + 1) + x;
-				c = basepoint +  y      * (h + 1);
-				d = basepoint + (y + 1) * (h + 1);
-
-				/*
-				ci.SetCoordinateIndex(a);
-				ci.SetTextureCoordinateIndex(a);
-				index.push_back(ci);
-
-				ci.SetCoordinateIndex(a);
-				ci.SetTextureCoordinateIndex(a);
-				index.push_back(ci);
-				ci.SetCoordinateIndex(d);
-				ci.SetTextureCoordinateIndex(d);
-				index.push_back(ci);
-				ci.SetCoordinateIndex(b);
-				ci.SetTextureCoordinateIndex(b);
-				index.push_back(ci);
-
-				ci.SetCoordinateIndex(a);
-				ci.SetTextureCoordinateIndex(a);
-				index.push_back(ci);
-				ci.SetCoordinateIndex(b);
-				ci.SetTextureCoordinateIndex(b);
-				index.push_back(ci);
-				ci.SetCoordinateIndex(c);
-				ci.SetTextureCoordinateIndex(c);
-				index.push_back(ci);
-
-				ci.SetCoordinateIndex(a);
-				ci.SetTextureCoordinateIndex(a);
-				index.push_back(ci);
-				ci.SetCoordinateIndex(b);
-				ci.SetTextureCoordinateIndex(b);
-				index.push_back(ci);
-				*/
+				(*itCoords) = v3Position[i];
+				++itCoords;
 			}
-
-			c = basepoint +  y      * (h + 1);
-			d = b;
-			a = basepoint + (y + 1) * (h + 1) + h;
-			b = basepoint +  y      * (h + 1) + h;
-			ci.SetCoordinateIndex(a);
-			ci.SetTextureCoordinateIndex(a);
-			index.push_back(ci);
-
-			ci.SetCoordinateIndex(c);
-			ci.SetTextureCoordinateIndex(c);
-			index.push_back(ci);
-			ci.SetCoordinateIndex(b);
-			ci.SetTextureCoordinateIndex(b);
-			index.push_back(ci);
-			ci.SetCoordinateIndex(a);
-			ci.SetTextureCoordinateIndex(a);
-			index.push_back(ci);
-
-
 		}
-		basepoint += int((res[inds[pl][0]] + 1.f) * (res[inds[pl][1]] + 1.f) );
+	}
+	// create cap position
+	v3Position[Vista::X] = v3HalfExtents[Vista::X];
+	for( int nY = 0; nY <= nResolutionY; ++nY )
+	{
+		v3Position[Vista::Y] = - v3HalfExtents[Vista::Y] + (float)nY / (float)( nResolutionY ) * nSizeY;
+		for( int nZ = 0; nZ <= nResolutionZ; ++nZ )
+		{
+			v3Position[Vista::Z] = - v3HalfExtents[Vista::Z] + (float)nZ / (float)( nResolutionZ ) * nSizeZ;
+			for( int i = Vista::X; i <= Vista::Z; ++i )
+			{
+				(*itCoords) = v3Position[i];
+				++itCoords;
+			}
+		}
+	}
+	// create intermediate rings
+	v3Position[Vista::X] = -v3HalfExtents[Vista::X];
+	float nDeltaX = v3Extents[Vista::X] / nResolutionX;
+	float nDeltaY = v3Extents[Vista::Y] / (float)nResolutionY;
+	float nDeltaZ = v3Extents[Vista::Z] / (float)nResolutionZ;
+	for( int nXPos = 1; nXPos < nNumXRings - 1; ++nXPos )
+	{
+		v3Position[Vista::X] += nDeltaX;
+		// add vertices ccw -> four line segments
+		v3Position[Vista::Y] = -v3HalfExtents[Vista::Y];
+		v3Position[Vista::Z] = -v3HalfExtents[Vista::Z];
+		AddVertexLine( nResolutionZ, v3Position, nDeltaZ, Vista::Z, itCoords );
+		AddVertexLine( nResolutionY, v3Position, nDeltaY, Vista::Y, itCoords );
+		AddVertexLine( nResolutionZ, v3Position, -nDeltaZ, Vista::Z, itCoords );
+		AddVertexLine( nResolutionY, v3Position, -nDeltaY, Vista::Y, itCoords );
 	}
 
-	VistaGeometry *ret = GetSG()->NewIndexedGeometry
-		(index,coords,textureCoords,normals,colors,vertexFormat,VistaGeometry::VISTA_FACE_TYPE_TRIANGLES);
-	ret->SetColor(color);
-	return ret;
+	
+	// create texture coordinates
+	int nNumTexCoords = nNumXRings * nNumYRings + nNumYRings * nNumZRings + nNumZRings * nNumXRings;
+
+	vecTextureCoordinates.resize( 2 * nNumTexCoords );
+	std::vector<float>::iterator itTexCoords = vecTextureCoordinates.begin();
+	float nTexDeltaX = ( nMaxTextureCoordX - nMinTextureCoordX ) / nResolutionX;
+	float nTexDeltaY = ( nMaxTextureCoordY - nMinTextureCoordY ) / nResolutionY;
+	float nTexDeltaZ = ( nMaxTextureCoordZ - nMinTextureCoordZ ) / nResolutionZ;
+	float nTexCoordX, nTexCoordY, nTexCoordZ;
+	// x-y-plane
+	nTexCoordX = nMinTextureCoordX;
+	for( int nX = 0; nX < nNumXRings; ++nX )
+	{
+		nTexCoordY = nMinTextureCoordY;
+		for( int nY = 0; nY < nNumYRings; ++nY )
+		{
+			(*itTexCoords) = nTexCoordX;
+			++itTexCoords;
+			(*itTexCoords) = nTexCoordY;
+			++itTexCoords;
+			nTexCoordY += nTexDeltaY;
+		}
+		nTexCoordX += nTexDeltaX;
+	}
+	// y-z-plane
+	nTexCoordY = nMinTextureCoordY;
+	for( int nY = 0; nY < nNumYRings; ++nY )
+	{
+		nTexCoordZ = nMinTextureCoordZ;
+		for( int nZ = 0; nZ < nNumZRings; ++nZ )
+		{
+			(*itTexCoords) = nTexCoordZ;
+			++itTexCoords;
+			(*itTexCoords) = nTexCoordY;
+			++itTexCoords;
+			nTexCoordZ += nTexDeltaZ;
+		}
+		nTexCoordY += nTexDeltaY;
+	}
+	// z-x-plane
+	nTexCoordX = nMinTextureCoordX;
+	for( int nX = 0; nX < nNumXRings; ++nX )
+	{
+		nTexCoordZ = nMinTextureCoordZ;
+		for( int nZ = 0; nZ < nNumZRings; ++nZ )
+		{
+			(*itTexCoords) = nTexCoordX;
+			++itTexCoords;
+			(*itTexCoords) = nTexCoordZ;
+			++itTexCoords;
+			nTexCoordZ += nTexDeltaZ;
+		}
+		nTexCoordX += nTexDeltaX;
+	}
+
+
+	// create faces
+	int nNumFaces = 2 * nResolutionY * nResolutionZ // caps
+					+ 2 * nResolutionX * nResolutionY //front/back
+					+ 2 * nResolutionX * nResolutionZ; // top/bottom;
+	if( bUseQuads )
+		vecFaces.resize( 4 * nNumFaces );
+	else
+		vecFaces.resize( 6 * nNumFaces );
+
+	std::vector<VistaIndexedVertex>::iterator itFaces = vecFaces.begin();
+
+	const int nCapOneStart = 0;
+	const int nCapTwoStart = nNumYRings * nNumZRings;
+	const int nRingsStart = 2 * ( nNumYRings * nNumZRings );
+
+	// add caps - y-z-planes
+	const int nXYTexCoordOffset = 0;
+	const int nYZTexCoordOffset = nNumXRings * nNumYRings;
+	const int nXZTexCoordOffset = nNumXRings * nNumYRings  + nNumYRings * nNumZRings;
+	for( int nY = 0; nY < nResolutionY; ++nY )
+	{
+		const int nLower = nY * nNumZRings;
+		const int nUpper = nY * nNumZRings + nNumZRings;
+		for( int nZ = 0; nZ < nResolutionZ; ++nZ )
+		{
+			const int nLeft = nZ;
+			const int nRight = nZ + 1;
+			PushQuad( itFaces,
+						nCapOneStart + nLower + nLeft,
+						nCapOneStart + nLower + nRight,
+						nCapOneStart + nUpper + nRight,
+						nCapOneStart + nUpper + nLeft,
+						nYZTexCoordOffset + nLower + nLeft,
+						nYZTexCoordOffset + nLower + nRight,
+						nYZTexCoordOffset + nUpper + nRight,
+						nYZTexCoordOffset + nUpper + nLeft,
+						4, bUseQuads );
+		}
+	}
+	for( int nY = 0; nY < nResolutionY; ++nY )
+	{
+		const int nLower = nY * nNumZRings;
+		const int nUpper = nY * nNumZRings + nNumZRings;
+		for( int nZ = 0; nZ < nResolutionZ; ++nZ )
+		{
+			const int nLeft = nZ;
+			const int nRight = nZ + 1;
+			PushQuad( itFaces,
+						nCapTwoStart + nLower + nRight,
+						nCapTwoStart + nLower + nLeft,
+						nCapTwoStart + nUpper + nLeft,
+						nCapTwoStart + nUpper + nRight,
+						nYZTexCoordOffset + nLower + nResolutionZ - nRight,
+						nYZTexCoordOffset + nLower + nResolutionZ - nLeft,
+						nYZTexCoordOffset + nUpper + nResolutionZ - nLeft,
+						nYZTexCoordOffset + nUpper + nResolutionZ - nRight,
+						5, bUseQuads );
+		}
+	}
+
+	// create four sides ( -y, +z, +y, -z )
+	for( int nSideIndex = 0; nSideIndex < 4; ++nSideIndex )
+	{
+		Vista::AXIS nHeightAxis;
+		int nHeightResolution = 0;
+		int nXStart = 0;
+		int nXEnd = nResolutionX;
+		int nXDelta = 1;
+		int nNormalIndex = nSideIndex;
+		int nSideOffset = 0;
+		bool bFlipSide = false;
+		int nTexCoordOffset = 0;
+		switch( nSideIndex )
+		{
+			case 0: // -y
+				bFlipSide = true;
+				nHeightAxis = Vista::Y;
+				nHeightResolution = nResolutionZ;
+				nSideOffset = 0;
+				nTexCoordOffset = nXZTexCoordOffset;
+				break;
+			case 1: // +z
+				bFlipSide = false;
+				nHeightAxis = Vista::Z;
+				nHeightResolution = nResolutionY;
+				nSideOffset = nResolutionZ;
+				nTexCoordOffset = nXYTexCoordOffset;
+				break;
+			case 2: // +y
+				bFlipSide = false;
+				nHeightAxis = Vista::Y;
+				nHeightResolution = nResolutionZ;
+				nSideOffset = nResolutionZ + nResolutionY;
+				nTexCoordOffset = nXZTexCoordOffset;
+				break;
+			case 3: // -z
+				bFlipSide = true;
+				nHeightAxis = Vista::Z;
+				nHeightResolution = nResolutionY;
+				nSideOffset = 2 * nResolutionZ + nResolutionY;
+				nTexCoordOffset = nXYTexCoordOffset;
+				break;
+		}
+		if( bFlipSide )
+		{
+			std::swap( nXStart, nXEnd );
+			nXDelta = -1;
+		}
+		for( int nX = nXStart; nX != nXEnd; nX += nXDelta )
+		{
+			int nNextX = nX + nXDelta;
+			int nCurrentXOffset = nRingsStart + ( nX -1 ) * nNumVerticesPerRing;
+			int nNextXOffset = nRingsStart + ( nNextX -1 )* nNumVerticesPerRing;
+			for( int nHeight = 0; nHeight < nHeightResolution; ++nHeight )
+			{
+				int nRingCurrent = nSideOffset + nHeight;
+				int nRingNext = nSideOffset + nHeight + 1;
+				if( nRingNext == -1 )
+					nRingNext = nNumVerticesPerRing - 1;
+				else if( nRingNext == nNumVerticesPerRing )
+					nRingNext = 0;
+
+				int nNumHeightVertices = nHeightResolution + 1;
+
+				int nVertexBL = nCurrentXOffset		+ nRingCurrent;
+				int nVertexBR = nNextXOffset		+ nRingCurrent;
+				int nVertexTR = nNextXOffset		+ nRingNext;
+				int nVertexTL = nCurrentXOffset		+ nRingNext;
+
+				if( nX == 0 )
+				{
+					nVertexBL = nCapOneStart + GetCapBorderIndex( nRingCurrent, nNumYRings, nNumZRings );
+					nVertexTL = nCapOneStart + GetCapBorderIndex( nRingNext, nNumYRings, nNumZRings );
+				}
+				else if( nX == nResolutionX )
+				{
+					nVertexBL = nCapTwoStart + GetCapBorderIndex( nRingCurrent, nNumYRings, nNumZRings );
+					nVertexTL = nCapTwoStart + GetCapBorderIndex( nRingNext, nNumYRings, nNumZRings );
+				}
+				if( nNextX == 0 )
+				{
+					nVertexBR = nCapOneStart + GetCapBorderIndex( nRingCurrent, nNumYRings, nNumZRings );
+					nVertexTR = nCapOneStart + GetCapBorderIndex( nRingNext, nNumYRings, nNumZRings );
+				}
+				else if( nNextX == nResolutionX )
+				{
+					nVertexBR = nCapTwoStart + GetCapBorderIndex( nRingCurrent, nNumYRings, nNumZRings );
+					nVertexTR = nCapTwoStart + GetCapBorderIndex( nRingNext, nNumYRings, nNumZRings );
+				}
+
+				int nTexCoordBL, nTexCoordBR, nTexCoordTR, nTexCoordTL;
+				if( nSideIndex != 3 )
+				{
+					nTexCoordBL = nTexCoordOffset + nHeight + nNumHeightVertices * nX;
+					nTexCoordBR = nTexCoordOffset + nHeight + nNumHeightVertices * ( nX + nXDelta );
+					nTexCoordTR = nTexCoordOffset + ( nHeight + 1 ) + nNumHeightVertices * ( nX + nXDelta );
+					nTexCoordTL = nTexCoordOffset + ( nHeight + 1 ) + nNumHeightVertices * nX;
+				}
+				else
+				{
+					// swap along s and z
+					nTexCoordBL = nTexCoordOffset + ( nNumHeightVertices - nHeight ) + nNumHeightVertices * ( nResolutionX - nX );
+					nTexCoordBR = nTexCoordOffset + ( nNumHeightVertices - nHeight ) + nNumHeightVertices * ( nResolutionX - nX - nXDelta );
+					nTexCoordTR = nTexCoordOffset + ( nNumHeightVertices - nHeight - 1 ) + nNumHeightVertices * ( nResolutionX - nX - nXDelta );
+					nTexCoordTL = nTexCoordOffset + ( nNumHeightVertices - nHeight - 1 ) + nNumHeightVertices * ( nResolutionX - nX );
+				}
+				
+				if( bFlipSide )
+				{
+					PushQuad( itFaces, nVertexBL, nVertexTL, nVertexTR, nVertexBR,
+									nTexCoordBL, nTexCoordTL, nTexCoordTR, nTexCoordBR, nNormalIndex, bUseQuads );
+				}
+				else
+					PushQuad( itFaces, nVertexBL, nVertexBR, nVertexTR, nVertexTL,
+									nTexCoordBL, nTexCoordBR, nTexCoordTR, nTexCoordTL, nNormalIndex, bUseQuads );
+			}
+		}
+	}
+
+	
+	VistaGeometry::FaceType eFaceType = ( bUseQuads ) ? ( VistaGeometry::VISTA_FACE_TYPE_QUADS ) : ( VistaGeometry::VISTA_FACE_TYPE_TRIANGLES );
+
+	VistaVertexFormat oFormat;
+	oFormat.color = VistaVertexFormat::COLOR_NONE;
+	oFormat.normal = VistaVertexFormat::NORMAL;
+	oFormat.textureCoord = VistaVertexFormat::TEXTURE_COORD_2D;
+	VistaGeometry* pGeo = m_pSG->NewIndexedGeometry( vecFaces, vecCoords, vecTextureCoordinates,
+													vecNormals, std::vector<VistaColor>(), oFormat, eFaceType );
+	VistaRenderingAttributes oAttrbs;
+	oAttrbs.culling = VistaRenderingAttributes::CULL_BACK;
+	pGeo->SetRenderingAttributes( oAttrbs );
+	
+	pGeo->SetColor( oColor );
+	return pGeo;
 }
+
 
 /*============================================================================*/
 /*                                                                            */
@@ -1377,15 +1662,44 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 
 	if( oCompare( sType, "PLANE" ) )
 	{
-		float fSizeX = oPropList.GetValueOrDefault<float>( "SIZEX", fSizeX, 1.0f );
-		float fSizeY = oPropList.GetValueOrDefault<float>( "SIZEZ", fSizeY, 1.0f );
-		int iResolutionX = oPropList.GetValueOrDefault<int>( "RESOLUTIONX", iResolutionX, 1 );
-		int iResolutionZ = oPropList.GetValueOrDefault<int>( "RESOLUTIONZ", iResolutionZ, 1 );
-		int nFacing = oPropList.GetValueOrDefault<int>( "FACEING", nFacing, Vista::Y );
+		float fSizeX = oPropList.GetValueOrDefault<float>( "SIZEX", 1.0f );
+		float fSizeY = oPropList.GetValueOrDefault<float>( "SIZEZ", 1.0f );
+		int iResolutionX = oPropList.GetValueOrDefault<int>( "RESOLUTIONX", 1 );
+		int iResolutionZ = oPropList.GetValueOrDefault<int>( "RESOLUTIONZ", 1 );
+		bool bUseQuads = oPropList.GetValueOrDefault<bool>( "USE_QUADS", false );
+		float nTexCoordMinX = oPropList.GetValueOrDefault<float>( "TEXCOORD_MIN_X", 0.0f );
+		float nTexCoordMaxX = oPropList.GetValueOrDefault<float>( "TEXCOORD_MAX_X", 1.0f );
+		float nTexCoordMinZ = oPropList.GetValueOrDefault<float>( "TEXCOORD_MIN_Z", 0.0f );
+		float nTexCoordMaxZ = oPropList.GetValueOrDefault<float>( "TEXCOORD_MAX_Z", 1.0f );
+		Vista::AXIS eFacing = Vista::Y;
+		std::string sFacingEntry;
+		if(	oPropList.GetValue<std::string>( "FACING", sFacingEntry ) )
+		{
+			if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sFacingEntry, "X" ) )
+				eFacing = Vista::X;
+			else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sFacingEntry, "Y" ) )
+				eFacing = Vista::Y;
+			else if( VistaAspectsComparisonStuff::StringCaseInsensitiveEquals( sFacingEntry, "Z" ) ) 
+				eFacing = Vista::Z;
+			else
+			{
+				int iIndex = -1 ;
+				if( VistaConversion::FromString( sFacingEntry, iIndex ) && iIndex >= 0 && iIndex < 3 )
+				{
+					eFacing = (Vista::AXIS)iIndex;
+				}
+				else
+				{
+					vstr::warnp() << "{VistaGeometryFactory::CreateFromPropertyList] -- Invealid Entry \"" << sFacingEntry 
+									<< "\" for FACING component of plane" << std::endl;
+				}
+			}
+		}
+
 		
 		VistaColor oColor = VistaColor::WHITE;
 		ReadColorFromProplist( oPropList, "COLOR", oColor );
-		return CreatePlane( fSizeX, fSizeY, iResolutionX, iResolutionZ, nFacing, oColor );
+		return CreatePlane( fSizeX, fSizeY, iResolutionX, iResolutionZ, eFacing, oColor, bUseQuads, nTexCoordMinX, nTexCoordMaxX, nTexCoordMinZ, nTexCoordMaxZ );
 	}
 	else if( oCompare( sType, "BOX" ) )
 	{
@@ -1395,13 +1709,20 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 		int iResolutionX = oPropList.GetValueOrDefault<int>( "RESOLUTIONX", 1 );
 		int iResolutionY = oPropList.GetValueOrDefault<int>( "RESOLUTIONY", 1 );
 		int iResolutionZ = oPropList.GetValueOrDefault<int>( "RESOLUTIONZ", 1 );
+		bool bUseQuads = oPropList.GetValueOrDefault<bool>( "USE_QUADS", false );
+		float nTexCoordMinX = oPropList.GetValueOrDefault<float>( "TEXCOORD_MIN_X", 0.0f );
+		float nTexCoordMaxX = oPropList.GetValueOrDefault<float>( "TEXCOORD_MAX_X", 1.0f );
+		float nTexCoordMinY = oPropList.GetValueOrDefault<float>( "TEXCOORD_MIN_Y", 0.0f );
+		float nTexCoordMaxY = oPropList.GetValueOrDefault<float>( "TEXCOORD_MAX_Y", 1.0f );
+		float nTexCoordMinZ = oPropList.GetValueOrDefault<float>( "TEXCOORD_MIN_Z", 0.0f );
+		float nTexCoordMaxZ = oPropList.GetValueOrDefault<float>( "TEXCOORD_MAX_Z", 1.0f );
 
 		VistaColor oColor = VistaColor::WHITE;
 		ReadColorFromProplist( oPropList, "COLOR", oColor );
-		return CreateBox (
-				fSizeX, fSizeY, fSizeZ,
-				iResolutionX, iResolutionY, iResolutionZ,
-				oColor );
+		return CreateBox( fSizeX, fSizeY, fSizeZ,
+									iResolutionX, iResolutionY, iResolutionZ,
+									oColor, bUseQuads, nTexCoordMinX, nTexCoordMaxX,
+									nTexCoordMinY, nTexCoordMaxY, nTexCoordMinZ, nTexCoordMaxZ );
 	}
 	else if( oCompare( sType, "DISK" ) )
 	{

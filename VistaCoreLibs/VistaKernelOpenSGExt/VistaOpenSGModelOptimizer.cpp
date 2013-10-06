@@ -59,6 +59,7 @@
 #include <OpenSG/OSGBaseFunctions.h>
 
 #include <list>
+#include "VistaTools/VistaFileSystemDirectory.h"
 
 
 
@@ -458,6 +459,8 @@ bool VistaOpenSGModelOptimizer::OptimizeFile( const std::string& sFilename,
 		vstr::outi() << "[VistaOpenSGModelOptimizer::OptimizeFile] -- "
 				<< "Writing optimized file [" << sOutName << "]" << std::endl;
 	}
+	std::string sParentDir = VistaFileSystemFile( sOutName ).GetParentDirectory();
+	VistaFileSystemDirectory( sParentDir ).CreateWithParentDirectories();
 	// we check again that the file does not exist - maybe some other instance
 	// started writing it in the meantime, e.g. in clustermode
 	bool bRes = osg::SceneFileHandler::the().write( pModelNode, sOutName.c_str() );	
@@ -582,11 +585,10 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 		}
 	}
 
-#ifdef VISTA_64BIT
-	sOptSting += "64bit";
-#else
-	sOptSting += "32bit";
-#endif
+	if( sizeof( void* ) == 8 )
+		sOptSting += "64bit";
+	else
+		sOptSting += "32bit";
 
 	std::string sLocalFilename = VistaFileSystemFile( sFilename ).GetLocalName();
 	std::size_t nDotPos = sLocalFilename.rfind( '.' );
