@@ -640,10 +640,6 @@ VistaGeometry* VistaGeometryFactory::CreateBox( float nSizeX, float nSizeY, floa
 	oFormat.textureCoord = VistaVertexFormat::TEXTURE_COORD_2D;
 	VistaGeometry* pGeo = m_pSG->NewIndexedGeometry( vecFaces, vecCoords, vecTextureCoordinates,
 													vecNormals, std::vector<VistaColor>(), oFormat, eFaceType );
-	VistaRenderingAttributes oAttrbs;
-	oAttrbs.culling = VistaRenderingAttributes::CULL_BACK;
-	pGeo->SetRenderingAttributes( oAttrbs );
-	
 	pGeo->SetColor( oColor );
 	return pGeo;
 }
