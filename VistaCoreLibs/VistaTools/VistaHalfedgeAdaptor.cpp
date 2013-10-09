@@ -318,8 +318,7 @@ VistaHalfedgeAdaptor::IsBoundary(const EdgeHandle hEdge) const
 	assert((hEdge.Index() << 1) < (int)m_vHalfedge.size());
 	FaceHandle test1 = GetFaceHandle(GetHalfedgeHandle(hEdge));
 	FaceHandle test2 = GetFaceHandle(GetOppositeHalfedgeHandle(GetHalfedgeHandle(hEdge)));
-	return (GetFaceHandle(GetHalfedgeHandle(hEdge)).IsValid() == false)
-		|| (GetFaceHandle(GetOppositeHalfedgeHandle(GetHalfedgeHandle(hEdge))).IsValid() == false);
+	return( test1.IsValid() == false || test2.IsValid() == false );
 }
 
 

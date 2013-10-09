@@ -159,38 +159,37 @@ bool VistaPropertyList::SetIsCaseSensitive( const bool bSet,
 	return false;
 }
 
-int VistaPropertyList::DeSerializePropertyList(IVistaDeSerializer &rDeSer, VistaPropertyList &rPropertyList, std::string &sName)
+int VistaPropertyList::DeSerializePropertyList( IVistaDeSerializer& rDeSer, VistaPropertyList& rPropertyList, std::string& sName )
 {
 	rPropertyList.clear();
 	int iRet = 0;
 	int iCount = 0;
 	bool bCaseSensitive = false;
-	iRet += rDeSer.ReadInt32(iCount);
-	iRet += rDeSer.ReadEncodedString(sName);
+	iRet += rDeSer.ReadInt32( iCount );
+	iRet += rDeSer.ReadEncodedString( sName );
 	iRet += rDeSer.ReadBool( bCaseSensitive );
 
 	for(int i=0; i < iCount; ++i)
 	{
-		int iKeySize, iValueSize, iType, nListSubType;
-		iKeySize = iValueSize = 0;
-		std::string key, value;
-
-		iRet += rDeSer.ReadInt32(iType);
-		if(iType == (int)VistaProperty::PROPT_PROPERTYLIST)
+		VistaType::sint32 iType;
+		iRet += rDeSer.ReadInt32( iType );
+		if( iType == (int)VistaProperty::PROPT_PROPERTYLIST )
 		{
 			VistaPropertyList oList;
 			std::string subName;
-			iRet += DeSerializePropertyList(rDeSer, oList, subName);
-			rPropertyList.SetPropertyListValue(subName, oList);
+			iRet += DeSerializePropertyList( rDeSer, oList, subName );
+			rPropertyList.SetPropertyListValue( subName, oList );
 		}
 		else
 		{
-			iRet += rDeSer.ReadEncodedString(key);
-			iRet += rDeSer.ReadEncodedString(value);
-			iRet += rDeSer.ReadInt32(nListSubType);
-			rPropertyList.SetStringValueTyped(key, value,
-											  VistaProperty::GetPropTypeEnum(iType),
-											  VistaProperty::GetPropTypeEnum(nListSubType));
+			VistaType::sint32 nListSubType;
+			std::string sKey, sValue;
+			iRet += rDeSer.ReadEncodedString( sKey );
+			iRet += rDeSer.ReadEncodedString( sValue );
+			iRet += rDeSer.ReadInt32( nListSubType );
+			rPropertyList.SetStringValueTyped( sKey, sValue,
+											  VistaProperty::GetPropTypeEnum( iType ),
+											  VistaProperty::GetPropTypeEnum( nListSubType ) );
 		}
 
 	}

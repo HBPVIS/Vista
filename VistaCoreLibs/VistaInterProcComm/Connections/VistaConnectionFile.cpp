@@ -198,12 +198,11 @@ bool VistaConnectionFile::HasPendingData() const
 #if !defined(WIN32)
 	struct pollfd fds;
 	int timeout_msecs = 0;
-	int ret;
 	
 	fds.fd = fileno(m_sStream) ;
 	fds.events = POLLIN ;
 
-	ret = poll(&fds, 1, timeout_msecs);
+	poll(&fds, 1, timeout_msecs);
 
 	return (fds.revents & POLLIN) ;
 #else

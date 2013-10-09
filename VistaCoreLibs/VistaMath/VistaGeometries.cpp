@@ -532,8 +532,8 @@ bool VistaTriangle::ProximityContains(const VistaVector3D& pnt,
 	const float m12 = (m_a-m_c) * (m_b-m_c);
 	const float m21 = m12;
 	const float m22 = (m_b-m_c)*(m_b-m_c);
-	const float y1 = (m_a-m_c) * (pnt - m_c);
-	const float y2 = (m_b-m_c)*(pnt - m_c);
+	const float y1 = (m_a-m_c) * (projectedPoint - m_c);
+	const float y2 = (m_b-m_c)*(projectedPoint - m_c);
 	
 	// Parametric values of the two clostest points.
 	const float b = (m11*y2-m21*y1) / (m11*m22 -m21*m12 );

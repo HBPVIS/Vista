@@ -142,12 +142,11 @@ bool VistaConnectionPipe::HasPendingData() const
 #if !defined(WIN32)
 	struct pollfd fds;
 	int timeout_msecs = 0;
-	int ret;
 
 	fds.fd = m_fd[PIPE_R];
 	fds.events = POLLIN;
 
-	ret = poll(&fds, 1, timeout_msecs);
+	poll(&fds, 1, timeout_msecs);
 
 	return (fds.revents & POLLIN);
 #else

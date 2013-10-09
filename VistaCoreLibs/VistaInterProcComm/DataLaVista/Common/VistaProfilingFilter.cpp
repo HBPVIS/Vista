@@ -61,14 +61,14 @@ IDLVistaDataPacket *DLVistaProfilingFilter::FilterPacketL(IDLVistaDataPacket *pP
 {
 	++m_i32PacketCount;
 
-	DLV_INT64 i64Diff, i64now;
-	DLV_INT32 i32Diff, i32now;
+	//DLV_INT64 i64Diff, i64now;
+	//DLV_INT32 i32Diff, i32now;
 
-	i64now = (DLV_INT64)m_pTimer->GetTickCount();
-	i32now = (DLV_INT32)m_pTimer->GetTimeStamp();
+	//i64now = (DLV_INT64)m_pTimer->GetTickCount();
+	//i32now = (DLV_INT32)m_pTimer->GetTimeStamp();
 
-	i64Diff = i64now - pPacket->GetTimeStamp()->GetMicroStamp();
-	i32Diff = i32now - pPacket->GetTimeStamp()->GetMacroStamp();
+	//i64Diff = i64now - pPacket->GetTimeStamp()->GetMicroStamp();
+	//i32Diff = i32now - pPacket->GetTimeStamp()->GetMacroStamp();
 
 	//printf("i64Diff=%I64u,i32Diff=%ld\n", i64Diff, i32Diff);
 
