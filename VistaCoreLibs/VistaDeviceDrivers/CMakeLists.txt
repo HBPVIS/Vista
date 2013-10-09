@@ -28,7 +28,7 @@ vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_PHANTOM			    VistaPhanto
 vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_SIXENSE				VistaSixenseDriver				OFF )
 vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_VRPN    				VistaVRPNDriver			        OFF )
 vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_WIIMOTE			    VistaWiimoteDriver			    OFF )
-vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_CHAI3DHAPTICDEVICES	VistaChai3dHapticDevicesDriver  OFF )
+vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_CHAI3DHAPTICDEVICES	VistaCHAI3DHapticDevicesDriver  OFF )
 
 if( UNIX )
 	vista_conditional_add_subdirectory( VISTADRIVERS_BUILD_JSWJOYSTICK		VistaJswJoystickDriver			OFF )

@@ -21,7 +21,7 @@ set_target_properties( VistaCHAI3DHapticDevicesTranscoder PROPERTIES FOLDER "Dri
 vista_set_outdir( VistaCHAI3DHapticDevicesTranscoder "${VISTADEVICEDRIVERSBASE_TARGET_OUTDIR}/DriverPlugins" )
 		 
 # since it has third-party dependencies, we only build the driver and plugin if the package is available
-vista_find_package( Chai3d QUIET )
+vista_find_package( Chai3D QUIET )
 vista_find_package( OpenGL QUIET )
 
 if( NOT CHAI3D_FOUND OR NOT OPENGL_FOUND)
