@@ -150,7 +150,9 @@ public:
 		 m_bPollMode(true),
 		 m_lActiveStations(0),
 		 m_lStations(0),
-		 m_pRefFrame(pRefFrame)
+		 m_pRefFrame(pRefFrame),
+		 m_nActiveStationMask(0),
+		 m_nStationMask(0)
 	{
 	}
 
@@ -308,7 +310,7 @@ public:
 	{
 		char data[4];
 
-		sprintf( data, "%c%d%c", 0x12, iUnit, 0x0D );
+		sprintf( data, "%c%d%c", 0x12, (int)iUnit, 0x0D );
 		return m_pConnection->SendCommand(0, data, 3, 100);
 	}
 
@@ -375,7 +377,7 @@ public:
 	virtual bool CmdSetHemisphere(unsigned int iUnit, float x , float y , float z )
 	{
 		char data[25];
-		sprintf(data, "H%d,%+2.3f,%+2.3f,%+2.3f%c", iUnit, x, y, z, 0x0d);
+		sprintf(data, "H%d,%+2.3f,%+2.3f,%+2.3f%c", (int)iUnit, x, y, z, 0x0d);
 		return m_pConnection->SendCommand( 0, data, (unsigned int)strlen(data), 100 );
 	}
 

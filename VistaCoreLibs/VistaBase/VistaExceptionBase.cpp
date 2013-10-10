@@ -98,6 +98,8 @@ VistaExceptionBase::VistaExceptionBase(const char *pcExMsg,
 // PRIVATE!
 VistaExceptionBase::VistaExceptionBase()
 : std::exception()
+,  m_iExceptionLine( -1 )
+, m_iExceptionNumber( -1 )
 {
 }
 

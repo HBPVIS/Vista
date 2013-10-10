@@ -168,7 +168,7 @@ void VistaEnvironment::SetLibraryPathEnv( const std::string &sValue )
 #if defined WIN32 
 	SetEnv( "PATH", sValue );
 #elif defined DARWIN
-	SetEnv( "DYLD_LIBRARY_PATH", sValue ) );
+	SetEnv( "DYLD_LIBRARY_PATH", sValue );
 #else // UNIX
 	SetEnv( "LD_LIBRARY_PATH", sValue );
 #endif

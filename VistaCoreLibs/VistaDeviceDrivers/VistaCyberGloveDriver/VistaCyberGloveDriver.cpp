@@ -511,7 +511,19 @@ int VCG_FrequencyW2[]={2,1,1,1,1,1,1,1,1,0,0};
 VistaCyberGloveDriver::VistaCyberGloveDriver(IVistaDriverCreationMethod *crm)
 	: IVistaDeviceDriver(crm),
 	  m_pConnectionAspect(new VistaDriverConnectionAspect),
-	  m_bInitDone(false)
+	  m_bInitDone(false),
+	  m_bStreamingMode( false ),
+	  m_bTempStreamingMode( false ),
+	  m_bIncStatusByte( false ),
+	  m_bIncTimestamp( false ),
+	  m_bSwitchLightMode( false ),
+	  m_bFilterMode( false ),
+      m_nNumSensors( 0 ),
+	  m_nSensorMask( 0 ),
+	  m_nMaxSensors( 0 ),
+      m_nSampleFreq( VCG_FREQ_MAX ),
+      m_nSampleW1( 0 ),
+      m_nSampleW2( 0 )
 {
 	// Invalid -> retrieve info from CGIU at first request
 	m_nMaxSensors = -1;

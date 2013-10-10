@@ -109,14 +109,9 @@ public:
 		virtual int AddToBaseTypeList(std::list<std::string> &rBtList) const;
 
 	private:
-		IVistaDisplayEntityProperties &operator=(const IVistaDisplayEntityProperties &)
-		{
-			return *this;
-		}
-
-		IVistaDisplayEntityProperties(const IVistaDisplayEntityProperties  &)
-		: IVistaReflectionable()
-		{}
+		// make uncopyable
+		IVistaDisplayEntityProperties &operator=(const IVistaDisplayEntityProperties &);
+		IVistaDisplayEntityProperties(const IVistaDisplayEntityProperties  &);
 
 		friend class VistaDisplayEntity; // needed to call destructor
 

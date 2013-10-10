@@ -162,6 +162,9 @@ Vista3DCSpaceNavigator::Vista3DCSpaceNavigator(IVistaDriverCreationMethod *crm)
 	  m_pPrivate(new _sPrivate),
 	  m_pWorkspace(new VistaDriverWorkspaceAspect)
 {
+	m_nOldKeys[0] = 0;
+	m_nOldKeys[1] = 0;
+
 	SetUpdateType(IVistaDeviceDriver::UPDATE_EXPLICIT_POLL);
 
 	VistaDeviceSensor *pSensor = new VistaDeviceSensor;

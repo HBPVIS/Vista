@@ -190,9 +190,10 @@ IVistaDeviceDriver *VistaDriverMap::RemAndGetDeviceDriver(const std::string &sNa
 	if(cit == m_mpDevices.end())
 		return NULL;
 
+	IVistaDeviceDriver* pDriver = (*cit).second;
 	m_mpDevices.erase(cit);
 	Notify(MSG_REMDRIVER);
-	return (*cit).second;
+	return pDriver;
 
 }
 

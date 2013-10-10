@@ -129,11 +129,11 @@ VistaProperty::~VistaProperty()
 }
 
 VistaProperty::VistaProperty(const VistaProperty &rProp)
+: m_sName( rProp.m_sName )
+, m_sValue( rProp.m_sValue )
+, m_ePropType( rProp.m_ePropType )
+, m_eListSubType( rProp.m_eListSubType )
 {
-	m_sName = rProp.m_sName;
-	m_sValue = rProp.m_sValue;
-	m_ePropType = rProp.m_ePropType;
-	m_eListSubType = rProp.m_eListSubType;
 
 	if(rProp.m_pSubProps)
 	{

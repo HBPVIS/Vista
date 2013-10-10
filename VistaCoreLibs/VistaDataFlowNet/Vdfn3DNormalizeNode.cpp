@@ -34,6 +34,9 @@
 Vdfn3DNormalizeNode::Vdfn3DNormalizeNode()
 : IVdfnNode(),
 	m_pOut( new TVdfnPort<VistaTransformMatrix> ),
+	m_pFlipX(NULL),
+	m_pFlipY(NULL),
+	m_pFlipZ(NULL),
 	m_pMinX(NULL),
 	m_pMinY(NULL),
 	m_pMinZ(NULL),

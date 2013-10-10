@@ -645,11 +645,6 @@ public:
 	
 		return nNumDoubles;
 	}
-
-
-private:
-	VistaCSVDeSerializer *m_pFragDecode;
-
 };
 
 
@@ -793,11 +788,6 @@ public:
 	
 		return nNumDoubles;
 	}
-
-
-private:
-	VistaCSVDeSerializer *m_pFragDecode;
-
 };
 
 // ############################################################################

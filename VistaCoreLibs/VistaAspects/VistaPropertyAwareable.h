@@ -52,7 +52,7 @@
  *   update();
  * </verbatim>
  */
-template<class T> int compAndAssignFunc(const T x, T &y)
+template<class T> int compAndAssignFunc(const T& x, T &y)
 {
 	if( x != y )
 	{

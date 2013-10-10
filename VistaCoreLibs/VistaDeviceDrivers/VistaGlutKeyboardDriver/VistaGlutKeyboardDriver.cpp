@@ -37,6 +37,12 @@
   #endif
 #else
     #include <GL/freeglut.h>
+	// since freeglut doesn't provide a proper mechanism to detect its version, we
+	// have to work around it by checking for a define that only appears in
+	// freeglut 2.8+
+#ifdef GLUT_KEY_SHIFT_L
+	#define VISTA_FREEGLUT_VERSION_ATLEAST_2_8
+#endif
 #endif
 
 /*============================================================================*/
@@ -202,7 +208,7 @@ void VistaGlutKeyboardDriver::SetSpecialKeyValue(VistaGlutKeyboardDriver *pKeybo
 		nCurrentKey = VISTA_KEY_END;
 		break;
 
-#ifdef GLUT_KEY_SHIFT_L
+#ifdef VISTA_FREEGLUT_VERSION_ATLEAST_2_8
 	case GLUT_KEY_NUM_LOCK:
 		nCurrentKey = VISTA_KEY_END;
 		break;

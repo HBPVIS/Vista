@@ -363,7 +363,7 @@ namespace
 					else
 					{
 						for( std::list<std::string>::const_iterator it = liOutPorts.begin() ;
-							 it != liOutPorts.end() ; it++ )
+							 it != liOutPorts.end() ; ++it )
 						{
 							vstr::warni() << vstr::singleindent
 										<< *it << " ["
@@ -401,7 +401,7 @@ namespace
 						else
 						{
 							for( std::list<std::string>::const_iterator it = liInPorts.begin() ;
-								 it != liInPorts.end() ; it++ )
+								 it != liInPorts.end() ; ++it )
 							{
 								const IVdfnPortTypeCompare *pPortTC = &(pTo->GetPortTypeCompareFor(*it));
 								vstr::warni() << *it << " ["

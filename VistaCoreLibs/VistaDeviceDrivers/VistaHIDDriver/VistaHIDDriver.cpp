@@ -232,8 +232,7 @@ public:
 
 			std::cout << "[HIDDriver] checking wether device supports Force Feedback.. " ;
 
-			evtype_b = malloc( 8 ) ;
-			memset(evtype_b, 0, sizeof(evtype_b));
+			evtype_b = calloc( 8 );
 			if( (ioctl(pCon->GetConnectionDescriptor(), EVIOCGBIT(0, EV_MAX), evtype_b )) < 0)
 			{
 				perror("[HIDDriver] evdev ioctl, get event types");
@@ -790,6 +789,8 @@ bool VistaHIDDriver::InitDriver(int nVendor, int nDevId)
 			pFileCon->Close();
 		}
 	}
+
+	closedir( devdir );
 
 #endif
 	return false;

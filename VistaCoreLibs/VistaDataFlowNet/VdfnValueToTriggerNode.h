@@ -72,7 +72,7 @@ public:
 		m_liIgnore(liIgnore)
 	{
 		for( typename MapType::iterator it = m_mMap.begin() ;
-			 it != m_mMap.end() ; it++ )
+			 it != m_mMap.end() ; ++it )
 		{
 			TVdfnPort<bool> *pPort = new TVdfnPort<bool>;
 			(*it).second.second = pPort;
@@ -103,7 +103,7 @@ protected:
 			return true;
 
 		for( typename MapType::iterator it = m_mMap.begin() ;
-			 it != m_mMap.end() ; it++ )
+			 it != m_mMap.end() ; ++it )
 		{			
 //find( m_liIgnore.begin(), m_liIgnore.end(), *it );
 
@@ -191,9 +191,9 @@ public:
 								<< VistaConversion::GetTypeName<T>() << std::endl;
 					continue;
 				}	
-				it++;
+				++it;
 				mapMapping[oValue].first = *it;
-				it++;
+				++it;
 			}
 		}
 

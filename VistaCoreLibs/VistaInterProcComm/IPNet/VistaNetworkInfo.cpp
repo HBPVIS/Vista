@@ -189,7 +189,7 @@ bool VistaNetworkInfo::EnumVistaNetworkInfo(vector<VistaNetworkInfo>& devs)
 		VistaIPAddress m_ipAddr;
 		VistaIPAddress brdaddr;
 		VistaIPAddress maskaddr("255.255.255.255");
-		int mtu;
+		int mtu = 0;
 
 		int count = ifc.ifc_len / sizeof(ifreq);
 		devs.reserve(count); 

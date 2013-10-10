@@ -207,9 +207,9 @@ namespace
 		{
 			if (f_hPSAPDll)
 				FreeLibrary(f_hPSAPDll);
-			delete(f_pModuleName);
-			delete(f_pModuleFileName);
-			delete(f_phModuleHandles);
+			free(f_pModuleName);
+			free(f_pModuleFileName);
+			free(f_phModuleHandles);
 
 			return false;
 		}
@@ -241,9 +241,9 @@ namespace
 
 		if (f_hPSAPDll)
 			FreeLibrary(f_hPSAPDll);
-		delete(f_pModuleName);
-		delete(f_pModuleFileName);
-		delete(f_phModuleHandles);
+		free(f_pModuleName);
+		free(f_pModuleFileName);
+		free(f_phModuleHandles);
 
 		if (i != 0)
 		{
