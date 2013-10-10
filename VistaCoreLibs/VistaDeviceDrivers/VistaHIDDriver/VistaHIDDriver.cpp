@@ -232,7 +232,8 @@ public:
 
 			std::cout << "[HIDDriver] checking wether device supports Force Feedback.. " ;
 
-			evtype_b = calloc( 8 );
+			evtype_b = malloc( 8 );
+			memset( evtype_b, 0, 8 );
 			if( (ioctl(pCon->GetConnectionDescriptor(), EVIOCGBIT(0, EV_MAX), evtype_b )) < 0)
 			{
 				perror("[HIDDriver] evdev ioctl, get event types");
