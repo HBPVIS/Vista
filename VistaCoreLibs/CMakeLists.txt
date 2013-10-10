@@ -79,8 +79,6 @@ if( NOT VISTACORELIBS_SUPPORT_NATIVE_64BIT_ATOMICS )
 	add_definitions( -DVISTA_NATIVE64BITATOMICS_NOT_AVAILABLE )
 endif( NOT VISTACORELIBS_SUPPORT_NATIVE_64BIT_ATOMICS )
 
-vista_enable_most_compiler_warnings()
-
 # Let the user decide which libraries to build
 vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_BASE 				VistaBase				ON ADVANCED   ADD_TO_LIST VISTACORELIBS_COMPONENTS )
 vista_conditional_add_subdirectory( VISTACORELIBS_BUILD_ASPECTS				VistaAspects			ON ADVANCED   ADD_TO_LIST VISTACORELIBS_COMPONENTS )
