@@ -22,8 +22,8 @@
 /*============================================================================*/
 // $Id$
 
-#ifndef _VISTACONVERSIONTESTS_H
-#define _VISTACONVERSIONTESTS_H
+#ifndef _VISTATESTINGUTILS_H
+#define _VISTATESTINGUTILS_H
 
 /*============================================================================*/
 /* INCLUDES                                                                   */
@@ -452,5 +452,5 @@ namespace VistaConversion
 /* TESTS                                                                      */
 /*============================================================================*/
 
-#endif //_VISTACONVERSIONTESTS_H
+#endif //_VISTATESTINGUTILS_H
 
