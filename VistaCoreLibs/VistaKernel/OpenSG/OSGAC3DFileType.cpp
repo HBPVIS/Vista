@@ -540,8 +540,8 @@ static ACObject *ac3d_load_object(std::istream &file, ACObject *parent, ACMateri
 				m.transparency = (float)atof(tokv[21]);
 
 				// values are not needed
-				/* shi = */(float)atof(tokv[6]);
-				/* tran = */(float)atof(tokv[7]);
+				// shi = (float)atof(tokv[6]);
+				// tran =  (float)atof(tokv[7]);
 
 				pPalette[iNumPalette++] = m;
 
