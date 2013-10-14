@@ -438,7 +438,7 @@ bool VistaHIDDriver::DoSensorUpdate(VistaType::microtime dTs)
 	if( bytes_read > 0 )
 	{
 		// cache pointers beforehand
-		for( int i = 0 ; i < bytes_read/sizeof(struct input_event) ; ++i )
+		for( int i = 0 ; i < bytes_read/(int)sizeof(struct input_event) ; ++i )
 		{
 			switch(m_vEvents[i].type)
 			{
@@ -768,6 +768,7 @@ bool VistaHIDDriver::InitDriver(int nVendor, int nDevId)
 			if( !pFileCon->Open() )
 			{
 				perror( "[HIDDriver] unable to open device file" );
+				closedir( devdir );
 				return 1 ;
 			}
 
@@ -779,6 +780,7 @@ bool VistaHIDDriver::InitDriver(int nVendor, int nDevId)
 
 			if( device_info.vendor == nVendor && device_info.product == nDevId )
 			{
+				closedir( devdir );
 				vstr::outi() << std::hex
 						  << "[HIDDriver] device with vendor/product id "
 						  << nVendor << "/" << nDevId
