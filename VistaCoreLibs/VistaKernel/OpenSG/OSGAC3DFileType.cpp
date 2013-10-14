@@ -506,7 +506,7 @@ static ACObject *ac3d_load_object(std::istream &file, ACObject *parent, ACMateri
 
 		if (streq(t, "MATERIAL"))
 		{
-			float shi, tran;
+			//float shi, tran;
 			ACMaterial m;
 
 			if (get_tokens(buff, &tokc, tokv) != 22)
@@ -539,8 +539,9 @@ static ACObject *ac3d_load_object(std::istream &file, ACObject *parent, ACMateri
 				m.shininess = (float)atof(tokv[19]);
 				m.transparency = (float)atof(tokv[21]);
 
-				shi = (float)atof(tokv[6]);
-				tran = (float)atof(tokv[7]);
+				// values are not needed
+				/* shi = */(float)atof(tokv[6]);
+				/* tran = */(float)atof(tokv[7]);
 
 				pPalette[iNumPalette++] = m;
 
@@ -1453,9 +1454,9 @@ const Char8 *OSGAC3DSceneFileType::getName(void) const
 #pragma warning( disable : 177 )
 #endif
 
-namespace
-{
-	static Char8 cvsid_cpp[] = "@(#)$Id$";
-	static Char8 cvsid_hpp[] = OSGAC3DSCENEFILETYPE_HEADER_CVSID;
-}
+//namespace
+//{
+//	static Char8 cvsid_cpp[] = "@(#)$Id$";
+//	static Char8 cvsid_hpp[] = OSGAC3DSCENEFILETYPE_HEADER_CVSID;
+//}
 

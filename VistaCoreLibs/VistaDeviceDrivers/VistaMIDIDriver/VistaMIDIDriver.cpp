@@ -122,7 +122,6 @@ VistaMIDIDriver::~VistaMIDIDriver()
 
 bool VistaMIDIDriver::DoSensorUpdate(VistaType::microtime dTs)
 {
-  int bytes_read = 0;
   unsigned char bMIDIEvent[3];
 
   VistaMIDIMeasures::sMIDIMeasure sMIDIMeasure;
@@ -138,8 +137,7 @@ bool VistaMIDIDriver::DoSensorUpdate(VistaType::microtime dTs)
   {
 	MeasureStart( 0, dTs );
 
-	bytes_read = m_pConnection->GetConnection(0)->
-	  ReadRawBuffer( bMIDIEvent, 3 );
+	m_pConnection->GetConnection(0)->ReadRawBuffer( bMIDIEvent, 3 );
 
 	sMIDIMeasure.status = bMIDIEvent[0];
 	sMIDIMeasure.data0  = bMIDIEvent[1];

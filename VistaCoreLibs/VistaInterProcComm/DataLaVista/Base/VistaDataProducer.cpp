@@ -128,12 +128,13 @@ int IDLVistaDataProducer::GetNumberOfInbounds() const
 
 int IDLVistaDataProducer::TryToReclaimPendingPackets()
 {
-	IDLVistaDataPacket *p=NULL;
+	IDLVistaDataPacket *p = m_pDatipcoutput->ReturnPacket();
 	int i=0;
-	while((p=(*m_pDatipcoutput).ReturnPacket()))
+	while( p != NULL )
 	{
 		RecycleDataPacket(p, this); // fill 'er up!
 		++i;
+		p = m_pDatipcoutput->ReturnPacket();
 	}
 	//printf("DLVistaDataSource::FillUp() -- retrieved %d packets.\n", i);
 	return i;

@@ -62,12 +62,13 @@ VistaPumpLoop::~VistaPumpLoop()
 bool VistaPumpLoop::LoopBody()
 {
 
-	IDLVistaDataPacket *pPacket = NULL;
+	IDLVistaDataPacket *pPacket = m_pComponent->ReturnPacket();
 	bool bFlag = false;
-	while(m_pComponent && (pPacket = m_pComponent->ReturnPacket()))
+	while(m_pComponent && pPacket)
 	{
 		m_pDest->RecycleDataPacket(pPacket, m_pComponent, false);
 		bFlag = true;
+		pPacket = m_pComponent->ReturnPacket();
 	}
 
 	if(bFlag)

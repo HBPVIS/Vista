@@ -786,6 +786,7 @@ bool VistaHIDDriver::InitDriver(int nVendor, int nDevId)
 						  << nVendor << "/" << nDevId
 						  << " detected. keeping fileconnection open." 
 						  << std::dec << std::endl;
+				closedir( devdir );
 				return true;
 			}
 

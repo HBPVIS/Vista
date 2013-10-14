@@ -515,7 +515,6 @@ VistaGeometry* VistaGeometryFactory::CreateBox( float nSizeX, float nSizeY, floa
 	// create four sides ( -y, +z, +y, -z )
 	for( int nSideIndex = 0; nSideIndex < 4; ++nSideIndex )
 	{
-		Vista::AXIS nHeightAxis;
 		int nHeightResolution = 0;
 		int nXStart = 0;
 		int nXEnd = nResolutionX;
@@ -528,28 +527,24 @@ VistaGeometry* VistaGeometryFactory::CreateBox( float nSizeX, float nSizeY, floa
 		{
 			case 0: // -y
 				bFlipSide = true;
-				nHeightAxis = Vista::Y;
 				nHeightResolution = nResolutionZ;
 				nSideOffset = 0;
 				nTexCoordOffset = nXZTexCoordOffset;
 				break;
 			case 1: // +z
 				bFlipSide = false;
-				nHeightAxis = Vista::Z;
 				nHeightResolution = nResolutionY;
 				nSideOffset = nResolutionZ;
 				nTexCoordOffset = nXYTexCoordOffset;
 				break;
 			case 2: // +y
 				bFlipSide = false;
-				nHeightAxis = Vista::Y;
 				nHeightResolution = nResolutionZ;
 				nSideOffset = nResolutionZ + nResolutionY;
 				nTexCoordOffset = nXZTexCoordOffset;
 				break;
 			case 3: // -z
 				bFlipSide = true;
-				nHeightAxis = Vista::Z;
 				nHeightResolution = nResolutionY;
 				nSideOffset = 2 * nResolutionZ + nResolutionY;
 				nTexCoordOffset = nXYTexCoordOffset;
@@ -1555,9 +1550,9 @@ VistaGeometry* VistaGeometryFactory::CreateTriangle(
 	
 	// calculate vectors relative to a
 	VistaVector3D v1     = c - a;
-	VistaVector3D v1Part = v1 / (float)resolution;
+	//VistaVector3D v1Part = v1 / (float)resolution;
 	VistaVector3D v2     = b - a;
-	VistaVector3D v2Part = v2 / (float)resolution;
+	//VistaVector3D v2Part = v2 / (float)resolution;
 
 	// create vertices
 	for( int i = 0; i < resolution + 1; ++i )

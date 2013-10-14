@@ -335,8 +335,7 @@ void VistaMsgSource::FillPacket(IDLVistaDataPacket *pPacket)
 	// HasPacket() returns false if there is no connection,
 	// in that case, we should not reach this point
 	// so it is safe to assume that we have a valid connection right now
-	unsigned long ulReady =0;
-
+	
 	VistaKernelMsgPacket *pMsg = static_cast<VistaKernelMsgPacket*>(pPacket);
 
 	int iMsgLength = 0;
@@ -363,9 +362,9 @@ void VistaMsgSource::FillPacket(IDLVistaDataPacket *pPacket)
 
 	m_vecTmp.resize(iMsgLength);
 	//printf("-- bytes pending: %d\n", m_pIncomingConnection->PendingDataSize());
-	ulReady = m_pIncomingConnection->WaitForIncomingData();
 
-
+	m_pIncomingConnection->WaitForIncomingData();
+	//unsigned long ulReady = m_pIncomingConnection->WaitForIncomingData();
 	//printf("-- bytes pending: %d\n", bReady);
 
 	iRet = (*m_pIncomingConnection).ReadRawBuffer( &m_vecTmp[0], iMsgLength);

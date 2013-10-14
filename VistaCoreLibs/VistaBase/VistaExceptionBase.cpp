@@ -56,8 +56,7 @@ VistaExceptionBase::VistaExceptionBase(const char *pcExMsg,
   m_iExceptionNumber(iExNum)
 {
 #if defined(LINUX)
-	/// @todo fixme?!
-	// I do hope, that this is no "OutOfMemory"-Exception ;)
+	/// @todo integrate with stack walker
 	void *array[25]; // we trace 25 levels
 	int nSize = backtrace(array, 25);
 	char **symbols = backtrace_symbols(array, nSize);
@@ -69,31 +68,6 @@ VistaExceptionBase::VistaExceptionBase(const char *pcExMsg,
 	free(symbols);
 #endif
 }
-
-//VistaExceptionBase::VistaExceptionBase( const std::string& sExMsg,
-//									   const std::string& sExSource,
-//									   int iExLine, int iExNum ) throw()
-//: std::exception(),
-//  m_sExceptionText( sExMsg.c_str() ),
-//  m_sExceptionSource( sExSource.c_str() ),
-//  m_iExceptionLine( iExLine ),
-//  m_iExceptionNumber( iExNum )
-//{
-//#if defined(LINUX)
-//	/// @todo fixme?!
-//	// I do hope, that this is no "OutOfMemory"-Exception ;)
-//	void *array[25]; // we trace 25 levels
-//	int nSize = backtrace(array, 25);
-//	char **symbols = backtrace_symbols(array, nSize);
-//	for(int i=0; i < nSize; ++i)
-//	{
-//		m_sBacktrace = m_sBacktrace + string(symbols[i]) + string("\n");
-//	}
-//
-//	free(symbols);
-//#endif
-//}
-
 
 // PRIVATE!
 VistaExceptionBase::VistaExceptionBase()
