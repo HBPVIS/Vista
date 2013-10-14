@@ -15,7 +15,7 @@ set( VISTAKERNELOPENSGEXT_INTERNAL_DEPENDENCIES ${VISTAKERNELOPENSGEXT_INTERNAL_
 
 vista_use_package( OpenGL REQUIRED )
 vista_use_package( GLUT REQUIRED )
-vista_use_package( OpenSG 1.8 REQUIRED )
+vista_use_package( OpenSG 1.8 REQUIRED SYSTEM_HEADERS )
 
 include( "./_SourceFiles.cmake" )
 
