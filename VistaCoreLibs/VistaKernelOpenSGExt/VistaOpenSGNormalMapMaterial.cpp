@@ -41,6 +41,7 @@
 
 #include <VistaTools/VistaRandomNumberGenerator.h>
 #include <VistaBase/VistaStreamUtils.h>
+#include <VistaBase/VistaExceptionBase.h>
 
 #ifdef WIN32
 #pragma
@@ -62,6 +63,185 @@
 using namespace OSG;
 static int iBaseMapUnit   = 2;
 static int iNormalMapUnit = 3;
+
+namespace
+{
+	float GetLocalTexCoord( const float nCoord, GLenum eTextureWrapMode )
+	{
+		// @TODO: extended wrap modes
+		float nRes = nCoord;
+		switch( eTextureWrapMode )
+		{
+			case GL_CLAMP_TO_EDGE:
+			{
+				nRes = Vista::Clamp( nCoord, 0.0f, 1.0f );
+				break;
+			}
+			case GL_REPEAT:
+			{
+				if( nCoord < 0 )
+					nRes = 1.0f - ( -nCoord - floor( -nCoord ) ); 
+				else if( nCoord > 1 )
+					nRes = nCoord - floor( nCoord );
+				break;
+			}
+			default:
+				VISTA_THROW( "invalid or unsupported texture wrap mode", -1 );
+		}
+		return nRes;
+	}
+	template<typename TInternal>
+	VistaColor GetPixelEntry( const int nX, const int nY, const int nSizeX, const int nSizeY,
+						const int nNumComponents, osg::UInt8* pData, const bool bIsIntegerValue = true )
+	{
+		TInternal* pTypedData = reinterpret_cast<TInternal*>( pData );
+		assert( nX >= 0 && nX < nSizeX );
+		assert( nY >= 0 && nY < nSizeY );
+		int nIndex = nX + nY * nSizeY;
+		int nOffset = nNumComponents * nIndex;
+		VistaColor oResult;
+		float nScale = 1.0f;
+		if( bIsIntegerValue )
+			nScale = 1.0f / (float)std::numeric_limits<TInternal>::max();
+		switch( nNumComponents )
+		{
+			case 1:
+			{
+				float nValue = nScale * (float)pTypedData[nOffset];
+				oResult.SetRed( nValue );
+				oResult.SetGreen( nValue );
+				oResult.SetBlue( nValue );
+				oResult.SetAlpha( 1.0f );
+				break;
+			}
+			case 2:
+			{
+				float nValue = nScale * (float)pTypedData[nOffset];
+				oResult.SetRed( nValue );
+				oResult.SetGreen( nValue );
+				oResult.SetBlue( nValue );
+				oResult.SetAlpha( nScale * (float)pTypedData[nOffset + 1] );
+				break;
+			}
+			case 3:
+			{
+				oResult.SetRed( nScale * (float)pTypedData[nOffset] );
+				oResult.SetGreen( nScale * (float)pTypedData[nOffset + 1] );
+				oResult.SetBlue( nScale * (float)pTypedData[nOffset + 2] );
+				oResult.SetAlpha( 1.0f );
+				break;
+			}
+			case 4:
+			{
+				oResult.SetRed( nScale * (float)pTypedData[nOffset] );
+				oResult.SetGreen( nScale * (float)pTypedData[nOffset + 1] );
+				oResult.SetBlue( nScale * (float)pTypedData[nOffset + 2] );
+				oResult.SetAlpha( nScale * (float)pTypedData[nOffset + 3] );
+				break;
+			}
+			default:
+				VISTA_THROW( "Invalid number of components in pixel", -1 );
+		}
+		return oResult;
+
+	}
+	bool GetEntryFromTexture( const float nTexCoordX, const float nTexCoordY, osg::TextureChunkPtr pTexture, VistaColor& oResult )
+	{
+		ImagePtr pImage = pTexture->getImage();
+
+		float nLocalCoordS = GetLocalTexCoord( nTexCoordX, pTexture->getWrapS() );
+		float nLocalCoordT = GetLocalTexCoord( nTexCoordY, pTexture->getWrapT() );
+		int nSizeX = pImage->getWidth();
+		int nSizeY = pImage->getHeight();
+
+		float nXPos = nTexCoordX * (float)( nSizeX - 1 );
+		int nPixelLowerX = Vista::Clamp( (int)std::floor( nXPos ), 0, nSizeX - 1 );
+		int nPixelUpperX = Vista::Clamp( (int)std::ceil( nXPos ), 0, nSizeX - 1 );
+		float nInterpolateX = 1.0f - ( nXPos - nPixelLowerX );
+		float nYPos = nTexCoordY * (float)( nSizeY - 1 );
+		int nPixelLowerY = Vista::Clamp( (int)std::floor( nYPos ), 0, nSizeY - 1 );
+		int nPixelUpperY = Vista::Clamp( (int)std::ceil( nYPos ), 0, nSizeY - 1 );
+		float nInterpolateY = 1.0f - ( nYPos - nPixelLowerY );
+
+		int nNumComponents;
+		switch( pImage->getPixelFormat() )
+		{
+			case osg::Image::OSG_A_PF:
+			case osg::Image::OSG_I_PF:
+			case osg::Image::OSG_L_PF:
+				nNumComponents = 1;
+				break;
+			case osg::Image::OSG_LA_PF:
+				nNumComponents = 2;
+				break;
+			case osg::Image::OSG_RGB_PF:
+				nNumComponents = 3;
+				break;
+			case osg::Image::OSG_RGBA_PF:
+				nNumComponents = 4;
+				break;
+			default:
+				vstr::warnp() << "VistaOpenSGNormalMapMaterial - unsupported pixel format for color retrieval" << std::endl;
+				return false;
+		}
+
+		osg::Int32 nDatatype = pImage->getDataType();
+		osg::UInt8* pData = pImage->getData();
+
+		VistaColor colBottomLeft, colBottomRight, colTopLeft, colTopRight;
+		int nRenormalizeSize = 1;
+		switch( nDatatype )
+		{
+			case osg::Image::OSG_UINT8_IMAGEDATA:
+				colBottomLeft = GetPixelEntry<osg::UInt8>( nPixelLowerX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData );
+				colBottomRight = GetPixelEntry<osg::UInt8>( nPixelUpperX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData );
+				colTopLeft = GetPixelEntry<osg::UInt8>( nPixelLowerX, nPixelUpperY, nSizeX, nSizeY, nNumComponents, pData );
+				colTopRight = GetPixelEntry<osg::UInt8>( nPixelUpperX, nPixelUpperY, nSizeX, nSizeY, nNumComponents, pData );
+				break;
+			case osg::Image::OSG_UINT16_IMAGEDATA:
+				colBottomLeft = GetPixelEntry<osg::UInt16>( nPixelLowerX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData );
+				colBottomRight = GetPixelEntry<osg::UInt16>( nPixelUpperX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData );
+				colTopLeft = GetPixelEntry<osg::UInt16>( nPixelLowerX, nPixelUpperY, nSizeX, nSizeY, nNumComponents, pData );
+				colTopRight = GetPixelEntry<osg::UInt16>( nPixelUpperX, nPixelUpperY, nSizeX, nSizeY, nNumComponents, pData );
+			case osg::Image::OSG_UINT32_IMAGEDATA:
+				colBottomLeft = GetPixelEntry<osg::UInt32>( nPixelLowerX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData );
+				colBottomRight = GetPixelEntry<osg::UInt32>( nPixelUpperX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData );
+				colTopLeft = GetPixelEntry<osg::UInt32>( nPixelLowerX, nPixelUpperY, nSizeX, nSizeY, nNumComponents, pData );
+				colTopRight = GetPixelEntry<osg::UInt32>( nPixelUpperX, nPixelUpperY, nSizeX, nSizeY, nNumComponents, pData );
+				break;
+			case osg::Image::OSG_FLOAT16_IMAGEDATA:
+				colBottomLeft = GetPixelEntry<osg::Real16>( nPixelLowerX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData );
+				colBottomRight = GetPixelEntry<osg::Real16>( nPixelUpperX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData );
+				colTopLeft = GetPixelEntry<osg::Real16>( nPixelLowerX, nPixelUpperY, nSizeX, nSizeY, nNumComponents, pData );
+				colTopRight = GetPixelEntry<osg::Real16>( nPixelUpperX, nPixelUpperY, nSizeX, nSizeY, nNumComponents, pData );
+			case osg::Image::OSG_FLOAT32_IMAGEDATA:
+				colBottomLeft = GetPixelEntry<osg::Real32>( nPixelLowerX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData, false );
+				colBottomRight = GetPixelEntry<osg::Real32>( nPixelUpperX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData, false );
+				colTopLeft = GetPixelEntry<osg::Real32>( nPixelLowerX, nPixelUpperY, nSizeX, nSizeY, nNumComponents, pData, false );
+				colTopRight = GetPixelEntry<osg::Real32>( nPixelUpperX, nPixelUpperY, nSizeX, nSizeY, nNumComponents, pData, false );
+			case osg::Image::OSG_INT16_IMAGEDATA:
+				colBottomLeft = GetPixelEntry<osg::Int16>( nPixelLowerX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData, false );
+				colBottomRight = GetPixelEntry<osg::Int16>( nPixelUpperX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData, false );
+				colTopLeft = GetPixelEntry<osg::Int16>( nPixelLowerX, nPixelUpperY, nSizeX, nSizeY, nNumComponents, pData, false );
+				colTopRight = GetPixelEntry<osg::Int16>( nPixelUpperX, nPixelUpperY, nSizeX, nSizeY, nNumComponents, pData, false );
+				break;
+			case osg::Image::OSG_INT32_IMAGEDATA:
+				colBottomLeft = GetPixelEntry<osg::Int32>( nPixelLowerX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData );
+				colBottomRight = GetPixelEntry<osg::Int32>( nPixelLowerX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData );
+				colTopLeft = GetPixelEntry<osg::Int32>( nPixelLowerX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData );
+				colTopRight = GetPixelEntry<osg::Int32>( nPixelLowerX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData );
+				break;
+			default:
+				VISTA_THROW( "invalid pixel data type for image", -1 );
+		};
+
+		VistaColor colBottom = colBottomLeft.Mix( colBottomRight, nInterpolateX );
+		VistaColor colTop = colTopLeft.Mix( colTopRight, nInterpolateX );
+		oResult = colBottom.Mix( colTop, nInterpolateY );
+		oResult /= (float)nRenormalizeSize;
+		return true;
+	}
+}
 
 
 class VistaOpenSGNormalMapMaterial::NativeData
@@ -468,6 +648,16 @@ void VistaOpenSGNormalMapMaterial::Notify(const VistaEvent *pEvent)
 
 	VistaVector3D pos = m * lpos;
 	SetLightPosition(pos[0], pos[1], pos[2]);
+}
+
+bool VistaOpenSGNormalMapMaterial::GetBaseMapEntry( const float nTexCoordX, const float nTexCoordY, VistaColor& oResult )
+{
+	return GetEntryFromTexture( nTexCoordX, nTexCoordY, m_pData->bmap, oResult );
+}
+
+bool VistaOpenSGNormalMapMaterial::GetNormalMapEntry( const float nTexCoordX, const float nTexCoordY, VistaColor& oResult )
+{
+	return GetEntryFromTexture( nTexCoordX, nTexCoordY, m_pData->nmap, oResult );
 }
 
 

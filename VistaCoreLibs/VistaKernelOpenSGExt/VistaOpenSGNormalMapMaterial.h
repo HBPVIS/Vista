@@ -28,6 +28,7 @@
 #include <string>
 #include "VistaKernelOpenSGExtConfig.h"
 #include <VistaKernel/EventManager/VistaEventObserver.h>
+#include "VistaBase/VistaColor.h"
 class VistaGeometry;
 class VistaLightNode;
 class VistaEventManager;
@@ -79,6 +80,9 @@ public:
 	 * get and update the light positon from the given VistaLight object
 	 */
 	void SetVistaLight   (VistaLightNode *pObj);
+
+	bool GetBaseMapEntry( const float nTexCoordX, const float nTexCoordY, VistaColor& oResult );
+	bool GetNormalMapEntry( const float nTexCoordX, const float nTexCoordY, VistaColor& oResult );
 
 	/**
 	 * enabling the generatingTangents converts the geometry to single-indexed!
