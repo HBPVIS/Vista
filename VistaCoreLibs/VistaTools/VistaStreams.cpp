@@ -861,7 +861,7 @@ VistaCallbackPrefixOutstream::ICallback* VistaCallbackPrefixOutstream::GetCallba
 	return m_pCallbackBuffer->GetCallback();
 }
 
-void VistaCallbackPrefixOutstream::SetCallback( ICallback* pfCallack, bool bManageCallbackDeletion )
+void VistaCallbackPrefixOutstream::SetCallback( ICallback* pfCallback, bool bManageCallbackDeletion )
 {
 	return m_pCallbackBuffer->SetCallback( pfCallback, bManageCallbackDeletion );
 }
