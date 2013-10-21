@@ -66,6 +66,8 @@ namespace VistaStreams
 										const bool bBufferInternally = true );
 	VISTATOOLSAPI bool MakeStreamThreadSafe( std::ostream* pStream,
 										const bool bBufferInternally = true );
+	VISTATOOLSAPI bool GetStreamWasMadeThreadSafe( std::ostream& oStream );
+	VISTATOOLSAPI bool GetStreamWasMadeThreadSafe( std::ostream* pStream );
 
 	/**
 	 * 
@@ -137,8 +139,8 @@ public:
 	void SetBackgroundColor( const CONSOLE_COLOR iColor );
 	CONSOLE_COLOR GetBackgroundColor() const;
 private:
-	class VistaColorOutstreamBuffer;
-	VistaColorOutstreamBuffer* m_pBuffer;
+	class Buffer;
+	Buffer* m_pBuffer;
 };
 
 /**
@@ -164,12 +166,13 @@ public:
 	const std::vector<std::ostream*>& GetStreams() const;
 	void SetStreams( const std::vector<std::ostream*>& vecStreams );
 private:
-	class VistaSplitOutstreamBuffer;
-	VistaSplitOutstreamBuffer* m_pBuffer;
+	class Buffer;
+	Buffer* m_pBuffer;
 };
 
 /**
- * class VistaPrefixOutstream:
+ * class VistaPrefixOutstream: prefixed every line of the output
+ * with the specified prefix and optionally an indent
  */
 class VISTATOOLSAPI VistaPrefixOutstream : public std::ostream
 {		
@@ -185,9 +188,71 @@ public:
 	void SetPrefixString( const std::string sPrefix );
 
 	std::ostream* GetOriginalStream() const;
+	void SetOriginalStream( std::ostream* pStream );
+protected:
+	class Buffer;
+	VistaPrefixOutstream( Buffer* pBuffer );
+private:	
+	Buffer* m_pBuffer;
+};
+
+/**
+ * class VistaCallbackPrefixOutstream extends VistaPrefixOutstream by also adding
+ * a string retireved from a callback ( added before the statically specified prefix)
+ * Note that this amy make the stream potentially slow (not profiled, TODO)
+ */
+class VISTATOOLSAPI VistaCallbackPrefixOutstream : public VistaPrefixOutstream
+{
+public:
+	// callbacks
+	class ICallback
+	{
+	public:
+		virtual ~ICallback() {}
+		virtual std::string GetPrefix() const = 0;
+	};
+	class StaticFunctionCallback : public ICallback
+	{
+	public:
+		typedef std::string (*CallbackFunction)( void );
+		
+		StaticFunctionCallback( CallbackFunction pfCallback ) : m_pfCallback( pfCallback ) {};
+		virtual std::string GetPrefix() const
+		{
+			return (*m_pfCallback)();
+		}
+	private:
+		CallbackFunction m_pfCallback;
+	};
+	template< typename T >
+	class MemberFunctionCallback : public ICallback
+	{
+	public:
+		typedef std::string (T::*CallbackFunction)( void ) const;
+		
+		MemberFunctionCallback( T* pObject, CallbackFunction pfCallback ) : m_pObject( pObject ), m_pfCallback( pfCallback ) {};
+		virtual std::string GetPrefix() const
+		{
+			return (m_pObject->*m_pfCallback)();
+		}
+	private:
+		T* m_pObject;
+		CallbackFunction m_pfCallback;
+	};
+
+public:
+	VistaCallbackPrefixOutstream( std::ostream* oOriginalStream, ICallback* pCallback, bool bManageCallbackDeletion = false );
+	~VistaCallbackPrefixOutstream();
+
+	ICallback* GetCallback() const;
+	void SetCallback( ICallback* pfCallback, bool bManageCallbackDeletion = false ); 
+protected:
+	class Buffer;
+	Buffer* m_pCallbackBuffer;
 private:
-	class VistaPrefixOutstreamBuffer;
-	VistaPrefixOutstreamBuffer* m_pBuffer;
+	// uncopyable
+	VistaCallbackPrefixOutstream( const VistaCallbackPrefixOutstream& oCopy );
+	VistaCallbackPrefixOutstream& operator= ( const VistaCallbackPrefixOutstream& oCopy );
 };
 
 /**
@@ -213,7 +278,7 @@ public:
 	inline VistaNullOutstream& operator<<( std::ios_base& ( *pf )( std::ios_base& )) { return *this; }
 
 private:
-	class VistaNullOutstreamBuffer;
+	class Buffer;
 };
 
 #endif // _VISTASTREAMS_H

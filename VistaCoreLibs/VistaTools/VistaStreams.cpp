@@ -309,10 +309,10 @@ const std::string S_aColorNames[] =
 
 /* VistaColorOutstream::VistaColorOutstreamBuffer                           */
 
-class VistaColorOutstream::VistaColorOutstreamBuffer : public std::streambuf
+class VistaColorOutstream::Buffer : public std::streambuf
 {
 public:
-	VistaColorOutstreamBuffer( const size_t iBufferSize,
+	Buffer( const size_t iBufferSize,
 								const bool bUseErrorStream )
 	: std::streambuf()
 	, m_iTextColor( VistaColorOutstream::CC_DEFAULT )
@@ -344,7 +344,7 @@ public:
 #endif
 	}
 
-	~VistaColorOutstreamBuffer()
+	~Buffer()
 	{
 		sync();
 #ifdef WIN32
@@ -491,9 +491,9 @@ VistaColorOutstream::VistaColorOutstream( const CONSOLE_COLOR iTextColor,
 											const CONSOLE_COLOR iBackgroundColor,
 											const bool bUseErrorStream,
 											const size_t iBufferSize)
-: std::ostream( (std::streambuf*)( new VistaColorOutstreamBuffer( iBufferSize, bUseErrorStream ) ) )
+: std::ostream( (std::streambuf*)( new Buffer( iBufferSize, bUseErrorStream ) ) )
 {
-	m_pBuffer = static_cast<VistaColorOutstreamBuffer*>( rdbuf() );
+	m_pBuffer = static_cast<Buffer*>( rdbuf() );
 	m_pBuffer->SetTextColor( iTextColor );
 	m_pBuffer->SetBackgroundColor( iBackgroundColor );
 }
@@ -547,15 +547,15 @@ VistaColorOutstream::CONSOLE_COLOR VistaColorOutstream::GetConsoleColorFromStrin
 /*============================================================================*/
 
 /* VistaSplitOutstream::VistaSplitOutstreamBuffer                           */
-class VistaSplitOutstream::VistaSplitOutstreamBuffer : public std::streambuf
+class VistaSplitOutstream::Buffer : public std::streambuf
 {
 public:
-	VistaSplitOutstreamBuffer()
+	Buffer()
 	: std::streambuf()
 	{		
 	}
 
-	~VistaSplitOutstreamBuffer()
+	~Buffer()
 	{
 	}
 
@@ -617,16 +617,16 @@ private:
 /* VistaSplitOutstream                                                       */
 
 VistaSplitOutstream::VistaSplitOutstream()
-: std::ostream( (std::streambuf*)( new VistaSplitOutstreamBuffer() ) )
+: std::ostream( (std::streambuf*)( new Buffer() ) )
 
 {	
-	m_pBuffer = static_cast<VistaSplitOutstreamBuffer*>( rdbuf() );
+	m_pBuffer = static_cast<Buffer*>( rdbuf() );
 }
 VistaSplitOutstream::VistaSplitOutstream( const VistaSplitOutstream& oCopy )
-: std::ostream( (std::streambuf*)( new VistaSplitOutstreamBuffer() ) )
+: std::ostream( (std::streambuf*)( new Buffer() ) )
 {
-	m_pBuffer = static_cast<VistaSplitOutstreamBuffer*>( rdbuf() );
-	m_pBuffer->SetStreams( static_cast<VistaSplitOutstreamBuffer*>(
+	m_pBuffer = static_cast<Buffer*>( rdbuf() );
+	m_pBuffer->SetStreams( static_cast<Buffer*>(
 												oCopy.rdbuf() )->GetStreams() );
 }
 VistaSplitOutstream::~VistaSplitOutstream()
@@ -658,10 +658,10 @@ void VistaSplitOutstream::SetStreams( const std::vector<std::ostream*>& vecStrea
 /*============================================================================*/
 
 /* VistaPrefixOutstream::VistaPrefixOutstreamBuffer                           */
-class VistaPrefixOutstream::VistaPrefixOutstreamBuffer : public std::streambuf
+class VistaPrefixOutstream::Buffer : public std::streambuf
 {
 public:
-	VistaPrefixOutstreamBuffer( std::ostream* pStream )
+	Buffer( std::ostream* pStream )
 	: std::streambuf()
 	, m_pStream( pStream )
 	, m_bPrefixIndent( false )
@@ -669,13 +669,18 @@ public:
 	{		
 	}
 
-	~VistaPrefixOutstreamBuffer()
+	~Buffer()
 	{
 	}
 
 	std::ostream* GetOriginalStream() const
 	{
 		return m_pStream;
+	}
+	void SetOriginalStream( std::ostream* pStream )
+	{
+		m_pStream->flush();
+		m_pStream = pStream;
 	}
 
 	bool GetPrefixIndent() const { return m_bPrefixIndent; }
@@ -707,7 +712,7 @@ protected:
 	}
 
 
-private:
+protected:
 	std::ostream*	m_pStream;
 	bool m_bPrefixIndent;
 	std::string m_sPrefix;
@@ -717,20 +722,26 @@ private:
 /* VistaPrefixOutstream                                                       */
 
 VistaPrefixOutstream::VistaPrefixOutstream( std::ostream* pStream )
-: std::ostream( new VistaPrefixOutstreamBuffer( pStream) )
+: std::ostream( new Buffer( pStream ) )
 
 {	
-	m_pBuffer = static_cast<VistaPrefixOutstreamBuffer*>( rdbuf() );
+	m_pBuffer = static_cast<Buffer*>( rdbuf() );
 }
 
 
+VistaPrefixOutstream::VistaPrefixOutstream( Buffer* pBuffer )
+: std::ostream( pBuffer )
+{
+	m_pBuffer = static_cast<Buffer*>( rdbuf() );
+}
+
 VistaPrefixOutstream::VistaPrefixOutstream( const VistaPrefixOutstream& oCopy )
-: std::ostream( new VistaPrefixOutstreamBuffer( static_cast<VistaPrefixOutstreamBuffer*>( 
+: std::ostream( new Buffer( static_cast<Buffer*>( 
 												oCopy.rdbuf() )->GetOriginalStream() ) )
 {
-	const VistaPrefixOutstreamBuffer* pOrigBuffer = static_cast<VistaPrefixOutstreamBuffer*>( 
+	const Buffer* pOrigBuffer = static_cast<Buffer*>( 
 												oCopy.rdbuf() );
-	m_pBuffer = static_cast<VistaPrefixOutstreamBuffer*>( rdbuf() );
+	m_pBuffer = static_cast<Buffer*>( rdbuf() );
 	m_pBuffer->SetPrefix( pOrigBuffer->GetPrefix() );
 	m_pBuffer->SetPrefixIndent( m_pBuffer->GetPrefixIndent() );
 }
@@ -742,6 +753,13 @@ std::ostream* VistaPrefixOutstream::GetOriginalStream() const
 {
 	return m_pBuffer->GetOriginalStream();
 }
+
+
+void VistaPrefixOutstream::SetOriginalStream( std::ostream* pStream )
+{
+	m_pBuffer->SetOriginalStream( pStream );
+}
+
 
 
 bool VistaPrefixOutstream::GetPrefixWithIndent() const
@@ -765,19 +783,104 @@ void VistaPrefixOutstream::SetPrefixString( const std::string sPrefix )
 }
 
 /*============================================================================*/
+/*  CALLBACKPREFIXOUTSTREAM                                                   */
+/*============================================================================*/
+
+class VistaCallbackPrefixOutstream::Buffer : public VistaPrefixOutstream::Buffer
+{
+public:
+	Buffer( std::ostream* pStream, ICallback* pCallback, bool bManageCallbackDeletion )
+	: VistaPrefixOutstream::Buffer( pStream )
+	, m_pCallback( pCallback )
+	, m_bManageCallbackDeletion( bManageCallbackDeletion )
+	{		
+	}
+
+	~Buffer()
+	{
+		if( m_bManageCallbackDeletion )
+			delete m_pCallback;
+	}
+
+	ICallback* GetCallback() { return m_pCallback; }
+	void SetCallback( ICallback* pCallback, bool bManageCallbackDeletion )
+	{
+		if( m_bManageCallbackDeletion )
+			delete m_pCallback;
+		m_pCallback = pCallback;
+		m_bManageCallbackDeletion = bManageCallbackDeletion;
+	}
+
+protected:
+	virtual int_type overflow( int_type cChar )
+	{
+		if( m_bNewLinePending )
+		{				
+			if( m_bPrefixIndent )
+				(*m_pStream) << vstr::indent;
+			std::string sCallbackPrefix = m_pCallback->GetPrefix();
+			m_pStream->write( sCallbackPrefix.c_str(), sCallbackPrefix.size() );
+			m_pStream->write( m_sPrefix.c_str(), m_sPrefix.size() );			
+			m_bNewLinePending = false;
+		}	
+		m_pStream->put( cChar );
+		if( cChar == '\n' )
+		{				
+			m_bNewLinePending = true;
+		}		
+		return cChar;
+	}
+	virtual int sync()
+	{
+		m_pStream->flush();
+		return 0;
+	}
+
+private:
+	ICallback* m_pCallback;
+	bool m_bManageCallbackDeletion;
+};	
+
+
+
+
+VistaCallbackPrefixOutstream::VistaCallbackPrefixOutstream( std::ostream* pOriginalStream, 
+														   ICallback* pCallback,
+														   bool bManageCallbackDeletion )
+: VistaPrefixOutstream( new Buffer( pOriginalStream, pCallback, bManageCallbackDeletion ) )
+{
+	m_pCallbackBuffer = static_cast<Buffer*>( rdbuf() );
+}
+
+VistaCallbackPrefixOutstream::~VistaCallbackPrefixOutstream()
+{
+}
+
+VistaCallbackPrefixOutstream::ICallback* VistaCallbackPrefixOutstream::GetCallback() const
+{
+	return m_pCallbackBuffer->GetCallback();
+}
+
+void VistaCallbackPrefixOutstream::SetCallback( ICallback* pfCallack, bool bManageCallbackDeletion )
+{
+	return m_pCallbackBuffer->SetCallback( pfCallback, bManageCallbackDeletion );
+}
+
+
+/*============================================================================*/
 /*  NULLOUTSTREAM                                                             */
 /*============================================================================*/
 
 /* VistaNullOutstream::VistaNullOutstreamBuffer                               */
-class VistaNullOutstream::VistaNullOutstreamBuffer : public std::streambuf
+class VistaNullOutstream::Buffer : public std::streambuf
 {
 public:
-	VistaNullOutstreamBuffer()
+	Buffer()
 	: std::streambuf()
 	{		
 	}
 
-	~VistaNullOutstreamBuffer()
+	~Buffer()
 	{
 	}
 	
@@ -791,7 +894,7 @@ protected:
 /* VistaNullOutstream                                                         */
 
 VistaNullOutstream::VistaNullOutstream()
-: std::ostream( (std::streambuf*)( new VistaNullOutstreamBuffer() ) )
+: std::ostream( (std::streambuf*)( new Buffer() ) )
 {	
 }
 VistaNullOutstream::~VistaNullOutstream()
@@ -939,6 +1042,17 @@ bool VistaStreams::MakeStreamThreadSafe( std::ostream& oStream,
 	oStream.rdbuf( new ThreadSafeStreamBuffer( oStream.rdbuf(), bBufferInternally ) );
 	return true;
 }
+
+bool VistaStreams::GetStreamWasMadeThreadSafe( std::ostream& oStream )
+{
+	return ( dynamic_cast<ThreadSafeStreamBuffer*>( oStream.rdbuf() ) != NULL );
+}
+
+bool VistaStreams::GetStreamWasMadeThreadSafe( std::ostream* pStream )
+{
+	return ( dynamic_cast<ThreadSafeStreamBuffer*>( pStream->rdbuf() ) != NULL );
+}
+
 
 VISTATOOLSAPI bool VistaStreams::MakeStreamThreadSafe( std::ostream* pStream,
 										const bool bBufferInternally )
