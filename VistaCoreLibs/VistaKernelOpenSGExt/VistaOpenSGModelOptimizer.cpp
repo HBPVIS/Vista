@@ -68,6 +68,15 @@
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
 
+
+VistaOpenSGModelOptimizer::LoadInfo::LoadInfo()
+: m_bCacheWasLoaded( false )
+, m_nFileTimestamp( 0 )
+, m_nCacheTimestamp( 0 )
+{
+}
+
+
 class OSGGeometryTraversal
 {
 public:    
@@ -511,13 +520,14 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 												 const std::string& sDumpDataFormat,
 												 bool bCompareTimestamps,
 												 bool bVerbose,
-												 bool bAllowLoadingCachedFileWithoutOriginal )
+												 bool bAllowLoadingCachedFileWithoutOriginal,
+												 LoadInfo* pInfo )
 {
 	VistaFileSystemFile oFile( sFilename );
 	std::string sOutputDirectory = oFile.GetParentDirectory();
 	return LoadAutoOptimizedFile( pSceneGraph, sFilename, sOutputDirectory, 
 									nOptimizationMode, sDumpDataFormat,
-									bCompareTimestamps, bVerbose, bAllowLoadingCachedFileWithoutOriginal );
+									bCompareTimestamps, bVerbose, bAllowLoadingCachedFileWithoutOriginal, pInfo );
 }
 
 IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* pSceneGraph,
@@ -527,8 +537,11 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 												 const std::string& sDumpDataFormat,
 												 bool bCompareTimestamps,
 												 bool bVerbose,
-												 bool bAllowLoadingCachedFileWithoutOriginal )
+												 bool bAllowLoadingCachedFileWithoutOriginal,
+												 LoadInfo* pInfo )
 {
+	if( pInfo )
+		pInfo->m_sFullFilename = sFilename;
 	if( VistaFileSystemFile( sFilename ).Exists() == false && bAllowLoadingCachedFileWithoutOriginal == false )
 	{
 		vstr::errp() << "[VistaOpenSGModelOptimizer::OptimizeFile] -- "
@@ -630,6 +643,14 @@ IVistaNode* VistaOpenSGModelOptimizer::LoadAutoOptimizedFile( VistaSceneGraph* p
 				<< "Optimized file [" << sOptLoadName 
 				<< "] exists, but is outdated - recreating it" << std::endl;
 		}
+	}
+
+	if( pInfo )
+	{
+		pInfo->m_sCacheFilename = sOptLoadName;
+		pInfo->m_nFileTimestamp = VistaFileSystemFile( sFilename ).GetLastModifiedDate();
+		pInfo->m_nCacheTimestamp = oOptFile.GetLastModifiedDate();
+		pInfo->m_bCacheWasLoaded = !bDoOptimize;
 	}
 
 	if( bDoOptimize )

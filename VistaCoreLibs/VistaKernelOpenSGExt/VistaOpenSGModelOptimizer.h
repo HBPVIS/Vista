@@ -31,6 +31,8 @@
 
 #include "VistaKernelOpenSGExtConfig.h"
 
+#include <VistaBase/VistaBaseTypes.h>
+
 #include <string>
 
 /*============================================================================*/
@@ -83,13 +85,31 @@ public:
 						const std::string& sOutputFilename = "",
 						int nOptimizationMode = OPT_DEFAULT,
 						bool bVerbose = true  );
+	struct VISTAKERNELOPENSGEXTAPI LoadInfo
+	{
+		LoadInfo();
+		bool m_bCacheWasLoaded;
+		std::string m_sFullFilename;
+		std::string m_sCacheFilename;
+		VistaType::systemtime m_nFileTimestamp;
+		VistaType::systemtime m_nCacheTimestamp;
+	};
+	/**
+	 * Loads a model file, applies the desired optimizations, and writes it
+	 * in a dumped format.
+	 * If bCompareTimestamps is true, the cache will only be loaded if it is newer than the model file
+	 * If bAllowLoadingCachedFileWithoutOriginal is true, the cache file is loaded even if the
+	 *     original model is absent.
+	 * If pInfo is non-NULL and the call is successfull, it will hold info about the load
+	 */
 	static IVistaNode* LoadAutoOptimizedFile( VistaSceneGraph* pSceneGraph,
 						const std::string& sFilename,
 						int nOptimizationMode = OPT_DEFAULT,
 						const std::string& sDumpDataFormat = "osb",
 						bool bCompareTimestamps = true,
 						bool bVerbose = true,
-						bool bAllowLoadingCachedFileWithoutOriginal = false );
+						bool bAllowLoadingCachedFileWithoutOriginal = false,
+						LoadInfo* pInfo = NULL );
 	static IVistaNode* LoadAutoOptimizedFile( VistaSceneGraph* pSceneGraph,
 						const std::string& sFilename,
 						const std::string& sOutputDirectory,
@@ -97,7 +117,8 @@ public:
 						const std::string& sDumpDataFormat = "osb",
 						bool bCompareTimestamps = true,
 						bool bVerbose = true,
-						bool bAllowLoadingCachedFileWithoutOriginal = false );
+						bool bAllowLoadingCachedFileWithoutOriginal = false,
+						LoadInfo* pInfo = NULL );
 };
 
 /*============================================================================*/
