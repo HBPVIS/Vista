@@ -6,20 +6,18 @@ set( RelativeSourceGroup "Source Files" )
 set( DirFiles
 	Vdfn3DNormalizeNode.cpp
 	Vdfn3DNormalizeNode.h
+	VdfnAbsoluteNode.h
 	VdfnActionNode.cpp
 	VdfnActionNode.h
 	VdfnActionObject.cpp
 	VdfnActionObject.h
-	VdfnAggregateNode.cpp
 	VdfnAggregateNode.h
 	VdfnApplyTransformNode.cpp
 	VdfnApplyTransformNode.h
 	VdfnAxisRotateNode.cpp
 	VdfnAxisRotateNode.h
-	VdfnBinaryOpNode.cpp
 	VdfnBinaryOpNode.h
 	VdfnBinaryOps.h
-	VdfnChangeDetectNode.cpp
 	VdfnChangeDetectNode.h
 	VdfnCompose3DVectorNode.cpp
 	VdfnCompose3DVectorNode.h
@@ -28,14 +26,12 @@ set( DirFiles
 	VdfnConditionalRouteNode.cpp
 	VdfnConditionalRouteNode.h
 	VdfnConfig.h
-	VdfnConstantValueNode.cpp
 	VdfnConstantValueNode.h
-	VdfnCounterNode.cpp
 	VdfnCounterNode.h
 	VdfnDecompose3DVectorNode.cpp
 	VdfnDecompose3DVectorNode.h
-	VdfnDelayNode.cpp
 	VdfnDelayNode.h
+	VdfnDemultiplexNode.h
 	VdfnDifferenceNode.h
 	VdfnDriverSensorNode.cpp
 	VdfnDriverSensorNode.h
@@ -43,7 +39,6 @@ set( DirFiles
 	VdfnDumpHistoryNode.h
 	VdfnForceFeedbackNode.cpp
 	VdfnForceFeedbackNode.h
-	VdfnGetElementNode.cpp
 	VdfnGetElementNode.h
 	VdfnGetTransformNode.cpp
 	VdfnGetTransformNode.h
@@ -55,14 +50,14 @@ set( DirFiles
 	VdfnHistoryProjectNode.h
 	VdfnInvertNode.cpp
 	VdfnInvertNode.h
-	VdfnLatestUpdateNode.cpp
 	VdfnLatestUpdateNode.h
 	VdfnLoggerNode.cpp
 	VdfnLoggerNode.h
 	VdfnMatrixComposeNode.cpp
 	VdfnMatrixComposeNode.h
-	VdfnModuloCounterNode.cpp
 	VdfnModuloCounterNode.h
+	VdfnMultiplexNode.h
+	VdfnNegateNode.h
 	VdfnNode.cpp
 	VdfnNode.h
 	VdfnNodeCreators.cpp
@@ -83,6 +78,7 @@ set( DirFiles
 	VdfnProjectVectorNode.h
 	VdfnQuaternionSlerpNode.cpp
 	VdfnQuaternionSlerpNode.h
+	VdfnRangeCheckNode.h
 	VdfnReEvalNode.cpp
 	VdfnReEvalNode.h
 	VdfnReadWorkspaceNode.cpp
@@ -95,33 +91,19 @@ set( DirFiles
 	VdfnSetTransformNode.h
 	VdfnShallowNode.cpp
 	VdfnShallowNode.h
-	VdfnThresholdNode.cpp
 	VdfnThresholdNode.h
 	VdfnTimerNode.cpp
 	VdfnTimerNode.h
-	VdfnTypeConvertNode.cpp
-	VdfnTypeConvertNode.h
 	VdfnToggleNode.cpp
 	VdfnToggleNode.h
+	VdfnTypeConvertNode.h
 	VdfnUpdateThresholdNode.cpp
 	VdfnUpdateThresholdNode.h
 	VdfnUtil.cpp
 	VdfnUtil.h
-	VdfnValueToTriggerNode.cpp
 	VdfnValueToTriggerNode.h
-	VdfnVectorDecomposeNode.cpp
-	VdfnVectorDecomposeNode.h
-	VdfnNegateNode.cpp
-	VdfnNegateNode.h
-	VdfnRangeCheckNode.cpp
-	VdfnRangeCheckNode.h
-	VdfnMultiplexNode.cpp
-	VdfnMultiplexNode.h
-	VdfnDemultiplexNode.cpp
-	VdfnDemultiplexNode.h
-	VdfnVariableNode.cpp
 	VdfnVariableNode.h
-	
+	VdfnVectorDecomposeNode.h
 	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )

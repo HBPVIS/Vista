@@ -9,7 +9,6 @@ set( DirFiles
 	VistaBarrier.h
 	VistaDefSemaphoreImp.cpp
 	VistaDefSemaphoreImp.h
-	VistaFork.cpp
 	VistaFork.h
 	VistaIpcThreadModel.h
 	VistaMutex.cpp
@@ -30,7 +29,6 @@ set( DirFiles
 	VistaThreadCondition.h
 	VistaThreadEvent.cpp
 	VistaThreadEvent.h
-	VistaThreadFunction.cpp
 	VistaThreadFunction.h
 	VistaThreadLoop.cpp
 	VistaThreadLoop.h

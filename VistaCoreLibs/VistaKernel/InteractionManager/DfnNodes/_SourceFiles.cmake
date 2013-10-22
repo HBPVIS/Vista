@@ -32,7 +32,6 @@ set( DirFiles
 	VistaDfnSensorFrameNode.h
 	VistaDfnSystemTriggerControlNode.cpp
 	VistaDfnSystemTriggerControlNode.h
-	VistaDfnTextOverlayNode.cpp
 	VistaDfnTextOverlayNode.h
 	VistaDfnTrackballNode.cpp
 	VistaDfnTrackballNode.h

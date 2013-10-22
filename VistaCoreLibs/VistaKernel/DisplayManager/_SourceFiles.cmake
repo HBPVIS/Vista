@@ -32,7 +32,6 @@ set( DirFiles
 	VistaSceneOverlay.h
 	VistaSimpleTextOverlay.cpp
 	VistaSimpleTextOverlay.h
-	VistaTextEntity.cpp
 	VistaTextEntity.h
 	VistaViewport.cpp
 	VistaViewport.h
@@ -40,7 +39,6 @@ set( DirFiles
 	VistaVirtualPlatform.h
 	VistaWindow.cpp
 	VistaWindow.h
-	VistaWindowingToolkit.cpp
 	VistaWindowingToolkit.h
 	_SourceFiles.cmake
 )
