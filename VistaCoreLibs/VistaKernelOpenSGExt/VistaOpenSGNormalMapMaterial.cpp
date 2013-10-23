@@ -154,11 +154,11 @@ namespace
 		int nSizeX = pImage->getWidth();
 		int nSizeY = pImage->getHeight();
 
-		float nXPos = nTexCoordX * (float)( nSizeX - 1 );
+		float nXPos = nLocalCoordS * (float)( nSizeX - 1 );
 		int nPixelLowerX = Vista::Clamp( (int)std::floor( nXPos ), 0, nSizeX - 1 );
 		int nPixelUpperX = Vista::Clamp( (int)std::ceil( nXPos ), 0, nSizeX - 1 );
 		float nInterpolateX = 1.0f - ( nXPos - nPixelLowerX );
-		float nYPos = nTexCoordY * (float)( nSizeY - 1 );
+		float nYPos = nLocalCoordT * (float)( nSizeY - 1 );
 		int nPixelLowerY = Vista::Clamp( (int)std::floor( nYPos ), 0, nSizeY - 1 );
 		int nPixelUpperY = Vista::Clamp( (int)std::ceil( nYPos ), 0, nSizeY - 1 );
 		float nInterpolateY = 1.0f - ( nYPos - nPixelLowerY );
