@@ -26,6 +26,8 @@ set( DirFiles
 	VistaDisplayManager.h
 	VistaDisplaySystem.cpp
 	VistaDisplaySystem.h
+	VistaColorOverlay.cpp
+	VistaColorOverlay.h
 	VistaProjection.cpp
 	VistaProjection.h
 	VistaSceneOverlay.cpp
