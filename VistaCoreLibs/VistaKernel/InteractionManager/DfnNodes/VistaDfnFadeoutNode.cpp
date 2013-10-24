@@ -181,7 +181,7 @@ void VistaDfnFadeoutNode::SetModeOpacity()
 		default:
 			break;
 	}
-	float nAlpha = m_oColor.GetAlpha() * m_nOpacity;
+	float nAlpha = m_oColor.GetAlpha() * nOpacityFactor;
 	for( std::vector< VistaColorOverlay* >::iterator itOverlay = m_vecOverlays.begin();
 			itOverlay != m_vecOverlays.end(); ++itOverlay )
 	{
