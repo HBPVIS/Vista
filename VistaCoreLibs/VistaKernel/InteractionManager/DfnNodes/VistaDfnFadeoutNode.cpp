@@ -28,13 +28,13 @@
 #include <VistaKernel/DisplayManager/VistaDisplayManager.h>
 #include <VistaKernel/DisplayManager/VistaSceneOverlay.h>
 #include <VistaKernel/Cluster/VistaClusterMode.h>
+#include <VistaKernel/DisplayManager/VistaColorOverlay.h>
 
 #ifdef WIN32
 #include <Windows.h>
 #endif
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include "../../DisplayManager/VistaFadeoutOverlay.h"
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
