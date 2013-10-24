@@ -54,11 +54,12 @@
 class VistaViewport;
 class VistaDisplayManager;
 class VistaClusterMode;
+class VistaColorOverlay;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
-class VistaDfnFadeoutNode : public IVdfnNode
+class VISTAKERNELAPI VistaDfnFadeoutNode : public IVdfnNode
 {
 public:
 	VistaDfnFadeoutNode( VistaClusterMode* pClusterMode );
@@ -81,12 +82,10 @@ public:
 
 protected:
 	bool DoEvalNode();
+	void SetModeOpacity();
 
 private:
-	float GetModeOpacity();
-	class FadeoutOverlay;
-	friend class FadeoutOverlay;
-	std::vector<FadeoutOverlay*> m_vecOverlays;
+	std::vector<VistaColorOverlay*> m_vecOverlays;
 
 	VistaClusterMode* m_pClusterMode;
 

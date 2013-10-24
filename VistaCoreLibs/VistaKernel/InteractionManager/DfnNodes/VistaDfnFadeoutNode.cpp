@@ -34,6 +34,7 @@
 #endif
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include "../../DisplayManager/VistaFadeoutOverlay.h"
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
@@ -47,81 +48,6 @@ enum
 	MODE_FADEOUT,
 };
 
-class VistaDfnFadeoutNode::FadeoutOverlay : public IVistaSceneOverlay
-{
-public:
-	FadeoutOverlay( VistaViewport* pViewport, VistaDfnFadeoutNode* pParent )
-	: IVistaSceneOverlay( pViewport )
-	, m_bEnabled( true )
-	, m_pParent( pParent )
-	{
-	}
-
-	virtual bool GetIsEnabled() const
-	{
-		return m_bEnabled;
-	}
-
-	virtual void SetIsEnabled( bool bEnabled ) 
-	{
-		m_bEnabled = bEnabled;;
-	}
-
-	virtual void UpdateOnViewportChange( int iWidth, int iHeight, int iPosX, int iPosY ) 
-	{		
-	}
-
-	virtual bool Do()
-	{
-		if( m_bEnabled == false )
-			return false;
-		
-		float nOpacity = m_pParent->GetModeOpacity();
-
-		if( nOpacity <= 0 )
-			return true;
-
-		glPushAttrib( GL_ALL_ATTRIB_BITS );
-		glDisable(GL_LIGHTING);
-		glDisable(GL_DEPTH_TEST);
-		glEnable( GL_BLEND );
-		glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-
-		glDisable( GL_CULL_FACE );
-
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadIdentity();
-		// Note: y is inverted, so we start with (0,0) at the top left
-		gluOrtho2D( 0, 1, 0, 1 );
-
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glLoadIdentity();
-
-		float nAlpha = nOpacity * m_pParent->m_oColor[3];
-		glColor4f( m_pParent->m_oColor[0], m_pParent->m_oColor[1], m_pParent->m_oColor[2], nAlpha );
-		glBegin( GL_QUADS );
-			glVertex3f( 0, 0, 0 );
-			glVertex3f( 1, 0, 0 );
-			glVertex3f( 1, 1, 0 );
-			glVertex3f( 0, 1, 0 );
-		glEnd();
-
-		glPopMatrix();
-
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-
-		glMatrixMode(GL_MODELVIEW);
-		glPopAttrib();
-
-		return true;
-	}
-private:
-	VistaDfnFadeoutNode* m_pParent;
-	bool m_bEnabled;
-};
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
@@ -139,12 +65,15 @@ VistaDfnFadeoutNode::VistaDfnFadeoutNode( VistaClusterMode* pClusterMode )
 {
 	RegisterInPortPrototype( "opacity", new TVdfnPortTypeCompare<TVdfnPort<float> > );
 	RegisterInPortPrototype( "state", new TVdfnPortTypeCompare<TVdfnPort<bool> > );
+
+	// to update the opacity, we are called every frame
+	SetEvaluationFlag( true );
 }
 
 
 VistaDfnFadeoutNode::~VistaDfnFadeoutNode()
 {
-	for( std::vector<FadeoutOverlay*>::iterator itOverlay = m_vecOverlays.begin();
+	for( std::vector<VistaColorOverlay*>::iterator itOverlay = m_vecOverlays.begin();
 			itOverlay != m_vecOverlays.end(); ++itOverlay )
 	{
 		delete (*itOverlay);
@@ -165,7 +94,11 @@ bool VistaDfnFadeoutNode::PrepareEvaluationRun()
 
 void VistaDfnFadeoutNode::AddToViewport( VistaViewport* pViewport )
 {
-	m_vecOverlays.push_back( new FadeoutOverlay( pViewport, this ) );
+	VistaColorOverlay* pOverlay = new VistaColorOverlay( pViewport );
+	pOverlay->SetColor( m_oColor );
+	pOverlay->SetOpacity( m_oColor.GetAlpha() * m_nOpacity );
+	pOverlay->SetIsEnabled( false );
+	m_vecOverlays.push_back( pOverlay );
 }
 
 void VistaDfnFadeoutNode::AddToAllViewports( VistaDisplayManager* pManager )
@@ -173,7 +106,7 @@ void VistaDfnFadeoutNode::AddToAllViewports( VistaDisplayManager* pManager )
 	for( std::map<std::string, VistaViewport*>::const_iterator itViewport = pManager->GetViewportsConstRef().begin();
 			itViewport != pManager->GetViewportsConstRef().end(); ++itViewport )
 	{
-		m_vecOverlays.push_back( new FadeoutOverlay( (*itViewport).second, this ) );
+		AddToViewport( (*itViewport).second );
 	}
 }
 
@@ -207,12 +140,14 @@ void VistaDfnFadeoutNode::SetFadeoutTime( const VistaType::microtime oValue )
 	m_nFadeoutTime = oValue;
 }
 
-float VistaDfnFadeoutNode::GetModeOpacity()
+void VistaDfnFadeoutNode::SetModeOpacity()
 {
+	float nOpacityFactor = 0;
 	switch( m_nState )
 	{
 		case MODE_CONST_OPACITY:
-			return m_nOpacity;
+			nOpacityFactor = m_nOpacity;
+			break;
 		case MODE_FADEOUT:
 		{
 			VistaType::microtime nDiff = m_pClusterMode->GetFrameClock() - m_nStartTime;
@@ -221,9 +156,12 @@ float VistaDfnFadeoutNode::GetModeOpacity()
 			{
 				m_nState = MODE_CONST_OPACITY;
 				m_nOpacity = 1;
-				return m_nOpacity;
+				m_nOpacity = m_nOpacity;
 			}
-			return nDiff;
+			else
+				m_nOpacity = nDiff;
+			break;
+				
 		}
 		case MODE_FADEIN:
 		{
@@ -233,13 +171,21 @@ float VistaDfnFadeoutNode::GetModeOpacity()
 			{
 				m_nState = MODE_OFF;
 				m_nOpacity = 0;
-				return m_nOpacity;
+				m_nOpacity =  m_nOpacity;
 			}
-			return 1 - nDiff;
+			else
+				m_nOpacity = ( 1 - nDiff );
+			break;
 		}
 		case MODE_OFF:
 		default:
-			return 0;
+			break;
+	}
+	float nAlpha = m_oColor.GetAlpha() * m_nOpacity;
+	for( std::vector< VistaColorOverlay* >::iterator itOverlay = m_vecOverlays.begin();
+			itOverlay != m_vecOverlays.end(); ++itOverlay )
+	{
+		(*itOverlay)->SetOpacity( nAlpha );
 	}
 }
 
@@ -276,6 +222,7 @@ bool VistaDfnFadeoutNode::DoEvalNode()
 		m_nOpacity = m_pOpacityPort->GetValue();
 		m_nState = MODE_CONST_OPACITY;
 	}
+	SetModeOpacity();
 	return true;
 }
 
