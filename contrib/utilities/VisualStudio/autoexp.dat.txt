@@ -3,6 +3,47 @@
 ; located at C:\Program Files (x86)\Microsoft Visual Studio X\Common7\Packages\Debugger
 ; Put it at the very front of the [Visualizer] section - yes, right there where it says 'Do not modify'
 
+VistaColor {
+	children
+	(
+		#array
+		(
+			expr :	($c.m_a4fValues)[$i],
+			size :	4
+		)
+	)
+
+	preview
+	(
+		#(
+			"( R: ",
+			#if( ($c.m_a4fValues)[0] - (int)($c.m_a4fValues)[0] == 0 ) (
+				(int)($c.m_a4fValues)[0]
+			) #else (
+				($c.m_a4fValues)[0]
+			),
+			", G: ",
+			#if( ($c.m_a4fValues)[1] - (int)($c.m_a4fValues)[1] == 0 ) (
+				(int)($c.m_a4fValues)[1]
+			) #else (
+				($c.m_a4fValues)[1]
+			),
+			", B: ",
+			#if( ($c.m_a4fValues)[2] - (int)($c.m_a4fValues)[2] == 0 ) (
+				(int)($c.m_a4fValues)[2]
+			) #else (
+				($c.m_a4fValues)[2]
+			),
+			", A: ",
+			#if( ($c.m_a4fValues)[3] - (int)($c.m_a4fValues)[3] == 0 ) (
+				(int)($c.m_a4fValues)[3]
+			) #else (
+				($c.m_a4fValues)[3]
+			),
+			")"
+		)
+	)
+}
 
 VistaVector3D {
 	children
