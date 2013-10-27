@@ -29,6 +29,7 @@
 
 #include <VistaBase/VistaTimeUtils.h>
 #include <VistaBase/VistaStreamUtils.h>
+#include <VistaBase/VistaExceptionBase.h>
 
 #ifdef WIN32
 	#pragma warning(disable: 4996)
@@ -1298,6 +1299,8 @@ bool VistaProfiler::ValueEquals(const string &value, const string &expected, boo
 		return (stricmp(value.c_str(), expected.c_str())==0);
 #elif defined(LINUX) || defined(SUNOS) || defined(IRIX) || defined(HPUX) || defined(DARWIN)
 		return (strcasecmp(value.c_str(), expected.c_str())==0);
+#else
+		VISTA_THROW_NOT_IMPLEMENTED;
 #endif
 	}
 }

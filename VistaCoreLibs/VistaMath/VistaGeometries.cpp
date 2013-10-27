@@ -1981,7 +1981,7 @@ float VistaEvenCone::GetRadius() const
 
 void VistaEvenCone::SetHeight(float nHeight)
 {
-	m_nHeight = m_nHeight;
+	m_nHeight = nHeight;
 }
 
 void VistaEvenCone::SetRadius(float nRadius)

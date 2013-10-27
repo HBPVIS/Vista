@@ -155,11 +155,10 @@ void VistaDfnFadeoutNode::SetModeOpacity()
 			if( nDiff > 1 )
 			{
 				m_nState = MODE_CONST_OPACITY;
-				m_nOpacity = 1;
-				m_nOpacity = m_nOpacity;
+				nOpacityFactor = 1;
 			}
 			else
-				m_nOpacity = nDiff;
+				nOpacityFactor = nDiff;
 			break;
 				
 		}
@@ -170,11 +169,10 @@ void VistaDfnFadeoutNode::SetModeOpacity()
 			if( nDiff > 1 )
 			{
 				m_nState = MODE_OFF;
-				m_nOpacity = 0;
-				m_nOpacity =  m_nOpacity;
+				nOpacityFactor =  0;
 			}
 			else
-				m_nOpacity = ( 1 - nDiff );
+				nOpacityFactor = ( 1 - nDiff );
 			break;
 		}
 		case MODE_OFF:

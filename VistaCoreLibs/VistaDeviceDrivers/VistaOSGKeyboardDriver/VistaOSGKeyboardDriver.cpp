@@ -57,7 +57,7 @@ bool InterpreteOSGKey( int& nKey, const int nMod )
 		case osgGA::GUIEventAdapter::KEY_7:
 		case osgGA::GUIEventAdapter::KEY_8:
 		case osgGA::GUIEventAdapter::KEY_9:
-			nKey = nKey; break;
+			break;
 		case osgGA::GUIEventAdapter::KEY_A:
 		case osgGA::GUIEventAdapter::KEY_B:
 		case osgGA::GUIEventAdapter::KEY_C:
@@ -110,10 +110,8 @@ bool InterpreteOSGKey( int& nKey, const int nMod )
 		case osgGA::GUIEventAdapter::KEY_X - 32:
 		case osgGA::GUIEventAdapter::KEY_Y - 32:
 		case osgGA::GUIEventAdapter::KEY_Z - 32:
-		{
-			nKey = nKey;
 			break;
-		}
+
 
 		case osgGA::GUIEventAdapter::KEY_Exclaim:
         case osgGA::GUIEventAdapter::KEY_Quotedbl:
@@ -142,7 +140,7 @@ bool InterpreteOSGKey( int& nKey, const int nMod )
         case osgGA::GUIEventAdapter::KEY_Caret:
         case osgGA::GUIEventAdapter::KEY_Underscore:
         case osgGA::GUIEventAdapter::KEY_Backquote:
-			nKey = nKey; break;
+			break;
 
         case osgGA::GUIEventAdapter::KEY_BackSpace:
 			nKey = VISTA_KEY_BACKSPACE; break;
