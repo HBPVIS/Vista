@@ -37,8 +37,8 @@
 
 #include <cassert>
 #include <algorithm>
+#include <cmath>
 
-#include <math.h>
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
@@ -240,12 +240,12 @@ bool IVistaDeviceDriver::SetupSensorHistory( VistaDeviceSensor *pSensor,
 							VistaType::microtime nMaxHistoryAccessTimeInMsec )
 {
 	unsigned int nUpdateRateOfSensorInHz = m_pFactory->GetUpdateEstimatorFor( pSensor->GetTypeHint() );
-	if( nUpdateRateOfSensorInHz == ~0 )
+	if( nUpdateRateOfSensorInHz == (unsigned int)~0 )
 		return false;
 
 	int nNum = int(ceilf((float)nMaxHistoryAccessTimeInMsec/float(1000.0f/float(nUpdateRateOfSensorInHz))));
 	unsigned int nMeasureSize = m_pFactory->GetMeasureSizeFor( pSensor->GetTypeHint() );
-	if( nMeasureSize == ~0 )
+	if( nMeasureSize == (unsigned int)~0 )
 		nMeasureSize = 0;
 	
 	return m_pHistoryAspect->SetHistorySize( pSensor, nMaxSlotsToRead, 2*nNum, nMeasureSize );

@@ -233,7 +233,7 @@ const VistaSensorMeasure *VistaMeasureHistory::GetCurrentRead() const
 
 	// return the most current when swap was called
 	TVistaRingBuffer<VistaSensorMeasure>::size_type st = m_rbHistory.pred(nCurHd);
-	if(st == ~0)
+	if(st == (unsigned int)~0)
 		return NULL;
 	return &(*m_rbHistory.index(st));
 }
@@ -257,10 +257,10 @@ VistaType::uint32 VistaMeasureHistory::GetCurrentReadPosition() const
 
 const VistaSensorMeasure *VistaMeasureHistory::GetPast(unsigned int nNum, VistaType::uint32 nCurRdPos ) const
 {
-	if(nCurRdPos == ~0)
+	if(nCurRdPos == (unsigned int)~0)
 		nCurRdPos = m_pAtomics->AtomicRead(m_nSnapshotWriteHead);
 
-	if( nCurRdPos == ~0)
+	if( nCurRdPos == (unsigned int)~0)
 		return NULL;
 
 	TVistaRingBuffer<VistaSensorMeasure>::const_iterator cit

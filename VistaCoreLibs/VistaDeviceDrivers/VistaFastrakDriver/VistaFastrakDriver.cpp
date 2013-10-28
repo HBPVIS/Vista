@@ -1083,7 +1083,7 @@ bool VistaFastrakDriver::DoSensorUpdate(VistaType::microtime dTs)
 			// detetermine by sensor mapping
 			// in this case: all id's are globally numbered over all types
 			unsigned int nId = m_pSensorMap->GetSensorIdByRawId( nSensor );
-			if(nId == ~0) // not found
+			if(nId == (unsigned int)~0) // not found
 				break; // skip this record (break-if)
 
 			VistaDeviceSensor *pSensor = GetSensorByIndex(nId);
@@ -1183,7 +1183,7 @@ bool VistaFastrakDriver::Connect()
 
 
 			long nStations = GetCommandSet()->CmdGetActiveStationMask();
-			for(int n=0; n < sizeof(long)*8; ++n)
+			for(unsigned int n=0; n < sizeof(long)*8; ++n)
 			{
 				if( nStations & (1<<n) )
 				{

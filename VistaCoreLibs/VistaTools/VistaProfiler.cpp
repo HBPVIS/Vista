@@ -1021,10 +1021,12 @@ int	VistaProfiler::SetTheProfileString (	      const string &IniSectionName,
 			if ( SectionFound && !( (strstr(LineBuffer.c_str(),Entry0.c_str())==LineBuffer.c_str()) ||
 						(strstr(LineBuffer.c_str(),Entry1.c_str())==LineBuffer.c_str()) ||
 						(strstr(LineBuffer.c_str(),Entry2.c_str())==LineBuffer.c_str()) ) )
+			{
 				if ( fin1.eof() )
 					fout1 << LineBuffer.c_str();
 				else
 					fout1 << LineBuffer.c_str() << "\n";
+			}
 		}
 	}
 

@@ -150,7 +150,6 @@ private:
 
 	std::list< _sPortMap > m_liOutPorts;
 	std::list<std::string> m_liOriginalPorts;
-	bool m_bInitDone;
 	HistoryPort    *m_pHistory;
 	TVdfnPort<int> *m_pSamplingMode;
 	TVdfnPort<unsigned int> *m_pIterateState,

@@ -27,8 +27,9 @@
 /*============================================================================*/
 #include "VistaRandomNumberGenerator.h"
 
-#include <string.h>
-#include <math.h>
+#include <cstring>
+#include <cmath>
+#include <cstddef>
 
 /*============================================================================*/
 /*  MAKROS AND DEFINES                                                        */

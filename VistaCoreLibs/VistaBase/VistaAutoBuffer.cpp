@@ -26,7 +26,8 @@
 #include "VistaAutoBuffer.h"
 #include "VistaAtomicCounter.h"
 
-#include <iostream>
+#include <cstddef>
+
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/

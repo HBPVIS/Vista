@@ -45,7 +45,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-#include <assert.h>
+#include <cassert>
 
 
 using namespace std;
@@ -941,37 +941,37 @@ VistaDTrackDriver::VistaDTrackDriver(IVistaDriverCreationMethod *crm)
 
 	// register sensor type STICK measuring 18 values
 	unsigned int nStickType  =  m_pSensors->RegisterType("STICK");
-	if( nStickType == ~0 )
+	if( nStickType == (unsigned int)~0 )
 		nStickType = m_pSensors->GetTypeId("STICK");
 
 	// register sensor type STICK measuring dynamic size values
 	unsigned int nStick2Type  =  m_pSensors->RegisterType("STICK2");
-	if( nStick2Type == ~0 )
+	if( nStick2Type == (unsigned int)~0 )
 		nStick2Type = m_pSensors->GetTypeId("STICK2");
 
 	// register sensor type BODY measuring 17 values (same as stick without button)
 	unsigned int nBodyType   =  m_pSensors->RegisterType("BODY");
-	if( nBodyType == ~0 )
+	if( nBodyType == (unsigned int)~0 )
 		nBodyType = m_pSensors->GetTypeId("BODY");
 
 	// register type HAND with up to 5 fingers
 	unsigned int nHandType =  m_pSensors->RegisterType("HAND");
-	if( nHandType == ~0 )
+	if( nHandType == (unsigned int)~0 )
 		nHandType = m_pSensors->GetTypeId("HAND");
 
 	// register sensor type MARKER catching id,qu and 3dof
 	m_nMarkerType =  m_pSensors->RegisterType("MARKER");
-	if( m_nMarkerType == ~0 )
+	if( m_nMarkerType == (unsigned int)~0 )
 		m_nMarkerType = m_pSensors->GetTypeId("MARKER");
 
 	// register type global, catching frame count and (optional) clock
 	m_nGlobalType =  m_pSensors->RegisterType("GLOBAL");
-	if( m_nGlobalType == ~0 )
+	if( m_nGlobalType == (unsigned int)~0 )
 		m_nGlobalType = m_pSensors->GetTypeId("GLOBAL");
 
 	
 	unsigned int nMeasureType = m_pSensors->RegisterType("MEASURE");
-	if( nMeasureType == ~0 )
+	if( nMeasureType == (unsigned int)~0 )
 		nMeasureType = m_pSensors->GetTypeId("MEASURE");
 
 	RegisterAspect(m_pSensors);

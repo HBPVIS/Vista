@@ -295,7 +295,7 @@ bool VdfnActionNode::DoEvalNode()
 		// set, as no new value is propagated to the network
 		if( (*cit).m_pPort->GetUpdateCounter() != (*cit).m_nRevision )
 		{
-			(*cit).m_pSet->Set( m_pActionObject, (*cit).m_pFunctor, (*cit).m_pPort, GetUpdateTimeStamp(), ~0 );
+			(*cit).m_pSet->Set( m_pActionObject, (*cit).m_pFunctor, (*cit).m_pPort, GetUpdateTimeStamp(), (unsigned int)~0 );
 
 			// copy the revision in the internal records for a later change-check
 			(*cit).m_nRevision = (*cit).m_pPort->GetUpdateCounter();
@@ -314,7 +314,7 @@ bool VdfnActionNode::DoEvalNode()
 			IVdfnPort *pPort = GetOutPort( (*lit).m_strPortName );
 			if(pPort)
 			{
-				(*lit).m_pSet->Get( m_pActionObject, (*lit).m_pGet, pPort, GetUpdateTimeStamp(), ~0 );
+				(*lit).m_pSet->Get( m_pActionObject, (*lit).m_pGet, pPort, GetUpdateTimeStamp(), (unsigned int)~0 );
 			}
 		}
 		// sideeffect: reset-the dirty flag of the observer

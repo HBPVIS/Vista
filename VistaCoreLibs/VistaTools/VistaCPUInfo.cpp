@@ -492,6 +492,7 @@ std::string VistaCPUInfo::GetCPUNameString(  ) const
 					case 10: return "INTEL  Pentium III (0.18micron)";
 					case 11: return "INTEL  Pentium III (0.13micron)";
 				}
+				break;
 			}
 		case 7:	return "INTEL Itanium";
 		case 15:
