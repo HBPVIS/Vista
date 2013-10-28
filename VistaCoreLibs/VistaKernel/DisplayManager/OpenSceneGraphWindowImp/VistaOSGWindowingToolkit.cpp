@@ -165,6 +165,7 @@ void VistaOSGWindowingToolkit::Run()
 						pEvent->setHandled( true );
 						(*itWin).second->m_pWindow->GetProperties()->Notify(
 							VistaWindow::VistaWindowProperties::MSG_SIZE_CHANGE );
+						break;
 					}
 					default:
 						break;

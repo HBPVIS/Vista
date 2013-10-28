@@ -338,7 +338,7 @@ IVistaMouseDriver::~IVistaMouseDriver()
 unsigned int IVistaMouseDriver::AddDeviceSensor(VistaDeviceSensor *pSensor)
 {
 	// add to parent driver
-	if( pSensor->GetTypeHint() == ~0 )
+	if( pSensor->GetTypeHint() == (unsigned int)~0 )
 	{
 		pSensor->SetTypeHint( GetFactory()->GetTypeFor( "" ) );
 	}

@@ -145,8 +145,8 @@ public:
 			{
 				break;
 			}
-			break;
 			}
+			break;
 		}
 		case TICKET_FRAME:
 		{

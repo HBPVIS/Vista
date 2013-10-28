@@ -194,5 +194,5 @@ bool VistaTCPIPClusterFollowerBarrier::BarrierWait( int iTimeOut )
 
 std::string VistaTCPIPClusterFollowerBarrier::GetBarrierType() const
 {
-	return "TCPIPFollowerBarrier";;
+	return "TCPIPFollowerBarrier";
 }

@@ -178,8 +178,8 @@ public:
 	 * Gets/Sets the read timeout that is used by default with every call to
 	 * ReadXYZ - per default, it is set to 0
 	 */
-	virtual int GetReadTimeout() const;;
-	virtual bool SetReadTimeout( int nReadTimeout );;
+	virtual int GetReadTimeout() const;
+	virtual bool SetReadTimeout( int nReadTimeout );
 
 	virtual bool Flush() { return false; };
 

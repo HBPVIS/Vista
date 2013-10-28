@@ -110,7 +110,7 @@ bool VdfnHistoryProjectNode::DoEvalNode()
 
 			m_pIterateState->SetValue( m_nUnprocessedMeasures, GetUpdateTimeStamp() );
 
-			if( --m_nUnprocessedMeasures != ~0 )
+			if( --m_nUnprocessedMeasures != (unsigned int)~0 )
 				pMeasure = m_pHistory->GetValue()->m_oHistory.GetPast( m_nUnprocessedMeasures );
 			else
 			{

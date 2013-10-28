@@ -397,7 +397,7 @@ void VistaFrameSeriesCapture::ReplaceScreenshotCount( std::string& sName )
 void VistaFrameSeriesCapture::ReplaceNodeName( std::string& sName )
 {
 	if( m_bNeedsNodeNameReplace == false )
-		return;;
+		return;
 
 	m_bNeedsNodeNameReplace = StringReplace( sName, "%N%", m_pSystem->GetClusterMode()->GetNodeName() );
 }

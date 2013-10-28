@@ -60,7 +60,7 @@ public:
 
 	virtual void SetIsEnabled( bool bEnabled ) 
 	{
-		m_bEnabled = bEnabled;;
+		m_bEnabled = bEnabled;
 	}
 
 	virtual void UpdateOnViewportChange( int iWidth, int iHeight, int iPosX, int iPosY ) 

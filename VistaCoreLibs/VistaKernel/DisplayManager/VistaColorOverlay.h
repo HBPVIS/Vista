@@ -68,7 +68,7 @@ public:
 	/**
 	 * G/SetOpacity retrieves/modifies only the alpha component of the color
 	 */
-	float GetOpacity() const;;
+	float GetOpacity() const;
 	void SetOpacity( const float nOpacity );
 private:
 	bool m_bEnabled;

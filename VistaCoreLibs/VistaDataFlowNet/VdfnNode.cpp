@@ -130,7 +130,7 @@ bool IVdfnNode::EvalNode( double nTimeStamp )
 		return true;	
 
 	unsigned int nUpdCount = CalcUpdateNeededScore();
-	if( nUpdCount == ~0 )
+	if( nUpdCount == (unsigned int)~0 )
 	{
 		SetUpdateTimeStamp(nTimeStamp);
 		++m_nUpdateCount;

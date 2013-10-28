@@ -158,8 +158,6 @@ private:
 	unsigned int	m_nUnprocessedMeasures, m_nLastIndex;
 	eMode m_eInitialMode;
 
-	unsigned int m_nBackwardIndex;
-
 };
 
 /*============================================================================*/

@@ -707,13 +707,13 @@ VistaViewport *VistaDisplayManager::CreateViewport( const std::string& sSectionN
 	if( oViewportProps.GetValue( "WINDOW", sWindowSection ) == false )
 	{
 		vstr::errp() << "No WINDOW specified" << std::endl;
-		return NULL;;
+		return NULL;
 	}		
 	VistaWindow *pWindow = CreateVistaWindow( sWindowSection, oConfig );
 	if( pWindow == NULL )
 	{
 		vstr::errp() << "Could not create Window - skipping Display" << std::endl;	
-		return NULL;;
+		return NULL;
 	}
 
 
@@ -747,7 +747,7 @@ VistaViewport *VistaDisplayManager::CreateViewport( const std::string& sSectionN
 	if( oViewportProps.GetValue( "PROJECTION", sProjSection ) == false )
 	{
 		vstr::errp() << "No PROJECTION specified" << std::endl;
-		return NULL;;
+		return NULL;
 	}		
 	VistaProjection *pProjection = CreateProjection( pViewport, sProjSection, oConfig );
 	if( !pProjection )

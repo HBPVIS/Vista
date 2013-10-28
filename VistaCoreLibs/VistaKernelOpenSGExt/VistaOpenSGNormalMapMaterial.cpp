@@ -203,6 +203,7 @@ namespace
 				colBottomRight = GetPixelEntry<osg::UInt16>( nPixelUpperX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData );
 				colTopLeft = GetPixelEntry<osg::UInt16>( nPixelLowerX, nPixelUpperY, nSizeX, nSizeY, nNumComponents, pData );
 				colTopRight = GetPixelEntry<osg::UInt16>( nPixelUpperX, nPixelUpperY, nSizeX, nSizeY, nNumComponents, pData );
+				break;
 			case osg::Image::OSG_UINT32_IMAGEDATA:
 				colBottomLeft = GetPixelEntry<osg::UInt32>( nPixelLowerX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData );
 				colBottomRight = GetPixelEntry<osg::UInt32>( nPixelUpperX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData );
@@ -214,11 +215,13 @@ namespace
 				colBottomRight = GetPixelEntry<osg::Real16>( nPixelUpperX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData );
 				colTopLeft = GetPixelEntry<osg::Real16>( nPixelLowerX, nPixelUpperY, nSizeX, nSizeY, nNumComponents, pData );
 				colTopRight = GetPixelEntry<osg::Real16>( nPixelUpperX, nPixelUpperY, nSizeX, nSizeY, nNumComponents, pData );
+				break;
 			case osg::Image::OSG_FLOAT32_IMAGEDATA:
 				colBottomLeft = GetPixelEntry<osg::Real32>( nPixelLowerX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData, false );
 				colBottomRight = GetPixelEntry<osg::Real32>( nPixelUpperX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData, false );
 				colTopLeft = GetPixelEntry<osg::Real32>( nPixelLowerX, nPixelUpperY, nSizeX, nSizeY, nNumComponents, pData, false );
 				colTopRight = GetPixelEntry<osg::Real32>( nPixelUpperX, nPixelUpperY, nSizeX, nSizeY, nNumComponents, pData, false );
+				break;
 			case osg::Image::OSG_INT16_IMAGEDATA:
 				colBottomLeft = GetPixelEntry<osg::Int16>( nPixelLowerX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData, false );
 				colBottomRight = GetPixelEntry<osg::Int16>( nPixelUpperX, nPixelLowerY, nSizeX, nSizeY, nNumComponents, pData, false );

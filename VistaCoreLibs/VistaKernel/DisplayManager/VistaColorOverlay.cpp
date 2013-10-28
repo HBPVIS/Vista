@@ -123,7 +123,7 @@ void VistaColorOverlay::UpdateOnViewportChange( int iWidth, int iHeight, int iPo
 
 void VistaColorOverlay::SetIsEnabled( bool bEnabled )
 {
-	m_bEnabled = bEnabled;;
+	m_bEnabled = bEnabled;
 }
 
 bool VistaColorOverlay::GetIsEnabled() const

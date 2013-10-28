@@ -79,7 +79,7 @@ public:
 							float fDensity,
 							const VistaVector3D& v3DragCoefficientXYZ,
 							const VistaVector3D& v3WorkingSurfaceXYZ);
-	virtual ~PMPhysicalEnvironment();;
+	virtual ~PMPhysicalEnvironment();
 
 	//Applies Physics to the object calling this function! Currently only used for particles, but other objects might profit, too!
 	VistaVector3D ApplyPhysics(float *v3VelocitiesVector,
@@ -127,7 +127,7 @@ class VISTAKERNELOPENSGEXTAPI PMPhysicalFrameChange : public VistaOpenSGParticle
 {
 public:
 	PMPhysicalFrameChange( float fColorFactor, float fSizeFactor, float fVelocitiesFactor );
-	virtual ~PMPhysicalFrameChange();;
+	virtual ~PMPhysicalFrameChange();
 
 	void SetPhysicsEngine( PMPhysicalEnvironment *pPhysics );
 
@@ -160,7 +160,7 @@ public:
 						float fAlphaFactor,
 						const VistaVector3D& v3ParticleSize,
 						float fSizeFactor );
-	virtual ~PMOriginSet();;
+	virtual ~PMOriginSet();
 
 	void ChangeParticle( SParticle& oParticle,
 						VistaType::microtime dCurrentTime,
@@ -187,7 +187,7 @@ class VISTAKERNELOPENSGEXTAPI PMLinearFrameChange : public VistaOpenSGParticleMa
 {
 public:
 	PMLinearFrameChange(float fColorFactor, float fSizeFactor, float fVelocitiesFactor);
-	virtual ~PMLinearFrameChange();;
+	virtual ~PMLinearFrameChange();
 
 	void ChangeParticle( SParticle& oParticle,
 						VistaType::microtime dCurrentTime,

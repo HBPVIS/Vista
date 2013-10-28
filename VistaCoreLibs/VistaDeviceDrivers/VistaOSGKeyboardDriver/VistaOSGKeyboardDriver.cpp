@@ -359,7 +359,7 @@ bool InterpreteOSGKey( int& nKey, const int nMod )
 
 int InterpreteOSGModifiers( const int nModifiers )
 {
-	int nResMask = VISTA_KEYMOD_NONE;;
+	int nResMask = VISTA_KEYMOD_NONE;
 	if( nModifiers & osgGA::GUIEventAdapter::MODKEY_SHIFT )
 	{
 		nResMask |= VISTA_KEYMOD_SHIFT;

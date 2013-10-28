@@ -149,7 +149,7 @@ VistaType::uint64 VistaCPUInfo::GetSpeed() const
 
 unsigned int VistaCPUInfo::GetSpeedMHz() const
 {
-	return (unsigned int)(GetSpeed()/(1000*1000));;
+	return (unsigned int)(GetSpeed()/(1000*1000));
 }
 
 std::string VistaCPUInfo::GetCPUName() const

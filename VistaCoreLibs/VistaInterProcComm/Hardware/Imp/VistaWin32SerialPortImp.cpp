@@ -123,7 +123,7 @@ static void PrintSerialPortErrorMessage(DWORD error)
 		}
 	default:
 		{
-			vstr::warnp() << "Undocumented win32-serialport error (" << error << ")" << std::endl;;
+			vstr::warnp() << "Undocumented win32-serialport error (" << error << ")" << std::endl;
 			LPVOID lpMsgBuf;
 			FormatMessage(
 				FORMAT_MESSAGE_ALLOCATE_BUFFER | 

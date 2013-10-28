@@ -130,13 +130,13 @@ bool     VistaPosixProcessImp::Run(const string &inCommand)
 
 bool     VistaPosixProcessImp::Suspend()
 {
-	return ( kill ( unixPID, SIGSTOP ) == 0 );;
+	return ( kill ( unixPID, SIGSTOP ) == 0 );
 }
 
 
 bool     VistaPosixProcessImp::Resume()
 {
-	return ( kill ( unixPID, SIGCONT ) == 0 );;
+	return ( kill ( unixPID, SIGCONT ) == 0 );
 }
 
 

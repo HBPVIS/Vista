@@ -1111,7 +1111,7 @@ IVistaNode* VistaOpenSGNodeBridge::LoadNode( const std::string &strFileName,
 		if( bVerbose )
 		{
 			vstr::outi() << "VistaOpenSGNodeBridge::LoadNode("
-				<< strFileName << ") -- applying optimizations" << std::endl;;			
+				<< strFileName << ") -- applying optimizations" << std::endl;;
 		}
 
 

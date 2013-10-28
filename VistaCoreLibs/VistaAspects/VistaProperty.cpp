@@ -294,7 +294,7 @@ bool VistaProperty::operator==(const VistaProperty &rProp) const
 	{
 		vstr::warnp() << "VistaProperty::operator==(const VistaProperty &) -- "
 					<< "Comparing on values of different types ("
-					<< GetPropertyType() << ") vs. (" << rProp.GetPropertyType() << ")" << std::endl;;
+					<< GetPropertyType() << ") vs. (" << rProp.GetPropertyType() << ")" << std::endl;
 	}
 
 	if((m_ePropType == VistaProperty::PROPT_PROPERTYLIST)

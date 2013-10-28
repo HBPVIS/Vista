@@ -1055,7 +1055,7 @@ bool VistaSystem::LoadIniFiles()
 	vstr::outi() << "Display-ini    : " + m_sDisplayConfigFile + "\n";
 	vstr::outi() << "Graphics-ini   : " + m_sGraphicsConfigFile + "\n";
 	vstr::outi() << "Interaction-ini: " + m_sInteractionConfigFile + "\n";
-	vstr::outi() << "Cluster-ini    : " + m_sClusterConfigFile << std::endl;;
+	vstr::outi() << "Cluster-ini    : " + m_sClusterConfigFile << std::endl;
 				
 
 	return true;

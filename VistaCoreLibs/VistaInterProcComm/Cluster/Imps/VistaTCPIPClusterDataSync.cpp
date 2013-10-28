@@ -252,7 +252,7 @@ bool VistaTCPIPClusterLeaderDataSync::SetSendBlockingThreshold( const int nNumBy
 
 int VistaTCPIPClusterLeaderDataSync::GetSendBlockingThreshold() const
 {
-	return m_nBlockByteCount;;
+	return m_nBlockByteCount;
 }
 
 

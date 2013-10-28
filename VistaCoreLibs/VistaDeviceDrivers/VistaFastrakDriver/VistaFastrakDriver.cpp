@@ -361,9 +361,9 @@ public:
 
 		long m_nActiveStationMask = CmdGetActiveStationMask();
 
-		for(int i=0; i<sizeof(long)*8; ++i)
+		for(unsigned int i=0; i<sizeof(long)*8; ++i)
 		{
-			int n = 1<<i;
+			long n = 1<<i;
 			if(m_nActiveStationMask & n)
 			{
 				CmdSetHemisphere( i+1, pntHemisphere[0],pntHemisphere[1],pntHemisphere[2] );

@@ -376,7 +376,7 @@ int VistaFileSystemDirectory::ReadEntries()
 					dir_entry->d_name != string("..") )
 				{
 					stat( (GetName() + "/" + string(dir_entry->d_name)).c_str() , &attributes );
-					if (attributes.st_mode & S_IFREG || attributes.st_mode & S_IFCHR )
+					if ( ( attributes.st_mode & S_IFREG ) || ( attributes.st_mode & S_IFCHR ) )
 					{
 						m_Entries.push_back( Pair((GetName() + "/" + string(dir_entry->d_name)), FT_FILE) );
 						m_EntryList.push_back( new VistaFileSystemFile((GetName() + "/" + string(dir_entry->d_name))) );

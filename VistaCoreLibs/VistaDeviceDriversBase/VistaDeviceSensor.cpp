@@ -228,7 +228,7 @@ const VistaSensorMeasure *VistaMeasureHistory::GetCurrentRead() const
 {
 	// nothing read, yet?
 	VistaType::uint32 nCurHd = m_pAtomics->AtomicRead(m_nSnapshotWriteHead);
-	if( nCurHd == ~0)
+	if( nCurHd == (unsigned int)~0)
 		return NULL;
 
 	// return the most current when swap was called
