@@ -96,8 +96,6 @@ private:
 	VistaSystem       *m_pVistaSystem;
 	OSG::RenderAction *m_pRenderAction;
 
-	clock_t      m_LastTime;
-	unsigned int m_iNumFrames;
 	long         m_lFCStoreOffset;	
 };
 

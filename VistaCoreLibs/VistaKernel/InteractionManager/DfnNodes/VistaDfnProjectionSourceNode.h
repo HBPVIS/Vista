@@ -81,8 +81,6 @@ private:
 	class ProjectionObserver;
 	VistaProjection *m_pProjection;
 	ProjectionObserver *m_pObs;
-	bool m_bNeedsUpdate;
-	int  m_nUpdateCount;
 
 	struct _sUpdate
 	{

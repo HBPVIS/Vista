@@ -188,7 +188,6 @@ protected:
 	bool DoEvalNode() ;
 
 private:
-	bool m_bManageGetTimeDeletion;
 	VdfnTimerNode::CGetTime *m_pGetTime;
 	TVdfnPort<double> *m_pTickTime,
 					  *m_pFraction,

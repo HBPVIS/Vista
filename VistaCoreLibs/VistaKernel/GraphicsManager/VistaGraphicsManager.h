@@ -139,8 +139,6 @@ protected:
 	IVistaGraphicsBridge*   m_pGraphicsBridge;
 	IVistaNodeBridge*       m_pNodeBridge;
 	VistaFrameLoop*			m_pLoop;
-private:
-	VistaEventManager*		m_pEventManager;
 };
 
 /*============================================================================*/

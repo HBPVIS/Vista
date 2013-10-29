@@ -142,7 +142,6 @@ private:
 	VistaType::microtime m_dLastParticleCreated;
 	VistaType::microtime m_dRemainingSeedTime;
 	bool m_bParticleManagerActive;
-	bool m_bParticleAlreadyCreatedThisRun;
 
 	int m_iNumberOfParticles;
 	int m_iMaxNumberOfParticles;

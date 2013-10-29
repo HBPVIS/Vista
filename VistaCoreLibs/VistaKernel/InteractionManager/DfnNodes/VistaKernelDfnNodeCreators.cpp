@@ -124,7 +124,7 @@ bool VistaKernelDfnNodeCreators::RegisterNodeCreates( VistaSystem* pVistaSystem 
 					new VdfnDumpHistoryNodeClusterCreate( pVistaSystem->GetClusterMode() ) );
 
 	pFac->SetNodeCreator( "Trackball",
-					new VistaDfnTrackballNodeCreate( pVistaSystem->GetDisplayManager() ) );
+					new VistaDfnTrackballNodeCreate() );
 	pFac->SetNodeCreator( "EventSource",
 					new VistaDfnEventSourceNodeCreate(pVistaSystem-> GetEventManager(), pVistaSystem->GetInteractionManager() ) );
 	pFac->SetNodeCreator( "TextOverlay[int]",
@@ -481,8 +481,7 @@ IVdfnNode *VistaDfnViewerSinkNodeCreate::CreateNode( const VistaPropertyList &oP
 
 // #############################################################################
 
-VistaDfnTrackballNodeCreate::VistaDfnTrackballNodeCreate(VistaDisplayManager *pDispMgr)
-	: m_pDispMgr(pDispMgr)
+VistaDfnTrackballNodeCreate::VistaDfnTrackballNodeCreate()
 {}
 
 IVdfnNode *VistaDfnTrackballNodeCreate::CreateNode( const VistaPropertyList &oParams ) const

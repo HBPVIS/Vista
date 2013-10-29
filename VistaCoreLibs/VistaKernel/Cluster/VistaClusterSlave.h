@@ -143,7 +143,6 @@ private:
 	int							m_iDataTunnelQueueSize;
 	int							m_nSyncTimeout;
 
-	int							m_nPackageIndex;
 	bool						m_bDoSwap;
 	bool						m_bDoOglFinish;
 	VistaEventManager*			m_pEventManager;

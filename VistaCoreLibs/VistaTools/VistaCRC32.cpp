@@ -34,7 +34,7 @@
 /*============================================================================*/
 
 VistaCRC32::VistaCRC32(unsigned long ulKey)
-	: m_ulKey (ulKey), m_ulRegister (0)
+	: m_ulRegister (0)
 {
 	Init (ulKey);
 }

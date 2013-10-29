@@ -1553,7 +1553,7 @@ IVistaWindowingToolkit* VistaOpenSGDisplayBridge::CreateWindowingToolkit( const 
 	if( VistaAspectsComparisonStuff::StringEquals( sName, "GLUT", false ) )
 	{
 		// compare the string once and store the result as enum
-		m_pWindowingToolkit = new VistaGlutWindowingToolkit( m_pDisplayManager );
+		m_pWindowingToolkit = new VistaGlutWindowingToolkit();
 		return m_pWindowingToolkit;
 	}
 #endif
@@ -1561,7 +1561,7 @@ IVistaWindowingToolkit* VistaOpenSGDisplayBridge::CreateWindowingToolkit( const 
 	if( VistaAspectsComparisonStuff::StringEquals( sName, "OSG", false ) )
 	{
 		// compare the string once and store the result as enum
-		m_pWindowingToolkit = new VistaOSGWindowingToolkit( m_pDisplayManager );
+		m_pWindowingToolkit = new VistaOSGWindowingToolkit();
 		return m_pWindowingToolkit;
 	}
 #endif

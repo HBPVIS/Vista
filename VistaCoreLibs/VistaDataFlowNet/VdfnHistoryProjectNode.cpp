@@ -43,7 +43,6 @@ VdfnHistoryProjectNode::VdfnHistoryProjectNode(const std::list<std::string> &liO
   m_pHistory(NULL),
   m_pSamplingMode(NULL),
   m_nUnprocessedMeasures( 0 )
-, m_nLastIndex(0)
 , m_pIterateState( new TVdfnPort<unsigned int> )
 , m_pBackwardIndex( NULL )
 , m_pOutputIndex( new TVdfnPort<unsigned int> )

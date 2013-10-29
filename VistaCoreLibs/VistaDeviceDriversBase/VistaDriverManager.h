@@ -105,8 +105,6 @@ private:
 	VistaDriverMap m_pDrivers;
 
 	VistaConnectionUpdater *m_pConnUpdater;
-
-	bool m_AsyncDispatchRunning;
 };
 
 

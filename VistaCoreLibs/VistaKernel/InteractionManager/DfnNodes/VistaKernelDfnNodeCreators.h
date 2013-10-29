@@ -150,10 +150,8 @@ private:
 class VISTAKERNELAPI VistaDfnTrackballNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
 {
 public:
-	VistaDfnTrackballNodeCreate(VistaDisplayManager *pDispMgr);
+	VistaDfnTrackballNodeCreate();
 	virtual IVdfnNode *CreateNode( const VistaPropertyList &oParams ) const;
-private:
-	VistaDisplayManager *m_pDispMgr;
 };
 
 

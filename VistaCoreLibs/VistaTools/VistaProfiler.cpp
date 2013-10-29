@@ -160,7 +160,7 @@ bool VistaProfiler::GetTheProfileSections ( list<string> &liStrResult, const str
 
 			// Wenn [ am Anfang der Zeile steht, ist eine
 			// Section gefunden.
-			if((LineBuffer.front() == '['))
+			if( LineBuffer.front() == '[' )
 			{
 				sscanf(&LineBuffer[0], "[%[A-Z,a-z,0-9,_]]", tmp);
 
@@ -999,7 +999,7 @@ int	VistaProfiler::SetTheProfileString (	      const string &IniSectionName,
 		fin1.getline((char*)LineBuffer.data(),ProfilerMaxBufferLength,'\n');
 
 		// Ist der Beginn der Sektion gefunden
-		if ( (LineBuffer[0]=='[') )
+		if ( LineBuffer[0]=='[' )
 		{
 			if ( strstr(LineBuffer.c_str(),SectionBuffer.c_str())==LineBuffer.c_str() )
 				SectionFound	=	1;

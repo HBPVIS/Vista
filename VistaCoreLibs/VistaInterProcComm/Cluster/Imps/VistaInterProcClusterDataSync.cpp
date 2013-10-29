@@ -132,7 +132,6 @@ VistaInterProcClusterFollowerDataSync::VistaInterProcClusterFollowerDataSync(
 									const bool bActAsInterProcServer,
 									const bool bVerbose )
 : VistaClusterBytebufferFollowerDataSyncBase( false, bVerbose )
-, m_bActAsInterProcServer( bActAsInterProcServer )
 {	
 	m_pConnection = new VistaConnectionNamedPipe( sInterProcName, bActAsInterProcServer );
 }

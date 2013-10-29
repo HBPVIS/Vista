@@ -75,8 +75,6 @@ public:
 	int Send    ( const void * buffer, const int length ) ;
 
 private:
-	FILE*        m_pFile ;
-
 	bool         m_bStatusOK;
 	bool         m_bIncoming;
 	bool         m_bPulse;

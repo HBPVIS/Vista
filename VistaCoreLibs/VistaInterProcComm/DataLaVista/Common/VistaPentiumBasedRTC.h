@@ -76,7 +76,8 @@ private:
 	/**
 	 * We prohibit copying
 	 */
-	DLVistaPentiumBasedRTC(DLVistaPentiumBasedRTC &);
+	DLVistaPentiumBasedRTC(const DLVistaPentiumBasedRTC &);
+	DLVistaPentiumBasedRTC& operator= (const DLVistaPentiumBasedRTC&);
 
 	DLV_INT64 m_nFrequency;
 

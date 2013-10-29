@@ -133,7 +133,6 @@ private:
 	VistaType::uint64			m_nCollectCount;
 	VistaConnectionIP*			m_pLeaderConn;
 	bool						m_bManageDeletion;
-	bool						m_bSwap;
 	VistaByteBufferSerializer	m_oMessage;
 	int							m_nBlockByteCount;
 };

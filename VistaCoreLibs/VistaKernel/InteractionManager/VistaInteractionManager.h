@@ -54,7 +54,6 @@ class VistaConnectionUpdater;
 class VistaInteractionUpdateObserver;
 class VistaInteractionEvent;
 class VistaWeightedAverageTimer;
-class VistaClusterMode;
 
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
@@ -274,7 +273,6 @@ private:
 	VistaEventManager*					m_pEventManager;
 	VistaInteractionUpdateObserver*		m_pEventObserver;
 	VistaInteractionEvent*				m_pInteractionEvent;
-	VistaClusterMode*					m_pClusterMode;
 	VistaWeightedAverageTimer*			m_pAvgUpd;
 	bool								m_bProcessingEvents;
 	std::set<VistaInteractionContext*>	m_setRemoveAfterUpdate;

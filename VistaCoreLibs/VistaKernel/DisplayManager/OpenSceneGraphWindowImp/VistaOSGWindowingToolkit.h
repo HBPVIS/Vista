@@ -69,7 +69,7 @@ namespace osgViewer
 class VISTAKERNELAPI VistaOSGWindowingToolkit : public IVistaWindowingToolkit
 {
 public:
-	VistaOSGWindowingToolkit( VistaDisplayManager* pDisplayManager );
+	VistaOSGWindowingToolkit();
 	~VistaOSGWindowingToolkit();
 
 	virtual void Run();
@@ -141,7 +141,6 @@ private:
 private:	
 	typedef std::map<const VistaWindow*, OSGWindowInfo*>	WindowInfoMap;
 	WindowInfoMap						m_mapWindowInfo;
-	VistaDisplayManager*				m_pDisplayManager;
 	bool								m_bQuitLoop;
 	IVistaExplicitCallbackInterface*	m_pUpdateCallback;
 	IVistaExplicitCallbackInterface*	m_pResizeCallback;

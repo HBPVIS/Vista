@@ -254,7 +254,6 @@ private:
 	IVistaSystemClassFactory*			m_pSystemClassFactory;
 
 	VistaEventManager*					m_pEventManager;
-	VistaEventHandler*					m_pCentralEventHandler;
 
 	VistaExternalMsgEvent*				m_pExternalMsg;
 	int									m_iInitProgressIndicator;

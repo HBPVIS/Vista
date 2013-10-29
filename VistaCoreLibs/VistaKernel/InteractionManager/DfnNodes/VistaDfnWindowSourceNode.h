@@ -75,7 +75,6 @@ private:
 	VistaWindow *m_pWindow;
 	WindowObserver *m_pObs;
 
-	mutable bool m_bNeedsUpdate;
 	mutable unsigned int m_nUpdateCount;
 };
 

@@ -29,6 +29,9 @@
 
 class VistaConnectionFile;
 
+/**
+ * @TODO: opening of usb conn currently not implemented
+ */
 class VISTAINTERPROCCOMMAPI VistaConnectionUSB : public VistaConnection
 {
 public:

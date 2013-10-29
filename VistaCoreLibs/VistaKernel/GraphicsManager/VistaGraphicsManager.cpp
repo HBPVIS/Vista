@@ -31,8 +31,6 @@
 #include <VistaKernel/GraphicsManager/VistaTransformNode.h>
 #include <VistaKernel/GraphicsManager/VistaLightNode.h>
 
-#include <VistaKernel/EventManager/VistaEventManager.h>
-#include <VistaKernel/EventManager/VistaSystemEvent.h>
 
 
 #include <VistaBase/VistaVectorMath.h>
@@ -50,10 +48,9 @@
 /*  CONSTRUCTORS / DESTRUCTOR                                                 */
 /*============================================================================*/
 
-VistaGraphicsManager::VistaGraphicsManager( VistaEventManager *pEventManager,
+VistaGraphicsManager::VistaGraphicsManager( VistaEventManager*,
 											VistaFrameLoop* pFrameLoop )
 : VistaEventHandler(),
-  m_pEventManager(pEventManager),
   m_pSceneGraph(NULL),
   m_pModelRoot(NULL),
   m_pGraphicsBridge(NULL),

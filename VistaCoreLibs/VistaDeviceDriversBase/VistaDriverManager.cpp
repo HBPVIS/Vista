@@ -65,7 +65,6 @@ namespace
 
 VistaDriverManager::VistaDriverManager()
 : m_pConnUpdater(new VistaConnectionUpdater)
-, m_AsyncDispatchRunning(false)
 {
 	VddUtil::InitVdd();
 	InitPlugins();

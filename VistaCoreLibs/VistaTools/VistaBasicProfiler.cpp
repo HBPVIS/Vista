@@ -285,7 +285,6 @@ int VistaBasicProfiler::ProfileTreeNode::GetNumChildren() const
 
 VistaBasicProfiler::ProfileTreeNode* VistaBasicProfiler::ProfileTreeNode::GetChild( int iIndex ) const
 {
-	std::list<ProfileTreeNode*>::const_iterator itChild = m_liChildren.begin();
 	int iCurrentIndex = 0;
 	for( std::list<ProfileTreeNode*>::const_iterator itChild = m_liChildren.begin();
 				itChild != m_liChildren.end(); ++itChild, ++iCurrentIndex )
@@ -293,7 +292,7 @@ VistaBasicProfiler::ProfileTreeNode* VistaBasicProfiler::ProfileTreeNode::GetChi
 		if( iCurrentIndex == iIndex ) 
 			return (*itChild);
 	}
-return NULL;
+	return NULL;
 }
 
 VistaBasicProfiler::ProfileTreeNode* VistaBasicProfiler::ProfileTreeNode::GetChild( 

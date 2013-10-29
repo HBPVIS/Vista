@@ -78,14 +78,6 @@ DLVistaPentiumBasedRTC::DLVistaPentiumBasedRTC()
 	SnProcFreq = CalcProcFreq();
 }
 
-
-DLVistaPentiumBasedRTC::DLVistaPentiumBasedRTC(DLVistaPentiumBasedRTC &)
-{
-	
-	//throw;
-}
-
-
 DLVistaPentiumBasedRTC::~DLVistaPentiumBasedRTC()
 {
 }

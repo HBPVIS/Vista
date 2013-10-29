@@ -98,7 +98,6 @@ private:
 	VistaMcastSocket*	m_pMulticastSocket;
 	VistaConnectionIP*	m_pLeaderConn;
 	bool				m_bManageSocket;
-	bool				m_bManageConnection;
 	bool				m_bSwap;
 };
 

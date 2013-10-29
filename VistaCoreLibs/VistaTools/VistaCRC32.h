@@ -100,7 +100,6 @@ private:
 	void			Init			(unsigned long ulKey);
 	void			AddByte			(VistaType::byte cByte);
 
-	unsigned long m_ulKey;	// really 33-bit key, counting implicit 1 top-bit
 	unsigned long m_ulLUTElements[256];
 	unsigned long m_ulRegister;
 };

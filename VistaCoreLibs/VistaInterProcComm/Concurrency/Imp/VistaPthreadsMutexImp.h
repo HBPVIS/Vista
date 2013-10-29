@@ -65,7 +65,7 @@ public:
 
 private:
 	pthread_mutex_t*     pPosixMutex;
-	pthread_mutexattr_t  posixMutexAttr;
+	//pthread_mutexattr_t  posixMutexAttr;
 	int m_sharedMem_fd;
 };
 

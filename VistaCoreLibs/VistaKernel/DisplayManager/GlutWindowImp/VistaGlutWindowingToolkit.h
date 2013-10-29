@@ -56,7 +56,7 @@ struct GlutWindowInfo;
 class VISTAKERNELAPI VistaGlutWindowingToolkit : public IVistaWindowingToolkit
 {
 public:
-	VistaGlutWindowingToolkit( VistaDisplayManager* pDisplayManager );
+	VistaGlutWindowingToolkit();
 
 	virtual void Run();
 	virtual void Quit();
@@ -125,10 +125,8 @@ private:
 private:	
 	typedef std::map<const VistaWindow*, GlutWindowInfo*>	WindowInfoMap;
 	WindowInfoMap						m_mapWindowInfo;
-	VistaDisplayManager*				m_pDisplayManager;
 	bool								m_bQuitLoop;
 	IVistaExplicitCallbackInterface*	m_pUpdateCallback;
-	IVistaExplicitCallbackInterface*	m_pResizeCallback;
 	int									m_iTmpWindowID;
 	int									m_iGlobalVSyncAvailability;
 };

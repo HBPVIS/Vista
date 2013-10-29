@@ -344,7 +344,7 @@ int VistaConnection::ReadEncodedString( std::string& sTarget )
 	if( nRet != sizeof(VistaType::sint32) )
 		return -1;
 	int nStringRead = ReadString( sTarget, nSize );
-	if( nStringRead != nStringRead )
+	if( nStringRead != nSize )
 	{
 		return false;
 	}

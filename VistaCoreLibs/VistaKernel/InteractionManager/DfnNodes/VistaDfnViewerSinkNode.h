@@ -75,9 +75,6 @@ private:
 	TVdfnPort<VistaQuaternion> *m_pOrientation;
 
 	VistaDisplaySystem *m_pSystem;
-
-	class DispObserver;
-	DispObserver *m_pDispObs;
 };
 
 /*============================================================================*/

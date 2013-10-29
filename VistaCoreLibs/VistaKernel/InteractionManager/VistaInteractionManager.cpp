@@ -1027,9 +1027,9 @@ bool VistaInteractionManager::DelInteractionContext(VistaInteractionContext *pCt
 	if(m_bProcessingEvents == false)
 	{
 		for(std::vector<CONTEXT>::iterator cit = it;
-			it != m_vecInteractionContexts.end(); ++it)
+				cit != m_vecInteractionContexts.end(); ++cit)
 		{
-			delete (*it).m_pContext;
+			delete (*cit).m_pContext;
 		}
 
 		m_vecInteractionContexts.erase(it, m_vecInteractionContexts.end());
@@ -1037,6 +1037,7 @@ bool VistaInteractionManager::DelInteractionContext(VistaInteractionContext *pCt
 	}
 	else
 	{
+		// @TODO m_setDeleteAfterUpdate is never processed
 		pCtx->SetIsEnabled(false); // make dumb
 		m_setDeleteAfterUpdate.insert(pCtx);
 	}

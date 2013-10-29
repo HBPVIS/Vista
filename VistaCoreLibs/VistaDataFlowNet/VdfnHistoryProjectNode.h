@@ -155,7 +155,7 @@ private:
 	TVdfnPort<unsigned int> *m_pIterateState,
 							  *m_pBackwardIndex,
 							  *m_pOutputIndex;
-	unsigned int	m_nUnprocessedMeasures, m_nLastIndex;
+	unsigned int	m_nUnprocessedMeasures;
 	eMode m_eInitialMode;
 
 };

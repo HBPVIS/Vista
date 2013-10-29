@@ -843,9 +843,8 @@ private:
 class VistaFastrackReferenceFrameAspect : public IVistaDriverReferenceFrameAspect
 {
 public:
-	VistaFastrackReferenceFrameAspect(VistaFastrakDriver *pDriver)
-		: m_pDriver(pDriver),
-		  m_eHemisphere( HS_AFT ),
+	VistaFastrackReferenceFrameAspect()
+		: m_eHemisphere( HS_AFT ),
 		  m_Angles(0,0,0)
 	{
 	}
@@ -911,7 +910,6 @@ private:
 	VistaTransformMatrix m_nEmitterFrame;
 
 	std::map<int, VistaTransformMatrix> m_SensorFrames;
-	VistaFastrakDriver *m_pDriver;
 	VistaEulerAngles m_Angles;
 };
 
@@ -1012,7 +1010,7 @@ VistaFastrakDriver::VistaFastrakDriver(IVistaDriverCreationMethod *crm)
 
 	m_pInfoAspect = new VistaDriverInfoAspect;
 
-	m_pRefFrame = new VistaFastrackReferenceFrameAspect(this);
+	m_pRefFrame = new VistaFastrackReferenceFrameAspect();
 	RegisterAspect(m_pRefFrame);
 }
 

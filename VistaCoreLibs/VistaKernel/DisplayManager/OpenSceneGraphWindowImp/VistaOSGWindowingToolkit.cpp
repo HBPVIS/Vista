@@ -101,9 +101,8 @@ struct OSGWindowInfo
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
-VistaOSGWindowingToolkit::VistaOSGWindowingToolkit( VistaDisplayManager* pDisplayManager )
-: m_pDisplayManager( pDisplayManager )
-, m_bQuitLoop( false )
+VistaOSGWindowingToolkit::VistaOSGWindowingToolkit()
+: m_bQuitLoop( false )
 , m_pResizeCallback( NULL )
 , m_pUpdateCallback( NULL )
 , m_iTmpWindowID( -1 )

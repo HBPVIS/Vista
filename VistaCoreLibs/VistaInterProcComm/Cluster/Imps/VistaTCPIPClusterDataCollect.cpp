@@ -336,7 +336,6 @@ VistaTCPIPClusterFollowerDataCollect::VistaTCPIPClusterFollowerDataCollect(
 , m_nCollectCount( 0 )
 , m_pLeaderConn( pLeaderConn )
 , m_bManageDeletion( bManageDeletion )
-, m_bSwap( bSwap )
 , m_nBlockByteCount( 0 )
 {
 	if( pLeaderConn->GetIsConnected() == false )

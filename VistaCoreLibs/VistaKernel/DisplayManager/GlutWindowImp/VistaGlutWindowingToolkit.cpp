@@ -176,10 +176,8 @@ public:
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
-VistaGlutWindowingToolkit::VistaGlutWindowingToolkit( VistaDisplayManager* pDisplayManager )
-: m_pDisplayManager( pDisplayManager )
-, m_bQuitLoop( false )
-, m_pResizeCallback( NULL )
+VistaGlutWindowingToolkit::VistaGlutWindowingToolkit()
+: m_bQuitLoop( false )
 , m_pUpdateCallback( NULL )
 , m_iTmpWindowID( -1 )
 , m_iGlobalVSyncAvailability( ~0 )

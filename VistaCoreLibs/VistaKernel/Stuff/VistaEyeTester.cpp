@@ -205,15 +205,16 @@ private:
 
 VistaEyeTester::VistaEyeTester( VistaGroupNode* pUserTransNode,
 								VistaSceneGraph* pSceneGraph )
+: m_pDraw( new EyeTestDraw() )
 {
-	EyeTestDraw* pDraw = new EyeTestDraw;
-	m_pDrawNode = pSceneGraph->NewOpenGLNode( pUserTransNode, pDraw );
+	m_pDrawNode = pSceneGraph->NewOpenGLNode( pUserTransNode, m_pDraw );
 }
 
 
 VistaEyeTester::~VistaEyeTester()
 {
 	delete m_pDrawNode;
+	delete m_pDraw;
 }
 
 bool VistaEyeTester::GetIsEnabled() const

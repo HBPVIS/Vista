@@ -38,64 +38,6 @@
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
 
-class VistaDfnViewerSinkNode::DispObserver : public IVistaObserver
-{
-public:
-	DispObserver(VistaDfnViewerSinkNode *pParent)
-		: IVistaObserver(),
-		  m_pParent(pParent)
-	{}
-
-	~DispObserver() 
-	{
-		if(Observes(m_pObs))
-			ReleaseObserveable(m_pObs);
-	}
-
-
-	virtual bool ObserveableDeleteRequest(IVistaObserveable *pObserveable, 
-										  int nTicket = IVistaObserveable::TICKET_NONE)
-	{
-		return true;
-	}
-
-	virtual void ObserveableDelete(IVistaObserveable *pObserveable, int nTicket = IVistaObserveable::TICKET_NONE)
-	{
-		ReleaseObserveable(pObserveable, nTicket);
-	}
-
-	virtual void ReleaseObserveable(IVistaObserveable *pObserveable, int nTicket = IVistaObserveable::TICKET_NONE)
-	{
-		pObserveable->DetachObserver(this);
-		m_pParent->SetDisplaySystem(NULL);
-	}
-
-	virtual void ObserverUpdate(IVistaObserveable *pObserveable, int msg, int ticket)
-	{
-	}
-
-	virtual bool Observes(IVistaObserveable *pObserveable)
-	{
-		return (m_pObs == pObserveable);
-	}
-
-	virtual void Observe(IVistaObserveable *pObservable, int eTicket=IVistaObserveable::TICKET_NONE)
-	{
-		if(m_pObs)
-			m_pObs->DetachObserver(this);
-
-		m_pObs = pObservable;
-
-		if(m_pObs)
-			m_pObs->AttachObserver(this, eTicket);
-	}
-
-private:
-	VistaDfnViewerSinkNode *m_pParent;
-	IVistaObserveable *m_pObs;
-
-};
-
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
@@ -105,7 +47,6 @@ VistaDfnViewerSinkNode::VistaDfnViewerSinkNode( VistaDisplaySystem *pSys )
 											m_pOrientation(NULL),
 											m_pLeftEye(NULL),
 											m_pRightEye(NULL),
-											m_pDispObs(NULL),
 											m_pSystem(pSys)
 {
 	RegisterInPortPrototype( "position", new TVdfnPortTypeCompare<TVdfnPort<VistaVector3D> > );

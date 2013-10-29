@@ -66,7 +66,7 @@ namespace
 	// nYSlope specifies the relative slope dy/dx, i.e. 1 is 45degree
 	// the returned array is allocated on the heap, and should be delete[]-ed
 	VistaType::byte* CreateTexture( const int nSize,
-										const int nYSlope = 2.0,
+										const float nYSlope = 2.0f,
 										const float nRelBlackSize = 0.33f )
 	{
 		VistaType::byte* pBuffer = new VistaType::byte[nSize*nSize];
@@ -104,6 +104,7 @@ public:
 	, m_nTapeHeight( 1.5f )
 	, m_nWarningLevel( 0.0f )
 	, m_nOpacityFactor( 1.0f )
+	, m_bFlashState( false )
 	{
 		glGenTextures( 1, &m_nTextureId );
 
@@ -260,6 +261,7 @@ VistaProximityBarrierTape::VistaProximityBarrierTape( VistaEventManager* pManage
 : IVistaProximityWarningBase( pManager, nBeginWarningDistance, nMaxWarningDistance )
 , m_pDraw( new DrawCallback() )
 , m_eHeightMode( HM_FIXED_HEIGHT )
+, m_nTapeHeight( 0 )
 {
 	VistaSceneGraph* pSG = pGraphicsManager->GetSceneGraph();
 	m_pDrawNode = pSG->NewOpenGLNode( pSG->GetRoot(), m_pDraw );

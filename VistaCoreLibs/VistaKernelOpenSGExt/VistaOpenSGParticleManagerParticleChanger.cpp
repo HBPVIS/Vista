@@ -403,6 +403,7 @@ void PMLinearFrameChange::CalculateColor( SParticle& oParticle, double dt )
 	oParticle.m_a4fColor[1] += m_fColorFactor * (float)dt;
 	oParticle.m_a4fColor[2] += m_fColorFactor * (float)dt;
 	oParticle.m_a4fColor[3] = 1.0f;
+	// @TODO: use alpha factor
 }
 
 void PMLinearFrameChange::CalculateSize( SParticle& oParticle, double dt )

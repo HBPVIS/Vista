@@ -92,7 +92,6 @@ private:
 
 private:
 	VistaConnectionNamedPipe* m_pConnection;
-	bool m_bActAsInterProcServer;
 };
 
 class VISTAINTERPROCCOMMAPI VistaInterProcClusterRedirectDataSync : public VistaInterProcClusterLeaderDataSync

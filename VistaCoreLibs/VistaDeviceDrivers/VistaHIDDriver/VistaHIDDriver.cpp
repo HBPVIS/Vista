@@ -102,26 +102,6 @@ namespace
 		sDevLookup( 0x046d, 0xc218, "LOGITECH_RUMBLEPAD2" )
 	};
 
-	sDevLookup *GetDevById( int nVendor, int nDevId )
-	{
-		for( unsigned int n=0; n < sizeof(SDevCaps)/sizeof(SDevCaps[0]); ++n)
-		{
-			if( SDevCaps[n].m_nDevId == nDevId  && SDevCaps[n].m_nVendorId == nVendor )
-				return &SDevCaps[n];
-		}
-		return NULL;
-	}
-
-	sDevLookup *GetIdByDevString(const std::string &sDevString)
-	{
-		for( unsigned int n=0; n < sizeof(SDevCaps)/sizeof(SDevCaps[0]); ++n)
-		{
-			if( SDevCaps[n].m_strTranscoder == sDevString )
-				return &SDevCaps[n];
-		}
-		return NULL;
-	}
-
 /* -------------------------------------------------------------------------- */
 
 	int constant_test_bit(int nr, const volatile unsigned long *addr)

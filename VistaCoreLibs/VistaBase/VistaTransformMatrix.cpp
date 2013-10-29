@@ -38,6 +38,8 @@
 
 #include "VistaTransformMatrix.h" 
 
+#include <cmath>
+
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
@@ -47,9 +49,7 @@ namespace
 
 
 	/**** Decompose.h - Basic declarations ****/
-	//#ifndef _H_Decompose
-	//#define _H_Decompose
-		struct Quat {float x, y, z, w; float& operator[](const size_t &i){return ((float*)(&x))[i];}}; /* Quaternion */
+	struct Quat {float x, y, z, w; float& operator[](const size_t &i){return ((float*)(&x))[i];}}; /* Quaternion */
 	//enum QuatPart {X, Y, Z, W}; // already defined in VistaMath
 	typedef Quat HVect; /* Homogeneous 3D vector */
 	typedef float HMatrix[4][4]; /* Right-handed, for column vectors */
@@ -64,13 +64,9 @@ namespace
 	HVect spect_decomp(HMatrix S, HMatrix U);
 	Quat snuggle(Quat q, HVect *k);
 	void decomp_affine(HMatrix A, AffineParts *parts);
-	void invert_affine(AffineParts *parts, AffineParts *inverse);
-	//#endif
 		
 	/**** Decompose.c ****/
 	/* Ken Shoemake, 1993 */
-	#include <math.h>
-	//#include "Decompose.h"
 
 	/******* Matrix Preliminaries *******/
 
@@ -578,28 +574,6 @@ namespace
 		parts->u = Qt_FromMatrix(U);
 		p = snuggle(parts->u, &parts->k);
 		parts->u = Qt_Mul(parts->u, p);
-	}
-
-	/******* Invert Affine Decomposition *******/
-
-	/* Compute inverse of affine decomposition.
-	 */
-	void invert_affine(AffineParts *parts, AffineParts *inverse)
-	{
-		Quat t, p;
-		inverse->f = parts->f;
-		inverse->q = Qt_Conj(parts->q);
-		inverse->u = Qt_Mul(parts->q, parts->u);
-		inverse->k.x = (parts->k.x==0.0f) ? 0.0f : 1.0f/parts->k.x;
-		inverse->k.y = (parts->k.y==0.0f) ? 0.0f : 1.0f/parts->k.y;
-		inverse->k.z = (parts->k.z==0.0f) ? 0.0f : 1.0f/parts->k.z;
-		inverse->k.w = parts->k.w;
-		t = Qt_(-parts->t.x, -parts->t.y, -parts->t.z, 0);
-		t = Qt_Mul(Qt_Conj(inverse->u), Qt_Mul(t, inverse->u));
-		t = Qt_(inverse->k.x*t.x, inverse->k.y*t.y, inverse->k.z*t.z, 0);
-		p = Qt_Mul(inverse->q, inverse->u);
-		t = Qt_Mul(p, Qt_Mul(t, Qt_Conj(p)));
-		inverse->t = (inverse->f>0.0) ? t : Qt_(-t.x, -t.y, -t.z, 0);
 	}
 }
 
