@@ -109,28 +109,47 @@ public:
 							VistaPropertyList& oTarget,
 							const bool bReplaceEnvironmentVariables = false,
 							const std::string& sFileVariableSectionName = "FILE_VARIABLES",
-							const bool bCaseSensitiveKeys = false );
+							const bool bCaseSensitiveKeys = false,
+							const char cSectionHeaderStartSymbol = '[',
+							const char cSectionHeaderEndSymbol = ']',
+							const char cKeyAssignmentSymbol = '=',
+							const char cCommentSymbol = '#' );
 	static VistaPropertyList ReadProplistFromFile( const std::string& sFilename,
 							const bool bReplaceEnvironmentVariables = false,
 							const std::string& sFileVariableSectionName = "FILE_VARIABLES",
-							const bool bCaseSensitiveKeys = false );
+							const bool bCaseSensitiveKeys = false,
+							const char cSectionHeaderStartSymbol = '[',
+							const char cSectionHeaderEndSymbol = ']',
+							const char cKeyAssignmentSymbol = '=',
+							const char cCommentSymbol = '#' );
 	static bool ReadProplistFromFile( const std::string& sFilename,
 							std::list<std::string>& liFileSearchPathes,
 							VistaPropertyList& oTarget,				
 							std::string& sFullLoadedFile,
 							const bool bReplaceEnvironmentVariables = false,
 							const std::string& sFileVariableSectionName = "FILE_VARIABLES",
-							const bool bCaseSensitiveKeys = false );
+							const bool bCaseSensitiveKeys = false,
+							const char cSectionHeaderStartSymbol = '[',
+							const char cSectionHeaderEndSymbol = ']',
+							const char cKeyAssignmentSymbol = '=',
+							const char cCommentSymbol = '#' );
 	static VistaPropertyList ReadProplistFromFile( const std::string& sFilename,		
 							std::list<std::string>& liFileSearchPathes,
 							std::string& sFullLoadedFile,
 							const bool bReplaceEnvironmentVariables = false,
 							const std::string& sFileVariableSectionName = "FILE_VARIABLES",
-							const bool bCaseSensitiveKeys = false );
+							const bool bCaseSensitiveKeys = false,
+							const char cSectionHeaderStartSymbol = '[',
+							const char cSectionHeaderEndSymbol = ']',
+							const char cKeyAssignmentSymbol = '=',
+							const char cCommentSymbol = '#' );
 
 	static bool WriteProplistToFile( const std::string& sFilename,
 							const VistaPropertyList& oSource,
-							const bool bOverwriteExistingFile = false );
+							const bool bOverwriteExistingFile = false,
+							const char cSectionHeaderStartSymbol = '[',
+							const char cSectionHeaderEndSymbol = ']',
+							const char cKeyAssignmentSymbol = '=' );
 
 private:
 	bool InternalReadFile();

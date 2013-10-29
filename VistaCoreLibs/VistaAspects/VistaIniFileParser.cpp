@@ -80,10 +80,10 @@ namespace{
 class IniFileReader
 {
 public:
-	IniFileReader( char cSectionHeaderStartSymbol = '[',
-					char cSectionHeaderEndSymbol = ']',
-					char cCommentSymbol = '#',
-					char cKeySeparatorSymbol = '=' )
+	IniFileReader( char cSectionHeaderStartSymbol,
+					char cSectionHeaderEndSymbol,
+					char cCommentSymbol,
+					char cKeySeparatorSymbol )
 	: m_cSectionHeaderStartSymbol( cSectionHeaderStartSymbol )
 	, m_cSectionHeaderEndSymbol( cSectionHeaderEndSymbol )
 	, m_cCommentSymbol( cCommentSymbol )
@@ -392,13 +392,11 @@ class IniFileWriter
 public:
 	IniFileWriter( 
 					int iMaxKeyIndent,
-					char cSectionHeaderStartSymbol = '[',
-					char cSectionHeaderEndSymbol = ']',
-					char cCommentSymbol = '#',
-					char cKeySeparatorSymbol = '=' )
+					char cSectionHeaderStartSymbol,
+					char cSectionHeaderEndSymbol,
+					char cKeySeparatorSymbol )
 	: m_cSectionHeaderStartSymbol( cSectionHeaderStartSymbol )
 	, m_cSectionHeaderEndSymbol( cSectionHeaderEndSymbol )
-	, m_cCommentSymbol( cCommentSymbol )
 	, m_cKeySeparatorSymbol( cKeySeparatorSymbol )
 	, m_iMaxKeyIndent( iMaxKeyIndent )
     , m_iSectionDepth(0)
@@ -484,7 +482,6 @@ private:
 
 	char				m_cSectionHeaderStartSymbol;
 	char				m_cSectionHeaderEndSymbol;
-	char				m_cCommentSymbol;
 	char				m_cKeySeparatorSymbol;
 	
 	int					m_iMaxKeyIndent;
@@ -673,7 +670,11 @@ bool VistaIniFileParser::ReadProplistFromFile( const std::string& sFilename,
 							VistaPropertyList& oTarget,							
 							const bool bReplaceEnvironmentVariables,
 							const std::string& sFileVariableSectionName,
-							const bool bCaseSensitiveKeys )
+							const bool bCaseSensitiveKeys,
+							const char cSectionHeaderStartSymbol,
+							const char cSectionHeaderEndSymbol,
+							const char cKeyAssignmentSymbol,
+							const char cCommentSymbol )
 {
 	if( CheckFileExists( sFilename ) == false )
 	{
@@ -685,7 +686,7 @@ bool VistaIniFileParser::ReadProplistFromFile( const std::string& sFilename,
 	oTarget.clear();
 	oTarget.SetIsCaseSensitive( bCaseSensitiveKeys );
 
-	IniFileReader oReader;
+	IniFileReader oReader( cSectionHeaderStartSymbol, cSectionHeaderEndSymbol, cKeyAssignmentSymbol, cCommentSymbol );
 	return oReader.ReadFile( sFilename, oTarget, bReplaceEnvironmentVariables, sFileVariableSectionName );
 
 	
@@ -693,10 +694,15 @@ bool VistaIniFileParser::ReadProplistFromFile( const std::string& sFilename,
 VistaPropertyList VistaIniFileParser::ReadProplistFromFile( const std::string &sFilename,
 							const bool bReplaceEnvironmentVariables,
 							const std::string& sFileVariableSectionName,
-							const bool bCaseSensitiveKeys )
+							const bool bCaseSensitiveKeys,
+							const char cSectionHeaderStartSymbol,
+							const char cSectionHeaderEndSymbol,
+							const char cKeyAssignmentSymbol,
+							const char cCommentSymbol )
 {
 	VistaPropertyList oList;
-	ReadProplistFromFile( sFilename, oList, bReplaceEnvironmentVariables, sFileVariableSectionName, bCaseSensitiveKeys );
+	ReadProplistFromFile( sFilename, oList, bReplaceEnvironmentVariables, sFileVariableSectionName, bCaseSensitiveKeys,
+						cSectionHeaderStartSymbol, cSectionHeaderEndSymbol, cKeyAssignmentSymbol, cCommentSymbol );
 	return oList;
 }
 bool VistaIniFileParser::ReadProplistFromFile( const std::string& sFilename,
@@ -705,7 +711,11 @@ bool VistaIniFileParser::ReadProplistFromFile( const std::string& sFilename,
 							std::string& sFullLoadedFile,
 							const bool bReplaceEnvironmentVariables,
 							const std::string& sFileVariableSectionName,
-							const bool bCaseSensitiveKeys )
+							const bool bCaseSensitiveKeys,
+							const char cSectionHeaderStartSymbol,
+							const char cSectionHeaderEndSymbol,
+							const char cKeyAssignmentSymbol,
+							const char cCommentSymbol )
 {
 	oTarget.clear();
 	oTarget.SetIsCaseSensitive( bCaseSensitiveKeys );
@@ -716,7 +726,7 @@ bool VistaIniFileParser::ReadProplistFromFile( const std::string& sFilename,
 		std::string sExtFilename = (*itPath) + "/" + sFilename;
 		if( CheckFileExists( sExtFilename ) )
 		{
-			IniFileReader oReader;
+			IniFileReader oReader( cSectionHeaderStartSymbol, cSectionHeaderEndSymbol, cKeyAssignmentSymbol, cCommentSymbol );
 			if( oReader.ReadFile( sExtFilename, oTarget, bReplaceEnvironmentVariables, sFileVariableSectionName ) )
 			{
 				sFullLoadedFile = sExtFilename;
@@ -741,17 +751,25 @@ VistaPropertyList VistaIniFileParser::ReadProplistFromFile( const std::string& s
 							std::string& sFullLoadedFile,
 							const bool bReplaceEnvironmentVariables,
 							const std::string& sFileVariableSectionName,
-							const bool bCaseSensitiveKeys )
+							const bool bCaseSensitiveKeys,
+							const char cSectionHeaderStartSymbol,
+							const char cSectionHeaderEndSymbol,
+							const char cKeyAssignmentSymbol,
+							const char cCommentSymbol )
 {
 	VistaPropertyList oList;
 	ReadProplistFromFile( sFilename, liFileSearchPathes, oList, sFullLoadedFile, 
-						bReplaceEnvironmentVariables, sFileVariableSectionName, bCaseSensitiveKeys );
+						bReplaceEnvironmentVariables, sFileVariableSectionName, bCaseSensitiveKeys,
+						cSectionHeaderStartSymbol, cSectionHeaderEndSymbol, cKeyAssignmentSymbol, cCommentSymbol );
 	return oList;
 }
 
 bool VistaIniFileParser::WriteProplistToFile( const std::string& sFilename,
-								   const VistaPropertyList& oSource,
-								   const bool bOverwriteExistingFile )
+									const VistaPropertyList& oSource,
+									const bool bOverwriteExistingFile,
+									const char cSectionHeaderStartSymbol,
+									const char cSectionHeaderEndSymbol,
+									const char cKeyAssignmentSymbol )
 {
 	if( CheckFileExists( sFilename ) && bOverwriteExistingFile == false )
 	{
@@ -760,7 +778,7 @@ bool VistaIniFileParser::WriteProplistToFile( const std::string& sFilename,
 		return false;
 	}
 
-	IniFileWriter oWriter( 20 );
+	IniFileWriter oWriter( 20, cSectionHeaderStartSymbol, cSectionHeaderEndSymbol, cKeyAssignmentSymbol );
 	return oWriter.WriteFile( sFilename, oSource );
 }
 
