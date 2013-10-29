@@ -780,7 +780,6 @@ bool VistaHIDDriver::InitDriver(int nVendor, int nDevId)
 
 			if( device_info.vendor == nVendor && device_info.product == nDevId )
 			{
-				closedir( devdir );
 				vstr::outi() << std::hex
 						  << "[HIDDriver] device with vendor/product id "
 						  << nVendor << "/" << nDevId
