@@ -335,7 +335,10 @@ IVistaMouseDriver::~IVistaMouseDriver()
 /*============================================================================*/
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
-unsigned int IVistaMouseDriver::AddDeviceSensor(VistaDeviceSensor *pSensor)
+unsigned int IVistaMouseDriver::AddDeviceSensor(VistaDeviceSensor *pSensor,
+												size_t pos, 
+												AllocMemoryFunctor *amf,
+												ClaimMemoryFunctor *cmf )
 {
 	// add to parent driver
 	if( pSensor->GetTypeHint() == (unsigned int)~0 )
@@ -346,7 +349,7 @@ unsigned int IVistaMouseDriver::AddDeviceSensor(VistaDeviceSensor *pSensor)
 	{
 		pSensor->SetMeasureTranscode( GetFactory()->GetTranscoderFactoryForSensor("")->CreateTranscoder() );
 	}
-	unsigned int nIdx = IVistaDeviceDriver::AddDeviceSensor(pSensor);	
+	unsigned int nIdx = IVistaDeviceDriver::AddDeviceSensor(pSensor, pos, amf, cmf);	
 	return nIdx;
 }
 

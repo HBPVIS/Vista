@@ -26,6 +26,8 @@
 #include "VdfnPort.h"
 #include "VdfnUtil.h"
 
+#include <VistaBase/VistaExceptionBase.h>
+
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/

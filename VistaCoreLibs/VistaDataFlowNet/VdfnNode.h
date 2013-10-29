@@ -31,11 +31,9 @@
 #include "VdfnConfig.h"
 
 #include <VistaAspects/VistaNameable.h>
-#include <VistaAspects/VistaConversion.h>
 
 #include <map>
 #include <string>
-#include <vector>
 #include <list>
 
 /*============================================================================*/

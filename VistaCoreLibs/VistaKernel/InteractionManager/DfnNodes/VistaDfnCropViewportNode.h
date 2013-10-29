@@ -32,6 +32,7 @@
 #include <VistaKernel/VistaKernelConfig.h>
 
 #include <vector>
+#include <VistaBase/VistaColor.h>
 #include <VistaDataFlowNet/VdfnSerializer.h>
 #include <VistaDataFlowNet/VdfnNode.h>
 #include <VistaDataFlowNet/VdfnPort.h>

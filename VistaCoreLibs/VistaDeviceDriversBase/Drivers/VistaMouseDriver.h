@@ -110,7 +110,10 @@ public:
 	 * attached, a transcoder will be created and attached.
 	 * @return the physical index of the sensor
 	 */
-	virtual unsigned int AddDeviceSensor(VistaDeviceSensor *pSensor);
+	virtual unsigned int AddDeviceSensor(VistaDeviceSensor *pSensor,
+										size_t pos = ANYPOS, 
+		                                AllocMemoryFunctor *amf = NULL,
+										ClaimMemoryFunctor *cmf = NULL );
 
 	/**
 	 * in case you want to add your own transcoders for mouse measures, this
