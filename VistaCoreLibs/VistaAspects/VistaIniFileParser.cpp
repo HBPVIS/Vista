@@ -82,12 +82,12 @@ class IniFileReader
 public:
 	IniFileReader( char cSectionHeaderStartSymbol,
 					char cSectionHeaderEndSymbol,
-					char cCommentSymbol,
-					char cKeySeparatorSymbol )
+					char cKeySeparatorSymbol,
+					char cCommentSymbol )
 	: m_cSectionHeaderStartSymbol( cSectionHeaderStartSymbol )
 	, m_cSectionHeaderEndSymbol( cSectionHeaderEndSymbol )
-	, m_cCommentSymbol( cCommentSymbol )
 	, m_cKeySeparatorSymbol( cKeySeparatorSymbol )
+	, m_cCommentSymbol( cCommentSymbol )
 	, m_bReplaceEnvironmentVariables(false)
 	, m_sFileVariableSectionName( "FILE_VARIABLES" )
 	, m_cCurrentRead(0x0)
@@ -372,8 +372,8 @@ private:
 
 	char				m_cSectionHeaderStartSymbol;
 	char				m_cSectionHeaderEndSymbol;
-	char				m_cCommentSymbol;
 	char				m_cKeySeparatorSymbol;
+	char				m_cCommentSymbol;
 
 	std::string			m_sBuffer;
 	std::string			m_sSectionName;
@@ -390,8 +390,7 @@ private:
 class IniFileWriter
 {
 public:
-	IniFileWriter( 
-					int iMaxKeyIndent,
+	IniFileWriter( int iMaxKeyIndent,
 					char cSectionHeaderStartSymbol,
 					char cSectionHeaderEndSymbol,
 					char cKeySeparatorSymbol )
@@ -612,7 +611,11 @@ bool VistaIniFileParser::ReadFile( const std::string& sFilename,
 									m_sFilename,
 									m_bReplaceEnvironmentVariables,
 									m_sFileVariableSectionName,
-									GetUseCaseSensitiveKeys() );	
+									GetUseCaseSensitiveKeys(),
+									m_cSectionHeaderStartSymbol,
+									m_cSectionHeaderEndSymbol,
+									m_cKeySeparatorSymbol,
+									m_cCommentSymbol );	
 	return m_bFileIsValid;
 }
 
@@ -620,7 +623,8 @@ bool VistaIniFileParser::WriteFile()
 {
 	if( m_bFileIsValid == false )
 		return false;
-	if( WriteProplistToFile( m_sFilename, m_oFilePropertyList, true ) )
+	if( WriteProplistToFile( m_sFilename, m_oFilePropertyList, true, 
+					m_cSectionHeaderStartSymbol, m_cSectionHeaderEndSymbol, m_cKeySeparatorSymbol ) )
 	{
 		m_bFileIsValid = true;
 		return true;
@@ -631,7 +635,8 @@ bool VistaIniFileParser::WriteFile()
 bool VistaIniFileParser::WriteFile( const std::string& sFilename,
 									const bool bOverwrite )
 {
-	if( WriteProplistToFile( sFilename, m_oFilePropertyList, bOverwrite ) )
+	if( WriteProplistToFile( sFilename, m_oFilePropertyList, bOverwrite, 
+					m_cSectionHeaderStartSymbol, m_cSectionHeaderEndSymbol, m_cKeySeparatorSymbol ) )
 	{
 		m_sFilename = sFilename;
 		m_bFileIsValid = true;
