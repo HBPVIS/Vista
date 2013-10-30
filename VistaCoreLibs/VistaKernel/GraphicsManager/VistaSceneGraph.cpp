@@ -1090,7 +1090,7 @@ VistaLightNode* VistaSceneGraph::NewLightFromProplist( const VistaPropertyList& 
 
 void VistaSceneGraph::GetAllSubNodesOfType( std::vector<IVistaNode*>& vecNodesOfWantedType, const VISTA_NODETYPE& wantedNodeType, IVistaNode *pNode) const
 {
-	if(!pNode) pNode = GetRoot();
+	assert( pNode != NULL );
 
 	std::stack<IVistaNode*> NodeStack;
 	IVistaNode*	pCurrNode	= NULL;
@@ -1113,6 +1113,11 @@ void VistaSceneGraph::GetAllSubNodesOfType( std::vector<IVistaNode*>& vecNodesOf
 			}
 		}
 	}
+}
+
+void VistaSceneGraph::GetAllSubNodesOfType( std::vector<IVistaNode*>& vecNodesOfWantedType, const VISTA_NODETYPE& wantedNodeType ) const
+{
+	return GetAllSubNodesOfType( GetRoot() );
 }
 
 const std::vector<VistaLightNode*>& VistaSceneGraph::GetAllLightNodes() const
