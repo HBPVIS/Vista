@@ -279,11 +279,11 @@ public:
 	/**
 	 * Searchs all nodes of type wantedNodeType in the subtree starting from pNode and pushes them into vecNodesOfWantedType.
 	 */
-	static void GetAllSubNodesOfType( std::vector<IVistaNode*>& vecNodesOfWantedType, const VISTA_NODETYPE& wantedNodeType, IVistaNode *pNode );
+	static void GetAllSubNodesOfType( std::vector<IVistaNode*>& vecNodesOfWantedType, const VISTA_NODETYPE& eWantedNodeType, IVistaNode *pNode );
 	/**
 	 * Searchs all nodes of type wantedNodeType in the subtree starting from the scenegraph root and pushes them into vecNodesOfWantedType.
 	 */
-	void GetAllSubNodesOfType( std::vector<IVistaNode*>& vecNodesOfWantedType, const VISTA_NODETYPE& wantedNodeType ) const;
+	void GetAllSubNodesOfType( std::vector<IVistaNode*>& vecNodesOfWantedType, const VISTA_NODETYPE& eWantedNodeType ) const;
 
 	const std::vector<VistaLightNode*>& GetAllLightNodes() const;
 	void GetAllLightNodes( std::vector<VistaLightNode*>& vecLights ) const;
