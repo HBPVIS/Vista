@@ -106,14 +106,14 @@ VistaBoundingBox::VistaBoundingBox()
 }
 
 VistaBoundingBox::VistaBoundingBox( const float a3fMin[3], const float a3fMax[3] )
+: m_v3Min( a3fMin )
+, m_v3Max( a3fMax )
 {
-	m_v3Min.SetValues( a3fMin );
-	m_v3Max.SetValues( a3fMax );
 }
 VistaBoundingBox::VistaBoundingBox( const VistaVector3D& v3Min, const VistaVector3D& v3Max )
+: m_v3Min( v3Min )
+, m_v3Max( v3Max)
 {
-	m_v3Min = v3Min;
-	m_v3Max = v3Max;
 }
 
 

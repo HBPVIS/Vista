@@ -989,13 +989,11 @@ inline bool VistaTransformMatrix::GetInverted( VistaTransformMatrix& matTarget )
 	int iCol = 0;
 	int iRow = 0;
 
-	float fBig, fDum, fInvPivot, fTmp;
-
 	memcpy( matTarget.m_a16fData, m_a16fData, 16*sizeof(float) );
 
 	for( register int  i = 0; i < 4; ++i )
 	{
-		fBig = 0.0f;
+		float fBig = 0.0f;
 		for( register int  j = 0; j < 4; ++j )
 		{
 			if( a4fPivot[j] != 1 )
@@ -1024,7 +1022,7 @@ inline bool VistaTransformMatrix::GetInverted( VistaTransformMatrix& matTarget )
 		{
 			for ( register int l = 0 ; l<4 ; l++)
 			{
-				fTmp = matTarget[l][iCol];
+				float fTmp = matTarget[l][iCol];
 				matTarget[l][iCol] = matTarget[l][iRow];
 				matTarget[l][iRow] = fTmp;
 			}
@@ -1036,7 +1034,7 @@ inline bool VistaTransformMatrix::GetInverted( VistaTransformMatrix& matTarget )
 		if( matTarget[iCol][iCol] == 0.0 )
 			return false; // singular matrix
 
-		fInvPivot = 1.0f / matTarget[iCol][iCol];
+		float fInvPivot = 1.0f / matTarget[iCol][iCol];
 		matTarget[iCol][iCol] = 1.0f ;
 
 		for ( register int l = 0; l < 4; ++l )
@@ -1048,7 +1046,7 @@ inline bool VistaTransformMatrix::GetInverted( VistaTransformMatrix& matTarget )
 		{
 			if( ll != iCol )
 			{
-				fDum = matTarget[iCol][ll];
+				float fDum = matTarget[iCol][ll];
 				matTarget[iCol][ll] = 0.0;
 				for( register int l = 0 ; l<4 ; l++)
 					matTarget[l][ll] = matTarget[l][ll] - matTarget[l][iCol] * fDum ;
@@ -1061,7 +1059,7 @@ inline bool VistaTransformMatrix::GetInverted( VistaTransformMatrix& matTarget )
 		if( a4fIndexR[l] != a4fIndexC[l] )
 			for( register int k = 0; k < 4; ++k )
 			{
-				fTmp = matTarget[a4fIndexR[l]][k];
+				float fTmp = matTarget[a4fIndexR[l]][k];
 				matTarget[a4fIndexR[l]][k] = matTarget[a4fIndexC[l]][k];
 				matTarget[a4fIndexC[l]][k] = fTmp;
 			}

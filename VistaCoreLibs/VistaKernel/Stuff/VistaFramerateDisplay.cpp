@@ -137,7 +137,8 @@ VistaFramerateDisplay::VistaFramerateDisplay( VistaDisplayManager* pDisplayManag
 			for( std::vector<std::string>::const_iterator itExclude = vecExcludePorts.begin();
 					itExclude != vecExcludePorts.end(); ++itExclude )
 			{
-				std::remove( vecViewports.begin(), vecViewports.end(), (*itExclude) );
+				std::vector<std::string>::iterator itRem = std::remove( vecViewports.begin(), vecViewports.end(), (*itExclude) );
+				vecViewports.erase( itRem, vecViewports.end() );
 			}
 		}
 	}

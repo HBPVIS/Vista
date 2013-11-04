@@ -469,7 +469,7 @@ public:
 		VistaSensorMeasure::MEASUREVEC &vecOut,
 								unsigned int nOffset)
 	{
-		std::string strBlock, strBeg;
+		std::string strBlock;
 		unsigned int nInitial = nOffset;
 		char c;
 		std::vector<int>::const_iterator cit = m_vecBlockLength.begin();

@@ -53,6 +53,12 @@ VistaDfnGeometryNode::VistaDfnGeometryNode( VistaGeometry* pGeometry, VistaScene
 , m_nUniformScalePortUpdate( 0 )
 , m_nEnableUpdate( 0 )
 , m_pGeometry( pGeometry )
+, m_pPositionPort( NULL )
+, m_pScalePort( NULL )
+, m_pUniformScalePort( NULL )
+, m_pOrientationPort( NULL )
+, m_pTransformPort( NULL )
+, m_pEnablePort( NULL )
 {
 	RegisterInPortPrototype( "position", new TVdfnPortTypeCompare<TVdfnPort<VistaVector3D> > );
 	RegisterInPortPrototype( "orientation", new TVdfnPortTypeCompare<TVdfnPort<VistaQuaternion> > );
@@ -80,6 +86,12 @@ VistaDfnGeometryNode::VistaDfnGeometryNode( IVistaNode* pSubtreeRoot, VistaScene
 , m_nUniformScalePortUpdate( 0 )
 , m_nEnableUpdate( 0 )
 , m_pGeometry( NULL )
+, m_pPositionPort( NULL )
+, m_pScalePort( NULL )
+, m_pUniformScalePort( NULL )
+, m_pOrientationPort( NULL )
+, m_pTransformPort( NULL )
+, m_pEnablePort( NULL )
 {
 	RegisterInPortPrototype( "position", new TVdfnPortTypeCompare<TVdfnPort<VistaVector3D> > );
 	RegisterInPortPrototype( "orientation", new TVdfnPortTypeCompare<TVdfnPort<VistaQuaternion> > );

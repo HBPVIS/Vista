@@ -123,13 +123,12 @@ int VistaIOHandleBasedIOMultiplexer::Demultiplex(unsigned int nTimeout)
 		//printf ("Demultiplex @ %x - size= %d . Entering multiplexer again.\n", this, m_veHandles.size());
 		SetState(MP_PLEXING);
 		(*m_pDoneMutex).Lock();
-		bool bFail = false;
 #ifdef WIN32	
 		DWORD nRet = 0;
 		DWORD dwTimeout = (nTimeout == (unsigned int)~0) ? INFINITE : DWORD(nTimeout);
 
 		nRet = WaitForMultipleObjects(DWORD(m_veHandles.size()), &m_veHandles[0], FALSE, dwTimeout);
-		bFail = (nRet == WAIT_FAILED ? true : false);
+		bool bFail = (nRet == WAIT_FAILED ? true : false);
 
 		if(nRet == WAIT_TIMEOUT)
 		{
@@ -190,7 +189,7 @@ int VistaIOHandleBasedIOMultiplexer::Demultiplex(unsigned int nTimeout)
 			iRet = select(hanMax+1, &myRdSocks, &myWrSocks, &myExSocks, etv);
 		} while( iRet == -1 && errno == EINTR && ++iReattemptCount < 1000 );
 
-		bFail = (iRet == -1 ? true : false);
+		bool bFail = (iRet == -1 ? true : false);
 		if(iRet == 0)
 		{
 			SetState(MP_IDLE);

@@ -948,7 +948,7 @@ int VistaGeometry::GetEdge(const int vertexId0, const int vertexId1) const
 	set<int>::const_iterator	iter0 = m_adjacentFaces[vertexId0].begin();
 	set<int>::const_iterator	iter1;
 
-	for(; iter0 != m_adjacentFaces[vertexId0].end(); iter0++)
+	for(; iter0 != m_adjacentFaces[vertexId0].end(); ++iter0 )
 	{
 		iter1 = m_adjacentFaces[vertexId1].find(*iter0);
 		if(iter1 != m_adjacentFaces[vertexId1].end())
@@ -976,7 +976,7 @@ int VistaGeometry::GetEdge(const int vertexId0, const int vertexId1) const
 bool VistaGeometry::GetAdjacentFaces(const int vertexID, list<int>& listFaces)
 {
 	for(set<int>::const_iterator iter = m_adjacentFaces[vertexID].begin();
-		iter != m_adjacentFaces[vertexID].end(); iter++)
+		iter != m_adjacentFaces[vertexID].end(); ++iter )
 	{
 		listFaces.push_back(*iter);
 	}
@@ -1205,29 +1205,29 @@ VistaMaterial::VistaMaterial()
 VistaMaterial::VistaMaterial(const VistaColor& ambient, const VistaColor& diffuse,
 							   const VistaColor& specular, const VistaColor& emission,
 							   const float shininess, const float opacity, const std::string & name)
+ : m_oAmbient( ambient )
+, m_oDiffuse( diffuse )
+, m_oSpecular( specular )
+, m_oEmission( emission )
+, m_nShininess( shininess )
+, m_nOpacity( opacity )
+, m_strName( name )
+, m_iIndex( -1 )
 {
-	m_oAmbient   = ambient;
-	m_oDiffuse   = diffuse;
-	m_oSpecular  = specular;
-	m_oEmission  = emission;
-	m_nShininess = shininess;
-	m_nOpacity   = opacity;
-	m_strName   = name;
-	m_iIndex    = -1;
 }
 
 VistaMaterial::VistaMaterial(const float ambient[3], const float diffuse[3],
 							   const float specular[3], const float emission[3],
 							   const float  shininess, const float opacity, const std::string & name)
+: m_oAmbient( ambient )
+, m_oDiffuse( diffuse )
+, m_oSpecular( specular )
+, m_oEmission( emission )
+, m_nShininess( shininess )
+, m_nOpacity( opacity )
+, m_strName( name )
+, m_iIndex( -1 )
 {
-	m_oAmbient   = ambient;
-	m_oDiffuse   = diffuse;
-	m_oSpecular  = specular;
-	m_oEmission  = emission;
-	m_nShininess = shininess;
-	m_nOpacity   = opacity;
-	m_strName   = name;
-	m_iIndex    = -1;
 }
 
 void VistaMaterial::GetAmbientColor(float a3fColor[3]) const

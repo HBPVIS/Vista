@@ -38,20 +38,20 @@ using namespace std;
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
 VistaMsg::VistaMsg()
+: m_iType( 0 )
+, m_iTicket( -1 ) // invalidate
+, m_bSuccess( true )
 {
-	m_iType = 0;
-	m_iTicket = -1; // invalidate
-	m_bSuccess = true;
 
 }
 
 VistaMsg::VistaMsg(const VistaMsg &rMsg)
+: m_veMsg( rMsg.m_veMsg )
+, m_veAnswer( rMsg.m_veAnswer )
+, m_iType( rMsg.m_iType )
+, m_iTicket(rMsg.m_iTicket )
+, m_bSuccess( rMsg.m_bSuccess )
 {
-	m_iType = rMsg.m_iType;
-	m_bSuccess = rMsg.m_bSuccess;
-	m_veAnswer = rMsg.m_veAnswer;
-	m_veMsg = rMsg.m_veMsg;
-	m_iTicket = rMsg.m_iTicket;
 }
 
 VistaMsg::~VistaMsg()

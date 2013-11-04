@@ -70,8 +70,7 @@ DLVistaPipeConstructionKit::~DLVistaPipeConstructionKit()
 
 DLVistaCheckError DLVistaPipeConstructionKit::Join(IDLVistaPipeComponent *pIn, IDLVistaPipeComponent *pOut)
 {
-	bool bRet = true;
-	bRet = pIn->AttachOutputComponent(pOut);
+	bool bRet = pIn->AttachOutputComponent(pOut);
 	bRet = bRet && pOut->AttachInputComponent(pIn);
 
 	if(bRet)

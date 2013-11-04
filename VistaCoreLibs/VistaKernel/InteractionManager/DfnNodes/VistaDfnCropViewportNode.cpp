@@ -107,27 +107,29 @@ private:
 	};
 
 public:
-	CropViewportOverlay( VistaViewport* pVp, bool m_bUseProjExtents, const VistaColor& oCropColor )
+	CropViewportOverlay( VistaViewport* pVp, bool bUseProjExtents, const VistaColor& oCropColor )
 	: IVistaSceneOverlay( pVp )
 	, m_pProjObserver( NULL )
 	, m_oCropColor( oCropColor )
+	, m_nWidth( 0 )
+	, m_nHeight( 0 )
+	, m_nCropLeft( 0 )
+	, m_nCropRight( 0 )
+	, m_nCropTop( 0 )
+	, m_nCropBottom( 0 )
+	, m_nDrawLeft( 0 )
+	, m_nDrawRight( 0 )
+	, m_nDrawTop( 0 )
+	, m_nDrawBottom( 0 )
+	, m_bEnabled( true )
 	{
-		if( GetAttachedViewport() )
+		VistaViewport* pAttachedViewport = GetAttachedViewport();
+		if( pAttachedViewport )
 		{
-			if( m_bUseProjExtents )
-				m_pProjObserver = new ProjectionObserver( this, GetAttachedViewport()->GetProjection() );
-			GetAttachedViewport()->GetViewportProperties()->GetSize( m_nWidth, m_nHeight );
-		}
-	}
-
-	CropViewportOverlay( VistaDisplayManager *pDisplayManager,
-										const std::string& sViewportName = "" )
-	: IVistaSceneOverlay( pDisplayManager, sViewportName )
-	{
-		if( GetAttachedViewport() )
-		{
-			m_pProjObserver = new ProjectionObserver( this, GetAttachedViewport()->GetProjection() );
-			GetAttachedViewport()->GetViewportProperties()->GetSize( m_nWidth, m_nHeight );
+			if( bUseProjExtents )
+				m_pProjObserver = new ProjectionObserver( this, pAttachedViewport->GetProjection() );
+			pAttachedViewport->GetViewportProperties()->GetSize( m_nWidth, m_nHeight );
+			RecalculateDrawArea();
 		}
 	}
 

@@ -101,8 +101,7 @@ bool VistaOpenGLDebug::DebugMsg (std::string strVal)
 // ============================================================================
 void VistaOpenGLDebug::DebugOglError ()
 {
-	GLenum curErr = GL_NO_ERROR;
-	curErr = glGetError();
+	GLenum curErr = glGetError();
 	if (curErr != GL_NO_ERROR)
 	{
 		DebugMsg ("!! ==> OPENGL ERROR OCCURED: ");
@@ -465,11 +464,10 @@ void VistaOpenGLDebug::DebugModelMatrix ()
 		DebugMsg (", ");
 		DebugMsg (-curModelMatrix[14]);
 		DebugMsg (")\n");
-		double rotY = 0.0;
+		// this calc returns a value between 90 and -90 degrees	
+		double rotY = asin (curModelMatrix[8]);
 		double rotX = 0.0;
-		double rotZ = 0.0;
-		// this calc returns a value between 90 and -90 degrees
-		rotY = asin (curModelMatrix[8]);
+		double rotZ = 0.0;	
 		// attention: cos(+/-90)=0.0!!
 		if ((rotY != 1.0) && (rotY != -1.0))
 		{

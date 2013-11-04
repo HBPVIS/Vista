@@ -162,7 +162,7 @@ int VistaFileSystemDirectory::NumberOfEntries(int ft)
 	int i=0;
 
 	vector< Pair >::iterator it = m_Entries.begin();
-	for(; it!=m_Entries.end(); it++)
+	for(; it!=m_Entries.end(); ++it)
 		if (it->second & ft)
 			++i;
 
@@ -262,7 +262,7 @@ string VistaFileSystemDirectory::GetEntries(int ft)
 
 	string s;
 	vector< Pair >::iterator it = m_Entries.begin();
-	for(; it!=m_Entries.end(); it++) {
+	for(; it!=m_Entries.end(); ++it) {
 		if (it->second & ft)
 			s = s + it->first + '\n';
 	}
@@ -279,7 +279,7 @@ vector<string> VistaFileSystemDirectory::GetEntriesVector(int ft)
 	vector< Pair >::iterator it = m_Entries.begin();
 	while(it != m_Entries.end()) {
 		v.push_back(it->first);
-		it++;
+		++it;
 	}
 
 	return v;
@@ -435,7 +435,7 @@ long VistaFileSystemDirectory::GetSize()
 	while (itFile != m_EntryList.end())
 	{
 		nAccumulatedSize += (*itFile)->GetSize();
-		itFile++;
+		++itFile;
 	}
 
 

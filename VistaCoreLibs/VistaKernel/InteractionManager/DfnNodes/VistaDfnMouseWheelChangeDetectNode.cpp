@@ -38,7 +38,8 @@
 VistaDfnMouseWheelChangeDetectNode::VistaDfnMouseWheelChangeDetectNode() 
 :	IVdfnNode(),
 	m_iLastState( 0 ),
-	m_pWheelChange( new TVdfnPort<int> )
+	m_pWheelChange( new TVdfnPort<int> ),
+	m_pWheelState( NULL )
 {
 	RegisterInPortPrototype( "wheel_state",
 					new TVdfnPortTypeCompare<TVdfnPort<int> >);

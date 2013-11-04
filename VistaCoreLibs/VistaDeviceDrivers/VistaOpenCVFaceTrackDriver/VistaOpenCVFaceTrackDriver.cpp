@@ -763,10 +763,9 @@ void VistaOpenCVFaceTrackDriver::ConnectToOpenCVDevice()
 		}
 		else
 		{
-			int nParam;
-			nParam = CLEyeSetCameraParameter( m_pCLEyeCamera, CLEYE_AUTO_GAIN, 1 );
-			nParam = CLEyeSetCameraParameter( m_pCLEyeCamera, CLEYE_AUTO_EXPOSURE, 1 );
-			nParam = CLEyeSetCameraParameter( m_pCLEyeCamera, CLEYE_AUTO_WHITEBALANCE, 1 );
+			CLEyeSetCameraParameter( m_pCLEyeCamera, CLEYE_AUTO_GAIN, 1 );
+			CLEyeSetCameraParameter( m_pCLEyeCamera, CLEYE_AUTO_EXPOSURE, 1 );
+			CLEyeSetCameraParameter( m_pCLEyeCamera, CLEYE_AUTO_WHITEBALANCE, 1 );
 			if( m_pImage )
 			{
 				cvReleaseImage( &m_pImage );

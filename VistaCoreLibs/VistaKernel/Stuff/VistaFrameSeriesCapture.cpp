@@ -421,6 +421,7 @@ void VistaFrameSeriesCapture::MakeScreenshot( const VistaType::microtime nTime, 
 	ReplaceMilliSeconds( sFilename, nTime );
 	ReplaceFrameCount( sFilename );
 	ReplaceScreenshotCount( sFilename );
+	ReplaceNodeName( sFilename );
 
 	sFilename = m_sFileLocation + "/" + sFilename;
 

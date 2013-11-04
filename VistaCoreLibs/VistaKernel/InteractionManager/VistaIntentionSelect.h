@@ -85,8 +85,7 @@ class VISTAKERNELAPI VistaNodeAdapter : public IVistaIntentionSelectAdapter
 {
 public:
 
-	VistaNodeAdapter(): IVistaIntentionSelectAdapter()
-	{}
+	VistaNodeAdapter(): IVistaIntentionSelectAdapter(), m_pNode( NULL ) {}
 
 	VistaNodeAdapter(IVistaNode *pNode)
 	: IVistaIntentionSelectAdapter(), m_pNode(pNode)

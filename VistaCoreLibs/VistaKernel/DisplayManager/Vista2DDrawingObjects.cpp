@@ -162,24 +162,16 @@ bool Vista2DCompound::SetPosition(float fPosX, float fPosY)
 /*  CONSTRUCTORS / DESTRUCTOR                                                 */
 /*============================================================================*/
 Vista2DText::Vista2DText()
+: m_strText( "" )
+, m_iFontIndex( 0 )
+, m_b3DMode( false )
+, m_family( INVALID )
 {
-	m_strText = "";
 	m_Type = VISTA2D_TEXT;
-	m_iFontIndex = 0;
-	m_b3DMode = false;
-	m_family = INVALID;
 }
 
-/*
-Vista2DText::Vista2DText(std::string strText, float fXPos, float fYPos, unsigned char nRed, unsigned char nGreen, unsigned char nBlue)
-						: Vista2DDrawingObject(fXPos, fYPos, nRed, nGreen, nBlue)
-{
-	m_strText = strText;
-}
-*/
 Vista2DText::~Vista2DText()
 {
-	m_strText = "";
 }
 // ============================================================================
 // ============================================================================
@@ -187,8 +179,7 @@ bool Vista2DText::Init(const std::string &strText, float nPosX, float nPosY,
 			unsigned char nRed, unsigned char nGreen, unsigned char nBlue,
 			unsigned int size, Vista2DTextFontFamily family )
 {
-	bool success = false;
-	success = SetText(strText);
+	bool success = SetText(strText);
 	success &= SetPosition(nPosX,nPosY);
 	success &= SetColor(nRed,nGreen,nBlue);
 	success &= SetSize(float(size));
@@ -346,8 +337,7 @@ Vista2DBitmap::~Vista2DBitmap()
 // ============================================================================
 bool Vista2DBitmap::Init(const std::string &strFName, float nPosX, float nPosY)
 {
-	bool success = false;
-	success  = SetBitmap(strFName);
+	bool success = SetBitmap(strFName);
 	success &= SetPosition(nPosX,nPosY);
 	m_bIsInitialized = success;
 	return success;
@@ -454,8 +444,7 @@ Vista2DRectangle::~Vista2DRectangle()
 // ============================================================================
 bool Vista2DRectangle::Init( float fPosX, float fPosY, float fWidth, float fHeight, unsigned char nRed, unsigned char nGreen, unsigned char nBlue)
 {
-	bool success = false;
-	success  = SetPosition( fPosX, fPosY );
+	bool success = SetPosition( fPosX, fPosY );
 	success &= SetDimensions( fWidth, fHeight );
 	success &= SetColor( nRed, nGreen, nBlue );
 	m_bIsInitialized = success;
@@ -543,8 +532,7 @@ Vista2DLine::~Vista2DLine()
 // ============================================================================
 bool Vista2DLine::Init(float nPosX1, float nPosY1, float nPosX2, float nPosY2, unsigned char nRed, unsigned char nGreen, unsigned char nBlue)
 {
-	bool success = false;
-	success = SetStartPoint(nPosX1, nPosY1);
+	bool success = SetStartPoint(nPosX1, nPosY1);
 	success &= SetEndPoint(nPosX2,nPosY2);
 	success &= SetColor(nRed,nGreen,nBlue);
 	m_bIsInitialized = success;

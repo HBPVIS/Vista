@@ -176,10 +176,6 @@ VistaInteractionContext::VistaInteractionContext(VistaInteractionManager *pMgr,
 	m_pEvent->SetId( VistaInteractionEvent::VEID_CONTEXT_GRAPH_UPDATE );
 }
 
-VistaInteractionContext::VistaInteractionContext( const VistaInteractionContext & )
-{
-
-}
 
 VistaInteractionContext::~VistaInteractionContext()
 {
@@ -193,10 +189,6 @@ VistaInteractionContext::~VistaInteractionContext()
 /* IMPLEMENTATION                                                             */
 /*============================================================================*/
 
-VistaInteractionContext& VistaInteractionContext::operator=(const VistaInteractionContext &)
-{
-	return *this;
-}
 
 bool VistaInteractionContext::GetIsEnabled() const
 {

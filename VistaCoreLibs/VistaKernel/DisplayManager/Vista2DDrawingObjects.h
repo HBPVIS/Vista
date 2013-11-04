@@ -167,7 +167,6 @@ public:
 
 
 	Vista2DText();
-	//Vista2DText(std::string strText, float fPosX, float fPosY, unsigned char nRed, unsigned char nGreen, unsigned char nBlue);
 	virtual ~Vista2DText();
 
 	/**@todo: change color input to float*/

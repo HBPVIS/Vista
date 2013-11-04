@@ -77,7 +77,7 @@ std::list<std::string> VistaDisplay::GetWindowNames() const
 	if (m_vecWindows.size())
 	{
 		for( std::vector<VistaWindow *>::const_iterator it = m_vecWindows.begin() ; 
-			 it != m_vecWindows.end() ; it++ )
+			 it != m_vecWindows.end() ; ++it )
 		{
 			liNames.push_back( (*it)->GetNameForNameable() );
 		}

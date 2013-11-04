@@ -37,7 +37,16 @@ static const int S_nNumIterations = 100;
 class ReflTester : public IVistaReflectionable
 {
 public:
-	ReflTester() {};
+	ReflTester()
+	: m_fFloat1( 0 )
+	, m_fFloat2( 0 )
+	, m_dDouble( 0 )
+	, m_nUShort( 0 )
+	{
+		memset( m_a2fData2, 0, sizeof( m_a2fData2 ) );
+		memset( m_i3dData2, 0, sizeof( m_i3dData2 ) );
+		memset( m_a4bData2, 0, sizeof( m_a4bData2 ) );
+	}	
 	virtual ~ReflTester() {};
 
 	// to make getter/setter names unified

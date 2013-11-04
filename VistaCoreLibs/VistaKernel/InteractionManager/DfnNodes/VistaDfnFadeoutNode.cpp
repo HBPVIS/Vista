@@ -62,6 +62,7 @@ VistaDfnFadeoutNode::VistaDfnFadeoutNode( VistaClusterMode* pClusterMode )
 , m_pClusterMode( pClusterMode )
 , m_nOpacity( 0 )
 , m_nState( MODE_OFF )
+, m_nStartTime( 0 )
 {
 	RegisterInPortPrototype( "opacity", new TVdfnPortTypeCompare<TVdfnPort<float> > );
 	RegisterInPortPrototype( "state", new TVdfnPortTypeCompare<TVdfnPort<bool> > );

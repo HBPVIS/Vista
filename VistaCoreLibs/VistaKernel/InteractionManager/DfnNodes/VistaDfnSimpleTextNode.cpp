@@ -54,6 +54,7 @@ VistaDfnSimpleTextNode::VistaDfnSimpleTextNode( VistaDisplayManager* pDisplayMan
 , m_pOverlay( new VistaSimpleTextOverlay( pDisplayManager ) )
 , m_pDisplayManager( pDisplayManager )
 , m_pEnablePort( NULL )
+, m_nTextSize( 12 )
 {
 }
 

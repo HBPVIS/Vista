@@ -88,7 +88,7 @@ public:
 	virtual bool GetWorldTransform( double a16dTransform[16], const bool bColumnMajor = false ) const = 0;	
 
 	/**
-	 *  returns true and sets the WorldTransform of the parent if the locatable is in
+	 *  returns true and gets the WorldTransform of the parent if the locatable is in
 	 *  a hierarchy (even if it does not have a parent, e.g. if it is a rootnode, in which
 	 *  case a unit matrix is returned).
 	 *  returns false if the locatable is not in a hierarchy.
