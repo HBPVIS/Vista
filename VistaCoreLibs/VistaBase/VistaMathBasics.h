@@ -36,6 +36,14 @@
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
 
+// windows.h may define min and max macros that break the std::min/max and
+// numeric_limints::Min/max, so we undefine them
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
 /*============================================================================*/
 /* CLASS DEFINITIONS                                                          */
 /*============================================================================*/
@@ -55,8 +63,10 @@ namespace Vista
 
 	float DegToRad( const float fDegrees );
 	float RadToDeg( const float fRadians );
-	bool IsValidNumber( const float fValue );
-	template<class T> T Clamp( const T val, const T minVal, const T maxVal );
+	template< typename TFloat >
+	bool IsValidNumber( const TFloat fValue );
+	template< typename T > 
+	T Clamp( const T val, const T minVal, const T maxVal );
 }
 
 /**
@@ -72,15 +82,22 @@ inline float Vista::RadToDeg( const float fRadians )
 	return fRadians * 180.0f / Vista::Pi;
 };
 
-inline bool Vista::IsValidNumber( const float fValue )
+template< typename TFloat >
+inline bool Vista::IsValidNumber( const TFloat nNumber )
 {
-	// own implementation of both isnan and isinf, since not all compilers know
-	// these functions (yes, msvc, I'm looking at you)
-	return ( fValue == fValue
-			&& fValue != std::numeric_limits<float>::infinity() );
-};
+	if( nNumber != nNumber )
+		return false;
+	TFloat nAbs = std::abs( nNumber );
+	if( nAbs == std::numeric_limits<TFloat>::infinity() )
+		return false;
+	if( nNumber == 0 )
+		return true;
+	if( nAbs < std::numeric_limits<TFloat>::min() )
+		return false;
+	return true;
+}
 
-template<class T>
+template< typename T >
 T Vista::Clamp( const T nVal, const T nMinVal, const T nMaxVal )
 {
 	// @todo Interfers with min/max macros on windows.
