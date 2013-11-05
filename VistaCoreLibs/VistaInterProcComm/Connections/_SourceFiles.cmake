@@ -26,8 +26,6 @@ set( DirFiles
 	VistaConnectionPipe.h
 	VistaConnectionSerial.cpp
 	VistaConnectionSerial.h
-	VistaConnectionUSB.cpp
-	VistaConnectionUSB.h
 	VistaMsg.cpp
 	VistaMsg.h
 	VistaMsgChannel.cpp
