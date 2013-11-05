@@ -49,7 +49,6 @@
 #include <VistaBase/VistaStreamUtils.h>
 #include <VistaInterProcComm/Connections/VistaConnectionFile.h>
 #include <VistaInterProcComm/Connections/VistaConnectionFileTimed.h>
-#include <VistaInterProcComm/Connections/VistaConnectionUSB.h>
 #include <VistaInterProcComm/Connections/VistaConnectionIP.h>
 #include <VistaInterProcComm/Connections/VistaConnectionSerial.h>
 
@@ -160,31 +159,6 @@ public:
 
 		return pConn;
 	}
-};
-
-class VistaUSBConnectionFactoryMethod : public VistaConnectionConfigurator::IConnectionFactoryMethod
-{
-public:
-	VistaConnection *CreateConnection(const VistaPropertyList &oProps)
-		{
-			unsigned int nVendorId = 0;
-			unsigned int nProductId = 0;
-			if( oProps.GetValue( "VENDORID", nVendorId ) == false
-				||  oProps.GetValue( "PRODUCTID", nProductId ) == false )
-			{
-				return NULL;
-			}
-
-			VistaConnectionUSB *pCon = new VistaConnectionUSB( nVendorId, nProductId );
-
-			if(!pCon->Open())
-			{
-				FailOnConnection(pCon, "COULD NOT OPEN USB CONNECTION");
-				return NULL;
-			}
-
-			return pCon;
-		}
 };
 
 class VistaIPConnectionFactoryMethod : public VistaConnectionConfigurator::IConnectionFactoryMethod
@@ -602,7 +576,6 @@ VistaConnectionConfigurator::VistaConnectionConfigurator()
 	: VistaDriverPropertyConfigurator::IConfigurator()
 {
 	m_mpFactories["SERIAL"] = new VistaSerialConnectionFactoryMethod;
-	m_mpFactories["USB"] = new VistaUSBConnectionFactoryMethod;
 	m_mpFactories["UDP"] = new VistaIPConnectionFactoryMethod;
 	m_mpFactories["TCP"] = new VistaIPConnectionFactoryMethod;
 	m_mpFactories["TIMEFILE"] = new VistaTimedFileConnectionFactoryMethod;
