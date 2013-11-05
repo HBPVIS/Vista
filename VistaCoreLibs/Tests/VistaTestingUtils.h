@@ -33,16 +33,24 @@
 #include <VistaAspects/VistaPropertyList.h>
 #include <time.h>
 
+#include <gtest/gtest.h>
+
 /*============================================================================*/
 /* HELPERS                                                                    */
 /*============================================================================*/
 
+template< typename S, typename T>
+std::ostream& operator<< ( std::ostream& oStream, const std::pair<S,T>& oVal )
+{
+	oStream << "( " << oVal.first << " | " << oVal.second << " )";
+	return oStream;
+}
 
 namespace VistaTestingRandom
 {
 	static const float S_nRandRange = 100.0;
 
-	static int InitializeRandomSeed()
+	static inline int InitializeRandomSeed()
 	{
 		unsigned int nSeed = (unsigned int)( 100000.0 * time(NULL) );
 		srand( nSeed );
@@ -167,78 +175,109 @@ namespace VistaTestingRandom
 namespace VistaTestingCompare
 {
 	template<typename T>
-	inline ::testing::AssertionResult Compare( const T& oLeft, const T& oRight )
+	inline ::testing::AssertionResult Compare( const T& oLeft, const T& oRight, const double nMaxRelDeviation )
 	{
 		if( oLeft == oRight )
-			return ::testing::AssertionSuccess();
+			return ::testing::AssertionSuccess() << oLeft << " == " << oRight;
 		return ::testing::AssertionFailure() << oLeft << " != " << oRight;
 	}
 
 	template<>
-	inline ::testing::AssertionResult Compare<float>( const float& oLeft, const float& oRight )
+	inline ::testing::AssertionResult Compare<float>( const float& oLeft, const float& oRight, const double nMaxRelDeviation )
 	{
-		float fFabs = fabs( oLeft - oRight );
-		float fMax = fabs( 1e-5f * oLeft );
-		if( fFabs < fMax )
-			return ::testing::AssertionSuccess();
+		if( nMaxRelDeviation == 0 )
+		{
+			if( oLeft == oRight )
+				return ::testing::AssertionSuccess() << oLeft << " == " << oRight;
+			return ::testing::AssertionFailure() << oLeft << " != " << oRight;
+		}
+		float nDelta = std::abs( oLeft - oRight );
+		float nMaxDev = std::max( std::numeric_limits<float>::min(), (float)nMaxRelDeviation * std::abs( oLeft ) );
+		if( nDelta < nMaxDev )
+			return ::testing::AssertionSuccess() << oLeft << " == " << oRight;
 		return ::testing::AssertionFailure() << oLeft << " != " << oRight;
 	}
 	template<>
-	inline ::testing::AssertionResult Compare<double>( const double& oLeft, const double& oRight )
+	inline ::testing::AssertionResult Compare<double>( const double& oLeft, const double& oRight, const double nMaxRelDeviation )
 	{
-		double fFabs = fabs( oLeft - oRight );
-		double fMax = fabs( 1e-10 * oLeft );
-		if( fFabs < fMax )
-			return ::testing::AssertionSuccess();
+		if( nMaxRelDeviation == 0 )
+		{
+			if( oLeft == oRight )
+				return ::testing::AssertionSuccess() << oLeft << " == " << oRight;
+			return ::testing::AssertionFailure() << oLeft << " != " << oRight;
+		}
+		double nDelta = std::abs( oLeft - oRight );
+		double nMaxDev = std::max( std::numeric_limits<double>::min(), nMaxRelDeviation * std::abs( oLeft ) );
+		if( nDelta < nMaxDev )
+			return ::testing::AssertionSuccess() << oLeft << " == " << oRight;
+		return ::testing::AssertionFailure() << oLeft << " != " << oRight;
+	}
+	template<>
+	inline ::testing::AssertionResult Compare<long double>( const long double& oLeft, const long double& oRight, const double nMaxRelDeviation )
+	{
+		if( nMaxRelDeviation == 0 )
+		{
+			if( oLeft == oRight )
+				return ::testing::AssertionSuccess() << oLeft << " == " << oRight;
+			return ::testing::AssertionFailure() << oLeft << " != " << oRight;
+		}
+		long double nDelta = std::abs( oLeft - oRight );
+		long double nMaxDev = std::max( std::numeric_limits<long double>::min(), (long double)nMaxRelDeviation * std::abs( oLeft ) );
+		if( nDelta < nMaxDev )
+			return ::testing::AssertionSuccess() << oLeft << " == " << oRight;
 		return ::testing::AssertionFailure() << oLeft << " != " << oRight;
 	}
 
 	template<>
-	inline ::testing::AssertionResult Compare<VistaVector3D>( const VistaVector3D& oLeft, 
-																const VistaVector3D& oRight )
+	inline ::testing::AssertionResult Compare<VistaVector3D>( const VistaVector3D& oLeft, const VistaVector3D& oRight, const double nMaxRelDeviation )
 	{
 		int nCheckComponents = 4;
 		if( oRight[3] == 0.0f || oRight[3] == 1.0f )
 			nCheckComponents = 3;
 		for( int i = 0; i < nCheckComponents; ++i )
 		{
-			::testing::AssertionResult oRes = Compare( oLeft[i], oRight[i] );
+			::testing::AssertionResult oRes = Compare( oLeft[i], oRight[i], nMaxRelDeviation );
 			if( oRes == false )
-				return oRes << " (entry " << i << ")";
+				return oRes << " ( Vec3D entry " << i << ")";
 		}
-		return ::testing::AssertionSuccess();
+		return ::testing::AssertionSuccess() << oLeft << " == " << oRight;
 	}
 	template<>
-	inline ::testing::AssertionResult Compare<VistaQuaternion>( const VistaQuaternion& oLeft,
-																const VistaQuaternion& oRight )
+	inline ::testing::AssertionResult Compare<VistaQuaternion>( const VistaQuaternion& oLeft, const VistaQuaternion& oRight, const double nMaxRelDeviation )
 	{
 		for( int i = 0; i < 4; ++i )
 		{
-			::testing::AssertionResult oRes = Compare( oLeft[i], oRight[i] );
+			::testing::AssertionResult oRes = Compare( oLeft[i], oRight[i], nMaxRelDeviation );
 			if( oRes == false )
-				return oRes << " (entry " << i << ")";
+				return oRes << " ( Quaternion entry " << i << ")";
 		}
-		return ::testing::AssertionSuccess();
+		return ::testing::AssertionSuccess() << oLeft << " == " << oRight;
 	}
 	template<>
 	inline ::testing::AssertionResult Compare<VistaTransformMatrix>( const VistaTransformMatrix& oLeft,
-																const VistaTransformMatrix& oRight )
+																const VistaTransformMatrix& oRight, const double nMaxRelDeviation )
 	{
 		for( int i = 0; i < 4; ++i )
 		{
 			for( int j = 0; j < 4; ++j )
 			{
-				::testing::AssertionResult oRes = Compare( oLeft[i][j], oRight[i][j] );
+				::testing::AssertionResult oRes = Compare( oLeft[i][j], oRight[i][j], nMaxRelDeviation );
 				if( oRes == false )
-					return oRes << " (entry " << i << ", " << j << ")";
+					return oRes << " ( TransMat entry " << i << ", " << j << ")";
 			}
 		}
 		return ::testing::AssertionSuccess();
 	}
 
 	template<typename T>
+	inline ::testing::AssertionResult Compare( const T& oLeft, const T& oRight )
+	{
+		return( Compare( oLeft, oRight, 0 ) );
+	}	
+	
+	template<typename T>
 	inline ::testing::AssertionResult CompareVec( const std::vector<T>& oLeft, 
-											const std::vector<T>& oRight )
+											const std::vector<T>& oRight, const double nMaxRelDeviation = 0 )
 	{
 		if( oLeft.size() != oRight.size() )
 		{
@@ -249,7 +288,7 @@ namespace VistaTestingCompare
 		typename std::vector<T>::const_iterator itRight = oRight.begin();
 		for( std::size_t i = 0; i < oLeft.size(); ++i, ++itLeft, ++itRight )
 		{
-			::testing::AssertionResult oRes = Compare<T>( (*itLeft), (*itRight) );
+			::testing::AssertionResult oRes = Compare<T>( (*itLeft), (*itRight), nMaxRelDeviation );
 			if( oRes == false )
 				return oRes << " (entry " << i << ")";
 		}
@@ -257,7 +296,7 @@ namespace VistaTestingCompare
 	}
 	template<typename T>
 	inline ::testing::AssertionResult CompareList( const std::list<T>& oLeft,
-											const std::list<T>& oRight )
+											const std::list<T>& oRight, const double nMaxRelDeviation = 0 )
 	{
 		if( oLeft.size() != oRight.size() )
 		{
@@ -268,7 +307,7 @@ namespace VistaTestingCompare
 		typename std::list<T>::const_iterator itRight = oRight.begin();
 		for( std::size_t i = 0; i < oLeft.size(); ++i, ++itLeft, ++itRight )
 		{
-			::testing::AssertionResult oRes = Compare<T>( (*itLeft), (*itRight) );
+			::testing::AssertionResult oRes = Compare<T>( (*itLeft), (*itRight), nMaxRelDeviation );
 			if( oRes == false )
 				return oRes << " (entry " << i << ")";
 		}
@@ -276,7 +315,7 @@ namespace VistaTestingCompare
 	}
 	template<typename T>
 	inline ::testing::AssertionResult CompareDeque( const std::deque<T>& oLeft,
-											const std::deque<T>& oRight )
+											const std::deque<T>& oRight, const double nMaxRelDeviation = 0 )
 	{
 		if( oLeft.size() != oRight.size() )
 		{
@@ -287,7 +326,7 @@ namespace VistaTestingCompare
 		typename std::deque<T>::const_iterator itRight = oRight.begin();
 		for( std::size_t i = 0; i < oLeft.size(); ++i, ++itLeft, ++itRight )
 		{
-			::testing::AssertionResult oRes = Compare<T>( (*itLeft), (*itRight) );
+			::testing::AssertionResult oRes = Compare<T>( (*itLeft), (*itRight), nMaxRelDeviation );
 			if( oRes == false )
 				return oRes << " (entry " << i << ")";
 		}
@@ -296,7 +335,7 @@ namespace VistaTestingCompare
 
 	template<typename T>
 	inline ::testing::AssertionResult CompareStack( std::stack<T> oLeft,
-											std::stack<T> oRight )
+											std::stack<T> oRight, const double nMaxRelDeviation = 0 )
 	{
 		if( oLeft.size() != oRight.size() )
 		{
@@ -306,7 +345,7 @@ namespace VistaTestingCompare
 		int i = 0;
 		while( oLeft.empty() == false )
 		{
-			::testing::AssertionResult oRes = Compare<T>( oLeft.top(), oRight.top() );
+			::testing::AssertionResult oRes = Compare<T>( oLeft.top(), oRight.top(), nMaxRelDeviation );
 			if( oRes == false )
 				return oRes << " (entry " << i << ")";
 			oLeft.pop();
@@ -318,7 +357,7 @@ namespace VistaTestingCompare
 
 	template<typename T>
 	inline ::testing::AssertionResult CompareQueue( std::queue<T> oLeft,
-											std::queue<T> oRight )
+											std::queue<T> oRight, const double nMaxRelDeviation = 0 )
 	{
 		if( oLeft.size() != oRight.size() )
 		{
@@ -328,7 +367,7 @@ namespace VistaTestingCompare
 		int i = 0;
 		while( oLeft.empty() == false )
 		{
-			::testing::AssertionResult oRes = Compare<T>( oLeft.front(), oRight.front() );
+			::testing::AssertionResult oRes = Compare<T>( oLeft.front(), oRight.front(), nMaxRelDeviation );
 			if( oRes == false )
 				return oRes << " (entry " << i << ")";
 			oLeft.pop();
@@ -340,11 +379,11 @@ namespace VistaTestingCompare
 
 	template<typename T>
 	inline ::testing::AssertionResult CompareArray( const T* oLeft, const T* oRight,
-											const std::size_t nSize )
+											const std::size_t nSize, const double nMaxRelDeviation = 0 )
 	{
 		for( std::size_t i = 0; i < nSize; ++i )
 		{
-			::testing::AssertionResult oRes = Compare<T>( oLeft[i], oRight[i] );
+			::testing::AssertionResult oRes = Compare<T>( oLeft[i], oRight[i], nMaxRelDeviation );
 			if( oRes == false )
 				return oRes << " (entry " << i << ")";
 		}
@@ -404,14 +443,14 @@ namespace VistaTestingCompare
 {
 	template<>
 	inline ::testing::AssertionResult Compare<DummyStruct>( const DummyStruct& oLeft,
-														const DummyStruct& oRight )
+														const DummyStruct& oRight, const double nMaxRelDeviation )
 	{
-		::testing::AssertionResult oRes = Compare( oLeft.m_fData1, oRight.m_fData1 );
+		::testing::AssertionResult oRes = Compare( oLeft.m_fData1, oRight.m_fData1, nMaxRelDeviation );
 		if( oRes == false )
 		{
 			return oRes << "(floatdata)";
 		}
-		::testing::AssertionResult oRes2 = Compare( oLeft.m_bData2, oRight.m_bData2 );
+		::testing::AssertionResult oRes2 = Compare( oLeft.m_bData2, oRight.m_bData2, nMaxRelDeviation );
 		if( oRes2 == false )
 		{
 			return oRes2 << "(booldata)";

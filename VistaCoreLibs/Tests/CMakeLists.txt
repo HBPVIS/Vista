@@ -9,6 +9,15 @@ vista_add_pathscript_dynamic_lib_path( "${CMAKE_BINARY_DIR}/lib" )
 vista_add_pathscript_dynamic_lib_path( "${CMAKE_BINARY_DIR}/lib/DriverPlugins" )
 
 
+if( VISTACORELIBS_BUILD_BASE )
+
+	vista_configure_test( VistaVectorMathTest VistaVectorMathTest.cpp VistaTestingUtils.h )
+	target_link_libraries( VistaVectorMathTest
+		VistaBase
+		${VISTA_USE_PACKAGE_LIBRARIES}
+	)
+	add_dependencies( VistaVectorMathTest VistaBase )
+endif()
 
 if( VISTACORELIBS_BUILD_ASPECTS )
 

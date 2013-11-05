@@ -31,6 +31,7 @@
 #include <VistaAspects/VistaReflectionable.h>
 
 static const int S_nNumIterations = 100;
+static const float S_nRequiredFloatPrecision = 0.0001f;
 
 
 
@@ -406,7 +407,7 @@ inline void TestReflSetGetProp( IVistaReflectionable* pRefl, const std::string& 
 	VistaProperty oReturn = pRefl->GetPropertyByName( sName );
 	T oNew;
 	ASSERT_NO_THROW( oNew = VistaConversion::FromString<T>( oReturn.GetValueConstRef() ) );
-	ASSERT_TRUE( VistaTestingCompare::Compare( oOrig, oNew ) );
+	ASSERT_TRUE( VistaTestingCompare::Compare( oOrig, oNew, S_nRequiredFloatPrecision ) );
 }
 
 template<typename T>
@@ -417,7 +418,7 @@ inline void TestReflSetGetAlt( IVistaReflectionable* pRefl, const std::string& s
 	VistaProperty oReturn = pRefl->GetPropertyByName( sName );
 	T oNew;
 	ASSERT_NO_THROW( oNew = VistaConversion::FromString<T>( oReturn.GetValueConstRef() ) );
-	ASSERT_TRUE( VistaTestingCompare::Compare( oOrig, oNew ) );
+	ASSERT_TRUE( VistaTestingCompare::Compare( oOrig, oNew, S_nRequiredFloatPrecision ) );
 }
 
 template<>
@@ -430,7 +431,7 @@ inline void TestReflSetGetProp<VistaPropertyList>( IVistaReflectionable* pRefl, 
 	VistaProperty oReturn = pRefl->GetPropertyByName( sName );
 	VistaPropertyList oNew;
 	ASSERT_NO_THROW( oNew = oReturn.GetPropertyListConstRef() );
-	ASSERT_TRUE( VistaTestingCompare::Compare( oNew, oReturn.GetPropertyListConstRef() ) );
+	ASSERT_TRUE( VistaTestingCompare::Compare( oNew, oReturn.GetPropertyListConstRef(), S_nRequiredFloatPrecision ) );
 }
 
 
@@ -448,7 +449,7 @@ inline void TestReflSetGetPropArray( IVistaReflectionable* pRefl, const std::str
 	ASSERT_NO_THROW( VistaConversion::ArrayFromString<N>( oReturn.GetValueConstRef(), oNew ) );
 	for( int i = 0; i < N; ++i )
 	{
-		ASSERT_TRUE( VistaTestingCompare::Compare( oOrig[i], oNew[i] ) );
+		ASSERT_TRUE( VistaTestingCompare::Compare( oOrig[i], oNew[i], S_nRequiredFloatPrecision ) );
 	}
 }
 
