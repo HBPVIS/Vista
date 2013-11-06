@@ -37,6 +37,7 @@ namespace
 {
 	static const int S_nNumIterations = 100;
 	static const char S_acSeparators[] = { ',', ';', '|', ':' };
+	static const float S_nStringFloatErrorTolerance = 0.0001f;
 }
 
 
@@ -53,7 +54,7 @@ inline void TestStringConversion()
 		T oNew;
 		std::string sValue = VistaConversion::ToString( oOrig, cSeparator );
 		ASSERT_TRUE( VistaConversion::FromString( sValue, oNew, cSeparator ) );
-		ASSERT_TRUE( VistaTestingCompare::Compare( oNew, oOrig ) );
+		ASSERT_TRUE( VistaTestingCompare::Compare( oNew, oOrig, S_nStringFloatErrorTolerance ) );
 	}
 }
 
@@ -102,22 +103,22 @@ inline void TestStringConversionContainers()
 		SCOPED_TRACE( "Value: " + sListValue );
 
 		ASSERT_TRUE( VistaConversion::FromString( sListValue, liTestRes, cSeparator ) );
-		ASSERT_TRUE( VistaTestingCompare::CompareList( liTest, liTestRes ) );
+		ASSERT_TRUE( VistaTestingCompare::CompareList( liTest, liTestRes, S_nStringFloatErrorTolerance ) );
 		
 		ASSERT_TRUE( VistaConversion::FromString( sVecValue, vecTestRes, cSeparator ) );
-		ASSERT_TRUE( VistaTestingCompare::CompareVec( vecTest, vecTestRes ) );
+		ASSERT_TRUE( VistaTestingCompare::CompareVec( vecTest, vecTestRes, S_nStringFloatErrorTolerance ) );
 		
 		ASSERT_TRUE( VistaConversion::FromString( sDeqValue, deqTestRes, cSeparator ) );
-		ASSERT_TRUE( VistaTestingCompare::CompareDeque( deqTest, deqTestRes ) );
+		ASSERT_TRUE( VistaTestingCompare::CompareDeque( deqTest, deqTestRes, S_nStringFloatErrorTolerance ) );
 		
 		ASSERT_TRUE( VistaConversion::FromString( sStackValue, staTestRes, cSeparator ) );
-		ASSERT_TRUE( VistaTestingCompare::CompareStack( staTest, staTestRes ) );
+		ASSERT_TRUE( VistaTestingCompare::CompareStack( staTest, staTestRes, S_nStringFloatErrorTolerance ) );
 		
 		ASSERT_TRUE( VistaConversion::FromString( sQueueValue, queTestRes, cSeparator ) );
-		ASSERT_TRUE( VistaTestingCompare::CompareQueue( queTest, queTestRes ) );
+		ASSERT_TRUE( VistaTestingCompare::CompareQueue( queTest, queTestRes, S_nStringFloatErrorTolerance ) );
 		
 		ASSERT_TRUE( VistaConversion::ArrayFromString( sArrayValue, aTestRes, nSize, cSeparator ) );
-		ASSERT_TRUE( VistaTestingCompare::CompareArray( aTest, aTestRes, nSize ) );		
+		ASSERT_TRUE( VistaTestingCompare::CompareArray( aTest, aTestRes, nSize, S_nStringFloatErrorTolerance ) );		
 
 		delete[] aTest;
 		delete[] aTestRes;
