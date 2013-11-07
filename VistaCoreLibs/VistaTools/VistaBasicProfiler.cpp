@@ -30,6 +30,7 @@
 #include <map>
 #include <list>
 #include <iomanip>
+#include <algorithm>
 
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */

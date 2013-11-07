@@ -31,6 +31,7 @@
 
 #include <iostream>
 #include <cstring>
+#include <algorithm>
 
 #if defined(WIN32)
 // include _before_ gl.h
