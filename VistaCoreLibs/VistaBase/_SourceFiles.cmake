@@ -21,6 +21,7 @@ set( DirFiles
 	VistaExceptionBase.cpp
 	VistaExceptionBase.h
 	VistaMathBasics.h
+	VistaUtilityMacros.h
 	VistaQuaternion.cpp
 	VistaQuaternion.h
 	VistaReferenceFrame.cpp

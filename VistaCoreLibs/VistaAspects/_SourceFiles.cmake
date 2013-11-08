@@ -50,6 +50,7 @@ set( DirFiles
 	VistaSerializingToolset.h
 	VistaTransformable.cpp
 	VistaTransformable.h
+	VistaUncopyable.h
 	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )
