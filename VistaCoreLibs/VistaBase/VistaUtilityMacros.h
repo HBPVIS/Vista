@@ -28,11 +28,13 @@
 #include <VistaBase/VistaExceptionBase.h>
 
 /**
- * Helper macros: calling VISTA_TOSTRING allows using non-string values (e.g. __FILE__ or __LINE__) as
+ * Helper macros: calling VISTA_MACRO_TOSTRING allows using non-string values (e.g. __FILE__ or __LINE__) as
  * strings in macros
+ * VISTA_GCC_PRAGME allows calling gcc pragmas from within macros, without havind to quote the parameter
  */
-#define VISTA_STRINGIFY( arg ) #arg
-#define VISTA_TOSTRING( arg ) VISTA_STRINGIFY(arg)
+#define VISTA_MACRO_STRINGIFY( arg ) #arg
+#define VISTA_MACRO_TOSTRING( arg ) VISTA_MACRO_STRINGIFY(arg)
+#define VISTA_GCC_PRAGMA_MACRO( call ) _Pragma( #call )
 
 /**
  * VISTA_CHECK executes the passed Statement, and checks that the returned
@@ -42,7 +44,7 @@
 #define VISTA_CHECK_MSG( Statement, ExpectedValue, sMessage ) \
 	if( ( Statement ) != ExpectedValue ) \
 	{ \
-		VISTA_THROW( "VistaCheck failed at "VISTA_TOSTRING(__FILE__)"("VISTA_TOSTRING(__LINE__)") : "sMessage, -1 ); \
+		VISTA_THROW( "VistaCheck failed at "VISTA_MACRO_TOSTRING(__FILE__)"("VISTA_MACRO_TOSTRING(__LINE__)") : "sMessage, -1 ); \
 	}
 #define VISTA_CHECK( Statement, ExpectedValue ) VISTA_CHECK_MSG( Statement, ExpectedValue, #Statement" != "#ExpectedValue )
 
@@ -54,12 +56,12 @@
 	#define VISTA_VERIFY_MSG( Statement, ExpectedValue, sMessage ) \
 		if( ( Statement ) != ExpectedValue ) \
 		{ \
-			VISTA_THROW( "VistaVerify failed at "VISTA_TOSTRING(__FILE__)"("VISTA_TOSTRING(__LINE__)") : "sMessage, -1 ); \
+			VISTA_THROW( "VistaVerify failed at "VISTA_MACRO_TOSTRING(__FILE__)"("VISTA_MACRO_TOSTRING(__LINE__)") : "sMessage, -1 ); \
 		}
 	#define VISTA_VERIFY( Statement, ExpectedValue ) VISTA_VERIFY_MSG( Statement, ExpectedValue, #Statement" != "#ExpectedValue )
 #else
 	#define VISTA_VERIFY( Statement, ExpectedValue ) ( Statement )
-	#define VISTA_VERIFY( Statement, ExpectedValue, sMessage ) ( Statement )
+	#define VISTA_VERIFY_MSG( Statement, ExpectedValue, sMessage ) ( Statement )
 #endif
 
 /**
@@ -70,12 +72,12 @@
 	#define VISTA_ASSERT_MSG( Statement, ExpectedValue, sMessage ) \
 		if( ( Statement ) != ExpectedValue ) \
 		{ \
-			VISTA_THROW( "VistaAssert failed at "VISTA_TOSTRING(__FILE__)"("VISTA_TOSTRING(__LINE__)") : "sMessage, -1 ); \
+			VISTA_THROW( "VistaAssert failed at "VISTA_MACRO_TOSTRING(__FILE__)"("VISTA_MACRO_TOSTRING(__LINE__)") : "sMessage, -1 ); \
 		}
 	#define VISTA_ASSERT( Statement, ExpectedValue ) VISTA_ASSERT_MSG( Statement, ExpectedValue, #Statement" != "#ExpectedValue )
 #else
 	#define VISTA_ASSERT( Statement, ExpectedValue )
-	#define VISTA_ASSERT( Statement, ExpectedValue, sMessage )
+	#define VISTA_ASSERT_MSG( Statement, ExpectedValue, sMessage )
 #endif
 
 namespace Vista
@@ -93,7 +95,7 @@ namespace Vista
 		assert( pResult );
 		return pResult;
 #else
-		return static_cast<Target>();
+		return static_cast<Target>( pPointer );
 #endif
 	}
 }
@@ -120,16 +122,16 @@ namespace Vista
 #if defined _MSC_VER
 #define VISTA_COMPILATION_MESSAGE( sMessage ) __pragma( message( sMessage ) )
 #elif defined __GNUC__
-#define VISTA_COMPILATION_MESSAGE _Pragma( message( sMessage ) )
+#define VISTA_COMPILATION_MESSAGE( sMessage ) VISTA_GCC_PRAGMA_MACRO( message sMessage )
 #else
-#define VISTA_COMPILATION_MESSAGE
+#define VISTA_COMPILATION_MESSAGE( sMessage )
 #endif
 #define VISTA_COMPILATION_WARNING( sMessage ) \
-	VISTA_COMPILATION_MESSAGE( __FILE__"("VISTA_TOSTRING( __LINE__ )") : VISTA_COMPILATION_WARNING: "sMessage )
+	VISTA_COMPILATION_MESSAGE( __FILE__"("VISTA_MACRO_TOSTRING( __LINE__ )") : VISTA_COMPILATION_WARNING: "sMessage )
 
 #define VISTA_FUNCTION_NOT_IMPLEMENTED( FunctionName )			\
-	VISTA_COMPILATION_MESSAGE( "Function not implemented" );	\
-	VISTA_THROW( "Function not implemented", -1 );
+	VISTA_COMPILATION_MESSAGE( "Function "#FunctionName" not implemented" );	\
+	VISTA_THROW( "Function "#FunctionName" not implemented", -1 );
 
 
 #endif // _VISTAUTILITYMACROS_H
