@@ -127,10 +127,10 @@ namespace Vista
 #define VISTA_COMPILATION_MESSAGE( sMessage )
 #endif
 #define VISTA_COMPILATION_WARNING( sMessage ) \
-	VISTA_COMPILATION_MESSAGE( __FILE__"("VISTA_MACRO_TOSTRING( __LINE__ )") : VISTA_COMPILATION_WARNING: "sMessage )
+	VISTA_COMPILATION_MESSAGE( __FILE__"("VISTA_MACRO_TOSTRING( __LINE__ )") : warning: "sMessage )
 
 #define VISTA_FUNCTION_NOT_IMPLEMENTED( FunctionName )			\
-	VISTA_COMPILATION_MESSAGE( "Function "#FunctionName" not implemented" );	\
+	VISTA_COMPILATION_WARNING( "Function "#FunctionName" not implemented" );	\
 	VISTA_THROW( "Function "#FunctionName" not implemented", -1 );
 
 

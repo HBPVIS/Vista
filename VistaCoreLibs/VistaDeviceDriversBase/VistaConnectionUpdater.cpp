@@ -34,6 +34,7 @@
 
 #include <VistaBase/VistaTimeUtils.h>
 #include <VistaBase/VistaStreamUtils.h>
+#include <VistaBase/VistaUtilityMacros.h>
 
 #include <cassert>
 #include <iostream>
@@ -234,8 +235,7 @@ protected:
 			if(up.second->m_nMode == 0)
 			{
 				up.second->m_nMode = 1;
-				bool b = m_mp.RemMultiplexPointByTicket(nIdx);
-				assert(b == true);
+				VISTA_VERIFY( m_mp.RemMultiplexPointByTicket(nIdx), true );
 
 				up.second->m_pJobDone->ResetThisEvent();
 //  				printf("adding event  job wait\n");

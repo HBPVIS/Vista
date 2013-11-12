@@ -988,8 +988,16 @@ unsigned long IVistaSocket::WaitForSendFinish(int iTimeout)
 #endif
 	FD_ZERO(&myWrSocks);
 	FD_ZERO(&myExSocks);
+#ifdef WIN32
+	// FD_SET emits a "conditional expression is constant" warning - we disable it
+#pragma warning( push )
+#pragma warning( disable : 4127 )
+#endif
 	FD_SET(SOCKET(m_iSocketID), &myWrSocks);
 	FD_SET(SOCKET(m_iSocketID), &myExSocks);
+#ifdef WIN32
+#pragma warning( pop )
+#endif
 	select(int(SOCKET(m_iSocketID)+1), NULL, &myWrSocks, &myExSocks, etv);
 	if(FD_ISSET(SOCKET(m_iSocketID), &myExSocks))
 	{

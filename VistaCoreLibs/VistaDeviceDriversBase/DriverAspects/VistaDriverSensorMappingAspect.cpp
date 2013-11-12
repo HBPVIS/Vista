@@ -29,6 +29,7 @@
 							   // maybe shift the deletion to another instance
 
 #include <VistaBase/VistaStreamUtils.h>
+#include <VistaBase/VistaUtilityMacros.h>
 
 #include <algorithm>
 #include <cassert>
@@ -69,8 +70,7 @@ VistaDriverSensorMappingAspect::VistaDriverSensorMappingAspect(IVistaDriverCreat
 			itIndex != liTypes.end(); ++itIndex )
 	{
 		crm->GetTypeNameFor( (*itIndex), sTypeName );
-		unsigned int nRet = RegisterType( sTypeName );
-		assert( (*itIndex) == nRet );
+		VISTA_VERIFY( RegisterType( sTypeName ), (*itIndex) );
 	}
 }
 
