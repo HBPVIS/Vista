@@ -24,7 +24,7 @@ vista_set_outdir( VistaDirectXGamepadTranscoder "${VISTADEVICEDRIVERSBASE_TARGET
 vista_find_package( DirectX )
 
 if( NOT DIRECTX_FOUND )
-	message( STATUS "VistaGlutKeyboardDriver requires DirectX, which is not available - only transcoder will be built" )
+	message( STATUS "VistaDirectXGamepadTranscoder requires DirectX, which is not available - only transcoder will be built" )
 else( NOT DIRECTX_FOUND )
 	# Driver Plugin
 
