@@ -326,7 +326,7 @@ bool VistaIPAddress::ResolveHostName(const string &sHostName)
 	{
 		vstr::warnp() << "[VistaIpAddress]: resolving hostname [" 
 			<< sHostName.c_str() << "] failed with error: "
-			<< gai_strerror( errno ) << std::endl;
+			<< gai_strerror( nStatus ) << std::endl;
 		m_bIsValid     = false;
 		return false;
 	}
