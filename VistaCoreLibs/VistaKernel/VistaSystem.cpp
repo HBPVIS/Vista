@@ -870,6 +870,20 @@ void VistaSystem::CreateClusterMode()
 		return;
 	}
 
+	if( m_sRecordFile.empty() == false )
+	{
+		if( m_nClusterNodeType == VistaClusterMode::NT_STANDALONE )
+		{
+			vstr::outi() << "[CreateClusterMode]: explicit replay file was set, changing from Standalone"
+							" to NewClusterMaster" << std::endl;
+		}
+		if( m_nClusterNodeType != VistaClusterMaster::NT_MASTER || m_bUseNewClusterMaster == false )
+		{
+			vstr::warnp() << "[CreateClusterMode]: explicit replay file was set, but config is neither"
+							"  Standalone nor NewClusterMaster - recording ignored" << std::endl;
+		}
+	}
+
 	switch( m_nClusterNodeType )
 	{
 		case VistaClusterMode::NT_STANDALONE:
@@ -883,6 +897,8 @@ void VistaSystem::CreateClusterMode()
 			if( m_bUseNewClusterMaster )
 			{
 				m_pClusterMode = new VistaNewClusterMaster( this, m_sClusterNodeName );
+				if( m_sRecordFile.empty() == false )
+					static_cast<VistaNewClusterMaster*>( m_pClusterMode )->SetRecordDataFolder( m_sRecordFile );
 				vstr::outi() << "Creating ClusterMode as [NEWMASTER]" << std::endl;
 			}
 			else
@@ -2653,13 +2669,13 @@ bool VistaSystem::ArgParser (int argc, char *argv[])
 		else if( oStringCompare( strArg, "-vistaini" ) )
 		{
 			++arg;
-			if (arg < argc)
+			if( arg < argc )
 				SetIniFile(argv[arg]);
 		}
 		else if( oStringCompare( strArg, "-displayini" ) )
 		{
 			++arg;
-			if(arg < argc)
+			if( arg < argc )
 			{
 				SetDisplayIniFile(argv[arg]);
 			}
@@ -2667,7 +2683,7 @@ bool VistaSystem::ArgParser (int argc, char *argv[])
 		else if( oStringCompare( strArg, "-graphicsini" ) )
 		{
 			++arg;
-			if(arg < argc)
+			if( arg < argc )
 			{
 				SetGraphicsIniFile(argv[arg]);
 			}
@@ -2675,7 +2691,7 @@ bool VistaSystem::ArgParser (int argc, char *argv[])
 		else if( oStringCompare( strArg, "-interactionini" ) )
 		{
 			++arg;
-			if(arg < argc)
+			if( arg < argc )
 			{
 				SetInteractionIniFile(argv[arg]);
 			}
@@ -2683,14 +2699,14 @@ bool VistaSystem::ArgParser (int argc, char *argv[])
 		else if( oStringCompare( strArg, "-clusterini" ) )
 		{
 			++arg;
-			if(arg < argc)
+			if( arg < argc )
 				SetClusterIniFile(argv[arg]);
 		}
 		// check if we should load an initial file
 		else if( oStringCompare( strArg, "-loadmodel" ) )
 		{
 			++arg;
-			if (arg < argc)
+			if( arg < argc )
 			{
 				m_sModelFile = argv[arg];
 			}
@@ -2699,7 +2715,7 @@ bool VistaSystem::ArgParser (int argc, char *argv[])
 		else if( oStringCompare( strArg, "-scalemodel" ) )
 		{
 			++arg;
-			if (arg < argc)
+			if( arg < argc )
 			{
 				std::string strScale = argv[arg];
 				m_nModelScale = (float)atof (strScale.c_str());
@@ -2709,7 +2725,7 @@ bool VistaSystem::ArgParser (int argc, char *argv[])
 		else if( oStringCompare( strArg, "-standalone" ) )
 		{
 			++arg;
-			if( arg < argc)
+			if( arg < argc )
 			{
 				m_sClusterNodeName = argv[arg];
 				m_nClusterNodeType = VistaClusterMode::NT_STANDALONE;
@@ -2718,7 +2734,7 @@ bool VistaSystem::ArgParser (int argc, char *argv[])
 		else if( oStringCompare( strArg, "-clustermaster" ) )
 		{
 			++arg;
-			if( arg < argc)
+			if( arg < argc )
 			{
 				m_sClusterNodeName = argv[arg];
 				m_nClusterNodeType = VistaClusterMode::NT_MASTER;
@@ -2727,7 +2743,7 @@ bool VistaSystem::ArgParser (int argc, char *argv[])
 		else if( oStringCompare( strArg, "-clusterslave" ) )
 		{
 			++arg;
-			if( arg < argc)
+			if( arg < argc )
 			{
 				m_sClusterNodeName = argv[arg];
 				m_nClusterNodeType = VistaClusterMode::NT_SLAVE;
@@ -2736,7 +2752,7 @@ bool VistaSystem::ArgParser (int argc, char *argv[])
 		else if( oStringCompare( strArg, "-newclustermaster" ) )
 		{
 			++arg;
-			if( arg < argc)
+			if( arg < argc )
 			{
 				m_sClusterNodeName = argv[arg];
 				m_nClusterNodeType = VistaClusterMode::NT_MASTER;
@@ -2746,17 +2762,25 @@ bool VistaSystem::ArgParser (int argc, char *argv[])
 		else if( oStringCompare( strArg, "-newclusterslave" ) )
 		{
 			++arg;
-			if( arg < argc)
+			if( arg < argc )
 			{
 				m_sClusterNodeName = argv[arg];
 				m_nClusterNodeType = VistaClusterMode::NT_SLAVE;
 				m_bUseNewClusterMaster = true;
 			}
 		}
+		else if( oStringCompare( strArg, "-record" ) )
+		{
+			++arg;
+			if( arg < argc )
+			{
+				m_sRecordFile = argv[arg];
+			}
+		}
 		else if( oStringCompare( strArg, "-replay" ) )
 		{
 			++arg;
-			if( arg < argc)
+			if( arg < argc )
 			{
 				m_sClusterNodeName = argv[arg];
 				m_nClusterNodeType = VistaClusterMode::NT_REPLAY_SLAVE;
@@ -2766,7 +2790,7 @@ bool VistaSystem::ArgParser (int argc, char *argv[])
 		{
 			vstr::outi() << "[ViSy]: encountered argument -inisearchpath"  << std::endl;
 			++arg;
-			if(arg < argc)
+			if(arg < argc )
 			{
 				vstr::outi() << "[ViSy]: using explicit inisearchpath ["
 					 << argv[arg] << "]"  << std::endl;

@@ -58,13 +58,6 @@ class VISTAINTERPROCCOMMAPI IVistaClusterDataCollect : public IVistaClusterSyncE
 public:
 	virtual ~IVistaClusterDataCollect();
 	
-	/**
-	 * Call these routines to sync data on all clients
-	 * If the call returns false, Syncing failed and the data remains untouched
-	 * Otherwise, the data is the same on all nodes
-	 * Usually wraps the data into an internal package to ensure correct
-	 * sizes, check types etc.
-	 */
 	virtual bool CollectTime( const VistaType::systemtime nOwnTime,
 							std::vector<VistaType::systemtime>& vecCollected ) = 0;
 	virtual bool CollectData( const VistaPropertyList& oList,

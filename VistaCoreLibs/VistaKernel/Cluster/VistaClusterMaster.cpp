@@ -45,6 +45,7 @@
 #include <VistaBase/VistaTimer.h>
 #include <VistaBase/VistaTimeUtils.h>
 #include <VistaBase/VistaStreamUtils.h>
+#include <VistaBase/VistaUtilityMacros.h>
 
 #include <VistaAspects/VistaSerializingToolset.h>
 #include <VistaAspects/VistaPropertyList.h>
@@ -646,8 +647,7 @@ public:
 				pEventChannel->WriteDouble(dFrameClock);
 				pEventChannel->WriteInt32( (VistaType::sint32)pSlave->m_nIndex );
 				int nAckPort = 0;
-				VistaType::sint32 iRet = pEventChannel->ReadInt32( nAckPort );
-				assert( iRet == sizeof(VistaType::sint32) );
+				VISTA_VERIFY( pEventChannel->ReadInt32( nAckPort ), sizeof(VistaType::sint32) );
 
 				pEventChannel->SetIsBlocking(false);
 				pEventChannel->SetIsBuffering(false);

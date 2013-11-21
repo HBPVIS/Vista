@@ -296,6 +296,7 @@ private:
 	bool						m_bUseNewClusterMaster;
 	int							m_nClusterNodeType;
 	std::string					m_sClusterNodeName;
+	std::string					m_sRecordFile;
 	std::string					m_sApplicationName;
 
 	VistaPropertyList			m_oVistaConfig;

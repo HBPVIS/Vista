@@ -62,6 +62,12 @@ public:
 
 	virtual bool Init( const std::string& sClusterSection,
 						const VistaPropertyList& oConfig );
+	/**
+	 * Inits the cluster master without any additional info to simply record
+	 * all events into a session recording file. Apart from that, it won't perform
+	 * any communication and work like a standalone mode
+	 */
+	virtual bool Init( const std::string& sRecordDataFolder );
 	virtual bool PostInit();
 
 	virtual int GetClusterMode() const;
@@ -94,6 +100,16 @@ public:
 	virtual IVistaClusterDataCollect* CreateDataCollect();
 
 	virtual void Debug( std::ostream& oStream ) const;
+
+	/**
+	 * Sets or Gets the record data folder. If the folder string is not empty, the
+	 * session will be recorded to the specified folder. Note that 
+	 * SetRecordDataFolder has to be called before Init() to take full effect, and
+	 * will overwrite record folders specified in the ini file (but not the one explicitely
+	 * passed to the record-only init).
+	 */
+	void SetRecordDataFolder( const std::string& sFolder );
+	std::string GetRecordDataFolder() const;
 
 
 private: 
@@ -177,9 +193,6 @@ private:
 
 	std::string				m_sRecordDataFolder;
 	int						m_nRecordSyncCounter;
-
-	std::string				m_sReplayDataFolder;
-	int						m_nReplaySyncCounter;
 };
 
 /*============================================================================*/
