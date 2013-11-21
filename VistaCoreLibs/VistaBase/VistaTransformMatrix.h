@@ -773,9 +773,9 @@ inline void VistaTransformMatrix::SetTranslation( const float a3fTranslation[3] 
 }
 inline void VistaTransformMatrix::SetTranslation( const double a3dTranslation[3] )
 {
-	operator()( 0, 3 ) = (double)a3dTranslation[0];
-	operator()( 1, 3 ) = (double)a3dTranslation[1];
-	operator()( 2, 3 ) = (double)a3dTranslation[2];
+	operator()( 0, 3 ) = (float)a3dTranslation[0];
+	operator()( 1, 3 ) = (float)a3dTranslation[1];
+	operator()( 2, 3 ) = (float)a3dTranslation[2];
 }
 inline void VistaTransformMatrix::SetTranslation( const VistaVector3D& v3Translation )
 {
