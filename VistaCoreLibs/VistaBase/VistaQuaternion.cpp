@@ -26,6 +26,8 @@
 
 #include "VistaTransformMatrix.h"
 
+#include "VistaUtilityMacros.h"
+
 /*============================================================================*/
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
@@ -336,7 +338,7 @@ VistaEulerAngles VistaQuaternion::GetAnglesXYZ() const
 
 	//return VistaEulerAngles( thetaX, thetaY, thetaZ );
 
-	return VistaEulerAngles( 0, 0, 0 );
+	VISTA_FUNCTION_NOT_IMPLEMENTED( "::VistaQuaternion::GetAnglesXYZ(  )" );
 }
 
 VistaEulerAngles VistaQuaternion::GetAnglesZXY() const
@@ -371,7 +373,7 @@ VistaEulerAngles VistaQuaternion::GetAnglesZXY() const
 
 	//return VistaEulerAngles( thetaX, thetaY, thetaZ );
 
-	return VistaEulerAngles( 0, 0, 0 );
+	VISTA_FUNCTION_NOT_IMPLEMENTED( "::VistaQuaternion::GetAnglesZXY(  )" );
 }
 
 VistaEulerAngles VistaQuaternion::GetAnglesZYX() const
@@ -405,7 +407,7 @@ VistaEulerAngles VistaQuaternion::GetAnglesZYX() const
 	//}
 
 	//return VistaEulerAngles( thetaX, thetaY, thetaZ );
-	return VistaEulerAngles( 0, 0, 0 );
+	VISTA_FUNCTION_NOT_IMPLEMENTED( "::VistaQuaternion::GetAnglesZYX(  )" );
 }
 
 

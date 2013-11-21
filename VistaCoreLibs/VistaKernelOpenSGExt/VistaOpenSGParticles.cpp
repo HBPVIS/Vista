@@ -568,8 +568,9 @@ void VistaOpenSGParticles::SetSimpleTexturedMaterial(const std::string &FileName
 	osg::beginEditCP(m_pData->mParticleTexture);
     m_pData->mParticleTexture->setLit( true );
     m_pData->mParticleTexture->setImage( pImage );
-    m_pData->mParticleTexture->setEnvMode( GL_MODULATE );
-    m_pData->mParticleTexture->setMagFilter( GL_LINEAR_MIPMAP_LINEAR );
+	//m_pData->mParticleTexture->setEnvMode( GL_MODULATE );
+	//m_pData->mParticleTexture->setMagFilter( GL_LINEAR_MIPMAP_LINEAR );
+ //   m_pData->mParticleTexture->setMagFilter( GL_LINEAR );
 
 
     osg::BlendChunkPtr bl= osg::BlendChunk::create();

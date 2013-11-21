@@ -29,7 +29,9 @@
 
 #include <gtest/gtest.h>
 
-#include "VistaTestingUtils.h"
+#include <VistaTestingUtils/VistaTestingCompare.h>
+#include <VistaTestingUtils/VistaTestingCompareContainers.h>
+#include <VistaTestingUtils/VistaTestingRandom.h>
 
 #include <VistaAspects/VistaConversion.h>
 
@@ -209,4 +211,3 @@ int main( int argc, char** argv )
 	SCOPED_TRACE( "RandomSeed: " + VistaConversion::ToString( nSeed ) );
 	return RUN_ALL_TESTS();
 } 
-

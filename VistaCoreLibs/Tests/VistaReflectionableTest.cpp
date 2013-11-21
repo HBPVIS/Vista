@@ -26,7 +26,9 @@
 
 #include <gtest/gtest.h>
 
-#include "VistaTestingUtils.h"
+#include <VistaTestingUtils/VistaTestingCompare.h>
+#include <VistaTestingUtils/VistaTestingRandom.h>
+#include <VistaTestingUtils/VistaTestingDummyStruct.h>
 
 #include <VistaAspects/VistaReflectionable.h>
 

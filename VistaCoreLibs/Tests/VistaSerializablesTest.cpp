@@ -26,7 +26,8 @@
 
 #include <gtest/gtest.h>
 
-#include "VistaTestingUtils.h"
+#include <VistaTestingUtils/VistaTestingCompare.h>
+#include <VistaTestingUtils/VistaTestingRandom.h>
 
 #include <VistaInterProcComm/Connections/VistaByteBufferSerializer.h>
 #include <VistaInterProcComm/Connections/VistaByteBufferDeSerializer.h>

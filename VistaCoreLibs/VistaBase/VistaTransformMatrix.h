@@ -139,6 +139,7 @@ public:
 	VistaQuaternion GetRotationAsQuaternion() const;
 
 	void SetTranslation( const float a3fTranslation[3] );
+	void SetTranslation( const double a3dTranslation[3] );
 	void SetTranslation( const VistaVector3D& v3Translation );
 	void SetBasisMatrix( const float a3x3fMatrix[3][3] );
 	void SetBasisMatrix( const float a9fMatrix[9] );
@@ -769,6 +770,12 @@ inline void VistaTransformMatrix::SetTranslation( const float a3fTranslation[3] 
 	operator()( 0, 3 ) = a3fTranslation[0];
 	operator()( 1, 3 ) = a3fTranslation[1];
 	operator()( 2, 3 ) = a3fTranslation[2];
+}
+inline void VistaTransformMatrix::SetTranslation( const double a3dTranslation[3] )
+{
+	operator()( 0, 3 ) = (double)a3dTranslation[0];
+	operator()( 1, 3 ) = (double)a3dTranslation[1];
+	operator()( 2, 3 ) = (double)a3dTranslation[2];
 }
 inline void VistaTransformMatrix::SetTranslation( const VistaVector3D& v3Translation )
 {

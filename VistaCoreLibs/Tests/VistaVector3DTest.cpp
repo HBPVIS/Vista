@@ -27,59 +27,14 @@
 #include <gtest/gtest.h>
 
 #include <VistaBase/VistaVector3D.h>
-#include "VistaTestingUtils.h"
 
-template< typename T >
-void TestIsValidNumberFloatingPoint()
-{
-	ASSERT_TRUE( Vista::IsValidNumber( (T)0 ) );
-	ASSERT_TRUE( Vista::IsValidNumber( (T)1 ) );
-	ASSERT_TRUE( Vista::IsValidNumber( (T)-23e-12 ) );
-	ASSERT_TRUE( Vista::IsValidNumber( (T)-65.0 ) );
-	ASSERT_TRUE( Vista::IsValidNumber( (T)1.45e-32 ) );
-	ASSERT_TRUE( Vista::IsValidNumber( (T)6.66e32 ) );
-
-	T nZeroValue = 0;
-	ASSERT_FALSE( Vista::IsValidNumber( (T)-65.0 / nZeroValue ) );
-	ASSERT_FALSE( Vista::IsValidNumber( std::numeric_limits<T>::infinity() ) );
-	ASSERT_FALSE( Vista::IsValidNumber( std::numeric_limits<T>::denorm_min() ) );
-	ASSERT_FALSE( Vista::IsValidNumber( std::numeric_limits<T>::quiet_NaN() ) );
-	ASSERT_FALSE( Vista::IsValidNumber( std::numeric_limits<T>::signaling_NaN() ) );
-
-	ASSERT_TRUE(  Vista::IsValidNumber( std::numeric_limits<T>::min() ) );
-	ASSERT_TRUE(  Vista::IsValidNumber( -std::numeric_limits<T>::min() ) );
-	ASSERT_FALSE(  Vista::IsValidNumber( std::numeric_limits<T>::min() / (T)1.0001 ) );
-	ASSERT_FALSE(  Vista::IsValidNumber( -std::numeric_limits<T>::min() / (T)1.0001 ) );
-
-	ASSERT_TRUE(  Vista::IsValidNumber( std::numeric_limits<T>::max() ) );
-	ASSERT_TRUE(  Vista::IsValidNumber( -std::numeric_limits<T>::max() ) );
-	ASSERT_FALSE(  Vista::IsValidNumber( std::numeric_limits<T>::max() * (T)1.0001 ) );
-	ASSERT_FALSE(  Vista::IsValidNumber( -std::numeric_limits<T>::max() * (T)1.0001 ) );
-}
+#include <VistaTestingUtils/VistaTestingCompare.h>
 
 /*============================================================================*/
 /* TESTS                                                                      */
 /*============================================================================*/
 
-
-TEST( VistaVectorMathTest, VistaMathBasics_IsValidNumber )
-{
-	TestIsValidNumberFloatingPoint<float>();
-	TestIsValidNumberFloatingPoint<double>();
-	TestIsValidNumberFloatingPoint<long double>();
-}
-
-TEST( VistaVectorMathTest, VistaMathBasics_Clamp )
-{
-	ASSERT_EQ( Vista::Clamp( -1, 0, 1 ), 0 );
-	ASSERT_EQ( Vista::Clamp( 1.0, 0.0, 1.0 ), 1.0 );
-	ASSERT_EQ( Vista::Clamp( 1.0f, 0.0f, 2.0f ), 1.0f );
-	ASSERT_EQ( Vista::Clamp( -1.1, -2.2, 1.0 ), -1.1 );
-	ASSERT_EQ( Vista::Clamp( -1.65, 0.01, 1.0 ), 0.01 );
-	ASSERT_EQ( Vista::Clamp( 6.0f, 0.0f, 3.45f ), 3.45f );
-}
-
-TEST( VistaVectorMathTest, VistaVector3D_CtorDefault )
+TEST( VistaVector3DTest, CtorDefault )
 {
 	VistaVector3D v3Test;
 	ASSERT_EQ( v3Test[Vista::X], 0 );
@@ -88,7 +43,7 @@ TEST( VistaVectorMathTest, VistaVector3D_CtorDefault )
 	ASSERT_EQ( v3Test[Vista::W], 1 );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_CtorThreeFloats )
+TEST( VistaVector3DTest, CtorThreeFloats )
 {
 	VistaVector3D v3Test( 1, 2, 3 );
 	ASSERT_EQ( v3Test[Vista::X], 1 );
@@ -103,7 +58,7 @@ TEST( VistaVectorMathTest, VistaVector3D_CtorThreeFloats )
 	ASSERT_EQ( v3Test2[Vista::W], 1 );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_CtorFourFloats )
+TEST( VistaVector3DTest, CtorFourFloats )
 {
 	VistaVector3D v3Test1( 6, -5, 1, 0 );
 	ASSERT_EQ( v3Test1[Vista::X], 6 );
@@ -130,7 +85,7 @@ TEST( VistaVectorMathTest, VistaVector3D_CtorFourFloats )
 	ASSERT_EQ( v3Test4[Vista::W], 0.3e-12f );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_CtorFloatArray )
+TEST( VistaVector3DTest, CtorFloatArray )
 {
 	float aArray1[] = { 0.0f, -4.73e12f, 2754.3f };
 	VistaVector3D v3Test1( aArray1 );
@@ -147,7 +102,7 @@ TEST( VistaVectorMathTest, VistaVector3D_CtorFloatArray )
 	ASSERT_EQ( v3Test2[Vista::W], 1.0f );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_CtorDoubleArray )
+TEST( VistaVector3DTest, CtorDoubleArray )
 {
 	double aArray1[] = { 0.0, -4.73e12, 2754.3 };
 	VistaVector3D v3Test1( aArray1 );
@@ -164,7 +119,7 @@ TEST( VistaVectorMathTest, VistaVector3D_CtorDoubleArray )
 	ASSERT_EQ( v3Test2[Vista::W], 1.0f );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_CtorCopy )
+TEST( VistaVector3DTest, CtorCopy )
 {
 	VistaVector3D v3Test1( 1, 2, 3 );
 	VistaVector3D v3Copy1( v3Test1 );
@@ -182,7 +137,7 @@ TEST( VistaVectorMathTest, VistaVector3D_CtorCopy )
 }
 
 
-TEST( VistaVectorMathTest, VistaVector3D_SetGetValuesFloatArray )
+TEST( VistaVector3DTest, SetGetValuesFloatArray )
 {
 	VistaVector3D v3Test;
 
@@ -215,7 +170,7 @@ TEST( VistaVectorMathTest, VistaVector3D_SetGetValuesFloatArray )
 	ASSERT_EQ( aArrayCheck2[Vista::W], -4.0f );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_SetGetValuesDoubleArray )
+TEST( VistaVector3DTest, SetGetValuesDoubleArray )
 {
 	VistaVector3D v3Test;
 
@@ -248,7 +203,7 @@ TEST( VistaVectorMathTest, VistaVector3D_SetGetValuesDoubleArray )
 	ASSERT_EQ( (float)aArrayCheck2[Vista::W], -4.0f );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_SetGetValuesFloat )
+TEST( VistaVector3DTest, SetGetValuesFloat )
 {
 	VistaVector3D v3Test;
 
@@ -278,7 +233,7 @@ TEST( VistaVectorMathTest, VistaVector3D_SetGetValuesFloat )
 	ASSERT_EQ( nCheck2W, 0.8f );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_SetGetValuesDoubles )
+TEST( VistaVector3DTest, SetGetValuesDoubles )
 {
 	VistaVector3D v3Test;
 
@@ -308,7 +263,7 @@ TEST( VistaVectorMathTest, VistaVector3D_SetGetValuesDoubles )
 	ASSERT_EQ( nCheck2W, (float)0.8 );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_GetLength )
+TEST( VistaVector3DTest, GetLength )
 {
 	VistaVector3D v3Test1( 1.0f, 0.0f, 0.0f, 0.6f );
 	ASSERT_FLOAT_EQ( v3Test1.GetLength(), 1.0f );
@@ -319,7 +274,7 @@ TEST( VistaVectorMathTest, VistaVector3D_GetLength )
 	VistaVector3D v3Test3( 0.1f, -0.1f, 0.1f, 1.0f );
 	ASSERT_FLOAT_EQ( v3Test3.GetLength(), sqrt( 0.03f ) );	
 }
-TEST( VistaVectorMathTest, VistaVector3D_GetLengthSquared )
+TEST( VistaVector3DTest, GetLengthSquared )
 {
 	VistaVector3D v3Test1( 1.0f, 0.0f, 0.0f, 0.6f );
 	ASSERT_FLOAT_EQ( v3Test1.GetLengthSquared(), 1.0f );
@@ -331,7 +286,7 @@ TEST( VistaVectorMathTest, VistaVector3D_GetLengthSquared )
 	ASSERT_FLOAT_EQ( v3Test3.GetLengthSquared(), 0.03f );	
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_Normalize )
+TEST( VistaVector3DTest, Normalize )
 {
 	VistaVector3D v3Test1( 0.5f, 0.3f, 0.6f, 0.2f );
 	v3Test1.Normalize();
@@ -346,7 +301,7 @@ TEST( VistaVectorMathTest, VistaVector3D_Normalize )
 	ASSERT_FLOAT_EQ( v3Test3.GetLength(), 0.0f );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_GetNormalized )
+TEST( VistaVector3DTest, GetNormalized )
 {
 	VistaVector3D v3Test1( 0.5f, 0.3f, 0.6f, 0.2f );
 	VistaVector3D v3TestC1 = v3Test1.GetNormalized();
@@ -361,7 +316,7 @@ TEST( VistaVectorMathTest, VistaVector3D_GetNormalized )
 	ASSERT_FLOAT_EQ( v3TestC3.GetLength(), 0.0f );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_Homogenize )
+TEST( VistaVector3DTest, Homogenize )
 {
 	VistaVector3D v3Test1( 0.5f, 0.3f, 0.6f, 1.0f );
 	v3Test1.Homogenize();
@@ -392,7 +347,7 @@ TEST( VistaVectorMathTest, VistaVector3D_Homogenize )
 	ASSERT_EQ( v3Test4[Vista::W], 1.0f );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_GetHomogenized )
+TEST( VistaVector3DTest, GetHomogenized )
 {
 	VistaVector3D v3Test1( 0.5f, 0.3f, 0.6f, 1.0f );
 	v3Test1 = v3Test1.GetHomogenized();
@@ -423,7 +378,7 @@ TEST( VistaVectorMathTest, VistaVector3D_GetHomogenized )
 	ASSERT_EQ( v3Test4[Vista::W], 1.0f );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_GetAbsolute )
+TEST( VistaVector3DTest, GetAbsolute )
 {
 	VistaVector3D v3Test1( 0.5f, -0.3e12f, -0.6e-12f );
 	v3Test1 = v3Test1.GetAbsolute();
@@ -440,7 +395,7 @@ TEST( VistaVectorMathTest, VistaVector3D_GetAbsolute )
 	ASSERT_EQ( v3Test2[Vista::W], 0.4f );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_SetToZeroVector )
+TEST( VistaVector3DTest, SetToZeroVector )
 {
 	VistaVector3D v3Test1( 1, 2, 3, 0.4f );
 	v3Test1.SetToZeroVector();
@@ -450,7 +405,7 @@ TEST( VistaVectorMathTest, VistaVector3D_SetToZeroVector )
 	ASSERT_EQ( v3Test1[Vista::W], 1 );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_GetIsZeroVector )
+TEST( VistaVector3DTest, GetIsZeroVector )
 {
 	VistaVector3D v3Test;
 	ASSERT_TRUE( v3Test.GetIsZeroVector() );
@@ -466,7 +421,7 @@ TEST( VistaVectorMathTest, VistaVector3D_GetIsZeroVector )
 	ASSERT_TRUE( v3Test.GetIsZeroVector() );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_Interpolate )
+TEST( VistaVector3DTest, Interpolate )
 {
 	VistaVector3D v3Point1( 1, 2, 3 );
 	VistaVector3D v3Point2( 0, -2, 5 );
@@ -477,7 +432,7 @@ TEST( VistaVectorMathTest, VistaVector3D_Interpolate )
 	ASSERT_EQ( v3Res[Vista::W], 1 );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_Dot )
+TEST( VistaVector3DTest, Dot )
 {
 	VistaVector3D v3Point1( 1, 2, 3 );
 	VistaVector3D v3Point2( 0, -2, 5 );
@@ -490,7 +445,7 @@ TEST( VistaVectorMathTest, VistaVector3D_Dot )
 	ASSERT_FLOAT_EQ( v3Point1.Dot( v3Point2 ), -2 );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_Cross )
+TEST( VistaVector3DTest, Cross )
 {
 	VistaVector3D v3Point1( 1, 0, 0 );
 	VistaVector3D v3Point2( 0, 1, 0 );
@@ -524,7 +479,7 @@ TEST( VistaVectorMathTest, VistaVector3D_Cross )
 	ASSERT_EQ( v3Res[Vista::W], 1 );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_CheckForValidity )
+TEST( VistaVector3DTest, CheckForValidity )
 {
 	VistaVector3D v3Test( 1, 2, 3 );
 	ASSERT_TRUE( v3Test.CheckForValidity() );
@@ -545,7 +500,7 @@ TEST( VistaVectorMathTest, VistaVector3D_CheckForValidity )
 	ASSERT_FALSE( v3Test.CheckForValidity() );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_OperatorAssign )
+TEST( VistaVector3DTest, OperatorAssign )
 {
 	VistaVector3D v3Test1( 1, 2, 3 );
 	VistaVector3D v3Copy1 = v3Test1;
@@ -556,7 +511,7 @@ TEST( VistaVectorMathTest, VistaVector3D_OperatorAssign )
 	ASSERT_TRUE( VistaTestingCompare::Compare( v3Test2, v3Copy2 ) );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_OperatorAdd )
+TEST( VistaVector3DTest, OperatorAdd )
 {
 	VistaVector3D v3Add1, v3Add2, v3Res, v3Expected;
 
@@ -574,7 +529,7 @@ TEST( VistaVectorMathTest, VistaVector3D_OperatorAdd )
 	v3Expected = VistaVector3D( 4, 2, 1 );
 	ASSERT_TRUE( VistaTestingCompare::Compare( v3Res, v3Expected, std::numeric_limits<float>::epsilon() ) );
 }
-TEST( VistaVectorMathTest, VistaVector3D_OperatorCompoundAdd )
+TEST( VistaVector3DTest, OperatorCompoundAdd )
 {
 	VistaVector3D v3Add1, v3Add2, v3Expected;
 
@@ -596,7 +551,7 @@ TEST( VistaVectorMathTest, VistaVector3D_OperatorCompoundAdd )
 	ASSERT_TRUE( VistaTestingCompare::Compare( v3Add1, v3Expected, std::numeric_limits<float>::epsilon() ) );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_OperatorSub )
+TEST( VistaVector3DTest, OperatorSub )
 {
 	VistaVector3D v3Sub1, v3Sub2, v3Res, v3Expected;
 
@@ -615,7 +570,7 @@ TEST( VistaVectorMathTest, VistaVector3D_OperatorSub )
 	v3Expected = VistaVector3D( 4, 2, 1 );
 	ASSERT_TRUE( VistaTestingCompare::Compare( v3Res, v3Expected, std::numeric_limits<float>::epsilon() ) );
 }
-TEST( VistaVectorMathTest, VistaVector3D_OperatorCompoundSub )
+TEST( VistaVector3DTest, OperatorCompoundSub )
 {
 	VistaVector3D v3Sub1, v3Sub2, v3Expected;
 
@@ -638,7 +593,7 @@ TEST( VistaVectorMathTest, VistaVector3D_OperatorCompoundSub )
 	ASSERT_TRUE( VistaTestingCompare::Compare( v3Sub1, v3Expected, std::numeric_limits<float>::epsilon() ) );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_OperatorNegate )
+TEST( VistaVector3DTest, OperatorNegate )
 {
 	VistaVector3D v3Test, v3Expected;
 	ASSERT_TRUE( ( -v3Test ).GetIsZeroVector() );
@@ -652,7 +607,7 @@ TEST( VistaVectorMathTest, VistaVector3D_OperatorNegate )
 	ASSERT_TRUE( VistaTestingCompare::Compare( -v3Test, v3Expected ) );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_OperatorMultFloat )
+TEST( VistaVector3DTest, OperatorMultFloat )
 {
 	VistaVector3D v3Vector, v3Res, v3Expected;
 
@@ -682,7 +637,7 @@ TEST( VistaVectorMathTest, VistaVector3D_OperatorMultFloat )
 	v3Res = 0.0f * v3Vector ;
 	ASSERT_TRUE( VistaTestingCompare::Compare( v3Res, v3Expected ) );
 }
-TEST( VistaVectorMathTest, VistaVector3D_OperatorCompoundMultFloat )
+TEST( VistaVector3DTest, OperatorCompoundMultFloat )
 {
 	VistaVector3D v3Vector, v3Expected;
 
@@ -708,7 +663,7 @@ TEST( VistaVectorMathTest, VistaVector3D_OperatorCompoundMultFloat )
 	ASSERT_TRUE( VistaTestingCompare::Compare( v3Vector, v3Expected ) );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_OperatorMultVec )
+TEST( VistaVector3DTest, OperatorMultVec )
 {
 	VistaVector3D v3Vector1, v3Vector2;
 	float nExpected;
@@ -738,7 +693,7 @@ TEST( VistaVectorMathTest, VistaVector3D_OperatorMultVec )
 	ASSERT_FLOAT_EQ( v3Vector2 * v3Vector1, nExpected );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_OperatorDivFloat )
+TEST( VistaVector3DTest, OperatorDivFloat )
 {
 	VistaVector3D v3Vector, v3Res, v3Expected;
 
@@ -756,7 +711,7 @@ TEST( VistaVectorMathTest, VistaVector3D_OperatorDivFloat )
 	v3Res = v3Vector / 2.5f;
 	ASSERT_TRUE( VistaTestingCompare::Compare( v3Res, v3Expected ) );	
 }
-TEST( VistaVectorMathTest, VistaVector3D_OperatorCompoundDivFloat )
+TEST( VistaVector3DTest, OperatorCompoundDivFloat )
 {
 	VistaVector3D v3Vector, v3Expected;
 
@@ -776,7 +731,7 @@ TEST( VistaVectorMathTest, VistaVector3D_OperatorCompoundDivFloat )
 	ASSERT_TRUE( VistaTestingCompare::Compare( v3Vector, v3Expected ) );	
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_OperatorAccess )
+TEST( VistaVector3DTest, OperatorAccess )
 {
 	VistaVector3D v3Test;
 
@@ -798,7 +753,7 @@ TEST( VistaVectorMathTest, VistaVector3D_OperatorAccess )
 	ASSERT_EQ( v3Test[Vista::W], 0.0f );
 }
 
-TEST( VistaVectorMathTest, VistaVector3D_OperatorEq )
+TEST( VistaVector3DTest, OperatorEq )
 {
 	VistaVector3D v3Vec1( 1, 2, 3 );
 	VistaVector3D v3Vec2( 1, 2, 3 );
