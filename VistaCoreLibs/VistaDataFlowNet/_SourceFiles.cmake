@@ -96,6 +96,8 @@ set( DirFiles
 	VdfnTimerNode.h
 	VdfnToggleNode.cpp
 	VdfnToggleNode.h
+	VdfnTrackingRedundancyNode.h
+	VdfnTrackingRedundancyNode.cpp
 	VdfnTypeConvertNode.h
 	VdfnUpdateThresholdNode.cpp
 	VdfnUpdateThresholdNode.h

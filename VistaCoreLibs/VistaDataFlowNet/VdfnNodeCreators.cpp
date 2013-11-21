@@ -73,6 +73,8 @@
 #include "VdfnConstantValueNode.h"
 #include "VdfnTypeConvertNode.h"
 #include "VdfnDifferenceNode.h"
+#include "VdfnTrackingRedundancyNode.h"
+
 
 #include "VdfnHistoryProjectNode.h"
 #include "VdfnDriverSensorNode.h"
@@ -1054,6 +1056,9 @@ VISTADFNAPI bool VdfnNodeCreators::RegisterNodeCreators( VdfnNodeFactory* pFac, 
 	pFac->SetNodeCreator( "GetVariable[string]", new TVdfnVariableNodeCreate<std::string>( TVdfnVariableNodeCreate<std::string>::VN_GETTER ) );
 
 	pFac->SetNodeCreator( "Outstream", new VdfnOutstreamNodeCreate );
+
+
+	pFac->SetNodeCreator( "TrackingRedundancy", new TVdfnDefaultNodeCreate<VdfnTrackingRedundancyNode> );
 
 	return true;
 }
