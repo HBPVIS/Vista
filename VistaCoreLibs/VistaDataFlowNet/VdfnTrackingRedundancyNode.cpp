@@ -131,8 +131,12 @@ bool VdfnTrackingRedundancyNode::DoEvalNode()
 		}
 
 		// calculate main data 
-		m_v3LastMain = m_matLastTransform.Transform(v3Sec);
-		m_qLastMain = m_matLastTransform.Transform(qSec);
+		VistaTransformMatrix oLast(qSec, v3Sec);
+		oLast = oLast * m_matLastTransform;
+		//m_v3LastMain = m_matLastTransform.Transform(v3Sec);
+		//m_qLastMain = m_matLastTransform.Transform(qSec);
+		m_v3LastMain = oLast.GetTranslation();
+		m_qLastMain = oLast.GetRotationAsQuaternion();
 		v3OutPos = m_v3LastMain;
 		qOutOri = m_qLastMain;
 
