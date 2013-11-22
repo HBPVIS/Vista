@@ -53,13 +53,11 @@
  * the data of the original one if that one is not tracked.
  * If data from the original are available, the data is just forwarded to the
  * output. If not, it is calculated from the secondary data.
- * All inports are optional because they can be missing at any point in between.
- * (They should all be wired, though.)
  *
- * @inport{position_main,VistaVector3D,optional, position of the main tracking target }
- * @inport{orientation_main,VistaQuaternion,optional, orientation of the main tracking target }
- * @inport{position_secondary,VistaVector3D,optional, position of the redundant tracking target }
- * @inport{orientation_secondary,VistaQuaternion,optional, orientation of the redundant tracking target }
+ * @inport{position_main,VistaVector3D,mandatory, position of the main tracking target }
+ * @inport{orientation_main,VistaQuaternion,mandatory, orientation of the main tracking target }
+ * @inport{position_secondary,VistaVector3D,mandatory, position of the redundant tracking target }
+ * @inport{orientation_secondary,VistaQuaternion,mandatory, orientation of the redundant tracking target }
  *
  * @outport{position,VistaVector3D, position of the main tracking target (forwarded or computed)}
  * @outport{orientation,VistaQuaternion, orientation of the main tracking target (forwarded or computed)}
@@ -96,6 +94,8 @@ private:
 	VistaQuaternion					m_qLastMain;
 	VistaVector3D					m_v3LastSecondary;
 	VistaQuaternion					m_qLastSecondary;
+	unsigned int					m_uiUpdateCounterMain;
+	unsigned int					m_uiUpdateCounterSecondary;
 
 
 	VistaTransformMatrix			m_matLastTransform;

@@ -41,6 +41,8 @@ VdfnTrackingRedundancyNode::VdfnTrackingRedundancyNode()
 , m_pOutValid( new TVdfnPort<bool> )
 , m_pOutComputed( new TVdfnPort<bool> )
 , m_bLastTransformValid(false)
+, m_uiUpdateCounterMain(0)
+, m_uiUpdateCounterSecondary(0)
 {
 	RegisterInPortPrototype( "position_main", 
 		new TVdfnPortTypeCompare<TVdfnPort<VistaVector3D> > );
@@ -66,9 +68,9 @@ VdfnTrackingRedundancyNode::~VdfnTrackingRedundancyNode()
 
 bool VdfnTrackingRedundancyNode::GetIsValid() const
 {
-	// everything may be NULL and it's valid; the output then defaults to
-	// the last known positions and orientations
-	return true;
+	// all inports must be set
+	return(m_pInPosMain != NULL && m_pInOriMain != NULL &&
+		m_pInPosSecondary != NULL && m_pInOriSecondary != NULL);
 }
 
 bool VdfnTrackingRedundancyNode::PrepareEvaluationRun()
@@ -83,26 +85,27 @@ bool VdfnTrackingRedundancyNode::PrepareEvaluationRun()
 bool VdfnTrackingRedundancyNode::DoEvalNode()
 {
 	// get in data
-	VistaVector3D v3Main;
-	if(m_pInPosMain != NULL)
-		v3Main = m_pInPosMain->GetValueConstRef();
-	VistaQuaternion qMain;
-	if(m_pInOriMain != NULL)
-		qMain = m_pInOriMain->GetValueConstRef();
-	VistaVector3D v3Sec;
-	if(m_pInPosSecondary != NULL)
-		v3Sec = m_pInPosSecondary->GetValueConstRef();
-	VistaQuaternion qSec;
-	if(m_pInOriSecondary != NULL)
-		qSec = m_pInOriSecondary->GetValueConstRef();
+	VistaVector3D v3Main = m_pInPosMain->GetValueConstRef();
+	VistaQuaternion qMain = m_pInOriMain->GetValueConstRef();
+	VistaVector3D v3Sec = m_pInPosSecondary->GetValueConstRef();
+	VistaQuaternion qSec = m_pInOriSecondary->GetValueConstRef();
 
+	// check whether data was updated
+	bool bUpdatedMain = (m_uiUpdateCounterMain != m_pInPosMain->GetUpdateCounter());
+	bool bUpdatedSecondary = (m_uiUpdateCounterSecondary != m_pInPosSecondary->GetUpdateCounter());
+
+	// save last update counters
+	m_uiUpdateCounterMain = m_pInPosMain->GetUpdateCounter();
+	m_uiUpdateCounterSecondary = m_pInPosSecondary->GetUpdateCounter();
+
+	// references for out values
 	VistaVector3D& v3OutPos = m_pOutPos->GetValueRef();
 	VistaQuaternion& qOutOri = m_pOutOri->GetValueRef();
 	bool& bOutValid = m_pOutValid->GetValueRef();
 	bool& bOutComputed = m_pOutComputed->GetValueRef();
 
 	// if main data available: just forward that
-	if(m_pInPosMain != NULL && m_pInOriMain != NULL)
+	if(bUpdatedMain)
 	{
 		v3OutPos = v3Main;
 		qOutOri = qMain;
@@ -115,8 +118,7 @@ bool VdfnTrackingRedundancyNode::DoEvalNode()
 	}
 	// if main data is not available, but secondary is: calculate main data
 	// from secondary data
-	else if( (m_pInPosMain == NULL || m_pInOriMain == NULL) &&
-		(m_pInPosSecondary != NULL && m_pInOriSecondary != NULL))
+	else if(!bUpdatedMain && bUpdatedSecondary)
 	{
 		// transform matrix not valid? calculate it
 		if(!m_bLastTransformValid)
@@ -164,8 +166,7 @@ bool VdfnTrackingRedundancyNode::DoEvalNode()
 
 
 	// if all data is available, save it in case the tracking is lost next time
-	if(m_pInPosMain != NULL && m_pInOriMain != NULL &&
-		m_pInPosSecondary != NULL && m_pInOriSecondary != NULL)
+	if(bUpdatedMain && bUpdatedSecondary)
 	{
 		m_v3LastMain = v3Main;
 		m_qLastMain = qMain;
