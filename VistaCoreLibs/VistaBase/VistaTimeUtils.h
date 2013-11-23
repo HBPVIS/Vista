@@ -60,6 +60,18 @@ public:
 	 */
 	static std::string ConvertToLexicographicDateString( const VistaType::systemtime dTime );
 
+	/**
+	 * Formats a time using the strftime format syntax, and returns it as string
+	 */
+	static std::string ConvertToFormattedTimeString( const VistaType::systemtime dTime, const std::string& sFormat );
+
+	/**
+	 * Sleeps for at least iMilliseconds
+	 * Sleep will suspend the current thread, which will be re-awoken after
+	 * the requested time or more - no guaranty is given, so it may well be longer.
+	 * Especially on Windows systems, sleep only works with the granularity of the system
+	 * timer, which is usually 15ms, so shorter sleeps will most likely be inaccurate.
+	 */
 	static void Sleep( int iMilliseconds );
 
 	/**

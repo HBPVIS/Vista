@@ -91,8 +91,7 @@ public:
 	 * @param han a special handler for TickTimerEvents thrown from this TickTimer
 	 */
 	VistaTickTimer(VistaEventManager *pEvMa,
-					VistaClusterMode *pClusterAux,
-					VistaEventHandler *han = 0, int iEvType = -1);
+					VistaClusterMode *pClusterAux);
 
 	/**
 	 * Unregisters this observer, stops this stop watch

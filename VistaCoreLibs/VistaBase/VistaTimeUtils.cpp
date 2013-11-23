@@ -44,13 +44,9 @@
 #endif
 
 #include <iostream>
+#include <cassert>
 
 #include "VistaTimer.h"
-//
-//namespace
-//{
-//	IVistaTimerImp *SSingleton = NULL;
-//}
 
 
 /*============================================================================*/
@@ -67,7 +63,7 @@ VistaType::microtime VistaTimeUtils::ConvertToDayTime( VistaType::microtime dTim
 	VistaType::microtime dDayTime = ( (VistaType::microtime)tLocalTime->tm_sec) 
 						+ ( ((VistaType::microtime)tLocalTime->tm_min)*60)
 						+ ( ((VistaType::microtime)tLocalTime->tm_hour) )*3600
-						+ dMilliseconds;//(((VistaType::microtime)x.millitm)/1000);
+						+ dMilliseconds;
 
 	return dDayTime;
 }
@@ -94,16 +90,32 @@ void VistaTimeUtils::ConvertToDate( const VistaType::microtime dTime,
 	iYear = 1900 + tLocalTime->tm_year;
 }
 
-std::string VistaTimeUtils::ConvertToLexicographicDateString( const VistaType::systemtime dTime )
+std::string VistaTimeUtils::ConvertToFormattedTimeString( const VistaType::systemtime dTime, const std::string& sFormat )
 {
 	std::string sResult;
-	sResult.resize( 13 );
-
+	
 	time_t tCurrentTime = (time_t)dTime;
 	struct tm* tLocalTime = localtime(&tCurrentTime);
 
-	strftime( &sResult[0], 14 , "%y%m%d_%H%M%S", tLocalTime );
+	std::size_t nSize = 64;
+	for( ;; )
+	{
+		sResult.resize( nSize );
+		std::size_t nRet = strftime( &sResult[0], nSize , sFormat.c_str(), tLocalTime );
+		if( nRet > 0 )
+		{
+			sResult.resize( nRet );
+			break;
+		}
+		nSize *= 2;
+		assert( nSize < 1e6 ); // should never really happen
+	}
 	return sResult;
+}
+
+std::string VistaTimeUtils::ConvertToLexicographicDateString( const VistaType::systemtime dTime )
+{
+	return ConvertToFormattedTimeString( dTime, "%y%m%d_%H%M%S" );
 }
 
 void VistaTimeUtils::Sleep( int iMilliseconds )
@@ -132,6 +144,7 @@ const VistaTimer& VistaTimeUtils::GetStandardTimer()
 {
 	return VistaTimer::GetStandardTimer();
 }
+
 
 /*============================================================================*/
 /* END OF FILE "MYDEMO.CPP"                                                   */

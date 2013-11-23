@@ -27,6 +27,8 @@
 
 #include <VistaBase/VistaExceptionBase.h>
 
+#include <cassert>
+
 /**
  * Helper macros: calling VISTA_MACRO_TOSTRING allows using non-string values (e.g. __FILE__ or __LINE__) as
  * strings in macros
