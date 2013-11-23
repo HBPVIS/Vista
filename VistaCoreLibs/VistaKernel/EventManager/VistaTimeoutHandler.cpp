@@ -123,7 +123,7 @@ VistaTimeoutHandler::HD_TIMER VistaTimeoutHandler::AddTimeout(double dTime)
 
 	if(m_liGarbage.empty())
 	{
-	   pWatch = new VistaTickTimer(m_pEventManager, m_pClusterAux, this);
+	   pWatch = new VistaTickTimer(m_pEventManager, m_pClusterAux);
 	}
 	else
 	{

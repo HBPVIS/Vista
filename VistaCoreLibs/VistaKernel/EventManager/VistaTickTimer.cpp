@@ -35,10 +35,8 @@
 
 //int VistaTickTimer::m_iTickTimerEventType = -1;
 
-VistaTickTimer::VistaTickTimer(VistaEventManager *evMa, 
-								 VistaClusterMode *pClusterAux,
-								 VistaEventHandler *pHandler, 
-								 int iEvType)
+VistaTickTimer::VistaTickTimer( VistaEventManager *evMa, 
+								 VistaClusterMode *pClusterAux )
 : VistaEventObserver(),
   m_pClusterAux(pClusterAux)
 {
