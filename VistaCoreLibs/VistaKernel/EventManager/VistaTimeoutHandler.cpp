@@ -107,19 +107,10 @@ VistaTimeoutHandler::HD_TIMER VistaTimeoutHandler::AddTimeout(double dTime)
 	VistaTickTimer *pWatch = NULL;
 	if(VistaTickTimerEvent::GetTypeId() == VistaEvent::VET_INVALID)
 	{
-		VistaEventManager::EVENTTYPE eTp = m_pEventManager->RegisterEventType("VET_TICK");
-		VistaTickTimerEvent::SetTypeId(eTp);
-		if(m_nEvId == -1)
-		{
-			//for(int n=VistaTickTimerEvent::TTID_TIMEOUT; n < VistaTickTimerEvent::TTID_UPPER_BOUND; ++n)
-			m_nEvId = m_pEventManager->RegisterEventId(eTp, 
-										  VistaTickTimerEvent::GetIdString(
-										  VistaTickTimerEvent::TTID_TIMEOUT));
-
-		}
+		VistaTickTimerEvent::RegisterEventTypes( m_pEventManager );
 	}
 
-	m_pEventManager->AddEventHandler(this, VistaTickTimerEvent::GetTypeId(), m_nEvId);
+	m_pEventManager->AddEventHandler(this, VistaTickTimerEvent::GetTypeId(), VistaTickTimerEvent::TTID_TIMEOUT);
 
 	if(m_liGarbage.empty())
 	{

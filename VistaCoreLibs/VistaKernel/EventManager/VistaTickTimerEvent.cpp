@@ -24,6 +24,8 @@
 
 #include "VistaTickTimerEvent.h"
 
+#include "VistaEventManager.h"
+
 int VistaTickTimerEvent::m_nEventId = VistaEvent::VET_INVALID;
 
 
@@ -71,5 +73,12 @@ void VistaTickTimerEvent::SetTypeId(int nId)
 void VistaTickTimerEvent::SetTickEventTime( double dTime )
 {
 	m_nTime = dTime;
+}
+
+void VistaTickTimerEvent::RegisterEventTypes( VistaEventManager* pEventManager )
+{
+	VistaEventManager::EVENTTYPE eTp = pEventManager->RegisterEventType( "VET_TICK" );
+	SetTypeId( eTp );
+	pEventManager->RegisterEventId( eTp, VistaTickTimerEvent::GetIdString( VistaTickTimerEvent::TTID_TIMEOUT ) );
 }
 

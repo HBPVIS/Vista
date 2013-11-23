@@ -159,7 +159,7 @@ public:
 
 	double GetRealIntervalLength() const;
 	double GetTickTime() const;
-
+	static void RegisterEvents();
 protected:
 
 	/**

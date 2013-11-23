@@ -100,6 +100,8 @@ public:
 	static std::string GetIdString(int nId);
 	static int GetTypeId();
 	static void SetTypeId(int nId);
+
+	static void RegisterEventTypes( VistaEventManager* pEventManager );
 protected:
 	/**
 	 * A pointer to the source of this Event.

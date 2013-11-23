@@ -54,8 +54,8 @@ class VistaClusterMode;
  * The router compiles timeout requests for a single timestamp in a list
  * of update-routines. This allows the re-use of HD_TIMER instances
  * and takes some pressure off the event bus system.
- * Timeouts can be configured to be repititious or for a finite number
- * of repititions (and infinite). The repeat count for a time callback
+ * Timeouts can be configured to be repetitious or for a finite number
+ * of repetitions (and infinite). The repeat count for a time callback
  * can be changed dynamically as it is evaluated after each callback anew.
  * Use as follows.
  * - create a timeout router instance
@@ -76,7 +76,7 @@ public:
 
 
 	/**
-	 * The default number of repititions is infinite.
+	 * The default number of repetitions is infinite.
 	 */
 	class VISTAKERNELAPI CTimedCallback
 	{

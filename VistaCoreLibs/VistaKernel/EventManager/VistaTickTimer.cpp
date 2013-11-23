@@ -44,11 +44,11 @@ VistaTickTimer::VistaTickTimer( VistaEventManager *evMa,
 	SetTickTime(1.0);
 	m_pEventManager = evMa;
 
-	if(VistaTickTimerEvent::GetTypeId() == VistaEvent::VET_INVALID)
+	if( VistaTickTimerEvent::GetTypeId() == VistaEvent::VET_INVALID )
 	{
-		VistaEventManager::EVENTTYPE eTp = m_pEventManager->RegisterEventType("VET_TICK");
-		VistaTickTimerEvent::SetTypeId(eTp);
+		VistaTickTimerEvent::RegisterEventTypes( evMa );
 	}
+	VistaTickTimerEvent::SetTypeId( VistaTickTimerEvent::GetTypeId() );
 
 	m_pTickTimerTick = new VistaTickTimerEvent(this);
 	m_pTickTimerTick->SetId(VistaTickTimerEvent::TTID_TIMEOUT);
