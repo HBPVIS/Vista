@@ -30,9 +30,11 @@
 /*============================================================================*/
 #include <VistaKernel/VistaKernelConfig.h>
 
+#include <VistaBase/VistaBaseTypes.h>
 #include <VistaAspects/VistaObserveable.h>
 
 #include <string>
+#include <vector>
 
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
@@ -127,17 +129,23 @@ public:
 	virtual bool GetUseStencilBuffer( const VistaWindow* pWindow  ) const = 0;
 	virtual bool SetUseStencilBuffer( VistaWindow* pWindow, const bool bSet ) = 0;
 
+	virtual bool GetCursorIsEnabled( const VistaWindow* pWindow  ) const = 0;
 	virtual bool SetCursorIsEnabled( VistaWindow* pWindow, bool bSet ) = 0;
-	virtual bool GetCursorIsEnabled( const VistaWindow* pWindow  ) = 0;
 
 	virtual bool GetDrawBorder( const VistaWindow* pWindow  ) const = 0;
 	virtual bool SetDrawBorder( VistaWindow* pWindow, const bool bSet ) = 0;
+	
+	virtual bool GetUseOffscreenBuffer( const VistaWindow* pWindow  ) const = 0;
+	virtual bool SetUseOffscreenBuffer( VistaWindow* pWindow, const bool bSet ) = 0;
+
+	virtual bool GetRGBImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData  ) = 0;
+	virtual bool GetDepthImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData ) = 0;
 
 	/**
 	 * Bind sets the current window as target for rendering
 	 */
 	virtual void BindWindow( VistaWindow* pWindow ) = 0;
-
+	virtual void UnbindWindow( VistaWindow* pWindow ) = 0;
 
 	/**
 	 * The IVistaTextEntitty is needed to tell the

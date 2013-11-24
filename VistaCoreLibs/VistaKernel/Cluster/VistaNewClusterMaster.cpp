@@ -522,7 +522,7 @@ void VistaNewClusterMaster::ParseSwapSyncType( const VistaPropertyList& oSection
 	{
 		m_nSwapSyncMethod = VistaMasterSlave::SWAPSYNC_GSYNCGROUP;
 	}
-	else if( oCmp( sSyncType, "INTERPROC" ) )
+	else if( oCmp( sSyncType, "MUTEX" ) | oCmp( sSyncType, "INTERPROC" ) )
 	{
 		m_nSwapSyncMethod = VistaMasterSlave::SWAPSYNC_INTERPROC;
 	}
@@ -562,7 +562,7 @@ void VistaNewClusterMaster::ParseBarrierType( const VistaPropertyList& oSection 
 			m_vecFreeBroadcastPorts.push_back( VistaMasterSlave::PortRange( 24000, 24999 ) );
 		}	
 	}
-	else if( oCmp( sBarrierType, "MUTEX" ) )
+	else if( oCmp( sBarrierType, "MUTEX" ) || oCmp( sBarrierType, "INTERPROC" ) )
 	{
 		m_nBarrierWaitMethod = VistaMasterSlave::BARRIER_INTERPROC;
 	}

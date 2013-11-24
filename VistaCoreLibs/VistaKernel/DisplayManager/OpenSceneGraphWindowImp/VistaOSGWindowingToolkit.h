@@ -96,7 +96,7 @@ public:
 	virtual std::string GetWindowTitle( const VistaWindow* pWindow  );
 	virtual bool SetWindowTitle( VistaWindow* pWindow, const std::string& sTitle );
 
-	virtual bool SetCursorIsEnabled( VistaWindow* pWindow, bool bSet );
+	virtual bool SetCursorIsEnabled( VistaWindow* pWindow, bool bSet ) const;
 	virtual bool GetCursorIsEnabled( const VistaWindow* pWindow  );
 
 	virtual bool GetUseStereo( const VistaWindow* pWindow  ) const;

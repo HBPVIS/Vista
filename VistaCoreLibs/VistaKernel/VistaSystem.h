@@ -296,6 +296,7 @@ private:
 	bool						m_bUseNewClusterMaster;
 	int							m_nClusterNodeType;
 	std::string					m_sClusterNodeName;
+	bool						m_bRecordOnlyMaster;
 	std::string					m_sRecordFile;
 	std::string					m_sApplicationName;
 

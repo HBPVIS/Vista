@@ -26,6 +26,8 @@
 /* INCLUDES                                                                   */
 /*============================================================================*/
 
+#include <GL/glew.h>
+
 #include "VistaGlutWindowingToolkit.h"
 
 #include "VistaGlutTextEntity.h"
@@ -37,6 +39,7 @@
 
 #include <VistaAspects/VistaExplicitCallbackInterface.h>
 #include <VistaBase/VistaStreamUtils.h>
+
 
 #if defined(USE_NATIVE_GLUT)
   #if defined(DARWIN) // we use the mac os GLUT framework on darwin
@@ -66,6 +69,21 @@ typedef int (* PFNGLXGETSWAPINTERVALSGIPROC) ();
 PFNGLXSWAPINTERVALSGIPROC SetSwapIntervalFunction = NULL;
 PFNGLXGETSWAPINTERVALSGIPROC GetSwapIntervalFunction = NULL;
 #endif
+
+#ifdef DEBUG
+#define DEBUG_CHECK_GL( sPrefix ) \
+	{ \
+		GLenum nError = glGetError(); \
+		while( nError != GL_NONE ) \
+		{ \
+			vstr::warnp() << "[GlutWindoingTK]: Cought gl error after " << sPrefix << ": " << gluErrorString( nError ) << std::endl; \
+			nError = glGetError(); \
+		} \
+	}
+#else
+#define DEBUG_CHECK_GL( sPrefix )
+#endif
+
 
 
 /*============================================================================*/
@@ -99,6 +117,15 @@ struct GlutWindowInfo
 	, m_sWindowTitle( "ViSTA" )
 	, m_iVSyncMode( VistaGlutWindowingToolkit::VSYNC_STATE_UNKNOWN )
 	, m_bCursorEnabled( true )
+	, m_bIsOffscreenBuffer( false )
+	, m_nFboId( 0 )
+	, m_nFboDepthId( 0 )
+	, m_nFboColorId( 0 )
+	, m_nFboStencilId( 0 )
+	{
+	}
+
+	~GlutWindowInfo()
 	{
 	}
 
@@ -122,6 +149,12 @@ struct GlutWindowInfo
 	std::string			m_sWindowTitle;
 	int					m_iVSyncMode;
 	bool				m_bCursorEnabled;
+	// for Offscreen Buffer
+	bool				m_bIsOffscreenBuffer;
+	GLuint				m_nFboId;
+	GLuint				m_nFboColorId;
+	GLuint				m_nFboDepthId;
+	GLuint				m_nFboStencilId;
 };
 
 namespace
@@ -181,9 +214,11 @@ VistaGlutWindowingToolkit::VistaGlutWindowingToolkit()
 , m_pUpdateCallback( NULL )
 , m_iTmpWindowID( -1 )
 , m_iGlobalVSyncAvailability( ~0 )
+, m_bHasFullWindow( false )
+, m_nDummyWindowId( -1 )
 {
 	int iArgs = 0;
-	glutInit( &iArgs, NULL );	
+	glutInit( &iArgs, NULL );
 }
 
 /*============================================================================*/
@@ -232,10 +267,10 @@ void VistaGlutWindowingToolkit::Run()
 
 	while( !m_bQuitLoop )
 	{
-		if( m_mapWindowInfo.empty() )
-			m_pUpdateCallback->Do();
-		else
+		if( m_bHasFullWindow )
 			glutMainLoopEvent();
+		else
+			m_pUpdateCallback->Do();
 	}
 #endif
 }
@@ -262,9 +297,19 @@ void VistaGlutWindowingToolkit::Quit()
 
 void VistaGlutWindowingToolkit::DisplayWindow( VistaWindow* pWindow )
 {
-	PushWindow( pWindow );
-	glutSwapBuffers();
-	glutPostRedisplay();
+	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
+	if( PushWindow( pInfo ) == false )		
+	{
+		vstr::warnp() << "[GlutWindowing]: Trying to render invalid window" << std::endl;
+		return;
+	}
+	
+	if( pInfo->m_bIsOffscreenBuffer == false )
+	{
+		glutSwapBuffers();
+		glutPostRedisplay();
+	}
+	
 	PopWindow();
 }
 void VistaGlutWindowingToolkit::DisplayAllWindows()
@@ -277,12 +322,18 @@ void VistaGlutWindowingToolkit::DisplayAllWindows()
 			itWindowID = m_mapWindowInfo.begin(); 
 			itWindowID != m_mapWindowInfo.end();
 			++itWindowID )
-	{
-		glutSetWindow( (*itWindowID).second->m_iWindowID );
-		glutSwapBuffers();
-		glutPostRedisplay();
+	{		
+		GlutWindowInfo* pInfo = (*itWindowID).second;
+		if( pInfo->m_bIsOffscreenBuffer == false )
+		{
+			if( pInfo->m_iWindowID == -1 )
+				continue;
+			glutSetWindow( pInfo->m_iWindowID );
+			glutSwapBuffers();
+			glutPostRedisplay();
+		}
 	}
-	glutSetWindow( iActiveID );
+	glutSetWindow( iActiveID );	
 }
 
 bool VistaGlutWindowingToolkit::RegisterWindow( VistaWindow* pWindow )
@@ -304,6 +355,15 @@ bool VistaGlutWindowingToolkit::UnregisterWindow( VistaWindow* pWindow )
 	{
 		glutDestroyWindow( iID );
 		S_mapWindowInfo.erase( iID );
+	}
+	else if( (*itExists).second->m_bIsOffscreenBuffer )
+	{
+		glDeleteFramebuffers( 1, &(*itExists).second->m_nFboId );
+		glDeleteRenderbuffers( 1, &(*itExists).second->m_nFboDepthId );
+		glDeleteRenderbuffers( 1, &(*itExists).second->m_nFboColorId );
+		if( (*itExists).second->m_nFboStencilId != 0 )
+			glDeleteRenderbuffers( 1, &(*itExists).second->m_nFboStencilId );
+		DEBUG_CHECK_GL( "Post-OffscreenBuffer-Win-delete" );
 	}
 	delete (*itExists).second;
 	m_mapWindowInfo.erase( itExists );
@@ -330,84 +390,148 @@ bool VistaGlutWindowingToolkit::InitWindow( VistaWindow* pWindow )
 		return false;
 	}
 
-	int iDisplayMode = GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE;
-	if( pInfo->m_bUseStereo )
-		iDisplayMode = iDisplayMode | GLUT_STEREO;
-	if( pInfo->m_bUseAccumBuffer )
-		iDisplayMode = iDisplayMode | GLUT_ACCUM;
-	if( pInfo->m_bUseStencilBuffer )
-		iDisplayMode = iDisplayMode | GLUT_STENCIL;
-	if( pInfo->m_bDrawBorder == false )
+	if( pInfo->m_bIsOffscreenBuffer == false )
 	{
+		int iDisplayMode = GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE;
+		if( pInfo->m_bUseStereo )
+			iDisplayMode = iDisplayMode | GLUT_STEREO;
+		if( pInfo->m_bUseAccumBuffer )
+			iDisplayMode = iDisplayMode | GLUT_ACCUM;
+		if( pInfo->m_bUseStencilBuffer )
+			iDisplayMode = iDisplayMode | GLUT_STENCIL;
+		if( pInfo->m_bDrawBorder == false )
+		{
 #ifdef USE_NATIVE_GLUT
-		vstr::warnp() << "[GlutWindowingTollkit]: "
-			<< "Borderless windows only available with freeglut" << std::endl;
+			vstr::warnp() << "[GlutWindowingTollkit]: "
+				<< "Borderless windows only available with freeglut" << std::endl;
 #elif !defined GLUT_BORDERLESS
-		vstr::warnp() << "[GlutWindowingTollkit]: "
-			<< "Borderless windows not supported by current glut version" << std::endl;
+			vstr::warnp() << "[GlutWindowingTollkit]: "
+				<< "Borderless windows not supported by current glut version" << std::endl;
 #else
-		iDisplayMode = iDisplayMode | GLUT_BORDERLESS;
+			iDisplayMode = iDisplayMode | GLUT_BORDERLESS;
 #endif
-	}
+		}
 
-	glutInitDisplayMode( iDisplayMode );
-	if( pInfo->m_iCurrentPosX != -1 && pInfo->m_iCurrentPosY != -1 )
-	{
-		glutInitWindowPosition( pInfo->m_iCurrentPosX, pInfo->m_iCurrentPosY );
-	}
-	if( pInfo->m_iCurrentSizeX != -1 && pInfo->m_iCurrentSizeY != -1 )
-	{
-		glutInitWindowSize(  pInfo->m_iCurrentSizeX, pInfo->m_iCurrentSizeY );
-	}
+		glutInitDisplayMode( iDisplayMode );
+		if( pInfo->m_iCurrentPosX != -1 && pInfo->m_iCurrentPosY != -1 )
+		{
+			glutInitWindowPosition( pInfo->m_iCurrentPosX, pInfo->m_iCurrentPosY );
+		}
+		if( pInfo->m_iCurrentSizeX != -1 && pInfo->m_iCurrentSizeY != -1 )
+		{
+			glutInitWindowSize(  pInfo->m_iCurrentSizeX, pInfo->m_iCurrentSizeY );
+		}
 
-	// @todo: this always returns false...
-	//if( glutGet( GLUT_DISPLAY_MODE_POSSIBLE ) == 0 )
-	//{
-	//	vstr::warnp() << "[GlutWindowingToolkit]: "
-	//			<< "Glut says the desired DisplayMode [ RGB | DEPTH | DOUBLE "
-	//			<< ( bStereo ? ( " | STEREO " ) : ( "" ) )
-	//			<< ( bUseAccumBuffer ? ( " | ACCUM " ) : ( "" ) )
-	//			<< ( bUseStencilBuffer ? ( " | STENCIL " ) : ( "" ) )
-	//			<< "] is not supported!" << std::endl;
-	//}	
+		pInfo->m_iWindowID = glutCreateWindow( pInfo->m_sWindowTitle.c_str() );
+
+		m_mapWindowInfo[pWindow] = pInfo;
+		S_mapWindowInfo[pInfo->m_iWindowID] = pInfo;
+
+		glutSetWindow( pInfo->m_iWindowID );
+
+		if( m_pUpdateCallback )
+		{
+			pInfo->m_pUpdateCallback = m_pUpdateCallback;
+			glutDisplayFunc( &DisplayUpdate );
+			glutIdleFunc( &DisplayUpdate );
+		}
+		glutReshapeFunc( &DisplayReshape );
+
+		if( pInfo->m_bFullscreenActive )
+		{
+			// store size/position to restore it when turning off game mode
+			pInfo->m_iPreFullscreenPosX = glutGet( GLUT_WINDOW_X );
+			pInfo->m_iPreFullscreenPosY = glutGet( GLUT_WINDOW_Y );
+			pInfo->m_iPreFullscreenSizeX = glutGet( GLUT_WINDOW_WIDTH );
+			pInfo->m_iPreFullscreenSizeY = glutGet( GLUT_WINDOW_HEIGHT );
+			glutFullScreen();
+		}
+
+		// retrieve actual size/position
+		pInfo->m_iCurrentPosX = glutGet( GLUT_WINDOW_X );
+		pInfo->m_iCurrentPosY = glutGet( GLUT_WINDOW_Y );
+		pInfo->m_iCurrentSizeX = glutGet( GLUT_WINDOW_WIDTH );
+		pInfo->m_iCurrentSizeY = glutGet( GLUT_WINDOW_HEIGHT );
+
+		if( pInfo->m_iVSyncMode == VSYNC_ENABLED )
+			SetVSyncMode( pWindow, true );
+		else if( pInfo->m_iVSyncMode == VSYNC_DISABLED )
+			SetVSyncMode( pWindow, false );
+
+		m_bHasFullWindow = true;
+
+		glutPostRedisplay();
+
+		if( m_nDummyWindowId )
+			glutDestroyWindow( m_nDummyWindowId );
+	}
+	else // is RenderToTexture
+	{
+		if( m_bHasFullWindow == false && m_nDummyWindowId == -1 )
+		{
+			vstr::warnp() << "Using offscreen window without valid real window - creating dummy win for context" << std::endl;
+			int iDisplayMode = GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE;
+			if( pInfo->m_bUseStereo )
+				iDisplayMode = iDisplayMode | GLUT_STEREO;
+			if( pInfo->m_bUseAccumBuffer )
+				iDisplayMode = iDisplayMode | GLUT_ACCUM;
+			if( pInfo->m_bUseStencilBuffer )
+				iDisplayMode = iDisplayMode | GLUT_STENCIL;
+
+			glutInitDisplayMode( iDisplayMode );
+			m_nDummyWindowId = glutCreateWindow( "dummy" );
+			glutSetWindow( m_nDummyWindowId );
+		}
+
+		glewInit();
+		assert( glewGetExtension("GL_EXT_framebuffer_object") == GL_TRUE );
+		assert( __glewGenFramebuffersEXT != NULL );
+
+		//GLint nMaxWidth, nMaxHeight;
+		//glGetIntegerv( GL_MAX_FRAMEBUFFER_WIDTH, &nMaxWidth );
+		//glGetIntegerv( GL_MAX_FRAMEBUFFER_HEIGHT, &nMaxHeight );
+		//if( pInfo->m_iCurrentSizeX > nMaxWidth
+		//	|| pInfo->m_iCurrentSizeY > nMaxHeight )
+		//{
+		//	vstr::errp() << "[GLuWindow]: cannot create render-to-texture window - size exceeds allowed max ["
+		//					<< nMaxWidth << "x" << nMaxHeight << "]" << std::endl;
+		//	return false;
+		//}
+
+		// create Fbo
+		glGenFramebuffers( 1, &pInfo->m_nFboId );
+		glBindFramebuffer( GL_FRAMEBUFFER, pInfo->m_nFboId );
+
+		glGenRenderbuffers( 1, &pInfo->m_nFboColorId );
+		glBindRenderbuffer( GL_RENDERBUFFER, pInfo->m_nFboColorId );
+		glRenderbufferStorage( GL_RENDERBUFFER, GL_RGB, pInfo->m_iCurrentSizeX, pInfo->m_iCurrentSizeY );
+		glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, pInfo->m_nFboColorId ); 
+		glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+
+		glGenRenderbuffers( 1, &pInfo->m_nFboDepthId );
+		glBindRenderbuffer( GL_RENDERBUFFER, pInfo->m_nFboDepthId );
+		glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, pInfo->m_iCurrentSizeX, pInfo->m_iCurrentSizeY );
+		glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, pInfo->m_nFboDepthId ); 
+		glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+
+		if( pInfo->m_bUseStencilBuffer )
+		{
+			glGenRenderbuffers( 1, &pInfo->m_nFboStencilId );
+			glBindRenderbuffer( GL_RENDERBUFFER, pInfo->m_nFboStencilId );
+			glRenderbufferStorage( GL_RENDERBUFFER, GL_STENCIL_INDEX, pInfo->m_iCurrentSizeX, pInfo->m_iCurrentSizeY );
+			glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, pInfo->m_nFboStencilId ); 
+			glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+		}
+		
+		GLenum nStatus = glCheckFramebufferStatus( GL_FRAMEBUFFER );
+		if( nStatus != GL_FRAMEBUFFER_COMPLETE )
+			VISTA_THROW( "Failed to set up frame buffer window", -1 );
+
+		glBindTexture( GL_TEXTURE_2D, 0 );
+		glBindFramebuffer( GL_FRAMEBUFFER, 0);
 	
-	pInfo->m_iWindowID = glutCreateWindow( pInfo->m_sWindowTitle.c_str() );
-
-	m_mapWindowInfo[pWindow] = pInfo;
-	S_mapWindowInfo[pInfo->m_iWindowID] = pInfo;
-
-	glutSetWindow( pInfo->m_iWindowID );
-
-	if( m_pUpdateCallback )
-	{
-		pInfo->m_pUpdateCallback = m_pUpdateCallback;
-		glutDisplayFunc( &DisplayUpdate );
-		glutIdleFunc( &DisplayUpdate );
+		DEBUG_CHECK_GL( "Post-OffscreenBuffer-Win-Swap" );
 	}
-	glutReshapeFunc( &DisplayReshape );
-
-	if( pInfo->m_bFullscreenActive )
-	{
-		// store size/position to restore it when turning off game mode
-		pInfo->m_iPreFullscreenPosX = glutGet( GLUT_WINDOW_X );
-		pInfo->m_iPreFullscreenPosY = glutGet( GLUT_WINDOW_Y );
-		pInfo->m_iPreFullscreenSizeX = glutGet( GLUT_WINDOW_WIDTH );
-		pInfo->m_iPreFullscreenSizeY = glutGet( GLUT_WINDOW_HEIGHT );
-		glutFullScreen();
-	}
-
-	// retrieve actual size/position
-	pInfo->m_iCurrentPosX = glutGet( GLUT_WINDOW_X );
-	pInfo->m_iCurrentPosY = glutGet( GLUT_WINDOW_Y );
-	pInfo->m_iCurrentSizeX = glutGet( GLUT_WINDOW_WIDTH );
-	pInfo->m_iCurrentSizeY = glutGet( GLUT_WINDOW_HEIGHT );
-
-	if( pInfo->m_iVSyncMode == VSYNC_ENABLED )
-		SetVSyncMode( pWindow, true );
-	else if( pInfo->m_iVSyncMode == VSYNC_DISABLED )
-		SetVSyncMode( pWindow, false );
-
-	glutPostRedisplay();
 	return true;
 }
 
@@ -456,7 +580,12 @@ bool VistaGlutWindowingToolkit::GetWindowPosition( const VistaWindow* pWindow,
 bool VistaGlutWindowingToolkit::SetWindowPosition( VistaWindow* pWindow,
 												  const int iX, const int iY )
 {	
-	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );	
+	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
+
+	if( pInfo->m_bIsOffscreenBuffer )
+	{
+		return false;
+	}
 
 	if( PushWindow( pInfo ) )
 	{
@@ -493,8 +622,41 @@ bool VistaGlutWindowingToolkit::GetWindowSize( const VistaWindow* pWindow,
 bool VistaGlutWindowingToolkit::SetWindowSize( VistaWindow* pWindow,
 											  int iWidth, int iHeight )
 {
-	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );	
+	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
 
+	if( pInfo->m_bIsOffscreenBuffer && pInfo->m_nFboId > 0 )
+	{
+		DEBUG_CHECK_GL( "Pre-OffscreenBuffer-Win-Resize" );
+
+		pInfo->m_iCurrentSizeX = iWidth;
+		pInfo->m_iCurrentSizeY = iHeight;	
+
+		glBindRenderbuffer( GL_RENDERBUFFER, pInfo->m_nFboColorId );
+		glRenderbufferStorage( GL_RENDERBUFFER, GL_RGB, pInfo->m_iCurrentSizeX, pInfo->m_iCurrentSizeY );
+		glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+
+		glBindRenderbuffer( GL_RENDERBUFFER, pInfo->m_nFboDepthId );
+		glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, pInfo->m_iCurrentSizeX, pInfo->m_iCurrentSizeY );
+		glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+
+		if( pInfo->m_bUseStencilBuffer )
+		{
+			glBindRenderbuffer( GL_RENDERBUFFER, pInfo->m_nFboStencilId );
+			glRenderbufferStorage( GL_RENDERBUFFER, GL_STENCIL_INDEX, pInfo->m_iCurrentSizeX, pInfo->m_iCurrentSizeY );
+			glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+		}
+		
+#ifdef DEBUG
+		glBindFramebuffer( GL_FRAMEBUFFER, pInfo->m_nFboId );
+		GLenum nStatus = glCheckFramebufferStatus( GL_FRAMEBUFFER );
+		if( nStatus != GL_FRAMEBUFFER_COMPLETE )
+			VISTA_THROW( "Failed to set up frame buffer window", -1 );
+		glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+#endif
+		
+		DEBUG_CHECK_GL( "Post-OffscreenBuffer-Win-Resize" );
+		return true;
+	}
 	if( PushWindow( pInfo ) )
 	{
 		if( pInfo->m_bFullscreenActive )
@@ -528,6 +690,11 @@ bool VistaGlutWindowingToolkit::SetFullscreen( VistaWindow* pWindow,
 												   const bool bEnabled )
 {	
 	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
+
+	if( pInfo->m_bIsOffscreenBuffer )
+	{
+		return false;
+	}
 
 	int iID = pInfo->m_iWindowID;
 
@@ -568,6 +735,12 @@ bool VistaGlutWindowingToolkit::SetWindowTitle( VistaWindow* pWindow,
 {
 	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
 	pInfo->m_sWindowTitle = sTitle;
+
+	if( pInfo->m_bIsOffscreenBuffer )
+	{
+		return false;
+	}
+
 	if( PushWindow( pInfo ) )
 	{
 		glutSetWindowTitle( sTitle.c_str() );
@@ -585,6 +758,12 @@ std::string VistaGlutWindowingToolkit::GetWindowTitle( const VistaWindow* pWindo
 bool VistaGlutWindowingToolkit::SetCursorIsEnabled( VistaWindow* pWindow, bool bSet )
 {
 	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
+
+	if( pInfo->m_bIsOffscreenBuffer )
+	{
+		return false;
+	}
+
 	pInfo->m_bCursorEnabled = bSet;
 	if( PushWindow( pWindow ) )
 	{
@@ -596,22 +775,39 @@ bool VistaGlutWindowingToolkit::SetCursorIsEnabled( VistaWindow* pWindow, bool b
 	}
 	return true;
 }
-bool VistaGlutWindowingToolkit::GetCursorIsEnabled( const VistaWindow* pWindow  )
+bool VistaGlutWindowingToolkit::GetCursorIsEnabled( const VistaWindow* pWindow  ) const
 {
 	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
+
+	if( pInfo->m_bIsOffscreenBuffer )
+	{
+		return false;
+	}
+	
 	return pInfo->m_bCursorEnabled;
 }
 
 bool VistaGlutWindowingToolkit::GetUseStereo( const VistaWindow* pWindow  ) const
 {
 	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
+
+	if( pInfo->m_bIsOffscreenBuffer )
+	{
+		return false;
+	}
+
 	return pInfo->m_bUseStereo;
 }
 bool VistaGlutWindowingToolkit::SetUseStereo( VistaWindow* pWindow, const bool bSet )
 {
 	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
 
-	if( pInfo->m_iWindowID != -1 )
+	if( pInfo->m_bIsOffscreenBuffer )
+	{
+		return false;
+	}
+
+	if( pInfo->m_iWindowID )
 	{
 		vstr::warnp() << "[GlutWindow]: Trying to change stereo mode on window ["
 				<< pWindow->GetNameForNameable() << "] - this can only be done before initialization"
@@ -626,11 +822,22 @@ bool VistaGlutWindowingToolkit::SetUseStereo( VistaWindow* pWindow, const bool b
 bool VistaGlutWindowingToolkit::GetUseAccumBuffer( const VistaWindow* pWindow  ) const
 {
 	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
+
+	if( pInfo->m_bIsOffscreenBuffer )
+	{
+		return false;
+	}
+
 	return pInfo->m_bUseAccumBuffer;
 }
 bool VistaGlutWindowingToolkit::SetUseAccumBuffer( VistaWindow* pWindow, const bool bSet )
 {
 	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
+
+	if( pInfo->m_bIsOffscreenBuffer )
+	{
+		return false;
+	}
 
 	if( pInfo->m_iWindowID != -1 )
 	{
@@ -647,11 +854,22 @@ bool VistaGlutWindowingToolkit::SetUseAccumBuffer( VistaWindow* pWindow, const b
 bool VistaGlutWindowingToolkit::GetUseStencilBuffer( const VistaWindow* pWindow  ) const
 {
 	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
+	
+	if( pInfo->m_bIsOffscreenBuffer )
+	{
+		return false;
+	}
+	
 	return pInfo->m_bUseStencilBuffer;
 }
 bool VistaGlutWindowingToolkit::SetUseStencilBuffer( VistaWindow* pWindow, const bool bSet )
 {
 	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
+
+	if( pInfo->m_bIsOffscreenBuffer )
+	{
+		return false;
+	}
 
 	if( pInfo->m_iWindowID != -1 )
 	{
@@ -663,6 +881,13 @@ bool VistaGlutWindowingToolkit::SetUseStencilBuffer( VistaWindow* pWindow, const
 
 	pInfo->m_bUseStencilBuffer = bSet;
 	return true;
+}
+
+bool VistaGlutWindowingToolkit::GetUseOffscreenBuffer( const VistaWindow* pWindow ) const
+{
+	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
+
+	return pInfo->m_bIsOffscreenBuffer;
 }
 
 
@@ -689,18 +914,94 @@ bool VistaGlutWindowingToolkit::SetDrawBorder( VistaWindow* pWindow, const bool 
 }
 
 
+bool VistaGlutWindowingToolkit::SetUseOffscreenBuffer( VistaWindow* pWindow, const bool bSet )
+{
+	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
+
+	if( pInfo->m_iWindowID  != -1 || pInfo->m_nFboId != 0 )
+	{
+		vstr::warnp() << "[GlutWindow]: Trying to change render-to-texture mode on window ["
+				<< pWindow->GetNameForNameable() << "] - this can only be done before initialization"
+				<< std::endl;
+		return false;
+	}
+
+	pInfo->m_bIsOffscreenBuffer = bSet;
+	return true;
+}
+
+bool VistaGlutWindowingToolkit::GetRGBImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData )
+{
+	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
+	if( PushWindow( pInfo ) == false )
+		return false;
+
+	DEBUG_CHECK_GL( "Pre-GetRGBImage" );
+
+	int nNumPixels = pInfo->m_iCurrentSizeX * pInfo->m_iCurrentSizeY;
+	vecData.resize( 3 * nNumPixels );
+	if( pInfo->m_bIsOffscreenBuffer == false )
+	{
+		glReadBuffer( GL_BACK );
+		glReadPixels( 0, 0, pInfo->m_iCurrentSizeX, pInfo->m_iCurrentSizeY, GL_RGB, GL_UNSIGNED_BYTE, &vecData[0] );
+	}
+	else
+	{		
+		glReadBuffer( GL_COLOR_ATTACHMENT0 );
+		glReadPixels( 0, 0, pInfo->m_iCurrentSizeX, pInfo->m_iCurrentSizeY, GL_RGB, GL_UNSIGNED_BYTE, &vecData[0] );
+	}
+
+	PopWindow();
+
+	DEBUG_CHECK_GL( "Post-GetRGBImage" );
+	return true;
+}
+
+bool VistaGlutWindowingToolkit::GetDepthImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData )
+{
+	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
+	if( PushWindow( pInfo ) == false )
+		return false;
+
+	int nNumPixels = pInfo->m_iCurrentSizeX * pInfo->m_iCurrentSizeY;
+	vecData.resize( 4 * nNumPixels );
+	DEBUG_CHECK_GL( "Pre-GetDepthImage" );
+
+	if( pInfo->m_bIsOffscreenBuffer == false )
+	{
+		glReadBuffer( GL_BACK );
+		glReadPixels( 0, 0, pInfo->m_iCurrentSizeX, pInfo->m_iCurrentSizeY, GL_DEPTH_COMPONENT, GL_FLOAT, &vecData[0] );		
+	}
+	else
+	{
+		glReadBuffer( GL_FRONT );
+		glReadPixels( 0, 0, pInfo->m_iCurrentSizeX, pInfo->m_iCurrentSizeY, GL_DEPTH_COMPONENT, GL_FLOAT, &vecData[0] );
+	}
+
+	PopWindow();
+
+	DEBUG_CHECK_GL( "Post-GetDepthImage" );
+
+	return true;
+}
+
 
 int VistaGlutWindowingToolkit::GetWindowId( const VistaWindow* pWindow  ) const
 {
 	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
-	return pInfo->m_iWindowID;
+
+	if( pInfo->m_bIsOffscreenBuffer )
+		return -1;
+	return pInfo->m_iWindowID;	
 }
 void VistaGlutWindowingToolkit::BindWindow( VistaWindow* pWindow )
 {
-	WindowInfoMap::const_iterator itWindowInfo =
-					m_mapWindowInfo.find( pWindow );
-	assert( itWindowInfo != m_mapWindowInfo.end() );
-	glutSetWindow( (*itWindowInfo).second->m_iWindowID );
+	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
+	PushWindow( pInfo );
+}
+void VistaGlutWindowingToolkit::UnbindWindow( VistaWindow* pWindow )
+{
+	PopWindow();
 }
 
 bool VistaGlutWindowingToolkit::PushWindow( const VistaWindow* pWindow )
@@ -708,29 +1009,25 @@ bool VistaGlutWindowingToolkit::PushWindow( const VistaWindow* pWindow )
 	WindowInfoMap::const_iterator itWindowInfo =
 					m_mapWindowInfo.find( pWindow );
 	assert( itWindowInfo != m_mapWindowInfo.end() );
-	int iID = (*itWindowInfo).second->m_iWindowID;	
-
-	if( iID == -1 )
-	{
-		// okay, not initialized yet
-		return false;
-	}
-
-	if( m_iTmpWindowID == -1 )
-		m_iTmpWindowID = iID;
-	glutSetWindow( iID );
-	return true;
+	return PushWindow( (*itWindowInfo).second );	
 }
 
 bool VistaGlutWindowingToolkit::PushWindow( const GlutWindowInfo* pInfo )
 {
-	int iID = pInfo->m_iWindowID;	
+	int iID = pInfo->m_iWindowID;
+
+	if( pInfo->m_bIsOffscreenBuffer && pInfo->m_nFboId != 0 )
+	{
+		glBindFramebuffer( GL_FRAMEBUFFER, pInfo->m_nFboId );
+		m_iTmpWindowID = -1;
+		return true;
+	}
 
 	if( iID == -1 )
 	{
 		// okay, not initialized yet
 		return false;
-	}
+	} 
 
 	if( m_iTmpWindowID == -1 )
 		m_iTmpWindowID = iID;
@@ -744,7 +1041,11 @@ void VistaGlutWindowingToolkit::PopWindow()
 	{
 		glutSetWindow( m_iTmpWindowID );
 		m_iTmpWindowID = -1;
-	}	
+	}
+	else
+	{
+		glBindFramebuffer( GL_FRAMEBUFFER, 0);
+	}
 }
 
 bool VistaGlutWindowingToolkit::GetVSyncCanBeModified( const VistaWindow* pWindow  )

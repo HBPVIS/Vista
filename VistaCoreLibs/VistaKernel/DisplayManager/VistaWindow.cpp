@@ -167,7 +167,19 @@ VistaWindow::VistaWindowProperties *VistaWindow::GetWindowProperties() const
 	return static_cast<VistaWindowProperties*>(GetProperties());
 }
 
-namespace {
+
+bool VistaWindow::ReadRGBImage( std::vector< VistaType::byte >& vecData )
+{
+	return GetDisplayBridge()->GetWindowRGBImage( this, vecData );
+}
+
+bool VistaWindow::ReadDepthImage( std::vector< VistaType::byte >& vecData )
+{
+	return GetDisplayBridge()->GetWindowDepthImage( this, vecData );
+}
+
+namespace
+{
 	const std::string sSReflectionType("VistaWindow");
 	
 	IVistaPropertyGetFunctor *aCgFunctors[] =
@@ -193,6 +205,9 @@ namespace {
 		new TVistaPropertyGet<bool, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_BOOL>
 							("FULLSCREEN", sSReflectionType,
 							 &VistaWindow::VistaWindowProperties::GetFullScreen),
+		new TVistaPropertyGet<bool, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_BOOL>
+							("OFFSCREEN_BUFFER", sSReflectionType,
+							 &VistaWindow::VistaWindowProperties::GetIsOffscreenBuffer),
 		new TVistaPropertyGet<std::string, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_STRING>
 							("TITLE", sSReflectionType,
 							 &VistaWindow::VistaWindowProperties::GetTitle),
@@ -238,6 +253,9 @@ namespace {
 		new TVistaPropertySet<bool, bool, VistaWindow::VistaWindowProperties>
 							("FULLSCREEN", sSReflectionType,
 							 &VistaWindow::VistaWindowProperties::SetFullScreen),
+		new TVistaPropertySet<bool, bool, VistaWindow::VistaWindowProperties>
+							("OFFSCREEN_BUFFER", sSReflectionType,
+							 &VistaWindow::VistaWindowProperties::SetIsOffscreenBuffer),
 		new TVistaPropertySet<const std::string &, std::string, VistaWindow::VistaWindowProperties>
 							("TITLE", sSReflectionType,
 							 &VistaWindow::VistaWindowProperties::SetTitle),
@@ -455,14 +473,14 @@ bool VistaWindow::VistaWindowProperties::SetSize( const int w, const int h )
 /*============================================================================*/
 bool VistaWindow::VistaWindowProperties::GetFullScreen() const
 {
-	return GetDisplayBridge()->GetFullScreen(static_cast<VistaWindow*>(GetParent()));
+	return GetDisplayBridge()->GetWindowFullScreen(static_cast<VistaWindow*>(GetParent()));
 }
 
 bool VistaWindow::VistaWindowProperties::SetFullScreen(bool bFullScreen)
 {
 	if( bFullScreen != GetFullScreen() )
 	{
-		GetDisplayBridge()->SetFullScreen(bFullScreen, static_cast<VistaWindow*>(GetParent()));
+		GetDisplayBridge()->SetWindowFullScreen(bFullScreen, static_cast<VistaWindow*>(GetParent()));
 		Notify( MSG_FULLSCREEN_CHANGE );
 		return true;
 	}
@@ -554,5 +572,20 @@ int VistaWindow::VistaWindowProperties::GetVSyncEnabled() const
 {
 	VistaWindow *pW = static_cast<VistaWindow*>(GetParent());
 	return GetDisplayBridge()->GetWindowVSync( pW );
+}
+
+bool VistaWindow::VistaWindowProperties::GetIsOffscreenBuffer() const
+{
+	return GetDisplayBridge()->GetWindowIsOffscreenBuffer( static_cast<VistaWindow*>( GetParent() ) );
+}
+
+bool VistaWindow::VistaWindowProperties::SetIsOffscreenBuffer( const bool bSet )
+{
+	if( GetDisplayBridge()->SetWindowIsOffscreenBuffer( static_cast<VistaWindow*>( GetParent() ), bSet ) )
+	{
+		Notify( MSG_OFFSCREEN_BUFFER_CHANGE );
+		return true;
+	}
+	return false;
 }
 

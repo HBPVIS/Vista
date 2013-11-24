@@ -36,6 +36,7 @@
 
 #include <iostream>
 #include <list>
+#include <vector>
 
 /*============================================================================*/
 /* DEFINITIONS                                                                */
@@ -122,7 +123,7 @@ public:
 	 * but do so only! if you have a very good reason to do so (like defining your
 	 * own FrameLoop)
 	 */
-	virtual bool SetDisplayUpdateCallback( IVistaExplicitCallbackInterface* pCallback ) = 0;	
+	virtual bool SetDisplayUpdateCallback( IVistaExplicitCallbackInterface* pCallback ) = 0;
 
 	/*******************************************/
 	/* DisplaySystem Methods                   */
@@ -199,9 +200,13 @@ public:
 	virtual int GetWindowVSync( const VistaWindow* pTarget ) = 0;
 	virtual bool SetWindowVSync( bool bEnabled,
 									VistaWindow* pTarget ) = 0;
-	virtual bool SetFullScreen( bool bFullScreen,
+	virtual bool SetWindowFullScreen( bool bFullScreen,
 									VistaWindow* pTarget) = 0;
-	virtual bool GetFullScreen( const VistaWindow* pTarget ) = 0;
+	virtual bool GetWindowFullScreen( const VistaWindow* pTarget ) = 0;
+	virtual bool GetWindowIsOffscreenBuffer( const VistaWindow* pWindow  ) const = 0;
+	virtual bool SetWindowIsOffscreenBuffer( VistaWindow* pWindow, const bool bSet ) = 0;
+	virtual bool GetWindowRGBImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData ) = 0;
+	virtual bool GetWindowDepthImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData ) = 0;
 	virtual int GetWindowId( const VistaWindow* pTarget ) = 0;
 	virtual std::string GetWindowTitle( const VistaWindow* pTarget ) = 0;
 	virtual bool SetWindowTitle( const std::string& strTitle,

@@ -81,9 +81,9 @@ public:
 	
 	virtual std::string GetWindowTitle( const VistaWindow* pWindow  );
 	virtual bool SetWindowTitle( VistaWindow* pWindow, const std::string& sTitle );
-
+	
+	virtual bool GetCursorIsEnabled( const VistaWindow* pWindow  ) const;
 	virtual bool SetCursorIsEnabled( VistaWindow* pWindow, bool bSet );
-	virtual bool GetCursorIsEnabled( const VistaWindow* pWindow  );
 
 	virtual bool GetUseStereo( const VistaWindow* pWindow  ) const;
 	virtual bool SetUseStereo( VistaWindow* pWindow, const bool bSet );
@@ -96,6 +96,12 @@ public:
 
 	virtual bool GetDrawBorder( const VistaWindow* pWindow  ) const;
 	virtual bool SetDrawBorder( VistaWindow* pWindow, const bool bSet );
+
+	virtual bool GetUseOffscreenBuffer( const VistaWindow* pWindow  ) const;
+	virtual bool SetUseOffscreenBuffer( VistaWindow* pWindow, const bool bSet );
+
+	virtual bool GetRGBImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData );
+	virtual bool GetDepthImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData );
 
 	enum
 	{
@@ -113,7 +119,8 @@ public:
 
 	virtual int GetWindowId( const VistaWindow* pWindow  ) const;	
 
-	void BindWindow( VistaWindow* pWindow );	
+	virtual void BindWindow( VistaWindow* pWindow );
+	virtual void UnbindWindow( VistaWindow* pWindow );
 
 private:
 	bool PushWindow( const VistaWindow* pWindow );
@@ -129,6 +136,9 @@ private:
 	IVistaExplicitCallbackInterface*	m_pUpdateCallback;
 	int									m_iTmpWindowID;
 	int									m_iGlobalVSyncAvailability;
+
+	bool								m_bHasFullWindow;
+	int									m_nDummyWindowId;
 };
 
 /*============================================================================*/

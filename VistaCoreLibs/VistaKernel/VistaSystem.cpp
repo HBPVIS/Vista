@@ -70,6 +70,7 @@
 #include <VistaBase/VistaDefaultTimerImp.h>
 #include <VistaBase/VistaStreamUtils.h>
 #include <VistaBase/VistaExceptionBase.h>
+#include <VistaBase/VistaUtilityMacros.h>
 
 #include <VistaTools/VistaEnvironment.h>
 #include <VistaTools/VistaTopologyGraph.h>
@@ -378,6 +379,7 @@ VistaSystem::VistaSystem()
 , m_iInitProgressIndicator( -1 )
 , m_pFramerateDisplay( NULL )
 , m_bAllowStreamColors( true )
+, m_bRecordOnlyMaster( false )
 {
 	VddUtil::InitVdd();
 
@@ -876,8 +878,12 @@ void VistaSystem::CreateClusterMode()
 		{
 			vstr::outi() << "[CreateClusterMode]: explicit replay file was set, changing from Standalone"
 							" to NewClusterMaster" << std::endl;
+			m_nClusterNodeType = VistaClusterMaster::NT_MASTER;
+			m_bUseNewClusterMaster = true;
+			m_bRecordOnlyMaster = true;
+			m_sClusterNodeName = "SYSTEM";
 		}
-		if( m_nClusterNodeType != VistaClusterMaster::NT_MASTER || m_bUseNewClusterMaster == false )
+		else if( m_nClusterNodeType != VistaClusterMaster::NT_MASTER || m_bUseNewClusterMaster == false )
 		{
 			vstr::warnp() << "[CreateClusterMode]: explicit replay file was set, but config is neither"
 							"  Standalone nor NewClusterMaster - recording ignored" << std::endl;
@@ -947,7 +953,10 @@ bool VistaSystem::SetupCluster()
 	IndicateSystemProgress( "Setup Cluster", false );
 	vstr::IndentObject oIndent;
 
-	return m_pClusterMode->Init( m_sClusterNodeName, m_oClusterConfig );
+	if( m_bRecordOnlyMaster )
+		return Vista::assert_cast<VistaNewClusterMaster*>( m_pClusterMode )->Init( m_sRecordFile );	
+	else
+		return m_pClusterMode->Init( m_sClusterNodeName, m_oClusterConfig );
 }
 
 bool VistaSystem::LoadIniFiles()
@@ -2179,7 +2188,7 @@ void VistaSystem::CreateDeviceDrivers()
 					if( oSensor.GetValue<int>( "RAWID", nRawId ) == false )
 					{
 						vstr::warnp() << "[SensorMappingConfiguator]: Driver requests sensor ["
-										<< (*itSensor) << ", which has no RAWID entry" << std::endl;
+										<< (*itSensor) << "] which has no RAWID entry" << std::endl;
 						continue;
 					}
 
@@ -2629,7 +2638,12 @@ bool VistaSystem::ArgHelpMsg (const std::string& sAppName, std::ostream *pStream
 	PrintMsg("-interactionini <IniFileName> : use the specified initialization file for INTERACTION settings\n", pStream);
 	PrintMsg("-clusterini <IniFileName>     : use the specified initialization file for CLUSTER settings\n", pStream);
 	PrintMsg("-inisearchpath {(<path>{,})*}<path>: use the specified, comma-separated search paths for ini files\n", pStream);
-
+	PrintMsg("-record <path>                : record the session and write it to the specified folder\n", pStream);
+	PrintMsg("-replay <path>                : replay a recorded session written to the specified folder\n", pStream);
+	PrintMsg("-kill_after_frame <frames>    : ends application after the specified amount of frames\n", pStream);
+	PrintMsg("-kill_after_time <path>       : ends application after the specified time\n", pStream);
+	PrintMsg("-disable_stream_colors        : disables the use of stream colors when parsing stream configs\n", pStream);
+	
 	PrintMsg("-h|help                 : this message\n", pStream);
 	PrintMsg("--------------------\n", pStream);
 	PrintMsg("\n\n\n", pStream);
@@ -3219,7 +3233,7 @@ void VistaSystem::CreateFramerateDisplay()
 	{
 		if( m_oGraphicsConfig.HasSubList( sFramerateSection ) == false )
 		{
-			vstr::warnp() << "Could not fint section [" << sFramerateSection
+			vstr::warnp() << "Could not find section [" << sFramerateSection
 				<< "] containing the framerate display config" << std::endl;
 			m_pFramerateDisplay = new VistaFramerateDisplay( m_pDisplayManager, m_pFrameLoop );
 		}

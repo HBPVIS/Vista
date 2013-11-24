@@ -22,7 +22,7 @@
 /*============================================================================*/
 // $Id$
 
-#if !defined _VISTAWINDOW_H
+#ifndef _VISTAWINDOW_H
 #define _VISTAWINDOW_H
 
 
@@ -74,11 +74,25 @@ public:
 	virtual void Debug ( std::ostream & out ) const;
 
 	/**
+	 * Reads the RGB data from the current framebuffer, and writes
+	 * the data into vecData. Format is three bytes per pixel, one
+	 * each for R, G, and B.
+	 */
+	bool ReadRGBImage( std::vector< VistaType::byte >& vecData );
+	/**
+	 * Reads the Depth data from the current framebuffer, and writes
+	 * the data into vecData. Format is four bytes per pixel, representing
+	 * a float describing the pixels depth.
+	 */
+	bool ReadDepthImage( std::vector< VistaType::byte >& vecData );
+
+	/**
 	 * Get/set window properties. The following keys are understood:
 	 *
 	 * STEREO               -   [bool]
 	 * USE_ACCUM_BUFFER     -   [bool]
 	 * USE_STENCIL_BUFFER   -   [bool]
+	 * OFFSCREEN_BUFFER     -   [bool]
 	 * STEREO               -   [bool]
 	 * DRAW_BORDER          -   [bool]
 	 * POSITION             -   [list of ints - 2 items]
@@ -101,6 +115,7 @@ public:
 			MSG_STEREO_CHANGE = IVistaDisplayEntityProperties::MSG_LAST,
 			MSG_ACCUM_BUFFER_CHANGE,
 			MSG_STENCIL_BUFFER_CHANGE,
+			MSG_OFFSCREEN_BUFFER_CHANGE,
 			MSG_POSITION_CHANGE,
 			MSG_SIZE_CHANGE,
 			MSG_FULLSCREEN_CHANGE,
@@ -133,8 +148,8 @@ public:
 		bool SetFullScreen(bool bFullScreen);
 		bool GetFullScreen() const;
 
-		bool Set(bool bFullScreen);
-		bool GetFullScreenCustomResolution() const;
+		bool GetIsOffscreenBuffer() const;
+		bool SetIsOffscreenBuffer( const bool bSet );
 
 		/**
 		 * returns the vsync mode:

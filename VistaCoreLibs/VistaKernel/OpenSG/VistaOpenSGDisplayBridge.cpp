@@ -1703,15 +1703,36 @@ int VistaOpenSGDisplayBridge::GetWindowVSync( const VistaWindow* pTarget )
 	return m_pWindowingToolkit->GetVSyncMode( pTarget );	
 }
 
-bool VistaOpenSGDisplayBridge::SetFullScreen( bool bFullScreen, VistaWindow* pTarget )
+bool VistaOpenSGDisplayBridge::SetWindowFullScreen( bool bFullScreen, VistaWindow* pTarget )
 {
 	return m_pWindowingToolkit->SetFullscreen( pTarget, bFullScreen );
 }
 
-bool VistaOpenSGDisplayBridge::GetFullScreen( const VistaWindow* pTarget )
+bool VistaOpenSGDisplayBridge::GetWindowFullScreen( const VistaWindow* pTarget )
 {
 	return m_pWindowingToolkit->GetFullscreen( pTarget );
 }
+
+bool VistaOpenSGDisplayBridge::GetWindowIsOffscreenBuffer( const VistaWindow* pWindow ) const
+{
+	return m_pWindowingToolkit->GetUseOffscreenBuffer( pWindow );
+}
+
+bool VistaOpenSGDisplayBridge::SetWindowIsOffscreenBuffer( VistaWindow* pWindow, const bool bSet )
+{
+	return m_pWindowingToolkit->SetUseOffscreenBuffer( pWindow, bSet );
+}
+
+bool VistaOpenSGDisplayBridge::GetWindowRGBImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData )
+{
+	return m_pWindowingToolkit->GetRGBImage( pWindow, vecData );
+}
+
+bool VistaOpenSGDisplayBridge::GetWindowDepthImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData )
+{
+	return m_pWindowingToolkit->GetDepthImage( pWindow, vecData );
+}
+
 
 bool VistaOpenSGDisplayBridge::SetWindowTitle( const std::string& sTitle, VistaWindow* pTarget )
 {

@@ -86,7 +86,6 @@ class IVistaWindowingToolkit;
 class VISTAKERNELAPI VistaOpenSGDisplayBridge : public IVistaDisplayBridge
 {
 public:
-
 	// forward declarations of local classes
 	class DisplaySystemData;
 	class DisplayData;
@@ -211,9 +210,13 @@ public:
 	virtual bool SetWindowVSync( bool bEnabled,
 									VistaWindow* pTarget );
 	virtual int GetWindowVSync( const VistaWindow* pTarget );
-	virtual bool SetFullScreen( bool bFullScreen,
+	virtual bool SetWindowFullScreen( bool bFullScreen,
 									VistaWindow* pTarget);
-	virtual bool GetFullScreen( const VistaWindow* pTarget );
+	virtual bool GetWindowFullScreen( const VistaWindow* pTarget );
+	virtual bool GetWindowIsOffscreenBuffer( const VistaWindow* pWindow  ) const;
+	virtual bool SetWindowIsOffscreenBuffer( VistaWindow* pWindow, const bool bSet );
+	virtual bool GetWindowRGBImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData );
+	virtual bool GetWindowDepthImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData );
 	virtual int GetWindowId( const VistaWindow* pTarget );
 	virtual bool SetWindowTitle( const std::string& strTitle,
 									VistaWindow* pTarget );
@@ -376,12 +379,6 @@ public:
 		WindowData();
 		virtual ~WindowData();
 
-		//std::string GetTitle() const;
-		//bool GetDrawBorder() const;
-		//bool GetFullScreen() const;
-		//bool GetStereo() const;
-		//bool GetAccumBufferEnabled() const;
-		//bool GetStencilBufferEnabled() const;
 		osg::WindowPtr GetOpenSGWindow() const;
 		void ObserveWindow( VistaWindow* pWindow, VistaOpenSGDisplayBridge* pBridge );
 
@@ -389,16 +386,7 @@ public:
 	private:
 		class WindowObserver;
 		WindowObserver*	m_pObserver;
-		//std::string				m_sTitle;
-		//bool					m_bDrawBorder;
-		//bool					m_bFullScreen;
-		//bool					m_bStereo;
-		//bool					m_bStencilBufferEnabled;
-		//bool					m_bAccumBufferEnabled;
 		osg::PassiveWindowRefPtr  m_ptrWindow;
-		//int						m_iOrigPosX, m_iOrigPosY;
-		//int						m_iOrigSizeX, m_iOrigSizeY;
-		//int						m_iCurrentSizeX, m_iCurrentSizeY;
 		osg::FileGrabForegroundRefPtr m_ptrFileGrabber;
 		osg::ImageRefPtr			m_ptrFileGrabberImage;
 	};
@@ -417,11 +405,11 @@ public:
 
 		bool GetStereo() const;
 
-		osg::ViewportPtr GetOpenSGViewport()      const ;
-		osg::ViewportPtr GetOpenSGRightViewport() const ;
-		osg::VistaOpenSGTextForegroundPtr GetTextForeground() const ;
+		osg::ViewportPtr GetOpenSGViewport() const;
+		osg::ViewportPtr GetOpenSGRightViewport() const;
+		osg::VistaOpenSGTextForegroundPtr GetTextForeground() const;
 		osg::VistaOpenSGGLOverlayForegroundPtr GetOverlayForeground() const;
-		osg::SolidBackgroundPtr GetSolidBackground() const ;
+		osg::SolidBackgroundPtr GetSolidBackground() const;
 		osg::PassiveBackgroundPtr GetPassiveBackground() const;
 
 		/**

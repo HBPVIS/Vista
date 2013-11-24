@@ -38,6 +38,7 @@ vista_set_version( VistaCoreLibs HEAD HEAD svn_rev )
 vista_find_package( OpenGL QUIET )
 vista_find_package( OpenSG 1.8 QUIET )
 vista_find_package( GLUT QUIET )
+vista_find_package( GLEW QUIET )
 
 set( BUILD_KERNEL_DEFAULT OFF )
 
