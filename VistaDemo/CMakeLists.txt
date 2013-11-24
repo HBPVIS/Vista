@@ -33,6 +33,7 @@ vista_conditional_add_subdirectory( VISTADEMO_BUILD_18DEBUGGINGTOOLSDEMO 18Debug
 vista_conditional_add_subdirectory( VISTADEMO_BUILD_19TIMEDEMO 19TimeDemo ON )
 vista_conditional_add_subdirectory( VISTADEMO_BUILD_20PYTHONDFNDEMO 20PythonDFNDemo OFF )
 vista_conditional_add_subdirectory( VISTADEMO_BUILD_21CLUSTERMODEDEMO 21ClusterModeDemo ON )
+vista_conditional_add_subdirectory( VISTADEMO_BUILD_22RECORDREPLAYDEMO 22RecordReplayDemo ON )
 
 vista_add_external_msvc_project_of_package( VistaCoreLibs "ExternalLibs" )
 
