@@ -1,4 +1,4 @@
-# $Id: $
+# $Id$
 
 set( RelativeDir "." )
 set( RelativeSourceGroup "Source Files" )
