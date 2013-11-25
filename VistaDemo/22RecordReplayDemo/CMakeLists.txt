@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 39462 2013-11-24 20:10:20Z dr165799 $
+# $Id$
 
 cmake_minimum_required( VERSION 2.8 )
 if( NOT VISTADEMO_COMMON_BUILD )
