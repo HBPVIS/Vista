@@ -71,15 +71,15 @@ public:
 
 	virtual bool SetWindowUpdateCallback( IVistaExplicitCallbackInterface* pCallback );
 
-	virtual bool GetWindowPosition( const VistaWindow* pWindow, int &iX, int& iY  );
+	virtual bool GetWindowPosition( const VistaWindow* pWindow, int &iX, int& iY ) const;
 	virtual bool SetWindowPosition( VistaWindow* pWindow, const int iX , const int iY );
-	virtual bool GetWindowSize( const VistaWindow* pWindow, int& iWidth, int& iHeight  );
+	virtual bool GetWindowSize( const VistaWindow* pWindow, int& iWidth, int& iHeight ) const;
 	virtual bool SetWindowSize( VistaWindow* pWindow, const int iWidth, const int iHeight );
 
 	virtual bool GetFullscreen( const VistaWindow* pWindow  ) const;
 	virtual bool SetFullscreen( VistaWindow* pWindow, const bool bSet );	
 	
-	virtual std::string GetWindowTitle( const VistaWindow* pWindow  );
+	virtual std::string GetWindowTitle( const VistaWindow* pWindow ) const;
 	virtual bool SetWindowTitle( VistaWindow* pWindow, const std::string& sTitle );
 	
 	virtual bool GetCursorIsEnabled( const VistaWindow* pWindow  ) const;
@@ -100,8 +100,8 @@ public:
 	virtual bool GetUseOffscreenBuffer( const VistaWindow* pWindow  ) const;
 	virtual bool SetUseOffscreenBuffer( VistaWindow* pWindow, const bool bSet );
 
-	virtual bool GetRGBImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData );
-	virtual bool GetDepthImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData );
+	virtual bool GetRGBImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData ) const;
+	virtual bool GetDepthImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData ) const;
 
 	enum
 	{
@@ -123,9 +123,9 @@ public:
 	virtual void UnbindWindow( VistaWindow* pWindow );
 
 private:
-	bool PushWindow( const VistaWindow* pWindow );
-	bool PushWindow( const GlutWindowInfo* pInfo );
-	void PopWindow();
+	bool PushWindow( const VistaWindow* pWindow ) const;
+	bool PushWindow( const GlutWindowInfo* pInfo ) const;
+	void PopWindow() const;
 	bool CheckVSyncAvailability();
 
 	GlutWindowInfo* GetWindowInfo( const VistaWindow* pWindow  ) const;
@@ -134,7 +134,7 @@ private:
 	WindowInfoMap						m_mapWindowInfo;
 	bool								m_bQuitLoop;
 	IVistaExplicitCallbackInterface*	m_pUpdateCallback;
-	int									m_iTmpWindowID;
+	mutable int							m_iTmpWindowID;
 	int									m_iGlobalVSyncAvailability;
 
 	bool								m_bHasFullWindow;

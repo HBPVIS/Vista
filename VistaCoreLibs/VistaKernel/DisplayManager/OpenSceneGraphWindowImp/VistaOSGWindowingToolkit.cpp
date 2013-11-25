@@ -35,6 +35,7 @@
 
 #include <VistaAspects/VistaExplicitCallbackInterface.h>
 #include <VistaBase/VistaStreamUtils.h>
+#include "VistaBase/VistaUtilityMacros.h"
 
 #include <osgViewer/GraphicsWindow>
 
@@ -311,7 +312,7 @@ bool VistaOSGWindowingToolkit::SetWindowUpdateCallback(
 	return true;
 }
 bool VistaOSGWindowingToolkit::GetWindowPosition( const VistaWindow* pWindow,
-												  int &iX, int& iY )
+												  int &iX, int& iY ) const
 {
 	OSGWindowInfo* pInfo = GetWindowInfo( pWindow );
 	if( pInfo->m_pOSGWindow )
@@ -359,7 +360,7 @@ bool VistaOSGWindowingToolkit::SetWindowPosition( VistaWindow* pWindow,
 }
 
 bool VistaOSGWindowingToolkit::GetWindowSize( const VistaWindow* pWindow,
-											  int& iWidth, int& iHeight )
+											  int& iWidth, int& iHeight ) const
 {
 	OSGWindowInfo* pInfo = GetWindowInfo( pWindow );
 	if( pInfo->m_pOSGWindow )
@@ -458,7 +459,7 @@ bool VistaOSGWindowingToolkit::SetWindowTitle( VistaWindow* pWindow,
 	return true;
 }
 
-std::string VistaOSGWindowingToolkit::GetWindowTitle( const VistaWindow* pWindow  )
+std::string VistaOSGWindowingToolkit::GetWindowTitle( const VistaWindow* pWindow  ) const
 {
 	OSGWindowInfo* pInfo = GetWindowInfo( pWindow );
 	return pInfo->m_sWindowTitle;
@@ -492,7 +493,7 @@ bool VistaOSGWindowingToolkit::SetCursorIsEnabled( VistaWindow* pWindow, bool bS
 	}
 	return true;
 }
-bool VistaOSGWindowingToolkit::GetCursorIsEnabled( const VistaWindow* pWindow  )
+bool VistaOSGWindowingToolkit::GetCursorIsEnabled( const VistaWindow* pWindow  ) const
 {
 	OSGWindowInfo* pInfo = GetWindowInfo( pWindow );
 	return pInfo->m_bCursorEnabled;
@@ -580,6 +581,11 @@ void VistaOSGWindowingToolkit::BindWindow( VistaWindow* pWindow )
 	GetWindowInfo( pWindow )->m_pOSGWindow->makeCurrent();
 }
 
+void VistaOSGWindowingToolkit::UnbindWindow( VistaWindow* pWindow )
+{
+	// nothing to do: always the same context, and no FBOs
+}
+
 
 bool VistaOSGWindowingToolkit::GetVSyncCanBeModified( const VistaWindow* pWindow  )
 {
@@ -634,6 +640,26 @@ osgViewer::GraphicsWindow* VistaOSGWindowingToolkit::GetOsgWindowForWindow( cons
 	if( itWindow == m_mapWindowInfo.end() )
 		VISTA_THROW( "Requested OsgWindow from invalid Window", -1 );
 	return (*itWindow).second->m_pOSGWindow;
+}
+
+bool VistaOSGWindowingToolkit::GetUseOffscreenBuffer( const VistaWindow* pWindow ) const
+{
+	VISTA_FUNCTION_NOT_IMPLEMENTED( "::VistaOSGWindowingToolkit::GetUseOffscreenBuffer( pWindow )" );
+}
+
+bool VistaOSGWindowingToolkit::SetUseOffscreenBuffer( VistaWindow* pWindow, const bool bSet )
+{
+	VISTA_FUNCTION_NOT_IMPLEMENTED( "::VistaOSGWindowingToolkit::SetUseOffscreenBuffer( pWindow, bSet )" );
+}
+
+bool VistaOSGWindowingToolkit::GetRGBImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData ) const
+{
+	VISTA_FUNCTION_NOT_IMPLEMENTED( "::VistaOSGWindowingToolkit::GetRGBImage( pWindow, vecData )" );
+}
+
+bool VistaOSGWindowingToolkit::GetDepthImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData ) const
+{
+	VISTA_FUNCTION_NOT_IMPLEMENTED( "::VistaOSGWindowingToolkit::GetDepthImage( pWindow, vecData )" );
 }
 
 

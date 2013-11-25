@@ -85,21 +85,21 @@ public:
 
 	virtual bool SetWindowUpdateCallback( IVistaExplicitCallbackInterface* pCallback );
 
-	virtual bool GetWindowPosition( const VistaWindow* pWindow, int &iX, int& iY  );
+	virtual bool GetWindowPosition( const VistaWindow* pWindow, int &iX, int& iY  ) const;
 	virtual bool SetWindowPosition( VistaWindow* pWindow, const int iX , const int iY );
-	virtual bool GetWindowSize( const VistaWindow* pWindow, int& iWidth, int& iHeight  );
+	virtual bool GetWindowSize( const VistaWindow* pWindow, int& iWidth, int& iHeight ) const;
 	virtual bool SetWindowSize( VistaWindow* pWindow, const int iWidth, const int iHeight );
 
 	virtual bool GetFullscreen( const VistaWindow* pWindow  ) const;
 	virtual bool SetFullscreen( VistaWindow* pWindow, const bool bSet );	
 	
-	virtual std::string GetWindowTitle( const VistaWindow* pWindow  );
+	virtual std::string GetWindowTitle( const VistaWindow* pWindow  ) const;
 	virtual bool SetWindowTitle( VistaWindow* pWindow, const std::string& sTitle );
 
-	virtual bool SetCursorIsEnabled( VistaWindow* pWindow, bool bSet ) const;
-	virtual bool GetCursorIsEnabled( const VistaWindow* pWindow  );
-
-	virtual bool GetUseStereo( const VistaWindow* pWindow  ) const;
+	virtual bool GetCursorIsEnabled( const VistaWindow* pWindow  )const;
+	virtual bool SetCursorIsEnabled( VistaWindow* pWindow, bool bSet );
+	
+	virtual bool GetUseStereo( const VistaWindow* pWindow ) const;
 	virtual bool SetUseStereo( VistaWindow* pWindow, const bool bSet );
 
 	virtual bool GetUseAccumBuffer( const VistaWindow* pWindow  ) const;
@@ -122,12 +122,18 @@ public:
 	virtual bool GetDrawBorder( const VistaWindow* pWindow ) const;
 	virtual bool SetDrawBorder( VistaWindow* pWindow, const bool bSet );
 	
+	virtual bool GetUseOffscreenBuffer( const VistaWindow* pWindow ) const;
+	virtual bool SetUseOffscreenBuffer( VistaWindow* pWindow, const bool bSet );
+
+	virtual bool GetRGBImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData ) const;
+	virtual bool GetDepthImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData ) const;
 
 	virtual IVistaTextEntity* CreateTextEntity();
 
 	virtual int GetWindowId( const VistaWindow* pWindow  ) const;	
 
 	void BindWindow( VistaWindow* pWindow );
+	virtual void UnbindWindow( VistaWindow* pWindow );
 
 	// Toolkit-specific, returns Events @OSGTODO void-ptr, because
 	// include would have double-class-definitions due to two osg namespaces
@@ -136,6 +142,8 @@ public:
 
 private:
 	OSGWindowInfo* GetWindowInfo( const VistaWindow* pWindow  ) const;
+
+
 
 
 private:	

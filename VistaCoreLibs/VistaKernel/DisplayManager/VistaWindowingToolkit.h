@@ -104,16 +104,16 @@ public:
 	 */
 	virtual bool SetWindowUpdateCallback( IVistaExplicitCallbackInterface* pCallback ) = 0;
 
-	virtual bool GetWindowPosition( const VistaWindow* pWindow, int &iX, int& iY  ) = 0;
+	virtual bool GetWindowPosition( const VistaWindow* pWindow, int &iX, int& iY  ) const = 0;
 	virtual bool SetWindowPosition( VistaWindow* pWindow, const int iX , const int iY ) = 0;
 
-	virtual bool GetWindowSize( const VistaWindow* pWindow, int& iWidth, int& iHeight  ) = 0;
+	virtual bool GetWindowSize( const VistaWindow* pWindow, int& iWidth, int& iHeight ) const = 0;
 	virtual bool SetWindowSize( VistaWindow* pWindow, const int iWidth, const int iHeight ) = 0;
 	
-	virtual bool GetFullscreen( const VistaWindow* pWindow  )const = 0;
+	virtual bool GetFullscreen( const VistaWindow* pWindow  ) const = 0;
 	virtual bool SetFullscreen( VistaWindow* pWindow, const bool bSet ) = 0;
 
-	virtual std::string GetWindowTitle( const VistaWindow* pWindow  ) = 0;
+	virtual std::string GetWindowTitle( const VistaWindow* pWindow  ) const= 0;
 	virtual bool SetWindowTitle( VistaWindow* pWindow, const std::string& sTitle ) = 0;
 
 	virtual bool GetVSyncCanBeModified( const VistaWindow* pWindow  ) = 0;
@@ -138,8 +138,8 @@ public:
 	virtual bool GetUseOffscreenBuffer( const VistaWindow* pWindow  ) const = 0;
 	virtual bool SetUseOffscreenBuffer( VistaWindow* pWindow, const bool bSet ) = 0;
 
-	virtual bool GetRGBImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData  ) = 0;
-	virtual bool GetDepthImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData ) = 0;
+	virtual bool GetRGBImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData  ) const = 0;
+	virtual bool GetDepthImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData ) const = 0;
 
 	/**
 	 * Bind sets the current window as target for rendering

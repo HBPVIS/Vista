@@ -560,7 +560,7 @@ bool VistaGlutWindowingToolkit::SetWindowUpdateCallback(
 	return true;
 }
 bool VistaGlutWindowingToolkit::GetWindowPosition( const VistaWindow* pWindow,
-												  int &iX, int& iY )
+												  int &iX, int& iY ) const
 {
 	if( PushWindow( pWindow ) )
 	{
@@ -611,7 +611,7 @@ bool VistaGlutWindowingToolkit::SetWindowPosition( VistaWindow* pWindow,
 }
 
 bool VistaGlutWindowingToolkit::GetWindowSize( const VistaWindow* pWindow,
-											  int& iWidth, int& iHeight )
+											  int& iWidth, int& iHeight ) const
 {
 	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
 	iWidth = pInfo->m_iCurrentSizeX;
@@ -749,7 +749,7 @@ bool VistaGlutWindowingToolkit::SetWindowTitle( VistaWindow* pWindow,
 	return true;
 }
 
-std::string VistaGlutWindowingToolkit::GetWindowTitle( const VistaWindow* pWindow  )
+std::string VistaGlutWindowingToolkit::GetWindowTitle( const VistaWindow* pWindow ) const
 {
 	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
 	return pInfo->m_sWindowTitle;
@@ -930,7 +930,7 @@ bool VistaGlutWindowingToolkit::SetUseOffscreenBuffer( VistaWindow* pWindow, con
 	return true;
 }
 
-bool VistaGlutWindowingToolkit::GetRGBImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData )
+bool VistaGlutWindowingToolkit::GetRGBImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData ) const
 {
 	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
 	if( PushWindow( pInfo ) == false )
@@ -957,7 +957,7 @@ bool VistaGlutWindowingToolkit::GetRGBImage( const VistaWindow* pWindow, std::ve
 	return true;
 }
 
-bool VistaGlutWindowingToolkit::GetDepthImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData )
+bool VistaGlutWindowingToolkit::GetDepthImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData ) const
 {
 	GlutWindowInfo* pInfo = GetWindowInfo( pWindow );
 	if( PushWindow( pInfo ) == false )
@@ -1004,7 +1004,7 @@ void VistaGlutWindowingToolkit::UnbindWindow( VistaWindow* pWindow )
 	PopWindow();
 }
 
-bool VistaGlutWindowingToolkit::PushWindow( const VistaWindow* pWindow )
+bool VistaGlutWindowingToolkit::PushWindow( const VistaWindow* pWindow ) const
 {
 	WindowInfoMap::const_iterator itWindowInfo =
 					m_mapWindowInfo.find( pWindow );
@@ -1012,7 +1012,7 @@ bool VistaGlutWindowingToolkit::PushWindow( const VistaWindow* pWindow )
 	return PushWindow( (*itWindowInfo).second );	
 }
 
-bool VistaGlutWindowingToolkit::PushWindow( const GlutWindowInfo* pInfo )
+bool VistaGlutWindowingToolkit::PushWindow( const GlutWindowInfo* pInfo ) const
 {
 	int iID = pInfo->m_iWindowID;
 
@@ -1035,7 +1035,7 @@ bool VistaGlutWindowingToolkit::PushWindow( const GlutWindowInfo* pInfo )
 	return true;
 }
 
-void VistaGlutWindowingToolkit::PopWindow()
+void VistaGlutWindowingToolkit::PopWindow() const
 {
 	if( m_iTmpWindowID != -1 )
 	{
@@ -1044,7 +1044,7 @@ void VistaGlutWindowingToolkit::PopWindow()
 	}
 	else
 	{
-		glBindFramebuffer( GL_FRAMEBUFFER, 0);
+		glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	}
 }
 
