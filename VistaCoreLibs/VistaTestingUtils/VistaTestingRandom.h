@@ -129,7 +129,7 @@ namespace VistaTestingRandom
 							GenerateRandom<float>(), GenerateRandom<float>(), GenerateRandom<float>(), GenerateRandom<float>() );
 	}
 
-	inline VistaPropertyList GenerateRandomProplist( unsigned int nMaxRecursionDepth = -1 )
+	inline VistaPropertyList GenerateRandomProplist( int nMaxRecursionDepth = -1 )
 	{
 		VistaPropertyList oPropList;
 		int nNumEntries = GetRNG()->GenerateInt32( 3, 20 );

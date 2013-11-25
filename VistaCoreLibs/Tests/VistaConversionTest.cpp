@@ -51,7 +51,7 @@ inline void TestStringConversion()
 	for( int i = 0; i < S_nNumIterations; ++i )
 	{
 		SCOPED_TRACE( "Iteration: " + VistaConversion::ToString( i ) );
-		char cSeparator = S_acSeparators[ VistaTestingRandom::RandomInt(4) ];
+		char cSeparator = S_acSeparators[ VistaTestingRandom::RandomInt(3) ];
 		T oOrig = VistaTestingRandom::GenerateRandom<T>();
 		T oNew;
 		std::string sValue = VistaConversion::ToString( oOrig, cSeparator );
@@ -69,7 +69,7 @@ inline void TestStringConversionContainers()
 	for( int i = 0; i < S_nNumIterations; ++i )
 	{
 		SCOPED_TRACE( "Iteration: " + VistaConversion::ToString( i ) );
-		char cSeparator = S_acSeparators[ VistaTestingRandom::RandomInt(4) ];
+		char cSeparator = S_acSeparators[ VistaTestingRandom::RandomInt(3) ];
 		int nSize = VistaTestingRandom::RandomInt( 20 );
 		std::list<T> liTest, liTestRes;
 		std::vector<T> vecTest, vecTestRes;
