@@ -83,6 +83,7 @@ class VistaUserPlatform;
 class VistaDisplaySystem;
 class VistaInteractionContext;
 class VistaRuntimeLimiter;
+class VistaFrameSeriesCapture;
 
 class VdfnGraph;
 
@@ -299,6 +300,10 @@ private:
 	bool						m_bRecordOnlyMaster;
 	std::string					m_sRecordFile;
 	std::string					m_sApplicationName;
+
+	int							m_eFrameCaptureMode;
+	double						m_nFrameCaptureParameter;
+	std::vector< VistaFrameSeriesCapture* >	m_vecFrameCaptures;
 
 	VistaPropertyList			m_oVistaConfig;
 	VistaPropertyList			m_oGraphicsConfig;

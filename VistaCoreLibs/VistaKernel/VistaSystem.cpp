@@ -58,6 +58,7 @@
 #include <VistaKernel/Stuff/VistaKernelProfiling.h>
 #include <VistaKernel/Stuff/VistaFramerateDisplay.h>
 #include <VistaKernel/Stuff/VistaRuntimeLimiter.h>
+#include <VistaKernel/Stuff/VistaFrameSeriesCapture.h>
 
 #include <VistaKernel/GraphicsManager/VistaGraphicsManager.h>
 #include <VistaKernel/GraphicsManager/VistaSceneGraph.h>
@@ -380,6 +381,8 @@ VistaSystem::VistaSystem()
 , m_pFramerateDisplay( NULL )
 , m_bAllowStreamColors( true )
 , m_bRecordOnlyMaster( false )
+, m_eFrameCaptureMode( -1 )
+, m_nFrameCaptureParameter( -1 )
 {
 	VddUtil::InitVdd();
 
@@ -537,6 +540,12 @@ VistaSystem::~VistaSystem()
 	delete m_pFrameLoop;
 	delete m_pClusterMode;
 	delete m_pRuntimeLimiter;
+
+	for( std::vector< VistaFrameSeriesCapture* >::iterator itCapture = m_vecFrameCaptures.begin();
+			itCapture != m_vecFrameCaptures.end(); ++itCapture )
+	{
+		delete (*itCapture);
+	}
 
 	delete m_pEventManager;
 
@@ -1154,6 +1163,44 @@ bool VistaSystem::SetupDisplayManager()
 										( m_pClusterMode->GetIsLeader() ) ? ( true ) : ( false ) );
 
 	m_pDisplayManager->GetDisplayBridge()->SetShowCursor( bShowCursor );
+
+	if( m_eFrameCaptureMode != -1 )
+	{
+		const std::map< std::string, VistaWindow* >& mapWindows = GetDisplayManager()->GetWindowsConstRef();
+		for( std::map< std::string, VistaWindow* >::const_iterator itWin = mapWindows.begin();
+				itWin != mapWindows.end(); ++itWin )
+		{
+			std::string sFolder = "screenshots/series_%D%_%T%_" + (*itWin).first;
+			std::string sFile = "screenshot_%S%_%D%.%M%.png";
+			if( GetClusterMode()->GetNumberOfNodes() > 1 )
+				sFolder += "_" + GetClusterMode()->GetNodeName();
+			VistaFrameSeriesCapture* pCapture = new VistaFrameSeriesCapture( this, (*itWin).second, true );
+			switch( m_eFrameCaptureMode )
+			{
+				case VistaFrameSeriesCapture::CM_EVERY_FRAME:
+				{
+					pCapture->InitCaptureEveryFrame( sFolder, sFile );
+					break;
+				}
+				case VistaFrameSeriesCapture::CM_EVERY_NTH_FRAME:
+				{
+					pCapture->InitCaptureEveryNthFrame( sFolder, sFile, (int)m_nFrameCaptureParameter );
+					break;
+				}
+				case VistaFrameSeriesCapture::CM_PERIODICALLY:
+				{
+					pCapture->InitCapturePeriodically( sFolder, sFile, m_nFrameCaptureParameter );
+					break;
+				}
+				case VistaFrameSeriesCapture::CM_FIXED_FRAMERATE:
+				{
+					pCapture->InitCaptureWithFramerate( sFolder, sFile, m_nFrameCaptureParameter );
+					break;
+				}
+			}
+			m_vecFrameCaptures.push_back( pCapture );
+		}
+	}
 	
 	return true;
 }
@@ -2630,19 +2677,22 @@ bool VistaSystem::ArgHelpMsg (const std::string& sAppName, std::ostream *pStream
 	PrintMsg("      \n", pStream);
 	PrintMsg("Possible parameters:\n", pStream);
 	PrintMsg("--------------------\n");
-	PrintMsg("-loadmodel <ModelFile>        : load the specified model\n", pStream);
-	PrintMsg("-scalemodel <scale>           : scale the specified model\n", pStream);
-	PrintMsg("-vistaini <IniFileName>       : use the specified initialization file for SYSTEMWIDE (or all) settings\n", pStream);
-	PrintMsg("-displayini <IniFileName>     : use the specified initialization file for DISPLAY settings\n", pStream);
-	PrintMsg("-graphicsini <IniFileName>    : use the specified initialization file for GRAPHICS settings\n", pStream);
-	PrintMsg("-interactionini <IniFileName> : use the specified initialization file for INTERACTION settings\n", pStream);
-	PrintMsg("-clusterini <IniFileName>     : use the specified initialization file for CLUSTER settings\n", pStream);
-	PrintMsg("-inisearchpath {(<path>{,})*}<path>: use the specified, comma-separated search paths for ini files\n", pStream);
-	PrintMsg("-record <path>                : record the session and write it to the specified folder\n", pStream);
-	PrintMsg("-replay <path>                : replay a recorded session written to the specified folder\n", pStream);
-	PrintMsg("-kill_after_frame <frames>    : ends application after the specified amount of frames\n", pStream);
-	PrintMsg("-kill_after_time <path>       : ends application after the specified time\n", pStream);
-	PrintMsg("-disable_stream_colors        : disables the use of stream colors when parsing stream configs\n", pStream);
+	PrintMsg("-loadmodel <ModelFile>              : load the specified model\n", pStream);
+	PrintMsg("-scalemodel <scale>                 : scale the specified model\n", pStream);
+	PrintMsg("-vistaini <IniFileName>             : use the specified initialization file for SYSTEMWIDE (or all) settings\n", pStream);
+	PrintMsg("-displayini <IniFileName>           : use the specified initialization file for DISPLAY settings\n", pStream);
+	PrintMsg("-graphicsini <IniFileName>          : use the specified initialization file for GRAPHICS settings\n", pStream);
+	PrintMsg("-interactionini <IniFileName>       : use the specified initialization file for INTERACTION settings\n", pStream);
+	PrintMsg("-clusterini <IniFileName>           : use the specified initialization file for CLUSTER settings\n", pStream);
+	PrintMsg("-inisearchpath {(<path>{,})*}<path> : use the specified, comma-separated search paths for ini files\n", pStream);
+	PrintMsg("-record <path>                      : record the session and write it to the specified folder\n", pStream);
+	PrintMsg("-replay <path>                      : replay a recorded session written to the specified folder\n", pStream);
+	PrintMsg("-kill_after_frame <frames>          : ends application after the specified amount of frames\n", pStream);
+	PrintMsg("-kill_after_time <path>             : ends application after the specified time\n", pStream);
+	PrintMsg("-capture_frames <n>                 : captures every n'th frame\n", pStream);
+	PrintMsg("-capture_frames_periodically <t>    : captures frame every t seconds\n", pStream);
+	PrintMsg("-capture_frames_with_framerate <f>  : captures frame at f Hz frequency framerate\n", pStream);
+	PrintMsg("-disable_stream_colors              : disables the use of stream colors when parsing stream configs\n", pStream);
 	
 	PrintMsg("-h|help                 : this message\n", pStream);
 	PrintMsg("--------------------\n", pStream);
@@ -2856,6 +2906,63 @@ bool VistaSystem::ArgParser (int argc, char *argv[])
 					if( m_pRuntimeLimiter == NULL )
 						m_pRuntimeLimiter = new VistaRuntimeLimiter( this );
 					m_pRuntimeLimiter->SetTimeLimit( nTimeLimit );
+				}
+			}
+		}
+		else if( oStringCompare( strArg, "-capture_frames" ) )
+		{
+			++arg;
+			if( arg < argc )
+			{				
+				int nTime = 1;
+				if( VistaConversion::FromString<int>( argv[arg], nTime ) == false )
+				{
+					vstr::warnp() << "[ViSys]: param \"-capture_frames\" specifies \""
+								<< argv[arg] << "which cannot be parsed as int" << std::endl;
+				}
+				else
+				{
+					if( nTime == 1 )
+					{
+						m_eFrameCaptureMode = VistaFrameSeriesCapture::CM_EVERY_FRAME;
+					}
+					else
+					{
+						m_eFrameCaptureMode = VistaFrameSeriesCapture::CM_EVERY_NTH_FRAME;
+						m_nFrameCaptureParameter = (double)nTime;
+					}
+				}
+			}
+		}
+		else if( oStringCompare( strArg, "-capture_frames_periodically" ) )
+		{
+			++arg;
+			if( arg < argc )
+			{				
+				if( VistaConversion::FromString<int>( argv[arg], m_nFrameCaptureParameter ) == false )
+				{
+					vstr::warnp() << "[ViSys]: param \"-capture_frames_periodically\" specifies \""
+								<< argv[arg] << "which cannot be parsed as double" << std::endl;
+				}
+				else
+				{
+					m_eFrameCaptureMode = VistaFrameSeriesCapture::CM_PERIODICALLY;
+				}
+			}
+		}
+		else if( oStringCompare( strArg, "-capture_frames_with_framerate" ) )
+		{
+			++arg;
+			if( arg < argc )
+			{				
+				if( VistaConversion::FromString<int>( argv[arg], m_nFrameCaptureParameter ) == false )
+				{
+					vstr::warnp() << "[ViSys]: param \"-capture_frames_with_framerate\" specifies \""
+								<< argv[arg] << "which cannot be parsed as double" << std::endl;
+				}
+				else
+				{
+					m_eFrameCaptureMode = VistaFrameSeriesCapture::CM_FIXED_FRAMERATE;
 				}
 			}
 		}
