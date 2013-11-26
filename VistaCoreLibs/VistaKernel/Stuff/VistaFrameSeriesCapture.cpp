@@ -24,6 +24,7 @@
 
 #include "VistaFrameSeriesCapture.h"
 
+#include <VistaBase/VistaTimeUtils.h>
 #include <VistaKernel/VistaSystem.h>
 #include <VistaKernel/EventManager/VistaSystemEvent.h>
 #include <VistaKernel/EventManager/VistaEventManager.h>
@@ -135,7 +136,7 @@ bool VistaFrameSeriesCapture::InitCaptureEveryNthFrame( const std::string& sLoca
 	ReplaceTime( m_sFileLocation, nTime );
 
 	VistaFileSystemDirectory oFileLocation( m_sFileLocation );
-	if( oFileLocation.Exists() == false && oFileLocation.Create() == false )
+	if( oFileLocation.Exists() == false && oFileLocation.CreateWithParentDirectories() == false )
 	{
 		vstr::warnp() << "[VistaFrameSeriesCapture]: cannot create screenshot target directory ["
 			<< m_sFileLocation << "]" << std::endl;
@@ -171,7 +172,7 @@ bool VistaFrameSeriesCapture::InitCapturePeriodically( const std::string& sLocat
 	ReplaceTime( m_sFileLocation, nTime );
 
 	VistaFileSystemDirectory oFileLocation( m_sFileLocation );
-	if( oFileLocation.Exists() == false && oFileLocation.Create() == false )
+	if( oFileLocation.Exists() == false && oFileLocation.CreateWithParentDirectories() == false )
 	{
 		vstr::warnp() << "[VistaFrameSeriesCapture]: cannot create screenshot target directory ["
 			<< m_sFileLocation << "]" << std::endl;
@@ -207,7 +208,7 @@ bool VistaFrameSeriesCapture::InitCaptureWithFramerate( const std::string& sLoca
 	ReplaceTime( m_sFileLocation, nTime );
 
 	VistaFileSystemDirectory oFileLocation( m_sFileLocation );
-	if( oFileLocation.Exists() == false && oFileLocation.Create() == false )
+	if( oFileLocation.Exists() == false && oFileLocation.CreateWithParentDirectories() == false )
 	{
 		vstr::warnp() << "[VistaFrameSeriesCapture]: cannot create screenshot target directory ["
 			<< m_sFileLocation << "]" << std::endl;
@@ -314,14 +315,7 @@ void VistaFrameSeriesCapture::ReplaceDate( std::string& sName, const VistaType::
 	if( m_bNeedsDateReplace == false )
 		return;
 
-	std::string sDateString;
-	sDateString.resize( 6 );
-
-	time_t tCurrentTime = (time_t)nTime;
-	struct tm* tLocalTime = localtime(&tCurrentTime);
-
-	strftime( &sDateString[0], 7 , "%y%m%d", tLocalTime );
-
+	std::string sDateString = VistaTimeUtils::ConvertToFormattedTimeString( nTime, "%y%m%d" );
 	m_bNeedsDateReplace = StringReplace( sName, "%D%", sDateString );
 }
 
@@ -330,14 +324,7 @@ void VistaFrameSeriesCapture::ReplaceTime( std::string& sName, const VistaType::
 	if( m_bNeedsTimeReplace == false )
 		return;
 
-	std::string sTimeString;
-	sTimeString.resize( 6 );
-
-	time_t tCurrentTime = (time_t)nTime;
-	struct tm* tLocalTime = localtime(&tCurrentTime);
-
-	strftime( &sTimeString[0], 7 , "%H%M%S", tLocalTime );
-
+	std::string sTimeString = VistaTimeUtils::ConvertToFormattedTimeString( nTime, "%H%M%S" );
 	m_bNeedsTimeReplace = StringReplace( sName, "%T%", sTimeString );
 }
 

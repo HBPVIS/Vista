@@ -1166,12 +1166,13 @@ bool VistaSystem::SetupDisplayManager()
 
 	if( m_eFrameCaptureMode != -1 )
 	{
+		vstr::outi() << "[VistaSystem]: Setting up FrameSeriesCapture for all windows" << std::endl;
 		const std::map< std::string, VistaWindow* >& mapWindows = GetDisplayManager()->GetWindowsConstRef();
 		for( std::map< std::string, VistaWindow* >::const_iterator itWin = mapWindows.begin();
 				itWin != mapWindows.end(); ++itWin )
 		{
 			std::string sFolder = "screenshots/series_%D%_%T%_" + (*itWin).first;
-			std::string sFile = "screenshot_%S%_%D%.%M%.png";
+			std::string sFile = "screenshot_%S%_%T%.%M%.png";
 			if( GetClusterMode()->GetNumberOfNodes() > 1 )
 				sFolder += "_" + GetClusterMode()->GetNodeName();
 			VistaFrameSeriesCapture* pCapture = new VistaFrameSeriesCapture( this, (*itWin).second, true );
@@ -1197,6 +1198,9 @@ bool VistaSystem::SetupDisplayManager()
 					pCapture->InitCaptureWithFramerate( sFolder, sFile, m_nFrameCaptureParameter );
 					break;
 				}
+				default:
+					delete pCapture;
+					break;
 			}
 			m_vecFrameCaptures.push_back( pCapture );
 		}
@@ -2939,7 +2943,7 @@ bool VistaSystem::ArgParser (int argc, char *argv[])
 			++arg;
 			if( arg < argc )
 			{				
-				if( VistaConversion::FromString<int>( argv[arg], m_nFrameCaptureParameter ) == false )
+				if( VistaConversion::FromString<double>( argv[arg], m_nFrameCaptureParameter ) == false )
 				{
 					vstr::warnp() << "[ViSys]: param \"-capture_frames_periodically\" specifies \""
 								<< argv[arg] << "which cannot be parsed as double" << std::endl;
@@ -2955,7 +2959,7 @@ bool VistaSystem::ArgParser (int argc, char *argv[])
 			++arg;
 			if( arg < argc )
 			{				
-				if( VistaConversion::FromString<int>( argv[arg], m_nFrameCaptureParameter ) == false )
+				if( VistaConversion::FromString<double>( argv[arg], m_nFrameCaptureParameter ) == false )
 				{
 					vstr::warnp() << "[ViSys]: param \"-capture_frames_with_framerate\" specifies \""
 								<< argv[arg] << "which cannot be parsed as double" << std::endl;
