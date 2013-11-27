@@ -807,7 +807,7 @@ bool VistaGlutWindowingToolkit::SetUseStereo( VistaWindow* pWindow, const bool b
 		return false;
 	}
 
-	if( pInfo->m_iWindowID )
+	if( pInfo->m_iWindowID != -1 )
 	{
 		vstr::warnp() << "[GlutWindow]: Trying to change stereo mode on window ["
 				<< pWindow->GetNameForNameable() << "] - this can only be done before initialization"
