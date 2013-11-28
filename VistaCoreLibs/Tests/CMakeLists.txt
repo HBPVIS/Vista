@@ -34,7 +34,6 @@ if( VISTACORELIBS_BUILD_BASE )
 	#	VistaBase
 	#	${VISTA_USE_PACKAGE_LIBRARIES}
 	#)
-	#add_dependencies( VistaQuaternionTest VistaBase )
 	#
 	#vista_configure_test( VistaTransformMatrixTest VistaTransformMatrixTest.cpp
 	#											../VistaTestingUtils/VistaTestingCompare.h
@@ -43,7 +42,6 @@ if( VISTACORELIBS_BUILD_BASE )
 	#	VistaBase
 	#	${VISTA_USE_PACKAGE_LIBRARIES}
 	#)
-	#add_dependencies( VistaTransformMatrixTest VistaBase )
 	
 	#vista_configure_test( VistaReferenceFrameTest VistaReferenceFrameTest.cpp
 	#											../VistaTestingUtils/VistaTestingCompare.h )
@@ -51,7 +49,6 @@ if( VISTACORELIBS_BUILD_BASE )
 	#	VistaBase
 	#	${VISTA_USE_PACKAGE_LIBRARIES}
 	#)
-	#add_dependencies( VistaReferenceFrameTest VistaBase )
 endif()
 
 if( VISTACORELIBS_BUILD_TOOLS )
@@ -66,11 +63,9 @@ if( VISTACORELIBS_BUILD_TOOLS )
 		VistaTools
 		${VISTA_USE_PACKAGE_LIBRARIES}
 	)
-	add_dependencies( VistaReflectionableTest VistaAspects )
 	
 	vista_configure_test( VistaConversionTest VistaConversionTest.cpp 
 											../VistaTestingUtils/VistaTestingCompare.h
-											../VistaTestingUtils/VistaTestingCompareContainers.h
 											../VistaTestingUtils/VistaTestingRandom.h )
 	target_link_libraries( VistaConversionTest
 		VistaBase
@@ -78,7 +73,6 @@ if( VISTACORELIBS_BUILD_TOOLS )
 		VistaTools
 		${VISTA_USE_PACKAGE_LIBRARIES}
 	)
-	add_dependencies( VistaReflectionableTest VistaAspects )
 
 	vista_configure_test( VistaSerializablesTest VistaSerializablesTest.cpp
 											../VistaTestingUtils/VistaTestingCompare.h
@@ -90,7 +84,18 @@ if( VISTACORELIBS_BUILD_TOOLS )
 		VistaTools
 		${VISTA_USE_PACKAGE_LIBRARIES}
 	)
-	add_dependencies( VistaReflectionableTest VistaInterProcComm )
+	
+	vista_configure_test( VistaTestingUtilsTest VistaTestingUtilsTest.cpp
+											../VistaTestingUtils/VistaTestingCompare.h
+											../VistaTestingUtils/VistaTestingRandom.h
+											../VistaTestingUtils/VistaTestingDummyStruct.h )
+	target_link_libraries( VistaTestingUtilsTest
+		VistaBase
+		VistaAspects
+		VistaInterProcComm
+		VistaTools
+		${VISTA_USE_PACKAGE_LIBRARIES}
+	)
 	
 endif()
 

@@ -30,7 +30,6 @@
 #include <gtest/gtest.h>
 
 #include <VistaTestingUtils/VistaTestingCompare.h>
-#include <VistaTestingUtils/VistaTestingCompareContainers.h>
 #include <VistaTestingUtils/VistaTestingRandom.h>
 
 #include <VistaAspects/VistaConversion.h>
@@ -51,12 +50,12 @@ inline void TestStringConversion()
 	for( int i = 0; i < S_nNumIterations; ++i )
 	{
 		SCOPED_TRACE( "Iteration: " + VistaConversion::ToString( i ) );
-		char cSeparator = S_acSeparators[ VistaTestingRandom::RandomInt(3) ];
-		T oOrig = VistaTestingRandom::GenerateRandom<T>();
+		char cSeparator = S_acSeparators[ VistaTesting::RandomInt(3) ];
+		T oOrig = VistaTesting::GenerateRandom<T>();
 		T oNew;
 		std::string sValue = VistaConversion::ToString( oOrig, cSeparator );
 		ASSERT_TRUE( VistaConversion::FromString( sValue, oNew, cSeparator ) );
-		ASSERT_TRUE( VistaTestingCompare::Compare( oNew, oOrig, S_nStringFloatErrorTolerance ) );
+		ASSERT_TRUE( VistaTesting::Compare( oNew, oOrig, S_nStringFloatErrorTolerance ) );
 	}
 }
 
@@ -69,8 +68,8 @@ inline void TestStringConversionContainers()
 	for( int i = 0; i < S_nNumIterations; ++i )
 	{
 		SCOPED_TRACE( "Iteration: " + VistaConversion::ToString( i ) );
-		char cSeparator = S_acSeparators[ VistaTestingRandom::RandomInt(3) ];
-		int nSize = VistaTestingRandom::RandomInt( 20 );
+		char cSeparator = S_acSeparators[ VistaTesting::RandomInt(3) ];
+		int nSize = VistaTesting::RandomInt( 20 );
 		std::list<T> liTest, liTestRes;
 		std::vector<T> vecTest, vecTestRes;
 		std::deque<T> deqTest, deqTestRes;
@@ -80,7 +79,7 @@ inline void TestStringConversionContainers()
 		T* aTestRes = new T[nSize];
 		for( int i = 0; i < nSize; ++i )
 		{
-			T oTemp = VistaTestingRandom::GenerateRandom<T>();
+			T oTemp = VistaTesting::GenerateRandom<T>();
 			liTest.push_back( oTemp );
 			vecTest.push_back( oTemp );
 			deqTest.push_back( oTemp );
@@ -105,22 +104,22 @@ inline void TestStringConversionContainers()
 		SCOPED_TRACE( "Value: " + sListValue );
 
 		ASSERT_TRUE( VistaConversion::FromString( sListValue, liTestRes, cSeparator ) );
-		ASSERT_TRUE( VistaTestingCompare::CompareList( liTest, liTestRes, S_nStringFloatErrorTolerance ) );
+		ASSERT_TRUE( VistaTesting::Compare( liTest, liTestRes, S_nStringFloatErrorTolerance ) );
 		
 		ASSERT_TRUE( VistaConversion::FromString( sVecValue, vecTestRes, cSeparator ) );
-		ASSERT_TRUE( VistaTestingCompare::CompareVec( vecTest, vecTestRes, S_nStringFloatErrorTolerance ) );
+		ASSERT_TRUE( VistaTesting::Compare( vecTest, vecTestRes, S_nStringFloatErrorTolerance ) );
 		
 		ASSERT_TRUE( VistaConversion::FromString( sDeqValue, deqTestRes, cSeparator ) );
-		ASSERT_TRUE( VistaTestingCompare::CompareDeque( deqTest, deqTestRes, S_nStringFloatErrorTolerance ) );
+		ASSERT_TRUE( VistaTesting::Compare( deqTest, deqTestRes, S_nStringFloatErrorTolerance ) );
 		
 		ASSERT_TRUE( VistaConversion::FromString( sStackValue, staTestRes, cSeparator ) );
-		ASSERT_TRUE( VistaTestingCompare::CompareStack( staTest, staTestRes, S_nStringFloatErrorTolerance ) );
+		ASSERT_TRUE( VistaTesting::Compare( staTest, staTestRes, S_nStringFloatErrorTolerance ) );
 		
 		ASSERT_TRUE( VistaConversion::FromString( sQueueValue, queTestRes, cSeparator ) );
-		ASSERT_TRUE( VistaTestingCompare::CompareQueue( queTest, queTestRes, S_nStringFloatErrorTolerance ) );
+		ASSERT_TRUE( VistaTesting::Compare( queTest, queTestRes, S_nStringFloatErrorTolerance ) );
 		
 		ASSERT_TRUE( VistaConversion::ArrayFromString( sArrayValue, aTestRes, nSize, cSeparator ) );
-		ASSERT_TRUE( VistaTestingCompare::CompareArray( aTest, aTestRes, nSize, S_nStringFloatErrorTolerance ) );		
+		ASSERT_TRUE( VistaTesting::CompareArray( aTest, aTestRes, nSize, S_nStringFloatErrorTolerance ) );	
 
 		delete[] aTest;
 		delete[] aTestRes;
@@ -207,7 +206,7 @@ TEST( VistaConversionTest, StringConversions_VistaQuaternion )
 int main( int argc, char** argv )
 {
 	::testing::InitGoogleTest(&argc, argv);
-	unsigned int nSeed = VistaTestingRandom::InitializeRandomSeed();
+	unsigned int nSeed = VistaTesting::InitializeRandomSeed();
 	SCOPED_TRACE( "RandomSeed: " + VistaConversion::ToString( nSeed ) );
 	return RUN_ALL_TESTS();
 } 

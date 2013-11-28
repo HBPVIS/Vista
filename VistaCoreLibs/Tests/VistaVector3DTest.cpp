@@ -504,11 +504,11 @@ TEST( VistaVector3DTest, OperatorAssign )
 {
 	VistaVector3D v3Test1( 1, 2, 3 );
 	VistaVector3D v3Copy1 = v3Test1;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Test1, v3Copy1 ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Test1, v3Copy1 ) );
 
 	VistaVector3D v3Test2( -2, 2, -6, -204.7f );
 	VistaVector3D v3Copy2 = v3Test2;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Test2, v3Copy2 ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Test2, v3Copy2 ) );
 }
 
 TEST( VistaVector3DTest, OperatorAdd )
@@ -519,15 +519,15 @@ TEST( VistaVector3DTest, OperatorAdd )
 	v3Add2 = VistaVector3D( -4, 2, 21 );
 	v3Res = v3Add1 + v3Add2;
 	v3Expected = VistaVector3D( 0, 4, 22 );
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Res, v3Expected, std::numeric_limits<float>::epsilon() ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Res, v3Expected, std::numeric_limits<float>::epsilon() ) );
 	v3Res = v3Add2 + v3Add1;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Res, v3Expected, std::numeric_limits<float>::epsilon() ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Res, v3Expected, std::numeric_limits<float>::epsilon() ) );
 
 	v3Add1 = VistaVector3D( 4, 2, 1 );
 	v3Add2 = VistaVector3D( 0, 0, 0 );
 	v3Res = v3Add1 + v3Add2;
 	v3Expected = VistaVector3D( 4, 2, 1 );
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Res, v3Expected, std::numeric_limits<float>::epsilon() ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Res, v3Expected, std::numeric_limits<float>::epsilon() ) );
 }
 TEST( VistaVector3DTest, OperatorCompoundAdd )
 {
@@ -537,18 +537,18 @@ TEST( VistaVector3DTest, OperatorCompoundAdd )
 	v3Add2 = VistaVector3D( -4, 2, 21 );
 	v3Add1 += v3Add2;
 	v3Expected = VistaVector3D( 0, 4, 22 );
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Add1, v3Expected, std::numeric_limits<float>::epsilon() ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Add1, v3Expected, std::numeric_limits<float>::epsilon() ) );
 
 	v3Add1 = VistaVector3D( 4, 2, 1 );
 	v3Add2 = VistaVector3D( -4, 2, 21 );
 	v3Add2 += v3Add1;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Add2, v3Expected, std::numeric_limits<float>::epsilon() ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Add2, v3Expected, std::numeric_limits<float>::epsilon() ) );
 
 	v3Add1 = VistaVector3D( 4, 2, 1 );
 	v3Add2 = VistaVector3D( 0, 0, 0 );
 	v3Add1 += v3Add2;
 	v3Expected = VistaVector3D( 4, 2, 1 );
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Add1, v3Expected, std::numeric_limits<float>::epsilon() ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Add1, v3Expected, std::numeric_limits<float>::epsilon() ) );
 }
 
 TEST( VistaVector3DTest, OperatorSub )
@@ -559,16 +559,16 @@ TEST( VistaVector3DTest, OperatorSub )
 	v3Sub2 = VistaVector3D( -4, 2, 21 );
 	v3Res = v3Sub1 - v3Sub2;
 	v3Expected = VistaVector3D( 8, 0, -20 );
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Res, v3Expected, std::numeric_limits<float>::epsilon() ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Res, v3Expected, std::numeric_limits<float>::epsilon() ) );
 	v3Res = v3Sub2 - v3Sub1;
 	v3Expected = VistaVector3D( -8, 0, 20 );
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Res, v3Expected, std::numeric_limits<float>::epsilon() ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Res, v3Expected, std::numeric_limits<float>::epsilon() ) );
 
 	v3Sub1 = VistaVector3D( 4, 2, 1 );
 	v3Sub2 = VistaVector3D( 0, 0, 0 );
 	v3Res = v3Sub1 - v3Sub2;
 	v3Expected = VistaVector3D( 4, 2, 1 );
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Res, v3Expected, std::numeric_limits<float>::epsilon() ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Res, v3Expected, std::numeric_limits<float>::epsilon() ) );
 }
 TEST( VistaVector3DTest, OperatorCompoundSub )
 {
@@ -578,19 +578,19 @@ TEST( VistaVector3DTest, OperatorCompoundSub )
 	v3Sub2 = VistaVector3D( -4, 2, 21 );
 	v3Sub1 -= v3Sub2;
 	v3Expected = VistaVector3D( 8, 0, -20 );
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Sub1, v3Expected, std::numeric_limits<float>::epsilon() ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Sub1, v3Expected, std::numeric_limits<float>::epsilon() ) );
 
 	v3Sub1 = VistaVector3D( 4, 2, 1 );
 	v3Sub2 = VistaVector3D( -4, 2, 21 );
 	v3Sub2 -= v3Sub1;
 	v3Expected = VistaVector3D( -8, 0, 20 );
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Sub2, v3Expected, std::numeric_limits<float>::epsilon() ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Sub2, v3Expected, std::numeric_limits<float>::epsilon() ) );
 
 	v3Sub1 = VistaVector3D( 4, 2, 1 );
 	v3Sub2 = VistaVector3D( 0, 0, 0 );
 	v3Sub1 -= v3Sub2;
 	v3Expected = VistaVector3D( 4, 2, 1 );
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Sub1, v3Expected, std::numeric_limits<float>::epsilon() ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Sub1, v3Expected, std::numeric_limits<float>::epsilon() ) );
 }
 
 TEST( VistaVector3DTest, OperatorNegate )
@@ -600,11 +600,11 @@ TEST( VistaVector3DTest, OperatorNegate )
 
 	v3Test = VistaVector3D( 1, -2, 3 );
 	v3Expected = VistaVector3D( -1, 2, -3 );
-	ASSERT_TRUE( VistaTestingCompare::Compare( -v3Test, v3Expected ) );
+	ASSERT_TRUE( VistaTesting::Compare( -v3Test, v3Expected ) );
 
 	v3Test = VistaVector3D( 0.2f, 1e24f, -5.23e-12f, 0.1f );
 	v3Expected = VistaVector3D( -0.2f, -1e24f, 5.23e-12f, 0.1f );
-	ASSERT_TRUE( VistaTestingCompare::Compare( -v3Test, v3Expected ) );
+	ASSERT_TRUE( VistaTesting::Compare( -v3Test, v3Expected ) );
 }
 
 TEST( VistaVector3DTest, OperatorMultFloat )
@@ -614,28 +614,28 @@ TEST( VistaVector3DTest, OperatorMultFloat )
 	v3Vector = VistaVector3D( 4.25f, -4.23f, 11.65f, -0.2f );
 	v3Expected = VistaVector3D( 4.25f, -4.23f, 11.65f, -0.2f );
 	v3Res = v3Vector * 1.0f;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Res, v3Expected ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Res, v3Expected ) );
 	v3Res = 1.0f * v3Vector ;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Res, v3Expected ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Res, v3Expected ) );
 	v3Expected = VistaVector3D( -4.25f, 4.23f, -11.65f, -0.2f );
 	v3Res = v3Vector * -1.0f;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Res, v3Expected ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Res, v3Expected ) );
 	v3Res = -1.0f * v3Vector ;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Res, v3Expected ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Res, v3Expected ) );
 
 	v3Vector = VistaVector3D( 1, -2, 3 );
 	v3Expected = VistaVector3D( 2.5, -5, 7.5 );
 	v3Res = v3Vector * 2.5f;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Res, v3Expected ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Res, v3Expected ) );
 	v3Res = 2.5f * v3Vector ;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Res, v3Expected ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Res, v3Expected ) );
 
 	v3Vector = VistaVector3D( 5, 2, 3 );
 	v3Expected = VistaVector3D( 0, 0, 0 );
 	v3Res = v3Vector * 0.0f;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Res, v3Expected ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Res, v3Expected ) );
 	v3Res = 0.0f * v3Vector ;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Res, v3Expected ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Res, v3Expected ) );
 }
 TEST( VistaVector3DTest, OperatorCompoundMultFloat )
 {
@@ -644,23 +644,23 @@ TEST( VistaVector3DTest, OperatorCompoundMultFloat )
 	v3Vector = VistaVector3D( 4.25f, -4.23f, 11.65f, -0.2f );
 	v3Expected = VistaVector3D( 4.25f, -4.23f, 11.65f, -0.2f );
 	v3Vector *= 1.0f;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Vector, v3Expected ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Vector, v3Expected ) );
 	
 	v3Vector = VistaVector3D( 4.25f, -4.23f, 11.65f, -0.2f );
 	v3Expected = VistaVector3D( -4.25f, 4.23f, -11.65f, -0.2f );
 	v3Vector *= -1.0f;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Vector, v3Expected ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Vector, v3Expected ) );
 	
 	v3Vector = VistaVector3D( 1, -2, 3 );
 	v3Expected = VistaVector3D( 2.5, -5, 7.5 );
 	v3Vector *= 2.5f;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Vector, v3Expected ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Vector, v3Expected ) );
 	
 
 	v3Vector = VistaVector3D( 5, 2, 3 );
 	v3Expected = VistaVector3D( 0, 0, 0 );
 	v3Vector *= 0.0f;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Vector, v3Expected ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Vector, v3Expected ) );
 }
 
 TEST( VistaVector3DTest, OperatorMultVec )
@@ -700,16 +700,16 @@ TEST( VistaVector3DTest, OperatorDivFloat )
 	v3Vector = VistaVector3D( 4.25f, -4.23f, 11.65f, -0.2f );
 	v3Expected = VistaVector3D( 4.25f, -4.23f, 11.65f, -0.2f );
 	v3Res = v3Vector / 1.0f;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Res, v3Expected ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Res, v3Expected ) );
 
 	v3Expected = VistaVector3D( -4.25f, 4.23f, -11.65f, -0.2f );
 	v3Res = v3Vector / -1.0f;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Res, v3Expected ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Res, v3Expected ) );
 	
 	v3Vector = VistaVector3D( 2.5, -5, 7.5 );
 	v3Expected = VistaVector3D( 1, -2, 3 );
 	v3Res = v3Vector / 2.5f;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Res, v3Expected ) );	
+	ASSERT_TRUE( VistaTesting::Compare( v3Res, v3Expected ) );	
 }
 TEST( VistaVector3DTest, OperatorCompoundDivFloat )
 {
@@ -718,17 +718,17 @@ TEST( VistaVector3DTest, OperatorCompoundDivFloat )
 	v3Vector = VistaVector3D( 4.25f, -4.23f, 11.65f, -0.2f );
 	v3Expected = VistaVector3D( 4.25f, -4.23f, 11.65f, -0.2f );
 	v3Vector /= 1.0f;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Vector, v3Expected ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Vector, v3Expected ) );
 	
 	v3Vector = VistaVector3D( 4.25f, -4.23f, 11.65f, -0.2f );
 	v3Expected = VistaVector3D( -4.25f, 4.23f, -11.65f, -0.2f );
 	v3Vector /= -1.0f;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Vector, v3Expected ) );
+	ASSERT_TRUE( VistaTesting::Compare( v3Vector, v3Expected ) );
 	
 	v3Vector = VistaVector3D( 2.5, -5, 7.5 );
 	v3Expected = VistaVector3D( 1, -2, 3 );
 	v3Vector /= 2.5f;
-	ASSERT_TRUE( VistaTestingCompare::Compare( v3Vector, v3Expected ) );	
+	ASSERT_TRUE( VistaTesting::Compare( v3Vector, v3Expected ) );	
 }
 
 TEST( VistaVector3DTest, OperatorAccess )

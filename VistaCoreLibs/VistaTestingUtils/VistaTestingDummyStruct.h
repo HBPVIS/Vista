@@ -29,6 +29,8 @@
 /* INCLUDES                                                                   */
 /*============================================================================*/
 
+#include <VistaTestingUtils/VistaTestingRandom.h>
+#include <VistaTestingUtils/VistaTestingCompare.h>
 
 /*============================================================================*/
 /* HELPERS                                                                    */
@@ -69,7 +71,7 @@ struct DummyStruct
 	bool	m_bData2;
 };
 
-namespace VistaTestingRandom
+namespace VistaTesting
 {
 	template<>
 	inline DummyStruct GenerateRandom<DummyStruct>()
@@ -81,7 +83,7 @@ namespace VistaTestingRandom
 	}
 }
 
-namespace VistaTestingCompare
+namespace VistaTesting
 {
 	template<>
 	inline ::testing::AssertionResult Compare<DummyStruct>( const DummyStruct& oLeft,

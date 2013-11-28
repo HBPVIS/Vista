@@ -77,7 +77,7 @@ namespace SerializableTest
 	T* RandomSerializable()
 	{
 		T* pT = new T;
-		*pT = VistaTestingRandom::GenerateRandom<T>();
+		*pT = VistaTesting::GenerateRandom<T>();
 	}
 
 	template<typename T>
@@ -100,8 +100,8 @@ TEST( VistaSerializableTest, VistaPropertyList )
 	{
 		oSer.ClearBuffer();
 
-		VistaPropertyList oSource = VistaTestingRandom::GenerateRandom<VistaPropertyList>();
-		std::string sNameSource = VistaTestingRandom::GenerateRandom<std::string>();
+		VistaPropertyList oSource = VistaTesting::GenerateRandom<VistaPropertyList>();
+		std::string sNameSource = VistaTesting::GenerateRandom<std::string>();
 		VistaPropertyList oTarget;
 		std::string sNameTarget;
 		VistaPropertyList::SerializePropertyList( oSer, oSource, sNameSource );
@@ -109,8 +109,8 @@ TEST( VistaSerializableTest, VistaPropertyList )
 		
 		VistaPropertyList::DeSerializePropertyList( oDeSer, oTarget, sNameTarget );
 
-		ASSERT_TRUE( VistaTestingCompare::Compare( sNameSource, sNameTarget ) );
-		ASSERT_TRUE( VistaTestingCompare::Compare( oSource, oTarget ) );
+		ASSERT_TRUE( VistaTesting::Compare( sNameSource, sNameTarget ) );
+		ASSERT_TRUE( VistaTesting::Compare( oSource, oTarget ) );
 
 	}
 }
@@ -118,7 +118,7 @@ TEST( VistaSerializableTest, VistaPropertyList )
 int main( int argc, char** argv )
 {
 	::testing::InitGoogleTest(&argc, argv);
-	unsigned int nSeed = VistaTestingRandom::InitializeRandomSeed();
+	unsigned int nSeed = VistaTesting::InitializeRandomSeed();
 	SCOPED_TRACE( "RandomSeed: " + VistaConversion::ToString( nSeed ) );
 	return RUN_ALL_TESTS();
 } 

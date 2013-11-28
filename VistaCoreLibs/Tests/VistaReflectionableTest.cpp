@@ -27,7 +27,6 @@
 #include <gtest/gtest.h>
 
 #include <VistaTestingUtils/VistaTestingCompare.h>
-#include <VistaTestingUtils/VistaTestingRandom.h>
 #include <VistaTestingUtils/VistaTestingDummyStruct.h>
 
 #include <VistaAspects/VistaReflectionable.h>
@@ -403,37 +402,37 @@ private:
 template<typename T>
 inline void TestReflSetGetProp( IVistaReflectionable* pRefl, const std::string& sName )
 {
-	T oOrig = VistaTestingRandom::GenerateRandom<T>();
+	T oOrig = VistaTesting::GenerateRandom<T>();
 	VistaProperty oOrigProp( sName, VistaConversion::ToString( oOrig ) );
 	ASSERT_TRUE( pRefl->SetProperty( oOrigProp ) != 0 );
 	VistaProperty oReturn = pRefl->GetPropertyByName( sName );
 	T oNew;
 	ASSERT_NO_THROW( oNew = VistaConversion::FromString<T>( oReturn.GetValueConstRef() ) );
-	ASSERT_TRUE( VistaTestingCompare::Compare( oOrig, oNew, S_nRequiredFloatPrecision ) );
+	ASSERT_TRUE( VistaTesting::Compare( oOrig, oNew, S_nRequiredFloatPrecision ) );
 }
 
 template<typename T>
 inline void TestReflSetGetAlt( IVistaReflectionable* pRefl, const std::string& sName )
 {
-	T oOrig = VistaTestingRandom::GenerateRandom<T>();
+	T oOrig = VistaTesting::GenerateRandom<T>();
 	ASSERT_TRUE( pRefl->SetPropertyByName( sName, VistaConversion::ToString( oOrig ) ) != 0 );
 	VistaProperty oReturn = pRefl->GetPropertyByName( sName );
 	T oNew;
 	ASSERT_NO_THROW( oNew = VistaConversion::FromString<T>( oReturn.GetValueConstRef() ) );
-	ASSERT_TRUE( VistaTestingCompare::Compare( oOrig, oNew, S_nRequiredFloatPrecision ) );
+	ASSERT_TRUE( VistaTesting::Compare( oOrig, oNew, S_nRequiredFloatPrecision ) );
 }
 
 template<>
 inline void TestReflSetGetProp<VistaPropertyList>( IVistaReflectionable* pRefl, const std::string& sName )
 {
-	VistaPropertyList oOrig = VistaTestingRandom::GenerateRandom<VistaPropertyList>();
+	VistaPropertyList oOrig = VistaTesting::GenerateRandom<VistaPropertyList>();
 	VistaProperty oOrigProp( sName );
 	oOrigProp.SetPropertyListValue( oOrig );
 	ASSERT_TRUE( pRefl->SetProperty( oOrigProp ) != 0 );
 	VistaProperty oReturn = pRefl->GetPropertyByName( sName );
 	VistaPropertyList oNew;
 	ASSERT_NO_THROW( oNew = oReturn.GetPropertyListConstRef() );
-	ASSERT_TRUE( VistaTestingCompare::Compare( oNew, oReturn.GetPropertyListConstRef(), S_nRequiredFloatPrecision ) );
+	ASSERT_TRUE( VistaTesting::Compare( oNew, oReturn.GetPropertyListConstRef(), S_nRequiredFloatPrecision ) );
 }
 
 
@@ -442,7 +441,7 @@ inline void TestReflSetGetPropArray( IVistaReflectionable* pRefl, const std::str
 {
 	T oOrig[N];
 	for( int i = 0; i < N; ++i )
-		oOrig[i] = VistaTestingRandom::GenerateRandom<T>();
+		oOrig[i] = VistaTesting::GenerateRandom<T>();
 
 	VistaProperty oOrigProp( sName, VistaConversion::ArrayToString<N>( oOrig ) );
 	ASSERT_TRUE( pRefl->SetProperty( oOrigProp ) != 0 );
@@ -451,7 +450,7 @@ inline void TestReflSetGetPropArray( IVistaReflectionable* pRefl, const std::str
 	ASSERT_NO_THROW( VistaConversion::ArrayFromString<N>( oReturn.GetValueConstRef(), oNew ) );
 	for( int i = 0; i < N; ++i )
 	{
-		ASSERT_TRUE( VistaTestingCompare::Compare( oOrig[i], oNew[i], S_nRequiredFloatPrecision ) );
+		ASSERT_TRUE( VistaTesting::Compare( oOrig[i], oNew[i], S_nRequiredFloatPrecision ) );
 	}
 }
 
@@ -624,7 +623,7 @@ TEST( VistaReflectionableTest, SetGetPublicString )
 int main( int argc, char** argv )
 {
 	::testing::InitGoogleTest(&argc, argv);
-	unsigned int nSeed = VistaTestingRandom::InitializeRandomSeed();
+	unsigned int nSeed = VistaTesting::InitializeRandomSeed();
 	SCOPED_TRACE( "RandomSeed: " + VistaConversion::ToString( nSeed ) );
 	return RUN_ALL_TESTS();
 } 

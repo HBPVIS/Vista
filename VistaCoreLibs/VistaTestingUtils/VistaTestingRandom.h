@@ -47,7 +47,7 @@
 /* HELPERS                                                                    */
 /*============================================================================*/
 
-namespace VistaTestingRandom
+namespace VistaTesting
 {
 	VistaRandomNumberGenerator* GetRNG()
 	{
@@ -71,7 +71,7 @@ namespace VistaTestingRandom
 	{
 #ifdef WIN32
 #pragma warning( push )
-#pragma warning( disable : 4127 ) // disable warnng about static if statement
+#pragma warning( disable : 4127 ) // disable warning about static if statement
 #endif
 		if( std::numeric_limits<T>::is_signed )
 			return T( GetRNG()->GenerateDouble( -VISTATESTINGRANDOM_NUMBER_RANGE, VISTATESTINGRANDOM_NUMBER_RANGE ) );
