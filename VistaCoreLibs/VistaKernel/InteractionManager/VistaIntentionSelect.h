@@ -47,7 +47,7 @@ class IVistaNode;
 /*============================================================================*/
 
 /*
-* IVistaNodeAdapter is a base adapter class for all objects which should be
+* IVistaIntentionSelectAdapter is a base adapter class for all objects which should be
 * registered at the IntentionSelect mechanism. All these objects need is a position.
 *
 *
@@ -75,6 +75,25 @@ public:
 
 private:
 	bool m_bSelectionEnabled;
+};
+
+/*
+* IVistaIntentionSelectLineAdapter is a base adapter class for all line-objects which should be
+* registered at the IntentionSelect mechanism. All these objects need are a starting and an end position.
+*
+*
+* You should make sure the object's positions and the IntentionSelect cone are in the same
+* reference frame.
+*/
+class IVistaIntentionSelectLineAdapter : public IVistaIntentionSelectAdapter
+{
+public:
+	virtual ~IVistaIntentionSelectLineAdapter() {}
+	IVistaIntentionSelectLineAdapter ()
+		:	IVistaIntentionSelectAdapter()
+	{}
+
+	virtual bool GetPosition2(VistaVector3D &pTrans) const = 0;
 };
 
 /*
@@ -199,7 +218,13 @@ public:
 
 protected:
 private:
+
 	void CleanScores();
+
+	float CalculatePointContribution( const VistaVector3D & v3Point );
+	float CalculateContribution( float fPerp, float fProj );
+	VistaVector3D CalculateClosestPointToRay( VistaVector3D v3Point1, VistaVector3D v3Point2 );
+
 	class _PrNodeEqual;
 
 

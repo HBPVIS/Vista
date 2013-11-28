@@ -114,37 +114,48 @@ bool VistaIntentionSelect::UnregisterNode(IVistaIntentionSelectAdapter *pNode)
 void VistaIntentionSelect::Update( std::vector<IVistaIntentionSelectAdapter*>& vecObj )
 {
 	VistaVector3D v3Point;
-	float fPerp;
-	float fProj;
-	float fContrib;
 
 	// do the scoring on all registered nodes
 	for(NDVEC::iterator it = m_vecScores.begin();
 		it != m_vecScores.end(); ++it)
 	{
-		if (!(*it).m_pNode->GetIsSelectionEnabled())
+		IVistaIntentionSelectAdapter *pPointNode = (*it).m_pNode;
+		if (!pPointNode->GetIsSelectionEnabled())
 		{
 			// set to zero score, so object will not be in vecObj
 			(*it).m_nScore = 0.0;
 		}
 		else
 		{
+			// regardless of the handle type we are using, we need the distance to the first point
+			VistaVector3D v3Point1;
 
-			(*it).m_pNode->GetPosition(v3Point);
-			v3Point = m_ConeRef.TransformPositionToFrame(v3Point);
+			pPointNode->GetPosition(v3Point1);
+			float fContrib = CalculatePointContribution(v3Point1);
 
-			fPerp = ::sqrtf( v3Point[Vista::X]*v3Point[Vista::X] + v3Point[Vista::Y]*v3Point[Vista::Y] );
-			fProj = -v3Point[Vista::Z];
-			if( fProj > 0 )
+			// if we are using a line handle, we also need the distance to the second point and to the line
+			IVistaIntentionSelectLineAdapter* pLineNode = 
+				dynamic_cast<IVistaIntentionSelectLineAdapter*>(pPointNode);
+			if (pLineNode)
 			{
-				fContrib = 1 - ( ::atanf( fPerp / ::powf( fProj, 4.0f/5.0f ) ) / m_oCone.GetOpeningAngle() );
+				// calculate contribution of the second point
+				VistaVector3D v3Point2;
+
+				pLineNode->GetPosition2(v3Point2);
+				float fContrib2 = CalculatePointContribution(v3Point2);
+
+				// use the higher contribution of both points
+				fContrib = std::max(fContrib, fContrib2);
+
+				// calculate the contribution of the closest point between ray and line
+				VistaVector3D v3Point3 = CalculateClosestPointToRay(v3Point1, v3Point2);
+				float fContrib3 = CalculatePointContribution(v3Point3);
+
+				// use the highest contribution
+				fContrib = std::max(fContrib, fContrib3);
 			}
-			else
-			{
-				fContrib = 0;
-			}
-			(*it).m_nScore = std::max<float>(0.0f,
-				((*it).m_nScore * m_nStickyness) + (fContrib * m_nSnappiness));
+
+			(*it).m_nScore = std::max<float>(0.0f, ((*it).m_nScore * m_nStickyness) + (fContrib * m_nSnappiness));
 		}
 	}
 
@@ -235,6 +246,61 @@ void VistaIntentionSelect::CleanScores()
 	{
 		(*cit).m_nScore = 0.0f;
 	}
+}
+
+float VistaIntentionSelect::CalculatePointContribution( const VistaVector3D & v3Point )
+{
+	VistaVector3D v3TransformedPoint = m_ConeRef.TransformPositionToFrame(v3Point);
+
+	float fPerp = ::sqrtf( 
+		v3TransformedPoint[Vista::X]*v3TransformedPoint[Vista::X]
+	+ v3TransformedPoint[Vista::Y]*v3TransformedPoint[Vista::Y]
+	);
+
+	float fProj = -v3TransformedPoint[Vista::Z];
+
+	return CalculateContribution( fPerp, fProj );
+}
+
+float VistaIntentionSelect::CalculateContribution( float fPerp, float fProj )
+{
+	float fContrib;
+
+	if( fProj > 0 )
+	{
+		fContrib = 1 - ( ::atanf( fPerp / ::powf( fProj, 4.0f/5.0f ) ) / m_oCone.GetOpeningAngle() );
+	}
+	else
+	{
+		fContrib = 0;
+	}
+
+	return fContrib;
+}
+
+VistaVector3D VistaIntentionSelect::CalculateClosestPointToRay( VistaVector3D v3Point1, VistaVector3D v3Point2 )
+{
+	// finds the closest point between the pick ray and the line defined by point 1 and 2
+
+	// work in the reference frame of the pick ray
+	VistaVector3D v3Point1Transformed( m_ConeRef.TransformPositionToFrame( v3Point1 ) );
+	VistaVector3D v3Point2Transformed( m_ConeRef.TransformPositionToFrame( v3Point2 ) );
+
+	VistaVector3D v3U1( 0.f, 0.f, -1.f );
+	VistaVector3D v3U2( v3Point2Transformed - v3Point1Transformed );
+	VistaVector3D v3M = v3U2.Cross( v3U1 );
+	float fM2 = v3M.Dot( v3M );
+	VistaVector3D v3R = v3Point1Transformed.Cross( v3M ) / fM2;
+	float fT = v3R.Dot( v3U1 );
+
+	// we want to stay within the line defined by point 1 and 2
+	fT = std::min( std::max( fT, .0f ), 1.f );
+
+	VistaVector3D v3ClosestPoint( v3Point1Transformed + fT * v3U2 );
+
+	VistaVector3D v3Return( m_ConeRef.TransformPositionFromFrame( v3ClosestPoint ) );
+
+	return v3Return;
 }
 
 /*============================================================================*/
