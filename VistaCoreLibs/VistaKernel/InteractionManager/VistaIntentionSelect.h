@@ -62,7 +62,7 @@ public:
 	: m_bSelectionEnabled(true)
 	{}
 
-	virtual bool GetPosition(VistaVector3D &pTrans) const = 0;
+	virtual bool GetPosition(VistaVector3D &pTrans, const VistaReferenceFrame &oReferenceFrame) const = 0;
 
 	void SetIsSelectionEnabled (bool bIsEnabled)
 	{
@@ -78,23 +78,28 @@ private:
 };
 
 /*
-* IVistaIntentionSelectLineAdapter is a base adapter class for all line-objects which should be
+* VistaIntentionSelectLineAdapter is a base adapter class for all line-objects which should be
 * registered at the IntentionSelect mechanism. All these objects need are a starting and an end position.
 *
 *
 * You should make sure the object's positions and the IntentionSelect cone are in the same
 * reference frame.
 */
-class IVistaIntentionSelectLineAdapter : public IVistaIntentionSelectAdapter
+class VISTAKERNELAPI IVistaIntentionSelectLineAdapter : public IVistaIntentionSelectAdapter
 {
 public:
 	virtual ~IVistaIntentionSelectLineAdapter() {}
 	IVistaIntentionSelectLineAdapter ()
-		:	IVistaIntentionSelectAdapter()
+	:	IVistaIntentionSelectAdapter()
 	{}
 
-	virtual bool GetPosition2(VistaVector3D &pTrans) const = 0;
+	virtual bool GetPosition(VistaVector3D &pTrans, const VistaReferenceFrame &oReferenceFrame) const;
+	virtual bool GetStartPosition(VistaVector3D &pTrans) const = 0;
+	virtual bool GetEndPosition(VistaVector3D &pTrans) const = 0;
 };
+
+// @todo: add support for circle, etc,. handles. some math on how a circle handle could be realized can be found here:
+// http://www.geometrictools.com/Documentation/DistanceLine3Circle3.pdf
 
 /*
 * Specific adapter implementation for IVistaNode.
@@ -110,7 +115,7 @@ public:
 	: IVistaIntentionSelectAdapter(), m_pNode(pNode)
 	{}
 
-	virtual bool GetPosition(VistaVector3D &pTrans) const;
+	virtual bool GetPosition(VistaVector3D &pTrans, const VistaReferenceFrame &oReferenceFrame) const;
 
 	IVistaNode* GetNode() const;
 
@@ -223,7 +228,6 @@ private:
 
 	float CalculatePointContribution( const VistaVector3D & v3Point );
 	float CalculateContribution( float fPerp, float fProj );
-	VistaVector3D CalculateClosestPointToRay( VistaVector3D v3Point1, VistaVector3D v3Point2 );
 
 	class _PrNodeEqual;
 

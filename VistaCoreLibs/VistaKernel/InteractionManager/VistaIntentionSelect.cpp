@@ -32,9 +32,47 @@
 /* MACROS AND DEFINES, CONSTANTS AND STATICS, FUNCTION-PROTOTYPES             */
 /*============================================================================*/
 
+/*============================================================================*/
+/* LOCAL VARS AND FUNCS                                                       */
+/*============================================================================*/
+
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool VistaNodeAdapter::GetPosition(VistaVector3D &pTrans) const
+bool IVistaIntentionSelectLineAdapter::GetPosition(
+	VistaVector3D &pTrans, const VistaReferenceFrame &oReferenceFrame) const
+{
+	// find the closest point between the pick ray and the line defined by point 1 and 2
+	// and return it as result
+	
+	VistaVector3D v3Point1, v3Point2;
+
+	GetStartPosition( v3Point1 );
+	GetEndPosition( v3Point2 );
+
+	// work in the reference frame of the pick ray
+	VistaVector3D v3Point1Transformed( oReferenceFrame.TransformPositionToFrame( v3Point1 ) );
+	VistaVector3D v3Point2Transformed( oReferenceFrame.TransformPositionToFrame( v3Point2 ) );
+
+	VistaVector3D v3U1( 0.f, 0.f, -1.f );
+	VistaVector3D v3U2( v3Point2Transformed - v3Point1Transformed );
+	VistaVector3D v3M = v3U2.Cross( v3U1 );
+	float fM2 = v3M.Dot( v3M );
+	VistaVector3D v3R = v3Point1Transformed.Cross( v3M ) / fM2;
+	float fT = v3R.Dot( v3U1 );
+
+	// we want to stay within the line defined by point 1 and 2
+	fT = std::min( std::max( fT, .0f ), 1.f );
+
+	VistaVector3D v3ClosestPoint( v3Point1Transformed + fT * v3U2 );
+
+	pTrans = oReferenceFrame.TransformPositionFromFrame( v3ClosestPoint );
+
+	return true;
+}
+
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+bool VistaNodeAdapter::GetPosition(VistaVector3D &pTrans, const VistaReferenceFrame &oReferenceFrame) const
 {
 	return m_pNode->GetWorldPosition(pTrans);
 }
@@ -128,32 +166,10 @@ void VistaIntentionSelect::Update( std::vector<IVistaIntentionSelectAdapter*>& v
 		else
 		{
 			// regardless of the handle type we are using, we need the distance to the first point
-			VistaVector3D v3Point1;
+			VistaVector3D v3Point;
 
-			pPointNode->GetPosition(v3Point1);
-			float fContrib = CalculatePointContribution(v3Point1);
-
-			// if we are using a line handle, we also need the distance to the second point and to the line
-			IVistaIntentionSelectLineAdapter* pLineNode = 
-				dynamic_cast<IVistaIntentionSelectLineAdapter*>(pPointNode);
-			if (pLineNode)
-			{
-				// calculate contribution of the second point
-				VistaVector3D v3Point2;
-
-				pLineNode->GetPosition2(v3Point2);
-				float fContrib2 = CalculatePointContribution(v3Point2);
-
-				// use the higher contribution of both points
-				fContrib = std::max(fContrib, fContrib2);
-
-				// calculate the contribution of the closest point between ray and line
-				VistaVector3D v3Point3 = CalculateClosestPointToRay(v3Point1, v3Point2);
-				float fContrib3 = CalculatePointContribution(v3Point3);
-
-				// use the highest contribution
-				fContrib = std::max(fContrib, fContrib3);
-			}
+			pPointNode->GetPosition(v3Point, m_ConeRef);
+			float fContrib = CalculatePointContribution(v3Point);
 
 			(*it).m_nScore = std::max<float>(0.0f, ((*it).m_nScore * m_nStickyness) + (fContrib * m_nSnappiness));
 		}
@@ -277,34 +293,3 @@ float VistaIntentionSelect::CalculateContribution( float fPerp, float fProj )
 
 	return fContrib;
 }
-
-VistaVector3D VistaIntentionSelect::CalculateClosestPointToRay( VistaVector3D v3Point1, VistaVector3D v3Point2 )
-{
-	// finds the closest point between the pick ray and the line defined by point 1 and 2
-
-	// work in the reference frame of the pick ray
-	VistaVector3D v3Point1Transformed( m_ConeRef.TransformPositionToFrame( v3Point1 ) );
-	VistaVector3D v3Point2Transformed( m_ConeRef.TransformPositionToFrame( v3Point2 ) );
-
-	VistaVector3D v3U1( 0.f, 0.f, -1.f );
-	VistaVector3D v3U2( v3Point2Transformed - v3Point1Transformed );
-	VistaVector3D v3M = v3U2.Cross( v3U1 );
-	float fM2 = v3M.Dot( v3M );
-	VistaVector3D v3R = v3Point1Transformed.Cross( v3M ) / fM2;
-	float fT = v3R.Dot( v3U1 );
-
-	// we want to stay within the line defined by point 1 and 2
-	fT = std::min( std::max( fT, .0f ), 1.f );
-
-	VistaVector3D v3ClosestPoint( v3Point1Transformed + fT * v3U2 );
-
-	VistaVector3D v3Return( m_ConeRef.TransformPositionFromFrame( v3ClosestPoint ) );
-
-	return v3Return;
-}
-
-/*============================================================================*/
-/* LOCAL VARS AND FUNCS                                                       */
-/*============================================================================*/
-
-
