@@ -290,8 +290,9 @@ protected:
 	GetterFn		m_pfGetter;
 };
 
+
 /**
- * TVistaPropertyGet implements a templated getter functor for a
+ * TVistaPropertyConvertAndGet implements a templated getter functor for a
  * IVistaReflectionable object. It should save you the job of writing an
  * own functor in most of the cases. This Version allows providing
  * a custim to-string conversion function
@@ -927,6 +928,58 @@ protected:
 };
 
 
+/**
+ * Helper function to allow creating the most common PropertyG/Sets with (partial) automatic
+ * template argument deduction, making them easier to write and read.
+ * None or only the first template parameter has to be provided, the remaining ones are derived from
+ * the parameters.
+ */
+namespace Vista
+{
+	// requires R to be explicitely specified
+	template< class R, class C, class Arg >
+	IVistaPropertySetFunctor* CreateVistaPropertySet( const std::string &sPropName,
+											const std::string &sClassType,
+											bool ( C::*pfSetter )( Arg ),
+											const std::string &sDescription = "" )
+	{
+		return new TVistaPropertySet< Arg, R, C >( sPropName, sClassType, pfSetter, sDescription );
+	}
+	
+	// requires no explicitely specified template args
+	template< class C, class CRes, class Arg >
+	IVistaPropertySetFunctor* CreateVistaPropertyConvertAndSet( const std::string &sPropName,
+					const std::string &sClassType,
+					bool ( C::*pfSetter )( Arg ),
+					CRes ( *pfConvert )( const std::string& ),
+					const std::string &sDescription = "" )
+	{
+		return new TVistaPropertyConvertAndSet< Arg, CRes, C >( sPropName,
+									sClassType, pfSetter, pfConvert, sDescription );
+	}
+
+	// requires nPropType to be explicitely specified
+	template< VistaProperty::ePropType nPropType, class C, class R >
+	IVistaPropertyGetFunctor* CreateVistaPropertyGet( const std::string &sPropName,
+											const std::string &sClassType,
+											R ( C::*pfGetter )() const,
+											const std::string &sDescription = "" )
+	{
+		return new TVistaPropertyGet< R, C, nPropType >( sPropName, sClassType, pfGetter, sDescription );
+	}
+
+	// requires nPropType to be explicitely specified
+	template< VistaProperty::ePropType nPropType, class C, class R, class ConvArg >
+	IVistaPropertyGetFunctor* CreateVistaPropertyConvertAndGet( const std::string &sPropName,
+					const std::string &sClassType,
+					R ( C::*pfGetter )() const,
+					std::string ( *pfConvert )( ConvArg ),
+					const std::string &sDescription = "" )
+	{
+		return new TVistaPropertyConvertAndGet< R, ConvArg, C, nPropType >( sPropName,
+									sClassType, pfGetter, pfConvert, sDescription );
+	}
+}
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
 /*============================================================================*/
