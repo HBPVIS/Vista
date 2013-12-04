@@ -181,11 +181,12 @@ public:
 
             // get queue top (i.e.: our selection focus!)
 			IVistaIntentionSelectAdapter *pNode = vIntenSelectAdapter[0];
+			VistaNodeAdapter *pNodeAdapter = dynamic_cast< VistaNodeAdapter* >( pNode );
 
             // identify the hightlight's box and pos
             // with the one from the node
             VistaVector3D v3WorldCoordinatesPos;
-            pNode->GetPosition( v3WorldCoordinatesPos );
+            pNodeAdapter->GetNode()->GetWorldPosition( v3WorldCoordinatesPos );
 
             // set as the higlight box is defined in world
             // space
