@@ -416,6 +416,18 @@ std::string VistaKeyboardSystemControl::GetKeyName( const int nKeyCode )
 			return "PG_DN";
 		case VISTA_KEY_MIDDLE:
 			return "MID";
+		case VISTA_KEY_ALT_LEFT:
+			return "ALT_LEFT";
+		case VISTA_KEY_ALT_RIGHT:
+			return "ALT_RIGHT";
+		case VISTA_KEY_SHIFT_LEFT:
+			return "SHIFT_LEFT";
+		case VISTA_KEY_SHIFT_RIGHT:
+			return "SHIFT_RIGHT";
+		case VISTA_KEY_CTRL_LEFT:
+			return "CTRL_LEFT";
+		case VISTA_KEY_CTRL_RIGHT:
+			return "CTRL_RIGHT";
 		default:
 			return std::string( 1, (char)nActual );
 	}
