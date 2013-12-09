@@ -466,7 +466,7 @@ bool VistaOpenSGPerMaterialShader::SetShadersFromString(
 	return true;	
 }
 
-bool VistaOpenSGPerMaterialShader::AddUniformParameter(
+bool VistaOpenSGPerMaterialShader::SetUniformParameter(
 									const CShaderUniformParam& oParam )
 {
 	beginEditCP( m_pShaderData->m_pShader );

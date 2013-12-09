@@ -300,9 +300,9 @@ VistaOpenSGToonShader::VistaOpenSGToonShader()
 , m_iNumBins( 7 )
 {
 	m_pShader->SetShadersFromString( m_sVertexShader, m_sFragmentShader );
-	m_pShader->AddUniformParameter( VistaOpenSGPerMaterialShader::CShaderUniformParam(
+	m_pShader->SetUniformParameter( VistaOpenSGPerMaterialShader::CShaderUniformParam(
 				VistaOpenSGPerMaterialShader::CShaderUniformParam::OSG_ACTIVE_LIGHTS ) );
-	m_pShader->AddUniformParameter( VistaOpenSGPerMaterialShader::CShaderUniformParam(
+	m_pShader->SetUniformParameter( VistaOpenSGPerMaterialShader::CShaderUniformParam(
 										"iNumBins", m_iNumBins ) );
 }
 VistaOpenSGToonShader::VistaOpenSGToonShader(
@@ -315,9 +315,9 @@ VistaOpenSGToonShader::VistaOpenSGToonShader(
 , m_iNumBins( 7 )
 {
 	m_pShader->SetShadersFromFile( m_sVertexShaderFile, m_sFragmentShaderFile );
-	m_pShader->AddUniformParameter( VistaOpenSGPerMaterialShader::CShaderUniformParam(
+	m_pShader->SetUniformParameter( VistaOpenSGPerMaterialShader::CShaderUniformParam(
 				VistaOpenSGPerMaterialShader::CShaderUniformParam::OSG_ACTIVE_LIGHTS ) );
-	m_pShader->AddUniformParameter( VistaOpenSGPerMaterialShader::CShaderUniformParam(
+	m_pShader->SetUniformParameter( VistaOpenSGPerMaterialShader::CShaderUniformParam(
 										"iNumBins", m_iNumBins ) );
 }
 VistaOpenSGToonShader::~VistaOpenSGToonShader()
@@ -482,7 +482,7 @@ bool VistaOpenSGToonShader::SetIsEnabled( const bool bSet )
 
 bool VistaOpenSGToonShader::SetNumberOfIntensityBins( const int iBins )
 {
-	if( m_pShader->AddUniformParameter( VistaOpenSGPerMaterialShader::CShaderUniformParam(
+	if( m_pShader->SetUniformParameter( VistaOpenSGPerMaterialShader::CShaderUniformParam(
 										"iNumBins", iBins ) ) )
 	{
 		m_iNumBins = iBins;

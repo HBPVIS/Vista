@@ -295,7 +295,7 @@ VistaOpenSGPhongShader::VistaOpenSGPhongShader()
 , m_sFragmentShaderFile( "" )
 {
 	m_pShader->SetShadersFromString( m_sVertexShader, m_sFragmentShader );
-	m_pShader->AddUniformParameter( VistaOpenSGPerMaterialShader::CShaderUniformParam(
+	m_pShader->SetUniformParameter( VistaOpenSGPerMaterialShader::CShaderUniformParam(
 				VistaOpenSGPerMaterialShader::CShaderUniformParam::OSG_ACTIVE_LIGHTS ) );
 }
 VistaOpenSGPhongShader::VistaOpenSGPhongShader(
@@ -307,7 +307,7 @@ VistaOpenSGPhongShader::VistaOpenSGPhongShader(
 , m_sFragmentShaderFile( sFragmentShaderFile )
 {
 	m_pShader->SetShadersFromFile( m_sVertexShaderFile, m_sFragmentShaderFile );
-	m_pShader->AddUniformParameter( VistaOpenSGPerMaterialShader::CShaderUniformParam(
+	m_pShader->SetUniformParameter( VistaOpenSGPerMaterialShader::CShaderUniformParam(
 				VistaOpenSGPerMaterialShader::CShaderUniformParam::OSG_ACTIVE_LIGHTS ) );
 }
 VistaOpenSGPhongShader::~VistaOpenSGPhongShader()

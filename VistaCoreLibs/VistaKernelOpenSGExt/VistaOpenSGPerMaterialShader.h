@@ -94,7 +94,7 @@ public:
 	bool SetShadersFromString( const std::string& sVertexShader,
 							const std::string& sFragmentShader );
 
-	bool AddUniformParameter( const CShaderUniformParam& oParam );
+	bool SetUniformParameter( const CShaderUniformParam& oParam );
 
 	bool ApplyToGeometry( VistaGeometry *pGeometry );
 	bool ApplyToGeometry( VistaGeometry *pGeometry,
