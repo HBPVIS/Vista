@@ -436,22 +436,22 @@ bool VistaOpenSGPerMaterialShader::SetShadersFromFile(
 				<< sFragmentShaderFile << "]" << std::endl;
 		return false;
 	}
-	beginEditCP( m_pShaderData->m_pShader, osg::SHLChunk::FragmentProgramFieldMask );
+	beginEditCP( m_pShaderData->m_pShader );
 		if( m_pShaderData->m_pShader->readVertexProgram( oVertexShader ) == false )
 		{
 			vstr::warnp() << "[VistaOpenSGPerMaterialShader]: Could not parse vertex shader file ["
 				<< sVertexShaderFile << "]" << std::endl;
-			endEditCP( m_pShaderData->m_pShader, osg::SHLChunk::FragmentProgramFieldMask );
+			endEditCP( m_pShaderData->m_pShader );
 			return false;
 		}			
 		if( m_pShaderData->m_pShader->readFragmentProgram( oFragmentShader ) == false )
 		{
-			vstr::warnp() << "[VistaOpenSGPerMatrialShader]: Could not parse fragment shader file ["
+			vstr::warnp() << "[VistaOpenSGPerMaterialShader]: Could not parse fragment shader file ["
 				<< sFragmentShaderFile << "]" << std::endl;
-			endEditCP( m_pShaderData->m_pShader, osg::SHLChunk::FragmentProgramFieldMask );
+			endEditCP( m_pShaderData->m_pShader );
 			return false;
 		}
-	endEditCP( m_pShaderData->m_pShader, osg::SHLChunk::FragmentProgramFieldMask );
+	endEditCP( m_pShaderData->m_pShader );
 	return true;
 }
 	
@@ -459,71 +459,71 @@ bool VistaOpenSGPerMaterialShader::SetShadersFromString(
 							const std::string& sVertexShader,
 							const std::string& sFragmentShader )
 {
-	beginEditCP( m_pShaderData->m_pShader, osg::SHLChunk::FragmentProgramFieldMask );
+	beginEditCP( m_pShaderData->m_pShader );
 		m_pShaderData->m_pShader->setVertexProgram( sVertexShader );
 		m_pShaderData->m_pShader->setFragmentProgram( sFragmentShader );
-	endEditCP( m_pShaderData->m_pShader, osg::SHLChunk::FragmentProgramFieldMask );
+	endEditCP( m_pShaderData->m_pShader );
 	return true;	
 }
 
 bool VistaOpenSGPerMaterialShader::SetUniformParameter(
 									const CShaderUniformParam& oParam )
 {
-	beginEditCP( m_pShaderData->m_pShader );
-		switch( oParam.m_eType )
-		{			
-			case CShaderUniformParam::BOOL:
-				m_pShaderData->m_pShader->setUniformParameter( 
-							oParam.m_sName.c_str(), 
-							( oParam.m_iData != 0 ) );
-				break;
-			case CShaderUniformParam::INT:
-				m_pShaderData->m_pShader->setUniformParameter( 
-							oParam.m_sName.c_str(), 
-							oParam.m_iData );
-				break;
-			case CShaderUniformParam::FLOAT:
-				m_pShaderData->m_pShader->setUniformParameter( 
-							oParam.m_sName.c_str(),
-							osg::Real32( oParam.m_afData[0] ) );
-				break;
-			case CShaderUniformParam::VEC2:
-				m_pShaderData->m_pShader->setUniformParameter( 
-							oParam.m_sName.c_str(), 
-							osg::Vec2f( oParam.m_afData ) );
-				break;
-			case CShaderUniformParam::VEC3:
-				m_pShaderData->m_pShader->setUniformParameter( 
-							oParam.m_sName.c_str(), 
-							osg::Vec3f( oParam.m_afData ) );
-				break;
-			case CShaderUniformParam::VEC4:
-				m_pShaderData->m_pShader->setUniformParameter( 
-							oParam.m_sName.c_str(), 
-							osg::Vec4f( oParam.m_afData ) );
-				break;
-			case CShaderUniformParam::OSG_LIGHT_MASK:
-				m_pShaderData->m_pShader->setUniformParameter( "OSGActiveLightMask", 0 );
-				break;
-			case CShaderUniformParam::OSG_ACTIVE_LIGHTS:
-				m_pShaderData->m_pShader->setUniformParameter( "OSGLight0Active", 0 );
-				m_pShaderData->m_pShader->setUniformParameter( "OSGLight1Active", 0 );
-				m_pShaderData->m_pShader->setUniformParameter( "OSGLight2Active", 0 );
-				m_pShaderData->m_pShader->setUniformParameter( "OSGLight3Active", 0 );
-				m_pShaderData->m_pShader->setUniformParameter( "OSGLight4Active", 0 );
-				m_pShaderData->m_pShader->setUniformParameter( "OSGLight5Active", 0 );
-				m_pShaderData->m_pShader->setUniformParameter( "OSGLight6Active", 0 );
-				m_pShaderData->m_pShader->setUniformParameter( "OSGLight7Active", 0 );
-				break;
-			case CShaderUniformParam::OSG_CAMERA_POSITION:
-				m_pShaderData->m_pShader->setUniformParameter( "OSGCameraPosition", 0 );
-				break;
-			case CShaderUniformParam::INVALID:
-			default:
-				endEditCP( m_pShaderData->m_pShader );
-				return false;
-		}
-	endEditCP( m_pShaderData->m_pShader );
+	beginEditCP( m_pShaderData->m_pShader, osg::SHLChunk::ParametersFieldMask );
+	switch( oParam.m_eType )
+	{			
+		case CShaderUniformParam::BOOL:
+			m_pShaderData->m_pShader->setUniformParameter( 
+						oParam.m_sName.c_str(), 
+						( oParam.m_iData != 0 ) );
+			break;
+		case CShaderUniformParam::INT:
+			m_pShaderData->m_pShader->setUniformParameter( 
+						oParam.m_sName.c_str(), 
+						oParam.m_iData );
+			break;
+		case CShaderUniformParam::FLOAT:
+			m_pShaderData->m_pShader->setUniformParameter( 
+						oParam.m_sName.c_str(),
+						osg::Real32( oParam.m_afData[0] ) );
+			break;
+		case CShaderUniformParam::VEC2:
+			m_pShaderData->m_pShader->setUniformParameter( 
+						oParam.m_sName.c_str(), 
+						osg::Vec2f( oParam.m_afData ) );
+			break;
+		case CShaderUniformParam::VEC3:
+			m_pShaderData->m_pShader->setUniformParameter( 
+						oParam.m_sName.c_str(), 
+						osg::Vec3f( oParam.m_afData ) );
+			break;
+		case CShaderUniformParam::VEC4:
+			m_pShaderData->m_pShader->setUniformParameter( 
+						oParam.m_sName.c_str(), 
+						osg::Vec4f( oParam.m_afData ) );
+			break;
+		case CShaderUniformParam::OSG_LIGHT_MASK:
+			m_pShaderData->m_pShader->setUniformParameter( "OSGActiveLightMask", 0 );
+			break;
+		case CShaderUniformParam::OSG_ACTIVE_LIGHTS:
+			m_pShaderData->m_pShader->setUniformParameter( "OSGLight0Active", 0 );
+			m_pShaderData->m_pShader->setUniformParameter( "OSGLight1Active", 0 );
+			m_pShaderData->m_pShader->setUniformParameter( "OSGLight2Active", 0 );
+			m_pShaderData->m_pShader->setUniformParameter( "OSGLight3Active", 0 );
+			m_pShaderData->m_pShader->setUniformParameter( "OSGLight4Active", 0 );
+			m_pShaderData->m_pShader->setUniformParameter( "OSGLight5Active", 0 );
+			m_pShaderData->m_pShader->setUniformParameter( "OSGLight6Active", 0 );
+			m_pShaderData->m_pShader->setUniformParameter( "OSGLight7Active", 0 );
+			break;
+		case CShaderUniformParam::OSG_CAMERA_POSITION:
+			m_pShaderData->m_pShader->setUniformParameter( "OSGCameraPosition", 0 );
+			break;
+		case CShaderUniformParam::INVALID:
+		default:
+			endEditCP( m_pShaderData->m_pShader, osg::SHLChunk::ParametersFieldMask );
+			return false;
+	}
+	endEditCP( m_pShaderData->m_pShader, osg::SHLChunk::ParametersFieldMask );
 	return true;
 }
 
