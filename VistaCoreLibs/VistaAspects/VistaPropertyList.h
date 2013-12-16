@@ -22,6 +22,7 @@
 /*============================================================================*/
 // $Id$
 
+
 #ifndef _VISTAPROPERTYLIST_H
 #define _VISTAPROPERTYLIST_H
 
@@ -571,8 +572,8 @@ inline bool VistaPropertyList::SetValueInSubList( const std::string& sPropName,
 												 const std::string& sSubList,
 												 const T& oValue )
 {
-	VistaProperty& oProp = (*this)[sPropName];
-	oProp.SetNameForNameable( sPropName );
+	VistaProperty& oProp = (*this)[sSubList];
+	oProp.SetNameForNameable( sSubList );
 	if( oProp.GetPropertyType() == VistaProperty::PROPT_NIL )
 		oProp.SetPropertyType( VistaProperty::PROPT_PROPERTYLIST );
 	else if( oProp.GetPropertyType() != VistaProperty::PROPT_PROPERTYLIST )
