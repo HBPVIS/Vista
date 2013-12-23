@@ -2692,7 +2692,7 @@ bool VistaSystem::ArgHelpMsg (const std::string& sAppName, std::ostream *pStream
 	PrintMsg("-record <path>                      : record the session and write it to the specified folder\n", pStream);
 	PrintMsg("-replay <path>                      : replay a recorded session written to the specified folder\n", pStream);
 	PrintMsg("-kill_after_frame <frames>          : ends application after the specified amount of frames\n", pStream);
-	PrintMsg("-kill_after_time <path>             : ends application after the specified time\n", pStream);
+	PrintMsg("-kill_after_time <seconds>          : ends application after the specified time\n", pStream);
 	PrintMsg("-capture_frames <n>                 : captures every n'th frame\n", pStream);
 	PrintMsg("-capture_frames_periodically <t>    : captures frame every t seconds\n", pStream);
 	PrintMsg("-capture_frames_with_framerate <f>  : captures frame at f Hz frequency framerate\n", pStream);
