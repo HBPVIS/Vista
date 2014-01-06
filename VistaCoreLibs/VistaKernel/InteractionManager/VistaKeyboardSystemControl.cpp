@@ -241,9 +241,13 @@ bool VistaKeyboardSystemControl::BindAction( int nKeyCode,
 	CommandMap::iterator itCurrent = mapCommands.find( nKeyCode );
 	if( itCurrent != mapCommands.end() )
 	{
-		if( bForce && (*itCurrent).second.m_bManageDeletion )
+		if( bForce )			
 		{
-			delete (*itCurrent).second.m_pCallback;
+			if( (*itCurrent).second.m_bManageDeletion )
+				delete (*itCurrent).second.m_pCallback;
+			vstr::warnp() << "[KeyboardSysControl::BindAction]: Binding Callback - Key ["
+					<< GetModifiersName(nModifiers) << GetKeyName(nKeyCode) 
+					<< "] already in use by (" << (*itCurrent).second.m_strHelpText << "), wil be replaced" << std::endl;
 		}
 		else
 		{
