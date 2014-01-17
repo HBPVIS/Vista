@@ -182,7 +182,7 @@ struct DriverInfo
 
 namespace
 {
-
+  // @todo: move absolute path functions to VistaFileSystemNode
 	bool isAbsolutePath(const std::string& path)
 	{
 		if(path.empty() ||
