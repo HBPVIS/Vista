@@ -15,7 +15,7 @@
 /*                  and orientation data from input devices, and also         */
 /*                  records command key events                                */
 /*                                                                            */
-/*                                                 Copyright (c)  1998-2013   */
+/*                                                 Copyright (c)  1998-2014   */
 /*                                                 by  RWTH-Aachen, Germany   */
 /*                                                 All rights reserved.       */
 /*                                             .                              */

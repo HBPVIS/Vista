@@ -1,6 +1,6 @@
 /*============================================================================*/
 /*                    ViSTA VR toolkit - Jsw Joystick driver                  */
-/*               Copyright (c) 1997-2013 RWTH Aachen University               */
+/*               Copyright (c) 1997-2014 RWTH Aachen University               */
 /*============================================================================*/
 /*                                  License                                   */
 /*                                                                            */
