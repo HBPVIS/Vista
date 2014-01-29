@@ -41,6 +41,7 @@
 /*============================================================================*/
 
 VistaDefSemaphoreImp::VistaDefSemaphoreImp ( unsigned int inStart )
+: IVistaSemaphoreImp()
 {
 	if ( inStart > INT_MAX )
 		counter = INT_MAX;

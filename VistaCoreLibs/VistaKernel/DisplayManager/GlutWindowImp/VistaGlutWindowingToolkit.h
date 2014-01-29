@@ -57,6 +57,7 @@ class VISTAKERNELAPI VistaGlutWindowingToolkit : public IVistaWindowingToolkit
 {
 public:
 	VistaGlutWindowingToolkit();
+	~VistaGlutWindowingToolkit();
 
 	virtual void Run();
 	virtual void Quit();

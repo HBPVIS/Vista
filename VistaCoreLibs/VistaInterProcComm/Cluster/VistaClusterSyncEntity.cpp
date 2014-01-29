@@ -32,12 +32,14 @@
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
 IVistaClusterSyncEntity::IVistaClusterSyncEntity( const bool bVerbose, const bool bIsLeader )
-: m_bVerbose( bVerbose )
+: IVistaObserveable()
+, m_bVerbose( bVerbose )
 , m_bIsLeader( bIsLeader )
 {
 }
 
 IVistaClusterSyncEntity::IVistaClusterSyncEntity( const IVistaClusterSyncEntity& )
+: IVistaObserveable()
 {
 }	
 

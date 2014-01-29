@@ -69,8 +69,8 @@ public:
 	void Post    ();
 
 private:
-	VistaDefSemaphoreImp ( const VistaDefSemaphoreImp & ) {};
-	VistaDefSemaphoreImp & operator=       ( const VistaDefSemaphoreImp & ) { return *this; };
+	VistaDefSemaphoreImp ( const VistaDefSemaphoreImp & );
+	VistaDefSemaphoreImp & operator=       ( const VistaDefSemaphoreImp & );
 
 	VistaMutex		counterAccess, wait;
 	int				counter;

@@ -186,8 +186,11 @@ namespace
 
 	void CloseFunction()
 	{
-		vstr::warni() << "GlutWindow closed - Quitting Vista" << std::endl;
-		GetVistaSystem()->Quit();
+		if( GetVistaSystem() )
+		{
+			vstr::warni() << "GlutWindow closed - Quitting Vista" << std::endl;
+			GetVistaSystem()->Quit();
+		}
 	}
 }
 
@@ -219,6 +222,10 @@ VistaGlutWindowingToolkit::VistaGlutWindowingToolkit()
 {
 	int iArgs = 0;
 	glutInit( &iArgs, NULL );
+}
+
+VistaGlutWindowingToolkit::~VistaGlutWindowingToolkit()
+{
 }
 
 /*============================================================================*/
@@ -261,10 +268,6 @@ void VistaGlutWindowingToolkit::Run()
 #endif
 
 #else
-	// set the close function to catch window close attempts
-	glutCloseFunc( CloseFunction );
-	glutSetOption( GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION );
-
 	while( !m_bQuitLoop )
 	{
 		if( m_bHasFullWindow )
@@ -272,6 +275,7 @@ void VistaGlutWindowingToolkit::Run()
 		else
 			m_pUpdateCallback->Do();
 	}
+	
 #endif
 }
 
@@ -353,6 +357,12 @@ bool VistaGlutWindowingToolkit::UnregisterWindow( VistaWindow* pWindow )
 	int iID = (*itExists).second->m_iWindowID;
 	if( iID != -1 )
 	{
+		#ifndef USE_NATIVE_GLUT
+		PushWindow( (*itExists).second );
+		// unset the close function
+		glutCloseFunc( NULL );
+		PopWindow();
+		#endif // USE_NATIVE_GLUT
 		glutDestroyWindow( iID );
 		S_mapWindowInfo.erase( iID );
 	}
@@ -459,6 +469,12 @@ bool VistaGlutWindowingToolkit::InitWindow( VistaWindow* pWindow )
 			SetVSyncMode( pWindow, false );
 
 		m_bHasFullWindow = true;
+		
+#ifndef USE_NATIVE_GLUT
+		// set the close function to catch window close attempts
+		glutCloseFunc( CloseFunction );
+		glutSetOption( GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION );
+#endif // USE_NATIVE_GLUT
 
 		glutPostRedisplay();
 
