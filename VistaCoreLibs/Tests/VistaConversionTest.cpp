@@ -129,78 +129,122 @@ inline void TestStringConversionContainers()
 /*============================================================================*/
 /* TESTS                                                                      */
 /*============================================================================*/
+//
+//
+//TEST( VistaConversionTest, StringConversions_float )
+//{
+//	TestStringConversion<float>();
+//	TestStringConversionContainers<float>();
+//}
+//
+//TEST( VistaConversionTest, StringConversions_double )
+//{
+//	TestStringConversion<double>();
+//	TestStringConversionContainers<double>();
+//}
+//
+//TEST( VistaConversionTest, StringConversions_int )
+//{
+//	TestStringConversion<int>();
+//	TestStringConversionContainers<int>();
+//}
+//
+//TEST( VistaConversionTest, StringConversions_long )
+//{
+//	TestStringConversion<long>();
+//	TestStringConversionContainers<long>();
+//}
+//
+//TEST( VistaConversionTest, StringConversions_short )
+//{
+//	TestStringConversion<short>();
+//	TestStringConversionContainers<short>();
+//}
+//
+//TEST( VistaConversionTest, StringConversions_unsigned_int )
+//{
+//	TestStringConversion<unsigned int>();
+//	TestStringConversionContainers<unsigned int>();
+//}
+//
+//TEST( VistaConversionTest, StringConversions_bool )
+//{
+//	TestStringConversion<bool>();
+//	TestStringConversionContainers<bool>();
+//}
+//
+//// Chars and strings can't be efficiently stored in containers,
+//// since they themselve can represent whitespaces or separators
+//TEST( VistaConversionTest, StringConversions_char )
+//{
+//	TestStringConversion<char>();
+//}
+//
+//TEST( VistaConversionTest, StringConversions_string )
+//{
+//	TestStringConversion<std::string>();
+//}
+//
+//
+//// MathTypes are lists already, so they can't be stored in
+//// containers this way
+//TEST( VistaConversionTest, StringConversions_VistaVector3D )
+//{
+//	TestStringConversion<VistaVector3D>();
+//}
+//
+//TEST( VistaConversionTest, StringConversions_VistaTransformMatrix )
+//{
+//	TestStringConversion<VistaTransformMatrix>();
+//}
+//
+//TEST( VistaConversionTest, StringConversions_VistaQuaternion )
+//{
+//	TestStringConversion<VistaQuaternion>();
+//}
 
-
-TEST( VistaConversionTest, StringConversions_float )
+TEST( VistaConversionTest, GetBinaryPrefixForExponent )
 {
-	TestStringConversion<float>();
-	TestStringConversionContainers<float>();
+	ASSERT_EQ( VistaConversion::GetBinaryPrefixForExponent( 0 ), "" );
+	ASSERT_EQ( VistaConversion::GetBinaryPrefixForExponent( 1 ), "kibi" );
+	ASSERT_EQ( VistaConversion::GetBinaryPrefixSymbolForExponent( 1 ), "Ki" );
+	ASSERT_EQ( VistaConversion::GetBinaryPrefixForExponent( -1 ), "" );
+	ASSERT_EQ( VistaConversion::GetBinaryPrefixForExponent( VistaConversion::GetNumberOfBinaryPrefixes() ), "yobi" );
+	ASSERT_EQ( VistaConversion::GetBinaryPrefixForExponent( VistaConversion::GetNumberOfBinaryPrefixes() + 1 ), "" );
 }
 
-TEST( VistaConversionTest, StringConversions_double )
+TEST( VistaConversionTest, GetBinaryPrefixForNumber )
 {
-	TestStringConversion<double>();
-	TestStringConversionContainers<double>();
+	int nResultInt;
+	float nResultFloat;
+	double nResultDouble;
+
+	ASSERT_EQ( VistaConversion::GetBinaryPrefixForNumber( 1.54, nResultDouble, false ), "" );
+	ASSERT_DOUBLE_EQ( nResultDouble, 1.54 );
+
+	ASSERT_EQ( VistaConversion::GetBinaryPrefixForNumber( 1024, nResultInt, true ), "Ki" );
+	ASSERT_EQ( nResultInt, 1 );
+	ASSERT_EQ( VistaConversion::GetBinaryPrefixForNumber( -1024, nResultInt, false ), "kibi" );
+	ASSERT_EQ( nResultInt, -1 );
+
+	ASSERT_EQ( VistaConversion::GetBinaryPrefixForNumber( -67.3e9, nResultDouble, true ), "Gi" );
+	double nExp = -67.3e9 / 1024.0 / 1024.0 / 1024.0;
+	ASSERT_DOUBLE_EQ( nResultDouble, nExp );
 }
 
-TEST( VistaConversionTest, StringConversions_int )
+TEST( VistaConversionTest, ConvertNumberToStringWithBinaryPrefix )
 {
-	TestStringConversion<int>();
-	TestStringConversionContainers<int>();
-}
+	ASSERT_EQ( VistaConversion::ConvertNumberToStringWithBinaryPrefix( 1.547, true ), "1.547" );
 
-TEST( VistaConversionTest, StringConversions_long )
-{
-	TestStringConversion<long>();
-	TestStringConversionContainers<long>();
-}
+	ASSERT_EQ( VistaConversion::ConvertNumberToStringWithBinaryPrefix( 123 * 1024 + 65, true ), "123Ki" );
+	ASSERT_EQ( VistaConversion::ConvertNumberToStringWithBinaryPrefix( -123 * 1024 - 128, true, true ), "-123 Ki" );
 
-TEST( VistaConversionTest, StringConversions_short )
-{
-	TestStringConversion<short>();
-	TestStringConversionContainers<short>();
-}
-
-TEST( VistaConversionTest, StringConversions_unsigned_int )
-{
-	TestStringConversion<unsigned int>();
-	TestStringConversionContainers<unsigned int>();
-}
-
-TEST( VistaConversionTest, StringConversions_bool )
-{
-	TestStringConversion<bool>();
-	TestStringConversionContainers<bool>();
-}
-
-// Chars and strings can't be efficiently stored in containers,
-// since they themselve can represent whitespaces or separators
-TEST( VistaConversionTest, StringConversions_char )
-{
-	TestStringConversion<char>();
-}
-
-TEST( VistaConversionTest, StringConversions_string )
-{
-	TestStringConversion<std::string>();
-}
-
-
-// MathTypes are lists already, so they can't be stored in
-// containers this way
-TEST( VistaConversionTest, StringConversions_VistaVector3D )
-{
-	TestStringConversion<VistaVector3D>();
-}
-
-TEST( VistaConversionTest, StringConversions_VistaTransformMatrix )
-{
-	TestStringConversion<VistaTransformMatrix>();
-}
-
-TEST( VistaConversionTest, StringConversions_VistaQuaternion )
-{
-	TestStringConversion<VistaQuaternion>();
+	ASSERT_EQ( VistaConversion::ConvertNumberToStringWithBinaryPrefix( 11.234 * 1024, false ), "11.234kibi" );
+	ASSERT_EQ( VistaConversion::ConvertNumberToStringWithBinaryPrefix( 11.234 * 1024, true, false, 0 ), "11Ki" );
+	ASSERT_EQ( VistaConversion::ConvertNumberToStringWithBinaryPrefix( 11.234567890 * 1024 * 1024, true, false, 3 ), "11.235Mi" );
+	ASSERT_EQ( VistaConversion::ConvertNumberToStringWithBinaryPrefix( 11.23456789 * 1024 * 1024 * 1024, true, false, 6 ), "11.234568Gi" );
+	ASSERT_EQ( VistaConversion::ConvertNumberToStringWithBinaryPrefix( 11.23456789 * 1024 * 1024 * 1024 * 1024 * 1024, true, false, 9 ), "11.234567890Pi" );
+	
 }
 
 int main( int argc, char** argv )

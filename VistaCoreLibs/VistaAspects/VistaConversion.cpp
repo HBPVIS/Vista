@@ -48,6 +48,39 @@ namespace
 			|| c == '[' || c == ']'
 			|| c == '{' || c == '}' );
 	}
+
+	typedef std::pair< std::string, std::string > PrefixDesc;
+	const PrefixDesc s_aSIPrefixesPositive[] = {
+					PrefixDesc( "kilo", "k" ),
+					PrefixDesc( "mega", "M" ),
+					PrefixDesc( "giga", "G" ),
+					PrefixDesc( "tera", "T" ),
+					PrefixDesc( "peta", "P" ),
+					PrefixDesc( "exa", "E" ),
+					PrefixDesc( "zetta", "Z" ),
+					PrefixDesc( "yotta", "Y" ) };
+	const PrefixDesc s_aSIPrefixesNegative[] = {
+					PrefixDesc( "milli", "m" ),
+					PrefixDesc( "micro", "u" ),
+					PrefixDesc( "nano", "n" ),
+					PrefixDesc( "pico", "p" ),
+					PrefixDesc( "femto", "f" ),
+					PrefixDesc( "atto", "a" ),
+					PrefixDesc( "zepto", "z" ),
+					PrefixDesc( "yocto", "y" ) };
+	const int s_nNumSIPrefixes = 8;
+
+	const PrefixDesc s_aBinaryPrefixes[] = {
+					PrefixDesc( "kibi", "Ki" ),
+					PrefixDesc( "mebi", "Mi" ),
+					PrefixDesc( "gibi", "Gi" ),
+					PrefixDesc( "tebi", "Ti" ),
+					PrefixDesc( "pebi", "Pi" ),
+					PrefixDesc( "exbi", "Ei" ),
+					PrefixDesc( "zebi", "Zi" ),
+					PrefixDesc( "yobi", "Yi" ) };
+	const int s_nNumBinaryPrefixes = 8;
+
 }
 
 /*============================================================================*/
@@ -112,6 +145,51 @@ bool VistaConversion::CheckRemainingStringEmpty( const std::string& sString,
 			return false;
 	}
 	return true;
+}
+
+std::string VistaConversion::GetMetricPrefixForExponent( const int nExponent )
+{
+	if( nExponent == 0 || nExponent > s_nNumSIPrefixes || nExponent < -s_nNumSIPrefixes )
+		return "";
+	if( nExponent < 0 )
+		return s_aSIPrefixesNegative[-nExponent -1].first;
+	else
+		return s_aSIPrefixesPositive[nExponent - 1].first;
+
+}
+
+std::string VistaConversion::GetMetricPrefixSymbolForExponent( const int nExponent )
+{
+	if( nExponent == 0 || nExponent > s_nNumSIPrefixes || nExponent < -s_nNumSIPrefixes )
+		return "";
+	if( nExponent < 0 )
+		return s_aSIPrefixesNegative[-nExponent -1].second;
+	else
+		return s_aSIPrefixesPositive[nExponent - 1].second;
+}
+
+std::string VistaConversion::GetBinaryPrefixForExponent( const int nExponent )
+{
+	if( nExponent <= 0 || nExponent > s_nNumSIPrefixes )
+		return "";
+	return s_aBinaryPrefixes[nExponent - 1].first;
+}
+
+std::string VistaConversion::GetBinaryPrefixSymbolForExponent( const int nExponent )
+{
+	if( nExponent <= 0 || nExponent > s_nNumSIPrefixes )
+		return "";
+	return s_aBinaryPrefixes[nExponent - 1].second;
+}
+
+VISTAASPECTSAPI int VistaConversion::GetNumberOfMetricPrefixes()
+{
+	return s_nNumSIPrefixes;
+}
+
+VISTAASPECTSAPI int VistaConversion::GetNumberOfBinaryPrefixes()
+{
+	return s_nNumBinaryPrefixes;
 }
 
 

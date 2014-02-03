@@ -275,10 +275,63 @@ namespace VistaConversion
 										const std::string& sString,
 										std::size_t nFrom,
 										char cSeparator );
+
+	/**
+	 * returns the Metric Prefix (e.g. kilo, mega, milli, etc.) or its Symbol(e.g. k, M, m, etc.)
+	 * for the given exponent of 1000, i.e. 1000^nExponent = 1^(3*nExponentGetNumberOfMetricPrefixes
+	 * If the exponent is not in the valid range [1, n] or [-n, -1] where n = GetNumberOfBinaryPrefixes(),
+	 * an empty string is returned.
+	 */
+	VISTAASPECTSAPI std::string GetMetricPrefixForExponent( const int nExponent );
+	VISTAASPECTSAPI std::string GetMetricPrefixSymbolForExponent( const int nExponent );
+	/**
+	 *  returns number of metric prefixes (for either positive or negative ones)
+	 */
+	VISTAASPECTSAPI int GetNumberOfMetricPrefixes();
+
+	// returns the Binary Prefix (e.g. kibi, mebi, gibi) for the given exponent of 1024,
+	// i.e. 1024^nExponent
+	VISTAASPECTSAPI std::string GetBinaryPrefixForExponent( const int nExponent );
+	/**
+	 * returns the Binary Prefix (e.g. kibi, mebi, gibi) or its symbol (e.g. Ki, Mi, Gi, etc.)
+	 * or the given exponent of 1024, i.e. 1024^nExponent.
+	 * If the exponent is not in the valid range [1, n] where n = GetNumberOfBinaryPrefixes(),
+	 * an empty string is returned.
+	 */ 
+	VISTAASPECTSAPI std::string GetBinaryPrefixSymbolForExponent( const int nExponent );
+	/**
+	 * returns number of binary prefixes (for either positive or negative ones)
+	 */
+	VISTAASPECTSAPI int GetNumberOfBinaryPrefixes();
+
+	/**
+	 * Returns the prefix or prefix symbol for nNumber, and stores the remaining value
+	 * in nPrefixNumber (i.e. 1234.5 becomes 1.2345 and prefix is kilo)
+	 */
+	template< typename TNumber >
+	std::string GetMetricPrefixForNumber( const TNumber nNumber,
+											TNumber& nPrefixNumber,
+											const bool bUseAbbreviatedSymbole );
+	template< typename TNumber >
+	std::string GetBinaryPrefixForNumber( const TNumber nNumber,
+											TNumber& nPrefixNumber,
+											const bool bUseAbbreviatedSymbol );
+
+	/**
+	 * Writes the number to a string with the appended metric or binary prefix, and optionally
+	 * fixes the number of digits after the period.
+	 */
+	template< typename TNumber >
+	std::string ConvertNumberToStringWithMetricPrefix( const TNumber nNumber,
+											const bool bUseAbbreviatedSymbol,
+											const bool bAddSpaceBetweenNumberAndPrefix = false,
+											const int nNumPostDotDigits = -1 );
+	template< typename TNumber >
+	std::string ConvertNumberToStringWithBinaryPrefix( const TNumber nNumber,
+											const bool bUseAbbreviatedSymbol,
+											const bool bAddSpaceBetweenNumberAndPrefix = false,
+											const int nNumPostDotDigits = -1 );
 }
-
-
-
 
 /////////////////////////////////////////////////////////
 ////// Inline implementations                      //////
@@ -328,6 +381,113 @@ namespace VistaConversion
 		sTarget = sSource.substr( nSegmentStart, nSegmentEnd - nSegmentStart + 1 );
 		return nPos + 1;
 
+	}
+
+	///////////////////////////////////
+	// PREFIX IMPLEMENTATIONS      ///
+	///////////////////////////////////
+
+	// helper function
+	template< typename TNumber >
+	inline int GetExponentForPrefix( const TNumber nNumber,
+								TNumber& nPrefixNumber,
+								const TNumber nFactor,
+								const int nMaxExponent )
+	{
+		nPrefixNumber = std::abs( nNumber );
+		const int nNumPrefixes = GetNumberOfMetricPrefixes();
+		int nExponent = 0;
+		if( nPrefixNumber < TNumber( 1 ) )
+		{
+			while( nPrefixNumber < TNumber( 1 ) && nExponent < nMaxExponent )
+			{
+				nPrefixNumber *= nFactor;
+				--nExponent;
+			}
+		}
+		else
+		{
+			while( nPrefixNumber >= nFactor && nExponent < nMaxExponent )
+			{
+				nPrefixNumber /= nFactor;
+				++nExponent;
+			}
+		}
+		if( nNumber < 0 )
+		{
+			nPrefixNumber = -nPrefixNumber;
+		}
+		return nExponent;
+	}
+	
+	template< typename TNumber >
+	inline std::string GetMetricPrefixForNumber( const TNumber nNumber,
+																	TNumber& nPrefixNumber,
+																	const bool bUseAbbreviatedSymbol )
+	{
+		int nExponent = GetExponentForPrefix( nNumber, nPrefixNumber, TNumber( 1000 ), GetNumberOfMetricPrefixes() );
+		if( bUseAbbreviatedSymbol )
+			return GetMetricPrefixSymbolForExponent( nExponent );
+		else
+			return GetMetricPrefixForExponent( nExponent );
+	}
+
+	template< typename TNumber >
+	inline std::string GetBinaryPrefixForNumber( const TNumber nNumber,
+																	TNumber& nPrefixNumber,
+																	const bool bUseAbbreviatedSymbol )
+	{
+		int nExponent = GetExponentForPrefix( nNumber, nPrefixNumber, TNumber( 1024 ), GetNumberOfBinaryPrefixes() );
+		if( bUseAbbreviatedSymbol )
+			return GetBinaryPrefixSymbolForExponent( nExponent );
+		else
+			return GetBinaryPrefixForExponent( nExponent );
+	}
+
+	template< typename TNumber >
+	inline std::string ConvertNumberToStringWithMetricPrefix( const TNumber nNumber,
+																	const bool bUseAbbreviatedSymbol,
+																	const bool bAddSpaceBetweenNumberAndPrefix,
+																	const int nNumPostDotDigits )
+	{
+		TNumber nPrefixNumber = 0;
+		int nExponent = GetExponentForPrefix( nNumber, nPrefixNumber, TNumber( 1000 ), GetNumberOfMetricPrefixes() );
+		std::stringstream sResult;
+		if( nNumPostDotDigits >= 0 )
+		{
+			sResult << std::setprecision( nNumPostDotDigits ) << std::fixed;
+		}
+		sResult << nPrefixNumber;
+		if( bAddSpaceBetweenNumberAndPrefix )
+			sResult << " ";
+		if( bUseAbbreviatedSymbol )
+			sResult << GetMetricPrefixSymbolForExponent( nExponent );
+		else
+			sResult << GetMetricPrefixForExponent( nExponent );
+		return sResult.str();
+	}
+
+	template< typename TNumber >
+	inline std::string ConvertNumberToStringWithBinaryPrefix( const TNumber nNumber,
+																	const bool bUseAbbreviatedSymbol,
+																	const bool bAddSpaceBetweenNumberAndPrefix,
+																	const int nNumPostDotDigits )
+	{
+		TNumber nPrefixNumber = 0;
+		int nExponent = GetExponentForPrefix( nNumber, nPrefixNumber, TNumber( 1024 ), GetNumberOfBinaryPrefixes() );
+		std::stringstream sResult;
+		if( nNumPostDotDigits >= 0 )
+		{
+			sResult << std::setprecision( nNumPostDotDigits ) << std::fixed;
+		}
+		sResult << nPrefixNumber;
+		if( bAddSpaceBetweenNumberAndPrefix )
+			sResult << " ";
+		if( bUseAbbreviatedSymbol )
+			sResult << GetBinaryPrefixSymbolForExponent( nExponent );
+		else
+			sResult << GetBinaryPrefixForExponent( nExponent );
+		return sResult.str();
 	}
 
 	///////////////////////////////////
