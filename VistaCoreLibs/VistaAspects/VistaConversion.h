@@ -394,12 +394,17 @@ namespace VistaConversion
 								const TNumber nFactor,
 								const int nMaxExponent )
 	{
+		if( nNumber == 0 )
+		{
+			nPrefixNumber = nNumber;
+			return 0;
+		}
 		nPrefixNumber = std::abs( nNumber );
 		const int nNumPrefixes = GetNumberOfMetricPrefixes();
 		int nExponent = 0;
 		if( nPrefixNumber < TNumber( 1 ) )
 		{
-			while( nPrefixNumber < TNumber( 1 ) && nExponent < nMaxExponent )
+			while( nPrefixNumber < TNumber( 1 ) && nExponent > -nMaxExponent )
 			{
 				nPrefixNumber *= nFactor;
 				--nExponent;
