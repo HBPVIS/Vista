@@ -223,27 +223,27 @@ namespace VistaConversion
 	 */
 	
 	template<int N, typename T> 
-	void ArrayToString( const T aSource[N], std::string& sTarget );
+	void ArrayToString( const T aSource[], std::string& sTarget );
 	template<int N, typename T> 
-	void ArrayToString( const T aSource[N], std::string& sTarget, char cSeparator );
+	void ArrayToString( const T aSource[], std::string& sTarget, char cSeparator );
 	template<typename T>
 	void ArrayToString( const T aSource[], std::string& sTarget, unsigned int nSize );
 	template<typename T>
 	void ArrayToString( const T aSource[], std::string& sTarget, unsigned int nSize, char cSeparator );
 
 	template<int N, typename T> 
-	std::string ArrayToString( const T aSource[N]  );
+	std::string ArrayToString( const T aSource[]  );
 	template<int N, typename T> 
-	std::string ArrayToString( const T aSource[N], char cSeparator );
+	std::string ArrayToString( const T aSource[], char cSeparator );
 	template<typename T> 
 	std::string ArrayToString( const T aSource[], unsigned int nSize );
 	template<typename T> 
 	std::string ArrayToString( const T aSource[], unsigned int nSize, char cSeparator  );
 	template<int N, typename T>
 
-	bool ArrayFromString( const std::string& sSource, T aTarget[N] );
+	bool ArrayFromString( const std::string& sSource, T aTarget[] );
 	template<int N, typename T> 
-	bool ArrayFromString( const std::string& sSource, T aTarget[N],	char cSeparator );
+	bool ArrayFromString( const std::string& sSource, T aTarget[],	char cSeparator );
 	template<typename T>
 	bool ArrayFromString( const std::string& sSource, T aTarget[], unsigned int nSize );
 	template<typename T> 
@@ -582,7 +582,7 @@ namespace VistaConversion
 	///////////////////////////////////////////////////
 
 	template<typename T> 
-	void ArrayToString( const T aSource[], std::string& sTarget,
+	inline void ArrayToString( const T aSource[], std::string& sTarget,
 						unsigned int nSize, char cSeparator )
 	{
 		sTarget.clear();
@@ -597,47 +597,47 @@ namespace VistaConversion
 		}
 	}
 	template<typename T> 
-	void ArrayToString( const T aSource[], std::string& sTarget,
+	inline void ArrayToString( const T aSource[], std::string& sTarget,
 						unsigned int nSize )
 	{
 		ArrayToString<T>( aSource, sTarget, nSize, S_cDefaultSeparator );
 	}
 	template<typename T> 
-	std::string ArrayToString( const T aSource[], unsigned int nSize, char cSeparator )
+	inline std::string ArrayToString( const T aSource[], unsigned int nSize, char cSeparator )
 	{
 		std::string sReturn;
 		ArrayToString<T>( aSource, sReturn, nSize, cSeparator );
 		return sReturn;
 	}
 	template<typename T> 
-	std::string ArrayToString( const T aSource[], unsigned int nSize )
+	inline std::string ArrayToString( const T aSource[], unsigned int nSize )
 	{
 		return ArrayToString<T>( aSource, nSize, S_cDefaultSeparator );
 	}
 
 	template<int N, typename T> 
-	void ArrayToString( const T aSource[N], std::string& sTarget, char cSeparator )
+	inline void ArrayToString( const T aSource[], std::string& sTarget, char cSeparator )
 	{
 		return ArrayToString<T>( aSource, sTarget, N, cSeparator );
 	}
 	template<int N, typename T> 
-	void ArrayToString( const T aSource[N], std::string& sTarget )
+	inline void ArrayToString( const T aSource[], std::string& sTarget )
 	{
 		return ArrayToString<T>( aSource, sTarget, N, S_cDefaultSeparator );
 	}
 	template<int N, typename T> 
-	std::string ArrayToString( const T aSource[N], char cSeparator )
+	inline std::string ArrayToString( const T aSource[], char cSeparator )
 	{
 		return ArrayToString<T>( aSource, N, cSeparator );
 	}
 	template<int N, typename T> 
-	std::string ArrayToString( const T aSource[N] )
+	inline std::string ArrayToString( const T aSource[] )
 	{
 		return ArrayToString<T>( aSource, N, S_cDefaultSeparator );
 	}
 
 	template<typename T> 
-	bool ArrayFromString( const std::string& sSource, T aTarget[],
+	inline bool ArrayFromString( const std::string& sSource, T aTarget[],
 						unsigned int nSize, char cSeparator )
 	{
 		std::size_t nStringPos = 0;
@@ -659,19 +659,19 @@ namespace VistaConversion
 		return CheckRemainingStringEmpty( sSource, nStringPos, cSeparator );
 	}
 	template<typename T> 
-	bool ArrayFromString( const std::string& sSource, T aTarget[],
+	inline bool ArrayFromString( const std::string& sSource, T aTarget[],
 						unsigned int nSize )
 	{
 		return ArrayFromString<T>( sSource, aTarget, nSize, S_cDefaultSeparator );
 	}
 
 	template<int N, typename T> 
-	bool ArrayFromString( const std::string& sSource, T aTarget[N],	char cSeparator )
+	inline bool ArrayFromString( const std::string& sSource, T aTarget[],	char cSeparator )
 	{
 		return ArrayFromString<T>( sSource, aTarget, N, cSeparator );
 	}
 	template<int N, typename T> 
-	bool ArrayFromString( const std::string& sSource, T aTarget[N] )
+	inline bool ArrayFromString( const std::string& sSource, T aTarget[] )
 	{
 		return ArrayFromString<T>( sSource, aTarget, N, S_cDefaultSeparator );
 	}

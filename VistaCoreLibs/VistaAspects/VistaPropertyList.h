@@ -131,7 +131,7 @@ public:
 	bool GetValueOrDefault( const std::string& sPropName, T& oTarget, const T& oDefault ) const;	
 
 	template<int ArraySize, class T>
-	bool GetValueAsArray( const std::string& sPropName, T aTarget[ArraySize] ) const;
+	bool GetValueAsArray( const std::string& sPropName, T aTarget[] ) const;
 	
 	template<class T>
 	bool GetValueInSubList( const std::string& sPropName, const std::string& sSubList, T& oTarget ) const;
@@ -155,7 +155,7 @@ public:
 	void SetValue( const std::string& sPropName, const T& oValue );
 
 	template<int N, typename T>
-	void SetValueFromArray( const std::string& sPropName, const T oValue[N] );
+	void SetValueFromArray( const std::string& sPropName, const T oValue[] );
 
 	/**
 	 * Sets a property in a sublist to the desired value
@@ -382,7 +382,7 @@ inline bool VistaPropertyList::GetValue( const std::string& sPropName, T& oTarge
 }
 
 template<int ArraySize, class T>
-bool VistaPropertyList::GetValueAsArray( const std::string& sPropName, T aTarget[ArraySize] ) const
+bool VistaPropertyList::GetValueAsArray( const std::string& sPropName, T aTarget[] ) const
 {
 	const_iterator itEntry = find( sPropName );
 	if( itEntry == end() 
@@ -584,7 +584,7 @@ inline bool VistaPropertyList::SetValueInSubList( const std::string& sPropName,
 
 template<int N, typename T>
 inline void VistaPropertyList::SetValueFromArray( const std::string& sPropName,
-												 const T oValue[N] )
+												 const T oValue[] )
 {
 	std::string sValue;
 	VistaConversion::ArrayToString<N, T>( oValue, sValue );
