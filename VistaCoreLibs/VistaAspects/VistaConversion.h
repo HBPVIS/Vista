@@ -400,7 +400,6 @@ namespace VistaConversion
 			return 0;
 		}
 		nPrefixNumber = std::abs( nNumber );
-		const int nNumPrefixes = GetNumberOfMetricPrefixes();
 		int nExponent = 0;
 		if( nPrefixNumber < TNumber( 1 ) )
 		{
