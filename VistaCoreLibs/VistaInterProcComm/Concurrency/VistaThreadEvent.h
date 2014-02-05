@@ -44,15 +44,40 @@ public:
 	VistaThreadEvent(bool bUsePipes=false);
 	virtual ~VistaThreadEvent();
 
-	void SignalEvent();
+	/**
+	 * Set this event to the signaled state. This wakes one of the
+	 * threads currently blocking on the signal using the WaitForEvent
+	 * methods. Iff a waiting thread is released by this, the event
+	 * will automatically be reset to the non-signaled state, see
+	 * ResetThisEvent().
+	 */
+	 void SignalEvent();
 
-	long WaitForEvent(bool bBlock);
+	/**
+	 * Poll/Wait for signaled event. If bBlock is true, do a blocking
+	 * wait, otherwise just poll and return immediately.
+	 *
+	 * @return true if event was signaled, false otherwise.
+	 */
+	bool WaitForEvent(bool bBlock);
 
-	long WaitForEvent(int iBlockTime);
+	/**
+	 * Block on this event until the timeout specified in milliseconds
+	 * has elapsed.
+	 *
+	 * @return true if signaled, false upon timeout.
+	 */
+	bool WaitForEvent(int iTimeoutMSecs);
+
+	/**
+	 * Manually reset the event to the non-signaled state. This is for
+	 * the case that the event has been set to signaled, but no thread
+	 * was resumed by it, i.e. no one was listening.
+	 */
+	bool ResetThisEvent();
+
 	HANDLE GetEventSignalHandle() const;
 	HANDLE GetEventWaitHandle() const;
-
-	bool ResetThisEvent();
 
 private:
 	IVistaThreadEventImp *m_pImpl;

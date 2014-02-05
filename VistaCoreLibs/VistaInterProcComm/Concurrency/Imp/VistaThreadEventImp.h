@@ -41,8 +41,9 @@ public:
 	virtual ~IVistaThreadEventImp();
 
 	virtual void SignalEvent() = 0;
-	virtual long WaitForEvent(bool bBlock) = 0;
-	virtual long WaitForEvent(int iBlockTime) = 0;
+
+	virtual bool WaitForEvent(bool bBlock) = 0;
+	virtual bool WaitForEvent(int iTimeoutMSecs) = 0;
 
 	virtual HANDLE GetEventSignalHandle() const = 0;
 	virtual HANDLE GetEventWaitHandle() const = 0;

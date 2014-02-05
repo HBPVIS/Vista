@@ -82,7 +82,7 @@ public:
 	/**
 	 * give the processor away temporarily
 	 */
-	void            YieldThread   ();
+	void YieldThread   ();
 
 	/**
 	 * Method that is to be performed BEFORE departed fork starts execution

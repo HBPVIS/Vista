@@ -25,29 +25,24 @@
 #include <VistaInterProcComm/Concurrency/VistaIpcThreadModel.h>
 
 #if !defined(VISTA_THREADING_WIN32)
-// project includes
 
 #include "VistaPosixThreadEventImp.h"
 
 #if defined (LINUX) || defined (DARWIN)
 	#include <sys/ioctl.h>
-
 #elif defined(SUNOS) || defined(IRIX)
-		#include <sys/types.h>
-		#include <sys/filio.h>
+	#include <sys/types.h>
+	#include <sys/filio.h>
 #endif
 
-# include <stdio.h>
-# include <unistd.h>
-# include <assert.h>
-# define PIPE_R 0
-# define PIPE_W 1
+#include <stdio.h>
+#include <unistd.h>
+#include <assert.h>
 
-/*============================================================================*/
+#include <algorithm>
 
-// always put this line below your constant definitions
-// to avoid problems with HP's compiler
-//using namespace std;
+#define PIPE_R 0
+#define PIPE_W 1
 
 /*============================================================================*/
 /*  MAKROS AND DEFINES                                                        */
@@ -59,18 +54,18 @@
 
 VistaPosixThreadEventImp::VistaPosixThreadEventImp()
 {
-  int res = pipe(m_fd);
-  if(!res)
-  {
-	  // HOUSTON, WE HAVE GOT A PROBLEM
-  }
+	int res = pipe(m_fd);
+	if(!res)
+	{
+		// HOUSTON, WE HAVE GOT A PROBLEM
+	}
 }
 
 
 VistaPosixThreadEventImp::~VistaPosixThreadEventImp()
 {
-  close(m_fd[PIPE_R]);
-  close(m_fd[PIPE_W]);
+	close(m_fd[PIPE_R]);
+	close(m_fd[PIPE_W]);
 }
 
 
@@ -84,50 +79,65 @@ VistaPosixThreadEventImp::~VistaPosixThreadEventImp()
 
 void VistaPosixThreadEventImp::SignalEvent()
 {
-   VistaPosixThreadEventImp* pThis = this;
+	VistaPosixThreadEventImp* pThis = this;
    
-   int n=0;
-   if(0<=ioctl(m_fd[PIPE_W],FIONREAD,(char*)&n) && n==0)
-	   write(m_fd[PIPE_W], &pThis, sizeof(this));
+	int n = 0;
+	if(0 <= ioctl(m_fd[PIPE_W],FIONREAD,(char*)&n) && n==0)
+		write(m_fd[PIPE_W], &pThis, sizeof(this));
 }
 
-long VistaPosixThreadEventImp::WaitForEvent(int iBlockTime)
+bool VistaPosixThreadEventImp::WaitForEvent(int iTimeoutMSecs)
 {
-  VistaPosixThreadEventImp *pThis;
- /* struct timeval delta;
-	
-  delta.tv_usec=iBlockTime%1000;
-  delta.tv_sec=(int)((double)iBlockTime/1000.0);
+	VistaPosixThreadEventImp *pThis;
 
-	if(select(1, (fd_set*)&m_fd, NULL, NULL, &delta)==0)
-		return -1; // nothing there.
-*/
-  // ok, read and block ;)
-  read(m_fd[PIPE_R], (void*)&pThis, sizeof(pThis));
-  assert(pThis==this);
+	struct timeval tv;
+	int secs = iTimeoutMSecs / 1000;
+	tv.tv_sec  = secs;
+	tv.tv_usec = (iTimeoutMSecs - secs*1000) * 1000;
 
-  return 0;
+	fd_set readfds;
+	FD_ZERO(&readfds);
+	FD_SET(m_fd[PIPE_R], &readfds);
 
+	// @todo add descriptors to exceptfds set and check for errors
+	select(m_fd[PIPE_R]+1, &readfds, NULL, NULL, &tv);
+	if(FD_ISSET(m_fd[PIPE_R], &readfds))
+	{
+		read(m_fd[PIPE_R], (void*)&pThis, sizeof(pThis));
+		assert(pThis==this);
+		return true;
+	}
+
+	return false;
 }
 
-long VistaPosixThreadEventImp::WaitForEvent(bool bBlock)
+bool VistaPosixThreadEventImp::WaitForEvent(bool bBlock)
 {
-  VistaPosixThreadEventImp *pThis;
-  if(!bBlock)
-  {
-/*	struct timeval delta;
-	delta.tv_usec=0;
-	delta.tv_sec=0;
+	VistaPosixThreadEventImp *pThis;
 
-	if(select(1, (fd_set*)&m_fd, NULL, NULL, &delta)==0)
-		return -1; // nothing there.
-*/
-  }
+	struct timeval tv;
+	struct timeval *ptv=NULL;
+	if(!bBlock)
+	{
+		tv.tv_sec  = 0;
+		tv.tv_usec = 0;
+		ptv = &tv;
+	}	
 
-  // ok, read and block ;)
-  read(m_fd[PIPE_R], (void*)&pThis, sizeof(pThis));
-  assert(pThis==this);
-  return 0;
+	fd_set readfds;
+	FD_ZERO(&readfds);
+	FD_SET(m_fd[PIPE_R], &readfds);
+
+	// @todo add descriptors to exceptfds set and check for errors
+	select(m_fd[PIPE_R]+1, &readfds, NULL, NULL, ptv);
+	if(FD_ISSET(m_fd[PIPE_R], &readfds))
+	{
+		read(m_fd[PIPE_R], (void*)&pThis, sizeof(pThis));
+		assert(pThis==this);
+		return true;
+	}
+
+	return false;
 }
 
 HANDLE VistaPosixThreadEventImp::GetEventSignalHandle() const
@@ -169,5 +179,3 @@ bool VistaPosixThreadEventImp::ResetThisEvent()
 #endif
 
 // ============================================================================
-// ============================================================================
-

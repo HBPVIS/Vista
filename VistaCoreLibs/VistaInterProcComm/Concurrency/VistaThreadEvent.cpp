@@ -59,12 +59,12 @@ void VistaThreadEvent::SignalEvent()
 	m_pImpl->SignalEvent();
 }
 
-long VistaThreadEvent::WaitForEvent(int iBlockTime)
+bool VistaThreadEvent::WaitForEvent(int iTimeoutMSecs)
 {
-	return m_pImpl->WaitForEvent(iBlockTime);
+	return m_pImpl->WaitForEvent(iTimeoutMSecs);
 }
 
-long VistaThreadEvent::WaitForEvent(bool bBlock)
+bool VistaThreadEvent::WaitForEvent(bool bBlock)
 {
 	return m_pImpl->WaitForEvent(bBlock);
 }

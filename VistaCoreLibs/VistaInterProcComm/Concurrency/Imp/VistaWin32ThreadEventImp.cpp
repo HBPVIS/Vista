@@ -62,16 +62,15 @@ void VistaWin32ThreadEventImp::SignalEvent()
 	::SetEvent(m_EventHandle);
 } 
 
-long VistaWin32ThreadEventImp::WaitForEvent(int iBlockTime)
+bool VistaWin32ThreadEventImp::WaitForEvent(int iTimeoutMSecs)
 {
-	if(WaitForSingleObject(m_EventHandle, iBlockTime)==WAIT_OBJECT_0)
+	if(WaitForSingleObject(m_EventHandle, iTimeoutMSecs)==WAIT_OBJECT_0)
 		return 0;
 	return -1;
 } 
 
-long VistaWin32ThreadEventImp::WaitForEvent(bool bBlock)
+bool VistaWin32ThreadEventImp::WaitForEvent(bool bBlock)
 {
-
 	if(bBlock)
 	{
 		if(WaitForSingleObject(m_EventHandle, INFINITE)==WAIT_OBJECT_0)

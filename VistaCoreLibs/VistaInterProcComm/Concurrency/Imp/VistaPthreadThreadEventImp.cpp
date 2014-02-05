@@ -26,16 +26,9 @@
 
 
 #if defined(VISTA_THREADING_POSIX)
-// project includes
 
-#include "VistaPthreadThreadEventImp.h"
 #include <errno.h>
-
-/*============================================================================*/
-
-// always put this line below your constant definitions
-// to avoid problems with HP's compiler
-//using namespace std;
+#include "VistaPthreadThreadEventImp.h"
 
 /*============================================================================*/
 /*  MAKROS AND DEFINES                                                        */
@@ -46,7 +39,7 @@
 /*============================================================================*/
 
 VistaPthreadThreadEventImp::VistaPthreadThreadEventImp()
-: autoreset(true), state(0)
+	: state(0)
 {
 	pthread_mutex_init(&mtx, 0);
 	pthread_cond_init(&cond, 0);
@@ -59,11 +52,6 @@ VistaPthreadThreadEventImp::~VistaPthreadThreadEventImp()
 	pthread_mutex_destroy(&mtx);
 }
 
-
-/*============================================================================*/
-/*============================================================================*/
-/*============================================================================*/
-
 /*============================================================================*/
 /*  IMPLEMENTATION                                                            */
 /*============================================================================*/
@@ -71,41 +59,56 @@ VistaPthreadThreadEventImp::~VistaPthreadThreadEventImp()
 void VistaPthreadThreadEventImp::SignalEvent()
 {
 	pthread_mutex_lock(&mtx);
+	
 	state = 1;
-	if (autoreset)
-		pthread_cond_signal(&cond);
-	else
-		pthread_cond_broadcast(&cond);
+	pthread_cond_signal(&cond);
+	
 	pthread_mutex_unlock(&mtx);
 }
 
-long VistaPthreadThreadEventImp::WaitForEvent(int msecs)
+bool VistaPthreadThreadEventImp::WaitForEvent(int iTimeoutMSecs)
 {
+	bool ret = true;
+
 	pthread_mutex_lock(&mtx);
-	if (state == 0)
+	if(state == 0)
 	{
-		struct timespec tv;
-		tv.tv_sec  = (msecs != 0) ? (msecs / 1000000) : 0;
-		tv.tv_nsec = (msecs != 0) ? (msecs % 1000000) : 0;
+		struct timespec ts;
+		clock_gettime(CLOCK_REALTIME, &ts);
+		
+		// add delta to nanoseconds
+		ts.tv_nsec += long(iTimeoutMSecs) * 1000000L;
 
-		if(pthread_cond_timedwait(&cond, &mtx, &tv) == ETIMEDOUT)
-			return 0;
+		// wrap nanoseconds
+		int sec_wrap = ts.tv_nsec / 1000000000L;
+		ts.tv_sec += sec_wrap;
+		ts.tv_nsec = ts.tv_nsec - sec_wrap * 1000000000L;
+
+		if(pthread_cond_timedwait(&cond, &mtx, &ts) == ETIMEDOUT)
+			ret = false;
 	}
-	if (autoreset)
-		state = 0;
+	state = 0;
 	pthread_mutex_unlock(&mtx);
-	return 1;
+
+	return ret;
 }
 
-long VistaPthreadThreadEventImp::WaitForEvent(bool bBlock)
+bool VistaPthreadThreadEventImp::WaitForEvent(bool bBlock)
 {
+	bool ret = true;
+
 	pthread_mutex_lock(&mtx);
-	if (state == 0)
-		pthread_cond_wait(&cond, &mtx);
-	if (autoreset)
-		state = 0;
+	if(bBlock)
+	{
+		if(state == 0)
+			pthread_cond_wait(&cond, &mtx);
+	}
+	else if(state == 0)
+		ret = false;
+	state = 0;
 	pthread_mutex_unlock(&mtx);
-  return 1;
+
+	return ret;
 }
 
 HANDLE VistaPthreadThreadEventImp::GetEventSignalHandle() const

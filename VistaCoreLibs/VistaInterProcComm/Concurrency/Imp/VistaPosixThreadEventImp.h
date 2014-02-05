@@ -40,16 +40,16 @@ class VISTAINTERPROCCOMMAPI VistaPosixThreadEventImp : public IVistaThreadEventI
 {
 private:
 	int m_fd[2];
+
 protected:
 public:
-
 	VistaPosixThreadEventImp( );
 	virtual ~VistaPosixThreadEventImp();
 
-
 	void SignalEvent();
-	long WaitForEvent(bool bBlock);
-	long WaitForEvent(int iBlockTime);
+
+	bool WaitForEvent(bool bBlock);
+	bool WaitForEvent(int iTimeoutMSecs);
 
 	virtual HANDLE GetEventSignalHandle() const;
 	virtual HANDLE GetEventWaitHandle() const;
