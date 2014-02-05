@@ -56,7 +56,6 @@ public:
 
 private:
 	IVistaThreadEventImp *m_pImpl;
-	VistaThreadEvent() {};
 };
 
 
