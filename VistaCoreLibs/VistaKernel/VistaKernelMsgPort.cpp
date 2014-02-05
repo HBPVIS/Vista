@@ -212,9 +212,8 @@ public:
 
 	bool WaitForNextPacket(int iTimeout) const
 	{
-
 		unsigned long uiRet = (*m_pIncomingConnection).WaitForIncomingData(iTimeout);
-		if(uiRet == ~0)
+		if(uiRet == ~0U)
 		{
 			// timeout
 		}
