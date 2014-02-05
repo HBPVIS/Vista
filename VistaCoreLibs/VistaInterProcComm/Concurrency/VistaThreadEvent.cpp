@@ -34,9 +34,9 @@
 /*============================================================================*/
 
 
-VistaThreadEvent::VistaThreadEvent(bool bCreatePosix)
+VistaThreadEvent::VistaThreadEvent(bool bUsePipes)
 {
-	m_pImpl = IVistaThreadEventImp::CreateThreadEventImp(bCreatePosix);
+	m_pImpl = IVistaThreadEventImp::CreateThreadEventImp(bUsePipes);
 }
 
 

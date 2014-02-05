@@ -41,7 +41,7 @@ class IVistaThreadEventImp;
 class VISTAINTERPROCCOMMAPI VistaThreadEvent
 {
 public:
-	VistaThreadEvent(bool bCreatePosix);
+	VistaThreadEvent(bool bUsePipes);
 	virtual ~VistaThreadEvent();
 
 	void SignalEvent();
