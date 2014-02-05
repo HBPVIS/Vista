@@ -94,8 +94,7 @@ long VistaPthreadThreadEventImp::WaitForEvent(int msecs)
 	if (autoreset)
 		state = 0;
 	pthread_mutex_unlock(&mtx);
-  return 1;
-
+	return 1;
 }
 
 long VistaPthreadThreadEventImp::WaitForEvent(bool bBlock)

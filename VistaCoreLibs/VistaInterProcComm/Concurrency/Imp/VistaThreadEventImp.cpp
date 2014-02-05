@@ -55,13 +55,13 @@ IVistaThreadEventImp::IVistaThreadEventImp()
 IVistaThreadEventImp::~IVistaThreadEventImp()
 {}
 
-IVistaThreadEventImp *IVistaThreadEventImp::CreateThreadEventImp(bool bCreatePosix)
+IVistaThreadEventImp *IVistaThreadEventImp::CreateThreadEventImp(bool bUsePipes)
 {
 #if defined(VISTA_THREADING_WIN32)
 	return new VistaWin32ThreadEventImp;
 	
 #elif defined(VISTA_THREADING_POSIX)
-	if(bCreatePosix)
+	if(bUsePipes)
 		return new VistaPosixThreadEventImp;
 	else
 		return new VistaPthreadThreadEventImp;

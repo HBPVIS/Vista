@@ -44,34 +44,34 @@
 VistaPosixSemaphoreImp::VistaPosixSemaphoreImp(int nCount)
 {
 #if defined(DARWIN)
-  // since mac os x only supports pthreads named semaphores, we have to use
-  // those. since we don't want to synthesize unique names for each semaphore
-  // after the creation we call sem_unlink immediately.
-  // @todo: check for thread safety! (another thread might call sem_open before
-  // sem_unlink was called, thus the call to sem_open will fail...
-  if((m_pSemaphore = sem_open("/vista_fake_semaphore", O_CREAT, 0, nCount)) == SEM_FAILED)
+	// since mac os x only supports pthreads named semaphores, we have to use
+	// those. since we don't want to synthesize unique names for each semaphore
+	// after the creation we call sem_unlink immediately.
+	// @todo: check for thread safety! (another thread might call sem_open before
+	// sem_unlink was called, thus the call to sem_open will fail...
+	if((m_pSemaphore = sem_open("/vista_fake_semaphore", O_CREAT, 0, nCount)) == SEM_FAILED)
     {
-    perror("error: ");
-    VISTA_THROW("[VistaPosixSemaphore]: sem_open() failed", 0L);
+		perror("error: ");
+		VISTA_THROW("[VistaPosixSemaphore]: sem_open() failed", 0L);
     }
-  else
+	else
     {
-      sem_unlink("/vista_fake_semaphore");
+		sem_unlink("/vista_fake_semaphore");
     }
 #else
-  m_pSemaphore = new sem_t;
-  if(sem_init(m_pSemaphore, 0, nCount) == -1)
-    VISTA_THROW("[VistaPosixSemaphore]: sem_init() failed", 0L);
+	m_pSemaphore = new sem_t;
+	if(sem_init(m_pSemaphore, 0, nCount) == -1)
+		VISTA_THROW("[VistaPosixSemaphore]: sem_init() failed", 0L);
 #endif
 }
 
 VistaPosixSemaphoreImp::~VistaPosixSemaphoreImp()
 {
 #if defined(DARWIN)
-  sem_close(m_pSemaphore);
+	sem_close(m_pSemaphore);
 #else
-  sem_destroy(m_pSemaphore);
-  delete m_pSemaphore;
+	sem_destroy(m_pSemaphore);
+	delete m_pSemaphore;
 #endif
 }
 
@@ -87,12 +87,12 @@ void VistaPosixSemaphoreImp::Wait    ()
 	{
 		switch(nRet)
 		{
-			case EINTR:
-				VISTA_THROW("[VistaPosixSemaphore]: Wait() cancelled by signal", 0L);
-			case EINVAL:
-				VISTA_THROW("[VistaPosixSemaphore]: NOT A VALID SEMAPHORE", 0L);
-			default:
-				break;
+		case EINTR:
+			VISTA_THROW("[VistaPosixSemaphore]: Wait() cancelled by signal", 0L);
+		case EINVAL:
+			VISTA_THROW("[VistaPosixSemaphore]: NOT A VALID SEMAPHORE", 0L);
+		default:
+			break;
 		}
 	}
 }

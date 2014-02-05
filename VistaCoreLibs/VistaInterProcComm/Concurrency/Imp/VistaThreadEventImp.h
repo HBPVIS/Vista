@@ -49,7 +49,7 @@ public:
 
 	virtual bool ResetThisEvent() = 0;
 
-	static IVistaThreadEventImp *CreateThreadEventImp(bool bCreatePosix=false);
+	static IVistaThreadEventImp *CreateThreadEventImp(bool bUsePipes=false);
 };
 
 
