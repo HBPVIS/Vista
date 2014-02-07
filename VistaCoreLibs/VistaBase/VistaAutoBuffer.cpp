@@ -42,7 +42,7 @@
 
 VistaAutoBuffer::~VistaAutoBuffer()
 {
-	if((*m_cnt).DecAndTestNull())
+	if( m_cnt && (*m_cnt).DecAndTestNull())
 	{
 		delete m_cnt;
 		delete m_vecBuffer;
@@ -66,11 +66,12 @@ VistaAutoBuffer::VistaAutoBuffer()
 
 VistaAutoBuffer::VistaAutoBuffer( const VistaAutoBuffer &other )
 {
-	m_cnt = other.m_cnt;
-	if( m_cnt )
-		++(*m_cnt); // prevent crash from invalid buffer
-	m_vecBuffer = other.m_vecBuffer; // invalid buffers are NULL, copy of pointer is legal
-//	std::cout << "VistaAutoBuffer::VistaAutoBuffer@copyFrom(" << &other << ") @ " << this << std::endl;
+	m_cnt = other.m_cnt; // there is no race here: other lives on stack, will stay on stack and the copy on stack has
+						 // a ref-count != 0
+	if( m_cnt )// prevent crash when copying from an invalid buffer
+		++(*m_cnt);
+
+	m_vecBuffer = other.m_vecBuffer; // invalid buffers are NULL, copy of pointer is legal in that case
 }
 
 
@@ -79,14 +80,17 @@ VistaAutoBuffer &VistaAutoBuffer::operator=( const VistaAutoBuffer &other )
 	if( &other == this )
 		return *this;
 
-	if( m_cnt && m_cnt->DecAndTestNull() )
+	if( m_cnt && m_cnt->DecAndTestNull() ) // we are the last owner of this buffer, dump it
 	{
 		delete m_cnt;
 		delete m_vecBuffer;
 	}
 
 	m_cnt = other.m_cnt;
-	++(*m_cnt);
+
+	if( m_cnt )
+		++(*m_cnt);
+
 	m_vecBuffer = other.m_vecBuffer;
 
 	return *this;
