@@ -1047,6 +1047,7 @@ bool VistaOpenSGDisplayBridge::DrawFrame()
 		m_pWindowingToolkit->BindWindow( (*itWindow).second );
 		WindowData* pData = static_cast<WindowData*>( (*itWindow).second->GetData() );
 		pData->m_ptrWindow->render(m_pRenderAction);
+		m_pWindowingToolkit->UnbindWindow( (*itWindow).second );
 	}
 
 	// after rendering, we have to deactivate all filegrab foregrounds that
