@@ -327,7 +327,7 @@ void VrmlVisualizer::ParseParameters()
 				PrintUsage();
 				VISTA_THROW( "[VRMLVisualizer] No time for one step given.", 1 );
 			}
-			m_vrmlProps.SetDoubleValue( "steptime", VistaAspectsConversionStuff::ConvertToDouble(m_vecArgs[i+1]) );
+			m_vrmlProps.SetValue<double>( "steptime", VistaAspectsConversionStuff::ConvertToDouble(m_vecArgs[i+1]) );
 			continue;
 		}
 		else if( std::string("--time").compare( m_vecArgs[i] ) == 0 || std::string("-t").compare( m_vecArgs[i] ) == 0 )
@@ -338,7 +338,7 @@ void VrmlVisualizer::ParseParameters()
 				PrintUsage();
 				VISTA_THROW( "[VRMLVisualizer] No time for the animation given.", 1 );
 			}
-			m_vrmlProps.SetDoubleValue( "time", VistaAspectsConversionStuff::ConvertToDouble(m_vecArgs[i+1]) );
+			m_vrmlProps.SetValue<double>( "time", VistaAspectsConversionStuff::ConvertToDouble(m_vecArgs[i+1]) );
 			continue;
 		}
 		else if( std::string("--help").compare( m_vecArgs[i] ) == 0 || std::string("-h").compare( m_vecArgs[i] ) == 0 )
@@ -365,12 +365,12 @@ void VrmlVisualizer::ParseParameters()
 		}
 		if( !m_vrmlProps.HasProperty("steptime") )
 		{
-			m_vrmlProps.SetDoubleValue("steptime",
+			m_vrmlProps.SetValue<double>("steptime",
 				prof.GetTheProfileFloat(section,"STEPTIME",1,m_vrmlProps.GetValueOrDefault<std::string>("animationFilename")));
 		}
 		if( !m_vrmlProps.HasProperty("time") )
 		{
-			m_vrmlProps.SetDoubleValue("time",
+			m_vrmlProps.SetValue<double>("time",
 				prof.GetTheProfileFloat(section,"TIME",0,m_vrmlProps.GetValueOrDefault<std::string>("animationFilename")));
 		}
 	}
