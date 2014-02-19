@@ -85,7 +85,7 @@ extern "C" VISTAMIDIPLUGINAPI void UnloadCreationMethod(IVistaDriverCreationMeth
 
 extern "C" VISTAMIDIPLUGINAPI const char *GetDeviceClassName()
 {
-	return "VISTAMIDI";
+	return "MIDI";
 }
 
 
