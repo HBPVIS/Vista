@@ -115,14 +115,14 @@ namespace
 		new TVistaPropertyGet<int,
 		VistaWiimoteDriver::CWiiMoteParameters,
 		VistaProperty::PROPT_INT> (
-		"WIIMOTE_ID",
+		"WAITTIMEOUT",
 		SsReflectionName,
 		&VistaWiimoteDriver::CWiiMoteParameters::GetWaitTimeout,
 		"returns the value of the currently used timeout for connecting (in secs)"),
 		new TVistaPropertyGet<std::string,
 		VistaWiimoteDriver::CWiiMoteParameters,
 		VistaProperty::PROPT_STRING> (
-		"WAITTIMEOUT",
+		"WIIMOTE_ID",
 		SsReflectionName,
 		&VistaWiimoteDriver::CWiiMoteParameters::GetWiiMoteId,
 		"returns the current wiimote id"),
