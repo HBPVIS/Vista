@@ -122,6 +122,10 @@ struct GlutWindowInfo
 	, m_nFboDepthId( 0 )
 	, m_nFboColorId( 0 )
 	, m_nFboStencilId( 0 )
+	, m_iContextMajor( 1 )
+	, m_iContextMinor( 0 )
+	, m_bIsDebugContext( false )
+	, m_bIsForwardCompatible( false )
 	{
 	}
 
@@ -148,6 +152,10 @@ struct GlutWindowInfo
 	int					m_iWindowID;
 	std::string			m_sWindowTitle;
 	int					m_iVSyncMode;
+	int					m_iContextMajor;
+	int					m_iContextMinor;
+	bool				m_bIsDebugContext;
+	bool				m_bIsForwardCompatible;
 	bool				m_bCursorEnabled;
 	// for Offscreen Buffer
 	bool				m_bIsOffscreenBuffer;
@@ -409,6 +417,7 @@ bool VistaGlutWindowingToolkit::InitWindow( VistaWindow* pWindow )
 			iDisplayMode = iDisplayMode | GLUT_ACCUM;
 		if( pInfo->m_bUseStencilBuffer )
 			iDisplayMode = iDisplayMode | GLUT_STENCIL;
+
 		if( pInfo->m_bDrawBorder == false )
 		{
 #ifdef USE_NATIVE_GLUT
@@ -419,6 +428,37 @@ bool VistaGlutWindowingToolkit::InitWindow( VistaWindow* pWindow )
 				<< "Borderless windows not supported by current glut version" << std::endl;
 #else
 			iDisplayMode = iDisplayMode | GLUT_BORDERLESS;
+#endif
+		}
+
+		if( pInfo->m_iContextMajor != 1 || pInfo->m_iContextMinor != 0 )
+		{
+#ifdef USE_NATIVE_GLUT
+			vstr::warnp() << "[GlutWindowingToolkit]: "
+				<< "Context Version only available with freeglut" << std::endl;
+#else
+			glutInitContextVersion(pInfo->m_iContextMajor, pInfo->m_iContextMinor);
+			glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
+#endif
+		}
+
+		if( pInfo->m_bIsDebugContext || pInfo->m_bIsForwardCompatible )
+		{
+			int iContextFlags = 0;
+#ifdef USE_NATIVE_GLUT
+			vstr::warnp() << "[GlutWindowingToolkit]: "
+				<< "Context Flags (DebugContext, ForwardCompatible) only available with freeglut" << std::endl;
+#else
+			if( pInfo->m_bIsDebugContext )
+			{
+				iContextFlags |= GLUT_DEBUG;
+			}
+			if( pInfo->m_bIsForwardCompatible )
+			{
+				iContextFlags |= GLUT_FORWARD_COMPATIBLE;
+			}
+
+			glutInitContextFlags( iContextFlags );
 #endif
 		}
 
@@ -493,6 +533,38 @@ bool VistaGlutWindowingToolkit::InitWindow( VistaWindow* pWindow )
 				iDisplayMode = iDisplayMode | GLUT_ACCUM;
 			if( pInfo->m_bUseStencilBuffer )
 				iDisplayMode = iDisplayMode | GLUT_STENCIL;
+
+			if( pInfo->m_iContextMajor != 1 || pInfo->m_iContextMinor != 0 )
+			{
+#ifdef USE_NATIVE_GLUT
+				vstr::warnp() << "[GlutWindowingToolkit]: "
+					<< "Context Version only available with freeglut" << std::endl;
+#else
+				glutInitContextVersion(pInfo->m_iContextMajor, pInfo->m_iContextMinor);
+				glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
+#endif
+			}
+
+			if( pInfo->m_bIsDebugContext || pInfo->m_bIsForwardCompatible )
+			{
+				int iContextFlags = 0;
+#ifdef USE_NATIVE_GLUT
+				vstr::warnp() << "[GlutWindowingToolkit]: "
+					<< "Context Flags (DebugContext, ForwardCompatible) only available with freeglut" << std::endl;
+#else
+				if( pInfo->m_bIsDebugContext )
+				{
+					iContextFlags |= GLUT_DEBUG;
+				}
+				if( pInfo->m_bIsForwardCompatible )
+				{
+					iContextFlags |= GLUT_FORWARD_COMPATIBLE;
+				}
+
+				glutInitContextFlags( iContextFlags );
+#endif
+			}
+
 
 			glutInitDisplayMode( iDisplayMode );
 			m_nDummyWindowId = glutCreateWindow( "dummy" );
@@ -1199,6 +1271,75 @@ GlutWindowInfo* VistaGlutWindowingToolkit::GetWindowInfo( const VistaWindow* pWi
 	if( itWindow == m_mapWindowInfo.end() )
 		return NULL;
 	return (*itWindow).second;
+}
+
+bool VistaGlutWindowingToolkit::GetContextVersion( int& nMajor, int& nMinor, const VistaWindow* pTarget ) const
+{
+	GlutWindowInfo* pInfo = GetWindowInfo( pTarget );
+	nMajor = pInfo->m_iContextMajor;
+	nMinor = pInfo->m_iContextMinor;
+	return true;
+}
+
+bool VistaGlutWindowingToolkit::SetContextVersion( int nMajor, int nMinor, VistaWindow* pTarget )
+{
+	GlutWindowInfo* pInfo = GetWindowInfo( pTarget );
+	
+	if( pInfo->m_iWindowID != -1 )
+	{
+		vstr::warnp() << "[GlutWindow]: Trying to change context version on window ["
+				<< pTarget->GetNameForNameable() << "] - this can only be done before initialization"
+				<< std::endl;
+		return false;
+	}
+	
+	pInfo->m_iContextMajor = nMajor;
+	pInfo->m_iContextMinor = nMinor;
+	return true;
+}
+
+bool VistaGlutWindowingToolkit::GetIsDebugContext( const VistaWindow* pTarget ) const
+{
+	GlutWindowInfo* pInfo = GetWindowInfo( pTarget );
+	return pInfo->m_bIsDebugContext;
+}
+
+bool VistaGlutWindowingToolkit::SetIsDebugContext( const bool bIsDebug, VistaWindow* pTarget )
+{
+	GlutWindowInfo* pInfo = GetWindowInfo( pTarget );
+	
+	if( pInfo->m_iWindowID != -1 )
+	{
+		vstr::warnp() << "[GlutWindow]: Trying to change debug context flag on window ["
+				<< pTarget->GetNameForNameable() << "] - this can only be done before initialization"
+				<< std::endl;
+		return false;
+	}
+	
+	pInfo->m_bIsDebugContext = bIsDebug;
+	return true;
+}
+
+bool VistaGlutWindowingToolkit::GetIsForwardCompatible( const VistaWindow* pTarget ) const
+{
+	GlutWindowInfo* pInfo = GetWindowInfo( pTarget );
+	return pInfo->m_bIsForwardCompatible;
+}
+
+bool VistaGlutWindowingToolkit::SetIsForwardCompatible( const bool bIsForwardCompatible, VistaWindow* pTarget )
+{
+	GlutWindowInfo* pInfo = GetWindowInfo( pTarget );
+	
+	if( pInfo->m_iWindowID != -1 )
+	{
+		vstr::warnp() << "[GlutWindow]: Trying to change forward compatible flag on window ["
+				<< pTarget->GetNameForNameable() << "] - this can only be done before initialization"
+				<< std::endl;
+		return false;
+	}
+	
+	pInfo->m_bIsForwardCompatible = bIsForwardCompatible;
+	return true;
 }
 
 

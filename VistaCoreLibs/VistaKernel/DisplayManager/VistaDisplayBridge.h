@@ -207,6 +207,16 @@ public:
 	virtual bool SetWindowIsOffscreenBuffer( VistaWindow* pWindow, const bool bSet ) = 0;
 	virtual bool GetWindowRGBImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData ) = 0;
 	virtual bool GetWindowDepthImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData ) = 0;
+	virtual bool GetWindowContextVersion( int& nMajor, int& nMinor,
+										const VistaWindow* pTarget) const = 0;
+	virtual bool SetWindowContextVersion( int nMajor, int nMinor,
+										VistaWindow* pTarget) = 0;
+	virtual bool GetWindowIsDebugContext( const VistaWindow* pTarget ) const = 0;
+	virtual bool SetWindowIsDebugContext( const bool bIsDebug,
+										VistaWindow* pTarget ) = 0;
+	virtual bool GetWindowIsForwardCompatible( const VistaWindow* pTarget ) const = 0;
+	virtual bool SetWindowIsForwardCompatible( const bool bIsForwardCompatible,
+										VistaWindow* pTarget ) = 0;
 	virtual int GetWindowId( const VistaWindow* pTarget ) = 0;
 	virtual std::string GetWindowTitle( const VistaWindow* pTarget ) = 0;
 	virtual bool SetWindowTitle( const std::string& strTitle,

@@ -129,6 +129,17 @@ public:
 	virtual bool GetUseStencilBuffer( const VistaWindow* pWindow  ) const = 0;
 	virtual bool SetUseStencilBuffer( VistaWindow* pWindow, const bool bSet ) = 0;
 
+	virtual bool GetContextVersion( int& nMajor, int& nMinor,
+										const VistaWindow* pTarget) const = 0;
+	virtual bool SetContextVersion( int nMajor, int nMinor,
+										VistaWindow* pTarget) = 0;
+	virtual bool GetIsDebugContext( const VistaWindow* pTarget ) const = 0;
+	virtual bool SetIsDebugContext( const bool bIsDebug,
+										VistaWindow* pTarget ) = 0;
+	virtual bool GetIsForwardCompatible( const VistaWindow* pTarget ) const = 0;
+	virtual bool SetIsForwardCompatible( const bool bIsForwardCompatible,
+										VistaWindow* pTarget ) = 0;
+
 	virtual bool GetCursorIsEnabled( const VistaWindow* pWindow  ) const = 0;
 	virtual bool SetCursorIsEnabled( VistaWindow* pWindow, bool bSet ) = 0;
 

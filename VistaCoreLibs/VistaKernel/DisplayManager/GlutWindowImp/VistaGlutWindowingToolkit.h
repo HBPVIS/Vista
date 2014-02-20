@@ -100,6 +100,13 @@ public:
 
 	virtual bool GetUseOffscreenBuffer( const VistaWindow* pWindow  ) const;
 	virtual bool SetUseOffscreenBuffer( VistaWindow* pWindow, const bool bSet );
+	
+	virtual bool GetContextVersion( int& nMajor, int& nMinor, const VistaWindow* pTarget ) const;
+	virtual bool SetContextVersion( int nMajor, int nMinor, VistaWindow* pTarget );
+	virtual bool GetIsDebugContext( const VistaWindow* pTarget ) const;
+	virtual bool SetIsDebugContext( const bool bIsDebug, VistaWindow* pTarget );
+	virtual bool GetIsForwardCompatible( const VistaWindow* pTarget ) const;
+	virtual bool SetIsForwardCompatible( const bool bIsForwardCompatible, VistaWindow* pTarget );
 
 	virtual bool GetRGBImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData ) const;
 	virtual bool GetDepthImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData ) const;
@@ -130,6 +137,7 @@ private:
 	bool CheckVSyncAvailability();
 
 	GlutWindowInfo* GetWindowInfo( const VistaWindow* pWindow  ) const;
+
 private:	
 	typedef std::map<const VistaWindow*, GlutWindowInfo*>	WindowInfoMap;
 	WindowInfoMap						m_mapWindowInfo;

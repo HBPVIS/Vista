@@ -602,6 +602,15 @@ VistaSystem::~VistaSystem()
 	S_pVistaSystem = NULL;
 
 	m_liDriverPluginPathes.push_back( "." );
+
+	// unregister handlers that were registered in constructor
+#ifdef WIN32
+	SetConsoleCtrlHandler( (PHANDLER_ROUTINE)NULL, true );
+#else
+	::signal( SIGINT, NULL );
+	::signal( SIGTERM, NULL );
+	::signal( SIGPIPE, NULL );
+#endif	
 }
 
 /*============================================================================*/

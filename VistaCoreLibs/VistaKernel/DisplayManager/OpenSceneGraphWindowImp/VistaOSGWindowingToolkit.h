@@ -108,6 +108,13 @@ public:
 	virtual bool GetUseStencilBuffer( const VistaWindow* pWindow  ) const;
 	virtual bool SetUseStencilBuffer( VistaWindow* pWindow, const bool bSet );
 
+	virtual bool GetContextVersion( int& nMajor, int& nMinor, const VistaWindow* pTarget ) const;
+	virtual bool SetContextVersion( int nMajor, int nMinor, VistaWindow* pTarget );
+	virtual bool GetIsDebugContext( const VistaWindow* pTarget ) const;
+	virtual bool SetIsDebugContext( const bool bIsDebug, VistaWindow* pTarget );
+	virtual bool GetIsForwardCompatible( const VistaWindow* pTarget ) const;
+	virtual bool SetIsForwardCompatible( const bool bIsForwardCompatible, VistaWindow* pTarget );
+
 	enum
 	{
 		VSYNC_STATE_UNAVAILABLE = -2,
@@ -142,9 +149,6 @@ public:
 
 private:
 	OSGWindowInfo* GetWindowInfo( const VistaWindow* pWindow  ) const;
-
-
-
 
 private:	
 	typedef std::map<const VistaWindow*, OSGWindowInfo*>	WindowInfoMap;

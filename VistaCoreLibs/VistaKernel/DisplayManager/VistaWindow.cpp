@@ -197,6 +197,15 @@ namespace
 							("DRAW_BORDER", sSReflectionType,
 							 &VistaWindow::VistaWindowProperties::GetDrawBorder),
 		new TVistaProperty2RefGet<int, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_INT>
+							("CONTEXT_VERSION", sSReflectionType,
+							 &VistaWindow::VistaWindowProperties::GetContextVersion),
+		new TVistaPropertyGet<bool, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_BOOL>
+							("DEBUG_CONTEXT", sSReflectionType,
+							 &VistaWindow::VistaWindowProperties::GetIsDebugContext),
+		new TVistaPropertyGet<bool, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_BOOL>
+							("FORWARD_COMPATIBLE", sSReflectionType,
+							 &VistaWindow::VistaWindowProperties::GetIsForwardCompatible),
+		new TVistaProperty2RefGet<int, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_INT>
 							("POSITION", sSReflectionType,
 							 &VistaWindow::VistaWindowProperties::GetPosition),	
 		new TVistaProperty2RefGet<int, VistaWindow::VistaWindowProperties, VistaProperty::PROPT_INT>
@@ -241,9 +250,18 @@ namespace
 		new TVistaPropertySet<bool, bool, VistaWindow::VistaWindowProperties>
 							("USE_STENCIL_BUFFER", sSReflectionType,
 							 &VistaWindow::VistaWindowProperties::SetUseStencilBuffer),
-		 new TVistaPropertySet<bool, bool, VistaWindow::VistaWindowProperties>
+		new TVistaPropertySet<bool, bool, VistaWindow::VistaWindowProperties>
 							("DRAW_BORDER", sSReflectionType,
 							 &VistaWindow::VistaWindowProperties::SetDrawBorder),
+		new TVistaProperty2ValSet<int, VistaWindow::VistaWindowProperties>
+							("CONTEXT_VERSION", sSReflectionType,
+							 &VistaWindow::VistaWindowProperties::SetContextVersion),
+		new TVistaPropertySet<bool, bool, VistaWindow::VistaWindowProperties>
+							("DEBUG_CONTEXT", sSReflectionType,
+							&VistaWindow::VistaWindowProperties::SetIsDebugContext),
+		new TVistaPropertySet<bool, bool, VistaWindow::VistaWindowProperties>
+							("FORWARD_COMPATIBLE", sSReflectionType,
+							&VistaWindow::VistaWindowProperties::SetIsForwardCompatible),
 		new TVistaProperty2ValSet<int, VistaWindow::VistaWindowProperties>
 							("POSITION", sSReflectionType,
 							 &VistaWindow::VistaWindowProperties::SetPosition),
@@ -581,11 +599,65 @@ bool VistaWindow::VistaWindowProperties::GetIsOffscreenBuffer() const
 
 bool VistaWindow::VistaWindowProperties::SetIsOffscreenBuffer( const bool bSet )
 {
-	if( GetDisplayBridge()->SetWindowIsOffscreenBuffer( static_cast<VistaWindow*>( GetParent() ), bSet ) )
+	if( bSet != GetIsOffscreenBuffer()
+		&& GetDisplayBridge()->SetWindowIsOffscreenBuffer( static_cast<VistaWindow*>( GetParent() ), bSet ) )
 	{
 		Notify( MSG_OFFSCREEN_BUFFER_CHANGE );
 		return true;
 	}
 	return false;
 }
+
+bool VistaWindow::VistaWindowProperties::GetContextVersion( int& nMajor, int& nMinor ) const
+{
+	return GetDisplayBridge()->GetWindowContextVersion( nMajor, nMinor, static_cast<VistaWindow*>(GetParent()) );
+}
+
+bool VistaWindow::VistaWindowProperties::SetContextVersion( int nMajor, int nMinor )
+{
+	int nCurrentMajor = 0;
+	int nCurrentMinor = 0;
+	GetContextVersion( nCurrentMajor, nCurrentMinor );
+	if( nCurrentMinor == nMinor && nCurrentMajor == nMajor )
+		return false;
+	if( GetDisplayBridge()->SetWindowContextVersion( nMajor, nMinor, static_cast<VistaWindow*>(GetParent()) ) )
+	{
+		Notify( MSG_CONTEXT_VERSION_CHANGE );
+		return true;
+	}
+	return false;
+}
+
+bool VistaWindow::VistaWindowProperties::GetIsDebugContext() const
+{
+	return GetDisplayBridge()->GetWindowIsDebugContext( static_cast<VistaWindow*>(GetParent()) );
+}
+
+bool VistaWindow::VistaWindowProperties::SetIsDebugContext( bool bIsDebug )
+{
+	if( bIsDebug != GetIsDebugContext()
+		&& GetDisplayBridge()->SetWindowIsDebugContext( bIsDebug, static_cast<VistaWindow*>(GetParent()) ) )
+	{
+		Notify( MSG_DEBUG_CONTEXT_CHANGE );
+		return true;
+	}
+	return false;
+}
+
+bool VistaWindow::VistaWindowProperties::GetIsForwardCompatible() const
+{
+	return GetDisplayBridge()->GetWindowIsForwardCompatible( static_cast<VistaWindow*>(GetParent()) );
+}
+
+bool VistaWindow::VistaWindowProperties::SetIsForwardCompatible( bool bIsForwardCompatible )
+{
+	if( bIsForwardCompatible != GetIsForwardCompatible()
+		&& GetDisplayBridge()->SetWindowIsForwardCompatible( bIsForwardCompatible, static_cast<VistaWindow*>(GetParent()) ) )
+	{
+		Notify( MSG_FORWARD_COMPATIBLE_CHANGE );
+		return true;
+	}
+	return false;
+}
+
 

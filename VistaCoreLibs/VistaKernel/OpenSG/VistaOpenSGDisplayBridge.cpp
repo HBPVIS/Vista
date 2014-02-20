@@ -1734,6 +1734,35 @@ bool VistaOpenSGDisplayBridge::GetWindowDepthImage( const VistaWindow* pWindow, 
 	return m_pWindowingToolkit->GetDepthImage( pWindow, vecData );
 }
 
+bool VistaOpenSGDisplayBridge::GetWindowContextVersion( int& nMajor, int& nMinor, const VistaWindow* pTarget ) const
+{
+	return m_pWindowingToolkit->GetContextVersion( nMajor, nMinor, pTarget );
+}
+
+bool VistaOpenSGDisplayBridge::SetWindowContextVersion( int nMajor, int nMinor, VistaWindow* pTarget )
+{
+	return m_pWindowingToolkit->SetContextVersion( nMajor, nMinor, pTarget );
+}
+
+bool VistaOpenSGDisplayBridge::GetWindowIsDebugContext( const VistaWindow* pTarget ) const
+{
+	return m_pWindowingToolkit->GetIsDebugContext( pTarget );
+}
+
+bool VistaOpenSGDisplayBridge::SetWindowIsDebugContext( const bool bIsDebug, VistaWindow* pTarget )
+{
+	return m_pWindowingToolkit->SetIsDebugContext( bIsDebug, pTarget );
+}
+
+bool VistaOpenSGDisplayBridge::GetWindowIsForwardCompatible( const VistaWindow* pTarget ) const
+{
+	return m_pWindowingToolkit->GetIsForwardCompatible( pTarget );
+}
+
+bool VistaOpenSGDisplayBridge::SetWindowIsForwardCompatible( const bool bIsForwardCompatible, VistaWindow* pTarget )
+{
+	return m_pWindowingToolkit->SetIsForwardCompatible( bIsForwardCompatible, pTarget );
+}
 
 bool VistaOpenSGDisplayBridge::SetWindowTitle( const std::string& sTitle, VistaWindow* pTarget )
 {
@@ -2724,6 +2753,7 @@ bool VistaOpenSGDisplayBridge::GetShowCursor() const
 {
 	return m_bShowCursor;
 }
+
 
 
 

@@ -95,6 +95,9 @@ public:
 	 * OFFSCREEN_BUFFER     -   [bool]
 	 * STEREO               -   [bool]
 	 * DRAW_BORDER          -   [bool]
+	 * CONTEXT_VERSION      -   list of ints - 2 items]
+	 * DEBUG_CONTEXT        -   [bool]
+	 * FORWARD_COMPATIBLE   -   [bool]
 	 * POSITION             -   [list of ints - 2 items]
 	 * SIZE                 -   [list of ints - 2 items]
 	 * FULLSCREEN           -   [bool]
@@ -122,6 +125,9 @@ public:
 			MSG_TITLE_CHANGE,
 			MSG_VSYNC_CHANGE,
 			MSG_DRAW_BORDER_CHANGE,
+			MSG_CONTEXT_VERSION_CHANGE,
+			MSG_DEBUG_CONTEXT_CHANGE,
+			MSG_FORWARD_COMPATIBLE_CHANGE,
 			MSG_LAST
 		};
 
@@ -150,6 +156,13 @@ public:
 
 		bool GetIsOffscreenBuffer() const;
 		bool SetIsOffscreenBuffer( const bool bSet );
+
+		bool GetContextVersion( int& nMajor, int& nMinor ) const;
+		bool SetContextVersion( int nMajor, int nMinor );
+		bool GetIsDebugContext() const;
+		bool SetIsDebugContext( bool bIsDebug  );
+		bool GetIsForwardCompatible() const;
+		bool SetIsForwardCompatible( bool bIsForwardCompatible );
 
 		/**
 		 * returns the vsync mode:

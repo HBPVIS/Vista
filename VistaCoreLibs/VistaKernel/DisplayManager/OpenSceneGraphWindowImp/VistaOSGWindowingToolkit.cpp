@@ -28,6 +28,9 @@
 
 #include "VistaOSGWindowingToolkit.h"
 
+
+#include <GL/glew.h>
+
 #include <VistaKernel/DisplayManager/VistaDisplayManager.h>
 #include <VistaKernel/DisplayManager/VistaWindow.h>
 #include <VistaKernel/DisplayManager/VistaDisplay.h>
@@ -73,6 +76,11 @@ struct OSGWindowInfo
 	, m_bCursorEnabled( true )
 	, m_pOSGWindow( NULL )
 	, m_bDrawBorder( true )
+	, m_iContextMajor( 1 )
+	, m_iContextMinor( 0 )
+	, m_bIsDebugContext( false )
+	, m_bIsForwardCompatible( false )
+	, m_bIsOffscreenBuffer( false )
 	{
 	}
 
@@ -92,10 +100,15 @@ struct OSGWindowInfo
 	bool				m_bUseStereo;
 	bool				m_bUseAccumBuffer;
 	bool				m_bUseStencilBuffer;
+	int					m_iContextMajor;
+	int					m_iContextMinor;
+	bool				m_bIsDebugContext;
+	bool				m_bIsForwardCompatible;
 	std::string			m_sWindowTitle;
 	int					m_iVSyncMode;
 	bool				m_bCursorEnabled;
 	bool				m_bDrawBorder;
+	bool				m_bIsOffscreenBuffer;
 	osgGA::EventQueue::Events m_oEvents;
 };
 
@@ -258,6 +271,7 @@ bool VistaOSGWindowingToolkit::InitWindow( VistaWindow* pWindow )
 	}
 	else		
 		pTraits->screenNum = 0; // OSGTodo
+
 	pTraits->x = pInfo->m_iCurrentPosX;
 	pTraits->y = pInfo->m_iCurrentPosY;
 	pTraits->width = pInfo->m_iCurrentSizeX;
@@ -270,6 +284,15 @@ bool VistaOSGWindowingToolkit::InitWindow( VistaWindow* pWindow )
 	pTraits->useCursor = pInfo->m_bCursorEnabled;
 	pTraits->vsync = ( pInfo->m_iVSyncMode == VSYNC_ENABLED );
 	pTraits->windowDecoration = pInfo->m_bDrawBorder;
+	pTraits->glContextVersion = VistaConversion::ToString( pInfo->m_iContextMajor )
+							+ VistaConversion::ToString( pInfo->m_iContextMinor );
+	pTraits->glContextFlags = 0;
+	if( pInfo->m_bIsDebugContext )
+	{
+		vstr::warnp() << "[OSGWindow]: Debug context currently not supported for OpenSceneGraph windows" << std::endl;
+	}
+	if( pInfo->m_bIsForwardCompatible )
+		pTraits->glContextFlags |= GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT;
 
 	if( pInfo->m_bUseStencilBuffer )
 		pTraits->stencil = 8;
@@ -654,12 +677,114 @@ bool VistaOSGWindowingToolkit::SetUseOffscreenBuffer( VistaWindow* pWindow, cons
 
 bool VistaOSGWindowingToolkit::GetRGBImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData ) const
 {
-	VISTA_FUNCTION_NOT_IMPLEMENTED( "::VistaOSGWindowingToolkit::GetRGBImage( pWindow, vecData )" );
+	OSGWindowInfo* pInfo = GetWindowInfo( pWindow );
+	pInfo->m_pOSGWindow->makeCurrent();
+
+	int nNumPixels = pInfo->m_iCurrentSizeX * pInfo->m_iCurrentSizeY;
+	vecData.resize( 3 * nNumPixels );
+	if( pInfo->m_bIsOffscreenBuffer == false )
+	{
+		glReadBuffer( GL_BACK );
+		glReadPixels( 0, 0, pInfo->m_iCurrentSizeX, pInfo->m_iCurrentSizeY, GL_RGB, GL_UNSIGNED_BYTE, &vecData[0] );
+	}
+	else
+	{		
+		glReadBuffer( GL_COLOR_ATTACHMENT0 );
+		glReadPixels( 0, 0, pInfo->m_iCurrentSizeX, pInfo->m_iCurrentSizeY, GL_RGB, GL_UNSIGNED_BYTE, &vecData[0] );
+	}
+	return true;
 }
 
 bool VistaOSGWindowingToolkit::GetDepthImage( const VistaWindow* pWindow, std::vector< VistaType::byte >& vecData ) const
 {
-	VISTA_FUNCTION_NOT_IMPLEMENTED( "::VistaOSGWindowingToolkit::GetDepthImage( pWindow, vecData )" );
+	OSGWindowInfo* pInfo = GetWindowInfo( pWindow );
+	pInfo->m_pOSGWindow->makeCurrent();
+
+	int nNumPixels = pInfo->m_iCurrentSizeX * pInfo->m_iCurrentSizeY;
+	vecData.resize( 4 * nNumPixels );
+
+	if( pInfo->m_bIsOffscreenBuffer == false )
+	{
+		glReadBuffer( GL_BACK );
+		glReadPixels( 0, 0, pInfo->m_iCurrentSizeX, pInfo->m_iCurrentSizeY, GL_DEPTH_COMPONENT, GL_FLOAT, &vecData[0] );		
+	}
+	else
+	{
+		glReadBuffer( GL_FRONT );
+		glReadPixels( 0, 0, pInfo->m_iCurrentSizeX, pInfo->m_iCurrentSizeY, GL_DEPTH_COMPONENT, GL_FLOAT, &vecData[0] );
+	}
+
+	return true;
+}
+
+
+bool VistaOSGWindowingToolkit::GetContextVersion( int& nMajor, int& nMinor, const VistaWindow* pTarget ) const
+{
+	OSGWindowInfo* pInfo = GetWindowInfo( pTarget );
+	nMajor = pInfo->m_iContextMajor;
+	nMinor = pInfo->m_iContextMinor;
+	return true;
+}
+
+bool VistaOSGWindowingToolkit::SetContextVersion( int nMajor, int nMinor, VistaWindow* pTarget )
+{
+	OSGWindowInfo* pInfo = GetWindowInfo( pTarget );
+	
+	if( pInfo->m_pOSGWindow )
+	{
+		vstr::warnp() << "[OSGWindow]: Trying to change context version on window ["
+				<< pTarget->GetNameForNameable() << "] - this can only be done before initialization"
+				<< std::endl;
+		return false;
+	}
+	
+	pInfo->m_iContextMajor = nMajor;
+	pInfo->m_iContextMinor = nMinor;
+	return true;
+}
+
+bool VistaOSGWindowingToolkit::GetIsDebugContext( const VistaWindow* pTarget ) const
+{
+	OSGWindowInfo* pInfo = GetWindowInfo( pTarget );
+	return pInfo->m_bIsDebugContext;
+}
+
+bool VistaOSGWindowingToolkit::SetIsDebugContext( const bool bIsDebug, VistaWindow* pTarget )
+{
+	OSGWindowInfo* pInfo = GetWindowInfo( pTarget );
+	
+	if( pInfo->m_pOSGWindow )
+	{
+		vstr::warnp() << "[OSGWindow]: Trying to change debug context flag on window ["
+				<< pTarget->GetNameForNameable() << "] - this can only be done before initialization"
+				<< std::endl;
+		return false;
+	}
+	
+	pInfo->m_bIsDebugContext = bIsDebug;
+	return true;
+}
+
+bool VistaOSGWindowingToolkit::GetIsForwardCompatible( const VistaWindow* pTarget ) const
+{
+	OSGWindowInfo* pInfo = GetWindowInfo( pTarget );
+	return pInfo->m_bIsForwardCompatible;
+}
+
+bool VistaOSGWindowingToolkit::SetIsForwardCompatible( const bool bIsForwardCompatible, VistaWindow* pTarget )
+{
+	OSGWindowInfo* pInfo = GetWindowInfo( pTarget );
+	
+	if( pInfo->m_pOSGWindow )
+	{
+		vstr::warnp() << "[OSGWindow]: Trying to change forward compatible flag on window ["
+				<< pTarget->GetNameForNameable() << "] - this can only be done before initialization"
+				<< std::endl;
+		return false;
+	}
+	
+	pInfo->m_bIsForwardCompatible = bIsForwardCompatible;
+	return true;
 }
 
 
