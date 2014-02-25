@@ -42,13 +42,19 @@
 
 
 #if defined(USE_NATIVE_GLUT)
-  #if defined(DARWIN) // we use the mac os GLUT framework on darwin
-    #include <GLUT/glut.h>
-  #else
-    #include <GL/glut.h>
-  #endif
+	#if defined(DARWIN) // we use the mac os GLUT framework on darwin
+		#include <GLUT/glut.h>
+	#else
+		#include <GL/glut.h>
+	#endif
+	#define HAS_FREEGLUT_28 0
 #else
     #include <GL/freeglut.h>
+	#ifdef GLUT_COMPATIBILITY_PROFILE
+		#define HAS_FREEGLUT_28 1
+	#else
+		#define HAS_FREEGLUT_28 0
+	#endif
 #endif
 
 #include <string>
@@ -420,20 +426,17 @@ bool VistaGlutWindowingToolkit::InitWindow( VistaWindow* pWindow )
 
 		if( pInfo->m_bDrawBorder == false )
 		{
-#ifdef USE_NATIVE_GLUT
-			vstr::warnp() << "[GlutWindowingTollkit]: "
-				<< "Borderless windows only available with freeglut" << std::endl;
-#elif !defined GLUT_BORDERLESS
-			vstr::warnp() << "[GlutWindowingTollkit]: "
-				<< "Borderless windows not supported by current glut version" << std::endl;
-#else
+#if HAS_FREEGLUT_28
 			iDisplayMode = iDisplayMode | GLUT_BORDERLESS;
+#else
+			vstr::warnp() << "[GlutWindowingTollkit]: "
+				<< "Borderless windows only available with freeglut 2.8+" << std::endl;
 #endif
 		}
 
 		if( pInfo->m_iContextMajor != 1 || pInfo->m_iContextMinor != 0 )
 		{
-#ifdef USE_NATIVE_GLUT
+#if !HAS_FREEGLUT_28
 			vstr::warnp() << "[GlutWindowingToolkit]: "
 				<< "Context Version only available with freeglut" << std::endl;
 #else
@@ -445,9 +448,9 @@ bool VistaGlutWindowingToolkit::InitWindow( VistaWindow* pWindow )
 		if( pInfo->m_bIsDebugContext || pInfo->m_bIsForwardCompatible )
 		{
 			int iContextFlags = 0;
-#ifdef USE_NATIVE_GLUT
+#if !HAS_FREEGLUT_28
 			vstr::warnp() << "[GlutWindowingToolkit]: "
-				<< "Context Flags (DebugContext, ForwardCompatible) only available with freeglut" << std::endl;
+				<< "Context Flags (DebugContext, ForwardCompatible) only available with freeglut 2.8+" << std::endl;
 #else
 			if( pInfo->m_bIsDebugContext )
 			{
@@ -536,9 +539,9 @@ bool VistaGlutWindowingToolkit::InitWindow( VistaWindow* pWindow )
 
 			if( pInfo->m_iContextMajor != 1 || pInfo->m_iContextMinor != 0 )
 			{
-#ifdef USE_NATIVE_GLUT
+#if !HAS_FREEGLUT_28
 				vstr::warnp() << "[GlutWindowingToolkit]: "
-					<< "Context Version only available with freeglut" << std::endl;
+					<< "Context Version only available with freeglut 2.8+" << std::endl;
 #else
 				glutInitContextVersion(pInfo->m_iContextMajor, pInfo->m_iContextMinor);
 				glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
@@ -548,9 +551,9 @@ bool VistaGlutWindowingToolkit::InitWindow( VistaWindow* pWindow )
 			if( pInfo->m_bIsDebugContext || pInfo->m_bIsForwardCompatible )
 			{
 				int iContextFlags = 0;
-#ifdef USE_NATIVE_GLUT
+#if !HAS_FREEGLUT_28
 				vstr::warnp() << "[GlutWindowingToolkit]: "
-					<< "Context Flags (DebugContext, ForwardCompatible) only available with freeglut" << std::endl;
+					<< "Context Flags (DebugContext, ForwardCompatible) only available with freeglut 2.8+" << std::endl;
 #else
 				if( pInfo->m_bIsDebugContext )
 				{
