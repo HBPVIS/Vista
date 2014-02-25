@@ -498,6 +498,116 @@ protected:
 	SetterFunc		m_pfSetter;
 };
 
+template< class ClassType, class VariableType, VistaProperty::ePropType nPropType = VistaProperty::PROPT_STRING >
+class TVistaPublicVariablePropertyGet : public IVistaPropertyGetFunctor
+{
+public:
+	typedef VariableType (ClassType::*MemberVariable);
+	TVistaPublicVariablePropertyGet( const std::string& sPropName,
+							const std::string& sClassType,
+							MemberVariable pfMember,
+							const std::string &sDescription = "" )
+	: IVistaPropertyGetFunctor( sPropName, sClassType, sDescription )
+	, m_pfMember( pfMember )
+	{
+	}
+
+	virtual bool operator()(const IVistaPropertyAwareable &rObj,
+							VistaProperty &rProp) const
+	{
+		std::string sValue;
+		VistaConversion::ToString< VariableType >( static_cast< const ClassType& >( rObj ).*m_pfMember, sValue );
+		rProp.SetValue( sValue );
+		rProp.SetPropertyType( nPropType );
+		return true;
+	}
+
+protected:
+	MemberVariable m_pfMember;
+};
+template< class ClassType, class VariableType, class ConvertArg, VistaProperty::ePropType nPropType = VistaProperty::PROPT_STRING >
+class TVistaPublicVariablePropertyConvertAndGet : public IVistaPropertyGetFunctor
+{
+public:
+	typedef VariableType (ClassType::*MemberVariable);
+	typedef std::string (*ConvertFunc)( ConvertArg );
+
+	TVistaPublicVariablePropertyConvertAndGet( const std::string& sPropName,
+							const std::string& sClassType,
+							MemberVariable pfMember,
+							ConvertFunc pfConvert,
+							const std::string &sDescription = "" )
+	: IVistaPropertyGetFunctor( sPropName, sClassType, sDescription )
+	, m_pfMember( pfMember )
+	, m_pfConvert( pfConvert )
+	{
+	}
+
+	virtual bool operator()(const IVistaPropertyAwareable &rObj,
+							VistaProperty &rProp) const
+	{
+		std::string sValue = (*m_pfConvert)( static_cast< const ClassType& >( rObj ).*m_pfMember );
+		rProp.SetValue( sValue );
+		rProp.SetPropertyType( nPropType );
+		return true;
+	}
+
+protected:
+	MemberVariable m_pfMember;
+	ConvertFunc m_pfConvert;
+};
+template < class ClassType, class VariableType >
+class TVistaPublicVariablePropertySet : public IVistaPropertySetFunctor
+{
+public:
+	typedef VariableType (ClassType::*MemberVariable);
+
+	TVistaPublicVariablePropertySet(const std::string& sPropName,
+									const std::string& sClassType,
+									MemberVariable pfMember,
+									const std::string &sDescription = "")
+	: IVistaPropertySetFunctor(sPropName, sClassType, sDescription)
+	, m_pfMember( pfMember )
+	{
+	}
+
+	virtual bool operator()( IVistaPropertyAwareable& rObj, const VistaProperty& rProp )
+	{
+		return VistaConversion::FromString< VariableType >( rProp.GetValue(), static_cast< ClassType& >( rObj ).*m_pfMember );
+	}
+
+protected:
+	MemberVariable m_pfMember;
+};
+template < class ClassType, class VariableType, class ConvertArg = const std::string& >
+class TVistaPublicVariablePropertyConvertAndSet : public IVistaPropertySetFunctor
+{
+public:
+	typedef VariableType (ClassType::*MemberVariable);
+	typedef VariableType (*ConvertFunc)( ConvertArg );
+
+	TVistaPublicVariablePropertyConvertAndSet(const std::string& sPropName,
+									const std::string& sClassType,
+									MemberVariable pfMember,
+									ConvertFunc pfConvert,
+									const std::string &sDescription = "")
+	: IVistaPropertySetFunctor(sPropName, sClassType, sDescription)
+	, m_pfMember( pfMember )
+	, m_pfConvert( pfConvert )
+	{
+	}
+
+	virtual bool operator()( IVistaPropertyAwareable& rObj, const VistaProperty& rProp )
+	{
+		static_cast< ClassType& >( rObj ).*m_pfMember = (*m_pfConvert)( rProp.GetValue() );
+		return true;
+	}
+
+protected:
+	MemberVariable m_pfMember;
+	ConvertFunc m_pfConvert;
+};
+
 template<class C> class TVistaPublicStringPropertyGet : public IVistaPropertyGetFunctor
 {
 public:
@@ -979,6 +1089,7 @@ namespace Vista
 		return new TVistaPropertyConvertAndGet< R, ConvArg, C, nPropType >( sPropName,
 									sClassType, pfGetter, pfConvert, sDescription );
 	}
+
 }
 /*============================================================================*/
 /* LOCAL VARS AND FUNCS                                                       */
