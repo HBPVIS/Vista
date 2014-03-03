@@ -6,6 +6,8 @@ set( SubDirs tinyXML )
 
 set( DirFiles
 	EncodeBinary.h
+	VistaBase64.cpp
+	VistaBase64.h
 	VistaBasicProfiler.cpp
 	VistaBasicProfiler.h
 	VistaCPUInfo.cpp

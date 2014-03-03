@@ -53,6 +53,15 @@ endif()
 
 if( VISTACORELIBS_BUILD_TOOLS )
 
+	vista_configure_test( VistaBase64Test VistaBase64Test.cpp
+											../VistaTestingUtils/VistaTestingCompare.h
+											../VistaTestingUtils/VistaTestingRandom.h )
+	target_link_libraries( VistaBase64Test
+		VistaBase
+		VistaTools
+		${VISTA_USE_PACKAGE_LIBRARIES}
+	)
+	
 	vista_configure_test( VistaReflectionableTest VistaReflectionableTest.cpp
 											 ../VistaTestingUtils/VistaTestingCompare.h
 											../VistaTestingUtils/VistaTestingRandom.h
