@@ -490,9 +490,6 @@ TEST( VistaVector3DTest, CheckForValidity )
 	v3Test[Vista::Z] = std::numeric_limits<float>::infinity();
 	ASSERT_FALSE( v3Test.CheckForValidity() );
 	v3Test.SetToZeroVector();
-	v3Test[Vista::Y] = std::numeric_limits<float>::denorm_min();
-	ASSERT_FALSE( v3Test.CheckForValidity() );
-	v3Test.SetToZeroVector();
 	v3Test[Vista::X] = std::numeric_limits<float>::quiet_NaN();
 	ASSERT_FALSE( v3Test.CheckForValidity() );
 	v3Test.SetToZeroVector();
