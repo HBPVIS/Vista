@@ -106,12 +106,133 @@ namespace
 		}
 	}
 
+	void PushSplitQuad( std::vector<VistaIndexedVertex>::iterator& itFaceList,
+				int nVertex0, int nVertex1, int nVertex2, int nVertex3, int nVertexCenter,
+				int nTexCoord0, int nTexCoord1, int nTexCoord2, int nTexCoord3, int nTexCoordCenter,
+				int nNormalIndex )
+	{
+		(*itFaceList).SetCoordinateIndex( nVertex0 );
+		(*itFaceList).SetNormalIndex( nNormalIndex );
+		(*itFaceList).SetTextureCoordinateIndex( nTexCoord0 );
+		++itFaceList;
+		(*itFaceList).SetCoordinateIndex( nVertex1 );
+		(*itFaceList).SetNormalIndex( nNormalIndex );
+		(*itFaceList).SetTextureCoordinateIndex( nTexCoord1 );
+		++itFaceList;
+		(*itFaceList).SetCoordinateIndex( nVertexCenter );
+		(*itFaceList).SetNormalIndex( nNormalIndex );
+		(*itFaceList).SetTextureCoordinateIndex( nTexCoordCenter );
+		++itFaceList;
+
+		(*itFaceList).SetCoordinateIndex( nVertex1 );
+		(*itFaceList).SetNormalIndex( nNormalIndex );
+		(*itFaceList).SetTextureCoordinateIndex( nTexCoord1 );
+		++itFaceList;
+		(*itFaceList).SetCoordinateIndex( nVertex2 );
+		(*itFaceList).SetNormalIndex( nNormalIndex );
+		(*itFaceList).SetTextureCoordinateIndex( nTexCoord2 );
+		++itFaceList;
+		(*itFaceList).SetCoordinateIndex( nVertexCenter );
+		(*itFaceList).SetNormalIndex( nNormalIndex );
+		(*itFaceList).SetTextureCoordinateIndex( nTexCoordCenter );
+		++itFaceList;
+
+		(*itFaceList).SetCoordinateIndex( nVertex2 );
+		(*itFaceList).SetNormalIndex( nNormalIndex );
+		(*itFaceList).SetTextureCoordinateIndex( nTexCoord2 );
+		++itFaceList;
+		(*itFaceList).SetCoordinateIndex( nVertex3 );
+		(*itFaceList).SetNormalIndex( nNormalIndex );
+		(*itFaceList).SetTextureCoordinateIndex( nTexCoord3 );
+		++itFaceList;
+		(*itFaceList).SetCoordinateIndex( nVertexCenter );
+		(*itFaceList).SetNormalIndex( nNormalIndex );
+		(*itFaceList).SetTextureCoordinateIndex( nTexCoordCenter );
+		++itFaceList;
+
+		(*itFaceList).SetCoordinateIndex( nVertex3 );
+		(*itFaceList).SetNormalIndex( nNormalIndex );
+		(*itFaceList).SetTextureCoordinateIndex( nTexCoord3 );
+		++itFaceList;
+		(*itFaceList).SetCoordinateIndex( nVertex0 );
+		(*itFaceList).SetNormalIndex( nNormalIndex );
+		(*itFaceList).SetTextureCoordinateIndex( nTexCoord0 );
+		++itFaceList;
+		(*itFaceList).SetCoordinateIndex( nVertexCenter );
+		(*itFaceList).SetNormalIndex( nNormalIndex );
+		(*itFaceList).SetTextureCoordinateIndex( nTexCoordCenter );
+		++itFaceList;
+	}
+
 	void PushQuadWithEqualTexCoords( std::vector<VistaIndexedVertex>::iterator& itFaceList,
 									int nVertex0, int nVertex1, int nVertex2, int nVertex3,
 									int nNormalIndex, bool bUseQuads )
 	{
 		PushQuad( itFaceList, nVertex0, nVertex1, nVertex2, nVertex3, nVertex0, nVertex1, nVertex2, nVertex3, nNormalIndex, bUseQuads );
 	}
+	void PushSplitQuadWithEqualTexCoords( std::vector<VistaIndexedVertex>::iterator& itFaceList,
+									int nVertex0, int nVertex1, int nVertex2, int nVertex3, int nVertexCenter,
+									int nNormalIndex )
+	{
+		PushSplitQuad( itFaceList, nVertex0, nVertex1, nVertex2, nVertex3, nVertexCenter, 
+								nVertex0, nVertex1, nVertex2, nVertex3, nVertexCenter, nNormalIndex );
+	}
+
+	void CreateAverageVertex( int nVertex0, int nVertex1, int nVertex2, int nVertex3, int nVertexCenter,
+								int nTexCoord0, int nTexCoord1, int nTexCoord2, int nTexCoord3, int nTexCoordCenter,
+								std::vector< float >& vecCoords, std::vector< float >& vecTexCoords )
+	{
+		for( int i = 0; i < 3; ++i )
+		{
+			vecCoords[ 3 * nVertexCenter + i ] = ( vecCoords[ 3 * nVertex0 + i ]
+												+ vecCoords[ 3 * nVertex1 + i ]
+												+ vecCoords[ 3 * nVertex2 + i ]
+												+ vecCoords[ 3 * nVertex3 + i ] ) / 4;
+		}
+		for( int i = 0; i < 2; ++i )
+		{
+			vecTexCoords[ 2 * nTexCoordCenter + i ] = ( vecTexCoords[ 2 * nTexCoord0 + i ]
+												+ vecTexCoords[ 2 * nTexCoord1 + i ]
+												+ vecTexCoords[ 2 * nTexCoord2 + i ]
+												+ vecTexCoords[ 2 * nTexCoord3 + i ] ) / 4;
+		}
+	}
+	void TypedQuadCreate( std::vector<VistaIndexedVertex>::iterator& itFaceList,
+								int nVertex0, int nVertex1, int nVertex2, int nVertex3,
+								int nTexCoord0, int nTexCoord1, int nTexCoord2, int nTexCoord3,
+								int nNormalIndex,
+								VistaGeometryFactory::FaceType eType,
+								std::vector< float >& vecCoords, std::vector< float >& vecTexCoords,
+								int& nNextCoordId, int& nNextTexCoordId )
+	{
+		switch( eType )
+		{
+			case VistaGeometryFactory::FT_TRIANGLE:
+			{
+				PushQuad( itFaceList, nVertex0, nVertex1, nVertex2, nVertex3, nTexCoord0, 
+							nTexCoord1, nTexCoord2, nTexCoord3, nNormalIndex, false );
+				break;
+			}
+			case VistaGeometryFactory::FT_QUAD:
+			{
+				PushQuad( itFaceList, nVertex0, nVertex1, nVertex2, nVertex3,
+							nTexCoord0, nTexCoord1, nTexCoord2, nTexCoord3, nNormalIndex, true );
+				break;
+			}
+			case VistaGeometryFactory::FT_QUAD_SPLIT_SYMMETRICALLY:
+			{
+				CreateAverageVertex( nVertex0, nVertex1, nVertex2, nVertex3, nNextCoordId,
+									nTexCoord0, nTexCoord1, nTexCoord2, nTexCoord3, nNextTexCoordId,
+									vecCoords, vecTexCoords );
+				PushSplitQuad( itFaceList, nVertex0, nVertex1, nVertex2, nVertex3, nNextCoordId,
+							nTexCoord0, nTexCoord1, nTexCoord2, nTexCoord3, nNextTexCoordId, nNormalIndex );
+				++nNextCoordId;
+				++nNextTexCoordId;
+			}
+
+		}
+	}
+
 	// helper function for box geometry creation
 	void AddVertexLine( const int nCount, VistaVector3D& v3Position, float nDelta,
 					Vista::AXIS nAxis, std::vector<float>::iterator& itCoords ) 
@@ -180,7 +301,7 @@ VistaSceneGraph* VistaGeometryFactory::GetSG() const
 VistaGeometry* VistaGeometryFactory::CreatePlane( float nSizeX, float nSizeZ,
 												int nResX, int nResZ,
 												Vista::AXIS eNormalDirection,
-												VistaColor oColor, bool bUseQuads,
+												VistaColor oColor, FaceType eFaceType,
 												float nMinTextureCoordX, float nMaxTextureCoordX,
 												float nMinTextureCoordZ, float nMaxTextureCoordZ )
 {
@@ -227,6 +348,17 @@ VistaGeometry* VistaGeometryFactory::CreatePlane( float nSizeX, float nSizeZ,
 			break;
 	};
 
+
+	int nNumVertices = ( nResX + 1 ) * ( nResZ + 1 );
+	int nNumFaces = nResX * nResZ; // faces - seen as quads
+	if( eFaceType == FT_QUAD_SPLIT_SYMMETRICALLY )
+		nNumVertices += nNumFaces;
+	vecCoords.resize( 3 * nNumVertices );
+	std::vector<float>::iterator itCoordData = vecCoords.begin();
+
+	vecTextureCoords.resize( 2 * nNumVertices );
+	std::vector<float>::iterator itTexData = vecTextureCoords.begin();
+
 	VistaVector3D v3CoordPosition;
 	v3CoordPosition[eIndexX] = -0.5f * nSizeX;
 	v3CoordPosition[eIndexZ] = -0.5f * nSizeZ;
@@ -236,12 +368,6 @@ VistaGeometry* VistaGeometryFactory::CreatePlane( float nSizeX, float nSizeZ,
 	float a2fTecCoord[2] = { nTexCoordXFlip * nMinTextureCoordX, nTexCoordZFlip * nMinTextureCoordZ };
 	float nDeltaXTex = nTexCoordXFlip * ( nMaxTextureCoordX - nMinTextureCoordX ) / (float)nResX;
 	float nDeltaZTex = nTexCoordZFlip * ( nMaxTextureCoordZ - nMinTextureCoordZ ) / (float)nResZ;
-
-	vecCoords.resize( 3 * ( nResX + 1 ) * ( nResZ + 1 ) );
-	std::vector<float>::iterator itCoordData = vecCoords.begin();
-
-	vecTextureCoords.resize( 2 * ( nResX + 1 ) * ( nResZ + 1 ) );
-	std::vector<float>::iterator itTexData = vecTextureCoords.begin();
 
 	for( int nX = 0; nX < nResX + 1; ++nX )
 	{
@@ -262,25 +388,99 @@ VistaGeometry* VistaGeometryFactory::CreatePlane( float nSizeX, float nSizeZ,
 		v3CoordPosition[eIndexX] += nDeltaXPos;
 		a2fTecCoord[0] += nDeltaXTex;
 	}
-
-	if( bUseQuads )
-		vecIndices.resize( 4 * nResX * nResZ );
-	else
-		vecIndices.resize( 2 * 3 * nResX * nResZ );
-	int nFirstRowStart = 0;
-	int nNextRowStart = nResZ + 1;
-	std::vector<VistaIndexedVertex>::iterator itVertexData = vecIndices.begin();
-	for( int nX = 0; nX < nResX; ++nX )
+	// if we split, we also have to add vertices for all intermediate points (added at the end )
+	if( eFaceType == FT_QUAD_SPLIT_SYMMETRICALLY )
 	{
-		for( int nZ = 0; nZ < nResZ; ++nZ )
+		v3CoordPosition[eIndexX] = -0.5f * nSizeX + 0.5f * nDeltaXPos;
+		a2fTecCoord[0] = nTexCoordXFlip * nMinTextureCoordX + 0.5f * nDeltaXTex;
+		for( int nX = 0; nX < nResX; ++nX )
 		{
-			PushQuadWithEqualTexCoords( itVertexData, nFirstRowStart + nZ + 0, nNextRowStart + nZ + 0, nNextRowStart + nZ + 1, nFirstRowStart + nZ + 1, 0, bUseQuads );
+			v3CoordPosition[eIndexZ] = -0.5f * nSizeZ + 0.5f * nDeltaZPos;
+			a2fTecCoord[1] = nTexCoordZFlip * nMinTextureCoordZ + 0.5f * nDeltaZTex;
+			for( int nZ = 0; nZ < nResZ; ++nZ )
+			{
+				v3CoordPosition.GetValues( &(*itCoordData) );
+				v3CoordPosition[eIndexZ] += nDeltaZPos;
+				itCoordData += 3;
+
+				(*itTexData) = a2fTecCoord[0];
+				++itTexData;
+				(*itTexData) = a2fTecCoord[1];
+				++itTexData;
+				a2fTecCoord[1] += nDeltaZTex;				
+			}
+			v3CoordPosition[eIndexX] += nDeltaXPos;
+			a2fTecCoord[0] += nDeltaXTex;
 		}
-		nFirstRowStart += nResZ + 1;
-		nNextRowStart += nResZ + 1;
 	}
 
-	VistaGeometry::FaceType nFaceType = ( bUseQuads ? VistaGeometry::VISTA_FACE_TYPE_QUADS : VistaGeometry::VISTA_FACE_TYPE_TRIANGLES );
+	VistaGeometry::FaceType nFaceType;
+	switch( eFaceType )
+	{
+		case FT_TRIANGLE:
+		{
+			nFaceType = VistaGeometry::VISTA_FACE_TYPE_TRIANGLES;
+			vecIndices.resize( 2 * 3 * nNumFaces );
+			int nFirstColStart = 0;
+			int nNextColStart = nResZ + 1;
+			std::vector<VistaIndexedVertex>::iterator itVertexData = vecIndices.begin();
+			for( int nX = 0; nX < nResX; ++nX )
+			{
+				for( int nZ = 0; nZ < nResZ; ++nZ )
+				{
+					PushQuadWithEqualTexCoords( itVertexData, nFirstColStart + nZ + 0, nNextColStart + nZ + 0,
+														nNextColStart + nZ + 1, nFirstColStart + nZ + 1, 0, false );
+				}
+				nFirstColStart += nResZ + 1;
+				nNextColStart += nResZ + 1;
+			}
+			break;
+		}
+		case FT_QUAD:
+		{
+			nFaceType = VistaGeometry::VISTA_FACE_TYPE_QUADS;
+			vecIndices.resize( 4 * nNumFaces );
+			int nFirstColStart = 0;
+			int nNextColStart = nResZ + 1;
+			std::vector<VistaIndexedVertex>::iterator itVertexData = vecIndices.begin();
+			for( int nX = 0; nX < nResX; ++nX )
+			{
+				for( int nZ = 0; nZ < nResZ; ++nZ )
+				{
+					PushQuadWithEqualTexCoords( itVertexData, nFirstColStart + nZ + 0, nNextColStart + nZ + 0,
+														nNextColStart + nZ + 1, nFirstColStart + nZ + 1, 0, true );
+				}
+				nFirstColStart += nResZ + 1;
+				nNextColStart += nResZ + 1;
+			}
+			break;
+		}
+		case FT_QUAD_SPLIT_SYMMETRICALLY:
+		{
+			nFaceType = VistaGeometry::VISTA_FACE_TYPE_TRIANGLES;
+			vecIndices.resize( 4 * 3 * nNumFaces );
+			int nFirstColStart = 0;
+			int nNextColStart = nResZ + 1;
+			int nCenterVertex = nNumVertices - nNumFaces;
+			std::vector<VistaIndexedVertex>::iterator itVertexData = vecIndices.begin();
+			for( int nX = 0; nX < nResX; ++nX )
+			{
+				for( int nZ = 0; nZ < nResZ; ++nZ )
+				{
+					PushSplitQuadWithEqualTexCoords( itVertexData, nFirstColStart + nZ + 0, nNextColStart + nZ + 0,
+														nNextColStart + nZ + 1, nFirstColStart + nZ + 1, nCenterVertex, 0 );
+					++nCenterVertex;
+				}
+				nFirstColStart += nResZ + 1;
+				nNextColStart += nResZ + 1;
+			}
+			break;
+		}
+		default:
+			VISTA_THROW( "VistaGeometryFactory encountered invalid FaceType enum value", -1 );
+	}	
+
+
 	VistaGeometry* pGeom = GetSG()->NewIndexedGeometry( vecIndices, vecCoords,
 							vecTextureCoords, vecNormals, std::vector<VistaColor>(),
 							oVertexFormat, nFaceType );
@@ -297,7 +497,7 @@ VistaGeometry* VistaGeometryFactory::CreatePlane( float nSizeX, float nSizeZ,
 
 VistaGeometry* VistaGeometryFactory::CreateBox( float nSizeX, float nSizeY, float nSizeZ,
 											   int nResolutionX, int nResolutionY, int nResolutionZ, 
-											   VistaColor oColor, bool bUseQuads,
+											   VistaColor oColor, FaceType eFaceType,
 											   float nMinTextureCoordX, float nMaxTextureCoordX,
 											   float nMinTextureCoordY, float nMaxTextureCoordY,
 											   float nMinTextureCoordZ, float nMaxTextureCoordZ )
@@ -341,6 +541,14 @@ VistaGeometry* VistaGeometryFactory::CreateBox( float nSizeX, float nSizeY, floa
 	// create vertex coordinates
 	int nNumVertices = 2 * ( nNumYRings * nNumZRings ) // two caps
 					+ ( nNumXRings - 2 ) * nNumVerticesPerRing; // intermediate rings
+	// create faces
+	int nNumFaces = 2 * nResolutionY * nResolutionZ // caps
+					+ 2 * nResolutionX * nResolutionY //front/back
+					+ 2 * nResolutionX * nResolutionZ; // top/bottom;
+
+	if( eFaceType == FT_QUAD_SPLIT_SYMMETRICALLY )
+		nNumVertices += nNumFaces; // center vertices
+
 	vecCoords.resize( 3 * nNumVertices );
 	
 	std::vector<float>::iterator itCoords = vecCoords.begin();
@@ -398,6 +606,8 @@ VistaGeometry* VistaGeometryFactory::CreateBox( float nSizeX, float nSizeY, floa
 	
 	// create texture coordinates
 	int nNumTexCoords = nNumXRings * nNumYRings + nNumYRings * nNumZRings + nNumZRings * nNumXRings;
+	if( eFaceType == FT_QUAD_SPLIT_SYMMETRICALLY )
+		nNumTexCoords += nNumFaces; // center vertices
 
 	vecTextureCoordinates.resize( 2 * nNumTexCoords );
 	std::vector<float>::iterator itTexCoords = vecTextureCoordinates.begin();
@@ -451,21 +661,37 @@ VistaGeometry* VistaGeometryFactory::CreateBox( float nSizeX, float nSizeY, floa
 		nTexCoordX += nTexDeltaX;
 	}
 
-
 	// create faces
-	int nNumFaces = 2 * nResolutionY * nResolutionZ // caps
-					+ 2 * nResolutionX * nResolutionY //front/back
-					+ 2 * nResolutionX * nResolutionZ; // top/bottom;
-	if( bUseQuads )
-		vecFaces.resize( 4 * nNumFaces );
-	else
-		vecFaces.resize( 6 * nNumFaces );
-
+	VistaGeometry::FaceType eGeomFaceType = VistaGeometry::VISTA_FACE_TYPE_QUADS;
+	switch( eFaceType )
+	{
+		case FT_TRIANGLE:
+		{
+			vecFaces.resize( 2 * 3 * nNumFaces );
+			eGeomFaceType = VistaGeometry::VISTA_FACE_TYPE_TRIANGLES;
+			break;
+		}
+		case FT_QUAD:
+		{
+			vecFaces.resize( 4 * nNumFaces );
+			eGeomFaceType = VistaGeometry::VISTA_FACE_TYPE_QUADS;
+			break;
+		}
+		case FT_QUAD_SPLIT_SYMMETRICALLY:
+		{
+			vecFaces.resize( 4 * 3 * nNumFaces );
+			eGeomFaceType = VistaGeometry::VISTA_FACE_TYPE_TRIANGLES;
+			break;
+		}
+	}
+	
 	std::vector<VistaIndexedVertex>::iterator itFaces = vecFaces.begin();
 
 	const int nCapOneStart = 0;
 	const int nCapTwoStart = nNumYRings * nNumZRings;
 	const int nRingsStart = 2 * ( nNumYRings * nNumZRings );
+	int nCenterCoordId = nNumVertices - nNumFaces;
+	int nCenterTexId = nNumTexCoords - nNumFaces;
 
 	// add caps - y-z-planes
 	const int nXYTexCoordOffset = 0;
@@ -479,7 +705,7 @@ VistaGeometry* VistaGeometryFactory::CreateBox( float nSizeX, float nSizeY, floa
 		{
 			const int nLeft = nZ;
 			const int nRight = nZ + 1;
-			PushQuad( itFaces,
+			TypedQuadCreate( itFaces,
 						nCapOneStart + nLower + nLeft,
 						nCapOneStart + nLower + nRight,
 						nCapOneStart + nUpper + nRight,
@@ -488,7 +714,8 @@ VistaGeometry* VistaGeometryFactory::CreateBox( float nSizeX, float nSizeY, floa
 						nYZTexCoordOffset + nLower + nRight,
 						nYZTexCoordOffset + nUpper + nRight,
 						nYZTexCoordOffset + nUpper + nLeft,
-						4, bUseQuads );
+						4, eFaceType,
+						vecCoords, vecTextureCoordinates, nCenterCoordId, nCenterTexId );
 		}
 	}
 	for( int nY = 0; nY < nResolutionY; ++nY )
@@ -499,7 +726,7 @@ VistaGeometry* VistaGeometryFactory::CreateBox( float nSizeX, float nSizeY, floa
 		{
 			const int nLeft = nZ;
 			const int nRight = nZ + 1;
-			PushQuad( itFaces,
+			TypedQuadCreate( itFaces,
 						nCapTwoStart + nLower + nRight,
 						nCapTwoStart + nLower + nLeft,
 						nCapTwoStart + nUpper + nLeft,
@@ -508,7 +735,8 @@ VistaGeometry* VistaGeometryFactory::CreateBox( float nSizeX, float nSizeY, floa
 						nYZTexCoordOffset + nLower + nResolutionZ - nLeft,
 						nYZTexCoordOffset + nUpper + nResolutionZ - nLeft,
 						nYZTexCoordOffset + nUpper + nResolutionZ - nRight,
-						5, bUseQuads );
+						5, eFaceType,
+						vecCoords, vecTextureCoordinates, nCenterCoordId, nCenterTexId  );
 		}
 	}
 
@@ -616,25 +844,26 @@ VistaGeometry* VistaGeometryFactory::CreateBox( float nSizeX, float nSizeY, floa
 				
 				if( bFlipSide )
 				{
-					PushQuad( itFaces, nVertexBL, nVertexTL, nVertexTR, nVertexBR,
-									nTexCoordBL, nTexCoordTL, nTexCoordTR, nTexCoordBR, nNormalIndex, bUseQuads );
+					TypedQuadCreate( itFaces, nVertexBL, nVertexTL, nVertexTR, nVertexBR,
+									nTexCoordBL, nTexCoordTL, nTexCoordTR, nTexCoordBR, nNormalIndex, eFaceType,
+									vecCoords, vecTextureCoordinates, nCenterCoordId, nCenterTexId  );
 				}
 				else
-					PushQuad( itFaces, nVertexBL, nVertexBR, nVertexTR, nVertexTL,
-									nTexCoordBL, nTexCoordBR, nTexCoordTR, nTexCoordTL, nNormalIndex, bUseQuads );
+				{
+					TypedQuadCreate( itFaces, nVertexBL, nVertexBR, nVertexTR, nVertexTL,
+									nTexCoordBL, nTexCoordBR, nTexCoordTR, nTexCoordTL, nNormalIndex, eFaceType,
+									vecCoords, vecTextureCoordinates, nCenterCoordId, nCenterTexId  );
+				}
 			}
 		}
 	}
-
-	
-	VistaGeometry::FaceType eFaceType = ( bUseQuads ) ? ( VistaGeometry::VISTA_FACE_TYPE_QUADS ) : ( VistaGeometry::VISTA_FACE_TYPE_TRIANGLES );
 
 	VistaVertexFormat oFormat;
 	oFormat.color = VistaVertexFormat::COLOR_NONE;
 	oFormat.normal = VistaVertexFormat::NORMAL;
 	oFormat.textureCoord = VistaVertexFormat::TEXTURE_COORD_2D;
 	VistaGeometry* pGeo = m_pSG->NewIndexedGeometry( vecFaces, vecCoords, vecTextureCoordinates,
-													vecNormals, std::vector<VistaColor>(), oFormat, eFaceType );
+													vecNormals, std::vector<VistaColor>(), oFormat, eGeomFaceType );
 	pGeo->SetColor( oColor );
 	return pGeo;
 }
@@ -1687,10 +1916,13 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 			}
 		}
 
+		VistaGeometryFactory::FaceType eFaceType = ( bUseQuads ? VistaGeometryFactory::FT_QUAD : VistaGeometryFactory::FT_QUAD_SPLIT_SYMMETRICALLY );
 		
 		VistaColor oColor = VistaColor::WHITE;
 		ReadColorFromProplist( oPropList, "COLOR", oColor );
-		return CreatePlane( fSizeX, fSizeY, iResolutionX, iResolutionZ, eFacing, oColor, bUseQuads, nTexCoordMinX, nTexCoordMaxX, nTexCoordMinZ, nTexCoordMaxZ );
+		return CreatePlane( fSizeX, fSizeY, iResolutionX, iResolutionZ,
+								eFacing, oColor, eFaceType, 
+								nTexCoordMinX, nTexCoordMaxX, nTexCoordMinZ, nTexCoordMaxZ );
 	}
 	else if( oCompare( sType, "BOX" ) )
 	{
@@ -1712,7 +1944,7 @@ VistaGeometry* VistaGeometryFactory::CreateFromPropertyList( const VistaProperty
 		ReadColorFromProplist( oPropList, "COLOR", oColor );
 		return CreateBox( fSizeX, fSizeY, fSizeZ,
 									iResolutionX, iResolutionY, iResolutionZ,
-									oColor, bUseQuads, nTexCoordMinX, nTexCoordMaxX,
+									oColor, ( bUseQuads ? FT_QUAD : FT_TRIANGLE ), nTexCoordMinX, nTexCoordMaxX,
 									nTexCoordMinY, nTexCoordMaxY, nTexCoordMinZ, nTexCoordMaxZ );
 	}
 	else if( oCompare( sType, "DISK" ) )

@@ -97,8 +97,8 @@ bool VistaDfnKeyCallbackNode::GetIsValid() const
 
 bool VistaDfnKeyCallbackNode::DoEvalNode()
 {
-	m_pCallbackCountPort->SetValue( m_pCallback->GetCounterValue(), GetUpdateTimeStamp() );
-
+	if( m_pCallback->GetCounterValue() != m_pCallbackCountPort->GetValue() )
+		m_pCallbackCountPort->SetValue( m_pCallback->GetCounterValue(), GetUpdateTimeStamp() );
 	return true;
 }
 

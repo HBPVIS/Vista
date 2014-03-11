@@ -55,6 +55,13 @@ public:
 	VistaGeometryFactory(VistaSceneGraph *pSG);
 	virtual ~VistaGeometryFactory();
 
+	enum FaceType
+	{
+		FT_TRIANGLE,
+		FT_QUAD,
+		FT_QUAD_SPLIT_SYMMETRICALLY, // splits a quad into dour triangles by adding a new vertex in the center
+	};
+
 	/**
 	 * Creates a plane whose normal is given by eNormalDirection
 	 */
@@ -62,7 +69,7 @@ public:
 								int nResolutionX = 1.0f, int nResolutionZ = 1.0f,
 								Vista::AXIS eNormalDirection = Vista::Y,
 								VistaColor oColor = VistaColor::WHITE,
-								bool bUseQuads = false,
+								FaceType eFaceType = FT_TRIANGLE,
 								float nMinTextureCoordX = 0.0f, float nMaxTextureCoordX = 1.0f,
 								float nMinTextureCoordZ = 0.0f, float nMaxTextureCoordZ = 1.0f );
 
@@ -72,7 +79,7 @@ public:
 	VistaGeometry* CreateBox( float nSizeX = 1.0f, float nSizeY = 1.0f, float nSizeZ = 1.0f,
 								int nResolutionX = 1, int nResolutionY = 1, int nResolutionZ = 1,
 								VistaColor oColor = VistaColor::WHITE,
-								bool bUseQuads = false,
+								FaceType eFaceType = FT_TRIANGLE,
 								float nMinTextureCoordX = 0.0f, float nMaxTextureCoordX = 1.0f,
 								float nMinTextureCoordY = 0.0f, float nMaxTextureCoordY = 1.0f,
 								float nMinTextureCoordZ = 0.0f, float nMaxTextureCoordZ = 1.0f );
