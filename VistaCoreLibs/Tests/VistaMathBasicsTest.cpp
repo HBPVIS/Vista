@@ -30,6 +30,8 @@
 
 #include <VistaTestingUtils/VistaTestingCompare.h>
 
+#include <limits>
+
 template< typename T >
 void TestIsValidNumberFloatingPoint()
 {
@@ -43,14 +45,18 @@ void TestIsValidNumberFloatingPoint()
 	T nZeroValue = 0;
 	ASSERT_FALSE( Vista::IsValidNumber( (T)-65.0 / nZeroValue ) );
 	ASSERT_FALSE( Vista::IsValidNumber( std::numeric_limits<T>::infinity() ) );
-	ASSERT_FALSE( Vista::IsValidNumber( std::numeric_limits<T>::denorm_min() ) );
+	// some implementations flush denormals to zero - we will check that
+	if( std::numeric_limits<T>::has_denorm && ( T( 0.01 ) * std::numeric_limits<T>::min() ) != 0 )
+	{
+		ASSERT_FALSE( Vista::IsValidNumber( std::numeric_limits<T>::denorm_min() ) );
+		ASSERT_FALSE( Vista::IsValidNumber( std::numeric_limits<T>::min() / (T)1.0001 ) );
+		ASSERT_FALSE( Vista::IsValidNumber( -std::numeric_limits<T>::min() / (T)1.0001 ) );
+	}
 	ASSERT_FALSE( Vista::IsValidNumber( std::numeric_limits<T>::quiet_NaN() ) );
 	ASSERT_FALSE( Vista::IsValidNumber( std::numeric_limits<T>::signaling_NaN() ) );
 
 	ASSERT_TRUE(  Vista::IsValidNumber( std::numeric_limits<T>::min() ) );
-	ASSERT_TRUE(  Vista::IsValidNumber( -std::numeric_limits<T>::min() ) );
-	ASSERT_FALSE(  Vista::IsValidNumber( std::numeric_limits<T>::min() / (T)1.0001 ) );
-	ASSERT_FALSE(  Vista::IsValidNumber( -std::numeric_limits<T>::min() / (T)1.0001 ) );
+	ASSERT_TRUE(  Vista::IsValidNumber( -std::numeric_limits<T>::min() ) );	
 
 	ASSERT_TRUE(  Vista::IsValidNumber( std::numeric_limits<T>::max() ) );
 	ASSERT_TRUE(  Vista::IsValidNumber( -std::numeric_limits<T>::max() ) );

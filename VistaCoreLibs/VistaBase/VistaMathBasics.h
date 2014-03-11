@@ -87,12 +87,12 @@ inline bool Vista::IsValidNumber( const TFloat nNumber )
 {
 	if( nNumber != nNumber )
 		return false;
-	TFloat nAbs = std::abs( nNumber );
-	if( nAbs == std::numeric_limits<TFloat>::infinity() )
-		return false;
 	if( nNumber == 0 )
 		return true;
-	if( nAbs < std::numeric_limits<TFloat>::min() )
+	TFloat nAbs = std::abs( nNumber );
+	if( std::numeric_limits<TFloat>::has_infinity && nAbs == std::numeric_limits<TFloat>::infinity() )
+		return false;
+	if( std::numeric_limits<TFloat>::has_denorm && nAbs < std::numeric_limits<TFloat>::min() )
 		return false;
 	return true;
 }
