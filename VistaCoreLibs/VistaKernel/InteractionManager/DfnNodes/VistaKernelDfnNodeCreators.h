@@ -293,6 +293,17 @@ private:
 	VistaKeyboardSystemControl* m_pKeyboard;
 };
 
+class VistaDfnKeyStateNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
+{
+public:
+	VistaDfnKeyStateNodeCreate( VistaKeyboardSystemControl* pKeyboard );
+
+	virtual IVdfnNode* CreateNode( const VistaPropertyList &oParams ) const;
+
+private:
+	VistaKeyboardSystemControl* m_pKeyboard;
+};
+
 class VistaDfnProximityWarningNodeCreate : public VdfnNodeFactory::IVdfnNodeCreator
 {
 public:

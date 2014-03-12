@@ -51,6 +51,8 @@ set( DirFiles
 	VistaDfnCropViewportNode.h
 	VistaDfnKeyCallbackNode.cpp
 	VistaDfnKeyCallbackNode.h
+	VistaDfnKeyStateNode.cpp
+	VistaDfnKeyStateNode.h
 	_SourceFiles.cmake
 )
 set( DirFiles_SourceGroup "${RelativeSourceGroup}" )

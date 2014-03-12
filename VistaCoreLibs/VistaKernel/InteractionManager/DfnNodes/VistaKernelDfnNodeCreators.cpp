@@ -63,6 +63,7 @@
 #include <VistaKernel/InteractionManager/DfnNodes/VistaDfnDeviceDebugNode.h>
 #include <VistaKernel/InteractionManager/DfnNodes/VistaDfnCropViewportNode.h>
 #include <VistaKernel/InteractionManager/DfnNodes/VistaDfnKeyCallbackNode.h>
+#include <VistaKernel/InteractionManager/DfnNodes/VistaDfnKeyStateNode.h>
 #include <VistaKernel/InteractionManager/DfnNodes/VistaDfnProximityWarningNode.h>
 #include <VistaKernel/InteractionManager/DfnNodes/VistaDfnFadeoutNode.h>
 #include <VistaKernel/InteractionManager/DfnNodes/VistaDfnSimpleTextNode.h>
@@ -154,7 +155,9 @@ bool VistaKernelDfnNodeCreators::RegisterNodeCreates( VistaSystem* pVistaSystem 
 	pFac->SetNodeCreator( "CropViewport",
 					new VistaDfnCropViewportNodeCreate( pVistaSystem->GetDisplayManager() ) );
 	pFac->SetNodeCreator( "KeyCallback",
-					new VistaDfnKeyCallbackNodeCreate( pVistaSystem->GetKeyboardSystemControl() ) );
+					new VistaDfnKeyStateNodeCreate( pVistaSystem->GetKeyboardSystemControl() ) );
+	pFac->SetNodeCreator( "KeyState",
+		new VistaDfnKeyStateNodeCreate( pVistaSystem->GetKeyboardSystemControl() ) );	
 	pFac->SetNodeCreator( "ProximityWarning",
 					new VistaDfnProximityWarningNodeCreate( pVistaSystem ) );
 	pFac->SetNodeCreator( "Fadeout",
@@ -748,8 +751,62 @@ IVdfnNode* VistaDfnKeyCallbackNodeCreate::CreateNode( const VistaPropertyList &o
 	std::string sHelpText = oSubs.GetValueOrDefault<std::string>( "description", "<none>" );
 	bool bForce = oSubs.GetValueOrDefault<bool>( "force", false );
 
-	VistaDfnKeyCallbackNode* pNode = new VistaDfnKeyCallbackNode(
-									m_pKeyboard, nKeyCode, nModCode, sHelpText, bForce );
+	VistaDfnKeyCallbackNode* pNode = new VistaDfnKeyCallbackNode;
+	pNode->SetupKeyboardCallback(m_pKeyboard, nKeyCode, nModCode, sHelpText, bForce );
+	return pNode;
+}
+
+// #############################################################################
+
+VistaDfnKeyStateNodeCreate::VistaDfnKeyStateNodeCreate( VistaKeyboardSystemControl* pKeyboard )
+	: m_pKeyboard( pKeyboard )
+{
+}
+
+IVdfnNode* VistaDfnKeyStateNodeCreate::CreateNode( const VistaPropertyList &oParams ) const
+{
+	const VistaPropertyList& oSubs = oParams.GetSubListConstRef( "param" );
+
+
+	int nKeyCode;
+	int nModCode = VISTA_KEYMOD_ANY;
+	if( oSubs.GetValue<int>( "key_value", nKeyCode ) == false )
+	{
+		std::string sKey;
+		if( oSubs.GetValue<std::string>( "key", sKey ) )
+		{
+			if( VistaKeyboardSystemControl::GetKeyAndModifiersValueFromString( sKey, nKeyCode, nModCode ) == false )
+			{
+				vstr::warnp() << "[DfnKeyCallbackNodeCreate]: invalid \"key\"-entry ["
+					<< sKey << "]" << std::endl;
+				return NULL;
+			}
+		}
+		else
+		{
+			vstr::warnp() << "[DfnKeyCallbackNodeCreate]: neither \"key\" nor \"key_value\" specified" << std::endl;
+			return NULL;
+		}
+	}
+	if( oSubs.GetValue<int>( "mod_value", nModCode ) == false )
+	{
+		std::string sMod;
+		if( oSubs.GetValue<std::string>( "mod", sMod ) )
+		{
+			nModCode = VistaKeyboardSystemControl::GetModifiersValueFromString( sMod );
+			if( nModCode == -1 )
+			{
+				vstr::warnp() << "[DfnKeyCallbackNodeCreate]: invalid \"mod\"-entry ["
+					<< sMod << "]" << std::endl;
+				return NULL;
+			}
+		}
+	}
+	std::string sHelpText = oSubs.GetValueOrDefault<std::string>( "description", "<none>" );
+	bool bForce = oSubs.GetValueOrDefault<bool>( "force", false );
+
+	VistaDfnKeyStateNode* pNode = new VistaDfnKeyStateNode();
+	pNode->SetupKeyboardCallback(m_pKeyboard, nKeyCode, nModCode, sHelpText, bForce );
 	return pNode;
 }
 
