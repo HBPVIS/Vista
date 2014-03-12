@@ -106,11 +106,11 @@ VistaAutoWriteBuffer::VistaAutoWriteBuffer()
 
 }
 
-VistaAutoWriteBuffer::VistaAutoWriteBuffer( size_type size, const value_type &v )
+VistaAutoWriteBuffer::VistaAutoWriteBuffer( size_type nSize, const value_type &v )
 : VistaAutoBuffer()
 {
-	if( size )
-		resize(size, v);
+	if( nSize )
+		resize( nSize, v );
 }
 
 VistaAutoWriteBuffer::VistaAutoWriteBuffer( const VistaAutoWriteBuffer &other )

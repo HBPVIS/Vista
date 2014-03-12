@@ -195,7 +195,7 @@ namespace vstr
 		double m_dTime;
 		int	m_nPrecision;
 	};
-};
+}
 
 inline VISTABASEAPI std::ostream& operator<< ( std::ostream& oStream, const vstr::formattime& oObj )
 {

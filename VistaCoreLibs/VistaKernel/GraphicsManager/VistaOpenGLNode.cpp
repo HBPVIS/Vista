@@ -77,3 +77,15 @@ bool VistaOpenGLNode::GetBoundingBox(VistaVector3D &pMin, VistaVector3D &pMax) c
 		return false;
 	}
 }
+
+bool VistaOpenGLNode::GetBoundingBox( VistaBoundingBox& oBox ) const
+{
+	return GetBoundingBox( oBox.m_v3Min, oBox.m_v3Max );
+}
+
+VistaBoundingBox VistaOpenGLNode::GetBoundingBox() const
+{
+	VistaBoundingBox oBox;
+	GetBoundingBox( oBox );
+	return oBox;
+}

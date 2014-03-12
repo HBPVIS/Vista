@@ -54,6 +54,8 @@ public:
 
 	bool Init();
 	virtual bool GetBoundingBox(VistaVector3D &pMin, VistaVector3D &pMax) const;
+	virtual bool GetBoundingBox( VistaBoundingBox& oBox ) const;
+	virtual VistaBoundingBox GetBoundingBox() const;
 protected:
 	VistaOpenGLNode( VistaGroupNode*				pParent,
 						IVistaOpenGLDraw*					pDI,

@@ -58,7 +58,7 @@ namespace Vista
 		X	= 0,
 		Y	= 1,
 		Z	= 2,
-		W	= 3,
+		W	= 3
 	};	
 
 	float DegToRad( const float fDegrees );
@@ -75,12 +75,12 @@ namespace Vista
 inline float Vista::DegToRad( const float fDegrees )
 {
 	return fDegrees / 180.0f * Vista::Pi;
-};
+}
 
 inline float Vista::RadToDeg( const float fRadians )
 {
 	return fRadians * 180.0f / Vista::Pi;
-};
+}
 
 template< typename TFloat >
 inline bool Vista::IsValidNumber( const TFloat nNumber )

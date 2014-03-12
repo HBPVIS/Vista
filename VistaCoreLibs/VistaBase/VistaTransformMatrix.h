@@ -1009,9 +1009,9 @@ inline bool VistaTransformMatrix::GetInverted( VistaTransformMatrix& matTarget )
 				{
 					if( a4fPivot[k] == 0 )
 					{
-						if( fabs( matTarget[k][j] ) >= fBig )
+						if( std::abs( matTarget[k][j] ) >= fBig )
 						{
-							fBig = fabs( matTarget[k][j] );
+							fBig = std::abs( matTarget[k][j] );
 							iRow = j;
 							iCol = k;
 						}

@@ -74,7 +74,7 @@ VistaQuaternion::VistaQuaternion( const VistaVector3D& v3From,
 	{
 		// start and end vectors are collinear or equal 0; no need to rotate or just rotate by PI
 
-		if( fabs( fDot ) < Vista::Epsilon )
+		if( std::abs( fDot ) < Vista::Epsilon )
 		{
 			// either start or stop equal 0, they cannot be perpendicular because the cross product = 0
 			// Set to unit quaternion
@@ -95,7 +95,7 @@ VistaQuaternion::VistaQuaternion( const VistaVector3D& v3From,
 		{
 			// they are pointing in opposing directions 
 			// construct an axis for the rotation by PI
-			if( ( fabs( v3From[0] ) < Vista::Epsilon ) && ( fabs( v3From[1] ) < Vista::Epsilon ) )
+			if( ( std::abs( v3From[0] ) < Vista::Epsilon ) && ( std::abs( v3From[1] ) < Vista::Epsilon ) )
 			{
 				// start = [0,0,z], it is obvious that [0,0,z] * [0,1,0] = 0
 				// i.e. they are orthogonal
@@ -276,7 +276,7 @@ VistaEulerAngles VistaQuaternion::GetAngles() const
 
 	float pitch, roll, yaw;
 
-	float tmp = fabs( r31 );
+	float tmp = std::abs( r31 );
 	if( tmp > 1.0 - Vista::Epsilon )
 	{
 		float r12 = 2 * ( m_a4fValues[0] * m_a4fValues[1] - m_a4fValues[3] * m_a4fValues[2] );
@@ -284,9 +284,9 @@ VistaEulerAngles VistaQuaternion::GetAngles() const
 
 		roll = 0.0f;
 		if( r31 > 0.0 )
-			pitch = (float)(- Vista::Pi * 0.5f);
+			pitch = - Vista::Pi * 0.5f;
 		else
-			pitch = (float)(Vista::Pi * 0.5f);
+			pitch = (Vista::Pi * 0.5f);
 		yaw = (float)atan2( -r12, -r31 * r13 );
 	} else {
 		roll = (float)atan2( r32, r33 );
@@ -418,7 +418,7 @@ VistaQuaternion VistaQuaternion::Slerp( const VistaQuaternion& qEnd, float fFrac
 
 	float fDot = Dot( qEnd );
 
-	if( fabs( fDot ) > (1.0f - Vista::Epsilon) )
+	if( std::abs( fDot ) > (1.0f - Vista::Epsilon) )
 		return *this;
 
 	double theta, stheta;

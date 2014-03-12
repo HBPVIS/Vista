@@ -121,7 +121,7 @@ protected:
 	bool                    m_bRefreshXformInv;
 };
 
-inline std::ostream& operator<<( std::ostream& oStream, const VistaTransformMatrix& matTransform );
+inline std::ostream& operator<<( std::ostream& oStream, const VistaReferenceFrame& matTransform );
 
 /*============================================================================*/
 /* INLINE IMPLEMENTATIONS */

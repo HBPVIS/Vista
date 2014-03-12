@@ -317,10 +317,10 @@ inline VistaVector3D VistaVector3D::GetHomogenized() const
 }
 inline VistaVector3D VistaVector3D::GetAbsolute() const
 {	
-	return VistaVector3D( fabs( m_a4fValues[0] ),
-							fabs( m_a4fValues[1] ),
-							fabs( m_a4fValues[2] ),
-							fabs( m_a4fValues[3] ) );
+	return VistaVector3D( std::abs( m_a4fValues[0] ),
+							std::abs( m_a4fValues[1] ),
+							std::abs( m_a4fValues[2] ),
+							std::abs( m_a4fValues[3] ) );
 }
 inline float VistaVector3D::GetLength() const
 {

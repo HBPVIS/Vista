@@ -216,8 +216,8 @@ namespace
 		float sum, max;
 		max = 0.0;
 		for (i=0; i<3; i++) {
-			if (tpose) sum = fabs(M[0][i])+fabs(M[1][i])+fabs(M[2][i]);
-			else	   sum = fabs(M[i][0])+fabs(M[i][1])+fabs(M[i][2]);
+			if (tpose) sum = std::abs(M[0][i])+std::abs(M[1][i])+std::abs(M[2][i]);
+			else	   sum = std::abs(M[i][0])+std::abs(M[i][1])+std::abs(M[i][2]);
 			if (max<sum) max = sum;
 		}
 		return max;
@@ -335,7 +335,7 @@ namespace
 			det = vdot(Mk[0], MadjTk[0]);
 			if (det==0.0) {do_rank2(Mk, MadjTk, Mk); break;}
 			MadjT_one = norm_one(MadjTk); MadjT_inf = norm_inf(MadjTk);
-			gamma = sqrt(sqrt((MadjT_one*MadjT_inf)/(M_one*M_inf))/fabs(det));
+			gamma = sqrt(sqrt((MadjT_one*MadjT_inf)/(M_one*M_inf))/std::abs(det));
 			g1 = gamma*0.5f ;
 			g2 = 0.5f /(gamma*det);
 			mat_copy(Ek,=,Mk,3);
@@ -370,20 +370,20 @@ namespace
 		Diag[Vista::X] = S[Vista::X][Vista::X]; Diag[Vista::Y] = S[Vista::Y][Vista::Y]; Diag[Vista::Z] = S[Vista::Z][Vista::Z];
 		OffD[Vista::X] = S[Vista::Y][Vista::Z]; OffD[Vista::Y] = S[Vista::Z][Vista::X]; OffD[Vista::Z] = S[Vista::X][Vista::Y];
 		for (sweep=20; sweep>0; sweep--) {
-			float sm = (float)( fabs(OffD[Vista::X])+fabs(OffD[Vista::Y])+fabs(OffD[Vista::Z]) );
+			float sm = (float)( std::abs(OffD[Vista::X])+std::abs(OffD[Vista::Y])+std::abs(OffD[Vista::Z]) );
 			if (sm==0.0) break;
 			for (i=Vista::Z; i>=Vista::X; i--) {
 				int p = nxt[i]; int q = nxt[p];
-				fabsOffDi = fabs(OffD[i]);
+				fabsOffDi = std::abs(OffD[i]);
 				g = 100.0*fabsOffDi;
 				if (fabsOffDi>0.0) {
 					h = Diag[q] - Diag[p];
-					fabsh = fabs(h);
+					fabsh = std::abs(h);
 					if (fabsh+g==fabsh) {
 						t = OffD[i]/h;
 					} else {
 						theta = 0.5f *h/OffD[i];
-						t = 1.0/(fabs(theta)+sqrt(theta*theta+1.0));
+						t = 1.0/(std::abs(theta)+sqrt(theta*theta+1.0));
 						if (theta<0.0) t = -t;
 					}
 					c = 1.0/sqrt(t*t+1.0); s = t*c;
@@ -686,8 +686,8 @@ bool VistaTransformMatrix::Decompose( VistaVector3D& v3Translation,
 	{
 		// a non-unit rotation is valid only if the scale is uniform!
 		float fDiff = 0.00001f * ( parts.k.x + parts.k.y + parts.k.z );
-		if( fabs( parts.k.x - parts.k.y ) > fDiff
-			|| fabs( parts.k.x - parts.k.z ) > fDiff )
+		if( std::abs( parts.k.x - parts.k.y ) > fDiff
+			|| std::abs( parts.k.x - parts.k.z ) > fDiff )
 		{
 			// shearing component, Decomposition fails
 			return false;

@@ -40,14 +40,6 @@
 /*============================================================================*/
 #include "VistaToolsConfig.h"
 
-#ifdef IRIX
-  #include<ostream>
-#elif HPUX
-  #include<ostream.h>
-#else
-  #include<ostream>
-#endif
-
 #include<string>
 
 /*============================================================================*/

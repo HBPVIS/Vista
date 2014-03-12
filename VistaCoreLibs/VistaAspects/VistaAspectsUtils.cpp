@@ -126,7 +126,7 @@ int    VistaAspectsConversionStuff::ConvertToInt(const string &sValue)
 
 	nResult = 0;
 
-	sscanf((char*)sValue.data(),"%i",&nResult);
+	sscanf(sValue.data(),"%i",&nResult);
 
 	return nResult;
 }
@@ -137,7 +137,7 @@ unsigned int VistaAspectsConversionStuff::ConvertToUnsignedInt(const string &sVa
 
 	nResult = 0;
 
-	sscanf((char*)sValue.data(),"%i",&nResult);
+	sscanf(sValue.data(),"%i",&nResult);
 
 	return nResult;
 }
