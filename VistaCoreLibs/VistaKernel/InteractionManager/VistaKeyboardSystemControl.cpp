@@ -479,58 +479,78 @@ int VistaKeyboardSystemControl::GetKeyValueFromString( const std::string& sKeySt
 
 	VistaAspectsComparisonStuff::StringCompareObject oCompare( false );
 
-	if( oCompare( sKeyString, "VISTA_KEY_UPARROW" ) || oCompare( sKeyString, "UP" ) || oCompare( sKeyString, "UP_ARROW" ) )
+	std::string sCleanedString =  sKeyString;
+	sCleanedString.erase( std::remove( sCleanedString.begin(), sCleanedString.end(), '_' ), sCleanedString.end() );
+	if( oCompare( sCleanedString.substr( 0, 5 ), "VISTA" ) )
+		sCleanedString = sCleanedString.substr( 5 );
+	if( oCompare( sCleanedString.substr( 0, 3 ), "KEY" ) )
+		sCleanedString = sCleanedString.substr( 3 );
+
+
+	if( oCompare( sCleanedString, "UP" ) || oCompare( sCleanedString, "UPARROW" ) )
 		return VISTA_KEY_UPARROW;
-	else if( oCompare( sKeyString, "VISTA_KEY_DOWNARROW" ) || oCompare( sKeyString, "DOWN" ) || oCompare( sKeyString, "DOWN_ARROW" ) )
+	else if( oCompare( sCleanedString, "DOWN" ) || oCompare( sCleanedString, "DOWNARROW" ) )
 		return VISTA_KEY_DOWNARROW;
-	else if( oCompare( sKeyString, "VISTA_KEY_RIGHTARROW" ) || oCompare( sKeyString, "RIGHT" ) || oCompare( sKeyString, "RIGHT_ARROW" ) )
+	else if( oCompare( sCleanedString, "RIGHT" ) || oCompare( sCleanedString, "RIGHTARROW" ) )
 		return VISTA_KEY_RIGHTARROW;
-	else if( oCompare( sKeyString, "VISTA_KEY_LEFTARROW" ) || oCompare( sKeyString, "LEFT" ) || oCompare( sKeyString, "LEFT_ARROW" ) )
+	else if(oCompare( sCleanedString, "LEFT" ) || oCompare( sCleanedString, "LEFTARROW" ) )
 		return VISTA_KEY_LEFTARROW;
-	else if( oCompare( sKeyString, "VISTA_KEY_ESC" ) || oCompare( sKeyString, "ESC" ) )
+	else if( oCompare( sCleanedString, "ESC" ) )
 		return VISTA_KEY_ESC;
-	else if( oCompare( sKeyString, "VISTA_KEY_F1" ) || oCompare( sKeyString, "F1" ) )
+	else if( oCompare( sCleanedString, "F1" ) )
 		return VISTA_KEY_F1;
-	else if( oCompare( sKeyString, "VISTA_KEY_F2" ) || oCompare( sKeyString, "F2" ) )
+	else if( oCompare( sCleanedString, "F2" ) )
 		return VISTA_KEY_F2;
-	else if( oCompare( sKeyString, "VISTA_KEY_F3" ) || oCompare( sKeyString, "F3" ) )
+	else if( oCompare( sCleanedString, "F3" ) )
 		return VISTA_KEY_F3;
-	else if( oCompare( sKeyString, "VISTA_KEY_F4" ) || oCompare( sKeyString, "F4" ) )
+	else if( oCompare( sCleanedString, "F4" ) )
 		return VISTA_KEY_F4;
-	else if( oCompare( sKeyString, "VISTA_KEY_F5" ) || oCompare( sKeyString, "F5" ) )
+	else if( oCompare( sCleanedString, "F5" ) )
 		return VISTA_KEY_F5;
-	else if( oCompare( sKeyString, "VISTA_KEY_F6" ) || oCompare( sKeyString, "F6" ) )
+	else if( oCompare( sCleanedString, "F6" ) )
 		return VISTA_KEY_F6;
-	else if( oCompare( sKeyString, "VISTA_KEY_F7" ) || oCompare( sKeyString, "F7" ) )
+	else if( oCompare( sCleanedString, "F7" ) )
 		return VISTA_KEY_F7;
-	else if( oCompare( sKeyString, "VISTA_KEY_F8" ) || oCompare( sKeyString, "F8" ) )
+	else if( oCompare( sCleanedString, "F8" ) )
 		return VISTA_KEY_F8;
-	else if( oCompare( sKeyString, "VISTA_KEY_F9" ) || oCompare( sKeyString, "F9" ) )
+	else if( oCompare( sCleanedString, "F9" ) )
 		return VISTA_KEY_F9;
-	else if( oCompare( sKeyString, "VISTA_KEY_F10" ) || oCompare( sKeyString, "F10" ) )
+	else if( oCompare( sCleanedString, "F10" ) )
 		return VISTA_KEY_F10;
-	else if( oCompare( sKeyString, "VISTA_KEY_F11" ) || oCompare( sKeyString, "F11" ) )
+	else if( oCompare( sCleanedString, "F11" ) )
 		return VISTA_KEY_F11;
-	else if( oCompare( sKeyString, "VISTA_KEY_F12" ) || oCompare( sKeyString, "F12" ) )
+	else if( oCompare( sCleanedString, "F12" ) )
 		return VISTA_KEY_F12;
-	else if( oCompare( sKeyString, "VISTA_KEY_ENTER" ) || oCompare( sKeyString, "ENTER" ) )
+	else if( oCompare( sCleanedString, "ENTER" ) )
 		return VISTA_KEY_ENTER;
-	else if( oCompare( sKeyString, "VISTA_KEY_TAB" ) || oCompare( sKeyString, "TAB" ) || oCompare( sKeyString, "TABULATOR" ) )
+	else if( oCompare( sCleanedString, "TAB" ) || oCompare( sCleanedString, "TABULATOR" ) )
 		return VISTA_KEY_TAB;
-	else if( oCompare( sKeyString, "VISTA_KEY_BACKSPACE" ) || oCompare( sKeyString, "BACK" ) || oCompare( sKeyString, "BACKSPACE" ) )
+	else if( oCompare( sCleanedString, "BACK" ) || oCompare( sCleanedString, "BACKSPACE" ) )
 		return VISTA_KEY_BACKSPACE;
-	else if( oCompare( sKeyString, "VISTA_KEY_DELETE" ) || oCompare( sKeyString, "DEL" ) || oCompare( sKeyString, "DELETE" ) )
+	else if( oCompare( sCleanedString, "DEL" ) || oCompare( sCleanedString, "DELETE" ) )
 		return VISTA_KEY_DELETE;
-	else if( oCompare( sKeyString, "VISTA_KEY_HOME" ) || oCompare( sKeyString, "HOME" ) || oCompare( sKeyString, "POS1" ) )
+	else if( oCompare( sCleanedString, "HOME" ) || oCompare( sCleanedString, "POS1" ) )
 		return VISTA_KEY_HOME;
-	else if( oCompare( sKeyString, "VISTA_KEY_END" ) || oCompare( sKeyString, "END" ) )
+	else if( oCompare( sCleanedString, "END" ) )
 		return VISTA_KEY_END;
-	else if( oCompare( sKeyString, "VISTA_KEY_PAGEUP" ) || oCompare( sKeyString, "PG_UP" ) || oCompare( sKeyString, "PAGE_UP" ) || oCompare( sKeyString, "PAGEUP" ) )
+	else if( oCompare( sCleanedString, "PGUP" ) || oCompare( sCleanedString, "PAGEUP" ) )
 		return VISTA_KEY_PAGEUP;
-	else if( oCompare( sKeyString, "VISTA_KEY_PAGEDOWN" ) || oCompare( sKeyString, "PG_DN" ) || oCompare( sKeyString, "PAGE_DOWN" ) || oCompare( sKeyString, "PAGEDOWN" ) )
+	else if( oCompare( sCleanedString, "PGDN" ) || oCompare( sCleanedString, "PAGEDOWN" ) )
 		return VISTA_KEY_PAGEDOWN;
-	else if( oCompare( sKeyString, "VISTA_KEY_MIDDLE" ) || oCompare( sKeyString, "MID" ) || oCompare( sKeyString, "MIDDLE" ) )
+	else if( oCompare( sCleanedString, "MID" ) || oCompare( sCleanedString, "MIDDLE" ) )
 		return VISTA_KEY_MIDDLE;
+	else if( oCompare( sCleanedString, "ALTLEFT" ) || oCompare( sCleanedString, "ALTL" ) )
+		return VISTA_KEY_ALT_LEFT;
+	else if( oCompare( sCleanedString, "ALTRIGHT" ) || oCompare( sCleanedString, "ALTR" ) )
+		return VISTA_KEY_ALT_RIGHT;
+	else if( oCompare( sCleanedString, "SHIFTLEFT" ) || oCompare( sCleanedString, "SHIFTL" ) )
+		return VISTA_KEY_SHIFT_LEFT;
+	else if( oCompare( sCleanedString, "SHIFTRIGHT" ) || oCompare( sCleanedString, "SHIFTR" ) )
+		return VISTA_KEY_SHIFT_RIGHT;
+	else if( oCompare( sCleanedString, "CTRLLEFT" ) || oCompare( sCleanedString, "CTRLL" ) )
+		return VISTA_KEY_CTRL_LEFT;
+	else if( oCompare( sCleanedString, "CTRLRIGHT" ) || oCompare( sCleanedString, "CTRLR" ) )
+		return VISTA_KEY_CTRL_RIGHT;
 	
 	if( sKeyString.size() > 1 )
 	{
