@@ -201,7 +201,36 @@ void VistaColor::SetValues(int iColor, EFormat eFormat /*= FORMAT_RGB*/ )
 		((iColor & 0x0000FF00) >> 8) / 255.0f,
 		 (iColor & 0x000000FF) / 255.0f };
 
-	SetValues(a4fDecomp, eFormat);
+	switch (eFormat)
+	{
+	case RGB:
+	case HSV:
+	case HSL:
+		{
+			float a3fValues[3] = {
+				static_cast<float>(a4fDecomp[1]),
+				static_cast<float>(a4fDecomp[2]),
+				static_cast<float>(a4fDecomp[3])
+			};
+			SetValues(a3fValues, eFormat);
+		}
+		break;
+	case RGBA:
+	case HSVA:
+	case HSLA:
+		{
+			float a4fValues[4] = {
+				static_cast<float>(a4fDecomp[0]),
+				static_cast<float>(a4fDecomp[1]),
+				static_cast<float>(a4fDecomp[2]),
+				static_cast<float>(a4fDecomp[3])
+			};
+			SetValues(a4fValues, eFormat);
+		}
+		break;
+	default:
+		VISTA_THROW("Unknown color mode", 1);
+	}
 }
 
 void VistaColor::SetValues(
