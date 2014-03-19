@@ -32,13 +32,14 @@
 /*============================================================================*/
 /* MACROS AND DEFINES                                                         */
 /*============================================================================*/
-VistaType::sint32 VistaMarshalledObjectFactory::m_iTypeCounter = 0;
+
 /*============================================================================*/
 /* CONSTRUCTORS / DESTRUCTOR                                                  */
 /*============================================================================*/
 VistaMarshalledObjectFactory::VistaMarshalledObjectFactory()
-	: m_pFactory(new VistaGenericFactory<IVistaSerializable, 
-	                 VistaMarshalledObjectFactory::LocalTypeInfo>)
+	:	m_iTypeCounter(0),
+		m_pFactory(new VistaGenericFactory<IVistaSerializable, 
+							VistaMarshalledObjectFactory::LocalTypeInfo>)
 {
 }
 

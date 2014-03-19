@@ -163,7 +163,7 @@ private:
 	/**
 	 * type id counter 
 	 */
-	static VistaType::sint32 m_iTypeCounter;
+	VistaType::sint32 m_iTypeCounter;
 	/**
 	 * The factory here will produce serializable objects and 
 	 * will do so based on their (local) type_info hash.
