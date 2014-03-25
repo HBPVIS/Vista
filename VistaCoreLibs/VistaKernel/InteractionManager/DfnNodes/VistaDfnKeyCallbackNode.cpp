@@ -41,11 +41,11 @@
 /*============================================================================*/
 VistaDfnKeyCallbackNode::VistaDfnKeyCallbackNode()
 : IVdfnNode()
-, m_pCallbackKeyDown( new CounterCallback(this) )
 , m_pCallbackCountPort( new TVdfnPort<int> )
 , m_pKeyboard( NULL )
 , m_nCounter(0)
 {
+	m_pCallbackKeyDown = new CounterCallback(this);
 	RegisterOutPort( "value", m_pCallbackCountPort );
 }
 

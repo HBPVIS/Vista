@@ -40,11 +40,11 @@
 /*============================================================================*/
 VistaDfnKeyStateNode::VistaDfnKeyStateNode()
 : VistaDfnKeyCallbackNode()
-, m_pCallbackKeyUp( new CounterCallback(this) )
 , m_pKeyState( new TVdfnPort<bool> )
 , m_bKeyState(false)
 , m_uiUpdateScore(1)
 {
+	m_pCallbackKeyUp = new CounterCallback(this);
 	RegisterOutPort( "state", m_pKeyState);
 }
 

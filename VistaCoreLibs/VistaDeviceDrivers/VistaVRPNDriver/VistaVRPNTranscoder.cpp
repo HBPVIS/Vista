@@ -202,7 +202,8 @@ namespace
 			dtOut.resize( cb->num_channel );
 
 			// we put trust in this that vrpn_VistaType::float64 is always sizeof double ;)
-			memcpy( &dtOut[0], cb->channel, cb->num_channel * sizeof(double) );
+			if( cb->num_channel > 0 )
+				memcpy( &dtOut[0], cb->channel, cb->num_channel * sizeof(double) );
 			return true;
 		}
 	};
