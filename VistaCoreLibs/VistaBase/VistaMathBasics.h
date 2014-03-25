@@ -90,9 +90,9 @@ inline bool Vista::IsValidNumber( const TFloat nNumber )
 	if( nNumber == 0 )
 		return true;
 	TFloat nAbs = std::abs( nNumber );
-	if( std::numeric_limits<TFloat>::has_infinity && nAbs == std::numeric_limits<TFloat>::infinity() )
+	if( nAbs == std::numeric_limits<TFloat>::infinity() )
 		return false;
-	if( std::numeric_limits<TFloat>::has_denorm && nAbs < std::numeric_limits<TFloat>::min() )
+	if( nAbs < std::numeric_limits<TFloat>::min() )
 		return false;
 	return true;
 }
