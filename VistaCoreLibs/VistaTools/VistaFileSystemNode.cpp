@@ -233,7 +233,7 @@ std::string VistaFileSystemNode::GetParentDirectory() const
 	if( nPos2 != std::string::npos && ( nPos2 > nPos || nPos == std::string::npos ) )
 		nPos = nPos2;
 #endif
-	std::string sDir;
+	std::string sDir = ".";
 	if( nPos != std::string::npos )
 	{
 		if( nPos > 0 )
