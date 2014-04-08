@@ -169,6 +169,21 @@ VistaType::sint32 VistaMarshalledObjectFactory::GetNextTypeId()
 	return m_iTypeCounter++;
 }
 
+void VistaMarshalledObjectFactory::Clear()
+{
+	m_mapGlobalTypeToLocalType.clear();
+	m_mapLocalTypeToGlobalType.clear();
+	m_iTypeCounter = 0;
+	delete m_pFactory;
+	m_pFactory = new VistaGenericFactory<IVistaSerializable, 
+							VistaMarshalledObjectFactory::LocalTypeInfo>;
+}
+
+size_t VistaMarshalledObjectFactory::GetNumTypes() const
+{
+	return m_mapGlobalTypeToLocalType.size();
+}
+
 
 VistaMarshalledObjectFactory::LocalTypeInfo::LocalTypeInfo( const type_info& oInfo )
 	: m_rTypeInfo(oInfo)

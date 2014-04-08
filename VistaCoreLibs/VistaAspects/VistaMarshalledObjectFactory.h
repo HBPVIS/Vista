@@ -92,6 +92,16 @@ public:
 								   IVistaCreator<IVistaSerializable> *pCreator);
 
 	/**
+	 *	Clear the entire factory i.e. delete all registered types and creators
+	 */
+	void Clear();
+
+	/**
+	 *	Return the number of registered types
+	 */
+	size_t GetNumTypes() const;
+
+	/**
 	 * retrieve the global type id (if any) for the given object
 	 */
 	VistaType::sint32 GetGlobalTypeId(const IVistaSerializable *pType) const;
