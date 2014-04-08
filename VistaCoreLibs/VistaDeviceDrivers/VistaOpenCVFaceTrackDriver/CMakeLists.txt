@@ -20,7 +20,7 @@ set_target_properties( VistaOpenCVFaceTrackTranscoder PROPERTIES FOLDER "Drivers
 vista_set_outdir( VistaOpenCVFaceTrackTranscoder "${VISTADEVICEDRIVERSBASE_TARGET_OUTDIR}/DriverPlugins" )
 		 
 # since it has third-party dependencies, we only build the driver and plugin if the package is available
-vista_find_package( OpenCV QUIET )
+vista_find_package( OpenCV 2.4+ QUIET )
 
 if( NOT OPENCV_FOUND )
 	message( STATUS "VistaOpenCVFaceTrackDriver requires OpenCV, which is not available - only transcoder will be built" )
