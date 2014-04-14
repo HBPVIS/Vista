@@ -36,6 +36,8 @@ using std::type_info;
 #include "VistaGenericFactory.h"
 
 #include <VistaBase/VistaBaseTypes.h>
+
+#include <cstddef>
 /*============================================================================*/
 /* FORWARD DECLARATIONS                                                       */
 /*============================================================================*/
